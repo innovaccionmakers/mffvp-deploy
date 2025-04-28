@@ -1,0 +1,12 @@
+**/.dockerignore
+**/.git
+**/.vs
+**/bin
+**/obj
+**/node_modules
+Dockerfile*
+docker-compose*
+**/.env
+**/appsettings.Development.json
+**/*.user
+**/*.lock
