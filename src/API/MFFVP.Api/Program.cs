@@ -15,8 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
+builder.Services.AddSwaggerGen();
 
 Assembly[] moduleApplicationAssemblies = [
     Contributions.Application.AssemblyReference.Assembly,
@@ -57,12 +59,21 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
+/*
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.UseCors("AllowSwaggerUI");
+    app.UseSwagger();
+    app.UseSwaggerUI();
+
 }
+*/
+
+app.UseCors("AllowSwaggerUI");
+
 
 app.UseLogContext();
 
