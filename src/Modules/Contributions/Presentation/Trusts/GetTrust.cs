@@ -1,0 +1,23 @@
+using Common.SharedKernel.Presentation.Endpoints;
+using Common.SharedKernel.Presentation.Results;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Contributions.Integrations.Trusts.GetTrust;
+
+namespace Contributions.Presentation.Trusts
+{
+    internal sealed class GetTrust : IEndpoint
+    {
+        public void MapEndpoint(IEndpointRouteBuilder app)
+        {
+            app.MapGet("trusts/{id:guid}", async (Guid id, ISender sender) =>
+            {
+                var result = await sender.Send(new GetTrustQuery(id));
+                return result.Match(Results.Ok, ApiResults.Problem);
+            })
+            .WithTags(Tags.Trusts);
+        }
+    }
+}

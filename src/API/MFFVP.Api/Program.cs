@@ -3,6 +3,8 @@ using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Presentation.Endpoints;
+using Contributions.Infrastructure;
+using MFFVP.Api.BffWeb.Contributions;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
@@ -17,6 +19,7 @@ builder.Services.AddOpenApi();
 
 
 Assembly[] moduleApplicationAssemblies = [
+    Contributions.Application.AssemblyReference.Assembly,
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
@@ -31,7 +34,13 @@ builder.Services.AddInfrastructure(
     mongoDbConnectionString,
     databaseConnectionStringSQL);
 
-builder.Configuration.AddModuleConfiguration([]);
+builder.Configuration.AddModuleConfiguration(["contributions"]);
+
+builder.Services.AddContributionsModule(builder.Configuration);
+
+builder.Services.AddBffContributionsServices();
+
+builder.Services.AddEndpoints(typeof(ContributionsEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));
