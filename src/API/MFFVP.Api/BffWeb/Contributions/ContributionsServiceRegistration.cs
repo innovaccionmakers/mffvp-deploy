@@ -10,6 +10,7 @@ namespace MFFVP.Api.BffWeb.Contributions
             services.AddSingleton<ITrustsService, TrustsService>();
             services.AddSingleton<IClientOperationsService, ClientOperationsService>();
             services.AddSingleton<ITrustOperationsService, TrustOperationsService>();
+            services.AddSingleton<IFullContributionService, FullContributionService>();
             return services;
         }
     }

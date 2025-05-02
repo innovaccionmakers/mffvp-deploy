@@ -1,4 +1,5 @@
 using System.Reflection;
+using Asp.Versioning;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
 using Common.SharedKernel.Infrastructure.Configuration;
@@ -6,6 +7,7 @@ using Common.SharedKernel.Presentation.Endpoints;
 using Contributions.Infrastructure;
 using MFFVP.Api.BffWeb.Contributions;
 using MFFVP.Api.Extensions;
+using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
 using Serilog;
@@ -57,10 +59,40 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services
+    .AddApiVersioning(opt =>
+    {
+        opt.DefaultApiVersion = new ApiVersion(1, 0);
+        opt.AssumeDefaultVersionWhenUnspecified = true;
+        opt.ReportApiVersions = true;
+        opt.ApiVersionReader = new UrlSegmentApiVersionReader();
+    })
+    .AddApiExplorer(opt =>
+    {
+        opt.GroupNameFormat = "'v'VVV";
+        opt.SubstituteApiVersionInUrl = true;
+    });
+
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
+
 var app = builder.Build();
 
+app.MapEndpoints();
+
 app.UseSwagger();
-app.UseSwaggerUI();
+
+app.UseSwaggerUI(options =>
+{
+    var provider = app.DescribeApiVersions();
+
+    foreach (var description in provider)
+    {
+        options.SwaggerEndpoint(
+            $"/swagger/{description.GroupName}/swagger.json",
+            description.GroupName.ToUpperInvariant());
+    }
+    options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+});
 
 /*
 // Configure the HTTP request pipeline.
@@ -78,7 +110,5 @@ app.UseCors("AllowSwaggerUI");
 app.UseLogContext();
 
 app.UseSerilogRequestLogging();
-
-app.MapEndpoints();
 
 app.Run();

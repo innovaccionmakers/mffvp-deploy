@@ -11,6 +11,10 @@ using Contributions.Domain.TrustOperations;
 using Contributions.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Contributions.Infrastructure.RulesEngine;
+using Contributions.Application.Abstractions.Lookups;
+using Contributions.Infrastructure.Mocks;
+using Contributions.Domain.Portfolios;
+using Contributions.Domain.Clients;
 
 namespace Contributions.Infrastructure
 {
@@ -41,6 +45,9 @@ namespace Contributions.Infrastructure
             services.AddScoped<ITrustRepository, TrustRepository>();
             services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
             services.AddScoped<ITrustOperationRepository, TrustOperationRepository>();
+            services.AddScoped<ILookupService, InMemoryLookupService>();
+            services.AddScoped<IPortfolioRepository, InMemoryPortfolioRepository>();
+            services.AddScoped<IClientRepository, InMemoryClientRepository>();
 
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ContributionsDbContext>());
         }
