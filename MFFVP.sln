@@ -58,6 +58,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{A4C079EF-917E-4D29-92D1-3ECCAAF632FB}"
 	ProjectSection(SolutionItems) = preProject
 		src\Modules\Contributions\Rules\clientOperation.rules.json = src\Modules\Contributions\Rules\clientOperation.rules.json
+		src\Modules\Contributions\Rules\fullContribution.rules.json = src\Modules\Contributions\Rules\fullContribution.rules.json
 	EndProjectSection
 EndProject
 Global
