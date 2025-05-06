@@ -4,6 +4,7 @@ using MFFVP.Api.Application.Contributions;
 using Common.SharedKernel.Presentation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
+using Common.SharedKernel.Presentation.Filters;
 
 namespace MFFVP.Api.BffWeb.Contributions.FullContributions
 {
@@ -35,16 +36,10 @@ namespace MFFVP.Api.BffWeb.Contributions.FullContributions
                     var result = await _fullContributionService
                         .CreateFullContributionAsync(request, sender);
 
-                    if (result.IsSuccess)
-                    {
-                        return Results.Ok(result.Value);
-                    }
-                    else
-                    {
-                        return ApiResults.Problem(result);
-                    }
+                    return result.ToApiResult();
                 })
                 .MapToApiVersion(1, 0)
+                .AddEndpointFilter<TechnicalValidationFilter<CreateFullContributionCommand>>()
                 .Produces<FullContributionResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);

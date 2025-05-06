@@ -10,7 +10,10 @@ using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
+using FluentValidation;
 using Serilog;
+using Common.SharedKernel.Presentation.Filters;
+using Common.SharedKernel.Infrastructure.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +22,8 @@ builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configu
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+builder.Services.AddTransient(typeof(IValidator<>), typeof(TechnicalValidator<>));
+builder.Services.AddSingleton(typeof(TechnicalValidationFilter<>));
 
 builder.Services.AddSwaggerGen();
 
