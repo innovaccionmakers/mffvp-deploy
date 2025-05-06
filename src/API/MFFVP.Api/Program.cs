@@ -21,7 +21,6 @@ builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configu
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
 builder.Services.AddTransient(typeof(IValidator<>), typeof(TechnicalValidator<>));
 builder.Services.AddSingleton(typeof(TechnicalValidationFilter<>));
 
