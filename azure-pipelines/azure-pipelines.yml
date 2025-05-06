@@ -1,0 +1,47 @@
+# azure-pipelines-ci.yml
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  DOTNET_VERSION: '9.0.x'
+
+stages:
+- stage: BuildAndTest
+  displayName: 'CI – Build & Test'
+  jobs:
+  - job: Build
+    displayName: 'Restore · Build · Test'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+
+      - task: UseDotNet@2
+        displayName: 'Setup .NET $(DOTNET_VERSION)'
+        inputs:
+          packageType: 'sdk'
+          version: '$(DOTNET_VERSION)'
+
+      - script: dotnet restore MFFVP.sln
+        displayName: 'dotnet restore'
+
+      - script: dotnet build MFFVP.sln --no-restore --configuration Release
+        displayName: 'dotnet build (Release)'
+
+      - script: dotnet test MFFVP.sln --no-build --configuration Release
+        displayName: 'dotnet test (Release)'
+
+      # Publicamos los artefactos del build para CD
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish build artifact'
+        inputs:
+          targetPath: '$(Pipeline.Workspace)'
+          artifact: 'MFFVP_Build'
