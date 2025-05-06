@@ -15,6 +15,7 @@ using Contributions.Application.Abstractions.Lookups;
 using Contributions.Infrastructure.Mocks;
 using Contributions.Domain.Portfolios;
 using Contributions.Domain.Clients;
+using Contributions.Application.Abstractions.Rules;
 
 namespace Contributions.Infrastructure
 {
@@ -48,6 +49,7 @@ namespace Contributions.Infrastructure
             services.AddScoped<ILookupService, InMemoryLookupService>();
             services.AddScoped<IPortfolioRepository, InMemoryPortfolioRepository>();
             services.AddScoped<IClientRepository, InMemoryClientRepository>();
+            services.AddSingleton<IErrorCatalog, InMemoryErrorCatalog>();
 
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ContributionsDbContext>());
         }

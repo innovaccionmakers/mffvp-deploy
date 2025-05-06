@@ -8,37 +8,40 @@ namespace Contributions.Infrastructure.RulesEngine
     internal sealed class RuleEvaluator : IRuleEvaluator
     {
         private readonly IRulesEngine _engine;
+        private readonly IErrorCatalog _catalog;
         private readonly ILogger<RuleEvaluator> _log;
 
-        public RuleEvaluator(IRulesEngine engine, ILogger<RuleEvaluator> log)
+        public RuleEvaluator(IRulesEngine engine,
+                             IErrorCatalog catalog,
+                             ILogger<RuleEvaluator> log)
         {
             _engine = engine;
+            _catalog = catalog;
             _log = log;
         }
 
-        public async Task<(bool Success, IReadOnlyCollection<RuleResultTree> Results,
+        public async Task<(bool Success,
+                           IReadOnlyCollection<RuleResultTree> Results,
                            IReadOnlyCollection<RuleValidationError> Errors)>
             EvaluateAsync<T>(string workflow, T input, CancellationToken ct = default)
         {
-            using var scope = _log.BeginScope("Workflow:{Workflow}", workflow);
-
             var ruleParams = new[] { new RuleParameter("input", input) };
             var results = await _engine.ExecuteAllRulesAsync(workflow, ruleParams);
 
-            if (results.Count == 0)
+            var errors = new List<RuleValidationError>();
+
+            foreach (var r in results.Where(r => !r.IsSuccess))
             {
-                _log.LogWarning("No rules were executed for workflow {Workflow}", workflow);
+                var (num, defaultMsg) = await _catalog.GetAsync(r.Rule.RuleName, ct);
+
+                string message = r.ExceptionMessage
+                              ?? r.Rule.ErrorMessage
+                              ?? defaultMsg;
+
+                errors.Add(new RuleValidationError(num.ToString(), message));
             }
 
-            var errors = results.Where(r => !r.IsSuccess)
-                                .Select(r => new RuleValidationError(
-                                    r.Rule.RuleName,
-                                    r.ExceptionMessage ?? r.Rule.ErrorMessage ?? "Validation error"))
-                                .ToArray();
-
-            var success = errors.Length == 0;
-
-            _log.LogDebug("RuleEngine finished – success: {Success}", success);
+            bool success = errors.Count == 0;
             return (success, results, errors);
         }
     }

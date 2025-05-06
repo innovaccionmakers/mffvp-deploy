@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Domain;
+using Microsoft.AspNetCore.Http;
 
 namespace Common.SharedKernel.Presentation.Results;
 
@@ -19,4 +20,10 @@ public static class ResultExtensions
     {
         return result.IsSuccess ? onSuccess(result.Value) : onFailure(result);
     }
+
+    public static IResult ToApiResult<T>(this Result<T> result) =>
+        result.IsSuccess
+            ? ApiResults.Ok(result.Value)
+            : ApiResults.Failure(result);
+
 }
