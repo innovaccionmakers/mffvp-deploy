@@ -51,6 +51,10 @@ jobs:
           name: app
           path: publish
 
+      - name: Link Railway project
+        run: railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+      
       - name: Deploy to Railway
         run: railway up publish --service=${{ env.SERVICE_ID }}
+      
         
