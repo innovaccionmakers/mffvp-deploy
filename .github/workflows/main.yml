@@ -43,7 +43,9 @@ jobs:
     container: ghcr.io/railwayapp/cli:latest
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -51,13 +53,11 @@ jobs:
           name: app
           path: publish
 
-      - name: Authenticate Railway CLI
-        run: railway login --token ${{ env.RAILWAY_TOKEN }}
-
       - name: Link Railway project
-        run: railway link ${{ env.RAILWAY_SERVICE_ID }}
-      
+        run: railway link $RAILWAY_PROJECT_ID
+
       - name: Deploy to Railway
-        run: railway up publish --service=${{ env.RAILWAY_SERVICE_ID }}
+        run: railway up publish --service=$RAILWAY_SERVICE_ID
+
       
         
