@@ -1,4 +1,4 @@
-name: Build & Deploy to Railway
+name: Build & Deploy to Railway (.NET 8 Self-Contained)
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup .NET
+      - name: Setup .NET 8
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
@@ -27,6 +27,15 @@ jobs:
       - name: Test
         run: dotnet test MFFVP.sln --no-build --configuration Release
 
+      - name: Publish self-contained app
+        run: dotnet publish MFFVP.Api/MFFVP.Api.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o publish
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: publish
+
   deploy-to-railway:
     if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     needs: build-and-test
@@ -36,8 +45,11 @@ jobs:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app
+          path: publish
 
       - name: Deploy to Railway
-        run: railway up --service=${{ env.SERVICE_ID }}
+        run: railway up --service=${{ env.SERVICE_ID }} --root=publish
