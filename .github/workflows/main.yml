@@ -55,9 +55,9 @@ jobs:
         run: railway login --token ${{ env.RAILWAY_TOKEN }}
 
       - name: Link Railway project
-        run: railway link ${{ env.SERVICE_ID }}
+        run: railway link ${{ env.RAILWAY_SERVICE_ID }}
       
       - name: Deploy to Railway
-        run: railway up publish --service=${{ env.SERVICE_ID }}
+        run: railway up publish --service=${{ env.RAILWAY_SERVICE_ID }}
       
         
