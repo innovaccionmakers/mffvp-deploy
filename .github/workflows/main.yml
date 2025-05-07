@@ -52,10 +52,10 @@ jobs:
           path: publish
 
       - name: Authenticate Railway CLI
-        run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
+        run: railway login --token ${{ env.RAILWAY_TOKEN }}
 
       - name: Link Railway project
-        run: railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+        run: railway link ${{ env.SERVICE_ID }}
       
       - name: Deploy to Railway
         run: railway up publish --service=${{ env.SERVICE_ID }}
