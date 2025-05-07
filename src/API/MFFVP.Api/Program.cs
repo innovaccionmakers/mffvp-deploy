@@ -81,7 +81,7 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
 
-app.MapEndpoints();
+app.Urls.Add("http://0.0.0.0:8080");
 
 app.UseSwagger();
 
@@ -108,11 +108,12 @@ if (app.Environment.IsDevelopment())
 }
 */
 
-app.UseCors("AllowSwaggerUI");
-
+app.MapEndpoints();
 
 app.UseLogContext();
 
 app.UseSerilogRequestLogging();
+
+app.MapEndpoints();
 
 app.Run();
