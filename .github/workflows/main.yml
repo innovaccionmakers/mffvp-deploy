@@ -1,4 +1,4 @@
-name: Build & Deploy to Railway (.NET 8 Self-Contained)
+name: Build & Deploy to Railway (.NET 8 Self-Contained) 
 
 on:
   push:
@@ -54,10 +54,10 @@ jobs:
           path: publish
 
       - name: Link Railway project
-        run: railway link $RAILWAY_PROJECT_ID
+        run: railway link ${{ env.RAILWAY_PROJECT_ID }}
 
       - name: Deploy to Railway
-        run: railway up publish --service=$RAILWAY_SERVICE_ID
+        run: railway up publish --service= ${{ env.RAILWAY_SERVICE_ID }}
 
       
         
