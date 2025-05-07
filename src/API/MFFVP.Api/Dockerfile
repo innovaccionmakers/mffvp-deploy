@@ -12,11 +12,7 @@ COPY . .
 
 RUN chmod +x MFFVP.Api
 
-# Expose the port your app listens on (very important for Railway)
-EXPOSE 8080
-
-# Set environment flag for globalization
+# Optional: run in invariant globalization mode
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 
-# Start your app, binding explicitly to 0.0.0.0:8080
 CMD ["./MFFVP.Api", "--urls", "http://0.0.0.0:8080"]
