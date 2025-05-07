@@ -59,7 +59,7 @@ jobs:
           path: publish
 
       - name: Deploy to Railway
-        run: railway up --service=${{ env.RAILWAY_SERVICE_ID }} --no-build publish
+        run: railway up --service=${{ env.RAILWAY_SERVICE_ID }} --path-as-root publish
 
       
         
