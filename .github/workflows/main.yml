@@ -53,9 +53,6 @@ jobs:
           name: app
           path: publish
 
-      - name: Link Railway project
-        run: railway link ${{ env.RAILWAY_PROJECT_ID }}
-
       - name: Deploy to Railway
         run: railway up publish --service= ${{ env.RAILWAY_SERVICE_ID }}
 
