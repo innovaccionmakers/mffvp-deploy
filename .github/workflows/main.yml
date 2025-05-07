@@ -28,7 +28,8 @@ jobs:
         run: dotnet test MFFVP.sln --no-build --configuration Release
 
       - name: Publish self-contained app
-        run: dotnet publish MFFVP.Api/MFFVP.Api.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o publish
+        run: dotnet publish src/API/MFFVP.Api/MFFVP.Api.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o publish
+      
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
