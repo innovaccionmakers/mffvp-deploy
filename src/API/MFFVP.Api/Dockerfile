@@ -1,14 +1,12 @@
-# Use a minimal runtime image
 FROM debian:bullseye-slim
 
-# Create app directory
 WORKDIR /app
 
-# Copy everything from the publish output
 COPY . .
 
-# Make binary executable
+# Install ICU
+RUN apt-get update && apt-get install -y libicu67 && rm -rf /var/lib/apt/lists/*
+
 RUN chmod +x MFFVP.Api
 
-# Run the app
 CMD ["./MFFVP.Api"]
