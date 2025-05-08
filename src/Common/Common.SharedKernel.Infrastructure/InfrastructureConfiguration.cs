@@ -21,15 +21,15 @@ public static class InfrastructureConfiguration
     {
         services.AddSingleton<IMongoClient>(new MongoClient(mongoDbConnectionString));
 
-        services.AddCap(x =>
-        {
-            x.UseInMemoryStorage();
-            x.UseInMemoryMessageQueue();
-            x.UseMongoDB(mongoDbConnectionString);
-            x.FailedRetryInterval = 5;
-            x.FailedRetryCount = 10;
+        // services.AddCap(x =>
+        // {
+        //     x.UseInMemoryStorage();
+        //     x.UseInMemoryMessageQueue();
+        //     x.UseMongoDB(mongoDbConnectionString);
+        //     x.FailedRetryInterval = 5;
+        //     x.FailedRetryCount = 10;
 
-        });
+        // });
 
         services
             .AddOpenTelemetry()
