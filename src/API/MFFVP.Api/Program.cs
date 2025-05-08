@@ -108,14 +108,13 @@ app.UseLogContext();
 
 app.UseSerilogRequestLogging();
 
-//app.MapEndpoints();
+app.MapEndpoints();
 
-
-app.MapGet("/", () => Results.Ok("Running on Railway"));
+app.MapGet("/", () => Results.Ok(new { module = "MFFVP", version = $"v.{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}" }));
 app.MapGet("/ping", () => Results.Ok("pong"));
 
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
 
-Console.WriteLine("✅ Application has reached app.Run()");
+Console.WriteLine("Application has reached app.Run()");
 
 app.Run();
