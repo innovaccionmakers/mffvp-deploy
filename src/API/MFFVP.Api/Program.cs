@@ -110,14 +110,12 @@ app.UseSerilogRequestLogging();
 
 //app.MapEndpoints();
 
+
 app.MapGet("/", () => Results.Ok("Running on Railway"));
 app.MapGet("/ping", () => Results.Ok("pong"));
 
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
 
-// Prevent early shutdown if CAP is exiting
-await Task.Delay(Timeout.Infinite);
-
-Console.WriteLine("Application has reached app.Run()");
+Console.WriteLine("✅ Application has reached app.Run()");
 
 app.Run();
