@@ -100,7 +100,7 @@ app.UseSwaggerUI(options =>
 });
 
 
-app.MapGet("/", () => Results.Ok("Running on Railway"));
+
 
 app.UseCors("AllowSwaggerUI");
 
@@ -108,6 +108,8 @@ app.UseLogContext();
 
 app.UseSerilogRequestLogging();
 
-app.MapEndpoints();
+//app.MapEndpoints();
+
+app.MapGet("/", () => Results.Ok("Running on Railway"));
 
 app.Run();
