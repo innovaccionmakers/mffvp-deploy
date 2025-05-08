@@ -99,19 +99,10 @@ app.UseSwaggerUI(options =>
     options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
 });
 
-/*
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
-}
-*/
 
 app.MapGet("/", () => Results.Ok("Running on Railway"));
 
-app.MapEndpoints();
+app.UseCors("AllowSwaggerUI");
 
 app.UseLogContext();
 
