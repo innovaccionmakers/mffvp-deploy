@@ -17,6 +17,9 @@ using Common.SharedKernel.Infrastructure.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -81,10 +84,6 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-
 app.UseSwagger();
 
 app.UseSwaggerUI(options =>
@@ -109,6 +108,8 @@ if (app.Environment.IsDevelopment())
 
 }
 */
+
+app.MapGet("/", () => Results.Ok("Running on Railway"));
 
 app.MapEndpoints();
 

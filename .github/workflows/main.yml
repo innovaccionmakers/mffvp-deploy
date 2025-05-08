@@ -32,8 +32,6 @@ jobs:
       
       - name: Copy startup files to publish folder
         run: |
-          cp src/API/MFFVP.Api/start.sh publish/
-          cp src/API/MFFVP.Api/Procfile publish/
           cp src/API/MFFVP.Api/Dockerfile publish/
 
       - name: Upload artifact
