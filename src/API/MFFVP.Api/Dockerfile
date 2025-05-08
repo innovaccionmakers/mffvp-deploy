@@ -15,4 +15,9 @@ RUN chmod +x MFFVP.Api
 # Optional: run in invariant globalization mode
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 
-CMD ["./MFFVP.Api", "--urls", "http://0.0.0.0:8080"]
+# Dynamically bind to the port provided by Railway
+ENV PORT=8080
+
+EXPOSE ${PORT}
+
+CMD ["sh", "-c", "./MFFVP.Api --urls http://0.0.0.0:$PORT"]
