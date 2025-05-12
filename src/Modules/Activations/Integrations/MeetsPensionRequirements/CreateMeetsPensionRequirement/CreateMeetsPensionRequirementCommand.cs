@@ -1,8 +1,7 @@
-using Activations.Domain.Affiliates;
 using Common.SharedKernel.Application.Messaging;
-using System;
 
 namespace Activations.Integrations.MeetsPensionRequirements.CreateMeetsPensionRequirement;
+
 public sealed record CreateMeetsPensionRequirementCommand(
     int AffiliateId,
     DateTime StartDate,

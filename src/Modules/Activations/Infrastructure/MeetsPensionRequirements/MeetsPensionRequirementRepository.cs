@@ -1,17 +1,20 @@
-using Microsoft.EntityFrameworkCore;
 using Activations.Domain.MeetsPensionRequirements;
 using Activations.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Activations.Infrastructure;
 
-internal sealed class MeetsPensionRequirementRepository(ActivationsDbContext context) : IMeetsPensionRequirementRepository
+internal sealed class MeetsPensionRequirementRepository(ActivationsDbContext context)
+    : IMeetsPensionRequirementRepository
 {
-    public async Task<IReadOnlyCollection<MeetsPensionRequirement>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<MeetsPensionRequirement>> GetAllAsync(
+        CancellationToken cancellationToken = default)
     {
         return await context.MeetsPensionRequirements.ToListAsync(cancellationToken);
     }
 
-    public async Task<MeetsPensionRequirement?> GetAsync(int meetspensionrequirementId, CancellationToken cancellationToken = default)
+    public async Task<MeetsPensionRequirement?> GetAsync(int meetspensionrequirementId,
+        CancellationToken cancellationToken = default)
     {
         return await context.MeetsPensionRequirements
             .SingleOrDefaultAsync(x => x.MeetsPensionRequirementId == meetspensionrequirementId, cancellationToken);

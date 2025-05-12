@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Activations.Domain.Affiliates;
 using Activations.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Activations.Infrastructure;
 
@@ -33,5 +33,8 @@ internal sealed class AffiliateRepository(ActivationsDbContext context) : IAffil
     }
 
     public bool GetByIdTypeAndNumber(string IdentificationType, string identification)
-        => context.Affiliates.Any(a => a.IdentificationType == IdentificationType && a.Identification == identification);
+    {
+        return context.Affiliates.Any(a =>
+            a.IdentificationType == IdentificationType && a.Identification == identification);
+    }
 }

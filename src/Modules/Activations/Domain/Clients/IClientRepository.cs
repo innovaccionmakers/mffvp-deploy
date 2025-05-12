@@ -1,7 +1,6 @@
-﻿namespace Activations.Domain.Clients
+﻿namespace Activations.Domain.Clients;
+
+public interface IClientRepository
 {
-    public interface IClientRepository
-    {
-        Client? Get(string idType, string idNumber);
-    }
+    Client? Get(string idType, string idNumber);
 }

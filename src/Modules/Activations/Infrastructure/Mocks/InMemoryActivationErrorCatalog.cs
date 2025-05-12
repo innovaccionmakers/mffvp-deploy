@@ -3,42 +3,41 @@ using System.Reflection;
 using Activations.Application.Abstractions.Rules;
 using Common.SharedKernel.Domain;
 
-namespace Activations.Infrastructure.Mocks
+namespace Activations.Infrastructure.Mocks;
+
+internal sealed class InMemoryActivationErrorCatalog : IErrorCatalog
 {
-    internal sealed class InMemoryActivationErrorCatalog : IErrorCatalog
+    private readonly ConcurrentDictionary<string, (int Code, string Msg)> _errors;
+
+    public InMemoryActivationErrorCatalog()
     {
-        private readonly ConcurrentDictionary<string, (int Code, string Msg)> _errors;
+        _errors = new ConcurrentDictionary<string, (int, string)>();
 
-        public InMemoryActivationErrorCatalog()
+        foreach (var p in typeof(ActivationErrors)
+                     .GetProperties(BindingFlags.Static | BindingFlags.Public))
         {
-            _errors = new ConcurrentDictionary<string, (int, string)>();
+            if (p.GetValue(null) is not Error err)
+                continue;
 
-            foreach (PropertyInfo p in typeof(ActivationErrors)
-                .GetProperties(BindingFlags.Static | BindingFlags.Public))
-            {
-                if (p.GetValue(null) is not Error err)
-                    continue;
-
-                _errors[p.Name] = (int.Parse(err.Code), err.Description);
-            }
+            _errors[p.Name] = (int.Parse(err.Code), err.Description);
         }
+    }
 
-        public Task<(int Code, string DefaultMessage)> GetAsync(
-            string ruleKey,
-            CancellationToken ct)
+    public Task<(int Code, string DefaultMessage)> GetAsync(
+        string ruleKey,
+        CancellationToken ct)
+    {
+        if (_errors.TryGetValue(ruleKey, out var hit))
+            return Task.FromResult(hit);
+
+        var lastDot = ruleKey.LastIndexOf('.');
+        if (lastDot >= 0)
         {
-            if (_errors.TryGetValue(ruleKey, out var hit))
+            var tail = ruleKey[(lastDot + 1)..];
+            if (_errors.TryGetValue(tail, out hit))
                 return Task.FromResult(hit);
-
-            int lastDot = ruleKey.LastIndexOf('.');
-            if (lastDot >= 0)
-            {
-                string tail = ruleKey[(lastDot + 1)..];
-                if (_errors.TryGetValue(tail, out hit))
-                    return Task.FromResult(hit);
-            }
-
-            return Task.FromResult((6666, "Validation error"));
         }
+
+        return Task.FromResult((6666, "Validation error"));
     }
 }

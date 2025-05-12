@@ -12,4 +12,3 @@ public interface IDomainEventHandler
 {
     Task Handle(IDomainEvent domainEvent, CancellationToken cancellationToken = default);
 }
-

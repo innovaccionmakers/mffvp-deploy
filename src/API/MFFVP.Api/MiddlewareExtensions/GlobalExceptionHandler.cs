@@ -1,30 +1,33 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MFFVP.Api.MiddlewareExtensions
-{
-    internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+namespace MFFVP.Api.MiddlewareExtensions;
+
+internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
     : IExceptionHandler
+{
+    public async ValueTask<bool> TryHandleAsync(
+        HttpContext ctx,
+        Exception ex,
+        CancellationToken cancellationToken)
     {
-        public async ValueTask<bool> TryHandleAsync(
-            HttpContext httpContext,
-            Exception exception,
-            CancellationToken cancellationToken)
+        var traceId = ctx.Items["TraceId"]?.ToString();
+
+        logger.LogError(ex, "Unhandled exception. TraceId={TraceId}", traceId);
+
+        var problem = new ProblemDetails
         {
-            logger.LogError(exception, "Unhandled exception occurred");
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "Server failure",
+            Type = "https://www.rfc-editor.org/rfc/rfc7231#section-6.6.1",
+            Detail = ex.Message
+        };
 
-            var problemDetails = new ProblemDetails
-            {
-                Status = StatusCodes.Status500InternalServerError,
-                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
-                Title = "Server failure"
-            };
+        if (traceId is not null)
+            problem.Extensions["traceId"] = traceId;
 
-            httpContext.Response.StatusCode = problemDetails.Status.Value;
-
-            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
-
-            return true;
-        }
+        ctx.Response.StatusCode = problem.Status!.Value;
+        await ctx.Response.WriteAsJsonAsync(problem, cancellationToken);
+        return true;
     }
 }

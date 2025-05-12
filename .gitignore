@@ -57,3 +57,7 @@ TestResult.xml
 nunit-*.xml
 
 /publish/
+
+# Rider / JetBrains
+.idea/
+MFFVP.sln.DotSettings.user

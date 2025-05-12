@@ -1,0 +1,151 @@
+[
+  {
+    "WorkflowName": "Contributions.FullContribution.Validation",
+    "Rules": [
+      {
+        "RuleName": "IdTypeRequired",
+        "ErrorCode": "6260",
+        "ErrorMessage": "El Tipo Id es obligatorio",
+        "Expression": "!string.IsNullOrWhiteSpace(input.Cmd.IdentificationType)"
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "ErrorCode": "6261",
+        "ErrorMessage": "La Identificación es obligatoria",
+        "Expression": "!string.IsNullOrWhiteSpace(input.Cmd.Identification)"
+      },
+      {
+        "RuleName": "ObjectiveRequired",
+        "ErrorCode": "6262",
+        "ErrorMessage": "El IdObjetivo es obligatorio",
+        "Expression": "input.Cmd.ObjectiveId != null"
+      },
+      {
+        "RuleName": "FullContribution.AmountPositive",
+        "ErrorCode": "6267",
+        "ErrorMessage": "El Valor es obligatorio y debe ser mayor a 0",
+        "Expression": "input.Cmd.Amount > 0"
+      },
+      {
+        "RuleName": "OriginRequired",
+        "ErrorCode": "6263",
+        "ErrorMessage": "El Origen es obligatorio",
+        "Expression": "!string.IsNullOrWhiteSpace(input.Cmd.OriginCode)"
+      },
+      {
+        "RuleName": "CollectionRequired",
+        "ErrorCode": "6264",
+        "ErrorMessage": "El Método de Recaudo es obligatorio",
+        "Expression": "!string.IsNullOrWhiteSpace(input.Cmd.CollectionMethodCode)"
+      },
+      {
+        "RuleName": "PaymentRequired",
+        "ErrorCode": "6268",
+        "ErrorMessage": "La FormaPago es obligatoria",
+        "Expression": "!string.IsNullOrWhiteSpace(input.Cmd.PaymentMethodCode)"
+      },
+      {
+        "RuleName": "ExecutionDateRequired",
+        "ErrorCode": "6269",
+        "ErrorMessage": "La Fecha de Ejecución es obligatoria",
+        "Expression": "input.Cmd.ExecutionDate != null && input.Cmd.ExecutionDate != DateTime.MinValue"
+      },
+      {
+        "RuleName": "IdTypeHomologated",
+        "ErrorCode": "6270",
+        "ErrorMessage": "El Tipo Id no se encuentra homologado",
+        "Expression": "input.IdTypeHomologated"
+      },
+      {
+        "RuleName": "OriginExists",
+        "ErrorCode": "6275",
+        "ErrorMessage": "El Origen no existe",
+        "Expression": "input.OriginExists"
+      },
+      {
+        "RuleName": "OriginActive",
+        "ErrorCode": "6276",
+        "ErrorMessage": "El Origen se encuentra inactivo",
+        "Expression": "input.OriginActive"
+      },
+      {
+        "RuleName": "CollectionExists",
+        "ErrorCode": "6277",
+        "ErrorMessage": "El Método de Recaudo no existe",
+        "Expression": "input.CollectionExists"
+      },
+      {
+        "RuleName": "CollectionActive",
+        "ErrorCode": "6278",
+        "ErrorMessage": "El Método de Recaudo se encuentra inactivo",
+        "Expression": "input.CollectionActive"
+      },
+      {
+        "RuleName": "PaymentExists",
+        "ErrorCode": "6279",
+        "ErrorMessage": "La forma de pago no existe",
+        "Expression": "input.PaymentExists"
+      },
+      {
+        "RuleName": "PaymentActive",
+        "ErrorCode": "6280",
+        "ErrorMessage": "La forma de pago se encuentra inactiva",
+        "Expression": "input.PaymentActive"
+      },
+      {
+        "RuleName": "ClientExists",
+        "ErrorCode": "6000",
+        "ErrorMessage": "El Cliente no existe",
+        "Expression": "input.Client != null"
+      },
+      {
+        "RuleName": "ClientActive",
+        "ErrorCode": "6001",
+        "ErrorMessage": "El Cliente se encuentra Inactivo",
+        "Expression": "input.Client != null && input.Client.IsActive"
+      },
+      {
+        "RuleName": "ClientNotBlocked",
+        "ErrorCode": "0009",
+        "ErrorMessage": "El Cliente se encuentra Bloqueado",
+        "Expression": "input.Client != null && !input.Client.IsBlocked"
+      },
+      {
+        "RuleName": "ClientInProduct",
+        "ErrorCode": "6003",
+        "ErrorMessage": "El cliente no se encuentra activo en el producto",
+        "Expression": "input.Client != null && input.Client.ProductActivated"
+      },
+      {
+        "RuleName": "PortfolioExists",
+        "ErrorCode": "6356",
+        "ErrorMessage": "El código homologado del Portafolio no existe.",
+        "Expression": "input.Cmd.PortfolioCode == null || input.Portfolio != null"
+      },
+      {
+        "RuleName": "PortfolioBelongsToObj",
+        "ErrorCode": "6272",
+        "ErrorMessage": "El Portafolio no pertenece a la alternativa del objetivo",
+        "Expression": "input.Cmd.PortfolioCode == null || (input.Portfolio != null && input.Portfolio.ObjectiveId == input.Cmd.ObjectiveId)"
+      },
+      {
+        "RuleName": "ExecutionDateMatch",
+        "ErrorCode": "6283",
+        "ErrorMessage": "La fecha de ejecución debe ser igual a la fecha de operación del portafolio",
+        "Expression": "input.Portfolio == null || (input.Portfolio.OperationDate.Date == input.Cmd.ExecutionDate.Date)"
+      },
+      {
+        "RuleName": "CertifiedValid",
+        "ErrorCode": "6282",
+        "ErrorMessage": "El campo Aporte Certificado solo recibe valor 'SI' o 'NO'.",
+        "Expression": "input.Cmd.CertifiedContribution == null || input.Cmd.CertifiedContribution == \"SI\" || input.Cmd.CertifiedContribution == \"NO\""
+      },
+      {
+        "RuleName": "CertifiedRequiredWhenOriginDemands",
+        "ErrorCode": "6281",
+        "ErrorMessage": "El estado del aporte certificado es obligatorio cuando el OrigenAporte ExigeCertificacion es igual a 1.",
+        "Expression": "!input.OriginRequiresCertification || !string.IsNullOrWhiteSpace(input.Cmd.CertifiedContribution)"
+      }
+    ]
+  }
+]

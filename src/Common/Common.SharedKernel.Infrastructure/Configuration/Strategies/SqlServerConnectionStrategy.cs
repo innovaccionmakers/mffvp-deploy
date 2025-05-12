@@ -1,36 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data.Common;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
-namespace Common.SharedKernel.Infrastructure.Configuration.Strategies
+namespace Common.SharedKernel.Infrastructure.Configuration.Strategies;
+
+internal class SqlServerConnectionStrategy : IDatabaseConnectionStrategy
 {
-    internal class SqlServerConnectionStrategy : IDatabaseConnectionStrategy
+    public bool CanConnect(DbConnection connection)
     {
-        public bool CanConnect(DbConnection connection)
+        try
         {
-            try
-            {
-                connection.Open();
-                connection.Close();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            connection.Open();
+            connection.Close();
+            return true;
         }
-
-        public DbConnection CreateConnection(string connectionString)
+        catch
         {
-            if (string.IsNullOrWhiteSpace(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
-
-            return new SqlConnection(connectionString);
+            return false;
         }
+    }
+
+    public DbConnection CreateConnection(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new ArgumentNullException(nameof(connectionString));
+
+        return new SqlConnection(connectionString);
     }
 }

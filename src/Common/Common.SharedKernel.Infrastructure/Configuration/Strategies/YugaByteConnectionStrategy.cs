@@ -1,38 +1,36 @@
 ﻿using System.Data.Common;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
 
-namespace Common.SharedKernel.Infrastructure.Configuration.Strategies
+namespace Common.SharedKernel.Infrastructure.Configuration.Strategies;
+
+internal class YugaByteConnectionStrategy : IDatabaseConnectionStrategy
 {
-    internal class YugaByteConnectionStrategy : IDatabaseConnectionStrategy
+    public bool CanConnect(DbConnection connection)
     {
-        public bool CanConnect(DbConnection connection)
+        try
         {
-            try
-            {
-                var originalConnectionString = connection.ConnectionString;
+            var originalConnectionString = connection.ConnectionString;
 
-                connection.Open();
-                connection.Close();
+            connection.Open();
+            connection.Close();
 
-                // Verificar si la cadena cambió
-                if (connection.ConnectionString != originalConnectionString)
-                    connection.ConnectionString = originalConnectionString;
+            // Verificar si la cadena cambió
+            if (connection.ConnectionString != originalConnectionString)
+                connection.ConnectionString = originalConnectionString;
 
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return true;
         }
-
-        public DbConnection CreateConnection(string connectionString)
+        catch
         {
-            if (string.IsNullOrWhiteSpace(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
-
-            return new NpgsqlConnection(connectionString);
+            return false;
         }
+    }
+
+    public DbConnection CreateConnection(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new ArgumentNullException(nameof(connectionString));
+
+        return new NpgsqlConnection(connectionString);
     }
 }

@@ -21,9 +21,10 @@ public static class ResultExtensions
         return result.IsSuccess ? onSuccess(result.Value) : onFailure(result);
     }
 
-    public static IResult ToApiResult<T>(this Result<T> result) =>
-        result.IsSuccess
+    public static IResult ToApiResult<T>(this Result<T> result)
+    {
+        return result.IsSuccess
             ? ApiResults.Ok(result.Value)
             : ApiResults.Failure(result);
-
+    }
 }

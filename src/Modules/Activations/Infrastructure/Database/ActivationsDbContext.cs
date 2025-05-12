@@ -1,4 +1,3 @@
-
 using System.Data.Common;
 using Activations.Application.Abstractions.Data;
 using Activations.Domain.Affiliates;
@@ -16,21 +15,18 @@ public sealed class ActivationsDbContext(DbContextOptions<ActivationsDbContext> 
     internal DbSet<Affiliate> Affiliates { get; set; }
     internal DbSet<MeetsPensionRequirement> MeetsPensionRequirements { get; set; }
 
+    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
+
+        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schemas.Activations);
 
         modelBuilder.ApplyConfiguration(new AffiliateConfiguration());
         modelBuilder.ApplyConfiguration(new MeetsPensionRequirementConfiguration());
-    }
-
-    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
-    {
-        if (Database.CurrentTransaction is not null)
-        {
-            await Database.CurrentTransaction.DisposeAsync();
-        }
-
-        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
     }
 }

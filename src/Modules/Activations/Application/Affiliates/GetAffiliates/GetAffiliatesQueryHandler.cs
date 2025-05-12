@@ -10,10 +10,11 @@ internal sealed class GetAffiliatesQueryHandler(
     IAffiliateRepository affiliateRepository)
     : IQueryHandler<GetAffiliatesQuery, IReadOnlyCollection<AffiliateResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<AffiliateResponse>>> Handle(GetAffiliatesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<AffiliateResponse>>> Handle(GetAffiliatesQuery request,
+        CancellationToken cancellationToken)
     {
         var entities = await affiliateRepository.GetAllAsync(cancellationToken);
-        
+
         var response = entities
             .Select(e => new AffiliateResponse(
                 e.AffiliateId,

@@ -1,4 +1,5 @@
 namespace Activations.Domain.Affiliates;
+
 public interface IAffiliateRepository
 {
     Task<IReadOnlyCollection<Affiliate>> GetAllAsync(CancellationToken cancellationToken = default);

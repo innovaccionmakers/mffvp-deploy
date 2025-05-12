@@ -1,6 +1,7 @@
 using Common.SharedKernel.Application.Messaging;
 
 namespace Activations.Integrations.Affiliates.CreateActivation;
+
 public sealed record CreateActivationCommand(
     string IdentificationType,
     string Identification,

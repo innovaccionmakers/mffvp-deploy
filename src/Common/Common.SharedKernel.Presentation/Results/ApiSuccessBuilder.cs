@@ -25,10 +25,7 @@ internal static class ApiSuccessBuilder
             typeof(T),
             t => t.GetProperties(BindingFlags.Instance | BindingFlags.Public));
 
-        foreach (var p in props)
-        {
-            dict[p.Name] = p.GetValue(payload);
-        }
+        foreach (var p in props) dict[p.Name] = p.GetValue(payload);
 
         return HttpResults.Json(dict, statusCode: StatusCodes.Status200OK);
     }

@@ -13,11 +13,11 @@ public static class InfrastructureConfiguration
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        string serviceName, 
+        string serviceName,
         string databaseConnectionString,
         string mongoDbConnectionString,
         string databaseConnectionStringSQL
-        )
+    )
     {
         services.AddSingleton<IMongoClient>(new MongoClient(mongoDbConnectionString));
 
@@ -28,7 +28,6 @@ public static class InfrastructureConfiguration
             x.UseMongoDB(mongoDbConnectionString);
             x.FailedRetryInterval = 5;
             x.FailedRetryCount = 10;
-
         });
 
         services

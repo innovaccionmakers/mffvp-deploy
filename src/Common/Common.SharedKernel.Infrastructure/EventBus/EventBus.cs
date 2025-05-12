@@ -1,5 +1,4 @@
 ﻿using Common.SharedKernel.Application.EventBus;
-
 using DotNetCore.CAP;
 
 namespace Common.SharedKernel.Infrastructure.EventBus;

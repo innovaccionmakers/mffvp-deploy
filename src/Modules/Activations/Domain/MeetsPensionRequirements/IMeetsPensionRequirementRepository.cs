@@ -1,4 +1,5 @@
 namespace Activations.Domain.MeetsPensionRequirements;
+
 public interface IMeetsPensionRequirementRepository
 {
     Task<IReadOnlyCollection<MeetsPensionRequirement>> GetAllAsync(CancellationToken cancellationToken = default);

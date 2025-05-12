@@ -1,5 +1,4 @@
 ﻿using Common.SharedKernel.Domain;
-
 using MediatR;
 
 namespace Common.SharedKernel.Application.Messaging;

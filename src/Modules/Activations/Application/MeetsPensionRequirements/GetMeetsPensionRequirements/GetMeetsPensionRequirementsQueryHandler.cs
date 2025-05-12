@@ -1,10 +1,8 @@
+using Activations.Domain.MeetsPensionRequirements;
+using Activations.Integrations.MeetsPensionRequirements;
+using Activations.Integrations.MeetsPensionRequirements.GetMeetsPensionRequirements;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Activations.Domain.MeetsPensionRequirements;
-using Activations.Integrations.MeetsPensionRequirements.GetMeetsPensionRequirements;
-using Activations.Integrations.MeetsPensionRequirements;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Activations.Application.MeetsPensionRequirements.GetMeetsPensionRequirements;
 
@@ -12,10 +10,11 @@ internal sealed class GetMeetsPensionRequirementsQueryHandler(
     IMeetsPensionRequirementRepository meetspensionrequirementRepository)
     : IQueryHandler<GetMeetsPensionRequirementsQuery, IReadOnlyCollection<MeetsPensionRequirementResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<MeetsPensionRequirementResponse>>> Handle(GetMeetsPensionRequirementsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<MeetsPensionRequirementResponse>>> Handle(
+        GetMeetsPensionRequirementsQuery request, CancellationToken cancellationToken)
     {
         var entities = await meetspensionrequirementRepository.GetAllAsync(cancellationToken);
-        
+
         var response = entities
             .Select(e => new MeetsPensionRequirementResponse(
                 e.MeetsPensionRequirementId,

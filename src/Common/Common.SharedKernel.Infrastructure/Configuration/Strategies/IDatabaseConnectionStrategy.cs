@@ -1,11 +1,9 @@
 ﻿using System.Data.Common;
-using Microsoft.Extensions.Configuration;
 
-namespace Common.SharedKernel.Infrastructure.Configuration.Strategies
+namespace Common.SharedKernel.Infrastructure.Configuration.Strategies;
+
+public interface IDatabaseConnectionStrategy
 {
-    public interface IDatabaseConnectionStrategy
-    {
-        DbConnection CreateConnection(string connectionString);
-        bool CanConnect(DbConnection connection);
-    }
+    DbConnection CreateConnection(string connectionString);
+    bool CanConnect(DbConnection connection);
 }

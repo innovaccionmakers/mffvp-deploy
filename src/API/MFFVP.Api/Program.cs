@@ -7,16 +7,17 @@ using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Validation;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Filters;
-using Contributions.Infrastructure;
 using FluentValidation;
 using MFFVP.Api.BffWeb.Activations;
-using MFFVP.Api.BffWeb.Activations.Affiliates;
-using MFFVP.Api.BffWeb.Contributions;
+using MFFVP.Api.BffWeb.Trusts;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
 using Serilog;
+using Swashbuckle.AspNetCore.SwaggerUI;
+using Trusts.Application;
+using Trusts.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,16 +30,17 @@ builder.Services.AddSingleton(typeof(TechnicalValidationFilter<>));
 
 builder.Services.AddSwaggerGen();
 
-Assembly[] moduleApplicationAssemblies = [
-    Contributions.Application.AssemblyReference.Assembly,
-    Activations.Application.AssemblyReference.Assembly,
+Assembly[] moduleApplicationAssemblies =
+[
+    AssemblyReference.Assembly,
+    Activations.Application.AssemblyReference.Assembly
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
 
-string databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
-string mongoDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("MongoDB");
-string databaseConnectionStringSQL = builder.Configuration.GetConnectionStringOrThrow("SqlServerDatabase");
+var databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
+var mongoDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("MongoDB");
+var databaseConnectionStringSQL = builder.Configuration.GetConnectionStringOrThrow("SqlServerDatabase");
 
 builder.Services.AddInfrastructure(
     DiagnosticsConfig.ServiceName,
@@ -46,14 +48,15 @@ builder.Services.AddInfrastructure(
     mongoDbConnectionString,
     databaseConnectionStringSQL);
 
-builder.Configuration.AddModuleConfiguration(["contributions"]);
-builder.Services.AddContributionsModule(builder.Configuration);
-builder.Services.AddBffContributionsServices();
-builder.Services.AddEndpoints(typeof(ContributionsEndpoints).Assembly);
+builder.Configuration.AddModuleConfiguration(["trusts", "activations"]);
 
-builder.Configuration.AddModuleConfiguration(["activations"]);
+builder.Services.AddTrustsModule(builder.Configuration);
 builder.Services.AddActivationsModule(builder.Configuration);
+
+builder.Services.AddBffContributionsServices();
 builder.Services.AddBffActivationsServices();
+
+builder.Services.AddEndpoints(typeof(TrustsEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(ActivationsEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
@@ -64,8 +67,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSwaggerUI", policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
@@ -94,12 +97,10 @@ app.UseSwaggerUI(options =>
     var provider = app.DescribeApiVersions();
 
     foreach (var description in provider)
-    {
         options.SwaggerEndpoint(
             $"/swagger/{description.GroupName}/swagger.json",
             description.GroupName.ToUpperInvariant());
-    }
-    options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+    options.DocExpansion(DocExpansion.None);
 });
 
 
@@ -111,7 +112,8 @@ app.UseSerilogRequestLogging();
 
 app.MapEndpoints();
 
-app.MapGet("/", () => Results.Ok(new { module = "MFFVP", version = $"v.{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}" }));
+app.MapGet("/",
+    () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
 
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
 

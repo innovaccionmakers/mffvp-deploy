@@ -1,18 +1,18 @@
+using Activations.Integrations.Affiliates.DeleteAffiliate;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Activations.Integrations.Affiliates.DeleteAffiliate;
 
-namespace Activations.Presentation.Affiliates
+namespace Activations.Presentation.Affiliates;
+
+internal sealed class DeleteAffiliate : IEndpoint
 {
-    internal sealed class DeleteAffiliate : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapDelete("affiliates/{id:int}", async (int id, ISender sender) =>
+        app.MapDelete("affiliates/{id:int}", async (int id, ISender sender) =>
             {
                 var result = await sender.Send(new DeleteAffiliateCommand(id));
                 return result.Match(
@@ -21,6 +21,5 @@ namespace Activations.Presentation.Affiliates
                 );
             })
             .WithTags(Tags.Affiliates);
-        }
     }
 }

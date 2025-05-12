@@ -1,7 +1,6 @@
-﻿namespace MFFVP.Api.OpenTelemetry
+﻿namespace MFFVP.Api.OpenTelemetry;
+
+public static class DiagnosticsConfig
 {
-    public static class DiagnosticsConfig
-    {
-        public const string ServiceName = "MFFVP";
-    }
+    public const string ServiceName = "MFFVP";
 }

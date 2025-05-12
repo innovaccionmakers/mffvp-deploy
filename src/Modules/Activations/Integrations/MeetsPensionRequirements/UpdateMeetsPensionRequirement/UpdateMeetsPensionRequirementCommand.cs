@@ -1,7 +1,7 @@
 using Common.SharedKernel.Application.Messaging;
-using System;
 
 namespace Activations.Integrations.MeetsPensionRequirements.UpdateMeetsPensionRequirement;
+
 public sealed record UpdateMeetsPensionRequirementCommand(
     int MeetsPensionRequirementId,
     int NewAffiliateId,

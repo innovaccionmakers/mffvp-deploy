@@ -1,55 +1,55 @@
-using MediatR;
-using Activations.Integrations.MeetsPensionRequirements.UpdateMeetsPensionRequirement;
 using Activations.Integrations.MeetsPensionRequirements;
-using Common.SharedKernel.Presentation.Results;
-using Microsoft.AspNetCore.Mvc;
-using MFFVP.Api.Application.Activations;
 using Activations.Integrations.MeetsPensionRequirements.CreateMeetsPensionRequirement;
+using Activations.Integrations.MeetsPensionRequirements.UpdateMeetsPensionRequirement;
 using Asp.Versioning;
+using Common.SharedKernel.Presentation.Results;
+using MediatR;
+using MFFVP.Api.Application.Activations;
+using Microsoft.AspNetCore.Mvc;
 
-namespace MFFVP.Api.BffWeb.Activations.MeetsPensionRequirements
+namespace MFFVP.Api.BffWeb.Activations.MeetsPensionRequirements;
+
+public sealed class MeetsPensionRequirementsEndpoints
 {
-    public sealed class MeetsPensionRequirementsEndpoints
+    private readonly IMeetsPensionRequirementsService _meetspensionrequirementsService;
+
+    public MeetsPensionRequirementsEndpoints(IMeetsPensionRequirementsService meetspensionrequirementsService)
     {
-        private readonly IMeetsPensionRequirementsService _meetspensionrequirementsService;
+        _meetspensionrequirementsService = meetspensionrequirementsService;
+    }
 
-        public MeetsPensionRequirementsEndpoints(IMeetsPensionRequirementsService meetspensionrequirementsService)
-        {
-            _meetspensionrequirementsService = meetspensionrequirementsService;
-        }
+    public void MapEndpoint(IEndpointRouteBuilder app)
+    {
+        var versionSet = app.NewApiVersionSet()
+            .HasApiVersion(new ApiVersion(1, 0))
+            .ReportApiVersions()
+            .Build();
 
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            var versionSet = app.NewApiVersionSet()
-                    .HasApiVersion(new ApiVersion(1, 0))
-                    .ReportApiVersions()
-                    .Build();
+        var group = app.MapGroup("bffWeb/api/v{version:apiVersion}/activations/meetspensionrequirements")
+            .WithTags("BFF Web - MeetsPensionRequirements")
+            .WithApiVersionSet(versionSet)
+            .HasApiVersion(1, 0)
+            .WithOpenApi();
 
-            var group = app.MapGroup("bffWeb/api/v{version:apiVersion}/activations/meetspensionrequirements")
-                .WithTags("BFF Web - MeetsPensionRequirements")
-                .WithApiVersionSet(versionSet)
-                .HasApiVersion(1, 0)
-                .WithOpenApi();
-
-            group.MapGet("GetAll", async (ISender sender) =>
+        group.MapGet("GetAll", async (ISender sender) =>
             {
                 var result = await _meetspensionrequirementsService.GetMeetsPensionRequirementsAsync(sender);
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             .MapToApiVersion(1, 0)
-            .Produces<IReadOnlyCollection<MeetsPensionRequirementResponse>>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyCollection<MeetsPensionRequirementResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-            group.MapGet("GetById/{id}", async (int id, ISender sender) =>
+        group.MapGet("GetById/{id}", async (int id, ISender sender) =>
             {
                 var result = await _meetspensionrequirementsService.GetMeetsPensionRequirementAsync(id, sender);
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             .MapToApiVersion(1, 0)
-            .Produces<MeetsPensionRequirementResponse>(StatusCodes.Status200OK)
+            .Produces<MeetsPensionRequirementResponse>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-            group.MapPost("Create", async ([FromBody] CreateMeetsPensionRequirementCommand request, ISender sender) =>
+        group.MapPost("Create", async ([FromBody] CreateMeetsPensionRequirementCommand request, ISender sender) =>
             {
                 var result = await _meetspensionrequirementsService.CreateMeetsPensionRequirementAsync(request, sender);
                 return result.Match(() => Results.Ok(), ApiResults.Problem);
@@ -58,7 +58,7 @@ namespace MFFVP.Api.BffWeb.Activations.MeetsPensionRequirements
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-            group.MapPut("Update", async ([FromBody] UpdateMeetsPensionRequirementCommand command, ISender sender) =>
+        group.MapPut("Update", async ([FromBody] UpdateMeetsPensionRequirementCommand command, ISender sender) =>
             {
                 var result = await _meetspensionrequirementsService.UpdateMeetsPensionRequirementAsync(command, sender);
                 return result.Match(() => Results.Ok(), ApiResults.Problem);
@@ -67,7 +67,7 @@ namespace MFFVP.Api.BffWeb.Activations.MeetsPensionRequirements
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-            group.MapDelete("Delete/{id}", async (int id, ISender sender) =>
+        group.MapDelete("Delete/{id}", async (int id, ISender sender) =>
             {
                 var result = await _meetspensionrequirementsService.DeleteMeetsPensionRequirementAsync(id, sender);
                 return result.Match(() => Results.NoContent(), ApiResults.Problem);
@@ -75,6 +75,5 @@ namespace MFFVP.Api.BffWeb.Activations.MeetsPensionRequirements
             .MapToApiVersion(1, 0)
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
-        }
     }
 }

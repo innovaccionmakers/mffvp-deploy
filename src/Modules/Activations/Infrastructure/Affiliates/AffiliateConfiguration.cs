@@ -1,8 +1,9 @@
+using Activations.Domain.Affiliates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Activations.Domain.Affiliates;
 
 namespace Activations.Infrastructure.Affiliates;
+
 internal sealed class AffiliateConfiguration : IEntityTypeConfiguration<Affiliate>
 {
     public void Configure(EntityTypeBuilder<Affiliate> builder)

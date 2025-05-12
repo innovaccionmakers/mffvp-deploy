@@ -1,7 +1,7 @@
 using Common.SharedKernel.Application.Messaging;
-using System;
 
 namespace Activations.Integrations.Affiliates.CreateAffiliate;
+
 public sealed record CreateAffiliateCommand(
     string IdentificationType,
     string Identification,

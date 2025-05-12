@@ -1,18 +1,25 @@
-﻿using Serilog.Context;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Serilog.Context;
 
-namespace MFFVP.Api.MiddlewareExtensions
+namespace MFFVP.Api.MiddlewareExtensions;
+
+internal sealed class LogContextTraceLoggingMiddleware(RequestDelegate next)
 {
-    internal sealed class LogContextTraceLoggingMiddleware(RequestDelegate next)
+    public async Task Invoke(HttpContext context)
     {
-        public Task Invoke(HttpContext context)
-        {
-            string traceId = Activity.Current?.TraceId.ToString();
+        var traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
 
-            using (LogContext.PushProperty("TraceId", traceId))
-            {
-                return next.Invoke(context);
-            }
+        context.Items["TraceId"] = traceId;
+
+        context.Response.OnStarting(() =>
+        {
+            context.Response.Headers.TryAdd("X-Trace-Id", traceId);
+            return Task.CompletedTask;
+        });
+
+        using (LogContext.PushProperty("TraceId", traceId))
+        {
+            await next(context);
         }
     }
 }

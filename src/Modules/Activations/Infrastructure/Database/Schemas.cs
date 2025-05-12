@@ -1,7 +1,6 @@
-﻿namespace Activations.Infrastructure.Database
+﻿namespace Activations.Infrastructure.Database;
+
+internal class Schemas
 {
-    internal class Schemas
-    {
-        internal const string Activations = "activations";
-    }
+    internal const string Activations = "activations";
 }

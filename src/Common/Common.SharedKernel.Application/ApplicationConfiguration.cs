@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-using System.Reflection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Common.SharedKernel.Application;
 
@@ -10,11 +9,7 @@ public static class ApplicationConfiguration
         this IServiceCollection services,
         Assembly[] moduleAssemblies)
     {
-        services.AddMediatR(config =>
-        {
-            config.RegisterServicesFromAssemblies(moduleAssemblies);
-
-        });
+        services.AddMediatR(config => { config.RegisterServicesFromAssemblies(moduleAssemblies); });
 
         return services;
     }
