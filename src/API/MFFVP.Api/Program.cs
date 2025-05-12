@@ -87,8 +87,6 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
 
-app.MapEndpoints();
-
 app.UseSwagger();
 
 app.UseSwaggerUI(options =>
@@ -104,21 +102,19 @@ app.UseSwaggerUI(options =>
     options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
 });
 
-/*
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
-}
-*/
 
 app.UseCors("AllowSwaggerUI");
-
 
 app.UseLogContext();
 
 app.UseSerilogRequestLogging();
+
+app.MapEndpoints();
+
+app.MapGet("/", () => Results.Ok(new { module = "MFFVP", version = $"v.{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}" }));
+
+AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
+
+Console.WriteLine("Application has reached app.Run()");
 
 app.Run();

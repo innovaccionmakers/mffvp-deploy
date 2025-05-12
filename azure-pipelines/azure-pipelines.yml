@@ -38,6 +38,14 @@ stages:
 
       - script: dotnet test MFFVP.sln --no-build --configuration Release
         displayName: 'dotnet test (Release)'
+      
+      - script: npm install -g railway
+        displayName: 'Install Railway CLI'
+
+      - script: |
+          railway login --token $(cf62cfa2-2444-46c5-b39b-cd9e4cbfc2f6)
+          railway up --service f1699a06-9b8b-4b52-9027-c2f936d43e20
+        displayName: 'Deploy to Railway'
 
       # Publicamos los artefactos del build para CD
       - task: PublishPipelineArtifact@1
