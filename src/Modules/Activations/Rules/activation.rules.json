@@ -1,0 +1,97 @@
+[
+    {
+        "WorkflowName": "Activations.Activation.Validation",
+        "Rules": [
+            {
+                "RuleName": "IdTypeRequired",
+                "ErrorCode": "1",
+                "ErrorMessage": "El Tipo Id es obligatorio",
+                "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)"
+            },
+            {
+                "RuleName": "IdentificationRequired",
+                "ErrorCode": "2",
+                "ErrorMessage": "La Identificación es obligatoria",
+                "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)"
+            },
+            {
+                "RuleName": "PensionerRequired",
+                "ErrorCode": "3",
+                "ErrorMessage": "El campo Pensionado es obligatorio",
+                "Expression": "input.request.Pensioner != null"
+            },
+            {
+                "RuleName": "PensionRequirementsWhenFalse",
+                "ErrorCode": "4",
+                "ErrorMessage": "El campo CumpleRequisitosPension es obligatorio solo cuando el campo Pensionado tenga el valor de false",
+                "Expression": "input.request.Pensioner == true || (input.request.Pensioner == false && input.request.MeetsPensionRequirements != null)"
+            },
+            {
+                "RuleName": "PensionRequirementsMissing",
+                "ErrorCode": "5",
+                "ErrorMessage": "El campo CumpleRequisitosPension es obligatorio solo cuando el campo Pensionado tenga el valor de false",
+                "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != null"
+            },
+            {
+                "RuleName": "StartDateNotRequiredWhenPensionerTrue",
+                "ErrorCode": "6",
+                "ErrorMessage": "El campo FechaInicioReqPen es obligatorio solo cuando el campo Pensionado tenga el valor de false y el campo CumpleRequisitosPension tenga el valor true",
+                "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || (input.request.MeetsPensionRequirements == true && input.request.StartDateReqPen != null)"
+            },
+            {
+                "RuleName": "StartDateRequiredWhenConditionsMet",
+                "ErrorCode": "7",
+                "ErrorMessage": "El campo FechaInicioReqPen es obligatorio solo cuando el campo Pensionado tenga el valor de false y el campo CumpleRequisitosPension tenga el valor true",
+                "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.StartDateReqPen != null"
+            },
+            {
+                "RuleName": "StartDateRequired",
+                "ErrorCode": "8",
+                "ErrorMessage": "El campo FechaInicioReqPen es obligatorio solo cuando el campo Pensionado tenga el valor de false y el campo CumpleRequisitosPension tenga el valor true",
+                "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.StartDateReqPen != null"
+            },
+            {
+                "RuleName": "EndDateNotRequiredWhenPensionerTrue",
+                "ErrorCode": "10",
+                "ErrorMessage": "El campo FechaFinReqPen es obligatorio solo cuando el campo Pensionado tenga el valor de false y el campo CumpleRequisitosPension tenga el valor true",
+                "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || (input.request.MeetsPensionRequirements == true && input.request.EndDateReqPen != null)"
+            },
+            {
+                "RuleName": "EndDateRequiredWhenConditionsMet",
+                "ErrorCode": "11",
+                "ErrorMessage": "El campo FechaFinReqPen es obligatorio solo cuando el campo Pensionado tenga el valor de false y el campo CumpleRequisitosPension tenga el valor true",
+                "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.EndDateReqPen != null"
+            },
+            {
+                "RuleName": "EndDateRequired",
+                "ErrorCode": "12",
+                "ErrorMessage": "El campo FechaFinReqPen es obligatorio solo cuando el campo Pensionado tenga el valor de false y el campo CumpleRequisitosPension tenga el valor true",
+                "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.EndDateReqPen != null"
+            },
+            {
+                "RuleName": "ClientNotBlocked",
+                "ErrorCode": "13",
+                "ErrorMessage": "El Cliente se encuentra Bloqueado",
+                "Expression": "input.Client != null && !input.Client.IsBlocked"
+            },
+            {
+                "RuleName": "ClientActive",
+                "ErrorCode": "14",
+                "ErrorMessage": "El Cliente se encuentra Inactivo",
+                "Expression": "input.Client != null && input.Client.IsActive"
+            },
+            {
+                "RuleName": "ClientNotAffiliated",
+                "ErrorCode": "15",
+                "ErrorMessage": "El cliente ya se encuentra afiliado en el producto",
+                "Expression": "input.existingActivation == false"
+            },
+            {
+                "RuleName": "ClientExists",
+                "ErrorCode": "6000",
+                "ErrorMessage": "El Cliente no existe",
+                "Expression": "input.Client != null"
+            }
+        ]
+    }
+]

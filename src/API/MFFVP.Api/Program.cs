@@ -1,19 +1,22 @@
 using System.Reflection;
+using Activations.Infrastructure;
 using Asp.Versioning;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
 using Common.SharedKernel.Infrastructure.Configuration;
+using Common.SharedKernel.Infrastructure.Validation;
 using Common.SharedKernel.Presentation.Endpoints;
+using Common.SharedKernel.Presentation.Filters;
 using Contributions.Infrastructure;
+using FluentValidation;
+using MFFVP.Api.BffWeb.Activations;
+using MFFVP.Api.BffWeb.Activations.Affiliates;
 using MFFVP.Api.BffWeb.Contributions;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
-using FluentValidation;
 using Serilog;
-using Common.SharedKernel.Presentation.Filters;
-using Common.SharedKernel.Infrastructure.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +31,7 @@ builder.Services.AddSwaggerGen();
 
 Assembly[] moduleApplicationAssemblies = [
     Contributions.Application.AssemblyReference.Assembly,
+    Activations.Application.AssemblyReference.Assembly,
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
@@ -43,12 +47,14 @@ builder.Services.AddInfrastructure(
     databaseConnectionStringSQL);
 
 builder.Configuration.AddModuleConfiguration(["contributions"]);
-
 builder.Services.AddContributionsModule(builder.Configuration);
-
 builder.Services.AddBffContributionsServices();
-
 builder.Services.AddEndpoints(typeof(ContributionsEndpoints).Assembly);
+
+builder.Configuration.AddModuleConfiguration(["activations"]);
+builder.Services.AddActivationsModule(builder.Configuration);
+builder.Services.AddBffActivationsServices();
+builder.Services.AddEndpoints(typeof(ActivationsEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));

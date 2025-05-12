@@ -1,20 +1,20 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using Activations.Application.Abstractions.Rules;
 using Common.SharedKernel.Domain;
-using Contributions.Application.Abstractions.Rules;
 
-namespace Contributions.Infrastructure.Mocks
+namespace Activations.Infrastructure.Mocks
 {
-    internal sealed class InMemoryErrorCatalog : IErrorCatalog
+    internal sealed class InMemoryActivationErrorCatalog : IErrorCatalog
     {
         private readonly ConcurrentDictionary<string, (int Code, string Msg)> _errors;
 
-        public InMemoryErrorCatalog()
+        public InMemoryActivationErrorCatalog()
         {
             _errors = new ConcurrentDictionary<string, (int, string)>();
 
-            foreach (PropertyInfo p in typeof(ContributionErrors)
-                     .GetProperties(BindingFlags.Static | BindingFlags.Public))
+            foreach (PropertyInfo p in typeof(ActivationErrors)
+                .GetProperties(BindingFlags.Static | BindingFlags.Public))
             {
                 if (p.GetValue(null) is not Error err)
                     continue;
@@ -38,7 +38,7 @@ namespace Contributions.Infrastructure.Mocks
                     return Task.FromResult(hit);
             }
 
-            return Task.FromResult((6000, "Validation error"));
+            return Task.FromResult((6666, "Validation error"));
         }
     }
 }
