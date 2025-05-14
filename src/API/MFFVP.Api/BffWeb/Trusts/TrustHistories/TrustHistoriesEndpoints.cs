@@ -19,7 +19,7 @@ namespace MFFVP.Api.BffWeb.Trusts.TrustHistories
 
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            var group = app.MapGroup("bffWeb/api/trusts/trusthistories")
+            var group = app.MapGroup("bffWeb/trusts/trusthistories")
                 .WithTags("BFF Web - TrustHistories")
                 .WithOpenApi();
 
