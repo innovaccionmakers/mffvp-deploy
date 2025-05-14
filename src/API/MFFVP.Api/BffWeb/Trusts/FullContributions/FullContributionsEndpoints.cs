@@ -1,9 +1,12 @@
-﻿using Asp.Versioning;
-using Common.SharedKernel.Presentation.Filters;
+﻿using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using MediatR;
+
 using MFFVP.Api.Application.Trusts;
+
 using Microsoft.AspNetCore.Mvc;
+
 using Trusts.Integrations.FullContribution;
 
 namespace MFFVP.Api.BffWeb.Trusts.FullContributions;
@@ -19,15 +22,9 @@ public sealed class FullContributionsEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var versionSet = app.NewApiVersionSet()
-            .HasApiVersion(new ApiVersion(1, 0))
-            .ReportApiVersions()
-            .Build();
 
-        var group = app.MapGroup("/v{version:apiVersion}/bffWeb/api/contributions/full-contributions")
+        var group = app.MapGroup("/bffWeb/contributions/full-contributions")
             .WithTags("BFF Web - FullContributions")
-            .WithApiVersionSet(versionSet)
-            .HasApiVersion(1, 0)
             .WithOpenApi();
 
         group.MapPost("Create",

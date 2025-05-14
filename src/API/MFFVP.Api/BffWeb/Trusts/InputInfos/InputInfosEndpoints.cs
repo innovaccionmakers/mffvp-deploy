@@ -19,7 +19,7 @@ public sealed class InputInfosEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/api/contributions/inputinfos")
+        var group = app.MapGroup("bffWeb/contributions/inputinfos")
             .WithTags("BFF Web - InputInfos")
             .WithOpenApi();
 

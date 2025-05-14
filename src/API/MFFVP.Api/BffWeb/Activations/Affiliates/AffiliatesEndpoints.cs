@@ -1,11 +1,14 @@
 using Activations.Integrations.Affiliates;
 using Activations.Integrations.Affiliates.CreateActivation;
 using Activations.Integrations.Affiliates.UpdateAffiliate;
-using Asp.Versioning;
+
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using MediatR;
+
 using MFFVP.Api.Application.Activations;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace MFFVP.Api.BffWeb.Activations.Affiliates;
@@ -21,15 +24,8 @@ public sealed class AffiliatesEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var versionSet = app.NewApiVersionSet()
-            .HasApiVersion(new ApiVersion(1, 0))
-            .ReportApiVersions()
-            .Build();
-
-        var group = app.MapGroup("bffWeb/api/v{version:apiVersion}/activations/activations")
+        var group = app.MapGroup("bffWeb/activations/activations")
             .WithTags("BFF Web - Activations")
-            .WithApiVersionSet(versionSet)
-            .HasApiVersion(1, 0)
             .WithOpenApi();
 
         group.MapGet("GetAll", async (ISender sender) =>

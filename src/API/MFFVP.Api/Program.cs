@@ -103,7 +103,6 @@ app.UseSwaggerUI(options =>
     options.DocExpansion(DocExpansion.None);
 });
 
-
 app.UseCors("AllowSwaggerUI");
 
 app.UseLogContext();

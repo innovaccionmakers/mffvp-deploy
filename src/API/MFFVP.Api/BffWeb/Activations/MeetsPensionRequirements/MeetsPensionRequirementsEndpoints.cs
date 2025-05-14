@@ -20,15 +20,9 @@ public sealed class MeetsPensionRequirementsEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var versionSet = app.NewApiVersionSet()
-            .HasApiVersion(new ApiVersion(1, 0))
-            .ReportApiVersions()
-            .Build();
 
-        var group = app.MapGroup("bffWeb/api/v{version:apiVersion}/activations/meetspensionrequirements")
+        var group = app.MapGroup("bffWeb/activations/meetspensionrequirements")
             .WithTags("BFF Web - MeetsPensionRequirements")
-            .WithApiVersionSet(versionSet)
-            .HasApiVersion(1, 0)
             .WithOpenApi();
 
         group.MapGet("GetAll", async (ISender sender) =>

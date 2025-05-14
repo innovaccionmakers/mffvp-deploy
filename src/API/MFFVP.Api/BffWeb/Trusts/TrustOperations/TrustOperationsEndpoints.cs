@@ -19,7 +19,7 @@ public sealed class TrustOperationsEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/api/contributions/trustoperations")
+        var group = app.MapGroup("bffWeb/contributions/trustoperations")
             .WithTags("BFF Web - TrustOperations")
             .WithOpenApi();
 

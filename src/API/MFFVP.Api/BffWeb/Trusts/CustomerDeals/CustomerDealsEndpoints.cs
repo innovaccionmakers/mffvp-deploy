@@ -19,7 +19,7 @@ public sealed class CustomerDealsEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/api/contributions/customerdeals")
+        var group = app.MapGroup("bffWeb/contributions/customerdeals")
             .WithTags("BFF Web - CustomerDeals")
             .WithOpenApi();
 
