@@ -18,6 +18,7 @@ internal sealed class GetTrustQueryHandler(
             trust.TrustId,
             trust.AffiliateId,
             trust.ClientId,
+            trust.CreationDate,
             trust.ObjectiveId,
             trust.PortfolioId,
             trust.TotalBalance,
@@ -25,7 +26,10 @@ internal sealed class GetTrustQueryHandler(
             trust.Principal,
             trust.Earnings,
             trust.TaxCondition,
-            trust.ContingentWithholding
+            trust.ContingentWithholding,
+            trust.EarningsWithholding,
+            trust.AvailableAmount,
+            trust.ContingentWithholdingPercentage
         );
         return response;
     }

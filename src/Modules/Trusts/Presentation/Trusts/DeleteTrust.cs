@@ -12,7 +12,7 @@ internal sealed class DeleteTrust : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapDelete("trusts/{id:guid}", async (Guid id, ISender sender) =>
+        app.MapDelete("trusts/{id:long}", async (long id, ISender sender) =>
             {
                 var result = await sender.Send(new DeleteTrustCommand(id));
                 return result.Match(

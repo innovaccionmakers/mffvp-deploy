@@ -4,7 +4,7 @@ namespace Trusts.Domain.Trusts;
 
 public static class TrustErrors
 {
-    public static Error NotFound(Guid trustId)
+    public static Error NotFound(long trustId)
     {
         return Error.NotFound(
             "Trust.NotFound",

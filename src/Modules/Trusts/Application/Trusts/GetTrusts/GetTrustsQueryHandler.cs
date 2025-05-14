@@ -20,6 +20,7 @@ internal sealed class GetTrustsQueryHandler(
                 e.TrustId,
                 e.AffiliateId,
                 e.ClientId,
+                e.CreationDate,
                 e.ObjectiveId,
                 e.PortfolioId,
                 e.TotalBalance,
@@ -27,7 +28,10 @@ internal sealed class GetTrustsQueryHandler(
                 e.Principal,
                 e.Earnings,
                 e.TaxCondition,
-                e.ContingentWithholding))
+                e.ContingentWithholding,
+                e.EarningsWithholding,
+                e.AvailableAmount,
+                e.ContingentWithholdingPercentage))
             .ToList();
 
         return Result.Success<IReadOnlyCollection<TrustResponse>>(response);

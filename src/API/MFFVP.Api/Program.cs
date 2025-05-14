@@ -53,7 +53,7 @@ builder.Configuration.AddModuleConfiguration(["trusts", "activations"]);
 builder.Services.AddTrustsModule(builder.Configuration);
 builder.Services.AddActivationsModule(builder.Configuration);
 
-builder.Services.AddBffContributionsServices();
+builder.Services.AddBffTrustsServices();
 builder.Services.AddBffActivationsServices();
 
 builder.Services.AddEndpoints(typeof(TrustsEndpoints).Assembly);

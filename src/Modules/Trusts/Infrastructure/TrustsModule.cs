@@ -4,13 +4,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Trusts.Application.Abstractions.Data;
-using Trusts.Application.Abstractions.Lookups;
 using Trusts.Application.Abstractions.Rules;
-using Trusts.Domain.Clients;
-using Trusts.Domain.CustomerDeals;
-using Trusts.Domain.InputInfos;
-using Trusts.Domain.Portfolios;
-using Trusts.Domain.TrustOperations;
+using Trusts.Domain.TrustHistories;
 using Trusts.Domain.Trusts;
 using Trusts.Infrastructure.Database;
 using Trusts.Infrastructure.Mocks;
@@ -45,14 +40,8 @@ public static class TrustsModule
         });
 
         services.AddScoped<ITrustRepository, TrustRepository>();
-        services.AddScoped<ICustomerDealRepository, CustomerDealRepository>();
-        services.AddScoped<IInputInfoRepository, InputInfoRepository>();
-        services.AddScoped<ITrustOperationRepository, TrustOperationRepository>();
-        services.AddScoped<ILookupService, InMemoryLookupService>();
-        services.AddScoped<IPortfolioRepository, InMemoryPortfolioRepository>();
-        services.AddScoped<IClientRepository, InMemoryClientRepository>();
+        services.AddScoped<ITrustHistoryRepository, TrustHistoryRepository>();
         services.AddSingleton<IErrorCatalog, InMemoryErrorCatalog>();
-
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());
     }
 }

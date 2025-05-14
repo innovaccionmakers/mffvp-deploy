@@ -20,7 +20,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.SharedKernel.Presentation", "src\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj", "{F49F2F19-2DD8-421C-833F-13794C3C1A76}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0C88DD14-F956-CE84-757C-A364CCF449FC}"
-EndProject 
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFFVP.ArchitectureTests", "test\MFFVP.ArchitectureTests\MFFVP.ArchitectureTests.csproj", "{EA2387D4-1A17-4161-8C21-C102DCAFF175}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFFVP.IntegrationTests", "test\MFFVP.IntegrationTests\MFFVP.IntegrationTests.csproj", "{0A124284-E973-4338-B804-94FBF67D989A}"
@@ -57,7 +57,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trusts.test.IntegrationTest
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{A4C079EF-917E-4D29-92D1-3ECCAAF632FB}"
 	ProjectSection(SolutionItems) = preProject
-		src\Modules\Trusts\Rules\clientOperation.rules.json = src\Modules\Trusts\Rules\clientOperation.rules.json
 		src\Modules\Trusts\Rules\fullContribution.rules.json = src\Modules\Trusts\Rules\fullContribution.rules.json
 	EndProjectSection
 EndProject

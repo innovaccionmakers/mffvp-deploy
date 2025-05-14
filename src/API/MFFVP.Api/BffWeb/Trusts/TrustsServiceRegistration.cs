@@ -1,17 +1,15 @@
 using MFFVP.Api.Application.Trusts;
 using MFFVP.Api.Infrastructure.Trusts;
 
-namespace MFFVP.Api.BffWeb.Trusts;
-
-public static class TrustsServiceRegistration
+namespace MFFVP.Api.BffWeb.Trusts
 {
-    public static IServiceCollection AddBffContributionsServices(this IServiceCollection services)
+    public static class TrustsServiceRegistration
     {
-        services.AddSingleton<ITrustsService, TrustsService>();
-        services.AddSingleton<ICustomerDealsService, CustomerDealsService>();
-        services.AddSingleton<ITrustOperationsService, TrustOperationsService>();
-        services.AddSingleton<IInputInfosService, InputInfosService>();
-        services.AddSingleton<IFullContributionService, FullContributionService>();
-        return services;
+        public static IServiceCollection AddBffTrustsServices(this IServiceCollection services)
+        {
+            services.AddSingleton<ITrustsService, TrustsService>();
+            services.AddSingleton<ITrustHistoriesService, TrustHistoriesService>();
+            return services;
+        }
     }
 }
