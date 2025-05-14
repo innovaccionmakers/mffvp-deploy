@@ -1,5 +1,0 @@
-{
-  "ConnectionStrings": {
-    "ActivationsDatabase": "Host=us-east-1.183c4f0a-2e8f-409c-a062-75fad3e3d803.aws.yugabyte.cloud;Port=5433;Database=mffrontinversiones;Username=admin;Password=x4KfSp8nlyv-FwUjkcqmnNYA1Gou5Y;SSL Mode=Require;ServerCompatibilityMode=NoTypeLoading"
-  }
-}

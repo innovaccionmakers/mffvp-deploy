@@ -61,37 +61,37 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{A4C079EF
 		src\Modules\Trusts\Rules\fullContribution.rules.json = src\Modules\Trusts\Rules\fullContribution.rules.json
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Activations", "Activations", "{26083523-2A35-1A30-D5B8-C23C4A3356CF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Associate", "Associate", "{26083523-2A35-1A30-D5B8-C23C4A3356CF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{4EBBBEFD-A47A-F827-1EE1-BF6505E507C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Activations.Application", "src\Modules\Activations\Application\Activations.Application.csproj", "{A98FB798-DFCF-4ACD-A3AF-1B4A8C738344}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Associate.Application", "src\Modules\Associate\Application\Associate.Application.csproj", "{A98FB798-DFCF-4ACD-A3AF-1B4A8C738344}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{B50B94EF-DD00-864F-0ED2-A9CE6FCC2BBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Activations.Domain", "src\Modules\Activations\Domain\Activations.Domain.csproj", "{FF33A311-3074-4E51-9B47-6205C4A0E5F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Associate.Domain", "src\Modules\Associate\Domain\Associate.Domain.csproj", "{FF33A311-3074-4E51-9B47-6205C4A0E5F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{FB9B7E3D-4408-6771-D69D-AD465FED9A37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Activations.Infrastructure", "src\Modules\Activations\Infrastructure\Activations.Infrastructure.csproj", "{158809AD-4EAA-4A98-9C91-D8D68D2322B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Associate.Infrastructure", "src\Modules\Associate\Infrastructure\Associate.Infrastructure.csproj", "{158809AD-4EAA-4A98-9C91-D8D68D2322B5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{D7E0ECFA-9813-6F44-1B54-BE27536A004F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Activations.Integrations", "src\Modules\Activations\Integrations\Activations.Integrations.csproj", "{041AFD79-4B23-4A22-8ACC-D76C06CFEFB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Associate.Integrations", "src\Modules\Associate\Integrations\Associate.Integrations.csproj", "{041AFD79-4B23-4A22-8ACC-D76C06CFEFB8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{501310E7-6CEC-4612-09F2-787E882C0753}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Activations.Presentation", "src\Modules\Activations\Presentation\Activations.Presentation.csproj", "{98569576-8B8F-4F63-9710-C77E18C4D2B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Associate.Presentation", "src\Modules\Associate\Presentation\Associate.Presentation.csproj", "{98569576-8B8F-4F63-9710-C77E18C4D2B0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{607D4994-D3A5-CA2C-24EC-E2B463E18F96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Activations.test.UnitTests", "src\Modules\Activations\test\UnitTests\Activations.test.UnitTests.csproj", "{021F4898-276A-4822-B912-574BF74BD374}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Associate.test.UnitTests", "src\Modules\Associate\test\UnitTests\Associate.test.UnitTests.csproj", "{021F4898-276A-4822-B912-574BF74BD374}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Activations.test.IntegrationTests", "src\Modules\Activations\test\IntegrationTests\Activations.test.IntegrationTests.csproj", "{8BAC7130-3356-4E3F-89D4-9CB56FEBBECC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Associate.test.IntegrationTests", "src\Modules\Associate\test\IntegrationTests\Associate.test.IntegrationTests.csproj", "{8BAC7130-3356-4E3F-89D4-9CB56FEBBECC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{E80F154E-65C3-4327-832B-233C40105E50}"
 	ProjectSection(SolutionItems) = preProject
-		activation.rules.json = activation.rules.json
+		associate.rules.json = associate.rules.json
 	EndProjectSection
 EndProject
 Global

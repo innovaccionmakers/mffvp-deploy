@@ -1,5 +1,5 @@
 using System.Reflection;
-using Activations.Infrastructure;
+using Associate.Infrastructure;
 using Asp.Versioning;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
@@ -8,7 +8,7 @@ using Common.SharedKernel.Infrastructure.Validation;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Filters;
 using FluentValidation;
-using MFFVP.Api.BffWeb.Activations;
+using MFFVP.Api.BffWeb.Associate;
 using MFFVP.Api.BffWeb.Trusts;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
@@ -33,7 +33,7 @@ builder.Services.AddSwaggerGen();
 Assembly[] moduleApplicationAssemblies =
 [
     AssemblyReference.Assembly,
-    Activations.Application.AssemblyReference.Assembly
+    Associate.Application.AssemblyReference.Assembly
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
@@ -48,16 +48,16 @@ builder.Services.AddInfrastructure(
     mongoDbConnectionString,
     databaseConnectionStringSQL);
 
-builder.Configuration.AddModuleConfiguration(["trusts", "activations"]);
+builder.Configuration.AddModuleConfiguration(["trusts", "associate"]);
 
 builder.Services.AddTrustsModule(builder.Configuration);
-builder.Services.AddActivationsModule(builder.Configuration);
+builder.Services.AddActivatesModule(builder.Configuration);
 
 builder.Services.AddBffContributionsServices();
-builder.Services.AddBffActivationsServices();
+builder.Services.AddBffActivatesServices();
 
 builder.Services.AddEndpoints(typeof(TrustsEndpoints).Assembly);
-builder.Services.AddEndpoints(typeof(ActivationsEndpoints).Assembly);
+builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));
