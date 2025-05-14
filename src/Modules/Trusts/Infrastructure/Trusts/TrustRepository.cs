@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Trusts.Domain.Trusts;
 using Trusts.Infrastructure.Database;
 
-namespace Trusts.Infrastructure;
+namespace Trusts.Infrastructure.Trusts;
 
 internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepository
 {

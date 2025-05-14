@@ -27,6 +27,16 @@
         <ProjectReference Include="..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
         <ProjectReference Include="..\..\Modules\Associate\Application\Associate.Application.csproj"/>
         <ProjectReference Include="..\..\Modules\Associate\Infrastructure\Associate.Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\Modules\People\Application\People.Application.csproj" />
+        <ProjectReference Include="..\..\Modules\People\Domain\People.Domain.csproj" />
+        <ProjectReference Include="..\..\Modules\People\Infrastructure\People.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\Modules\People\Integrations\People.Integrations.csproj" />
+        <ProjectReference Include="..\..\Modules\People\Presentation\People.Presentation.csproj" />
+        <ProjectReference Include="..\..\Modules\Products\Application\Products.Application.csproj" />
+        <ProjectReference Include="..\..\Modules\Products\Domain\Products.Domain.csproj" />
+        <ProjectReference Include="..\..\Modules\Products\Infrastructure\Products.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\Modules\Products\Integrations\Products.Integrations.csproj" />
+        <ProjectReference Include="..\..\Modules\Products\Presentation\Products.Presentation.csproj" />
         <ProjectReference Include="..\..\Modules\Trusts\Infrastructure\Trusts.Infrastructure.csproj"/>
         <ProjectReference Include="..\..\Modules\Trusts\Integrations\Trusts.Integrations.csproj"/>
     </ItemGroup>

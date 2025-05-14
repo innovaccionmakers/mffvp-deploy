@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using People.Domain.People;
 using People.Infrastructure.Database;
 
-namespace People.Infrastructure;
+namespace People.Infrastructure.People;
 internal sealed class PersonRepository(PeopleDbContext context) : IPersonRepository
 {
     public async Task<IReadOnlyCollection<Person>> GetAllAsync(CancellationToken cancellationToken = default)

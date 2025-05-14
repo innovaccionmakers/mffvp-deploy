@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using People.Domain.Countries;
 using People.Infrastructure.Database;
 
-namespace People.Infrastructure;
+namespace People.Infrastructure.Countries;
 internal sealed class CountryRepository(PeopleDbContext context) : ICountryRepository
 {
     public async Task<IReadOnlyCollection<Country>> GetAllAsync(CancellationToken cancellationToken = default)

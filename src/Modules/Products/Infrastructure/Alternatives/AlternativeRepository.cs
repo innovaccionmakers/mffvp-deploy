@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Products.Domain.Alternatives;
 using Products.Infrastructure.Database;
 
-namespace Products.Infrastructure;
+namespace Products.Infrastructure.Alternatives;
 internal sealed class AlternativeRepository(ProductsDbContext context) : IAlternativeRepository
 {
     public async Task<IReadOnlyCollection<Alternative>> GetAllAsync(CancellationToken cancellationToken = default)

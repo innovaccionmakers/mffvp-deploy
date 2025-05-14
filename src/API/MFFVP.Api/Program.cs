@@ -14,9 +14,10 @@ using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
+using People.Infrastructure;
+using Products.Infrastructure;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using Trusts.Application;
 using Trusts.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,8 +33,10 @@ builder.Services.AddSwaggerGen();
 
 Assembly[] moduleApplicationAssemblies =
 [
-    AssemblyReference.Assembly,
-    Associate.Application.AssemblyReference.Assembly
+    Associate.Application.AssemblyReference.Assembly,
+    Trusts.Application.AssemblyReference.Assembly,
+    Products.Application.AssemblyReference.Assembly,
+    People.Application.AssemblyReference.Assembly,
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
@@ -48,10 +51,12 @@ builder.Services.AddInfrastructure(
     mongoDbConnectionString,
     databaseConnectionStringSQL);
 
-builder.Configuration.AddModuleConfiguration(["trusts", "associate"]);
+builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people"]);
 
 builder.Services.AddTrustsModule(builder.Configuration);
 builder.Services.AddActivatesModule(builder.Configuration);
+builder.Services.AddProductsModule(builder.Configuration);
+builder.Services.AddPeopleModule(builder.Configuration);
 
 builder.Services.AddBffTrustsServices();
 builder.Services.AddBffActivatesServices();

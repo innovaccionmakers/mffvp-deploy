@@ -10,6 +10,8 @@ using Trusts.Domain.Trusts;
 using Trusts.Infrastructure.Database;
 using Trusts.Infrastructure.Mocks;
 using Trusts.Infrastructure.RulesEngine;
+using Trusts.Infrastructure.TrustHistories;
+using Trusts.Infrastructure.Trusts;
 
 namespace Trusts.Infrastructure;
 
