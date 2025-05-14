@@ -12,12 +12,13 @@ internal sealed class UpdateTrust : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("trusts/{id:guid}", async (Guid id, Request request, ISender sender) =>
+        app.MapPut("trusts/{id:long}", async (long id, Request request, ISender sender) =>
             {
                 var command = new UpdateTrustCommand(
                     id,
                     request.NewAffiliateId,
                     request.NewClientId,
+                    request.NewCreationDate,
                     request.NewObjectiveId,
                     request.NewPortfolioId,
                     request.NewTotalBalance,
@@ -25,7 +26,10 @@ internal sealed class UpdateTrust : IEndpoint
                     request.NewPrincipal,
                     request.NewEarnings,
                     request.NewTaxCondition,
-                    request.NewContingentWithholding
+                    request.NewContingentWithholding,
+                    request.NewEarningsWithholding,
+                    request.NewAvailableAmount,
+                    request.NewContingentWithholdingPercentage
                 );
 
                 var result = await sender.Send(command);
@@ -38,6 +42,7 @@ internal sealed class UpdateTrust : IEndpoint
     {
         public int NewAffiliateId { get; set; }
         public int NewClientId { get; set; }
+        public DateTime NewCreationDate { get; set; }
         public int NewObjectiveId { get; set; }
         public int NewPortfolioId { get; set; }
         public decimal NewTotalBalance { get; set; }
@@ -45,6 +50,9 @@ internal sealed class UpdateTrust : IEndpoint
         public decimal NewPrincipal { get; set; }
         public decimal NewEarnings { get; set; }
         public int NewTaxCondition { get; set; }
-        public int NewContingentWithholding { get; set; }
+        public decimal NewContingentWithholding { get; set; }
+        public decimal NewEarningsWithholding { get; set; }
+        public decimal NewAvailableAmount { get; set; }
+        public decimal NewContingentWithholdingPercentage { get; set; }
     }
 }

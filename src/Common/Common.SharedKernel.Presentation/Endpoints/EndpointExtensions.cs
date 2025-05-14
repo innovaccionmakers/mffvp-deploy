@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using Common.SharedKernel.Presentation.Versioning;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,9 +30,9 @@ public static class EndpointExtensions
     {
         var endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
 
-        IEndpointRouteBuilder builder = routeGroupBuilder is null ? app : routeGroupBuilder;
+        var apiGroup = routeGroupBuilder ?? app.CreateVersionedApiGroup();
 
-        foreach (var endpoint in endpoints) endpoint.MapEndpoint(builder);
+        foreach (var endpoint in endpoints) endpoint.MapEndpoint(apiGroup);
 
         return app;
     }

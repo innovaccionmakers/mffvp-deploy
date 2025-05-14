@@ -5,7 +5,7 @@ using Trusts.Domain.Trusts;
 using Trusts.Integrations.Trusts;
 using Trusts.Integrations.Trusts.UpdateTrust;
 
-namespace Trusts.Application.Trusts.UpdateTrust;
+namespace Trusts.Application.Trusts;
 
 internal sealed class UpdateTrustCommandHandler(
     ITrustRepository trustRepository,
@@ -22,6 +22,7 @@ internal sealed class UpdateTrustCommandHandler(
         entity.UpdateDetails(
             request.NewAffiliateId,
             request.NewClientId,
+            request.NewCreationDate,
             request.NewObjectiveId,
             request.NewPortfolioId,
             request.NewTotalBalance,
@@ -29,14 +30,18 @@ internal sealed class UpdateTrustCommandHandler(
             request.NewPrincipal,
             request.NewEarnings,
             request.NewTaxCondition,
-            request.NewContingentWithholding
+            request.NewContingentWithholding,
+            request.NewEarningsWithholding,
+            request.NewAvailableAmount,
+            request.NewContingentWithholdingPercentage
         );
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return new TrustResponse(entity.TrustId, entity.AffiliateId, entity.ClientId, entity.ObjectiveId,
-            entity.PortfolioId, entity.TotalBalance, entity.TotalUnits, entity.Principal, entity.Earnings,
-            entity.TaxCondition, entity.ContingentWithholding);
+        return new TrustResponse(entity.TrustId, entity.AffiliateId, entity.ClientId, entity.CreationDate,
+            entity.ObjectiveId, entity.PortfolioId, entity.TotalBalance, entity.TotalUnits, entity.Principal,
+            entity.Earnings, entity.TaxCondition, entity.ContingentWithholding, entity.EarningsWithholding,
+            entity.AvailableAmount, entity.ContingentWithholdingPercentage);
     }
 }

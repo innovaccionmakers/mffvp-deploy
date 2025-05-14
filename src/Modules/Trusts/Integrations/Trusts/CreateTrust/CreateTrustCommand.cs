@@ -5,6 +5,7 @@ namespace Trusts.Integrations.Trusts.CreateTrust;
 public sealed record CreateTrustCommand(
     int AffiliateId,
     int ClientId,
+    DateTime CreationDate,
     int ObjectiveId,
     int PortfolioId,
     decimal TotalBalance,
@@ -12,5 +13,8 @@ public sealed record CreateTrustCommand(
     decimal Principal,
     decimal Earnings,
     int TaxCondition,
-    int ContingentWithholding
+    decimal ContingentWithholding,
+    decimal EarningsWithholding,
+    decimal AvailableAmount,
+    decimal ContingentWithholdingPercentage
 ) : ICommand<TrustResponse>;

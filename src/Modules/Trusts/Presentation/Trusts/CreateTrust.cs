@@ -17,6 +17,7 @@ internal sealed class CreateTrust : IEndpoint
                 var result = await sender.Send(new CreateTrustCommand(
                     request.AffiliateId,
                     request.ClientId,
+                    request.CreationDate,
                     request.ObjectiveId,
                     request.PortfolioId,
                     request.TotalBalance,
@@ -24,7 +25,10 @@ internal sealed class CreateTrust : IEndpoint
                     request.Principal,
                     request.Earnings,
                     request.TaxCondition,
-                    request.ContingentWithholding
+                    request.ContingentWithholding,
+                    request.EarningsWithholding,
+                    request.AvailableAmount,
+                    request.ContingentWithholdingPercentage
                 ));
 
                 return result.Match(Results.Ok, ApiResults.Problem);
@@ -36,6 +40,7 @@ internal sealed class CreateTrust : IEndpoint
     {
         public int AffiliateId { get; init; }
         public int ClientId { get; init; }
+        public DateTime CreationDate { get; init; }
         public int ObjectiveId { get; init; }
         public int PortfolioId { get; init; }
         public decimal TotalBalance { get; init; }
@@ -43,6 +48,9 @@ internal sealed class CreateTrust : IEndpoint
         public decimal Principal { get; init; }
         public decimal Earnings { get; init; }
         public int TaxCondition { get; init; }
-        public int ContingentWithholding { get; init; }
+        public decimal ContingentWithholding { get; init; }
+        public decimal EarningsWithholding { get; init; }
+        public decimal AvailableAmount { get; init; }
+        public decimal ContingentWithholdingPercentage { get; init; }
     }
 }

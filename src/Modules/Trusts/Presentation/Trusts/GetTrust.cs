@@ -12,7 +12,7 @@ internal sealed class GetTrust : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("trusts/{id:guid}", async (Guid id, ISender sender) =>
+        app.MapGet("trusts/{id:long}", async (long id, ISender sender) =>
             {
                 var result = await sender.Send(new GetTrustQuery(id));
                 return result.Match(Results.Ok, ApiResults.Problem);

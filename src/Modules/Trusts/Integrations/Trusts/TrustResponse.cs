@@ -1,9 +1,10 @@
 namespace Trusts.Integrations.Trusts;
 
 public sealed record TrustResponse(
-    Guid TrustId,
+    long TrustId,
     int AffiliateId,
     int ClientId,
+    DateTime CreationDate,
     int ObjectiveId,
     int PortfolioId,
     decimal TotalBalance,
@@ -11,5 +12,8 @@ public sealed record TrustResponse(
     decimal Principal,
     decimal Earnings,
     int TaxCondition,
-    int ContingentWithholding
+    decimal ContingentWithholding,
+    decimal EarningsWithholding,
+    decimal AvailableAmount,
+    decimal ContingentWithholdingPercentage
 );

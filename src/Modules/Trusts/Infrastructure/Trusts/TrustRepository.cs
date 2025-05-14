@@ -11,7 +11,7 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
         return await context.Trusts.ToListAsync(cancellationToken);
     }
 
-    public async Task<Trust?> GetAsync(Guid trustId, CancellationToken cancellationToken = default)
+    public async Task<Trust?> GetAsync(long trustId, CancellationToken cancellationToken = default)
     {
         return await context.Trusts
             .SingleOrDefaultAsync(x => x.TrustId == trustId, cancellationToken);

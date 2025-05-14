@@ -53,7 +53,7 @@ builder.Configuration.AddModuleConfiguration(["trusts", "associate"]);
 builder.Services.AddTrustsModule(builder.Configuration);
 builder.Services.AddActivatesModule(builder.Configuration);
 
-builder.Services.AddBffContributionsServices();
+builder.Services.AddBffTrustsServices();
 builder.Services.AddBffActivatesServices();
 
 builder.Services.AddEndpoints(typeof(TrustsEndpoints).Assembly);
@@ -102,7 +102,6 @@ app.UseSwaggerUI(options =>
             description.GroupName.ToUpperInvariant());
     options.DocExpansion(DocExpansion.None);
 });
-
 
 app.UseCors("AllowSwaggerUI");
 
