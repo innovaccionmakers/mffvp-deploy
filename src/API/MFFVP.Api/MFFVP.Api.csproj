@@ -25,8 +25,8 @@
         <ProjectReference Include="..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj"/>
         <ProjectReference Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj"/>
         <ProjectReference Include="..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
-        <ProjectReference Include="..\..\Modules\Activations\Application\Activations.Application.csproj"/>
-        <ProjectReference Include="..\..\Modules\Activations\Infrastructure\Activations.Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\Modules\Associate\Application\Associate.Application.csproj"/>
+        <ProjectReference Include="..\..\Modules\Associate\Infrastructure\Associate.Infrastructure.csproj"/>
         <ProjectReference Include="..\..\Modules\Trusts\Infrastructure\Trusts.Infrastructure.csproj"/>
         <ProjectReference Include="..\..\Modules\Trusts\Integrations\Trusts.Integrations.csproj"/>
     </ItemGroup>

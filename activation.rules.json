@@ -1,6 +1,6 @@
 ﻿[
   {
-    "WorkflowName": "Activations.Activation.Validation",
+    "WorkflowName": "Associate.Associate.Validation",
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
@@ -81,10 +81,10 @@
         "Expression": "input.Client != null && input.Client.IsActive"
       },
       {
-        "RuleName": "ClientNotAffiliated",
+        "RuleName": "ClientNotActivates",
         "ErrorCode": "15",
         "ErrorMessage": "El cliente ya se encuentra afiliado en el producto",
-        "Expression": "input.existingActivation == false"
+        "Expression": "input.existingActivate == false"
       },
       {
         "RuleName": "ClientExists",

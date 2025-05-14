@@ -1,5 +1,0 @@
-using Common.SharedKernel.Application.Messaging;
-
-namespace Activations.Integrations.MeetsPensionRequirements.GetMeetsPensionRequirements;
-
-public sealed record GetMeetsPensionRequirementsQuery : IQuery<IReadOnlyCollection<MeetsPensionRequirementResponse>>;
