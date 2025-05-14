@@ -2,7 +2,6 @@
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Associate.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using People.Application.Abstractions.Data;

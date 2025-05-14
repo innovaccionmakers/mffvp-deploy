@@ -1,4 +1,4 @@
-﻿namespace Associate.Infrastructure.Database;
+﻿namespace People.Infrastructure.Database;
 
 internal class Schemas
 {
