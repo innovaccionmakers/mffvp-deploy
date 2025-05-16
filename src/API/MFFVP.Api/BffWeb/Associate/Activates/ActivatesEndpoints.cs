@@ -1,4 +1,3 @@
-using Asp.Versioning;
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.CreateActivate;
 using Common.SharedKernel.Presentation.Filters;
@@ -20,7 +19,7 @@ public sealed class ActivatesEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/api/associate/activate")
+        var group = app.MapGroup("bffWeb/associate/activate")
             .WithTags("BFF Web - Associate")
             .WithOpenApi();
 
@@ -37,7 +36,8 @@ public sealed class ActivatesEndpoints
                 var result = await _activatesService.CreateActivateAsync(request, sender);
                 return result.ToApiResult();
             })
-            .Produces(StatusCodes.Status200OK)
+            .AddEndpointFilter<TechnicalValidationFilter<CreateActivateCommand>>()
+            .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
