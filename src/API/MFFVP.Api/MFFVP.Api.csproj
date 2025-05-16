@@ -43,7 +43,7 @@
 
     <ItemGroup>
         <Folder Include="Application\"/>
-        <Folder Include="BffWeb\"/>
+        <Folder Include="BffWeb\Products\" />
         <Folder Include="Infrastructure\"/>
     </ItemGroup>
 

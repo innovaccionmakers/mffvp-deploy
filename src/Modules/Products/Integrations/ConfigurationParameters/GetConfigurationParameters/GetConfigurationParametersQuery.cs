@@ -1,0 +1,6 @@
+using Common.SharedKernel.Application.Messaging;
+
+namespace Products.Integrations.ConfigurationParameters.GetConfigurationParameters;
+
+public sealed record GetConfigurationParametersQuery()
+    : IQuery<IReadOnlyCollection<ConfigurationParameterResponse>>;

@@ -1,0 +1,15 @@
+[
+  {
+    "WorkflowName": "Products.Portfolio.Validation",
+    "Rules": [
+      {
+        "RuleName": "PortfolioNotExist",
+        "ErrorMessage": "El portafolio no existe",
+        "Expression": "input != null",
+        "Properties": {
+          "errorCode": "f0dc78d6-77c4-49fa-8596-12dd7edc4fe5"
+        }
+      }
+    ]
+  }
+]

@@ -8,10 +8,12 @@ using Products.Application.Abstractions.Data;
 using Products.Domain.Plans;
 using Products.Infrastructure.Plans;
 using Products.Domain.Alternatives;
+using Products.Domain.ConfigurationParameters;
 using Products.Infrastructure.Alternatives;
 using Products.Domain.Objectives;
 using Products.Infrastructure.Objectives;
 using Products.Domain.Portfolios;
+using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Portfolios;
 
 namespace Products.Infrastructure.Database;
@@ -23,6 +25,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
     internal DbSet<Alternative> Alternatives { get; set; }
     internal DbSet<Objective> Objectives { get; set; }
     internal DbSet<Portfolio> Portfolios { get; set; }
+    internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +35,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
         modelBuilder.ApplyConfiguration(new AlternativeConfiguration());
         modelBuilder.ApplyConfiguration(new ObjectiveConfiguration());
         modelBuilder.ApplyConfiguration(new PortfolioConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

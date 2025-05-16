@@ -13,6 +13,10 @@ using Products.Domain.Portfolios;
 using Products.Infrastructure.Portfolios;
 using Products.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
+using Products.Application.Abstractions.Rules;
+using Products.Domain.ConfigurationParameters;
+using Products.Infrastructure.ConfigurationParameters;
+using Products.Infrastructure.RulesEngine;
 
 namespace Products.Infrastructure
 {
@@ -21,6 +25,11 @@ namespace Products.Infrastructure
         public static IServiceCollection AddProductsModule(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddInfrastructure(configuration);
+            services.AddRulesEngine(opt =>
+            {
+                opt.CacheSizeLimitMb = 64;
+                opt.EmbeddedResourceSearchPatterns = [".rules.json"];
+            });
             return services;
         }
 
@@ -39,6 +48,8 @@ namespace Products.Infrastructure
             services.AddScoped<IAlternativeRepository, AlternativeRepository>();
             services.AddScoped<IObjectiveRepository, ObjectiveRepository>();
             services.AddScoped<IPortfolioRepository, PortfolioRepository>();
+            services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+            services.AddScoped<IErrorCatalog, ErrorCatalog>();
 
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
         }

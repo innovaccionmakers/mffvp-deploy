@@ -8,6 +8,7 @@
     <ProjectReference Include="..\Application\Products.Application.csproj" />
     <ProjectReference Include="..\Domain\Products.Domain.csproj" />
     <ProjectReference Include="..\Presentation\Products.Presentation.csproj" />
+    <EmbeddedResource Include="..\Rules\**\*.json"/>
   </ItemGroup>
 
   <PropertyGroup>

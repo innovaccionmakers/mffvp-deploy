@@ -15,7 +15,7 @@ public static class ApiResults
 
     public static IResult Failure(Result failure)
     {
-        var code = int.TryParse(failure.Error.Code, out var parsed) ? parsed : 6000;
+        var code = failure.Error.Code;
 
         return HttpResults.Json(
             new
