@@ -6,7 +6,7 @@ using People.Integrations.People;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace People.Application.People.GetPersons;
+namespace People.Application.People.GetPeople;
 
 internal sealed class GetPeopleQueryHandler(
     IPersonRepository personRepository)

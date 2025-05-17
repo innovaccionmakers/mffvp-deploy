@@ -1,4 +1,3 @@
-using System.Data.Common;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using People.Domain.People;
@@ -6,7 +5,7 @@ using People.Integrations.People.UpdatePerson;
 using People.Integrations.People;
 using People.Application.Abstractions.Data;
 
-namespace People.Application.People;
+namespace People.Application.People.UpdatePerson;
 
 internal sealed class UpdatePersonCommandHandler(
     IPersonRepository personRepository,
