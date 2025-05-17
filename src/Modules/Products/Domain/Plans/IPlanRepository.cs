@@ -1,4 +1,5 @@
 namespace Products.Domain.Plans;
+
 public interface IPlanRepository
 {
     Task<IReadOnlyCollection<Plan>> GetAllAsync(CancellationToken cancellationToken = default);

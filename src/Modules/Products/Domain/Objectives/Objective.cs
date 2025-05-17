@@ -1,8 +1,13 @@
 using Common.SharedKernel.Domain;
 
 namespace Products.Domain.Objectives;
+
 public sealed class Objective : Entity
 {
+    private Objective()
+    {
+    }
+
     public long ObjectiveId { get; private set; }
     public int ObjectiveTypeId { get; private set; }
     public int AffiliateId { get; private set; }
@@ -11,30 +16,29 @@ public sealed class Objective : Entity
     public string Status { get; private set; }
     public DateTime CreationDate { get; private set; }
 
-    private Objective() { }
-
     public static Result<Objective> Create(
         int objectiveTypeId, int affiliateId, int alternativeId, string name, string status, DateTime creationDate
     )
     {
         var objective = new Objective
         {
-            ObjectiveId = default(long),
+            ObjectiveId = default,
 
             ObjectiveTypeId = objectiveTypeId,
             AffiliateId = affiliateId,
             AlternativeId = alternativeId,
             Name = name,
             Status = status,
-            CreationDate = creationDate,
+            CreationDate = creationDate
         };
 
         objective.Raise(new ObjectiveCreatedDomainEvent(objective.ObjectiveId));
         return Result.Success(objective);
     }
 
-        public void UpdateDetails(
-        int newObjectiveTypeId, int newAffiliateId, int newAlternativeId, string newName, string newStatus, DateTime newCreationDate
+    public void UpdateDetails(
+        int newObjectiveTypeId, int newAffiliateId, int newAlternativeId, string newName, string newStatus,
+        DateTime newCreationDate
     )
     {
         ObjectiveTypeId = newObjectiveTypeId;
@@ -44,5 +48,4 @@ public sealed class Objective : Entity
         Status = newStatus;
         CreationDate = newCreationDate;
     }
-
 }

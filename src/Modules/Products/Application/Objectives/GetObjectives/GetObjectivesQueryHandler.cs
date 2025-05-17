@@ -1,10 +1,8 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Products.Domain.Objectives;
-using Products.Integrations.Objectives.GetObjectives;
 using Products.Integrations.Objectives;
-using System.Collections.Generic;
-using System.Linq;
+using Products.Integrations.Objectives.GetObjectives;
 
 namespace Products.Application.Objectives.GetObjectives;
 
@@ -12,10 +10,11 @@ internal sealed class GetObjectivesQueryHandler(
     IObjectiveRepository objectiveRepository)
     : IQueryHandler<GetObjectivesQuery, IReadOnlyCollection<ObjectiveResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<ObjectiveResponse>>> Handle(GetObjectivesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<ObjectiveResponse>>> Handle(GetObjectivesQuery request,
+        CancellationToken cancellationToken)
     {
         var entities = await objectiveRepository.GetAllAsync(cancellationToken);
-        
+
         var response = entities
             .Select(e => new ObjectiveResponse(
                 e.ObjectiveId,

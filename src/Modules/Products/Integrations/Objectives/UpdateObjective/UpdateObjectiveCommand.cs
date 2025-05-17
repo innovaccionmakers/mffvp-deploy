@@ -1,7 +1,7 @@
 using Common.SharedKernel.Application.Messaging;
-using System;
 
 namespace Products.Integrations.Objectives.UpdateObjective;
+
 public sealed record UpdateObjectiveCommand(
     long ObjectiveId,
     int NewObjectiveTypeId,

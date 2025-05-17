@@ -10,13 +10,13 @@ internal sealed class GetEconomicActivityQueryHandler(
     IEconomicActivityRepository economicactivityRepository)
     : IQueryHandler<GetEconomicActivityQuery, EconomicActivityResponse>
 {
-    public async Task<Result<EconomicActivityResponse>> Handle(GetEconomicActivityQuery request, CancellationToken cancellationToken)
+    public async Task<Result<EconomicActivityResponse>> Handle(GetEconomicActivityQuery request,
+        CancellationToken cancellationToken)
     {
         var economicactivity = await economicactivityRepository.GetAsync(request.EconomicActivityId, cancellationToken);
         if (economicactivity is null)
-        {
-            return Result.Failure<EconomicActivityResponse>(EconomicActivityErrors.NotFound(request.EconomicActivityId));
-        }
+            return Result.Failure<EconomicActivityResponse>(
+                EconomicActivityErrors.NotFound(request.EconomicActivityId));
         var response = new EconomicActivityResponse(
             economicactivity.EconomicActivityId,
             economicactivity.Description,

@@ -7,18 +7,17 @@ using Microsoft.AspNetCore.Routing;
 using People.Integrations.People.GetPeople;
 using People.Integrations.People.GetPerson;
 
-namespace People.Presentation.People
+namespace People.Presentation.People;
+
+internal sealed class GetPersons : IEndpoint
 {
-    internal sealed class GetPersons : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapGet("people", async (ISender sender) =>
+        app.MapGet("people", async (ISender sender) =>
             {
                 var result = await sender.Send(new GetPeopleQuery());
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             .WithTags(Tags.Persons);
-        }
     }
 }

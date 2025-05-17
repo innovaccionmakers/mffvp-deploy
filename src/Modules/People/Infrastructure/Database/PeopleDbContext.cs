@@ -1,4 +1,3 @@
-
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,10 +31,7 @@ public sealed class PeopleDbContext(DbContextOptions<PeopleDbContext> options)
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Database.CurrentTransaction is not null)
-        {
-            await Database.CurrentTransaction.DisposeAsync();
-        }
+        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
 
         return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
     }

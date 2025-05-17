@@ -13,10 +13,7 @@ internal sealed class GetPersonQueryHandler(
     public async Task<Result<PersonResponse>> Handle(GetPersonQuery request, CancellationToken cancellationToken)
     {
         var person = await personRepository.GetAsync(request.PersonId, cancellationToken);
-        if (person is null)
-        {
-            return Result.Failure<PersonResponse>(PersonErrors.NotFound(request.PersonId));
-        }
+        if (person is null) return Result.Failure<PersonResponse>(PersonErrors.NotFound(request.PersonId));
         var response = new PersonResponse(
             person.PersonId,
             person.DocumentType,

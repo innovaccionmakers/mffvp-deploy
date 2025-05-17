@@ -12,10 +12,11 @@ internal sealed class GetEconomicActivitiesQueryHandler(
     IEconomicActivityRepository economicactivityRepository)
     : IQueryHandler<GetEconomicActivitiesQuery, IReadOnlyCollection<EconomicActivityResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<EconomicActivityResponse>>> Handle(GetEconomicActivitiesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<EconomicActivityResponse>>> Handle(GetEconomicActivitiesQuery request,
+        CancellationToken cancellationToken)
     {
         var entities = await economicactivityRepository.GetAllAsync(cancellationToken);
-        
+
         var response = entities
             .Select(e => new EconomicActivityResponse(
                 e.EconomicActivityId,

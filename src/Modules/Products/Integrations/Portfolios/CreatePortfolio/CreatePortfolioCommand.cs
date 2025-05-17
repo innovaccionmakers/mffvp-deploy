@@ -1,7 +1,7 @@
 using Common.SharedKernel.Application.Messaging;
-using System;
 
 namespace Products.Integrations.Portfolios.CreatePortfolio;
+
 public sealed record CreatePortfolioCommand(
     string StandardCode,
     string Name,

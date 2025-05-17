@@ -12,10 +12,11 @@ internal sealed class GetPeopleQueryHandler(
     IPersonRepository personRepository)
     : IQueryHandler<GetPeopleQuery, IReadOnlyCollection<PersonResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<PersonResponse>>> Handle(GetPeopleQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<PersonResponse>>> Handle(GetPeopleQuery request,
+        CancellationToken cancellationToken)
     {
         var entities = await personRepository.GetAllAsync(cancellationToken);
-        
+
         var response = entities
             .Select(e => new PersonResponse(
                 e.PersonId,

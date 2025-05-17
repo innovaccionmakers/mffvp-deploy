@@ -3,97 +3,93 @@ using Products.Application.Abstractions.Rules;
 using RulesEngine.Interfaces;
 using RulesEngine.Models;
 
-namespace Products.Infrastructure.RulesEngine
+namespace Products.Infrastructure.RulesEngine;
+
+internal sealed class RuleEvaluator : IRuleEvaluator
 {
-    internal sealed class RuleEvaluator : IRuleEvaluator
+    private readonly IErrorCatalog _catalog;
+    private readonly IRulesEngine _engine;
+    private readonly ILogger<RuleEvaluator> _log;
+
+    public RuleEvaluator(
+        IRulesEngine engine,
+        IErrorCatalog catalog,
+        ILogger<RuleEvaluator> log
+    )
     {
-        private readonly IErrorCatalog    _catalog;
-        private readonly IRulesEngine     _engine;
-        private readonly ILogger<RuleEvaluator> _log;
+        _engine = engine;
+        _catalog = catalog;
+        _log = log;
+    }
 
-        public RuleEvaluator(
-            IRulesEngine engine,
-            IErrorCatalog catalog,
-            ILogger<RuleEvaluator> log
-        )
-        {
-            _engine  = engine;
-            _catalog = catalog;
-            _log     = log;
-        }
-
-        public async Task<(
-            bool Success,
-            IReadOnlyCollection<RuleResultTree> Results,
-            IReadOnlyCollection<RuleValidationError> Errors
+    public async Task<(
+        bool Success,
+        IReadOnlyCollection<RuleResultTree> Results,
+        IReadOnlyCollection<RuleValidationError> Errors
         )> EvaluateAsync<T>(
-            string workflow,
-            T input,
-            CancellationToken ct = default
-        )
+        string workflow,
+        T input,
+        CancellationToken ct = default
+    )
+    {
+        var ruleParams = new[] { new RuleParameter("input", input) };
+        var results = await _engine.ExecuteAllRulesAsync(workflow, ruleParams);
+
+        var firstFail = results.FirstOrDefault(r => !r.IsSuccess);
+        if (firstFail is null) return (true, results, Array.Empty<RuleValidationError>());
+
+        if (!(firstFail.Rule.Properties?.TryGetValue("errorCode", out var codeObj) ?? false))
         {
-            var ruleParams = new[] { new RuleParameter("input", input) };
-            var results    = await _engine.ExecuteAllRulesAsync(workflow, ruleParams);
-
-            var firstFail = results.FirstOrDefault(r => !r.IsSuccess);
-            if (firstFail is null)
-            {
-                return (true, results, Array.Empty<RuleValidationError>());
-            }
-            
-            if (!(firstFail.Rule.Properties?.TryGetValue("errorCode", out var codeObj) ?? false))
-            {
-                _log.LogError(
-                    "La regla '{RuleName}' no contiene la propiedad 'errorCode'.",
-                    firstFail.Rule.RuleName
-                );
-                return (
-                    false,
-                    results,
-                    new[]
-                    {
-                        new RuleValidationError(
-                            "UNKNOWN_ERROR",
-                            firstFail.Rule.ErrorMessage 
-                              ?? $"Regla inválida ({firstFail.Rule.RuleName})"
-                        )
-                    }
-                );
-            }
-
-            var codeStr = codeObj?.ToString() ?? string.Empty;
-            
-            if (!Guid.TryParse(codeStr, out var ruleUuid))
-            {
-                _log.LogError(
-                    "El errorCode '{ErrorCode}' no es un GUID válido para la regla '{RuleName}'.",
-                    codeStr,
-                    firstFail.Rule.RuleName
-                );
-                return (
-                    false,
-                    results,
-                    new[]
-                    {
-                        new RuleValidationError(
-                            "INVALID_ERROR_CODE",
-                            firstFail.Rule.ErrorMessage 
-                              ?? $"Error en regla ({firstFail.Rule.RuleName})"
-                        )
-                    }
-                );
-            }
-
-            var (code, message) = await _catalog.GetAsync(ruleUuid, ct);
-
+            _log.LogError(
+                "La regla '{RuleName}' no contiene la propiedad 'errorCode'.",
+                firstFail.Rule.RuleName
+            );
             return (
                 false,
                 results,
                 new[]
                 {
-                    new RuleValidationError(code, message)
+                    new RuleValidationError(
+                        "UNKNOWN_ERROR",
+                        firstFail.Rule.ErrorMessage
+                        ?? $"Regla inválida ({firstFail.Rule.RuleName})"
+                    )
                 }
             );
         }
+
+        var codeStr = codeObj?.ToString() ?? string.Empty;
+
+        if (!Guid.TryParse(codeStr, out var ruleUuid))
+        {
+            _log.LogError(
+                "El errorCode '{ErrorCode}' no es un GUID válido para la regla '{RuleName}'.",
+                codeStr,
+                firstFail.Rule.RuleName
+            );
+            return (
+                false,
+                results,
+                new[]
+                {
+                    new RuleValidationError(
+                        "INVALID_ERROR_CODE",
+                        firstFail.Rule.ErrorMessage
+                        ?? $"Error en regla ({firstFail.Rule.RuleName})"
+                    )
+                }
+            );
+        }
+
+        var (code, message) = await _catalog.GetAsync(ruleUuid, ct);
+
+        return (
+            false,
+            results,
+            new[]
+            {
+                new RuleValidationError(code, message)
+            }
+        );
     }
 }

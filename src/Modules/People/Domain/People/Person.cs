@@ -3,6 +3,7 @@ using People.Domain.Countries;
 using People.Domain.EconomicActivities;
 
 namespace People.Domain.People;
+
 public sealed class Person : Entity
 {
     public long PersonId { get; private set; }
@@ -25,15 +26,20 @@ public sealed class Person : Entity
     public string Email { get; private set; }
     public string EconomicActivityId { get; private set; }
 
-    private Person() { }
+    private Person()
+    {
+    }
 
     public static Result<Person> Create(
-        string documentType, string standardCode, string identification, string firstName, string middleName, string lastName, string secondLastName, DateTime issueDate, int issueCityId, DateTime birthDate, int birthCityId, string mobile, string fullName, int maritalStatusId, int genderId, string email, Country country, EconomicActivity economicActivity
+        string documentType, string standardCode, string identification, string firstName, string middleName,
+        string lastName, string secondLastName, DateTime issueDate, int issueCityId, DateTime birthDate,
+        int birthCityId, string mobile, string fullName, int maritalStatusId, int genderId, string email,
+        Country country, EconomicActivity economicActivity
     )
     {
         var person = new Person
         {
-            PersonId = default(long),
+            PersonId = default,
 
             DocumentType = documentType,
             StandardCode = standardCode,
@@ -52,15 +58,18 @@ public sealed class Person : Entity
             GenderId = genderId,
             CountryId = country.CountryId,
             Email = email,
-            EconomicActivityId = economicActivity.EconomicActivityId,
+            EconomicActivityId = economicActivity.EconomicActivityId
         };
 
         person.Raise(new PersonCreatedDomainEvent(person.PersonId));
         return Result.Success(person);
     }
 
-        public void UpdateDetails(
-        string newDocumentType, string newStandardCode, string newIdentification, string newFirstName, string newMiddleName, string newLastName, string newSecondLastName, DateTime newIssueDate, int newIssueCityId, DateTime newBirthDate, int newBirthCityId, string newMobile, string newFullName, int newMaritalStatusId, int newGenderId, int newCountryId, string newEmail, string newEconomicActivityId
+    public void UpdateDetails(
+        string newDocumentType, string newStandardCode, string newIdentification, string newFirstName,
+        string newMiddleName, string newLastName, string newSecondLastName, DateTime newIssueDate, int newIssueCityId,
+        DateTime newBirthDate, int newBirthCityId, string newMobile, string newFullName, int newMaritalStatusId,
+        int newGenderId, int newCountryId, string newEmail, string newEconomicActivityId
     )
     {
         DocumentType = newDocumentType;
@@ -82,5 +91,4 @@ public sealed class Person : Entity
         Email = newEmail;
         EconomicActivityId = newEconomicActivityId;
     }
-
 }

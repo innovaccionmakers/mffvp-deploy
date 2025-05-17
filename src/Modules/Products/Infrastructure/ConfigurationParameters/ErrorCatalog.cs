@@ -6,8 +6,8 @@ namespace Products.Infrastructure.ConfigurationParameters;
 
 internal sealed class ErrorCatalog : IErrorCatalog
 {
-    private readonly IConfigurationParameterRepository _repo;
     private readonly ILogger<ErrorCatalog> _log;
+    private readonly IConfigurationParameterRepository _repo;
 
     public ErrorCatalog(
         IConfigurationParameterRepository repo,
@@ -15,7 +15,7 @@ internal sealed class ErrorCatalog : IErrorCatalog
     )
     {
         _repo = repo;
-        _log  = log;
+        _log = log;
     }
 
     public async Task<(string Code, string Message)> GetAsync(

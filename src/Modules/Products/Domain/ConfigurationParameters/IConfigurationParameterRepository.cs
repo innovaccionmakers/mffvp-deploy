@@ -7,6 +7,7 @@ public interface IConfigurationParameterRepository
     void Insert(ConfigurationParameter parameter);
     void Update(ConfigurationParameter parameter);
     void Delete(ConfigurationParameter parameter);
+
     Task<ConfigurationParameter?> GetByUuidAsync(
         Guid uuid,
         CancellationToken cancellationToken = default

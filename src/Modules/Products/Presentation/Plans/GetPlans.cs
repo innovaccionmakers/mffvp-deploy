@@ -6,18 +6,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Products.Integrations.Plans.GetPlans;
 
-namespace Products.Presentation.Plans
+namespace Products.Presentation.Plans;
+
+internal sealed class GetPlans : IEndpoint
 {
-    internal sealed class GetPlans : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapGet("plans", async (ISender sender) =>
+        app.MapGet("plans", async (ISender sender) =>
             {
                 var result = await sender.Send(new GetPlansQuery());
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             .WithTags(Tags.Plans);
-        }
     }
 }

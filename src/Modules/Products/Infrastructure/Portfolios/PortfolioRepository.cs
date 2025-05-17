@@ -3,6 +3,7 @@ using Products.Domain.Portfolios;
 using Products.Infrastructure.Database;
 
 namespace Products.Infrastructure.Portfolios;
+
 internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfolioRepository
 {
     public async Task<IReadOnlyCollection<Portfolio>> GetAllAsync(CancellationToken cancellationToken = default)

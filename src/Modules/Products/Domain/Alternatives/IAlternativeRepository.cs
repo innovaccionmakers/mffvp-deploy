@@ -1,4 +1,5 @@
 namespace Products.Domain.Alternatives;
+
 public interface IAlternativeRepository
 {
     Task<IReadOnlyCollection<Alternative>> GetAllAsync(CancellationToken cancellationToken = default);

@@ -6,20 +6,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Products.Integrations.Portfolios.UpdatePortfolio;
 
-namespace Products.Presentation.Portfolios
+namespace Products.Presentation.Portfolios;
+
+internal sealed class UpdatePortfolio : IEndpoint
 {
-    internal sealed class UpdatePortfolio : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapPut("portfolios/{id:long}", async (long id, Request request, ISender sender) =>
+        app.MapPut("portfolios/{id:long}", async (long id, Request request, ISender sender) =>
             {
                 var command = new UpdatePortfolioCommand(
                     id,
-                    request.NewStandardCode, 
-                    request.NewName, 
-                    request.NewShortName, 
-                    request.NewModalityId, 
+                    request.NewStandardCode,
+                    request.NewName,
+                    request.NewShortName,
+                    request.NewModalityId,
                     request.NewInitialMinimumAmount
                 );
 
@@ -27,15 +27,14 @@ namespace Products.Presentation.Portfolios
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             .WithTags(Tags.Portfolios);
-        }
+    }
 
-        internal sealed class Request
-        {
-            public string NewStandardCode { get; set; }
-            public string NewName { get; set; }
-            public string NewShortName { get; set; }
-            public int NewModalityId { get; set; }
-            public decimal NewInitialMinimumAmount { get; set; }
-        }
+    internal sealed class Request
+    {
+        public string NewStandardCode { get; set; }
+        public string NewName { get; set; }
+        public string NewShortName { get; set; }
+        public int NewModalityId { get; set; }
+        public decimal NewInitialMinimumAmount { get; set; }
     }
 }

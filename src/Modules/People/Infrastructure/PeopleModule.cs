@@ -12,32 +12,32 @@ using People.Infrastructure.EconomicActivities;
 using People.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
 
-namespace People.Infrastructure
+namespace People.Infrastructure;
+
+public static class PeopleModule
 {
-    public static class PeopleModule
+    public static IServiceCollection AddPeopleModule(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddPeopleModule(this IServiceCollection services, IConfiguration configuration)
+        services.AddInfrastructure(configuration);
+        return services;
+    }
+
+    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<PeopleDbContext>((sp, options) =>
         {
-            services.AddInfrastructure(configuration);
-            return services;
-        }
+            options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
+                .UseNpgsql(
+                    configuration.GetConnectionString("PeopleDatabase"),
+                    npgsqlOptions =>
+                        npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.People)
+                );
+        });
 
-        private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddDbContext<PeopleDbContext>((sp, options) =>
-            {
-                options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
-                       .UseNpgsql(
-                            configuration.GetConnectionString("PeopleDatabase"),
-                            npgsqlOptions => npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.People)
-                       );
-            });
+        services.AddScoped<IPersonRepository, PersonRepository>();
+        services.AddScoped<ICountryRepository, CountryRepository>();
+        services.AddScoped<IEconomicActivityRepository, EconomicActivityRepository>();
 
-            services.AddScoped<IPersonRepository, PersonRepository>();
-            services.AddScoped<ICountryRepository, CountryRepository>();
-            services.AddScoped<IEconomicActivityRepository, EconomicActivityRepository>();
-
-            services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PeopleDbContext>());
-        }
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PeopleDbContext>());
     }
 }
