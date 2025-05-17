@@ -12,13 +12,15 @@ internal sealed class GetPortfolioQueryHandler(
     IRuleEvaluator ruleEvaluator)
     : IQueryHandler<GetPortfolioQuery, PortfolioResponse>
 {
+    private const string ValidationWorkflow = "Products.Portfolio.Validation";
+    
     public async Task<Result<PortfolioResponse>> Handle(GetPortfolioQuery request, CancellationToken cancellationToken)
     {
         var portfolio = await portfolioRepository.GetAsync(request.PortfolioId, cancellationToken);
 
         var (isValid, _, errors) = await ruleEvaluator
             .EvaluateAsync(
-                "Products.Portfolio.Validation",
+                ValidationWorkflow,
                 portfolio,
                 cancellationToken);
 
