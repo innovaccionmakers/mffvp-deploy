@@ -26,7 +26,7 @@ public static class RulesEngineServiceCollectionExtensions
         if (configure is not null)
             services.Configure(configure);
 
-        services.AddSingleton<IRulesEngine>(sp =>
+        services.AddTransient<IRulesEngine>(sp =>
         {
             var opt = sp.GetRequiredService<IOptions<RulesEngineOptions>>().Value;
             var logger = sp.GetRequiredService<ILoggerFactory>()

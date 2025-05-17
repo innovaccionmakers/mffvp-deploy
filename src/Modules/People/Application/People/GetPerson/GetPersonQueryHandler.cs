@@ -1,19 +1,36 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using People.Application.Abstractions.Rules;
 using People.Domain.People;
-using People.Integrations.People.GetPerson;
 using People.Integrations.People;
+using People.Integrations.People.GetPerson;
 
 namespace People.Application.People.GetPerson;
 
 internal sealed class GetPersonQueryHandler(
-    IPersonRepository personRepository)
+    IPersonRepository personRepository,
+    IRuleEvaluator ruleEvaluator)
     : IQueryHandler<GetPersonQuery, PersonResponse>
 {
+    private const string ValidationWorkflow = "People.Person.Validation";
+
     public async Task<Result<PersonResponse>> Handle(GetPersonQuery request, CancellationToken cancellationToken)
     {
         var person = await personRepository.GetAsync(request.PersonId, cancellationToken);
-        if (person is null) return Result.Failure<PersonResponse>(PersonErrors.NotFound(request.PersonId));
+
+        var (isValid, _, errors) = await ruleEvaluator
+            .EvaluateAsync(
+                ValidationWorkflow,
+                person,
+                cancellationToken);
+
+        if (!isValid)
+        {
+            var first = errors.First();
+            return Result.Failure<PersonResponse>(
+                Error.Validation(first.Code, first.Message));
+        }
+
         var response = new PersonResponse(
             person.PersonId,
             person.DocumentType,

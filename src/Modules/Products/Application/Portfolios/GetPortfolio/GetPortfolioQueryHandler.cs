@@ -20,8 +20,8 @@ internal sealed class GetPortfolioQueryHandler(
 
         var (isValid, _, errors) = await ruleEvaluator
             .EvaluateAsync(
-                ValidationWorkflow,
-                portfolio,
+                workflow: ValidationWorkflow,
+                input: "Products.Portfolio.Validation",
                 cancellationToken);
 
         if (!isValid)
