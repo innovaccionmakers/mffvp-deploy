@@ -23,7 +23,8 @@ public static class TrustsModule
         IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine<TrustsModuleMarker>(opt => {
+        services.AddRulesEngine<TrustsModuleMarker>(opt =>
+        {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
         });
@@ -46,7 +47,7 @@ public static class TrustsModule
         services.AddScoped<ITrustHistoryRepository, TrustHistoryRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
-        
+
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());
     }
 }

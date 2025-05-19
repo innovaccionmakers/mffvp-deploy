@@ -1,21 +1,18 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Operations.Application.Abstractions.Rules;
 using RulesEngine.HelperFunctions;
-using RulesEngine.Interfaces;
 using RulesEngine.Models;
-using Trusts.Application.Abstractions.Rules;
 
-namespace Trusts.Infrastructure.RulesEngine;
+namespace Operations.Infrastructure.RulesEngine;
 
 public sealed class RulesEngineOptions<TModule>
 {
     public int CacheSizeLimitMb { get; set; } = 32;
-
-    public string[] EmbeddedResourceSearchPatterns { get; set; }
-        = new[] { ".rules.json" };
+    public string[] EmbeddedResourceSearchPatterns { get; set; } = [".rules.json"];
 }
 
 public static class RulesEngineServiceCollectionExtensions
@@ -24,24 +21,19 @@ public static class RulesEngineServiceCollectionExtensions
         this IServiceCollection services,
         Action<RulesEngineOptions<TModule>>? configure = null)
     {
-        if (configure is not null)
-            services.Configure(configure);
+        if (configure is not null) services.Configure(configure);
 
-        services.AddSingleton<IRulesEngine<TModule>>(sp =>
+        services.AddTransient<IRulesEngine<TModule>>(sp =>
         {
             var opt = sp.GetRequiredService<IOptions<RulesEngineOptions<TModule>>>().Value;
             var logger = sp.GetRequiredService<ILoggerFactory>()
                 .CreateLogger($"RulesEngineLoader.{typeof(TModule).Name}");
-
             var assembly = typeof(RulesEngineServiceCollectionExtensions).Assembly;
 
             var workflows = LoadWorkflowsFromEmbeddedResources(opt, logger, assembly);
             var reSettings = new ReSettings
             {
-                CacheConfig = new MemCacheConfig
-                {
-                    SizeLimit = opt.CacheSizeLimitMb * 1024
-                }
+                CacheConfig = new MemCacheConfig { SizeLimit = opt.CacheSizeLimitMb * 1024 }
             };
 
             return new global::RulesEngine.RulesEngine(workflows, reSettings)

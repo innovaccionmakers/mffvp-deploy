@@ -1,6 +1,6 @@
-﻿using RulesEngine.Models;
+using RulesEngine.Models;
 
-namespace Trusts.Application.Abstractions.Rules;
+namespace Operations.Application.Abstractions.Rules;
 
 public record RuleValidationError(string Code, string Message);
 
