@@ -10,7 +10,7 @@ internal sealed class AlternativeConfiguration : IEntityTypeConfiguration<Altern
     {
         builder.ToTable("alternativas");
         builder.HasKey(x => x.AlternativeId);
-        builder.Property(x => x.AlternativeId).HasColumnName("alternativa_id");
+        builder.Property(x => x.AlternativeId).HasColumnName("id");
         builder.Property(x => x.AlternativeTypeId).HasColumnName("tipo_alternativa_id");
         builder.Property(x => x.Name).HasColumnName("nombre");
         builder.Property(x => x.Status).HasColumnName("estado");

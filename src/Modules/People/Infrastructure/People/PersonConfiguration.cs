@@ -12,7 +12,7 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
     {
         builder.ToTable("personas");
         builder.HasKey(x => x.PersonId);
-        builder.Property(x => x.PersonId).HasColumnName("persona_id");
+        builder.Property(x => x.PersonId).HasColumnName("id");
         builder.Property(x => x.DocumentType).HasColumnName("tipo_documento");
         builder.Property(x => x.StandardCode).HasColumnName("codigo_homologado");
         builder.Property(x => x.Identification).HasColumnName("identificacion");

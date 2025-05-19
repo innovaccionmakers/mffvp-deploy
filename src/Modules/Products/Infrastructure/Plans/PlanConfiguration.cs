@@ -10,7 +10,7 @@ internal sealed class PlanConfiguration : IEntityTypeConfiguration<Plan>
     {
         builder.ToTable("planes");
         builder.HasKey(x => x.PlanId);
-        builder.Property(x => x.PlanId).HasColumnName("plan_id");
+        builder.Property(x => x.PlanId).HasColumnName("id");
         builder.Property(x => x.Name).HasColumnName("nombre");
         builder.Property(x => x.Description).HasColumnName("descripcion");
     }

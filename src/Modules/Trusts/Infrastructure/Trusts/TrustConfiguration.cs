@@ -10,7 +10,7 @@ internal sealed class TrustConfiguration : IEntityTypeConfiguration<Trust>
     {
         builder.ToTable("fideicomisos");
         builder.HasKey(x => x.TrustId);
-        builder.Property(x => x.TrustId).HasColumnName("fideicomiso_id");
+        builder.Property(x => x.TrustId).HasColumnName("id");
         builder.Property(x => x.AffiliateId).HasColumnName("afiliado_id");
         builder.Property(x => x.ClientId).HasColumnName("cliente_id");
         builder.Property(x => x.CreationDate).HasColumnName("fecha_creacion");
