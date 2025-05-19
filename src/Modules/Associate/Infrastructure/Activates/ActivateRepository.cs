@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Associate.Infrastructure;
 
-internal sealed class ActivateRepository(ActivatesDbContext context) : IActivateRepository
+internal sealed class ActivateRepository(AssociateDbContext context) : IActivateRepository
 {
     public async Task<IReadOnlyCollection<Activate>> GetAllAsync(CancellationToken cancellationToken = default)
     {

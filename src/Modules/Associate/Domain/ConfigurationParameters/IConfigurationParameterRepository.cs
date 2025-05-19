@@ -1,0 +1,11 @@
+namespace Associate.Domain.ConfigurationParameters;
+
+public interface IConfigurationParameterRepository
+{
+    Task<IReadOnlyCollection<ConfigurationParameter>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<ConfigurationParameter?> GetAsync(int id, CancellationToken cancellationToken = default);
+    void Insert(ConfigurationParameter configurationparameter);
+    void Update(ConfigurationParameter configurationparameter);
+    void Delete(ConfigurationParameter configurationparameter);
+    Task<ConfigurationParameter?> GetByUuidAsync(Guid uuid, CancellationToken cancellationToken = default);
+}
