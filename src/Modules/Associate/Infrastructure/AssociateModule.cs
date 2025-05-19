@@ -2,10 +2,12 @@ using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Domain.Activates;
 using Associate.Domain.Clients;
+using Associate.Domain.ConfigurationParameters;
 using Associate.Infrastructure.Database;
 using Associate.Infrastructure.Mocks;
 using Associate.Infrastructure.RulesEngine;
 using Common.SharedKernel.Infrastructure.Configuration;
+using Infrastructure.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -29,19 +31,20 @@ public static class ActivatesModule
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<ActivatesDbContext>((sp, options) =>
+        services.AddDbContext<AssociateDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
                 .UseNpgsql(
                     configuration.GetConnectionString("AssociateDatabase"),
                     npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Associate)
-                ).UseSnakeCaseNamingConvention();
+                );
         });
 
         services.AddScoped<IActivateRepository, ActivateRepository>();
         services.AddScoped<IClientRepository, InMemoryClientRepository>();
-        services.AddSingleton<IErrorCatalog, InMemoryActivateErrorCatalog>();
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ActivatesDbContext>());
+        services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IErrorCatalog, ErrorCatalog>();
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());
     }
 }

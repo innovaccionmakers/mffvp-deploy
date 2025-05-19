@@ -2,7 +2,8 @@
 
 public interface IErrorCatalog
 {
-    Task<(int Code, string DefaultMessage)> GetAsync(
-        string ruleKey,
-        CancellationToken ct);
+    Task<(string Code, string Message)> GetAsync(
+        Guid ruleUuid,
+        CancellationToken cancellationToken = default
+    );
 }

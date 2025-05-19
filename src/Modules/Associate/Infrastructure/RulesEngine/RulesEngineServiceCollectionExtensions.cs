@@ -41,7 +41,7 @@ public static class RulesEngineServiceCollectionExtensions
             return new global::RulesEngine.RulesEngine(workflows, reSettings);
         });
 
-        services.AddSingleton<IRuleEvaluator, RuleEvaluator>();
+        services.AddScoped<IRuleEvaluator, RuleEvaluator>();
         return services;
     }
 
