@@ -3,12 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Trusts.Application.Abstractions;
 using Trusts.Application.Abstractions.Data;
 using Trusts.Application.Abstractions.Rules;
+using Trusts.Domain.ConfigurationParameters;
 using Trusts.Domain.TrustHistories;
 using Trusts.Domain.Trusts;
+using Trusts.Infrastructure.ConfigurationParameters;
 using Trusts.Infrastructure.Database;
-using Trusts.Infrastructure.Mocks;
 using Trusts.Infrastructure.RulesEngine;
 using Trusts.Infrastructure.TrustHistories;
 using Trusts.Infrastructure.Trusts;
@@ -21,8 +23,7 @@ public static class TrustsModule
         IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine(opt =>
-        {
+        services.AddRulesEngine<TrustsModuleMarker>(opt => {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
         });
@@ -43,7 +44,9 @@ public static class TrustsModule
 
         services.AddScoped<ITrustRepository, TrustRepository>();
         services.AddScoped<ITrustHistoryRepository, TrustHistoryRepository>();
-        services.AddSingleton<IErrorCatalog, InMemoryErrorCatalog>();
+        services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IErrorCatalog, ErrorCatalog>();
+        
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());
     }
 }

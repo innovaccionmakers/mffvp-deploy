@@ -1,14 +1,14 @@
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using People.Domain.EconomicActivities;
 
 namespace People.Infrastructure.EconomicActivities;
+
 internal sealed class EconomicActivityConfiguration : IEntityTypeConfiguration<EconomicActivity>
 {
     public void Configure(EntityTypeBuilder<EconomicActivity> builder)
     {
-        builder.ToTable("ciuu");  
+        builder.ToTable("ciuu");
         builder.HasKey(x => x.EconomicActivityId);
         builder.Property(x => x.EconomicActivityId).HasColumnName("codgrupo_id");
         builder.Property(x => x.Description).HasColumnName("descripcion");

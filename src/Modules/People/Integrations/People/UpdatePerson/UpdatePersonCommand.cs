@@ -2,6 +2,7 @@ using Common.SharedKernel.Application.Messaging;
 using System;
 
 namespace People.Integrations.People.UpdatePerson;
+
 public sealed record UpdatePersonCommand(
     long PersonId,
     string NewDocumentType,

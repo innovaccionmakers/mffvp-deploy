@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Products.Integrations.Portfolios.DeletePortfolio;
 
-namespace Products.Presentation.Portfolios
+namespace Products.Presentation.Portfolios;
+
+internal sealed class DeletePortfolio : IEndpoint
 {
-    internal sealed class DeletePortfolio : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapDelete("portfolios/{id:long}", async (long id, ISender sender) =>
+        app.MapDelete("portfolios/{id:long}", async (long id, ISender sender) =>
             {
                 var result = await sender.Send(new DeletePortfolioCommand(id));
                 return result.Match(
@@ -21,6 +21,5 @@ namespace Products.Presentation.Portfolios
                 );
             })
             .WithTags(Tags.Portfolios);
-        }
     }
 }

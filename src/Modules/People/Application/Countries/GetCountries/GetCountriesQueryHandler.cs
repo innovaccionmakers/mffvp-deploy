@@ -12,10 +12,11 @@ internal sealed class GetCountriesQueryHandler(
     ICountryRepository countryRepository)
     : IQueryHandler<GetCountriesQuery, IReadOnlyCollection<CountryResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<CountryResponse>>> Handle(GetCountriesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<CountryResponse>>> Handle(GetCountriesQuery request,
+        CancellationToken cancellationToken)
     {
         var entities = await countryRepository.GetAllAsync(cancellationToken);
-        
+
         var response = entities
             .Select(e => new CountryResponse(
                 e.CountryId,

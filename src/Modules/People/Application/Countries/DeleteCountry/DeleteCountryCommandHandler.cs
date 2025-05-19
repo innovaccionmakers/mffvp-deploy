@@ -14,14 +14,11 @@ internal sealed class DeleteCountryCommandHandler(
 {
     public async Task<Result> Handle(DeleteCountryCommand request, CancellationToken cancellationToken)
     {
-        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var country = await countryRepository.GetAsync(request.CountryId, cancellationToken);
-        if (country is null)
-        {
-            return Result.Failure(CountryErrors.NotFound(request.CountryId));
-        }
-        
+        if (country is null) return Result.Failure(CountryErrors.NotFound(request.CountryId));
+
         countryRepository.Delete(country);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

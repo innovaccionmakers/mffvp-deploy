@@ -3,6 +3,7 @@ using Products.Domain.Plans;
 using Products.Infrastructure.Database;
 
 namespace Products.Infrastructure.Plans;
+
 internal sealed class PlanRepository(ProductsDbContext context) : IPlanRepository
 {
     public async Task<IReadOnlyCollection<Plan>> GetAllAsync(CancellationToken cancellationToken = default)

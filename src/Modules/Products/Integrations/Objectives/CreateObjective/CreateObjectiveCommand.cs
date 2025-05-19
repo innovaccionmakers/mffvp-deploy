@@ -1,7 +1,7 @@
 using Common.SharedKernel.Application.Messaging;
-using System;
 
 namespace Products.Integrations.Objectives.CreateObjective;
+
 public sealed record CreateObjectiveCommand(
     int ObjectiveTypeId,
     int AffiliateId,

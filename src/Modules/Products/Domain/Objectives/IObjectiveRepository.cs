@@ -1,4 +1,5 @@
 namespace Products.Domain.Objectives;
+
 public interface IObjectiveRepository
 {
     Task<IReadOnlyCollection<Objective>> GetAllAsync(CancellationToken cancellationToken = default);

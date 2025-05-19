@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Products.Integrations.Objectives.DeleteObjective;
 
-namespace Products.Presentation.Objectives
+namespace Products.Presentation.Objectives;
+
+internal sealed class DeleteObjective : IEndpoint
 {
-    internal sealed class DeleteObjective : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapDelete("objectives/{id:long}", async (long id, ISender sender) =>
+        app.MapDelete("objectives/{id:long}", async (long id, ISender sender) =>
             {
                 var result = await sender.Send(new DeleteObjectiveCommand(id));
                 return result.Match(
@@ -21,6 +21,5 @@ namespace Products.Presentation.Objectives
                 );
             })
             .WithTags(Tags.Objectives);
-        }
     }
 }

@@ -1,4 +1,5 @@
 namespace Products.Domain.Portfolios;
+
 public interface IPortfolioRepository
 {
     Task<IReadOnlyCollection<Portfolio>> GetAllAsync(CancellationToken cancellationToken = default);

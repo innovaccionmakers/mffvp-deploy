@@ -1,6 +1,7 @@
 using Common.SharedKernel.Domain;
 
 namespace People.Domain.EconomicActivities;
+
 public sealed class EconomicActivity : Entity
 {
     public string EconomicActivityId { get; private set; }
@@ -12,15 +13,17 @@ public sealed class EconomicActivity : Entity
     public string ClassCode { get; private set; }
     public string StandardCode { get; private set; }
 
-    private EconomicActivity() { }
+    private EconomicActivity()
+    {
+    }
 
     public static Result<EconomicActivity> Create(
-        string economicActivityId, string description, string ciiuCode, string divisionCode, string divisionName, string groupName, string classCode, string standardCode
+        string economicActivityId, string description, string ciiuCode, string divisionCode, string divisionName,
+        string groupName, string classCode, string standardCode
     )
     {
         var economicactivity = new EconomicActivity
         {
-
             EconomicActivityId = economicActivityId,
             Description = description,
             CiiuCode = ciiuCode,
@@ -28,15 +31,16 @@ public sealed class EconomicActivity : Entity
             DivisionName = divisionName,
             GroupName = groupName,
             ClassCode = classCode,
-            StandardCode = standardCode,
+            StandardCode = standardCode
         };
 
         economicactivity.Raise(new EconomicActivityCreatedDomainEvent(economicactivity.EconomicActivityId));
         return Result.Success(economicactivity);
     }
 
-        public void UpdateDetails(
-        string newEconomicActivityId, string newDescription, string newCiiuCode, string newDivisionCode, string newDivisionName, string newGroupName, string newClassCode, string newStandardCode
+    public void UpdateDetails(
+        string newEconomicActivityId, string newDescription, string newCiiuCode, string newDivisionCode,
+        string newDivisionName, string newGroupName, string newClassCode, string newStandardCode
     )
     {
         EconomicActivityId = newEconomicActivityId;
@@ -48,5 +52,4 @@ public sealed class EconomicActivity : Entity
         ClassCode = newClassCode;
         StandardCode = newStandardCode;
     }
-
 }

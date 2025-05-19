@@ -14,14 +14,12 @@ internal sealed class DeleteEconomicActivityCommandHandler(
 {
     public async Task<Result> Handle(DeleteEconomicActivityCommand request, CancellationToken cancellationToken)
     {
-        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var economicactivity = await economicactivityRepository.GetAsync(request.EconomicActivityId, cancellationToken);
         if (economicactivity is null)
-        {
             return Result.Failure(EconomicActivityErrors.NotFound(request.EconomicActivityId));
-        }
-        
+
         economicactivityRepository.Delete(economicactivity);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

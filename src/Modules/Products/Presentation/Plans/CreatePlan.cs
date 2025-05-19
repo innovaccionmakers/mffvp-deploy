@@ -6,28 +6,27 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Products.Integrations.Plans.CreatePlan;
 
-namespace Products.Presentation.Plans
+namespace Products.Presentation.Plans;
+
+internal sealed class CreatePlan : IEndpoint
 {
-    internal sealed class CreatePlan : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapPost("plans", async (Request request, ISender sender) =>
+        app.MapPost("plans", async (Request request, ISender sender) =>
             {
                 var result = await sender.Send(new CreatePlanCommand(
-                    request.Name, 
+                    request.Name,
                     request.Description
                 ));
 
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             .WithTags(Tags.Plans);
-        }
+    }
 
-        internal sealed class Request
-        {
-            public string Name { get; init; }
-            public string Description { get; init; }
-        }
+    internal sealed class Request
+    {
+        public string Name { get; init; }
+        public string Description { get; init; }
     }
 }

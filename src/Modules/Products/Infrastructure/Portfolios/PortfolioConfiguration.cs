@@ -1,14 +1,14 @@
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Products.Domain.Portfolios;
 
 namespace Products.Infrastructure.Portfolios;
+
 internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfolio>
 {
     public void Configure(EntityTypeBuilder<Portfolio> builder)
     {
-        builder.ToTable("portafolios");  
+        builder.ToTable("portafolios");
         builder.HasKey(x => x.PortfolioId);
         builder.Property(x => x.PortfolioId).HasColumnName("portafolio_id");
         builder.Property(x => x.StandardCode).HasColumnName("codigo_homologacion");

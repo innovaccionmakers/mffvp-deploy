@@ -6,18 +6,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using People.Integrations.EconomicActivities.GetEconomicActivities;
 
-namespace People.Presentation.EconomicActivities
+namespace People.Presentation.EconomicActivities;
+
+internal sealed class GetEconomicActivities : IEndpoint
 {
-    internal sealed class GetEconomicActivities : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapGet("economicactivities", async (ISender sender) =>
+        app.MapGet("economicactivities", async (ISender sender) =>
             {
                 var result = await sender.Send(new GetEconomicActivitiesQuery());
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             .WithTags(Tags.EconomicActivities);
-        }
     }
 }

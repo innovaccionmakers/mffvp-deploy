@@ -1,4 +1,5 @@
 namespace People.Domain.EconomicActivities;
+
 public interface IEconomicActivityRepository
 {
     Task<IReadOnlyCollection<EconomicActivity>> GetAllAsync(CancellationToken cancellationToken = default);

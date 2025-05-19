@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using People.Domain.People;
@@ -6,11 +5,12 @@ using People.Domain.Countries;
 using People.Domain.EconomicActivities;
 
 namespace People.Infrastructure.People;
+
 internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
 {
     public void Configure(EntityTypeBuilder<Person> builder)
     {
-        builder.ToTable("personas");  
+        builder.ToTable("personas");
         builder.HasKey(x => x.PersonId);
         builder.Property(x => x.PersonId).HasColumnName("persona_id");
         builder.Property(x => x.DocumentType).HasColumnName("tipo_documento");
@@ -30,10 +30,10 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
         builder.Property(x => x.GenderId).HasColumnName("sexo_id");
         builder.Property(x => x.Email).HasColumnName("email");
         builder.HasOne<Country>()
-               .WithMany()
-               .HasForeignKey(x => x.CountryId);
+            .WithMany()
+            .HasForeignKey(x => x.CountryId);
         builder.HasOne<EconomicActivity>()
-               .WithMany()
-               .HasForeignKey(x => x.EconomicActivityId);
+            .WithMany()
+            .HasForeignKey(x => x.EconomicActivityId);
     }
 }

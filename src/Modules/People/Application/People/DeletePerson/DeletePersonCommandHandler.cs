@@ -14,14 +14,11 @@ internal sealed class DeletePersonCommandHandler(
 {
     public async Task<Result> Handle(DeletePersonCommand request, CancellationToken cancellationToken)
     {
-        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var person = await personRepository.GetAsync(request.PersonId, cancellationToken);
-        if (person is null)
-        {
-            return Result.Failure(PersonErrors.NotFound(request.PersonId));
-        }
-        
+        if (person is null) return Result.Failure(PersonErrors.NotFound(request.PersonId));
+
         personRepository.Delete(person);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

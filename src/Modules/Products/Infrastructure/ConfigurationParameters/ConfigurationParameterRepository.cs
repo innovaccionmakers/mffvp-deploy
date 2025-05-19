@@ -1,6 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Products.Domain.ConfigurationParameters;
 using Products.Infrastructure.Database;
-using Microsoft.EntityFrameworkCore;
 
 namespace Products.Infrastructure.ConfigurationParameters;
 
@@ -13,13 +13,15 @@ internal sealed class ConfigurationParameterRepository : IConfigurationParameter
         _context = context;
     }
 
-    public async Task<IReadOnlyCollection<ConfigurationParameter>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<ConfigurationParameter>> GetAllAsync(
+        CancellationToken cancellationToken = default)
     {
         return await _context.ConfigurationParameters
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<ConfigurationParameter?> GetAsync(int configurationParameterId, CancellationToken cancellationToken = default)
+    public async Task<ConfigurationParameter?> GetAsync(int configurationParameterId,
+        CancellationToken cancellationToken = default)
     {
         return await _context.ConfigurationParameters
             .SingleOrDefaultAsync(x => x.ConfigurationParameterId == configurationParameterId, cancellationToken);
@@ -39,7 +41,7 @@ internal sealed class ConfigurationParameterRepository : IConfigurationParameter
     {
         _context.ConfigurationParameters.Remove(parameter);
     }
-    
+
     public async Task<ConfigurationParameter?> GetByUuidAsync(
         Guid uuid,
         CancellationToken cancellationToken = default
