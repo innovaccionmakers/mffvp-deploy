@@ -2,5 +2,5 @@
 
 internal class Schemas
 {
-    internal const string Associate = "afiliado";
+    internal const string Associate = "afiliados";
 }

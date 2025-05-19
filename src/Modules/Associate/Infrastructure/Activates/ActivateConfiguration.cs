@@ -8,13 +8,13 @@ internal sealed class ActivateConfiguration : IEntityTypeConfiguration<Activate>
 {
     public void Configure(EntityTypeBuilder<Activate> builder)
     {
-        builder.ToTable("activacion_afiliado");
+        builder.ToTable("activacion_afiliados");
         builder.HasKey(x => x.ActivateId);
-        builder.Property(x => x.ActivateId).HasColumnName("activación_id");
+        builder.Property(x => x.ActivateId).HasColumnName("id");
         builder.Property(x => x.IdentificationType).HasColumnName("tipo_identificacion");
         builder.Property(x => x.Identification).HasColumnName("identificacion");
-        builder.Property(x => x.Pensioner).HasColumnName("pendionado");
+        builder.Property(x => x.Pensioner).HasColumnName("pensionado");
         builder.Property(x => x.MeetsPensionRequirements).HasColumnName("cumple_requisitos_pension");
-        builder.Property(x => x.ActivateDate).HasColumnName("fecha_activación");
+        builder.Property(x => x.ActivateDate).HasColumnName("fecha_activacion");
     }
 }

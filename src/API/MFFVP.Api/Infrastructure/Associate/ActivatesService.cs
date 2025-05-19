@@ -14,7 +14,7 @@ public sealed class ActivatesService : IActivatesService
         return await sender.Send(new GetActivatesQuery());
     }
 
-    public async Task<Result<ActivateResponse>> CreateActivateAsync(CreateActivateCommand request, ISender sender)
+    public async Task<Result> CreateActivateAsync(CreateActivateCommand request, ISender sender)
     {
         return await sender.Send(request);
     }

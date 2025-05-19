@@ -27,4 +27,11 @@ public static class ResultExtensions
             ? ApiResults.Ok(result.Value)
             : ApiResults.Failure(result);
     }
+
+    public static IResult ToApiResult(this Result result)
+    {
+        return result.IsSuccess
+            ? ApiResults.Ok(result.IsSuccess)
+            : ApiResults.Failure(result);
+    }
 }

@@ -8,5 +8,5 @@ namespace MFFVP.Api.Application.Associate;
 public interface IActivatesService
 {
     Task<Result<IReadOnlyCollection<ActivateResponse>>> GetActivatesAsync(ISender sender);
-    Task<Result<ActivateResponse>> CreateActivateAsync(CreateActivateCommand request, ISender sender);
+    Task<Result> CreateActivateAsync(CreateActivateCommand request, ISender sender);
 }

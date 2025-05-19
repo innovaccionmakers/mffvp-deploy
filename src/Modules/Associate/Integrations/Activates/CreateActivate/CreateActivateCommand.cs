@@ -9,4 +9,4 @@ public sealed record CreateActivateCommand(
     bool MeetsPensionRequirements,
     DateTime? StartDateReqPen,
     DateTime? EndDateReqPen
-) : ICommand<ActivateResponse>;
+) : ICommand;

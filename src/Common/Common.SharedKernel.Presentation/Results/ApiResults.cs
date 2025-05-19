@@ -8,6 +8,7 @@ namespace Common.SharedKernel.Presentation.Results;
 
 public static class ApiResults
 {
+
     public static IResult Ok<T>(T payload)
     {
         return ApiSuccessBuilder.Build(payload);
