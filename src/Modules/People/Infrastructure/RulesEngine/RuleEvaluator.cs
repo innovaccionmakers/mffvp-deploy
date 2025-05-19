@@ -1,20 +1,21 @@
 using Microsoft.Extensions.Logging;
+using People.Application.Abstractions;
 using People.Application.Abstractions.Rules;
 using RulesEngine.Interfaces;
 using RulesEngine.Models;
 
 namespace People.Infrastructure.RulesEngine;
 
-internal sealed class RuleEvaluator : IRuleEvaluator
+internal sealed class RuleEvaluator<TModule> : IRuleEvaluator<TModule>
 {
     private readonly IErrorCatalog _catalog;
-    private readonly IRulesEngine _engine;
-    private readonly ILogger<RuleEvaluator> _log;
+    private readonly IRulesEngine<PeopleModuleMarker> _engine;
+    private readonly ILogger<TModule> _log;
 
     public RuleEvaluator(
-        IRulesEngine engine,
+        IRulesEngine<PeopleModuleMarker> engine,
         IErrorCatalog catalog,
-        ILogger<RuleEvaluator> log
+        ILogger<TModule> log
     )
     {
         _engine = engine;

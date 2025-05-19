@@ -1,20 +1,21 @@
 using Microsoft.Extensions.Logging;
+using Products.Application.Abstractions;
 using Products.Application.Abstractions.Rules;
 using RulesEngine.Interfaces;
 using RulesEngine.Models;
 
 namespace Products.Infrastructure.RulesEngine;
 
-internal sealed class RuleEvaluator : IRuleEvaluator
+internal sealed class RuleEvaluator<TModule> : IRuleEvaluator<TModule>
 {
     private readonly IErrorCatalog _catalog;
-    private readonly IRulesEngine _engine;
-    private readonly ILogger<RuleEvaluator> _log;
+    private readonly IRulesEngine<ProductsModuleMarker> _engine;
+    private readonly ILogger<TModule> _log;
 
     public RuleEvaluator(
-        IRulesEngine engine,
+        IRulesEngine<ProductsModuleMarker> engine,
         IErrorCatalog catalog,
-        ILogger<RuleEvaluator> log
+        ILogger<TModule> log
     )
     {
         _engine = engine;
@@ -36,7 +37,8 @@ internal sealed class RuleEvaluator : IRuleEvaluator
         var results = await _engine.ExecuteAllRulesAsync(workflow, ruleParams);
 
         var firstFail = results.FirstOrDefault(r => !r.IsSuccess);
-        if (firstFail is null) return (true, results, Array.Empty<RuleValidationError>());
+        if (firstFail is null)
+            return (true, results, Array.Empty<RuleValidationError>());
 
         if (!(firstFail.Rule.Properties?.TryGetValue("errorCode", out var codeObj) ?? false))
         {
@@ -59,7 +61,6 @@ internal sealed class RuleEvaluator : IRuleEvaluator
         }
 
         var codeStr = codeObj?.ToString() ?? string.Empty;
-
         if (!Guid.TryParse(codeStr, out var ruleUuid))
         {
             _log.LogError(

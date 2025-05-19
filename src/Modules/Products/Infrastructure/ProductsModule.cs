@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
 using Products.Application.Abstractions.Rules;
 using Products.Domain.Alternatives;
@@ -25,7 +26,7 @@ public static class ProductsModule
     public static IServiceCollection AddProductsModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine(opt =>
+        services.AddRulesEngine<ProductsModuleMarker>(opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];

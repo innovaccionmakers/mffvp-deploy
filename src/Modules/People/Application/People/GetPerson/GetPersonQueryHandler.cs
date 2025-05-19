@@ -1,5 +1,6 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using People.Application.Abstractions;
 using People.Application.Abstractions.Rules;
 using People.Domain.People;
 using People.Integrations.People;
@@ -9,7 +10,7 @@ namespace People.Application.People.GetPerson;
 
 internal sealed class GetPersonQueryHandler(
     IPersonRepository personRepository,
-    IRuleEvaluator ruleEvaluator)
+    IRuleEvaluator<PeopleModuleMarker> ruleEvaluator)
     : IQueryHandler<GetPersonQuery, PersonResponse>
 {
     private const string ValidationWorkflow = "People.Person.Validation";

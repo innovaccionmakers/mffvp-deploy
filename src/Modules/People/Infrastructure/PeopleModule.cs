@@ -11,6 +11,7 @@ using People.Domain.EconomicActivities;
 using People.Infrastructure.EconomicActivities;
 using People.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
+using People.Application.Abstractions;
 using People.Application.Abstractions.Rules;
 using People.Domain.ConfigurationParameters;
 using People.Infrastructure.ConfigurationParameters;
@@ -23,7 +24,7 @@ public static class PeopleModule
     public static IServiceCollection AddPeopleModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine(opt =>
+        services.AddRulesEngine<PeopleModuleMarker>(opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];

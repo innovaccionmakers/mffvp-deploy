@@ -1,5 +1,6 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using Products.Application.Abstractions;
 using Products.Application.Abstractions.Rules;
 using Products.Domain.Portfolios;
 using Products.Integrations.Portfolios;
@@ -9,19 +10,19 @@ namespace Products.Application.Portfolios.GetPortfolio;
 
 internal sealed class GetPortfolioQueryHandler(
     IPortfolioRepository portfolioRepository,
-    IRuleEvaluator ruleEvaluator)
+    IRuleEvaluator<ProductsModuleMarker> ruleEvaluator)
     : IQueryHandler<GetPortfolioQuery, PortfolioResponse>
 {
     private const string ValidationWorkflow = "Products.Portfolio.Validation";
-    
+
     public async Task<Result<PortfolioResponse>> Handle(GetPortfolioQuery request, CancellationToken cancellationToken)
     {
         var portfolio = await portfolioRepository.GetAsync(request.PortfolioId, cancellationToken);
 
         var (isValid, _, errors) = await ruleEvaluator
             .EvaluateAsync(
-                workflow: ValidationWorkflow,
-                input: "Products.Portfolio.Validation",
+                ValidationWorkflow,
+                portfolio,
                 cancellationToken);
 
         if (!isValid)
