@@ -1,11 +1,10 @@
 using System.Data.Common;
 
-namespace People.Application.Abstractions.Data
-{
-    public interface IUnitOfWork
-    {
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+namespace People.Application.Abstractions.Data;
 
-        Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
-    }
+public interface IUnitOfWork
+{
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
+    Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 }

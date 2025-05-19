@@ -6,23 +6,23 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using People.Integrations.EconomicActivities.UpdateEconomicActivity;
 
-namespace People.Presentation.EconomicActivities
+namespace People.Presentation.EconomicActivities;
+
+internal sealed class UpdateEconomicActivity : IEndpoint
 {
-    internal sealed class UpdateEconomicActivity : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapPut("economicactivities/{id:string}", async (string id, Request request, ISender sender) =>
+        app.MapPut("economicactivities/{id:string}", async (string id, Request request, ISender sender) =>
             {
                 var command = new UpdateEconomicActivityCommand(
                     id,
-                    request.NewEconomicActivityId, 
-                    request.NewDescription, 
-                    request.NewCiiuCode, 
-                    request.NewDivisionCode, 
-                    request.NewDivisionName, 
-                    request.NewGroupName, 
-                    request.NewClassCode, 
+                    request.NewEconomicActivityId,
+                    request.NewDescription,
+                    request.NewCiiuCode,
+                    request.NewDivisionCode,
+                    request.NewDivisionName,
+                    request.NewGroupName,
+                    request.NewClassCode,
                     request.NewStandardCode
                 );
 
@@ -30,18 +30,17 @@ namespace People.Presentation.EconomicActivities
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             .WithTags(Tags.EconomicActivities);
-        }
+    }
 
-        internal sealed class Request
-        {
-            public string NewEconomicActivityId { get; set; }
-            public string NewDescription { get; set; }
-            public string NewCiiuCode { get; set; }
-            public string NewDivisionCode { get; set; }
-            public string NewDivisionName { get; set; }
-            public string NewGroupName { get; set; }
-            public string NewClassCode { get; set; }
-            public string NewStandardCode { get; set; }
-        }
+    internal sealed class Request
+    {
+        public string NewEconomicActivityId { get; set; }
+        public string NewDescription { get; set; }
+        public string NewCiiuCode { get; set; }
+        public string NewDivisionCode { get; set; }
+        public string NewDivisionName { get; set; }
+        public string NewGroupName { get; set; }
+        public string NewClassCode { get; set; }
+        public string NewStandardCode { get; set; }
     }
 }

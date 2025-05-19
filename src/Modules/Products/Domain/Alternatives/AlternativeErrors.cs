@@ -1,11 +1,14 @@
 using Common.SharedKernel.Domain;
 
 namespace Products.Domain.Alternatives;
+
 public static class AlternativeErrors
 {
-    public static Error NotFound(long alternativeId) =>
-        Error.NotFound(
+    public static Error NotFound(long alternativeId)
+    {
+        return Error.NotFound(
             "Alternative.NotFound",
             $"The alternative with identifier {alternativeId} was not found"
         );
+    }
 }

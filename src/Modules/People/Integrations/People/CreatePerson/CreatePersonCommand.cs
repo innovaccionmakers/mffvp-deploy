@@ -2,6 +2,7 @@ using Common.SharedKernel.Application.Messaging;
 using System;
 
 namespace People.Integrations.People.CreatePerson;
+
 public sealed record CreatePersonCommand(
     string DocumentType,
     string StandardCode,

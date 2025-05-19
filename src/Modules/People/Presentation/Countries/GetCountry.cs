@@ -6,18 +6,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using People.Integrations.Countries.GetCountry;
 
-namespace People.Presentation.Countries
+namespace People.Presentation.Countries;
+
+internal sealed class GetCountry : IEndpoint
 {
-    internal sealed class GetCountry : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapGet("countries/{id:int}", async (int id, ISender sender) =>
+        app.MapGet("countries/{id:int}", async (int id, ISender sender) =>
             {
                 var result = await sender.Send(new GetCountryQuery(id));
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             .WithTags(Tags.Countries);
-        }
     }
 }

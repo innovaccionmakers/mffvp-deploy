@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using People.Integrations.Countries.DeleteCountry;
 
-namespace People.Presentation.Countries
+namespace People.Presentation.Countries;
+
+internal sealed class DeleteCountry : IEndpoint
 {
-    internal sealed class DeleteCountry : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapDelete("countries/{id:int}", async (int id, ISender sender) =>
+        app.MapDelete("countries/{id:int}", async (int id, ISender sender) =>
             {
                 var result = await sender.Send(new DeleteCountryCommand(id));
                 return result.Match(
@@ -21,6 +21,5 @@ namespace People.Presentation.Countries
                 );
             })
             .WithTags(Tags.Countries);
-        }
     }
 }

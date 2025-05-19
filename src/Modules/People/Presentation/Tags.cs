@@ -1,9 +1,8 @@
-namespace People.Presentation
+namespace People.Presentation;
+
+internal static class Tags
 {
-    internal static class Tags
-    {
-        internal const string Countries = "Countries";
-        internal const string EconomicActivities = "EconomicActivities";
-        internal const string Persons = "Persons";
-    }
+    internal const string Countries = "Countries";
+    internal const string EconomicActivities = "EconomicActivities";
+    internal const string Persons = "Persons";
 }

@@ -1,19 +1,20 @@
 ﻿using Microsoft.Extensions.Logging;
 using RulesEngine.Interfaces;
 using RulesEngine.Models;
+using Trusts.Application.Abstractions;
 using Trusts.Application.Abstractions.Rules;
 
 namespace Trusts.Infrastructure.RulesEngine;
 
-internal sealed class RuleEvaluator : IRuleEvaluator
+internal sealed class RuleEvaluator<TModule> : IRuleEvaluator<TModule>
 {
     private readonly IErrorCatalog _catalog;
-    private readonly IRulesEngine _engine;
-    private readonly ILogger<RuleEvaluator> _log;
+    private readonly IRulesEngine<TrustsModuleMarker> _engine;
+    private readonly ILogger<TModule> _log;
 
-    public RuleEvaluator(IRulesEngine engine,
+    public RuleEvaluator(IRulesEngine<TrustsModuleMarker> engine,
         IErrorCatalog catalog,
-        ILogger<RuleEvaluator> log)
+        ILogger<TModule> log)
     {
         _engine = engine;
         _catalog = catalog;
@@ -28,20 +29,61 @@ internal sealed class RuleEvaluator : IRuleEvaluator
         var ruleParams = new[] { new RuleParameter("input", input) };
         var results = await _engine.ExecuteAllRulesAsync(workflow, ruleParams);
 
-        var errors = new List<RuleValidationError>();
+        var firstFail = results.FirstOrDefault(r => !r.IsSuccess);
+        if (firstFail is null)
+            return (true, results, Array.Empty<RuleValidationError>());
 
-        foreach (var r in results.Where(r => !r.IsSuccess))
+        if (!(firstFail.Rule.Properties?.TryGetValue("errorCode", out var codeObj) ?? false))
         {
-            var (num, defaultMsg) = await _catalog.GetAsync(r.Rule.RuleName, ct);
-
-            var message = r.ExceptionMessage
-                          ?? r.Rule.ErrorMessage
-                          ?? defaultMsg;
-
-            errors.Add(new RuleValidationError(num.ToString(), message));
+            _log.LogError(
+                "La regla '{RuleName}' no contiene la propiedad 'errorCode'.",
+                firstFail.Rule.RuleName
+            );
+            return (
+                false,
+                results,
+                new[]
+                {
+                    new RuleValidationError(
+                        "UNKNOWN_ERROR",
+                        firstFail.Rule.ErrorMessage
+                        ?? $"Regla inválida ({firstFail.Rule.RuleName})"
+                    )
+                }
+            );
         }
 
-        var success = errors.Count == 0;
-        return (success, results, errors);
+        var codeStr = codeObj?.ToString() ?? string.Empty;
+        if (!Guid.TryParse(codeStr, out var ruleUuid))
+        {
+            _log.LogError(
+                "El errorCode '{ErrorCode}' no es un GUID válido para la regla '{RuleName}'.",
+                codeStr,
+                firstFail.Rule.RuleName
+            );
+            return (
+                false,
+                results,
+                new[]
+                {
+                    new RuleValidationError(
+                        "INVALID_ERROR_CODE",
+                        firstFail.Rule.ErrorMessage
+                        ?? $"Error en regla ({firstFail.Rule.RuleName})"
+                    )
+                }
+            );
+        }
+
+        var (code, message) = await _catalog.GetAsync(ruleUuid, ct);
+
+        return (
+            false,
+            results,
+            new[]
+            {
+                new RuleValidationError(code, message)
+            }
+        );
     }
 }

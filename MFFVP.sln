@@ -154,6 +154,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{7EA33E9A
 		src\Modules\Products\Rules\portfolio.rules.json = src\Modules\Products\Rules\portfolio.rules.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{A8158072-1059-417C-94E1-30B1081CC05C}"
+	ProjectSection(SolutionItems) = preProject
+		src\Modules\People\Rules\people.rules.json = src\Modules\People\Rules\people.rules.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -658,6 +663,7 @@ Global
 		{75F2D279-8800-428B-9E9C-7E0798EC19E7} = {0A1C0C78-C611-C218-BDC2-68FC2D3DF323}
 		{BA0F7FB5-7568-4709-9D16-88E1216CA93A} = {0A1C0C78-C611-C218-BDC2-68FC2D3DF323}
 		{7EA33E9A-A5A2-4A5D-B5E0-F513FB7EE0CA} = {1D77E450-A81E-1E16-0499-7D1E23276EBC}
+		{A8158072-1059-417C-94E1-30B1081CC05C} = {EE0618E7-E219-8D19-38E9-02FC3F9F0725}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F3F579B2-3972-40CD-910A-1E4758EB0D73}

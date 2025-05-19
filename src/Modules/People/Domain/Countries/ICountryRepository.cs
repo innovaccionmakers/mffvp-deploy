@@ -1,4 +1,5 @@
 namespace People.Domain.Countries;
+
 public interface ICountryRepository
 {
     Task<IReadOnlyCollection<Country>> GetAllAsync(CancellationToken cancellationToken = default);

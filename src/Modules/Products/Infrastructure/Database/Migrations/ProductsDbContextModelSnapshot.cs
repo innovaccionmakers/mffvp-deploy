@@ -29,7 +29,7 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Property<long>("AlternativeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("alternativa_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AlternativeId"));
 
@@ -62,7 +62,7 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Property<int>("ConfigurationParameterId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("parametro_configuracion_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ConfigurationParameterId"));
 
@@ -133,7 +133,7 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Property<long>("ObjectiveId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("objetivo_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ObjectiveId"));
 
@@ -173,7 +173,7 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Property<long>("PlanId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("plan_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PlanId"));
 
@@ -197,7 +197,7 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Property<long>("PortfolioId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("portafolio_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PortfolioId"));
 

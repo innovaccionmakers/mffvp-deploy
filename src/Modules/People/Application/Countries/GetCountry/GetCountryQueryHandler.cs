@@ -13,10 +13,7 @@ internal sealed class GetCountryQueryHandler(
     public async Task<Result<CountryResponse>> Handle(GetCountryQuery request, CancellationToken cancellationToken)
     {
         var country = await countryRepository.GetAsync(request.CountryId, cancellationToken);
-        if (country is null)
-        {
-            return Result.Failure<CountryResponse>(CountryErrors.NotFound(request.CountryId));
-        }
+        if (country is null) return Result.Failure<CountryResponse>(CountryErrors.NotFound(request.CountryId));
         var response = new CountryResponse(
             country.CountryId,
             country.Name,

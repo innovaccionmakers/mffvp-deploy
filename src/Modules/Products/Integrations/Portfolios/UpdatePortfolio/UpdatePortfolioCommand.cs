@@ -1,7 +1,7 @@
 using Common.SharedKernel.Application.Messaging;
-using System;
 
 namespace Products.Integrations.Portfolios.UpdatePortfolio;
+
 public sealed record UpdatePortfolioCommand(
     long PortfolioId,
     string NewStandardCode,

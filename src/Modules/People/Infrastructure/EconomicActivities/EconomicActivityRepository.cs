@@ -3,6 +3,7 @@ using People.Domain.EconomicActivities;
 using People.Infrastructure.Database;
 
 namespace People.Infrastructure.EconomicActivities;
+
 internal sealed class EconomicActivityRepository(PeopleDbContext context) : IEconomicActivityRepository
 {
     public async Task<IReadOnlyCollection<EconomicActivity>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -10,7 +11,8 @@ internal sealed class EconomicActivityRepository(PeopleDbContext context) : IEco
         return await context.EconomicActivities.ToListAsync(cancellationToken);
     }
 
-    public async Task<EconomicActivity?> GetAsync(string economicactivityId, CancellationToken cancellationToken = default)
+    public async Task<EconomicActivity?> GetAsync(string economicactivityId,
+        CancellationToken cancellationToken = default)
     {
         return await context.EconomicActivities
             .SingleOrDefaultAsync(x => x.EconomicActivityId == economicactivityId, cancellationToken);

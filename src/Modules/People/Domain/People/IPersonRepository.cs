@@ -1,4 +1,5 @@
 namespace People.Domain.People;
+
 public interface IPersonRepository
 {
     Task<IReadOnlyCollection<Person>> GetAllAsync(CancellationToken cancellationToken = default);

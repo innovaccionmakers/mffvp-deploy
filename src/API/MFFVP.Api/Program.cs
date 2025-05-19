@@ -9,6 +9,7 @@ using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Filters;
 using FluentValidation;
 using MFFVP.Api.BffWeb.Associate;
+using MFFVP.Api.BffWeb.People;
 using MFFVP.Api.BffWeb.Products;
 using MFFVP.Api.BffWeb.Trusts;
 using MFFVP.Api.Extensions;
@@ -37,7 +38,7 @@ Assembly[] moduleApplicationAssemblies =
     Associate.Application.AssemblyReference.Assembly,
     Trusts.Application.AssemblyReference.Assembly,
     Products.Application.AssemblyReference.Assembly,
-    People.Application.AssemblyReference.Assembly,
+    People.Application.AssemblyReference.Assembly
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
@@ -62,10 +63,12 @@ builder.Services.AddPeopleModule(builder.Configuration);
 builder.Services.AddBffTrustsServices();
 builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();
+builder.Services.AddBffPeopleServices();
 
 builder.Services.AddEndpoints(typeof(TrustsEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(ProductsEndpoints).Assembly);
+builder.Services.AddEndpoints(typeof(PeopleEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));

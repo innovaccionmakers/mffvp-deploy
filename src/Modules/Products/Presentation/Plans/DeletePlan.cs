@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Products.Integrations.Plans.DeletePlan;
 
-namespace Products.Presentation.Plans
+namespace Products.Presentation.Plans;
+
+internal sealed class DeletePlan : IEndpoint
 {
-    internal sealed class DeletePlan : IEndpoint
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapDelete("plans/{id:long}", async (long id, ISender sender) =>
+        app.MapDelete("plans/{id:long}", async (long id, ISender sender) =>
             {
                 var result = await sender.Send(new DeletePlanCommand(id));
                 return result.Match(
@@ -21,6 +21,5 @@ namespace Products.Presentation.Plans
                 );
             })
             .WithTags(Tags.Plans);
-        }
     }
 }

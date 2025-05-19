@@ -1,16 +1,16 @@
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Products.Domain.Objectives;
 
 namespace Products.Infrastructure.Objectives;
+
 internal sealed class ObjectiveConfiguration : IEntityTypeConfiguration<Objective>
 {
     public void Configure(EntityTypeBuilder<Objective> builder)
     {
-        builder.ToTable("objetivos");  
+        builder.ToTable("objetivos");
         builder.HasKey(x => x.ObjectiveId);
-        builder.Property(x => x.ObjectiveId).HasColumnName("objetivo_id");
+        builder.Property(x => x.ObjectiveId).HasColumnName("id");
         builder.Property(x => x.ObjectiveTypeId).HasColumnName("tipo_objetivo_id");
         builder.Property(x => x.AffiliateId).HasColumnName("afiliado_id");
         builder.Property(x => x.AlternativeId).HasColumnName("alternativa_id");

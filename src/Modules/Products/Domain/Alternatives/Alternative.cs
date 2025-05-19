@@ -1,15 +1,18 @@
 using Common.SharedKernel.Domain;
 
 namespace Products.Domain.Alternatives;
+
 public sealed class Alternative : Entity
 {
+    private Alternative()
+    {
+    }
+
     public long AlternativeId { get; private set; }
     public int AlternativeTypeId { get; private set; }
     public string Name { get; private set; }
     public string Status { get; private set; }
     public string Description { get; private set; }
-
-    private Alternative() { }
 
     public static Result<Alternative> Create(
         int alternativeTypeId, string name, string status, string description
@@ -17,19 +20,19 @@ public sealed class Alternative : Entity
     {
         var alternative = new Alternative
         {
-            AlternativeId = default(long),
+            AlternativeId = default,
 
             AlternativeTypeId = alternativeTypeId,
             Name = name,
             Status = status,
-            Description = description,
+            Description = description
         };
 
         alternative.Raise(new AlternativeCreatedDomainEvent(alternative.AlternativeId));
         return Result.Success(alternative);
     }
 
-        public void UpdateDetails(
+    public void UpdateDetails(
         int newAlternativeTypeId, string newName, string newStatus, string newDescription
     )
     {
@@ -38,5 +41,4 @@ public sealed class Alternative : Entity
         Status = newStatus;
         Description = newDescription;
     }
-
 }

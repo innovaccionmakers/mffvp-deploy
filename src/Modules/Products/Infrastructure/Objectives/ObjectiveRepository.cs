@@ -3,6 +3,7 @@ using Products.Domain.Objectives;
 using Products.Infrastructure.Database;
 
 namespace Products.Infrastructure.Objectives;
+
 internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiveRepository
 {
     public async Task<IReadOnlyCollection<Objective>> GetAllAsync(CancellationToken cancellationToken = default)
