@@ -48,11 +48,12 @@ builder.Services.AddApplication(moduleApplicationAssemblies);
 var databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
 var mongoDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("MongoDB");
 var databaseConnectionStringSQL = builder.Configuration.GetConnectionStringOrThrow("SqlServerDatabase");
+var capDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("CapDatabase");
 
 builder.Services.AddInfrastructure(
     DiagnosticsConfig.ServiceName,
     databaseConnectionString,
-    mongoDbConnectionString,
+    capDbConnectionString,
     databaseConnectionStringSQL);
 
 builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people", "operations"]);

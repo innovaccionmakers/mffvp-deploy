@@ -15,17 +15,16 @@ public static class InfrastructureConfiguration
         this IServiceCollection services,
         string serviceName,
         string databaseConnectionString,
-        string mongoDbConnectionString,
+        string capDbConnectionString,
         string databaseConnectionStringSQL
     )
     {
-        services.AddSingleton<IMongoClient>(new MongoClient(mongoDbConnectionString));
 
         services.AddCap(x =>
         {
             x.UseInMemoryStorage();
             x.UseInMemoryMessageQueue();
-            x.UseMongoDB(mongoDbConnectionString);
+            x.UsePostgreSql(capDbConnectionString);
             x.FailedRetryInterval = 5;
             x.FailedRetryCount = 10;
         });
