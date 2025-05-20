@@ -29,7 +29,7 @@ namespace People.Infrastructure.Database.Migrations
                     b.Property<int>("ConfigurationParameterId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("parametro_configuracion_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ConfigurationParameterId"));
 
@@ -100,7 +100,7 @@ namespace People.Infrastructure.Database.Migrations
                     b.Property<int>("CountryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("pais_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CountryId"));
 
@@ -133,7 +133,7 @@ namespace People.Infrastructure.Database.Migrations
                 {
                     b.Property<string>("EconomicActivityId")
                         .HasColumnType("text")
-                        .HasColumnName("codgrupo_id");
+                        .HasColumnName("id");
 
                     b.Property<string>("CiiuCode")
                         .IsRequired()
@@ -180,7 +180,7 @@ namespace People.Infrastructure.Database.Migrations
                     b.Property<long>("PersonId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("persona_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PersonId"));
 

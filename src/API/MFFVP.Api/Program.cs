@@ -16,6 +16,7 @@ using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
+using Operations.Infrastructure;
 using People.Infrastructure;
 using Products.Infrastructure;
 using Serilog;
@@ -38,7 +39,8 @@ Assembly[] moduleApplicationAssemblies =
     Associate.Application.AssemblyReference.Assembly,
     Trusts.Application.AssemblyReference.Assembly,
     Products.Application.AssemblyReference.Assembly,
-    People.Application.AssemblyReference.Assembly
+    People.Application.AssemblyReference.Assembly,
+    Operations.Application.AssemblyReference.Assembly,
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
@@ -46,19 +48,21 @@ builder.Services.AddApplication(moduleApplicationAssemblies);
 var databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
 var mongoDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("MongoDB");
 var databaseConnectionStringSQL = builder.Configuration.GetConnectionStringOrThrow("SqlServerDatabase");
+var capDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("CapDatabase");
 
 builder.Services.AddInfrastructure(
     DiagnosticsConfig.ServiceName,
     databaseConnectionString,
-    mongoDbConnectionString,
+    capDbConnectionString,
     databaseConnectionStringSQL);
 
-builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people"]);
+builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people", "operations"]);
 
 builder.Services.AddTrustsModule(builder.Configuration);
 builder.Services.AddActivatesModule(builder.Configuration);
 builder.Services.AddProductsModule(builder.Configuration);
 builder.Services.AddPeopleModule(builder.Configuration);
+builder.Services.AddOperationsModule(builder.Configuration);
 
 builder.Services.AddBffTrustsServices();
 builder.Services.AddBffActivatesServices();

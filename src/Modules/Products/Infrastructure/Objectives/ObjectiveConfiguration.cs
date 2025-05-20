@@ -10,7 +10,7 @@ internal sealed class ObjectiveConfiguration : IEntityTypeConfiguration<Objectiv
     {
         builder.ToTable("objetivos");
         builder.HasKey(x => x.ObjectiveId);
-        builder.Property(x => x.ObjectiveId).HasColumnName("objetivo_id");
+        builder.Property(x => x.ObjectiveId).HasColumnName("id");
         builder.Property(x => x.ObjectiveTypeId).HasColumnName("tipo_objetivo_id");
         builder.Property(x => x.AffiliateId).HasColumnName("afiliado_id");
         builder.Property(x => x.AlternativeId).HasColumnName("alternativa_id");

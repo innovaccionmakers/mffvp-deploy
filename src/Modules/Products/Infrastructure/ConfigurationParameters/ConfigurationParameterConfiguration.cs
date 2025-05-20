@@ -13,7 +13,7 @@ internal sealed class ConfigurationParameterConfiguration :
 
         builder.HasKey(p => p.ConfigurationParameterId);
         builder.Property(p => p.ConfigurationParameterId)
-            .HasColumnName("parametro_configuracion_id");
+            .HasColumnName("id");
 
         builder.Property(p => p.Uuid)
             .HasColumnName("uuid")

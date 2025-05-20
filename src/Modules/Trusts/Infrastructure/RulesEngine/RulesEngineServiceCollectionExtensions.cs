@@ -13,6 +13,7 @@ namespace Trusts.Infrastructure.RulesEngine;
 public sealed class RulesEngineOptions<TModule>
 {
     public int CacheSizeLimitMb { get; set; } = 32;
+
     public string[] EmbeddedResourceSearchPatterns { get; set; }
         = new[] { ".rules.json" };
 }
@@ -31,9 +32,9 @@ public static class RulesEngineServiceCollectionExtensions
             var opt = sp.GetRequiredService<IOptions<RulesEngineOptions<TModule>>>().Value;
             var logger = sp.GetRequiredService<ILoggerFactory>()
                 .CreateLogger($"RulesEngineLoader.{typeof(TModule).Name}");
-            
+
             var assembly = typeof(RulesEngineServiceCollectionExtensions).Assembly;
-            
+
             var workflows = LoadWorkflowsFromEmbeddedResources(opt, logger, assembly);
             var reSettings = new ReSettings
             {
@@ -48,7 +49,7 @@ public static class RulesEngineServiceCollectionExtensions
         });
 
         services.AddScoped<IRuleEvaluator<TModule>, RuleEvaluator<TModule>>();
-        
+
         return services;
     }
 

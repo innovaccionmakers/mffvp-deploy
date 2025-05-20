@@ -29,7 +29,7 @@ namespace Trusts.Infrastructure.Database.Migrations
                     b.Property<int>("ConfigurationParameterId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("parametro_configuracion_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ConfigurationParameterId"));
 
@@ -100,7 +100,7 @@ namespace Trusts.Infrastructure.Database.Migrations
                     b.Property<long>("TrustHistoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("historico_fideicomiso_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TrustHistoryId"));
 
@@ -132,7 +132,7 @@ namespace Trusts.Infrastructure.Database.Migrations
                     b.Property<long>("TrustId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("fideicomiso_id");
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TrustId"));
 
