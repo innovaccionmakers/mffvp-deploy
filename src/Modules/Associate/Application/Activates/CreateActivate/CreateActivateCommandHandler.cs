@@ -48,7 +48,7 @@ internal sealed class CreateActivateCommandHandler(
             request.IdentificationType,
             request.Identification,
             request.Pensioner,
-            request.MeetsPensionRequirements,
+            request.MeetsPensionRequirements ?? false,
             DateTime.UtcNow
         );
 
