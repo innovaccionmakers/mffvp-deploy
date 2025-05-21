@@ -49,6 +49,7 @@ public static class PeopleModule
         services.AddScoped<IEconomicActivityRepository, EconomicActivityRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
+        services.AddTransient<PersonValidationConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PeopleDbContext>());
     }
