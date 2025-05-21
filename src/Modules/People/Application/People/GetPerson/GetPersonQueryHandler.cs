@@ -1,36 +1,39 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using Microsoft.Extensions.Logging;
 using People.Application.Abstractions;
 using People.Application.Abstractions.Rules;
 using People.Domain.People;
 using People.Integrations.People;
 using People.Integrations.People.GetPerson;
+using People.Integrations.People.GetPersonValidation;
 
 namespace People.Application.People.GetPerson;
 
 internal sealed class GetPersonQueryHandler(
     IPersonRepository personRepository,
-    IRuleEvaluator<PeopleModuleMarker> ruleEvaluator)
+    IRuleEvaluator<PeopleModuleMarker> ruleEvaluator,
+    ICapRpcClient rpc,
+    ILogger<GetPersonQueryHandler> log)
     : IQueryHandler<GetPersonQuery, PersonResponse>
 {
     private const string ValidationWorkflow = "People.Person.Validation";
 
     public async Task<Result<PersonResponse>> Handle(GetPersonQuery request, CancellationToken cancellationToken)
     {
-        var person = await personRepository.GetAsync(request.PersonId, cancellationToken);
+        var validation = await rpc.CallAsync<
+            GetPersonValidationRequest,
+            GetPersonValidationResponse>(
+            "people.validation.request",
+            new GetPersonValidationRequest(request.PersonId),
+            TimeSpan.FromSeconds(5),
+            cancellationToken);
 
-        var (isValid, _, errors) = await ruleEvaluator
-            .EvaluateAsync(
-                ValidationWorkflow,
-                person,
-                cancellationToken);
-
-        if (!isValid)
-        {
-            var first = errors.First();
+        if (!validation.IsValid)
             return Result.Failure<PersonResponse>(
-                Error.Validation(first.Code, first.Message));
-        }
+                Error.Validation(validation.Code!, validation.Message!));
+
+        var person = await personRepository.GetAsync(request.PersonId, cancellationToken);
 
         var response = new PersonResponse(
             person.PersonId,
