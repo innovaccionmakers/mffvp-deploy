@@ -1,5 +1,6 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using People.IntegrationEvents.PersonValidation;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Rules;
 using Products.Domain.Portfolios;
@@ -10,6 +11,7 @@ namespace Products.Application.Portfolios.GetPortfolio;
 
 internal sealed class GetPortfolioQueryHandler(
     IPortfolioRepository portfolioRepository,
+    ICapRpcClient rpc,
     IRuleEvaluator<ProductsModuleMarker> ruleEvaluator)
     : IQueryHandler<GetPortfolioQuery, PortfolioResponse>
 {
@@ -18,6 +20,14 @@ internal sealed class GetPortfolioQueryHandler(
     public async Task<Result<PortfolioResponse>> Handle(GetPortfolioQuery request, CancellationToken cancellationToken)
     {
         var portfolio = await portfolioRepository.GetAsync(request.PortfolioId, cancellationToken);
+        
+        var validation = await rpc.CallAsync<
+            GetPersonValidationRequest,
+            GetPersonValidationResponse>(
+            nameof(GetPersonValidationRequest),
+            new GetPersonValidationRequest(request.PortfolioId),
+            TimeSpan.FromSeconds(20),
+            cancellationToken);
 
         var (isValid, _, errors) = await ruleEvaluator
             .EvaluateAsync(

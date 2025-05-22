@@ -16,6 +16,7 @@ using People.Application.Abstractions.Rules;
 using People.Domain.ConfigurationParameters;
 using People.Infrastructure.ConfigurationParameters;
 using People.Infrastructure.RulesEngine;
+using People.IntegrationEvents.PersonValidation;
 
 namespace People.Infrastructure;
 

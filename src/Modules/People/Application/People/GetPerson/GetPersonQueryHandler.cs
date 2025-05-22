@@ -12,28 +12,28 @@ namespace People.Application.People.GetPerson;
 
 internal sealed class GetPersonQueryHandler(
     IPersonRepository personRepository,
-    IRuleEvaluator<PeopleModuleMarker> ruleEvaluator,
     ICapRpcClient rpc,
-    ILogger<GetPersonQueryHandler> log)
+    IRuleEvaluator<PeopleModuleMarker> ruleEvaluator)
     : IQueryHandler<GetPersonQuery, PersonResponse>
 {
     private const string ValidationWorkflow = "People.Person.Validation";
 
     public async Task<Result<PersonResponse>> Handle(GetPersonQuery request, CancellationToken cancellationToken)
     {
-        var validation = await rpc.CallAsync<
-            GetPersonValidationRequest,
-            GetPersonValidationResponse>(
-            "people.validation.request",
-            new GetPersonValidationRequest(request.PersonId),
-            TimeSpan.FromSeconds(5),
-            cancellationToken);
-
-        if (!validation.IsValid)
-            return Result.Failure<PersonResponse>(
-                Error.Validation(validation.Code!, validation.Message!));
-
         var person = await personRepository.GetAsync(request.PersonId, cancellationToken);
+
+        var (isValid, _, errors) = await ruleEvaluator
+            .EvaluateAsync(
+                ValidationWorkflow,
+                person,
+                cancellationToken);
+        
+        if (!isValid)
+        {
+            var first = errors.First();
+            return Result.Failure<PersonResponse>(
+                Error.Validation(first.Code, first.Message));
+        }
 
         var response = new PersonResponse(
             person.PersonId,
