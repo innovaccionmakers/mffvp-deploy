@@ -16,6 +16,7 @@ using People.Application.Abstractions.Rules;
 using People.Domain.ConfigurationParameters;
 using People.Infrastructure.ConfigurationParameters;
 using People.Infrastructure.RulesEngine;
+using Infrastructure.EventBus;
 
 namespace People.Infrastructure;
 
@@ -48,8 +49,9 @@ public static class PeopleModule
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IEconomicActivityRepository, EconomicActivityRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
-        services.AddScoped<IErrorCatalog, ErrorCatalog>();
-
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PeopleDbContext>());
+        services.AddScoped<IErrorCatalog, ErrorCatalog>();   
+        services.AddScoped<PersonDataRequestConsumer>();
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PeopleDbContext>());        
+        
     }
 }

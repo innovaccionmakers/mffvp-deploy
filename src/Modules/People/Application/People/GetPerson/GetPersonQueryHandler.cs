@@ -8,7 +8,7 @@ using People.Integrations.People.GetPerson;
 
 namespace People.Application.People.GetPerson;
 
-internal sealed class GetPersonQueryHandler(
+public sealed class GetPersonQueryHandler(
     IPersonRepository personRepository,
     IRuleEvaluator<PeopleModuleMarker> ruleEvaluator)
     : IQueryHandler<GetPersonQuery, PersonResponse>

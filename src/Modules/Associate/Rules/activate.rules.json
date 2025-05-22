@@ -81,30 +81,16 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.request.IdentificationType != null && (input.Client != null && input.request.IdentificationType.Contains(input.Client.IdType))",
+        "Expression": "input.request.IdentificationType != null && (input.Person != null && input.request.IdentificationType.Contains(input.Person.DocumentType))",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
       },
       {
         "RuleName": "ClientExists",
-        "Expression": "input.Client != null",
+        "Expression": "input.Person != null",
         "Properties": {
           "errorCode": "ee0231e8-e7a7-4f43-ae5c-50a02cacf178"
-        }
-      },
-      {
-        "RuleName": "ClientNotBlocked",
-        "Expression": "input.Client != null && !input.Client.IsBlocked",
-        "Properties": {
-          "errorCode": "e07cb1b4-ee48-4ef2-95db-9f3b87383967"
-        }
-      },
-      {
-        "RuleName": "ClientActive",
-        "Expression": "input.Client != null && input.Client.IsActive",
-        "Properties": {
-          "errorCode": "849a5b96-0165-42d8-9adb-0f0f68de6733"
         }
       },
       {

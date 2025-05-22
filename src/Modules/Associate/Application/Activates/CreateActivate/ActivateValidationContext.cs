@@ -1,21 +1,21 @@
-﻿using Associate.Domain.Clients;
-using Associate.Integrations.Activates.CreateActivate;
+﻿using Associate.Integrations.Activates.CreateActivate;
+using Common.SharedKernel.Application.EventBus;
 
 namespace Associate.Application.Activates.CreateActivate;
 
 public sealed class ActivateValidationContext
 {
     public CreateActivateCommand Request { get; }
-    public Client? Client { get; }
+    public PersonDataResponseEvent? Person { get; }
     public bool ExistingActivate { get; }
 
     public ActivateValidationContext(
         CreateActivateCommand request,
-        Client? client,
+        PersonDataResponseEvent? person,
         bool existingActivate)
     {
         Request = request;
-        Client = client;
+        Person = person;
         ExistingActivate = existingActivate;
     }
 }

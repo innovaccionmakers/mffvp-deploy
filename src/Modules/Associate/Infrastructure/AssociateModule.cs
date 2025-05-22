@@ -1,10 +1,9 @@
+using Application.EventBus;
 using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Domain.Activates;
-using Associate.Domain.Clients;
 using Associate.Domain.ConfigurationParameters;
 using Associate.Infrastructure.Database;
-using Associate.Infrastructure.Mocks;
 using Associate.Infrastructure.RulesEngine;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Infrastructure.ConfigurationParameters;
@@ -29,6 +28,7 @@ public static class ActivatesModule
         return services;
     }
 
+
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<AssociateDbContext>((sp, options) =>
@@ -42,9 +42,10 @@ public static class ActivatesModule
         });
 
         services.AddScoped<IActivateRepository, ActivateRepository>();
-        services.AddScoped<IClientRepository, InMemoryClientRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());
+
+        services.AddScoped<PersonRequestReplyService>();
     }
 }

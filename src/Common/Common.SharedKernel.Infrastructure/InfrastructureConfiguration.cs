@@ -1,5 +1,7 @@
-﻿using Common.SharedKernel.Infrastructure.Configuration;
+﻿using Common.SharedKernel.Application.EventBus;
+using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
+using DotNetCore.CAP;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Npgsql;
@@ -46,6 +48,8 @@ public static class InfrastructureConfiguration
         services.AddScoped<IDatabaseConnectionStrategy, SqlServerConnectionStrategy>();
         services.AddScoped<IDatabaseConnectionStrategy, YugaByteConnectionStrategy>();
         services.AddScoped<DatabaseConnectionContext>();
+
+        services.AddSingleton<IEventBus, EventBus.EventBus>();
 
         return services;
     }
