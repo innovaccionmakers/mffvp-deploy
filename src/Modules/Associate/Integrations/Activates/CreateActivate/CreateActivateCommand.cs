@@ -6,7 +6,7 @@ public sealed record CreateActivateCommand(
     string IdentificationType,
     string Identification,
     bool Pensioner,
-    bool MeetsPensionRequirements,
+    bool? MeetsPensionRequirements,
     DateTime? StartDateReqPen,
     DateTime? EndDateReqPen
 ) : ICommand;

@@ -1,8 +1,8 @@
 using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Domain.Activates;
-using Associate.Domain.Clients;
 using Associate.Integrations.Activates.CreateActivate;
+using People.IntegrationEvents.PersonValidation;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 
@@ -11,8 +11,8 @@ namespace Associate.Application.Activates.CreateActivate;
 internal sealed class CreateActivateCommandHandler(
     IActivateRepository activateRepository,
     IRuleEvaluator ruleEvaluator,
-    IClientRepository _clientRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,  
+    ICapRpcClient rpc)
     : ICommandHandler<CreateActivateCommand>
 {
     private const string Workflow = "Associate.Activates.Validation";
@@ -23,13 +23,20 @@ internal sealed class CreateActivateCommandHandler(
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         bool existingActivate = activateRepository.GetByIdTypeAndNumber(request.IdentificationType, request.Identification);
-        Client? client = _clientRepository.Get(request.IdentificationType, request.Identification);
 
-        var validationContext = new ActivateValidationContext(
-            request,
-            client,
-            existingActivate
-        );
+        var personData = await rpc.CallAsync<
+            PersonDataRequestEvent,
+            GetPersonValidationResponse>(
+            nameof(PersonDataRequestEvent),
+            new PersonDataRequestEvent(request.IdentificationType, request.Identification),
+            TimeSpan.FromSeconds(30),
+            cancellationToken);
+       
+        if (!personData.IsValid)
+            return Result.Failure(
+                Error.Validation(personData.Code ?? string.Empty, personData.Message ?? string.Empty));
+        
+        var validationContext = new ActivateValidationContext(request, existingActivate);
 
         var (isValid, _, ruleErrors) =
             await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);
@@ -48,7 +55,7 @@ internal sealed class CreateActivateCommandHandler(
             request.IdentificationType,
             request.Identification,
             request.Pensioner,
-            request.MeetsPensionRequirements,
+            request.MeetsPensionRequirements ?? false,
             DateTime.UtcNow
         );
 

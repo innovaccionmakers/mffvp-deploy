@@ -3,7 +3,6 @@ using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
 using Common.SharedKernel.Infrastructure.EventBus;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
 using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;

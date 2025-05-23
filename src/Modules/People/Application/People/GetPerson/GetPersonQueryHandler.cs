@@ -10,7 +10,7 @@ using People.Integrations.People.GetPersonValidation;
 
 namespace People.Application.People.GetPerson;
 
-internal sealed class GetPersonQueryHandler(
+public sealed class GetPersonQueryHandler(
     IPersonRepository personRepository,
     ICapRpcClient rpc,
     IRuleEvaluator<PeopleModuleMarker> ruleEvaluator)

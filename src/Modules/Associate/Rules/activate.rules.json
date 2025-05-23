@@ -4,99 +4,87 @@
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
-        "ErrorCode": "1",
-        "ErrorMessage": "El Tipo Id es obligatorio",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)"
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
+        "Properties": {
+          "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
       },
       {
         "RuleName": "IdentificationRequired",
-        "ErrorCode": "2",
-        "ErrorMessage": "La Identificación es obligatoria",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)"
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)",
+        "Properties": {
+          "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
+        }
       },
       {
         "RuleName": "PensionerRequired",
-        "ErrorCode": "3",
-        "ErrorMessage": "El campo Pensionado es obligatorio",
-        "Expression": "input.request.Pensioner != null"
+        "Expression": "input.request.Pensioner != null",
+        "Properties": {
+          "errorCode": "05633775-b370-4247-9c13-76f3eff23773"
+        }
       },
       {
         "RuleName": "PensionerBoolean",
-        "ErrorCode": "4",
-        "ErrorMessage": "El campo pensionado solo recibe valor 'true' o 'false'",
-        "Expression": "input.request.Pensioner == true || input.request.Pensioner == false"
+        "Expression": "input.request.Pensioner == true || input.request.Pensioner == false",
+        "Properties": {
+          "errorCode": "e2f1e883-6d9a-4ee3-a173-fdb66fff0272"
+        }
       },
       {
         "RuleName": "PensionRequirementsWhenFalse",
-        "ErrorCode": "5",
-        "ErrorMessage": "El campo CumpleRequisitosPension es obligatorio solo cuando el campo Pensionado tenga el valor de false",
-        "Expression": "input.request.Pensioner == true || (input.request.Pensioner == false && input.request.MeetsPensionRequirements != null)"
+        "Expression": "input.request.Pensioner == true || (input.request.Pensioner == false && input.request.MeetsPensionRequirements != null)",
+        "Properties": {
+          "errorCode": "56de1714-0675-487f-8c66-d1bfb1bb0199"
+        }
       },
       {
         "RuleName": "PensionRequirementsMissing",
-        "ErrorCode": "6",
-        "ErrorMessage": "El campo CumpleRequisitosPension es obligatorio solo cuando el campo Pensionado tenga el valor de false",
-        "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != null"
+        "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != null",
+        "Properties": {
+          "errorCode": "56de1714-0675-487f-8c66-d1bfb1bb0199"
+        }
       },
       {
         "RuleName": "MeetsPensionRequirementsBoolean",
-        "ErrorCode": "7",
-        "ErrorMessage": "El campo CumpleRequisitosPension solo recibe valor 'true' o 'false'",
-        "Expression": "input.request.MeetsPensionRequirements == null || input.request.MeetsPensionRequirements == true || input.request.MeetsPensionRequirements == false"
+        "Expression": "input.request.MeetsPensionRequirements == null || input.request.MeetsPensionRequirements == true || input.request.MeetsPensionRequirements == false",
+        "Properties": {
+          "errorCode": "b718b8c3-d37d-417d-8153-0dadb82345b7"
+        }
       },
       {
         "RuleName": "StartDateNotRequiredWhenPensionerTrue",
-        "ErrorCode": "8",
-        "ErrorMessage": "El campo FechaInicioReqPen es obligatorio solo cuando el campo Pensionado tenga el valor de false y el campo CumpleRequisitosPension tenga el valor true",
-        "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.StartDateReqPen != null"
+        "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.StartDateReqPen != null",
+        "Properties": {
+          "errorCode": "49c2aec8-f175-4ee2-a199-385614f2de9c"
+        }
       },
       {
         "RuleName": "EndDateRequiredWhenConditionsMet",
-        "ErrorCode": "9",
-        "ErrorMessage": "El campo FechaFinReqPen es obligatorio solo cuando el campo Pensionado tenga el valor de false y el campo CumpleRequisitosPension tenga el valor true",
-        "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.EndDateReqPen != null"
+        "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.EndDateReqPen != null",
+        "Properties": {
+          "errorCode": "ae13c8bd-2ee0-4cfa-980e-ed8a4aa6f054"
+        }
       },
       {
         "RuleName": "DateValidation",
-        "ErrorCode": "10",
-        "ErrorMessage": "La Fecha Final debe ser mayor a la Fecha Inicial",
-        "Expression": "input.request.StartDateReqPen == null || input.request.EndDateReqPen == null || input.request.EndDateReqPen > input.request.StartDateReqPen"
+        "Expression": "input.request.StartDateReqPen == null || input.request.EndDateReqPen == null || input.request.EndDateReqPen > input.request.StartDateReqPen",
+        "Properties": {
+          "errorCode": "f2101905-1a01-49ed-a5d3-7c5262052903"
+        }
       },
       {
         "RuleName": "EndDateAfterCurrentDate",
-        "ErrorCode": "11",
-        "ErrorMessage": "La Fecha Final debe ser mayor a la Fecha Actual",
-        "Expression": "input.request.EndDateReqPen == null || input.request.EndDateReqPen > DateTime.Now"
-      },
-      {
-        "RuleName": "IdTypeHomologated",
-        "ErrorCode": "12",
-        "ErrorMessage": "El tipo Id no se encuentra homologado",
-        "Expression": "input.request.IdentificationType != null && (input.Client != null && input.request.IdentificationType.Contains(input.Client.IdType))"
-      },
-      {
-        "RuleName": "ClientExists",
-        "ErrorCode": "13",
-        "ErrorMessage": "El Cliente no existe",
-        "Expression": "input.Client != null"
-      },
-      {
-        "RuleName": "ClientNotBlocked",
-        "ErrorCode": "14",
-        "ErrorMessage": "El Cliente se encuentra Bloqueado",
-        "Expression": "input.Client != null && !input.Client.IsBlocked"
-      },
-      {
-        "RuleName": "ClientActive",
-        "ErrorCode": "15",
-        "ErrorMessage": "El Cliente se encuentra Inactivo",
-        "Expression": "input.Client != null && input.Client.IsActive"
+        "Expression": "input.request.EndDateReqPen == null || input.request.EndDateReqPen > DateTime.Now",
+        "Properties": {
+          "errorCode": "56e3e080-e1de-48d7-ab02-910da410166d"
+        }
       },
       {
         "RuleName": "ClientNotActivates",
-        "ErrorCode": "16",
-        "ErrorMessage": "El cliente ya se encuentra afiliado en el producto",
-        "Expression": "input.existingActivate == false"
+        "Expression": "input.existingActivate == false",
+        "Properties": {
+          "errorCode": "b1f51e45-1e72-4a38-b8e5-a309596c8e9d"
+        }
       }
     ]
   }

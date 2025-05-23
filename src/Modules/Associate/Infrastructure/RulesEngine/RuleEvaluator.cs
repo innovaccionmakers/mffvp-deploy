@@ -18,9 +18,7 @@ internal sealed class RuleEvaluator : IRuleEvaluator
         _log = log;
     }
 
-    public async Task<(bool Success, IReadOnlyCollection<RuleResultTree> Results, IReadOnlyCollection<RuleValidationError> Errors)>
-
-    EvaluateAsync<T>(string workflow, T input, CancellationToken ct = default)
+    public async Task<(bool Success, IReadOnlyCollection<RuleResultTree> Results, IReadOnlyCollection<RuleValidationError> Errors)> EvaluateAsync<T>(string workflow, T input, CancellationToken ct = default)
     {
         var ruleParams = new[] { new RuleParameter("input", input) };
         var results = await _engine.ExecuteAllRulesAsync(workflow, ruleParams);
