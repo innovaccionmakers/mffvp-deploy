@@ -1,4 +1,3 @@
-using Application.EventBus;
 using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Domain.Activates;
@@ -45,7 +44,5 @@ public static class ActivatesModule
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());
-
-        services.AddScoped<PersonRequestReplyService>();
     }
 }

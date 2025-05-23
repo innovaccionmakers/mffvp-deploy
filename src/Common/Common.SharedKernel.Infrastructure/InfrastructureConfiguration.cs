@@ -1,9 +1,8 @@
-﻿using Common.SharedKernel.Application.EventBus;
+﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
-using DotNetCore.CAP;
+using Common.SharedKernel.Infrastructure.EventBus;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
 using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -21,7 +20,6 @@ public static class InfrastructureConfiguration
         string databaseConnectionStringSQL
     )
     {
-
         services.AddCap(x =>
         {
             x.UseInMemoryStorage();
@@ -29,6 +27,7 @@ public static class InfrastructureConfiguration
             x.UsePostgreSql(capDbConnectionString);
             x.FailedRetryInterval = 5;
             x.FailedRetryCount = 10;
+            x.UseDashboard();
         });
 
         services
@@ -48,8 +47,8 @@ public static class InfrastructureConfiguration
         services.AddScoped<IDatabaseConnectionStrategy, SqlServerConnectionStrategy>();
         services.AddScoped<IDatabaseConnectionStrategy, YugaByteConnectionStrategy>();
         services.AddScoped<DatabaseConnectionContext>();
-
-        services.AddSingleton<IEventBus, EventBus.EventBus>();
+        services.AddSingleton<ICapRpcClient, CapRpcClient>();
+        services.AddSingleton<CapCallbackSubscriber>();
 
         return services;
     }

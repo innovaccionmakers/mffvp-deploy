@@ -80,20 +80,6 @@
         }
       },
       {
-        "RuleName": "IdTypeHomologated",
-        "Expression": "input.request.IdentificationType != null && (input.Person != null && input.request.IdentificationType.Contains(input.Person.DocumentType))",
-        "Properties": {
-          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
-        }
-      },
-      {
-        "RuleName": "ClientExists",
-        "Expression": "input.Person != null",
-        "Properties": {
-          "errorCode": "ee0231e8-e7a7-4f43-ae5c-50a02cacf178"
-        }
-      },
-      {
         "RuleName": "ClientNotActivates",
         "Expression": "input.existingActivate == false",
         "Properties": {

@@ -1,15 +1,18 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using Microsoft.Extensions.Logging;
 using People.Application.Abstractions;
 using People.Application.Abstractions.Rules;
 using People.Domain.People;
 using People.Integrations.People;
 using People.Integrations.People.GetPerson;
+using People.Integrations.People.GetPersonValidation;
 
 namespace People.Application.People.GetPerson;
 
 public sealed class GetPersonQueryHandler(
     IPersonRepository personRepository,
+    ICapRpcClient rpc,
     IRuleEvaluator<PeopleModuleMarker> ruleEvaluator)
     : IQueryHandler<GetPersonQuery, PersonResponse>
 {
@@ -24,7 +27,7 @@ public sealed class GetPersonQueryHandler(
                 ValidationWorkflow,
                 person,
                 cancellationToken);
-
+        
         if (!isValid)
         {
             var first = errors.First();

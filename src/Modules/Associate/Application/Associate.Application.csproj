@@ -9,6 +9,7 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj"/>
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj"/>
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
+        <ProjectReference Include="..\..\People\IntegrationEvents\People.IntegrationEvents\People.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Domain\Associate.Domain.csproj"/>
         <ProjectReference Include="..\Integrations\Associate.Integrations.csproj"/>
     </ItemGroup>
