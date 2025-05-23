@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Application.Activates.CreateActivate;
@@ -10,7 +6,6 @@ using Associate.Integrations.Activates.CreateActivate;
 using Common.SharedKernel.Application.Messaging;
 using Moq;
 using People.IntegrationEvents.PersonValidation;
-using RulesEngine.Models;
 
 namespace UnitTests.Application.Activates
 {
@@ -37,11 +32,10 @@ namespace UnitTests.Application.Activates
                 .ReturnsAsync(personData);
 
             // Act
-            var validationContext = new ActivateValidationContext(command, personData, false);
+            var validationContext = new ActivateValidationContext(command, false);
 
             // Assert
             Assert.Equal(command, validationContext.Request);
-            Assert.Equal(personData, validationContext.Person);
             Assert.False(validationContext.ExistingActivate);
         }
 
