@@ -7,4 +7,6 @@ public interface IPortfolioRepository
     void Insert(Portfolio portfolio);
     void Update(Portfolio portfolio);
     void Delete(Portfolio portfolio);
+
+    Task<Portfolio?> GetByStandardCodeAsync(string standardCode, CancellationToken cancellationToken = default);
 }

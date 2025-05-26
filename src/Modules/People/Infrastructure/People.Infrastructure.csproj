@@ -7,7 +7,7 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
         <ProjectReference Include="..\Application\People.Application.csproj"/>
         <ProjectReference Include="..\Domain\People.Domain.csproj"/>
-        <ProjectReference Include="..\IntegrationEvents\People.IntegrationEvents\People.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\IntegrationEvents\People.IntegrationEvents\People.IntegrationEvents.csproj"/>
         <ProjectReference Include="..\Presentation\People.Presentation.csproj"/>
         <EmbeddedResource Include="..\Rules\**\*.json"/>
     </ItemGroup>

@@ -24,4 +24,17 @@ internal sealed class ConfigurationParameterRepository : IConfigurationParameter
                 cancellationToken
             );
     }
+
+    public async Task<ConfigurationParameter?> GetByHomologationCodeAsync(
+        string homologationCode,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await _context.ConfigurationParameters
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                p => p.HomologationCode == homologationCode,
+                cancellationToken
+            );
+    }
 }

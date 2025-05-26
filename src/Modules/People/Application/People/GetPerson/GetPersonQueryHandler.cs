@@ -27,7 +27,7 @@ public sealed class GetPersonQueryHandler(
                 ValidationWorkflow,
                 person,
                 cancellationToken);
-        
+
         if (!isValid)
         {
             var first = errors.First();

@@ -8,4 +8,6 @@ public interface IPersonRepository
     void Insert(Person person);
     void Update(Person person);
     void Delete(Person person);
+    Task<Person?> GetByIdentificationAsync(string identification, string documentTypeCode,
+        CancellationToken cancellationToken = default);
 }

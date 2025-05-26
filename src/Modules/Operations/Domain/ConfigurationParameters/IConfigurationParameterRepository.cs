@@ -6,4 +6,9 @@ public interface IConfigurationParameterRepository
         Guid uuid,
         CancellationToken cancellationToken = default
     );
+
+    Task<ConfigurationParameter?> GetByHomologationCodeAsync(
+        string homologationCode,
+        CancellationToken cancellationToken = default
+    );
 }

@@ -31,4 +31,13 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
     {
         context.Portfolios.Remove(portfolio);
     }
+
+    public async Task<Portfolio?> GetByStandardCodeAsync(
+        string standardCode,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.Portfolios
+            .SingleOrDefaultAsync(p => p.StandardCode == standardCode,
+                cancellationToken);
+    }
 }

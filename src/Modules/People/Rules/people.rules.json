@@ -3,11 +3,19 @@
     "WorkflowName": "People.Person.Validation",
     "Rules": [
       {
-        "RuleName": "PersonNotExist",
-        "ErrorMessage": "La persona no existe",
-        "Expression": "input != null",
+        "RuleName": "DocumentTypeNotHomologated",
+        "ErrorMessage": "El tipo Id no se encuentra homologado",
+        "Expression": "input.DocumentTypeExists == false",
         "Properties": {
-          "errorCode": "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          "errorCode": "15afe1e8-4922-4e90-a030-e1f07ae388c6"
+        }
+      },
+      {
+        "RuleName": "ClientNotExist",
+        "ErrorMessage": "El Cliente no existe",
+        "Expression": "input.DocumentTypeExists && input.PersonExists == false",
+        "Properties": {
+          "errorCode": "5275d643-465a-40f3-83aa-afec26302136"
         }
       }
     ]

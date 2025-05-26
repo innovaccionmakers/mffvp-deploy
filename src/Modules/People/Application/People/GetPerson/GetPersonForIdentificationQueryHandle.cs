@@ -6,7 +6,7 @@ using People.Application.Abstractions.Rules;
 using People.Domain.People;
 using People.Integrations.People;
 
-namespace Application.People.GetPerson
+namespace People.Application.People.GetPerson
 {
     public class GetPersonForIdentificationQueryHandle(
     IPersonRepository personRepository,

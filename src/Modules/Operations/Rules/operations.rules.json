@@ -1,2 +1,71 @@
-{
-}
+[
+  {
+    "WorkflowName": "Operations.Contribution.Validation",
+    "Rules": [
+      {
+        "RuleName": "ContributionSourceNotHomologated",
+        "ErrorMessage": "El código homologado del Origen no existe",
+        "Expression": "input.ContributionSource.Exists",
+        "Properties": {
+          "errorCode": "ab1e4c20-d5e4-4c3b-9b07-9e9d75e76ad1"
+        }
+      },
+      {
+        "RuleName": "ContributionSourceInactive",
+        "ErrorMessage": "El Origen se encuentra inactivo",
+        "Expression": "input.ContributionSource.Active",
+        "Properties": {
+          "errorCode": "5c295a7c-bbf9-4cb2-95e3-ff3bf8c2fbea"
+        }
+      },
+      {
+        "RuleName": "OriginModalityNotHomologated",
+        "ErrorMessage": "El código homologado de la Modalidad Origen no existe",
+        "Expression": "input.OriginModality.Exists",
+        "Properties": {
+          "errorCode": "c8f3e393-8371-4e86-8675-7e19e78146ad"
+        }
+      },
+      {
+        "RuleName": "OriginModalityInactive",
+        "ErrorMessage": "La Modalidad Origen se encuentra inactiva",
+        "Expression": "input.OriginModality.Active",
+        "Properties": {
+          "errorCode": "c7641608-e9c4-4aa8-a697-e47aacea6b61"
+        }
+      },
+      {
+        "RuleName": "CollectionMethodNotHomologated",
+        "ErrorMessage": "El código homologado del Método de Recaudo no existe",
+        "Expression": "input.CollectionMethod.Exists",
+        "Properties": {
+          "errorCode": "0c60ec56-adcd-4bf1-8748-eba9ddd6a7b5"
+        }
+      },
+      {
+        "RuleName": "CollectionMethodInactive",
+        "ErrorMessage": "El Método de Recaudo se encuentra inactivo",
+        "Expression": "input.CollectionMethod.Active",
+        "Properties": {
+          "errorCode": "644aa1e2-dde1-4aa0-8ba3-4385e3800bd6"
+        }
+      },
+      {
+        "RuleName": "PaymentMethodNotHomologated",
+        "ErrorMessage": "El código homologado de la forma de pago no existe",
+        "Expression": "input.PaymentMethod.Exists",
+        "Properties": {
+          "errorCode": "5b118de3-dc70-492b-91d8-a618e29bb2c4"
+        }
+      },
+      {
+        "RuleName": "PaymentMethodInactive",
+        "ErrorMessage": "La forma de pago se encuentra inactiva",
+        "Expression": "input.PaymentMethod.Active",
+        "Properties": {
+          "errorCode": "94ca1234-5eae-4b91-8d1d-9c5cd302b46f"
+        }
+      }
+    ]
+  }
+]

@@ -20,14 +20,6 @@ internal sealed class GetPortfolioQueryHandler(
     public async Task<Result<PortfolioResponse>> Handle(GetPortfolioQuery request, CancellationToken cancellationToken)
     {
         var portfolio = await portfolioRepository.GetAsync(request.PortfolioId, cancellationToken);
-        
-        var validation = await rpc.CallAsync<
-            GetPersonValidationRequest,
-            GetPersonValidationResponse>(
-            nameof(GetPersonValidationRequest),
-            new GetPersonValidationRequest(request.PortfolioId),
-            TimeSpan.FromSeconds(20),
-            cancellationToken);
 
         var (isValid, _, errors) = await ruleEvaluator
             .EvaluateAsync(

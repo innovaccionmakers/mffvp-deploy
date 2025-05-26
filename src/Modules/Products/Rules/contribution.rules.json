@@ -1,0 +1,39 @@
+[
+  {
+    "WorkflowName": "Products.Contribution.Validation",
+    "Rules": [
+      {
+        "RuleName": "PortfolioStandardCodeExists",
+        "ErrorMessage": "El código homologado del Portafolio no existe.",
+        "Expression": "input.ExistsByStandardCode != null",
+        "Properties": {
+          "errorCode": "3ac5cff3-bbea-4dd1-a16f-1ad1c9426958"
+        }
+      },
+      {
+        "RuleName": "FirstContributionMinimumAmount",
+        "ErrorMessage": "El monto debe ser mayor o igual al monto mínimo de aporte inicial",
+        "Expression": "input.Amount >= input.ExistsByStandardCode.InitialMinimumAmount",
+        "Properties": {
+          "errorCode": "ecb1b8b5-7e2d-4784-b9bc-71302079227e"
+        }
+      },
+      {
+        "RuleName": "ExecutionDateMatchesOperationDate",
+        "ErrorMessage": "La fecha de ejecución debe ser igual a la fecha de operación del portafolio",
+        "Expression": "input.ExecutionDate == input.ExistsByStandardCode.OperationDate",
+        "Properties": {
+          "errorCode": "7a786462-e7a1-4852-8181-28e37aedf0b3"
+        }
+      },
+      {
+        "RuleName": "DepositDateBeforeOrEqualOperationDate",
+        "ErrorMessage": "La Fecha de consignación debe ser igual o menor a la fecha de operación de portafolio",
+        "Expression": "input.DepositDate <= input.ExistsByStandardCode.OperationDate",
+        "Properties": {
+          "errorCode": "047eff70-b659-4d03-9e65-23b3dec28287"
+        }
+      }
+    ]
+  }
+]
