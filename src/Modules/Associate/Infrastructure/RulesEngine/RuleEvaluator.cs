@@ -5,13 +5,13 @@ using RulesEngine.Models;
 
 namespace Associate.Infrastructure.RulesEngine;
 
-internal sealed class RuleEvaluator : IRuleEvaluator
+internal sealed class RuleEvaluator<TModule> : IRuleEvaluator<TModule>
 {
     private readonly IErrorCatalog _catalog;
     private readonly IRulesEngine _engine;
-    private readonly ILogger<RuleEvaluator> _log;
+    private readonly ILogger<TModule> _log;
 
-    public RuleEvaluator(IRulesEngine engine, IErrorCatalog catalog, ILogger<RuleEvaluator> log)
+    public RuleEvaluator(IRulesEngine engine, IErrorCatalog catalog, ILogger<TModule> log)
     {
         _engine = engine;
         _catalog = catalog;

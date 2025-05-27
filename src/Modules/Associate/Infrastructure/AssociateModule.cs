@@ -1,3 +1,4 @@
+using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Domain.Activates;
@@ -19,7 +20,7 @@ public static class ActivatesModule
         IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine(opt =>
+        services.AddRulesEngine<ActivateModuleMarker>(opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];

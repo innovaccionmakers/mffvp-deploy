@@ -1,10 +1,11 @@
 using Associate.Application.Abstractions;
+using Associate.Application.Abstractions.Rules;
 using Associate.Domain.Activates;
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.GetActivate;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Operations.Application.Abstractions.Rules;
+
 
 namespace Associate.Application.Activates.GetActivate;
 
