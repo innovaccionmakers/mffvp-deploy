@@ -13,7 +13,7 @@ namespace Associate.Application.Activates;
 
 internal sealed class UpdateActivateCommandHandler(
     IActivateRepository activateRepository,
-    IRuleEvaluator<ActivateModuleMarker> ruleEvaluator,
+    IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork)
     : ICommandHandler<UpdateActivateCommand>
 {

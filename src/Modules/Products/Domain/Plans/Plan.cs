@@ -4,13 +4,13 @@ namespace Products.Domain.Plans;
 
 public sealed class Plan : Entity
 {
+    public int PlanId { get; private set; }
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+
     private Plan()
     {
     }
-
-    public long PlanId { get; private set; }
-    public string Name { get; private set; }
-    public string Description { get; private set; }
 
     public static Result<Plan> Create(
         string name, string description

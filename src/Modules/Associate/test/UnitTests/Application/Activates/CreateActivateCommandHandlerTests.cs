@@ -13,7 +13,7 @@ namespace UnitTests.Application.Activates
     public class CreateActivateCommandHandlerTests
     {
         private readonly Mock<IActivateRepository> _repositoryMock = new();
-        private readonly Mock<IRuleEvaluator<ActivateModuleMarker>> _ruleEvaluatorMock = new();
+        private readonly Mock<IRuleEvaluator<AssociateModuleMarker>> _ruleEvaluatorMock = new();
         private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
         private readonly Mock<ICapRpcClient> _rpcMock = new();
 

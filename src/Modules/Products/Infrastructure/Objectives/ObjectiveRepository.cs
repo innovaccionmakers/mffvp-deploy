@@ -11,24 +11,16 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
         return await context.Objectives.ToListAsync(cancellationToken);
     }
 
-    public async Task<Objective?> GetAsync(long objectiveId, CancellationToken cancellationToken = default)
+    public async Task<Objective?> GetAsync(int objectiveId, CancellationToken cancellationToken = default)
     {
         return await context.Objectives
             .SingleOrDefaultAsync(x => x.ObjectiveId == objectiveId, cancellationToken);
     }
 
-    public void Insert(Objective objective)
+    public async Task<Objective?> GetByIdAsync(int objectiveId, CancellationToken ct)
     {
-        context.Objectives.Add(objective);
-    }
-
-    public void Update(Objective objective)
-    {
-        context.Objectives.Update(objective);
-    }
-
-    public void Delete(Objective objective)
-    {
-        context.Objectives.Remove(objective);
+        return await context.Objectives
+            .AsNoTracking()
+            .FirstOrDefaultAsync(o => o.ObjectiveId == objectiveId, ct);
     }
 }
