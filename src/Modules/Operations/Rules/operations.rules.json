@@ -7,7 +7,7 @@
         "ErrorMessage": "El código homologado del Origen no existe",
         "Expression": "input.ContributionSource.Exists",
         "Properties": {
-          "errorCode": "ab1e4c20-d5e4-4c3b-9b07-9e9d75e76ad1"
+          "errorCode": "c431dbad-410c-4e3d-be80-938b1c703c82"
         }
       },
       {
@@ -15,7 +15,7 @@
         "ErrorMessage": "El Origen se encuentra inactivo",
         "Expression": "input.ContributionSource.Active",
         "Properties": {
-          "errorCode": "5c295a7c-bbf9-4cb2-95e3-ff3bf8c2fbea"
+          "errorCode": "3ec4d1a5-eb5a-42e0-b930-2bfba953b7ff"
         }
       },
       {
@@ -23,7 +23,7 @@
         "ErrorMessage": "El código homologado de la Modalidad Origen no existe",
         "Expression": "input.OriginModality.Exists",
         "Properties": {
-          "errorCode": "c8f3e393-8371-4e86-8675-7e19e78146ad"
+          "errorCode": "cb3f3075-cf88-4851-a414-7705d387ac8f"
         }
       },
       {
@@ -31,7 +31,7 @@
         "ErrorMessage": "La Modalidad Origen se encuentra inactiva",
         "Expression": "input.OriginModality.Active",
         "Properties": {
-          "errorCode": "c7641608-e9c4-4aa8-a697-e47aacea6b61"
+          "errorCode": "559c3228-0f69-43ee-9bdd-8efa0fa9373d"
         }
       },
       {
@@ -39,7 +39,7 @@
         "ErrorMessage": "El código homologado del Método de Recaudo no existe",
         "Expression": "input.CollectionMethod.Exists",
         "Properties": {
-          "errorCode": "0c60ec56-adcd-4bf1-8748-eba9ddd6a7b5"
+          "errorCode": "4da720d3-8f87-4dec-bbf8-fcf89c1dcd9c"
         }
       },
       {
@@ -47,7 +47,7 @@
         "ErrorMessage": "El Método de Recaudo se encuentra inactivo",
         "Expression": "input.CollectionMethod.Active",
         "Properties": {
-          "errorCode": "644aa1e2-dde1-4aa0-8ba3-4385e3800bd6"
+          "errorCode": "7345e786-9032-4593-9f15-d007d244513f"
         }
       },
       {
@@ -55,7 +55,7 @@
         "ErrorMessage": "El código homologado de la forma de pago no existe",
         "Expression": "input.PaymentMethod.Exists",
         "Properties": {
-          "errorCode": "5b118de3-dc70-492b-91d8-a618e29bb2c4"
+          "errorCode": "05a7c156-bbd6-4139-b467-3fc47ffaca78"
         }
       },
       {
@@ -63,7 +63,7 @@
         "ErrorMessage": "La forma de pago se encuentra inactiva",
         "Expression": "input.PaymentMethod.Active",
         "Properties": {
-          "errorCode": "94ca1234-5eae-4b91-8d1d-9c5cd302b46f"
+          "errorCode": "1c3f389f-ffe2-4d19-808f-472309c595a8"
         }
       }
     ]

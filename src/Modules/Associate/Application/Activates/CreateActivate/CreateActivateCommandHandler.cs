@@ -5,12 +5,13 @@ using Associate.Integrations.Activates.CreateActivate;
 using People.IntegrationEvents.PersonValidation;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using Associate.Application.Abstractions;
 
 namespace Associate.Application.Activates.CreateActivate;
 
 internal sealed class CreateActivateCommandHandler(
     IActivateRepository activateRepository,
-    IRuleEvaluator ruleEvaluator,
+    IRuleEvaluator<ActivateModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork,  
     ICapRpcClient rpc)
     : ICommandHandler<CreateActivateCommand>

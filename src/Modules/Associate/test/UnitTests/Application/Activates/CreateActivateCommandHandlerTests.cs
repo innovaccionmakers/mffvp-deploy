@@ -1,3 +1,4 @@
+using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Application.Activates.CreateActivate;
@@ -12,7 +13,7 @@ namespace UnitTests.Application.Activates
     public class CreateActivateCommandHandlerTests
     {
         private readonly Mock<IActivateRepository> _repositoryMock = new();
-        private readonly Mock<IRuleEvaluator> _ruleEvaluatorMock = new();
+        private readonly Mock<IRuleEvaluator<ActivateModuleMarker>> _ruleEvaluatorMock = new();
         private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
         private readonly Mock<ICapRpcClient> _rpcMock = new();
 

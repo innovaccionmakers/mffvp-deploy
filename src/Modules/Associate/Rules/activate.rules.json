@@ -1,6 +1,19 @@
 [
   {
     "WorkflowName": "Associate.Activates.CreateValidation",
+    "WorkflowName": "Associate.GetActivate.Validation",
+    "Rules": [
+      {
+        "RuleName": "ActivateNotExist",
+        "Expression": "input.ActiveExists == false",
+        "Properties": {
+          "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Associate.Activates.Validation",
     "Rules": [
       {
         "RuleName": "IdTypeRequired",

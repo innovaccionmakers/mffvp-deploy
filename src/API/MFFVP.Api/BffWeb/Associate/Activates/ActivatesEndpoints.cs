@@ -1,5 +1,6 @@
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.CreateActivate;
+using Associate.Integrations.Activates.GetActivate;
 using Associate.Integrations.Activates.UpdateActivate;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
@@ -40,6 +41,14 @@ public sealed class ActivatesEndpoints
             .AddEndpointFilter<TechnicalValidationFilter<CreateActivateCommand>>()
             .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+        
+        group.MapGet("GetById/{activateId}", async (long activateId, ISender sender) =>
+            {
+                var result = await _activatesService.GetActivateAsync(activateId, sender);
+                return result.ToApiResult();
+            })
+            .Produces<ActivateResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPut("Update", async ([FromBody] UpdateActivateCommand command, ISender sender) =>

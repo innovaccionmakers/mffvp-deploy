@@ -1,4 +1,5 @@
 using System.Data.Common;
+using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Application.Activates.UpdateActivate;
@@ -12,7 +13,7 @@ namespace Associate.Application.Activates;
 
 internal sealed class UpdateActivateCommandHandler(
     IActivateRepository activateRepository,
-    IRuleEvaluator ruleEvaluator,
+    IRuleEvaluator<ActivateModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork)
     : ICommandHandler<UpdateActivateCommand>
 {

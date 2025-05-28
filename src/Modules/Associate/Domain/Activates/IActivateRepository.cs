@@ -6,4 +6,5 @@ public interface IActivateRepository
     Activate GetByIdTypeAndNumber(string IdentificationType, string identification);
     void Insert(Activate activate);    
     void Update(Activate activate);
+    Task<Activate?> GetByIdAsync(long activateId, CancellationToken cancellationToken = default);
 }

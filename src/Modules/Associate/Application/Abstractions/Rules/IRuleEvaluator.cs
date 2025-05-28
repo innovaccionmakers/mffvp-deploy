@@ -4,7 +4,7 @@ namespace Associate.Application.Abstractions.Rules;
 
 public record RuleValidationError(string Code, string Message);
 
-public interface IRuleEvaluator
+public interface IRuleEvaluator<TModule>
 {
     Task<(bool Success, IReadOnlyCollection<RuleResultTree> Results,
             IReadOnlyCollection<RuleValidationError> Errors)>
