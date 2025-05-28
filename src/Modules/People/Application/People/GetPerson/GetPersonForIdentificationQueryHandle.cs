@@ -12,7 +12,7 @@ namespace People.Application.People.GetPerson
     IPersonRepository personRepository,
     IRuleEvaluator<PeopleModuleMarker> ruleEvaluator) : IQueryHandler<GetPersonForIdentificationQuery, PersonResponse>
     {
-        private const string ValidationWorkflow = "People.Person.Validation";
+        private const string ValidationWorkflow = "People.Person.ValidationAssociate";
 
         public async Task<Result<PersonResponse>> Handle(GetPersonForIdentificationQuery request, CancellationToken cancellationToken)
         {

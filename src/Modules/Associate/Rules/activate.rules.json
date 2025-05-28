@@ -1,6 +1,6 @@
 [
   {
-    "WorkflowName": "Associate.Activates.Validation",
+    "WorkflowName": "Associate.Activates.CreateValidation",
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
@@ -84,6 +84,53 @@
         "Expression": "input.existingActivate == false",
         "Properties": {
           "errorCode": "b1f51e45-1e72-4a38-b8e5-a309596c8e9d"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Associate.Activates.UpdateValidation",
+    "Rules": [
+      {
+        "RuleName": "IdTypeRequired",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
+        "Properties": {
+          "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)",
+        "Properties": {
+          "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
+        }
+      },
+      {
+        "RuleName": "PensionerBoolean",
+        "Expression": "input.request.Pensioner == true || input.request.Pensioner == false",
+        "Properties": {
+          "errorCode": "e2f1e883-6d9a-4ee3-a173-fdb66fff0272"
+        }
+      },
+      {
+        "RuleName": "PensionerStatusMatchTrue",
+        "Expression": "input.request.Pensioner == false || input.ExistingActivate.Pensioner == false",
+        "Properties": {
+          "errorCode": "b9b0cf7b-7438-45c4-be1c-eb2be50769a7"
+        }
+      },
+      {
+        "RuleName": "PensionerStatusMatchFalse",
+        "Expression": "input.request.Pensioner == true || input.ExistingActivate.Pensioner == true",
+        "Properties": {
+          "errorCode": "c3360683-aeb0-49a5-8764-940b95e356ee"
+        }
+      },
+      {
+        "RuleName": "ClientActivates",
+        "Expression": "input.ExistingActivate.ActivateId != null",
+        "Properties": {
+          "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
         }
       }
     ]

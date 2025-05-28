@@ -33,20 +33,20 @@ namespace IntegrationTests.Activates
             Assert.Equal(2, result.Count);
         }
 
-        [Theory]
-        [InlineData("Type1", "123", true)]
-        [InlineData("Type2", "456", false)]
-        public void GetByIdTypeAndNumber_ShouldReturnExpectedResult(string type, string number, bool expected)
+        [Fact]
+        public void GetByIdTypeAndNumber_ShouldReturnExpectedResult()
         {
             // Arrange
+            
+            var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
             _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(It.IsAny<string>(), It.IsAny<string>()))
-                          .Returns(false);
+                          .Returns(existingActivate);
 
             // Act
             var result = _repositoryMock.Object.GetByIdTypeAndNumber("Unknown", "999");
 
             // Assert
-            Assert.False(result);
+            Assert.False(result is null);
         }
 
         [Fact]

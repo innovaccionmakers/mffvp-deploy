@@ -14,11 +14,16 @@ internal sealed class ActivateRepository(AssociateDbContext context) : IActivate
     public void Insert(Activate activate)
     {
         context.Activates.Add(activate);
+    }    
+
+    public void Update(Activate activate)
+    {
+        context.Activates.Update(activate);
     }
 
-    public bool GetByIdTypeAndNumber(string IdentificationType, string identification)
+    public Activate GetByIdTypeAndNumber(string IdentificationType, string identification)
     {
-        return context.Activates.Any(a =>
+        return context.Activates.FirstOrDefault(a =>
             a.IdentificationType == IdentificationType && a.Identification == identification);
     }
 }

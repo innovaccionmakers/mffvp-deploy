@@ -22,7 +22,6 @@ internal sealed class DeleteConfigurationParameterCommandHandler(
             return Result.Failure(ConfigurationParameterErrors.NotFound(request.ConfigurationParameterId));
         }
         
-        configurationparameterRepository.Delete(configurationparameter);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return Result.Success();

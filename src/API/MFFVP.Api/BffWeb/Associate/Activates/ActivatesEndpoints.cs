@@ -1,5 +1,6 @@
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.CreateActivate;
+using Associate.Integrations.Activates.UpdateActivate;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
@@ -37,6 +38,17 @@ public sealed class ActivatesEndpoints
                 return result.ToApiResult();
             })
             .AddEndpointFilter<TechnicalValidationFilter<CreateActivateCommand>>()
+            .Produces<ActivateResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPut("Update", async ([FromBody] UpdateActivateCommand command, ISender sender) =>
+            {
+                var result = await _activatesService.UpdateActivateAsync(command, sender);
+                return result.ToApiResult();
+            })
+            .MapToApiVersion(1, 0)
+            .AddEndpointFilter<TechnicalValidationFilter<UpdateActivateCommand>>()
             .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);

@@ -3,6 +3,7 @@ namespace Associate.Domain.Activates;
 public interface IActivateRepository
 {
     Task<IReadOnlyCollection<Activate>> GetAllAsync(CancellationToken cancellationToken = default);
-    bool GetByIdTypeAndNumber(string IdentificationType, string identification);
-    void Insert(Activate activate);
+    Activate GetByIdTypeAndNumber(string IdentificationType, string identification);
+    void Insert(Activate activate);    
+    void Update(Activate activate);
 }

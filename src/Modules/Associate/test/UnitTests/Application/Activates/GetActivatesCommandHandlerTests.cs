@@ -59,7 +59,7 @@ namespace UnitTests.Application.Activates
         }
 
         [Fact]
-        public async Task QueryObject_ShouldBeProperlyConstructed()
+        public void QueryObject_ShouldBeProperlyConstructed()
         {
             // Arrange
             var query = new GetActivatesQuery();

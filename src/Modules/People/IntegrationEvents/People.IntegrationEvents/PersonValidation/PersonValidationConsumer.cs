@@ -11,8 +11,6 @@ namespace People.IntegrationEvents.PersonValidation;
 
 public sealed class PersonValidationConsumer : ICapSubscribe
 {
-
-    private const string ValidationWorkflow = "People.Person.Validation";
     private readonly ISender _mediator;
     private readonly IPersonRepository _personRepository;
 
