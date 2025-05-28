@@ -23,6 +23,7 @@ using Products.Infrastructure;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Trusts.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,9 +85,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSwaggerUI", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://localhost:7203", "https://localhost:5173")
             .AllowAnyMethod()
-            .AllowAnyHeader();
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 
@@ -108,29 +110,33 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
 
-app.UseSwagger();
-
-app.UseSwaggerUI(options =>
-{
-    var provider = app.DescribeApiVersions();
-
-    foreach (var description in provider)
-        options.SwaggerEndpoint(
-            $"/swagger/{description.GroupName}/swagger.json",
-            description.GroupName.ToUpperInvariant());
-    options.DocExpansion(DocExpansion.None);
-});
-
-app.UseCors("AllowSwaggerUI");
+app.UseInfrastructure();
 
 app.UseLogContext();
 
-app.UseSerilogRequestLogging();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapEndpoints();
 
 app.MapGet("/",
     () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
+
+app.MapGet("/api/userinfo", [Authorize(AuthenticationSchemes = "JwtBearer")] (HttpContext context) =>
+{
+    var username = context.User.Identity?.Name;
+    return Results.Ok($"Welcome {username}, this is protected data.");
+});
+
+app.MapGet("api/secured/insumo-read", [Authorize(Policy = "Permission.MasterData:Insumo:Read")] () =>
+{
+    return Results.Ok("Access granted for Insumo:Read");
+});
+
+app.MapGet("api/secured/insumo-modify", [Authorize(Policy = "Permission.MasterData:Insumo:Modify")] () =>
+{
+    return Results.Ok("Access granted for Insumo:Modify");
+});
 
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
 
