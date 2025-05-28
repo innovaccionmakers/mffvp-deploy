@@ -22,7 +22,7 @@ internal sealed class CreateActivateCommandHandler(
         CancellationToken cancellationToken)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        Activate existingActivate = activateRepository.GetByIdTypeAndNumber(request.IdentificationType, request.Identification);
+        Activate existingActivate = await activateRepository.GetByIdTypeAndNumber(request.IdentificationType, request.Identification, cancellationToken);
         
         var personData = await rpc.CallAsync<
             PersonDataRequestEvent,
@@ -64,7 +64,7 @@ internal sealed class CreateActivateCommandHandler(
 
         var activate = result.Value;
 
-        activateRepository.Insert(activate);
+        activateRepository.Insert(activate, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

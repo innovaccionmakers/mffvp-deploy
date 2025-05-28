@@ -3,6 +3,7 @@ using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Domain.Activates;
 using Associate.Domain.ConfigurationParameters;
+using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Database;
 using Associate.Infrastructure.RulesEngine;
 using Common.SharedKernel.Infrastructure.Configuration;
@@ -42,6 +43,7 @@ public static class ActivatesModule
         });
 
         services.AddScoped<IActivateRepository, ActivateRepository>();
+        services.AddScoped<IPensionRequirementRepository, PensionRequirementRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());

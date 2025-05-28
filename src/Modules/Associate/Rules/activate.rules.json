@@ -1,6 +1,5 @@
 [
   {
-    "WorkflowName": "Associate.Activates.CreateValidation",
     "WorkflowName": "Associate.GetActivate.Validation",
     "Rules": [
       {
@@ -13,7 +12,7 @@
     ]
   },
   {
-    "WorkflowName": "Associate.Activates.Validation",
+    "WorkflowName": "Associate.Activates.CreateValidation",
     "Rules": [
       {
         "RuleName": "IdTypeRequired",

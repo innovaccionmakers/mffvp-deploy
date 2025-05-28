@@ -11,19 +11,19 @@ internal sealed class ActivateRepository(AssociateDbContext context) : IActivate
         return await context.Activates.ToListAsync(cancellationToken);
     }
 
-    public void Insert(Activate activate)
+    public void Insert(Activate activate, CancellationToken cancellationToken = default)
     {
         context.Activates.Add(activate);
     }    
 
-    public void Update(Activate activate)
+    public void Update(Activate activate, CancellationToken cancellationToken = default)
     {
         context.Activates.Update(activate);
     }
 
-    public Activate GetByIdTypeAndNumber(string IdentificationType, string identification)
+    public async Task<Activate?> GetByIdTypeAndNumber(string IdentificationType, string identification, CancellationToken cancellationToken = default)
     {
-        return context.Activates.FirstOrDefault(a =>
+        return await context.Activates.SingleOrDefaultAsync(a =>
             a.IdentificationType == IdentificationType && a.Identification == identification);
     }
 

@@ -23,6 +23,7 @@ using Products.Infrastructure;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Trusts.Infrastructure;
+using MFFVP.Api.BffWeb.Associate.PensionRequirements;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +77,7 @@ builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(ProductsEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(PeopleEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(OperationsEndpoints).Assembly);
+builder.Services.AddEndpoints(typeof(PensionRequirementsEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));

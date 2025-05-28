@@ -22,7 +22,7 @@ internal sealed class UpdateActivateCommandHandler(
     public async Task<Result> Handle(UpdateActivateCommand request, CancellationToken cancellationToken)
     {
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);        
-        Activate existingActivate = activateRepository.GetByIdTypeAndNumber(request.IdentificationType, request.Identification);
+        Activate existingActivate = await activateRepository.GetByIdTypeAndNumber(request.IdentificationType, request.Identification, cancellationToken);
         
         var validationContext = new ActivateUpdateValidationContext(request, existingActivate);
 

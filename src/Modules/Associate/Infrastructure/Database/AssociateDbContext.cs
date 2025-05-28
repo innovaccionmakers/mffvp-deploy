@@ -2,8 +2,10 @@ using System.Data.Common;
 using Associate.Application.Abstractions.Data;
 using Associate.Domain.Activates;
 using Associate.Domain.ConfigurationParameters;
+using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Activates;
 using Associate.Infrastructure.ConfigurationParameters;
+using Associate.Infrastructure.PensionRequirements;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -14,6 +16,7 @@ public sealed class AssociateDbContext(DbContextOptions<AssociateDbContext> opti
 {
     internal DbSet<Activate> Activates { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
+    internal DbSet<PensionRequirement> PensionRequirements { get; set; }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
@@ -28,5 +31,6 @@ public sealed class AssociateDbContext(DbContextOptions<AssociateDbContext> opti
 
         modelBuilder.ApplyConfiguration(new ActivateConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
+        modelBuilder.ApplyConfiguration(new PensionRequirementConfiguration());
     }
 }
