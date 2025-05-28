@@ -20,7 +20,7 @@ namespace MFFVP.Api.Infrastructure.Products
             return await sender.Send(new GetPortfoliosQuery());
         }
 
-        public async Task<Result<PortfolioResponse>> GetPortfolioAsync(long portfolioId, ISender sender)
+        public async Task<Result<PortfolioResponse>> GetPortfolioAsync(int portfolioId, ISender sender)
         {
             return await sender.Send(new GetPortfolioQuery(portfolioId));
         }

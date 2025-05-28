@@ -11,7 +11,7 @@ internal sealed class AlternativeRepository(ProductsDbContext context) : IAltern
         return await context.Alternatives.ToListAsync(cancellationToken);
     }
 
-    public async Task<Alternative?> GetAsync(long alternativeId, CancellationToken cancellationToken = default)
+    public async Task<Alternative?> GetAsync(int alternativeId, CancellationToken cancellationToken = default)
     {
         return await context.Alternatives
             .SingleOrDefaultAsync(x => x.AlternativeId == alternativeId, cancellationToken);

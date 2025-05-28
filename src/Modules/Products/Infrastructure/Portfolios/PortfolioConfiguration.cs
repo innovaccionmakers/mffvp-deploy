@@ -16,5 +16,8 @@ internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfoli
         builder.Property(x => x.ShortName).HasColumnName("nombre_corto");
         builder.Property(x => x.ModalityId).HasColumnName("modalidad_id");
         builder.Property(x => x.InitialMinimumAmount).HasColumnName("monto_minimo_inicial");
+        builder.HasMany(p => p.Alternatives)
+            .WithOne(ap => ap.Portfolio)
+            .HasForeignKey(ap => ap.PortfolioId);
     }
 }

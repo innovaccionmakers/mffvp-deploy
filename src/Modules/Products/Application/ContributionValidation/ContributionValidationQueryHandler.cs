@@ -1,51 +1,82 @@
 using Common.SharedKernel.Domain;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Rules;
+using Products.Domain.Objectives;
 using Products.Domain.Portfolios;
 using Products.Integrations.ContributionValidation;
 
 namespace Products.Application.ContributionValidation;
 
 internal sealed class ContributionValidationQueryHandler(
+    IObjectiveRepository objectiveRepository,
     IPortfolioRepository portfolioRepository,
     IRuleEvaluator<ProductsModuleMarker> ruleEvaluator)
 {
-    private const string ValidationWorkflow = "Products.Contributions.Validation";
+    private const string RuleSetName = "Products.Contribution.Validation";
 
     public async Task<Result<ContributionValidationResponse>> Handle(
         ContributionValidationQuery request,
         CancellationToken cancellationToken)
     {
-        Portfolio? existsByStandardCode = null;
+        var objective = await objectiveRepository
+            .GetByIdAsync(request.ObjectiveId, cancellationToken);
 
-        if (!string.IsNullOrEmpty(request.PortfolioStandardCode))
+        var objectiveExists            = objective is not null;
+        var alternativeId              = objective?.AlternativeId;
+        var objectiveBelongsToAffiliate = objectiveExists &&
+                                          objective!.AffiliateId == request.ActivateId;
+        
+        var isPortfolioCodeProvided = !string.IsNullOrWhiteSpace(request.PortfolioStandardCode);
+
+        var portfolioBelongsToAlternative = false;
+        var collectorPortfolioFound       = false;
+        string? effectivePortfolioCode    = request.PortfolioStandardCode;
+
+        if (isPortfolioCodeProvided)
         {
-            existsByStandardCode = await portfolioRepository
-                .GetByStandardCodeAsync(request.PortfolioStandardCode, cancellationToken);
+            portfolioBelongsToAlternative = objectiveExists &&
+                await portfolioRepository.BelongsToAlternativeAsync(
+                    request.PortfolioStandardCode!,
+                    alternativeId!.Value,
+                    cancellationToken);
         }
-        else
+        else if (objectiveExists)
         {
-            // TODO: lógica alternativa para identificar portafolio
+            effectivePortfolioCode = await portfolioRepository.GetCollectorCodeAsync(
+                alternativeId!.Value, cancellationToken);
+
+            collectorPortfolioFound = effectivePortfolioCode is not null;
         }
 
+        Portfolio? portfolio = null;
+        if (!string.IsNullOrWhiteSpace(effectivePortfolioCode))
+            portfolio = await portfolioRepository.GetByStandardCodeAsync(
+                effectivePortfolioCode!, cancellationToken);
+        
         var validationContext = new
         {
             request.ObjectiveId,
-            request.PortfolioStandardCode,
+            ObjectiveExists            = objectiveExists,
+            AlternativeId              = alternativeId,
+            ObjectiveBelongsToAffiliate = objectiveBelongsToAffiliate,
+            IsPortfolioCodeProvided     = isPortfolioCodeProvided,
+            PortfolioBelongsToObjectiveAlternative = portfolioBelongsToAlternative,
+            CollectorPortfolioFound       = collectorPortfolioFound,
+            PortfolioStandardCode          = effectivePortfolioCode,
             request.DepositDate,
             request.ExecutionDate,
             request.Amount,
-            ExistsByStandardCode = existsByStandardCode
+            ExistsByStandardCode = portfolio
         };
 
-        var (validationSucceeded, _, validationErrors) = await ruleEvaluator
-            .EvaluateAsync(ValidationWorkflow, validationContext, cancellationToken);
+        var (isValid, _, errors) =
+            await ruleEvaluator.EvaluateAsync(RuleSetName, validationContext, cancellationToken);
 
-        if (!validationSucceeded)
+        if (!isValid)
         {
-            var firstError = validationErrors.First();
+            var error = errors.First();
             return Result.Failure<ContributionValidationResponse>(
-                Error.Validation(firstError.Code, firstError.Message));
+                Error.Validation(error.Code, error.Message));
         }
 
         return Result.Success(new ContributionValidationResponse(true));

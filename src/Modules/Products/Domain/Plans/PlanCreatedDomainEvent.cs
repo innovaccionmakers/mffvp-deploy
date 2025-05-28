@@ -2,7 +2,7 @@ using Common.SharedKernel.Domain;
 
 namespace Products.Domain.Plans;
 
-public sealed class PlanCreatedDomainEvent(long planId) : DomainEvent
+public sealed class PlanCreatedDomainEvent(int planId) : DomainEvent
 {
-    public long PlanId { get; } = planId;
+    public int PlanId { get; } = planId;
 }

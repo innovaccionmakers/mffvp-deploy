@@ -20,7 +20,7 @@ public static class ActivatesModule
         IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine<ActivateModuleMarker>(opt =>
+        services.AddRulesEngine<AssociateModuleMarker>(opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];

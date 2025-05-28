@@ -11,7 +11,7 @@ namespace Associate.Application.Activates.GetActivate;
 
 internal sealed class GetActivateQueryHandler(
     IActivateRepository activateRepository,
-    IRuleEvaluator<ActivateModuleMarker> ruleEvaluator) : IQueryHandler<GetActivateQuery, ActivateResponse>
+    IRuleEvaluator<AssociateModuleMarker> ruleEvaluator) : IQueryHandler<GetActivateQuery, ActivateResponse>
 {
     private const string ValidationWorkflow = "Associate.GetActivate.Validation";
 

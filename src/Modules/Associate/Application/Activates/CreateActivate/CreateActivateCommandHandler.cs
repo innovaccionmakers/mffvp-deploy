@@ -11,7 +11,7 @@ namespace Associate.Application.Activates.CreateActivate;
 
 internal sealed class CreateActivateCommandHandler(
     IActivateRepository activateRepository,
-    IRuleEvaluator<ActivateModuleMarker> ruleEvaluator,
+    IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork,  
     ICapRpcClient rpc)
     : ICommandHandler<CreateActivateCommand>
