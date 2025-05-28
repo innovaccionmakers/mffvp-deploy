@@ -29,8 +29,8 @@ internal sealed class CreateActivate : IEndpoint
 
     internal sealed class Request
     {
-        public string IdentificationType { get; init; }
-        public string Identification { get; init; }
+        public required string IdentificationType { get; init; }
+        public required string Identification { get; init; }
         public bool Pensioner { get; init; }
         public bool MeetsRequirements { get; init; }
         public DateTime ActivateDate { get; init; }

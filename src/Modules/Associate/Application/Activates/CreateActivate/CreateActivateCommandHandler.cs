@@ -16,15 +16,14 @@ internal sealed class CreateActivateCommandHandler(
     ICapRpcClient rpc)
     : ICommandHandler<CreateActivateCommand>
 {
-    private const string Workflow = "Associate.Activates.Validation";
+    private const string Workflow = "Associate.Activates.CreateValidation";
 
     public async Task<Result> Handle(CreateActivateCommand request,
         CancellationToken cancellationToken)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-
-        bool existingActivate = activateRepository.GetByIdTypeAndNumber(request.IdentificationType, request.Identification);
-
+        Activate existingActivate = activateRepository.GetByIdTypeAndNumber(request.IdentificationType, request.Identification);
+        
         var personData = await rpc.CallAsync<
             PersonDataRequestEvent,
             GetPersonValidationResponse>(

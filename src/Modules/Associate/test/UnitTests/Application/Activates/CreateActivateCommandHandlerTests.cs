@@ -11,33 +11,32 @@ using People.IntegrationEvents.PersonValidation;
 namespace UnitTests.Application.Activates
 {
     public class CreateActivateCommandHandlerTests
-    {private readonly Mock<IActivateRepository> _repositoryMock = new();
+    {
+        private readonly Mock<IActivateRepository> _repositoryMock = new();
         private readonly Mock<IRuleEvaluator<ActivateModuleMarker>> _ruleEvaluatorMock = new();
         private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
         private readonly Mock<ICapRpcClient> _rpcMock = new();
 
         [Fact]
-        public async Task RuleEvaluator_ShouldValidateContextCorrectly()
+        public void RuleEvaluator_ShouldValidateContextCorrectly()
         {
             // Arrange
-            var command = new CreateActivateCommand(
-                "Type1", "123", false, false, null, null);
-            
+            var command = new CreateActivateCommand("Type1", "123", false, false, null, null);
+            var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
             var personData = new GetPersonValidationResponse(false, null, null);
-            
+
             _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(false);
-                
+                .Returns(existingActivate);
+
             _rpcMock.Setup(x => x.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
                     It.IsAny<string>(), It.IsAny<PersonDataRequestEvent>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(personData);
 
             // Act
-            var validationContext = new ActivateValidationContext(command, false);
+            var validationContext = new ActivateValidationContext(command, existingActivate);
 
             // Assert
             Assert.Equal(command, validationContext.Request);
-            Assert.False(validationContext.ExistingActivate);
         }
 
         [Fact]
@@ -66,17 +65,18 @@ namespace UnitTests.Application.Activates
         }
 
         [Fact]
-        public async Task Repository_ShouldDetectExistingActivate()
+        public void Repository_ShouldDetectExistingActivate()
         {
-            // Arrange
+            // Arrange            
+            var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
             _repositoryMock.Setup(x => x.GetByIdTypeAndNumber("Type1", "123"))
-                .Returns(true);
+                .Returns(existingActivate);
 
             // Act
             var exists = _repositoryMock.Object.GetByIdTypeAndNumber("Type1", "123");
 
             // Assert
-            Assert.True(exists);
+            Assert.True(exists is not null);
             _repositoryMock.Verify(x => x.GetByIdTypeAndNumber("Type1", "123"), Times.Once);
         }
 
@@ -86,7 +86,7 @@ namespace UnitTests.Application.Activates
             // Arrange
             var expectedPerson = new GetPersonValidationResponse(false, null, null);
             var requestEvent = new PersonDataRequestEvent("Type1", "123");
-            
+
             _rpcMock.Setup(x => x.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
                     It.IsAny<string>(), It.IsAny<PersonDataRequestEvent>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedPerson);

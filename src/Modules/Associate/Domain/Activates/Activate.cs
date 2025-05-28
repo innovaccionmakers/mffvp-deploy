@@ -33,15 +33,8 @@ public sealed class Activate : Entity
         return Result.Success(activate);
     }
 
-    public void UpdateDetails(
-        string newIdentificationType, string newIdentification, bool newPensioner, bool newMeetsRequirements,
-        DateTime newActivateDate
-    )
+    public void UpdateDetails(bool newPensioner)
     {
-        IdentificationType = newIdentificationType;
-        Identification = newIdentification;
         Pensioner = newPensioner;
-        MeetsPensionRequirements = newMeetsRequirements;
-        ActivateDate = newActivateDate;
     }
 }
