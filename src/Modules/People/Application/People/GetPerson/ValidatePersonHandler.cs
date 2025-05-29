@@ -1,3 +1,5 @@
+using Associate.IntegrationEvents.ActivateValidation;
+using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using People.Application.Abstractions;
@@ -12,7 +14,8 @@ namespace People.Application.People.GetPerson;
 internal sealed class ValidatePersonHandler(
     IConfigurationParameterRepository configurationParameterRepository,
     IPersonRepository personRepository,
-    IRuleEvaluator<PeopleModuleMarker> ruleEvaluator
+    IRuleEvaluator<PeopleModuleMarker> ruleEvaluator,
+    ICapRpcClient rpc
 ) : IQueryHandler<ValidatePersonQuery, ValidatePersonResponse>
 {
     private const string DocumentTypeValidationWorkflow = "People.Person.Validation";
@@ -25,27 +28,46 @@ internal sealed class ValidatePersonHandler(
         var identification = query.IdentificationNumber;
 
         var documentType = await configurationParameterRepository
-            .GetByHomologationCodeAsync(documentTypeCode,  cancellationToken);
+            .GetByCodeAndScopeAsync(
+                documentTypeCode,
+                HomologScope.Of<ValidatePersonQuery>(c => c.DocumentTypeHomologatedCode),
+                cancellationToken);
 
         var person = await personRepository
-            .GetByIdentificationAsync(identification, documentType.Name, cancellationToken);
+            .GetByIdentificationAsync(
+                identification,
+                documentType?.Name,
+                cancellationToken);
 
         var validationContext = new
         {
-            DocumentTypeExists     = documentType != null,
-            PersonExists           = person != null
+            DocumentTypeExists = documentType is not null,
+            PersonExists = person is not null
         };
 
-        var (validationSucceeded, _, validationErrors) = await ruleEvaluator
+        var (rulesOk, _, ruleErrors) = await ruleEvaluator
             .EvaluateAsync(DocumentTypeValidationWorkflow, validationContext, cancellationToken);
 
-        if (!validationSucceeded)
+        if (!rulesOk)
         {
-            var firstError = validationErrors.First();
+            var first = ruleErrors.First();
             return Result.Failure<ValidatePersonResponse>(
-                Error.Validation(firstError.Code, firstError.Message));
+                Error.Validation(first.Code, first.Message));
         }
 
-        return Result.Success(new ValidatePersonResponse(true));
+        var activateResponse = await rpc.CallAsync<
+            GetActivateIdByIdentificationRequest,
+            GetActivateIdByIdentificationResponse>(
+            nameof(GetActivateIdByIdentificationRequest),
+            new GetActivateIdByIdentificationRequest(documentTypeCode, identification),
+            TimeSpan.FromSeconds(5),
+            cancellationToken);
+
+        if (!activateResponse.Succeeded)
+            return Result.Failure<ValidatePersonResponse>(
+                Error.Validation(activateResponse.Code, activateResponse.Message));
+
+        return Result.Success(new ValidatePersonResponse(
+            true));
     }
 }

@@ -7,8 +7,8 @@ public interface IConfigurationParameterRepository
         CancellationToken cancellationToken = default
     );
 
-    Task<ConfigurationParameter?> GetByHomologationCodeAsync(
+    Task<ConfigurationParameter?> GetByCodeAndScopeAsync(
         string homologationCode,
-        CancellationToken cancellationToken = default
-    );
+        string scope,
+        CancellationToken cancellationToken = default);
 }

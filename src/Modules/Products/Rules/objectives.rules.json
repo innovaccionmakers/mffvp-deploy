@@ -1,0 +1,47 @@
+[
+  {
+    "WorkflowName": "Products.Objective.ValidateGetObjectives",
+    "Rules": [
+      {
+        "RuleName": "AffiliateExists",
+        "ErrorMessage": "No existe un afiliado con Tipo Id e Identificación diligenciados",
+        "Expression": "input.AffiliateExists == true",
+        "Properties": {
+          "errorCode": "05f1ae44-dd26-453a-b567-dad1512e299b"
+        }
+      },
+      {
+        "RuleName": "StatusValueAccepted",
+        "ErrorMessage": "El campo Estado solo recibe los valores \"A\", \"I\" y \"T\"",
+        "Expression": "input.StatusValueAccepted == true",
+        "Properties": {
+          "errorCode": "7251f852-4ae5-476c-9eff-60ae92714d68"
+        }
+      },
+      {
+        "RuleName": "AffiliateHasObjectives",
+        "ErrorMessage": "El Afiliado no tiene objetivos creados",
+        "Expression": "input.AffiliateHasObjectives == true",
+        "Properties": {
+          "errorCode": "d8946440-0629-4284-9723-99bf7fd27067"
+        }
+      },
+      {
+        "RuleName": "AffiliateHasActiveObjectives",
+        "ErrorMessage": "El Afiliado no tiene objetivos activos",
+        "Expression": "input.RequestedStatus != 'A' || input.AffiliateHasActiveObjectives == true",
+        "Properties": {
+          "errorCode": "d5f56fa8-9480-4b57-b919-978d1f2f4bd6"
+        }
+      },
+      {
+        "RuleName": "AffiliateHasInactiveObjectives",
+        "ErrorMessage": "El Afiliado no tiene objetivos inactivos",
+        "Expression": "input.RequestedStatus != 'I' || input.AffiliateHasInactiveObjectives == true",
+        "Properties": {
+          "errorCode": "6d4d324c-23b3-4976-8180-0633b6e81c55"
+        }
+      }
+    ]
+  }
+]

@@ -23,4 +23,15 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.ObjectiveId == objectiveId, ct);
     }
+    
+    public async Task<IReadOnlyCollection<Objective>> GetByAffiliateAsync(
+        int affiliateId, CancellationToken cancellationToken = default)
+    {
+        return await context.Objectives
+            .AsNoTracking()
+            .Include(o => o.Alternative) 
+            .Where(o => o.AffiliateId == affiliateId)
+            .ToListAsync(cancellationToken);
+    }
+
 }

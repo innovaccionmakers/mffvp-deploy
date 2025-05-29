@@ -7,4 +7,9 @@ public interface IClientOperationRepository
     void Insert(ClientOperation clientoperation);
     void Update(ClientOperation clientoperation);
     void Delete(ClientOperation clientoperation);
+    Task<bool> ExistsContributionAsync(
+        int affiliateId,
+        int objectiveId,
+        int portfolioId,
+        CancellationToken ct);
 }

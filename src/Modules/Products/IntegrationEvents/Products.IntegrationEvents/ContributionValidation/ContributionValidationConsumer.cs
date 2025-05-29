@@ -26,14 +26,20 @@ public sealed class ContributionValidationConsumer : ICapSubscribe
 
         var result =
             await _mediator.Send(
-                new ContributionValidationQuery(message.ActivateId, message.ObjectiveId, message.PortfolioStandardCode, message.DepositDate,
+                new ContributionValidationQuery(message.ActivateId, message.ObjectiveId, message.PortfolioStandardCode,
+                    message.DepositDate,
                     message.ExecutionDate, message.Amount), cancellationToken);
 
         return result.Match(
-            ok => new ContributionValidationResponse(true),
+            ok => new ContributionValidationResponse(
+                true,
+                AffiliateId: result.Value.AffiliateId,
+                ObjectiveId: result.Value.ObjectiveId,
+                PortfolioId: result.Value.PortfolioId,
+                PortfolioInitialMinimumAmount: result.Value.PortfolioInitialMinimumAmount),
             err => new ContributionValidationResponse(
-                false,
-                err.Error.Code,
-                err.Error.Description));
+                IsValid: false,
+                Code: err.Error.Code,
+                Message: err.Error.Description));
     }
 }

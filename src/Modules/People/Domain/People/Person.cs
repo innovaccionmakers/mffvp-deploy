@@ -25,6 +25,8 @@ public sealed class Person : Entity
     public int CountryId { get; private set; }
     public string Email { get; private set; }
     public string EconomicActivityId { get; private set; }
+    
+    public bool Status { get; private set; } = true;
 
     private Person()
     {
@@ -34,7 +36,7 @@ public sealed class Person : Entity
         string documentType, string standardCode, string identification, string firstName, string middleName,
         string lastName, string secondLastName, DateTime issueDate, int issueCityId, DateTime birthDate,
         int birthCityId, string mobile, string fullName, int maritalStatusId, int genderId, string email,
-        Country country, EconomicActivity economicActivity
+        Country country, EconomicActivity economicActivity, bool status
     )
     {
         var person = new Person
@@ -58,7 +60,8 @@ public sealed class Person : Entity
             GenderId = genderId,
             CountryId = country.CountryId,
             Email = email,
-            EconomicActivityId = economicActivity.EconomicActivityId
+            EconomicActivityId = economicActivity.EconomicActivityId,
+            Status = status
         };
 
         person.Raise(new PersonCreatedDomainEvent(person.PersonId));
@@ -69,7 +72,7 @@ public sealed class Person : Entity
         string newDocumentType, string newStandardCode, string newIdentification, string newFirstName,
         string newMiddleName, string newLastName, string newSecondLastName, DateTime newIssueDate, int newIssueCityId,
         DateTime newBirthDate, int newBirthCityId, string newMobile, string newFullName, int newMaritalStatusId,
-        int newGenderId, int newCountryId, string newEmail, string newEconomicActivityId
+        int newGenderId, int newCountryId, string newEmail, string newEconomicActivityId, bool newStatus
     )
     {
         DocumentType = newDocumentType;
@@ -90,5 +93,6 @@ public sealed class Person : Entity
         CountryId = newCountryId;
         Email = newEmail;
         EconomicActivityId = newEconomicActivityId;
+        Status = newStatus;
     }
 }

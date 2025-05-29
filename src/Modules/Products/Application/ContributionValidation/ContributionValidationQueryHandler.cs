@@ -56,7 +56,6 @@ internal sealed class ContributionValidationQueryHandler(
         var validationContext = new
         {
             request.ObjectiveId,
-            ObjectiveExists            = objectiveExists,
             AlternativeId              = alternativeId,
             ObjectiveBelongsToAffiliate = objectiveBelongsToAffiliate,
             IsPortfolioCodeProvided     = isPortfolioCodeProvided,
@@ -79,6 +78,6 @@ internal sealed class ContributionValidationQueryHandler(
                 Error.Validation(error.Code, error.Message));
         }
 
-        return Result.Success(new ContributionValidationResponse(true));
+        return Result.Success(new ContributionValidationResponse(true, request.ActivateId, request.ObjectiveId, portfolio!.PortfolioId, portfolio.InitialMinimumAmount));
     }
 }
