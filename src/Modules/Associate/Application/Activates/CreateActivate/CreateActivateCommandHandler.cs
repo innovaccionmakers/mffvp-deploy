@@ -6,7 +6,6 @@ using People.IntegrationEvents.PersonValidation;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Associate.Application.Abstractions;
-using MediatR;
 
 namespace Associate.Application.Activates.CreateActivate;
 
@@ -69,7 +68,6 @@ internal sealed class CreateActivateCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        
         return Result.Success();
     }
 }
