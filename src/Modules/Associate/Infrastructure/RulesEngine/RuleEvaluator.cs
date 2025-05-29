@@ -9,10 +9,10 @@ namespace Associate.Infrastructure.RulesEngine;
 internal sealed class RuleEvaluator<TModule> : IRuleEvaluator<TModule>
 {
     private readonly IErrorCatalog _catalog;
-    private readonly IRulesEngine<ActivateModuleMarker> _engine;
+    private readonly IRulesEngine<AssociateModuleMarker> _engine;
     private readonly ILogger<TModule> _log;
 
-    public RuleEvaluator(IRulesEngine<ActivateModuleMarker> engine, IErrorCatalog catalog, ILogger<TModule> log)
+    public RuleEvaluator(IRulesEngine<AssociateModuleMarker> engine, IErrorCatalog catalog, ILogger<TModule> log)
     {
         _engine = engine;
         _catalog = catalog;

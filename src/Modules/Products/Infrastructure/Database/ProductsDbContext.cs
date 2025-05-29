@@ -1,17 +1,27 @@
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Products.Application.Abstractions.Data;
-using Products.Domain.Alternatives;
-using Products.Domain.ConfigurationParameters;
-using Products.Domain.Objectives;
 using Products.Domain.Plans;
-using Products.Domain.Portfolios;
-using Products.Infrastructure.Alternatives;
-using Products.Infrastructure.ConfigurationParameters;
-using Products.Infrastructure.Objectives;
 using Products.Infrastructure.Plans;
+using Products.Domain.Alternatives;
+using Products.Infrastructure.Alternatives;
+using Products.Domain.Portfolios;
 using Products.Infrastructure.Portfolios;
+using Products.Domain.AlternativePortfolios;
+using Products.Infrastructure.AlternativePortfolios;
+using Products.Domain.Objectives;
+using Products.Infrastructure.Objectives;
+using Products.Domain.Commercials;
+using Products.Infrastructure.Commercials;
+using Products.Domain.Cities;
+using Products.Domain.ConfigurationParameters;
+using Products.Infrastructure.Cities;
+using Products.Domain.Offices;
+using Products.Infrastructure.ConfigurationParameters;
+using Products.Infrastructure.Offices;
 
 namespace Products.Infrastructure.Database;
 
@@ -20,16 +30,13 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
 {
     internal DbSet<Plan> Plans { get; set; }
     internal DbSet<Alternative> Alternatives { get; set; }
-    internal DbSet<Objective> Objectives { get; set; }
     internal DbSet<Portfolio> Portfolios { get; set; }
+    internal DbSet<AlternativePortfolio> AlternativePortfolios { get; set; }
+    internal DbSet<Objective> Objectives { get; set; }
+    internal DbSet<Commercial> Commercials { get; set; }
+    internal DbSet<City> Cities { get; set; }
+    internal DbSet<Office> Offices { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
-
-    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
-    {
-        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
-
-        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -37,8 +44,19 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
 
         modelBuilder.ApplyConfiguration(new PlanConfiguration());
         modelBuilder.ApplyConfiguration(new AlternativeConfiguration());
-        modelBuilder.ApplyConfiguration(new ObjectiveConfiguration());
         modelBuilder.ApplyConfiguration(new PortfolioConfiguration());
+        modelBuilder.ApplyConfiguration(new AlternativePortfolioConfiguration());
+        modelBuilder.ApplyConfiguration(new ObjectiveConfiguration());
+        modelBuilder.ApplyConfiguration(new CommercialConfiguration());
+        modelBuilder.ApplyConfiguration(new CityConfiguration());
+        modelBuilder.ApplyConfiguration(new OfficeConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
+    }
+
+    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
+
+        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
     }
 }

@@ -2,7 +2,7 @@ using Common.SharedKernel.Domain;
 
 namespace Products.Domain.Portfolios;
 
-public sealed class PortfolioCreatedDomainEvent(long portfolioId) : DomainEvent
+public sealed class PortfolioCreatedDomainEvent(int portfolioId) : DomainEvent
 {
-    public long PortfolioId { get; } = portfolioId;
+    public int PortfolioId { get; } = portfolioId;
 }

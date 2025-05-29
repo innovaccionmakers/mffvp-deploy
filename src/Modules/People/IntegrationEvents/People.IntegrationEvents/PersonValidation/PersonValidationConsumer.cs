@@ -1,5 +1,4 @@
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
 using Common.SharedKernel.Presentation.Results;
 using DotNetCore.CAP;
 using Integrations.People.GetPerson;

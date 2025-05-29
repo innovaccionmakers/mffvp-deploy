@@ -11,7 +11,7 @@ internal sealed class PlanRepository(ProductsDbContext context) : IPlanRepositor
         return await context.Plans.ToListAsync(cancellationToken);
     }
 
-    public async Task<Plan?> GetAsync(long planId, CancellationToken cancellationToken = default)
+    public async Task<Plan?> GetAsync(int planId, CancellationToken cancellationToken = default)
     {
         return await context.Plans
             .SingleOrDefaultAsync(x => x.PlanId == planId, cancellationToken);

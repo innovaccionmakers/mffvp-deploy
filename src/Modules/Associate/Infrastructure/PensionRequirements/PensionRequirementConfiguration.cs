@@ -15,7 +15,7 @@ internal sealed class PensionRequirementConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.ExpirationDate).HasColumnName("fecha_vencimiento");
         builder.Property(x => x.CreationDate).HasColumnName("fecha_creacion");
         builder.Property(x => x.Status).HasColumnName("estado");
-        builder.HasOne<Activate>().WithMany().HasForeignKey(x => x.AffiliateId);
-        builder.Property(x => x.AffiliateId).HasColumnName("afiliado_id");
+        builder.HasOne<Activate>().WithMany().HasForeignKey(x => x.ActivateId);
+        builder.Property(x => x.ActivateId).HasColumnName("afiliado_id");
     }
 }

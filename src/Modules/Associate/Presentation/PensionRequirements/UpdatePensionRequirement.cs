@@ -15,12 +15,10 @@ namespace Associate.Presentation.PensionRequirements
             app.MapPut("pensionrequirements/{id:int}", async (int id, Request request, ISender sender) =>
             {
                 var command = new UpdatePensionRequirementCommand(
-                    id,
-                    request.NewAffiliateId, 
-                    request.NewStartDate, 
-                    request.NewExpirationDate, 
-                    request.NewCreationDate, 
-                    request.NewStatus
+                    request.IdentificationType, 
+                    request.Identification, 
+                    request.PensionRequirementId,
+                    request.Status
                 );
 
                 var result = await sender.Send(command);
@@ -31,11 +29,10 @@ namespace Associate.Presentation.PensionRequirements
 
         internal sealed class Request
         {
-            public DateTime NewAffiliateId { get; set; }
-            public DateTime NewStartDate { get; set; }
-            public DateTime NewExpirationDate { get; set; }
-            public DateTime NewCreationDate { get; set; }
-            public string NewStatus { get; set; }
+            public string IdentificationType { get; set; }
+            public string Identification { get; set; }
+            public int PensionRequirementId { get; set; }
+            public string Status { get; set; }
         }
     }
 }

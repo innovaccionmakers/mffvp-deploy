@@ -4,7 +4,7 @@ namespace Products.Domain.Objectives;
 
 public static class ObjectiveErrors
 {
-    public static Error NotFound(long objectiveId)
+    public static Error NotFound(int objectiveId)
     {
         return Error.NotFound(
             "Objective.NotFound",

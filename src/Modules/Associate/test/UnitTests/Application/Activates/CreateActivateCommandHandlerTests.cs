@@ -13,7 +13,7 @@ namespace UnitTests.Application.Activates
     public class CreateActivateCommandHandlerTests
     {
         private readonly Mock<IActivateRepository> _repositoryMock = new();
-        private readonly Mock<IRuleEvaluator<ActivateModuleMarker>> _ruleEvaluatorMock = new();
+        private readonly Mock<IRuleEvaluator<AssociateModuleMarker>> _ruleEvaluatorMock = new();
         private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
         private readonly Mock<ICapRpcClient> _rpcMock = new();
 
@@ -25,15 +25,18 @@ namespace UnitTests.Application.Activates
             var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
             var personData = new GetPersonValidationResponse(false, null, null);
 
-            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(existingActivate);
+            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(
+                                It.IsAny<string>(), 
+                                It.IsAny<string>(), 
+                                It.IsAny<CancellationToken>()))
+                            .ReturnsAsync(existingActivate);
 
             _rpcMock.Setup(x => x.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
                     It.IsAny<string>(), It.IsAny<PersonDataRequestEvent>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(personData);
 
             // Act
-            var validationContext = new ActivateValidationContext(command, existingActivate);
+            var validationContext = new CreateActivateValidationContext(command, existingActivate);
 
             // Assert
             Assert.Equal(command, validationContext.Request);
@@ -67,17 +70,20 @@ namespace UnitTests.Application.Activates
         [Fact]
         public void Repository_ShouldDetectExistingActivate()
         {
-            // Arrange            
+            //Arrange            
             var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
-            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber("Type1", "123"))
-                .Returns(existingActivate);
+            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(
+                                It.IsAny<string>(), 
+                                It.IsAny<string>(), 
+                                It.IsAny<CancellationToken>()))
+                            .ReturnsAsync(existingActivate);
 
             // Act
             var exists = _repositoryMock.Object.GetByIdTypeAndNumber("Type1", "123");
 
             // Assert
             Assert.True(exists is not null);
-            _repositoryMock.Verify(x => x.GetByIdTypeAndNumber("Type1", "123"), Times.Once);
+            _repositoryMock.Verify(x => x.GetByIdTypeAndNumber("Type1", "123", CancellationToken.None), Times.Once);
         }
 
         [Fact]
