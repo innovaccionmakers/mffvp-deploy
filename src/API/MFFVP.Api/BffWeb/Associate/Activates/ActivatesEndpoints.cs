@@ -1,6 +1,5 @@
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.CreateActivate;
-using Associate.Integrations.Activates.GetActivate;
 using Associate.Integrations.Activates.UpdateActivate;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
@@ -28,7 +27,7 @@ public sealed class ActivatesEndpoints
         group.MapGet("GetAll", async (ISender sender) =>
             {
                 var result = await _activatesService.GetActivatesAsync(sender);
-                return result.Match(Results.Ok, ApiResults.Problem);
+                return result.Value;
             })
             .Produces<IReadOnlyCollection<ActivateResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);

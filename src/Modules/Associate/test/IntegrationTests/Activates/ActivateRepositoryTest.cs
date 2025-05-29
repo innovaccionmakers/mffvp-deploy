@@ -38,9 +38,12 @@ namespace IntegrationTests.Activates
         {
             // Arrange
             
-            // var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
-            // _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(It.IsAny<string>(), It.IsAny<string>()))
-            //               .Returns(existingActivate);
+            var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
+            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(
+                                It.IsAny<string>(), 
+                                It.IsAny<string>(), 
+                                It.IsAny<CancellationToken>()))
+                            .ReturnsAsync(existingActivate);
 
             // Act
             var result = _repositoryMock.Object.GetByIdTypeAndNumber("Unknown", "999");
@@ -49,22 +52,24 @@ namespace IntegrationTests.Activates
             Assert.False(result is null);
         }
 
-        //[Fact]
-        //public void Insert_ShouldAddNewActivate()
-        //{
-        //    // Arrange
-        //    var activate = Activate.Create("Type1", "123", false, false, DateTime.UtcNow).Value;
-        //    var insertedActivates = new List<Activate>();
+        [Fact]
+        public void Insert_ShouldAddNewActivate()
+        {
+            // Arrange
+            var activate = Activate.Create("Type1", "123", false, false, DateTime.UtcNow).Value;
+            var insertedActivates = new List<Activate>();
 
-        //    // _repositoryMock.Setup(x => x.Insert(It.IsAny<Activate>()))
-        //    //     .Callback<Activate>(a => insertedActivates.Add(a));
+            _repositoryMock.Setup(x => x.Insert(
+                                It.IsAny<Activate>(), 
+                                It.IsAny<CancellationToken>()))
+                            .Callback<Activate, CancellationToken>((a, _) => insertedActivates.Add(a));
 
-        //    // Act
-        //    _repositoryMock.Object.Insert(activate);
+            // Act
+            _repositoryMock.Object.Insert(activate);
 
-        //    // Assert
-        //    Assert.Single(insertedActivates);
-        //    Assert.Equal(activate, insertedActivates[0]);
-        //}
+            // Assert
+            Assert.Single(insertedActivates);
+            Assert.Equal(activate, insertedActivates[0]);
+        }
     }
 }

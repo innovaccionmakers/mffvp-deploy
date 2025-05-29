@@ -25,8 +25,11 @@ namespace UnitTests.Application.Activates
             var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
             var personData = new GetPersonValidationResponse(false, null, null);
 
-            // _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(It.IsAny<string>(), It.IsAny<string>()))
-            //     .Returns(existingActivate);
+            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(
+                                It.IsAny<string>(), 
+                                It.IsAny<string>(), 
+                                It.IsAny<CancellationToken>()))
+                            .ReturnsAsync(existingActivate);
 
             _rpcMock.Setup(x => x.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
                     It.IsAny<string>(), It.IsAny<PersonDataRequestEvent>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
@@ -67,17 +70,20 @@ namespace UnitTests.Application.Activates
         [Fact]
         public void Repository_ShouldDetectExistingActivate()
         {
-            // Arrange            
-            // var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
-            // _repositoryMock.Setup(x => x.GetByIdTypeAndNumber("Type1", "123"))
-            //     .Returns(existingActivate);
+            //Arrange            
+            var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
+            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(
+                                It.IsAny<string>(), 
+                                It.IsAny<string>(), 
+                                It.IsAny<CancellationToken>()))
+                            .ReturnsAsync(existingActivate);
 
-            // // Act
-            // var exists = _repositoryMock.Object.GetByIdTypeAndNumber("Type1", "123");
+            // Act
+            var exists = _repositoryMock.Object.GetByIdTypeAndNumber("Type1", "123");
 
-            // // Assert
-            // Assert.True(exists is not null);
-            // _repositoryMock.Verify(x => x.GetByIdTypeAndNumber("Type1", "123"), Times.Once);
+            // Assert
+            Assert.True(exists is not null);
+            _repositoryMock.Verify(x => x.GetByIdTypeAndNumber("Type1", "123", CancellationToken.None), Times.Once);
         }
 
         [Fact]
