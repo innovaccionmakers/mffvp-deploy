@@ -1,19 +1,23 @@
 using Common.SharedKernel.Domain;
+using Products.Domain.AlternativePortfolios;
 
 namespace Products.Domain.Portfolios;
 
 public sealed class Portfolio : Entity
 {
-    private Portfolio()
-    {
-    }
-
-    public long PortfolioId { get; private set; }
+    public int PortfolioId { get; private set; }
     public string StandardCode { get; private set; }
     public string Name { get; private set; }
     public string ShortName { get; private set; }
     public int ModalityId { get; private set; }
     public decimal InitialMinimumAmount { get; private set; }
+    
+    private readonly List<AlternativePortfolio> _alternatives = [];
+    public IReadOnlyCollection<AlternativePortfolio> Alternatives => _alternatives;
+
+    private Portfolio()
+    {
+    }
 
     public static Result<Portfolio> Create(
         string standardCode, string name, string shortName, int modalityId, decimal initialMinimumAmount

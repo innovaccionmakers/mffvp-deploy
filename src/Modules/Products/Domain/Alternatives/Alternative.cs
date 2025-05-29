@@ -1,18 +1,28 @@
 using Common.SharedKernel.Domain;
+using Products.Domain.AlternativePortfolios;
+using Products.Domain.Objectives;
 
 namespace Products.Domain.Alternatives;
 
 public sealed class Alternative : Entity
 {
-    private Alternative()
-    {
-    }
-
-    public long AlternativeId { get; private set; }
+    public int AlternativeId { get; private set; }
     public int AlternativeTypeId { get; private set; }
     public string Name { get; private set; }
     public string Status { get; private set; }
     public string Description { get; private set; }
+    
+    
+    private readonly List<AlternativePortfolio> _portfolios = [];
+    public IReadOnlyCollection<AlternativePortfolio> Portfolios => _portfolios;
+    
+    
+    private readonly List<Objective> _objectives = [];
+    public IReadOnlyCollection<Objective> Objectives => _objectives;
+
+    private Alternative()
+    {
+    }
 
     public static Result<Alternative> Create(
         int alternativeTypeId, string name, string status, string description

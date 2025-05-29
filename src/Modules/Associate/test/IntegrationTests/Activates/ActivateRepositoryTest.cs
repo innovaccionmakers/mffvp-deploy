@@ -38,9 +38,9 @@ namespace IntegrationTests.Activates
         {
             // Arrange
             
-            var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
-            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(It.IsAny<string>(), It.IsAny<string>()))
-                          .Returns(existingActivate);
+            // var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
+            // _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(It.IsAny<string>(), It.IsAny<string>()))
+            //               .Returns(existingActivate);
 
             // Act
             var result = _repositoryMock.Object.GetByIdTypeAndNumber("Unknown", "999");
@@ -56,8 +56,8 @@ namespace IntegrationTests.Activates
             var activate = Activate.Create("Type1", "123", false, false, DateTime.UtcNow).Value;
             var insertedActivates = new List<Activate>();
 
-            _repositoryMock.Setup(x => x.Insert(It.IsAny<Activate>()))
-                .Callback<Activate>(a => insertedActivates.Add(a));
+            // _repositoryMock.Setup(x => x.Insert(It.IsAny<Activate>()))
+            //     .Callback<Activate>(a => insertedActivates.Add(a));
 
             // Act
             _repositoryMock.Object.Insert(activate);

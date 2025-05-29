@@ -1,4 +1,4 @@
-namespace People.IntegrationEvents.PersonValidation;
+namespace People.IntegrationEvents.ClientValidation;
 
 public sealed record ValidatePersonByIdentificationResponse(
     bool IsValid,

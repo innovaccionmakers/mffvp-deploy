@@ -21,7 +21,7 @@ namespace MFFVP.Api.BffWeb.Products.Portfolios
                 .WithTags("BFF Web - Portfolios")
                 .WithOpenApi();
 
-            group.MapGet("GetById/{portfolioId}", async (long portfolioId, ISender sender) =>
+            group.MapGet("GetById/{portfolioId}", async (int portfolioId, ISender sender) =>
                 {
                     var result = await _portfoliosService.GetPortfolioAsync(portfolioId, sender);
                     return result.ToApiResult();

@@ -14,26 +14,24 @@ namespace Associate.Presentation.PensionRequirements
         {
             app.MapPost("pensionrequirements", async (Request request, ISender sender) =>
             {
-                // var result = await sender.Send(new CreatePensionRequirementCommand(
-                //     request.AffiliateId, 
-                //     request.StartDate, 
-                //     request.ExpirationDate, 
-                //     request.CreationDate, 
-                //     request.Status
-                // ));
+                var result = await sender.Send(new CreatePensionRequirementCommand(
+                    request.IdentificationType, 
+                    request.Identification, 
+                    request.StartDateReqPen, 
+                    request.EndDateReqPe
+                ));
 
-                // return result.Match(Results.Ok, ApiResults.Problem);
+                return result;
             })
             .WithTags(Tags.PensionRequirements);
         }
 
         internal sealed class Request
         {
-            public DateTime AffiliateId { get; init; }
-            public DateTime StartDate { get; init; }
-            public DateTime ExpirationDate { get; init; }
-            public DateTime CreationDate { get; init; }
-            public string Status { get; init; }
+            public string IdentificationType { get; init; }
+            public string Identification { get; init; }
+            public DateTime StartDateReqPen { get; init; }
+            public DateTime EndDateReqPe { get; init; }
         }
     }
 }

@@ -11,25 +11,10 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
         return await context.Portfolios.ToListAsync(cancellationToken);
     }
 
-    public async Task<Portfolio?> GetAsync(long portfolioId, CancellationToken cancellationToken = default)
+    public async Task<Portfolio?> GetAsync(int portfolioId, CancellationToken cancellationToken = default)
     {
         return await context.Portfolios
             .SingleOrDefaultAsync(x => x.PortfolioId == portfolioId, cancellationToken);
-    }
-
-    public void Insert(Portfolio portfolio)
-    {
-        context.Portfolios.Add(portfolio);
-    }
-
-    public void Update(Portfolio portfolio)
-    {
-        context.Portfolios.Update(portfolio);
-    }
-
-    public void Delete(Portfolio portfolio)
-    {
-        context.Portfolios.Remove(portfolio);
     }
 
     public async Task<Portfolio?> GetByStandardCodeAsync(
@@ -39,5 +24,27 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
         return await context.Portfolios
             .SingleOrDefaultAsync(p => p.StandardCode == standardCode,
                 cancellationToken);
+    }
+
+    public Task<bool> BelongsToAlternativeAsync(
+        string standardCode, int alternativeId, CancellationToken ct)
+    {
+        return context.AlternativePortfolios
+            .AsNoTracking()
+            .AnyAsync(ap =>
+                    ap.AlternativeId == alternativeId
+                    && ap.Portfolio.StandardCode == standardCode,
+                ct);
+    }
+
+    public Task<string?> GetCollectorCodeAsync(
+        int alternativeId, CancellationToken ct)
+    {
+        return context.AlternativePortfolios
+            .AsNoTracking()
+            .Where(ap => ap.AlternativeId == alternativeId
+                         && ap.IsCollector)
+            .Select(ap => ap.Portfolio.StandardCode)
+            .FirstOrDefaultAsync(ct);
     }
 }

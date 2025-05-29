@@ -17,7 +17,7 @@ internal sealed class GetPensionRequirementsQueryHandler(
         var response = entities
             .Select(e => new PensionRequirementResponse(
                 e.PensionRequirementId,
-                e.AffiliateId,
+                e.ActivateId,
                 e.StartDate,
                 e.ExpirationDate,
                 e.CreationDate,

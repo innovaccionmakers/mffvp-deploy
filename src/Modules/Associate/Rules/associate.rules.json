@@ -1,0 +1,156 @@
+[
+  {
+    "WorkflowName": "Associate.GetActivate.Validation",
+    "Rules": [
+      {
+        "RuleName": "ActivateNotExist",
+        "Expression": "input.ActiveExists == false",
+        "Properties": {
+          "errorCode": "ee0231e8-e7a7-4f43-ae5c-50a02cacf178"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Associate.Activates.CreateValidation",
+    "Rules": [
+      {
+        "RuleName": "IdTypeRequired",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
+        "Properties": {
+          "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)",
+        "Properties": {
+          "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
+        }
+      },
+      {
+        "RuleName": "PensionerRequired",
+        "Expression": "input.request.Pensioner != null",
+        "Properties": {
+          "errorCode": "05633775-b370-4247-9c13-76f3eff23773"
+        }
+      },
+      {
+        "RuleName": "PensionerBoolean",
+        "Expression": "input.request.Pensioner == true || input.request.Pensioner == false",
+        "Properties": {
+          "errorCode": "e2f1e883-6d9a-4ee3-a173-fdb66fff0272"
+        }
+      },
+      {
+        "RuleName": "PensionRequirementsWhenFalse",
+        "Expression": "input.request.Pensioner == true || (input.request.Pensioner == false && input.request.MeetsPensionRequirements != null)",
+        "Properties": {
+          "errorCode": "56de1714-0675-487f-8c66-d1bfb1bb0199"
+        }
+      },
+      {
+        "RuleName": "PensionRequirementsMissing",
+        "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != null",
+        "Properties": {
+          "errorCode": "56de1714-0675-487f-8c66-d1bfb1bb0199"
+        }
+      },
+      {
+        "RuleName": "MeetsPensionRequirementsBoolean",
+        "Expression": "input.request.MeetsPensionRequirements == null || input.request.MeetsPensionRequirements == true || input.request.MeetsPensionRequirements == false",
+        "Properties": {
+          "errorCode": "b718b8c3-d37d-417d-8153-0dadb82345b7"
+        }
+      },
+      {
+        "RuleName": "StartDateNotRequiredWhenPensionerTrue",
+        "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.StartDateReqPen != null",
+        "Properties": {
+          "errorCode": "49c2aec8-f175-4ee2-a199-385614f2de9c"
+        }
+      },
+      {
+        "RuleName": "EndDateRequiredWhenConditionsMet",
+        "Expression": "input.request.Pensioner == true || input.request.MeetsPensionRequirements != true || input.request.EndDateReqPen != null",
+        "Properties": {
+          "errorCode": "ae13c8bd-2ee0-4cfa-980e-ed8a4aa6f054"
+        }
+      },
+      {
+        "RuleName": "DateValidation",
+        "Expression": "input.request.StartDateReqPen == null || input.request.EndDateReqPen == null || input.request.EndDateReqPen > input.request.StartDateReqPen",
+        "Properties": {
+          "errorCode": "f2101905-1a01-49ed-a5d3-7c5262052903"
+        }
+      },
+      {
+        "RuleName": "EndDateAfterCurrentDate",
+        "Expression": "input.request.EndDateReqPen == null || input.request.EndDateReqPen > DateTime.Now",
+        "Properties": {
+          "errorCode": "56e3e080-e1de-48d7-ab02-910da410166d"
+        }
+      },
+      {
+        "RuleName": "ClientNotActivates",
+        "Expression": "input.existingActivate == false",
+        "Properties": {
+          "errorCode": "b1f51e45-1e72-4a38-b8e5-a309596c8e9d"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Associate.Activates.UpdateValidation",
+    "Rules": [
+      {
+        "RuleName": "IdTypeRequired",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
+        "Properties": {
+          "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)",
+        "Properties": {
+          "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
+        }
+      },
+      {
+        "RuleName": "PensionerBoolean",
+        "Expression": "input.request.Pensioner == true || input.request.Pensioner == false",
+        "Properties": {
+          "errorCode": "e2f1e883-6d9a-4ee3-a173-fdb66fff0272"
+        }
+      },
+      {
+        "RuleName": "PensionerStatusMatchTrue",
+        "Expression": "input.request.Pensioner == false || input.ExistingActivate.Pensioner == false",
+        "Properties": {
+          "errorCode": "b9b0cf7b-7438-45c4-be1c-eb2be50769a7"
+        }
+      },
+      {
+        "RuleName": "PensionerStatusMatchFalse",
+        "Expression": "input.request.Pensioner == true || input.ExistingActivate.Pensioner == true",
+        "Properties": {
+          "errorCode": "c3360683-aeb0-49a5-8764-940b95e356ee"
+        }
+      },
+      {
+        "RuleName": "ClientActivates",
+        "Expression": "input.ExistingActivate.ActivateId != null",
+        "Properties": {
+          "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Associate.PensionRequirement.CreateValidation",
+    "Rules": [
+      {}
+    ]
+  }
+]

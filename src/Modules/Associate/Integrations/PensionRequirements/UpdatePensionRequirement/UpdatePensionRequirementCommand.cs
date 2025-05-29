@@ -3,10 +3,8 @@ using System;
 
 namespace Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 public sealed record UpdatePensionRequirementCommand(
+    string IdentificationType,
+    string Identification,
     int PensionRequirementId,
-    DateTime NewAffiliateId,
-    DateTime NewStartDate,
-    DateTime NewExpirationDate,
-    DateTime NewCreationDate,
-    string NewStatus
-) : ICommand<PensionRequirementResponse>;
+    string Status
+) : ICommand;

@@ -4,7 +4,7 @@ namespace Products.Domain.Plans;
 
 public static class PlanErrors
 {
-    public static Error NotFound(long planId)
+    public static Error NotFound(int planId)
     {
         return Error.NotFound(
             "Plan.NotFound",

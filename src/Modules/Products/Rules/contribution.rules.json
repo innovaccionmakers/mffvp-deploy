@@ -33,6 +33,22 @@
         "Properties": {
           "errorCode": "047eff70-b659-4d03-9e65-23b3dec28287"
         }
+      },
+      {
+        "RuleName": "PortfolioBelongsToObjectiveAlternative",
+        "ErrorMessage": "El portafolio no pertenece a la alternativa del objetivo.",
+        "Expression": "input.PortfolioBelongsToObjectiveAlternative == true",
+        "Properties": {
+          "errorCode": "f95e55a4-b96f-4499-a6af-da8fb63a8a75"
+        }
+      },
+      {
+        "RuleName": "ObjectiveBelongsToAffiliate",
+        "ErrorMessage": "El IdObjetivo no pertenece al cliente.",
+        "Expression": "input.ObjectiveBelongsToAffiliate == true",
+        "Properties": {
+          "errorCode": "386bc450-a564-4be9-8dab-18ae3fae830f"
+        }
       }
     ]
   }

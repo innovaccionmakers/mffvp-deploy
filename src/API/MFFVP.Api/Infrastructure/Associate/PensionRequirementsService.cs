@@ -1,6 +1,5 @@
 using Common.SharedKernel.Domain;
 using MediatR;
-
 using Associate.Integrations.PensionRequirements;
 using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 using Associate.Integrations.PensionRequirements.GetPensionRequirements;

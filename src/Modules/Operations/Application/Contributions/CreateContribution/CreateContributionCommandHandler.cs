@@ -1,3 +1,4 @@
+using Associate.IntegrationEvents.ActivateValidation;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions;
@@ -6,7 +7,7 @@ using Operations.Application.Abstractions.Rules;
 using Operations.Domain.ConfigurationParameters;
 using Operations.Integrations.Contributions;
 using Operations.Integrations.Contributions.CreateContribution;
-using People.IntegrationEvents.PersonValidation;
+using People.IntegrationEvents.ClientValidation;
 using Products.IntegrationEvents.ContributionValidation;
 
 namespace Operations.Application.Contributions.CreateContribution;
@@ -33,8 +34,7 @@ internal sealed class CreateContributionCommandHandler(
                 cancellationToken);
         var paymentMethod =
             await configurationParameterRepository.GetByHomologationCodeAsync(request.PaymentMethod, cancellationToken);
-
-
+        
         var validationContext = new
         {
             ContributionSource = new
@@ -88,12 +88,24 @@ internal sealed class CreateContributionCommandHandler(
                 Error.Validation(
                     personValidation.Code,
                     personValidation.Message));
+        
+        var activateValidation = await rpc.CallAsync<
+            GetActivateIdByIdentificationRequest,
+            GetActivateIdByIdentificationResponse>(
+            nameof(GetActivateIdByIdentificationRequest),
+            new GetActivateIdByIdentificationRequest(request.TypeId, request.Identification),
+            TimeSpan.FromSeconds(5),
+            cancellationToken);
 
+        if (!activateValidation.Succeeded)
+            return Result.Failure<ContributionResponse>(
+                Error.Validation(activateValidation.Code, activateValidation.Message));
+        
         var contributionValidation = await rpc.CallAsync<
             ContributionValidationRequest,
             ContributionValidationResponse>(
             nameof(ContributionValidationRequest),
-            new ContributionValidationRequest(request.ObjectiveId, request.PortfolioId, request.DepositDate,
+            new ContributionValidationRequest(activateValidation.ActivateId!.Value ,request.ObjectiveId, request.PortfolioId, request.DepositDate,
                 request.ExecutionDate, request.Amount),
             TimeSpan.FromSeconds(5),
             cancellationToken);
