@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
 
 namespace Common.SharedKernel.Domain;
 
@@ -38,6 +39,11 @@ public class Result
     public static Result<TValue> Failure<TValue>(Error error)
     {
         return new Result<TValue>(default, false, error);
+    }
+
+    public object Match(Func<object?, IResult> ok, Func<Result, IResult> problem)
+    {
+        throw new NotImplementedException();
     }
 }
 

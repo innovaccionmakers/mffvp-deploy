@@ -8,6 +8,7 @@ public static class AssociateServiceRegistration
     public static IServiceCollection AddBffActivatesServices(this IServiceCollection services)
     {
         services.AddSingleton<IActivatesService, ActivatesService>();
+        services.AddSingleton<IPensionRequirementsService, PensionRequirementsService>();
         return services;
     }
 }

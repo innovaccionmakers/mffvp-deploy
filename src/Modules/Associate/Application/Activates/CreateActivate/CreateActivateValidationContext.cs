@@ -3,12 +3,12 @@ using Associate.Integrations.Activates.CreateActivate;
 
 namespace Associate.Application.Activates.CreateActivate;
 
-public sealed class ActivateValidationContext
+public sealed class CreateActivateValidationContext
 {
     public CreateActivateCommand Request { get; }
     public Activate ExistingActivate { get; }
 
-    public ActivateValidationContext(
+    public CreateActivateValidationContext(
         CreateActivateCommand request,
         Activate existingActivate)
     {

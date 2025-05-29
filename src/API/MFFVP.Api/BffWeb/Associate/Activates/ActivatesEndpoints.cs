@@ -56,7 +56,6 @@ public sealed class ActivatesEndpoints
                 var result = await _activatesService.UpdateActivateAsync(command, sender);
                 return result.ToApiResult();
             })
-            .MapToApiVersion(1, 0)
             .AddEndpointFilter<TechnicalValidationFilter<UpdateActivateCommand>>()
             .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
