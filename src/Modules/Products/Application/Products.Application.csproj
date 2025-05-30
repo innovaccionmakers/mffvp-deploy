@@ -5,7 +5,7 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj"/>
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj"/>
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
-        <ProjectReference Include="..\..\Associate\IntegrationEvents\Associate.IntegrationEvents\Associate.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Associate\IntegrationEvents\Associate.IntegrationEvents\Associate.IntegrationEvents.csproj"/>
         <ProjectReference Include="..\..\People\IntegrationEvents\People.IntegrationEvents\People.IntegrationEvents.csproj"/>
         <ProjectReference Include="..\Domain\Products.Domain.csproj"/>
         <ProjectReference Include="..\Integrations\Products.Integrations.csproj"/>

@@ -12,4 +12,8 @@ public interface IConfigurationParameterRepository
         Guid uuid,
         CancellationToken cancellationToken = default
     );
+    
+    Task<IReadOnlyCollection<ConfigurationParameter>> GetByIdsAsync(
+        IEnumerable<int> ids,
+        CancellationToken ct = default);
 }

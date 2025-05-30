@@ -53,4 +53,18 @@ internal sealed class ConfigurationParameterRepository : IConfigurationParameter
                 cancellationToken
             );
     }
+    
+    public async Task<IReadOnlyCollection<ConfigurationParameter>> GetByIdsAsync(
+        IEnumerable<int> ids,
+        CancellationToken ct = default)
+    {
+        var idArray = ids.ToArray();
+        if (idArray.Length == 0)
+            return Array.Empty<ConfigurationParameter>();
+
+        return await _context.ConfigurationParameters
+            .Where(p => idArray.Contains(p.ConfigurationParameterId))
+            .AsNoTracking()
+            .ToListAsync(ct);
+    }
 }
