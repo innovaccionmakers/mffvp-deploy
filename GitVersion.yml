@@ -1,0 +1,20 @@
+assembly-versioning-scheme: MajorMinorPatch
+assembly-file-versioning-scheme: MajorMinorPatch
+assembly-informational-format: '{Major}.{Minor}.{Patch}+{CommitsSinceVersionSource}'
+assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{CommitsSinceVersionSource}'
+increment: Inherit
+tag-prefix: ''
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
+no-bump-message: '\+semver:\s?(none|skip)'
+commit-message-incrementing: Enabled
+branches:
+  master_20:
+    regex: '^master_20$'
+    mode: ContinuousDelivery
+    tag: ''
+    prevent-increment-of-merged-branch-version: true
+    is-release-branch: true
+    increment: Patch
+    source-branches: []
