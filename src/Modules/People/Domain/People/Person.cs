@@ -8,7 +8,7 @@ public sealed class Person : Entity
 {
     public long PersonId { get; private set; }
     public string DocumentType { get; private set; }
-    public string StandardCode { get; private set; }
+    public string HomologatedCode { get; private set; }
     public string Identification { get; private set; }
     public string FirstName { get; private set; }
     public string MiddleName { get; private set; }
@@ -33,7 +33,7 @@ public sealed class Person : Entity
     }
 
     public static Result<Person> Create(
-        string documentType, string standardCode, string identification, string firstName, string middleName,
+        string documentType, string homologatedCode, string identification, string firstName, string middleName,
         string lastName, string secondLastName, DateTime issueDate, int issueCityId, DateTime birthDate,
         int birthCityId, string mobile, string fullName, int maritalStatusId, int genderId, string email,
         Country country, EconomicActivity economicActivity, bool status
@@ -44,7 +44,7 @@ public sealed class Person : Entity
             PersonId = default,
 
             DocumentType = documentType,
-            StandardCode = standardCode,
+            HomologatedCode = homologatedCode,
             Identification = identification,
             FirstName = firstName,
             MiddleName = middleName,
@@ -69,14 +69,14 @@ public sealed class Person : Entity
     }
 
     public void UpdateDetails(
-        string newDocumentType, string newStandardCode, string newIdentification, string newFirstName,
+        string newDocumentType, string newHomologatedCode, string newIdentification, string newFirstName,
         string newMiddleName, string newLastName, string newSecondLastName, DateTime newIssueDate, int newIssueCityId,
         DateTime newBirthDate, int newBirthCityId, string newMobile, string newFullName, int newMaritalStatusId,
         int newGenderId, int newCountryId, string newEmail, string newEconomicActivityId, bool newStatus
     )
     {
         DocumentType = newDocumentType;
-        StandardCode = newStandardCode;
+        HomologatedCode = newHomologatedCode;
         Identification = newIdentification;
         FirstName = newFirstName;
         MiddleName = newMiddleName;

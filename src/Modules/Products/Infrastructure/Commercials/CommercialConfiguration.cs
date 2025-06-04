@@ -12,5 +12,8 @@ internal sealed class CommercialConfiguration : IEntityTypeConfiguration<Commerc
         builder.HasKey(x => x.CommercialId);
         builder.Property(x => x.CommercialId).HasColumnName("id");
         builder.Property(x => x.Name).HasColumnName("nombre");
+        builder.Property(x => x.Status).HasColumnName("estado");
+        builder.Property(x => x.Prefix).HasColumnName("prefijo");
+        builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
     }
 }

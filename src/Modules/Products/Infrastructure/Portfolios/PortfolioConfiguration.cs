@@ -11,7 +11,7 @@ internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfoli
         builder.ToTable("portafolios");
         builder.HasKey(x => x.PortfolioId);
         builder.Property(x => x.PortfolioId).HasColumnName("id");
-        builder.Property(x => x.StandardCode).HasColumnName("codigo_homologacion");
+        builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologacion");
         builder.Property(x => x.Name).HasColumnName("nombre");
         builder.Property(x => x.ShortName).HasColumnName("nombre_corto");
         builder.Property(x => x.ModalityId).HasColumnName("modalidad_id");

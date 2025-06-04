@@ -8,34 +8,49 @@ using Products.Integrations.Objectives.GetObjectives;
 namespace Products.Application.Objectives.GetObjectives;
 
 internal sealed class GetObjectivesQueryHandler(
-    IDocumentTypeValidator docValidator,
+    IDocumentTypeValidator documentTypeValidator,
     IAffiliateLocator affiliateLocator,
     IObjectiveReader objectiveReader,
-    IGetObjectivesRules rules)
+    IGetObjectivesRules objectivesRules)
     : IQueryHandler<GetObjectivesQuery, GetObjectivesResponse>
 {
     public async Task<Result<GetObjectivesResponse>> Handle(
-        GetObjectivesQuery request, CancellationToken ct)
+        GetObjectivesQuery request,
+        CancellationToken cancellationToken)
     {
-        var docOk = await docValidator.EnsureExistsAsync(request.TypeId, ct);
-        if (!docOk.IsSuccess)
-            return Result.Failure<GetObjectivesResponse>(docOk.Error!);
+        var documentValidationResult = await documentTypeValidator
+            .EnsureExistsAsync(request.TypeId, cancellationToken);
+        if (!documentValidationResult.IsSuccess)
+            return Result.Failure<GetObjectivesResponse>(documentValidationResult.Error!);
 
-        var (found, affiliateId) = await affiliateLocator.FindAsync(
-            request.TypeId, request.Identification, ct);
+        var affiliateValidationResult = await affiliateLocator
+            .FindAsync(request.TypeId, request.Identification, cancellationToken);
+        if (!affiliateValidationResult.IsSuccess)
+            return Result.Failure<GetObjectivesResponse>(affiliateValidationResult.Error!);
 
-        var ctx = await objectiveReader.BuildValidationContextAsync(
-            found, affiliateId, request.Status, ct);
-        var rulesOk = await rules.EvaluateAsync(ctx, ct);
-        if (!rulesOk.IsSuccess)
-            return Result.Failure<GetObjectivesResponse>(rulesOk.Error!);
+        var affiliateId = affiliateValidationResult.Value;
+        var isAffiliateFound = affiliateId.HasValue;
 
-        if (!found || affiliateId is null)
-            return Result.Success(new GetObjectivesResponse([]));
+        var validationContext = await objectiveReader.BuildValidationContextAsync(
+            isAffiliateFound,
+            affiliateId,
+            request.Status,
+            cancellationToken);
 
-        var dtos = await objectiveReader.ReadDtosAsync(
-            affiliateId.Value, request.Status, ct);
+        var rulesEvaluationResult = await objectivesRules
+            .EvaluateAsync(validationContext, cancellationToken);
+        if (!rulesEvaluationResult.IsSuccess)
+            return Result.Failure<GetObjectivesResponse>(rulesEvaluationResult.Error!);
 
-        return Result.Success(new GetObjectivesResponse(dtos));
+        if (!isAffiliateFound)
+            return Result.Success(
+                new GetObjectivesResponse(Array.Empty<ObjectiveDto>()));
+
+        var objectivesList = await objectiveReader.ReadDtosAsync(
+            affiliateId.Value,
+            request.Status,
+            cancellationToken);
+
+        return Result.Success(new GetObjectivesResponse(objectivesList));
     }
 }

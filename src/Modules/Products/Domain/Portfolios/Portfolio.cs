@@ -6,7 +6,7 @@ namespace Products.Domain.Portfolios;
 public sealed class Portfolio : Entity
 {
     public int PortfolioId { get; private set; }
-    public string StandardCode { get; private set; }
+    public string HomologatedCode { get; private set; }
     public string Name { get; private set; }
     public string ShortName { get; private set; }
     public int ModalityId { get; private set; }
@@ -20,14 +20,14 @@ public sealed class Portfolio : Entity
     }
 
     public static Result<Portfolio> Create(
-        string standardCode, string name, string shortName, int modalityId, decimal initialMinimumAmount
+        string homologatedCode, string name, string shortName, int modalityId, decimal initialMinimumAmount
     )
     {
         var portfolio = new Portfolio
         {
             PortfolioId = default,
 
-            StandardCode = standardCode,
+            HomologatedCode = homologatedCode,
             Name = name,
             ShortName = shortName,
             ModalityId = modalityId,
@@ -39,10 +39,10 @@ public sealed class Portfolio : Entity
     }
 
     public void UpdateDetails(
-        string newStandardCode, string newName, string newShortName, int newModalityId, decimal newInitialMinimumAmount
+        string newHomologatedCode, string newName, string newShortName, int newModalityId, decimal newInitialMinimumAmount
     )
     {
-        StandardCode = newStandardCode;
+        HomologatedCode = newHomologatedCode;
         Name = newName;
         ShortName = newShortName;
         ModalityId = newModalityId;

@@ -2,7 +2,7 @@ namespace Products.Integrations.Portfolios;
 
 public sealed record PortfolioResponse(
     long PortfolioId,
-    string StandardCode,
+    string HomologatedCode,
     string Name,
     string ShortName,
     int ModalityId,

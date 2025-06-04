@@ -6,20 +6,30 @@ public sealed class Office : Entity
 {
     public int OfficeId { get; private set; }
     public string Name { get; private set; }
+    public string Status { get; private set; }
+    public string Prefix { get; private set; }
+    public string HomologatedCode { get; private set; }
+    public int CityId { get; private set; }
 
     private Office()
     {
     }
 
     public static Result<Office> Create(
-        string name
+        string name,
+        string status,
+        string prefix,
+        string homologatedCode,
+        int cityId
     )
     {
         var office = new Office
         {
-            OfficeId = default,
-
-            Name = name
+            Name = name,
+            Status = status,
+            Prefix = prefix,
+            HomologatedCode = homologatedCode,
+            CityId = cityId
         };
 
         office.Raise(new OfficeCreatedDomainEvent(office.OfficeId));
@@ -27,9 +37,17 @@ public sealed class Office : Entity
     }
 
     public void UpdateDetails(
-        string newName
+        string name,
+        string status,
+        string prefix,
+        string homologatedCode,
+        int cityId
     )
     {
-        Name = newName;
+        Name = name;
+        Status = status;
+        Prefix = prefix;
+        HomologatedCode = homologatedCode;
+        CityId = cityId;
     }
 }

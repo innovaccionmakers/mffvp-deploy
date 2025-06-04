@@ -6,7 +6,7 @@ namespace People.Integrations.People.UpdatePerson;
 public sealed record UpdatePersonCommand(
     long PersonId,
     string NewDocumentType,
-    string NewStandardCode,
+    string NewHomologatedCode,
     string NewIdentification,
     string NewFirstName,
     string NewMiddleName,

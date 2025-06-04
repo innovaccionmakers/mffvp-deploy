@@ -16,4 +16,9 @@ public interface IConfigurationParameterRepository
     Task<IReadOnlyCollection<ConfigurationParameter>> GetByIdsAsync(
         IEnumerable<int> ids,
         CancellationToken ct = default);
+    
+    Task<ConfigurationParameter?> GetByCodeAndScopeAsync(
+        string homologationCode,
+        string scope,
+        CancellationToken cancellationToken = default);
 }

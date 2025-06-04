@@ -10,7 +10,22 @@ internal sealed class OfficeConfiguration : IEntityTypeConfiguration<Office>
     {
         builder.ToTable("oficinas");
         builder.HasKey(x => x.OfficeId);
-        builder.Property(x => x.OfficeId).HasColumnName("id");
-        builder.Property(x => x.Name).HasColumnName("nombre");
+        builder.Property(o => o.OfficeId)
+            .HasColumnName("id");
+
+        builder.Property(o => o.Name)
+            .HasColumnName("nombre");
+
+        builder.Property(o => o.Status)
+            .HasColumnName("estado");
+
+        builder.Property(o => o.Prefix)
+            .HasColumnName("prefijo");
+
+        builder.Property(o => o.HomologatedCode)
+            .HasColumnName("codigo_homologado");
+
+        builder.Property(o => o.CityId)
+            .HasColumnName("ciudad_id");
     }
 }

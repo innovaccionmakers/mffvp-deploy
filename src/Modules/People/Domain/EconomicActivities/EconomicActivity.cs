@@ -11,7 +11,7 @@ public sealed class EconomicActivity : Entity
     public string DivisionName { get; private set; }
     public string GroupName { get; private set; }
     public string ClassCode { get; private set; }
-    public string StandardCode { get; private set; }
+    public string HomologatedCode { get; private set; }
 
     private EconomicActivity()
     {
@@ -19,7 +19,7 @@ public sealed class EconomicActivity : Entity
 
     public static Result<EconomicActivity> Create(
         string economicActivityId, string description, string ciiuCode, string divisionCode, string divisionName,
-        string groupName, string classCode, string standardCode
+        string groupName, string classCode, string homologatedCode
     )
     {
         var economicactivity = new EconomicActivity
@@ -31,7 +31,7 @@ public sealed class EconomicActivity : Entity
             DivisionName = divisionName,
             GroupName = groupName,
             ClassCode = classCode,
-            StandardCode = standardCode
+            HomologatedCode = homologatedCode
         };
 
         economicactivity.Raise(new EconomicActivityCreatedDomainEvent(economicactivity.EconomicActivityId));
@@ -40,7 +40,7 @@ public sealed class EconomicActivity : Entity
 
     public void UpdateDetails(
         string newEconomicActivityId, string newDescription, string newCiiuCode, string newDivisionCode,
-        string newDivisionName, string newGroupName, string newClassCode, string newStandardCode
+        string newDivisionName, string newGroupName, string newClassCode, string newHomologatedCode
     )
     {
         EconomicActivityId = newEconomicActivityId;
@@ -50,6 +50,6 @@ public sealed class EconomicActivity : Entity
         DivisionName = newDivisionName;
         GroupName = newGroupName;
         ClassCode = newClassCode;
-        StandardCode = newStandardCode;
+        HomologatedCode = newHomologatedCode;
     }
 }

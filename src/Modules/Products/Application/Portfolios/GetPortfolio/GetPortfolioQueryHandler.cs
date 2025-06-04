@@ -36,7 +36,7 @@ internal sealed class GetPortfolioQueryHandler(
 
         var response = new PortfolioResponse(
             portfolio.PortfolioId,
-            portfolio.StandardCode,
+            portfolio.HomologatedCode,
             portfolio.Name,
             portfolio.ShortName,
             portfolio.ModalityId,

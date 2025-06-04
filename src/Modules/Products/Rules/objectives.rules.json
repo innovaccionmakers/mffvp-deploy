@@ -1,5 +1,58 @@
 [
   {
+    "WorkflowName": "Products.CreateObjective.Validation",
+    "Rules": [
+      {
+        "RuleName": "AlternativeIdExists",
+        "ErrorMessage": "El IdAlternativa no se encuentra homologado",
+        "Expression": "input.AlternativeIdExists == true",
+        "Properties": {
+          "errorCode": "5f917759-50ca-4b78-abac-08e2872dd2c5"
+        }
+      },
+      {
+        "RuleName": "ObjectiveTypeExists",
+        "ErrorMessage": "El TipoObjetivo no se encuentra homologado",
+        "Expression": "input.ObjectiveTypeExists == true",
+        "Properties": {
+          "errorCode": "3e5ce7c3-6e47-4763-a032-3a9158f0814b"
+        }
+      },
+      {
+        "RuleName": "ClientAffiliated",
+        "ErrorMessage": "El cliente no se encuentra afiliado en el producto",
+        "Expression": "input.ClientAffiliated == true",
+        "Properties": {
+          "errorCode": "cad5db5c-2f24-4063-a615-502299ac25f3"
+        }
+      },
+      {
+        "RuleName": "OpeningOfficeExists",
+        "ErrorMessage": "La OficinaApertura no se encuentra homologada",
+        "Expression": "input.OpeningOfficeExists == true",
+        "Properties": {
+          "errorCode": "58e034a7-c65f-40dc-96e9-53feeeceff05"
+        }
+      },
+      {
+        "RuleName": "CurrentOfficeExists",
+        "ErrorMessage": "La OficinaActual no se encuentra homologada",
+        "Expression": "input.CurrentOfficeExists == true",
+        "Properties": {
+          "errorCode": "a8652dab-f8c1-4134-9f6e-925bf49c7872"
+        }
+      },
+      {
+        "RuleName": "CommercialExists",
+        "ErrorMessage": "El Comercial no se encuentra homologado",
+        "Expression": "input.CommercialExists == true",
+        "Properties": {
+          "errorCode": "0a50d844-923d-4659-8178-85657334d5b5"
+        }
+      }
+    ]
+  },
+  {
     "WorkflowName": "Products.Objective.ValidateGetObjectives",
     "Rules": [
       {

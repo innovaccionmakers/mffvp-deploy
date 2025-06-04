@@ -39,7 +39,7 @@ public sealed class AlternativePortfolio : Entity
 
     public void UpdateDetails(
         int newAlternativeId, int newPortfolioId, string newStatus, bool isCollector
-    )
+    ) 
     {
         AlternativeId = newAlternativeId;
         PortfolioId = newPortfolioId;

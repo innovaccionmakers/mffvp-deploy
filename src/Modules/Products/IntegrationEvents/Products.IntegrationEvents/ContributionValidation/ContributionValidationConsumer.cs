@@ -26,7 +26,7 @@ public sealed class ContributionValidationConsumer : ICapSubscribe
 
         var result =
             await _mediator.Send(
-                new ContributionValidationQuery(message.ActivateId, message.ObjectiveId, message.PortfolioStandardCode,
+                new ContributionValidationQuery(message.ActivateId, message.ObjectiveId, message.PortfolioHomologatedCode,
                     message.DepositDate,
                     message.ExecutionDate, message.Amount), cancellationToken);
 

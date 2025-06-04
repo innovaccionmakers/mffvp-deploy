@@ -219,7 +219,7 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nombre_corto");
 
-                    b.Property<string>("StandardCode")
+                    b.Property<string>("HomologatedCode")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("codigo_homologacion");

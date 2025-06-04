@@ -13,5 +13,9 @@ internal sealed class PlanConfiguration : IEntityTypeConfiguration<Plan>
         builder.Property(x => x.PlanId).HasColumnName("id");
         builder.Property(x => x.Name).HasColumnName("nombre");
         builder.Property(x => x.Description).HasColumnName("descripcion");
+        
+        builder.HasMany(p => p.PlanFunds)
+            .WithOne(pf => pf.Plan)
+            .HasForeignKey(pf => pf.PlanId);
     }
 }
