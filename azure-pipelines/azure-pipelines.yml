@@ -1,55 +1,124 @@
-# azure-pipelines-ci.yml
-
 trigger:
   branches:
     include:
       - main
 
-pr:
-  branches:
-    include:
-      - main
+pool:
+  name: Azure Pipelines
+  demands: java
 
 variables:
-  DOTNET_VERSION: '8.0.x'
+  BuildConfiguration: 'Release'
+  RestoreBuildProjects: '**/*.csproj'
 
-stages:
-- stage: BuildAndTest
-  displayName: 'CI – Build & Test'
-  jobs:
-  - job: Build
-    displayName: 'Restore · Build · Test'
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - checkout: self
+steps:
 
-      - task: UseDotNet@2
-        displayName: 'Setup .NET $(DOTNET_VERSION)'
-        inputs:
-          packageType: 'sdk'
-          version: '$(DOTNET_VERSION)'
+- checkout: self
+  persistCredentials: true
+  fetchDepth: 0
 
-      - script: dotnet restore MFFVP.sln
-        displayName: 'dotnet restore'
+# GitVersion Setup
+- task: gittools.gittools.setup-gitversion-task.gitversion/setup@0
+  displayName: 'Git Version Setup'
+  inputs:
+    versionSpec: 5.x
 
-      - script: dotnet build MFFVP.sln --no-restore --configuration Release
-        displayName: 'dotnet build (Release)'
+- task: gittools.gittools.execute-gitversion-task.gitversion/execute@0
+  displayName: 'Git Version Execute'
+  inputs:
+    useConfigFile: true
+    configFilePath: GitVersion.yml
 
-      - script: dotnet test MFFVP.sln --no-build --configuration Release
-        displayName: 'dotnet test (Release)'
+# .NET 8 SDK
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK'
+  inputs:
+    packageType: sdk
+    version: '8.0.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+# Restore
+- task: DotNetCoreCLI@2
+  displayName: 'Restore dependencies'
+  inputs:
+    command: restore
+    projects: '$(RestoreBuildProjects)'
+    verbosityRestore: Detailed
+
+# Build
+- task: DotNetCoreCLI@2
+  displayName: 'Build project'
+  inputs:
+    command: build
+    projects: 'MFFVP.sln'
+    arguments: '--configuration $(BuildConfiguration) -p:Version=$(GitVersion.AssemblySemFileVer) --no-restore'
+
+# Test
+- task: DotNetCoreCLI@2
+  displayName: 'Run tests'
+  inputs:
+    command: test
+    projects: 'MFFVP.sln'
+    arguments: '--configuration $(BuildConfiguration) --no-build --collect "Code coverage"'
+
+# Publish output to FLAT folder (no nested folder inside)
+- task: DotNetCoreCLI@2
+  displayName: 'Publish self-contained app'
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: 'src/API/MFFVP.Api/MFFVP.Api.csproj'
+    arguments: >
+      --configuration $(BuildConfiguration)
+      --output $(Build.ArtifactStagingDirectory)/bundle
+      -p:Version=$(GitVersion.AssemblySemFileVer)
+      --self-contained true
+      --runtime linux-x64
+    zipAfterPublish: false
+
+# Copy Dockerfile and PFX to output
+- task: CopyFiles@2
+  displayName: 'Copy Dockerfile.Pipeline and aspnetapp.pfx'
+  inputs:
+    SourceFolder: 'src/API/MFFVP.Api'
+    Contents: |
+      Dockerfile.Pipeline
+      aspnetapp.pfx
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/bundle'
+
+# Flatten the structure: move contents of MFFVP.Api to bundle root
+- task: Bash@3
+  displayName: 'Flatten MFFVP.Api directory into root'
+  inputs:
+    targetType: inline
+    script: |
+      if [ -d "$(Build.ArtifactStagingDirectory)/bundle/MFFVP.Api" ]; then
+        mv $(Build.ArtifactStagingDirectory)/bundle/MFFVP.Api/* $(Build.ArtifactStagingDirectory)/bundle/
+        rm -r $(Build.ArtifactStagingDirectory)/bundle/MFFVP.Api
+      fi
       
-      - script: npm install -g railway
-        displayName: 'Install Railway CLI'
+# (Optional) Verify structure
+- task: Bash@3
+  displayName: 'List contents before zipping'
+  inputs:
+    targetType: inline
+    script: |
+      echo "Bundle contents:"
+      ls -lhR $(Build.ArtifactStagingDirectory)/bundle
 
-      - script: |
-          railway login --token $(cf62cfa2-2444-46c5-b39b-cd9e4cbfc2f6)
-          railway up --service f1699a06-9b8b-4b52-9027-c2f936d43e20
-        displayName: 'Deploy to Railway'
+# Archive ONLY the flat contents
+- task: ArchiveFiles@2
+  displayName: 'Create MFFVP.Api.zip with flat content'
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/bundle'
+    includeRootFolder: false
+    archiveType: zip
+    archiveFile: '$(Build.ArtifactStagingDirectory)/FVP/MFFVP.Api.zip'
+    replaceExistingArchive: true
 
-      # Publicamos los artefactos del build para CD
-      - task: PublishPipelineArtifact@1
-        displayName: 'Publish build artifact'
-        inputs:
-          targetPath: '$(Pipeline.Workspace)'
-          artifact: 'MFFVP_Build'
+# Publish zip artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: FVP'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/FVP'
+    ArtifactName: 'FVP'
