@@ -41,7 +41,7 @@ namespace Associate.Infrastructure.Database.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    uuid = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v7()"),
+                    uuid = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
                     nombre = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     padre_id = table.Column<int>(type: "integer", nullable: true),
                     estado = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),

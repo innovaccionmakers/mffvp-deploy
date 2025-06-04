@@ -6,5 +6,5 @@ public sealed record PensionRequirementResponse(
     DateTime StartDate,
     DateTime ExpirationDate,
     DateTime CreationDate,
-    string Status
+    bool Status
 );

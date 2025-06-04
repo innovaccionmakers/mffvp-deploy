@@ -46,6 +46,6 @@ internal sealed class UpdateActivateCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return Result.Success();
+        return Result.Success("Actualización de Condición Pensionado Exitosa");
     }
 }

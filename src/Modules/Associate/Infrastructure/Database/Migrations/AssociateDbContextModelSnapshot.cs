@@ -122,7 +122,7 @@ namespace Associate.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("uuid")
-                        .HasDefaultValueSql("uuid_generate_v7()");
+                        .HasDefaultValueSql("uuid_generate_v4()");
 
                     b.HasKey("ConfigurationParameterId");
 

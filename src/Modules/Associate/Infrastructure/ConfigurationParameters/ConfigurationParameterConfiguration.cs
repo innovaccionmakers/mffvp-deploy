@@ -16,7 +16,7 @@ internal sealed class ConfigurationParameterConfiguration : IEntityTypeConfigura
 
         builder.Property(p => p.Uuid)
                .HasColumnName("uuid")
-               .HasDefaultValueSql("uuid_generate_v7()");
+               .HasDefaultValueSql("uuid_generate_v4()");
 
         builder.Property(p => p.Name)
                .HasColumnName("nombre")

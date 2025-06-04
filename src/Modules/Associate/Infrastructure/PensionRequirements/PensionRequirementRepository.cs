@@ -11,9 +11,9 @@ internal sealed class PensionRequirementRepository(AssociateDbContext context) :
         return await context.PensionRequirements.ToListAsync(cancellationToken);
     }
 
-    public async Task<PensionRequirement?> GetAsync(int ActivateId, CancellationToken cancellationToken = default)
+    public async Task<PensionRequirement?> GetAsync(int PensionRequirementId, CancellationToken cancellationToken = default)
     {
-        return await context.PensionRequirements.SingleOrDefaultAsync(x => x.ActivateId == ActivateId);
+        return await context.PensionRequirements.SingleOrDefaultAsync(x => x.PensionRequirementId == PensionRequirementId);
     }
 
     public void Insert(PensionRequirement pensionrequirement)
@@ -24,5 +24,12 @@ internal sealed class PensionRequirementRepository(AssociateDbContext context) :
     public void Update(PensionRequirement pensionrequirement)
     {
         context.PensionRequirements.Update(pensionrequirement);
+    }
+
+    public async Task<int> DeactivateExistingRequirementsAsync(int activateId, CancellationToken cancellationToken)
+    {
+        return await context.PensionRequirements
+            .Where(r => r.ActivateId == activateId && r.Status == true)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(r => r.Status, false), cancellationToken);
     }
 }

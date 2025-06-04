@@ -21,17 +21,18 @@ public static class ResultExtensions
         return result.IsSuccess ? onSuccess(result.Value) : onFailure(result);
     }
 
-    public static IResult ToApiResult<T>(this Result<T> result)
+    public static IResult ToApiResult<T>(this Result<T> result, string? description = null)
     {
         return result.IsSuccess
-            ? ApiResults.Ok(result.Value)
+            ? ApiResults.Ok(result.Value, description ?? string.Empty)
             : ApiResults.Failure(result);
     }
 
-    public static IResult ToApiResult(this Result result)
+
+    public static IResult ToApiResult(this Result result, string? description = null)
     {
         return result.IsSuccess
-            ? ApiResults.Ok(result.IsSuccess)
+            ? ApiResults.Ok(result.IsSuccess, description ?? string.Empty)
             : ApiResults.Failure(result);
     }
 }

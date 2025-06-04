@@ -35,7 +35,7 @@ public sealed class ActivatesEndpoints
         group.MapPost("Create", async ([FromBody] CreateActivateCommand request, ISender sender) =>
             {
                 var result = await _activatesService.CreateActivateAsync(request, sender);
-                return result.ToApiResult();
+                return result.ToApiResult(result.Description);
             })
             .AddEndpointFilter<TechnicalValidationFilter<CreateActivateCommand>>()
             .Produces<ActivateResponse>()
@@ -53,7 +53,7 @@ public sealed class ActivatesEndpoints
         group.MapPut("Update", async ([FromBody] UpdateActivateCommand command, ISender sender) =>
             {
                 var result = await _activatesService.UpdateActivateAsync(command, sender);
-                return result.ToApiResult();
+                return result.ToApiResult(result.Description);
             })
             .AddEndpointFilter<TechnicalValidationFilter<UpdateActivateCommand>>()
             .Produces<ActivateResponse>()

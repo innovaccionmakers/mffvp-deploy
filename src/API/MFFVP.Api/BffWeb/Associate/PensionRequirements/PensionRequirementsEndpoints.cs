@@ -27,15 +27,15 @@ namespace MFFVP.Api.BffWeb.Associate.PensionRequirements
             group.MapGet("GetAll", async (ISender sender) =>
             {
                 var result = await _pensionrequirementsService.GetPensionRequirementsAsync(sender);
-                return result.Match(Results.Ok, ApiResults.Problem);
+                return result;
             })
-            .Produces<IReadOnlyCollection<PensionRequirementResponse>>(StatusCodes.Status200OK)
+            .Produces <IReadOnlyCollection<PensionRequirementResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
             group.MapPost("Create", async ([FromBody] CreatePensionRequirementCommand request, ISender sender) =>
             {
                 var result = await _pensionrequirementsService.CreatePensionRequirementAsync(request, sender);
-                return result.ToApiResult();
+                return result.ToApiResult(result.Description);
             })
             .AddEndpointFilter<TechnicalValidationFilter<CreatePensionRequirementCommand>>()
             .Produces<PensionRequirementResponse>()
@@ -45,7 +45,7 @@ namespace MFFVP.Api.BffWeb.Associate.PensionRequirements
             group.MapPut("Update", async ([FromBody] UpdatePensionRequirementCommand command, ISender sender) =>
             {
                 var result = await _pensionrequirementsService.UpdatePensionRequirementAsync(command, sender);
-                return result.Match(() => Results.Ok(), ApiResults.Problem);
+                return result.ToApiResult(result.Description);
             })
             .AddEndpointFilter<TechnicalValidationFilter<UpdatePensionRequirementCommand>>()
             .Produces<PensionRequirementResponse>()

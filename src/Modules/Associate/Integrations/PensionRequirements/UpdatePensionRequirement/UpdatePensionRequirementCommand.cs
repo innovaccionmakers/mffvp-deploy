@@ -6,5 +6,5 @@ public sealed record UpdatePensionRequirementCommand(
     string IdentificationType,
     string Identification,
     int PensionRequirementId,
-    string Status
+    bool Status
 ) : ICommand;
