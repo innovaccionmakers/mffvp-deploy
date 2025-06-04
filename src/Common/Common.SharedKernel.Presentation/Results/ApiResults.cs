@@ -9,9 +9,9 @@ namespace Common.SharedKernel.Presentation.Results;
 public static class ApiResults
 {
 
-    public static IResult Ok<T>(T payload)
+    public static IResult Ok<T>(T payload, string description)
     {
-        return ApiSuccessBuilder.Build(payload);
+        return ApiSuccessBuilder.Build(payload, description);
     }
 
     public static IResult Failure(Result failure)

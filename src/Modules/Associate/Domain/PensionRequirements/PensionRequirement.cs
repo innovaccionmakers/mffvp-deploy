@@ -10,12 +10,12 @@ public sealed class PensionRequirement : Entity
     public DateTime StartDate { get; private set; }
     public DateTime ExpirationDate { get; private set; }
     public DateTime CreationDate { get; private set; }
-    public string Status { get; private set; }
+    public bool Status { get; private set; }
 
     private PensionRequirement() { }
 
     public static Result<PensionRequirement> Create(
-        DateTime startdate, DateTime expirationdate, DateTime creationdate, string status, int activateId
+        DateTime startdate, DateTime expirationdate, DateTime creationdate, bool status, int activateId
     )
     {
         var pensionrequirement = new PensionRequirement
@@ -31,7 +31,7 @@ public sealed class PensionRequirement : Entity
         return Result.Success(pensionrequirement);
     }
 
-    public void UpdateDetails(string status)
+    public void UpdateDetails(bool status)
     {
         Status = status;
     }

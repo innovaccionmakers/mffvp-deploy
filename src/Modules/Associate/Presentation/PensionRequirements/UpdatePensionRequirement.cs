@@ -32,7 +32,7 @@ namespace Associate.Presentation.PensionRequirements
             public string IdentificationType { get; set; }
             public string Identification { get; set; }
             public int PensionRequirementId { get; set; }
-            public string Status { get; set; }
+            public bool Status { get; set; }
         }
     }
 }

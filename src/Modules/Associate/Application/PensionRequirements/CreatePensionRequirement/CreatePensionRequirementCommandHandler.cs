@@ -5,70 +5,62 @@ using Associate.Domain.PensionRequirements;
 using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 using Associate.Integrations.PensionRequirements;
 using Associate.Application.Abstractions.Data;
-using Associate.Integrations.Activates.GetActivateId;
 using Application.PensionRequirements.CreatePensionRequirement;
-using Associate.Application.Abstractions.Rules;
-using Associate.Application.Abstractions;
-using MediatR;
+using Application.PensionRequirements;
+using Associate.Integrations.Activates.GetActivateId;
 
 namespace Associate.Application.PensionRequirements.CreatePensionRequirement;
 
 
 internal sealed class CreatePensionRequirementCommandHandler(
-    IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
     IPensionRequirementRepository pensionrequirementRepository,
     IUnitOfWork unitOfWork,
-    ISender sender)
+    PensionRequirementCommandHandlerValidation validator)
     : ICommandHandler<CreatePensionRequirementCommand>
 {
-    private const string Workflow = "";
+    private const string Workflow = "Associate.PensionRequirement.CreateValidation";
 
     public async Task<Result> Handle(CreatePensionRequirementCommand request, CancellationToken cancellationToken)
     {
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        var activateQuery = new GetActivateIdQuery(request.IdentificationType, request.Identification);
-        var activateResult = await sender.Send(activateQuery, cancellationToken);
+        GetActivateIdResponse? activateData = null;
 
-        if (activateResult.IsFailure)
+        var validationResult = await validator.ValidateRequestAsync(
+                request,
+                request.IdentificationType,
+                request.Identification,
+                Workflow,
+                (cmd, activateResult) => {
+                    activateData = activateResult;
+                    return new CreatePensionRequirementValidationContext(cmd, activateResult);
+                },
+                cancellationToken);
+
+        if (validationResult.IsFailure)
             return Result.Failure(
-                Error.Validation(activateResult.Error.Code ?? string.Empty, activateResult.Error.Description ?? string.Empty));
+                Error.Validation(validationResult.Error.Code ?? string.Empty, validationResult.Error.Description ?? string.Empty));
 
-        var validationContext = new CreatePensionRequirementValidationContext(request);
-
-        var (isValid, _, ruleErrors) =
-            await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);
-
-        if (!isValid)
-        {
-            var first = ruleErrors
-                .OrderByDescending(r => r.Code)
-                .First();
-
-            return Result.Failure(
-                Error.Validation(first.Code, first.Message));
-        }
+        var activateId = activateData!.ActivateId;
 
         var result = PensionRequirement.Create(
             request.StartDateReqPen,
             request.EndDateReqPen,
             DateTime.UtcNow,
-            "Activo",
-            activateResult.Value.ActivateId
+            true,
+            activateId
         );
 
         if (result.IsFailure)
-        {
             return Result.Failure<PensionRequirementResponse>(result.Error);
-        }
 
-        var pensionrequirement = result.Value;
+        await pensionrequirementRepository.DeactivateExistingRequirementsAsync(activateId,  cancellationToken);
 
-        pensionrequirementRepository.Insert(pensionrequirement);
+        pensionrequirementRepository.Insert(result.Value);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return Result.Success();
+        return Result.Success("Registro de Requisitos de Pensión Exitoso");
     }
 }

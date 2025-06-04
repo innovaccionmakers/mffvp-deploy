@@ -5,17 +5,19 @@ namespace Common.SharedKernel.Domain;
 
 public class Result
 {
-    public Result(bool isSuccess, Error error)
+    public Result(bool isSuccess, Error error, string? description = null)
     {
         if ((isSuccess && error != Error.None) ||
             (!isSuccess && error == Error.None))
             throw new ArgumentException("Invalid error", nameof(error));
 
         IsSuccess = isSuccess;
-        Error = error;
+        Error = error;        
+        Description = description ?? string.Empty;
     }
 
     public bool IsSuccess { get; }
+    public string Description { get;  }
 
     public bool IsFailure => !IsSuccess;
 
@@ -26,9 +28,14 @@ public class Result
         return new Result(true, Error.None);
     }
 
-    public static Result<TValue> Success<TValue>(TValue value)
+    public static Result Success(string description)
     {
-        return new Result<TValue>(value, true, Error.None);
+        return new Result(true, Error.None, description);
+    }
+
+    public static Result<TValue> Success<TValue>(TValue value, string? description = null)
+    {
+        return new Result<TValue>(value, true, Error.None, description);
     }
 
     public static Result Failure(Error error)
@@ -50,11 +57,13 @@ public class Result
 public class Result<TValue> : Result
 {
     private readonly TValue? _value;
+    private readonly string Description;
 
-    public Result(TValue? value, bool isSuccess, Error error)
+    public Result(TValue? value, bool isSuccess, Error error, string? description = null)
         : base(isSuccess, error)
     {
         _value = value;
+        Description = description!;
     }
 
     [NotNull]

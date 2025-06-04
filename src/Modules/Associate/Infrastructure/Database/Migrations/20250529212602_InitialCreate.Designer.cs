@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Associate.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(AssociateDbContext))]
-    [Migration("20250529204931_InitialCreate")]
+    [Migration("20250529212602_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -125,7 +125,7 @@ namespace Associate.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("uuid")
-                        .HasDefaultValueSql("uuid_generate_v7()");
+                        .HasDefaultValueSql("uuid_generate_v4()");
 
                     b.HasKey("ConfigurationParameterId");
 

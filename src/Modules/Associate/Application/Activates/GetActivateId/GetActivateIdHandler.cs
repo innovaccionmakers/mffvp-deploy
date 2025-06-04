@@ -12,7 +12,7 @@ internal sealed class GetActivateIdHandler(
     IRuleEvaluator<AssociateModuleMarker>     ruleEvaluator
 ) : IQueryHandler<GetActivateIdQuery, GetActivateIdResponse>
 {
-    private const string ActivateValidationWorkflow = "";
+    private const string ActivateValidationWorkflow = "Associate.GetActivateId.Validation";
 
     public async Task<Result<GetActivateIdResponse>> Handle(
         GetActivateIdQuery query,
@@ -32,6 +32,9 @@ internal sealed class GetActivateIdHandler(
                 Error.Validation(first.Code, first.Message));
         }
         
-        return Result.Success(new GetActivateIdResponse(activate!.ActivateId));
+        return Result.Success(new GetActivateIdResponse(
+            activate!.ActivateId,
+            activate.Pensioner
+            ));
     }
 }

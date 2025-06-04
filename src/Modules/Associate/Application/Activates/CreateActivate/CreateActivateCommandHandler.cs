@@ -2,10 +2,12 @@ using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Domain.Activates;
 using Associate.Integrations.Activates.CreateActivate;
+using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 using People.IntegrationEvents.PersonValidation;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Associate.Application.Abstractions;
+using MediatR;
 
 namespace Associate.Application.Activates.CreateActivate;
 
@@ -13,7 +15,8 @@ internal sealed class CreateActivateCommandHandler(
     IActivateRepository activateRepository,
     IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork,  
-    ICapRpcClient rpc)
+    ICapRpcClient rpc,
+    ISender sender)
     : ICommandHandler<CreateActivateCommand>
 {
     private const string Workflow = "Associate.Activates.CreateValidation";
@@ -68,6 +71,20 @@ internal sealed class CreateActivateCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        return Result.Success();
+
+        if (request.MeetsPensionRequirements == true)
+        {
+            var CreatePensionRequirementCommand = new CreatePensionRequirementRequestCommand(
+                activate.ActivateId,
+                request.StartDateReqPen,
+                request.EndDateReqPen,
+                DateTime.UtcNow,
+                "Activo"
+            );
+            
+            await sender.Send(CreatePensionRequirementCommand, cancellationToken);
+        }
+
+        return Result.Success("Activación causada Exitosamente");
     }
 }
