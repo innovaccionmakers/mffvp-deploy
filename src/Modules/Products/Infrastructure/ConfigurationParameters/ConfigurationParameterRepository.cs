@@ -53,4 +53,31 @@ internal sealed class ConfigurationParameterRepository : IConfigurationParameter
                 cancellationToken
             );
     }
+
+    public async Task<IReadOnlyCollection<ConfigurationParameter>> GetByIdsAsync(
+        IEnumerable<int> ids,
+        CancellationToken ct = default)
+    {
+        var idArray = ids.ToArray();
+        if (idArray.Length == 0)
+            return Array.Empty<ConfigurationParameter>();
+
+        return await _context.ConfigurationParameters
+            .Where(p => idArray.Contains(p.ConfigurationParameterId))
+            .AsNoTracking()
+            .ToListAsync(ct);
+    }
+
+    public async Task<ConfigurationParameter?> GetByCodeAndScopeAsync(
+        string homologationCode,
+        string scope,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.ConfigurationParameters
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                p => p.HomologationCode == homologationCode
+                     && p.Name == scope,
+                cancellationToken);
+    }
 }

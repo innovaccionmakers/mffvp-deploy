@@ -3,6 +3,14 @@
     "WorkflowName": "Operations.Contribution.Validation",
     "Rules": [
       {
+        "RuleName": "FirstContribution_MinimumAmount",
+        "ErrorMessage": "El primer aporte debe ser mayor o igual al monto mínimo inicial del portafolio.",
+        "Expression": "input.IsFirstContribution == false || input.Amount >= input.PortfolioInitialMinimumAmount",
+        "Properties": {
+          "errorCode": "ecb1b8b5-7e2d-4784-b9bc-71302079227e"
+        }
+      },
+      {
         "RuleName": "ContributionSourceNotHomologated",
         "ErrorMessage": "El código homologado del Origen no existe",
         "Expression": "input.ContributionSource.Exists",

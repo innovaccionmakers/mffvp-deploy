@@ -16,19 +16,13 @@ internal sealed class AlternativeRepository(ProductsDbContext context) : IAltern
         return await context.Alternatives
             .SingleOrDefaultAsync(x => x.AlternativeId == alternativeId, cancellationToken);
     }
-
-    public void Insert(Alternative alternative)
+    
+    public async Task<Alternative?> GetByHomologatedCodeAsync(
+        string homologatedCode,
+        CancellationToken cancellationToken = default
+    )
     {
-        context.Alternatives.Add(alternative);
-    }
-
-    public void Update(Alternative alternative)
-    {
-        context.Alternatives.Update(alternative);
-    }
-
-    public void Delete(Alternative alternative)
-    {
-        context.Alternatives.Remove(alternative);
+        return await context.Alternatives
+            .SingleOrDefaultAsync(x => x.HomologatedCode == homologatedCode, cancellationToken);
     }
 }

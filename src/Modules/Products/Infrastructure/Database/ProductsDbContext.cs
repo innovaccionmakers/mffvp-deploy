@@ -20,8 +20,12 @@ using Products.Domain.Cities;
 using Products.Domain.ConfigurationParameters;
 using Products.Infrastructure.Cities;
 using Products.Domain.Offices;
+using Products.Domain.PensionFunds;
+using Products.Domain.PlanFunds;
 using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Offices;
+using Products.Infrastructure.PensionFunds;
+using Products.Infrastructure.PlanFunds;
 
 namespace Products.Infrastructure.Database;
 
@@ -37,6 +41,8 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
     internal DbSet<City> Cities { get; set; }
     internal DbSet<Office> Offices { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
+    internal DbSet<PlanFund> PlanFunds { get; set; }
+    internal DbSet<PensionFund> PensionFunds { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,6 +57,8 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
         modelBuilder.ApplyConfiguration(new CityConfiguration());
         modelBuilder.ApplyConfiguration(new OfficeConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
+        modelBuilder.ApplyConfiguration(new PlanFundConfiguration());
+        modelBuilder.ApplyConfiguration(new PensionFundConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

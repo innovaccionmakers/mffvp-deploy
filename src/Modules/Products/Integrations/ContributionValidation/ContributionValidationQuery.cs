@@ -5,7 +5,7 @@ namespace Products.Integrations.ContributionValidation;
 public record ContributionValidationQuery(
     int ActivateId,
     int ObjectiveId,
-    string? PortfolioStandardCode,
+    string? PortfolioHomologatedCode,
     DateTime DepositDate,
     DateTime ExecutionDate,
     decimal Amount

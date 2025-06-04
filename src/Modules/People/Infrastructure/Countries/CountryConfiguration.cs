@@ -14,6 +14,6 @@ internal sealed class CountryConfiguration : IEntityTypeConfiguration<Country>
         builder.Property(x => x.Name).HasColumnName("nombre");
         builder.Property(x => x.ShortName).HasColumnName("nombre_abreviado");
         builder.Property(x => x.DaneCode).HasColumnName("codigo_dane");
-        builder.Property(x => x.StandardCode).HasColumnName("codigo_homologado");
+        builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
     }
 }

@@ -1,11 +1,24 @@
 [
   {
+    "WorkflowName": "People.Person.ValidateIdType",
+    "Rules": [
+      {
+        "RuleName": "DocumentTypeNotHomologated",
+        "ErrorMessage": "El tipo de documento no se encuentra homologado",
+        "Expression": "input.DocumentTypeExists",
+        "Properties": {
+          "errorCode": "15afe1e8-4922-4e90-a030-e1f07ae388c6"
+        }
+      }
+    ]
+  },
+  {
     "WorkflowName": "People.Person.Validation",
     "Rules": [
       {
         "RuleName": "DocumentTypeNotHomologated",
         "ErrorMessage": "El tipo Id no se encuentra homologado",
-        "Expression": "input.DocumentTypeExists == false",
+        "Expression": "input.DocumentTypeExists",
         "Properties": {
           "errorCode": "15afe1e8-4922-4e90-a030-e1f07ae388c6"
         }
@@ -13,7 +26,7 @@
       {
         "RuleName": "ClientNotExist",
         "ErrorMessage": "El Cliente no existe",
-        "Expression": "input.DocumentTypeExists && input.PersonExists == false",
+        "Expression": "input.DocumentTypeExists && input.PersonExists",
         "Properties": {
           "errorCode": "5275d643-465a-40f3-83aa-afec26302136"
         }

@@ -7,8 +7,6 @@ namespace MFFVP.Api.BffWeb.Products
     {
         public static IServiceCollection AddBffProductsServices(this IServiceCollection services)
         {
-            services.AddSingleton<IPlansService, PlansService>();
-            services.AddSingleton<IAlternativesService, AlternativesService>();
             services.AddSingleton<IObjectivesService, ObjectivesService>();
             services.AddSingleton<IPortfoliosService, PortfoliosService>();
             return services;

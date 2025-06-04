@@ -1,0 +1,34 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Products.Domain.PlanFunds;
+
+namespace Products.Infrastructure.PlanFunds;
+
+internal sealed class PlanFundConfiguration : IEntityTypeConfiguration<PlanFund>
+{
+    public void Configure(EntityTypeBuilder<PlanFund> builder)
+    {
+        builder.ToTable("planes_fondo");
+        builder.HasKey(pf => pf.PlanFundId);
+
+        builder.Property(pf => pf.PlanFundId)
+            .HasColumnName("id");
+
+        builder.Property(pf => pf.PlanId)
+            .HasColumnName("plan_id");
+
+        builder.Property(pf => pf.PensionFundId)
+            .HasColumnName("fondo_id");
+
+        builder.Property(pf => pf.Status)
+            .HasColumnName("estado");
+
+        builder.HasOne(pf => pf.Plan)
+            .WithMany(p => p.PlanFunds)
+            .HasForeignKey(pf => pf.PlanId);
+
+        builder.HasOne(pf => pf.PensionFund)
+            .WithMany(f => f.PlanFunds)
+            .HasForeignKey(pf => pf.PensionFundId);
+    }
+}

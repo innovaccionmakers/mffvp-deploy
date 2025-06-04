@@ -153,6 +153,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{7EA33E9A
 	ProjectSection(SolutionItems) = preProject
 		src\Modules\Products\Rules\portfolio.rules.json = src\Modules\Products\Rules\portfolio.rules.json
 		src\Modules\Products\Rules\contribution.rules.json = src\Modules\Products\Rules\contribution.rules.json
+		src\Modules\Products\Rules\objectives.rules.json = src\Modules\Products\Rules\objectives.rules.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{A8158072-1059-417C-94E1-30B1081CC05C}"

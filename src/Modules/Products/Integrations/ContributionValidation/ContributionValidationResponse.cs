@@ -1,5 +1,9 @@
 namespace Products.Integrations.ContributionValidation;
 
 public sealed record ContributionValidationResponse(
-    bool IsValid
+    bool IsValid,
+    int? AffiliateId,
+    int? ObjectiveId,
+    int? PortfolioId,
+    decimal? PortfolioInitialMinimumAmount
 );

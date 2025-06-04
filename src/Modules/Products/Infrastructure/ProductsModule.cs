@@ -6,15 +6,25 @@ using Microsoft.Extensions.DependencyInjection;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
 using Products.Application.Abstractions.Rules;
+using Products.Application.Abstractions.Services.External;
+using Products.Application.Abstractions.Services.Objectives;
+using Products.Application.Abstractions.Services.Rules;
+using Products.Application.Objectives.Services;
 using Products.Domain.Alternatives;
+using Products.Domain.Commercials;
 using Products.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
+using Products.Domain.Offices;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
 using Products.Infrastructure.Alternatives;
+using Products.Infrastructure.Commercials;
 using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Database;
+using Products.Infrastructure.External.Affiliates;
+using Products.Infrastructure.External.DocumentTypes;
 using Products.Infrastructure.Objectives;
+using Products.Infrastructure.Offices;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
 using Products.Infrastructure.RulesEngine;
@@ -50,8 +60,16 @@ public static class ProductsModule
         services.AddScoped<IAlternativeRepository, AlternativeRepository>();
         services.AddScoped<IObjectiveRepository, ObjectiveRepository>();
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
+        services.AddScoped<ICommercialRepository, CommercialRepository>();
+        services.AddScoped<IOfficeRepository, OfficeRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
+        
+        services.AddScoped<IDocumentTypeValidator, DocumentTypeValidator>();
+        services.AddScoped<IAffiliateLocator,    AffiliateLocator>();
+        services.AddScoped<IObjectiveReader,     ObjectiveReader>();
+        services.AddScoped<IGetObjectivesRules,  GetObjectivesRules>();
+
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }

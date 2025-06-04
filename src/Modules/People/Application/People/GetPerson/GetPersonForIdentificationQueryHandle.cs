@@ -34,7 +34,7 @@ namespace People.Application.People.GetPerson
             var response = new PersonResponse(
                 person.PersonId,
                 person.DocumentType,
-                person.StandardCode,
+                person.HomologatedCode,
                 person.Identification,
                 person.FirstName,
                 person.MiddleName,

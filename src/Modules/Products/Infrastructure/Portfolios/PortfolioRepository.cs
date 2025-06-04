@@ -17,23 +17,23 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
             .SingleOrDefaultAsync(x => x.PortfolioId == portfolioId, cancellationToken);
     }
 
-    public async Task<Portfolio?> GetByStandardCodeAsync(
-        string standardCode,
+    public async Task<Portfolio?> GetByHomologatedCodeAsync(
+        string homologatedCode,
         CancellationToken cancellationToken = default)
     {
         return await context.Portfolios
-            .SingleOrDefaultAsync(p => p.StandardCode == standardCode,
+            .SingleOrDefaultAsync(p => p.HomologatedCode == homologatedCode,
                 cancellationToken);
     }
 
     public Task<bool> BelongsToAlternativeAsync(
-        string standardCode, int alternativeId, CancellationToken ct)
+        string homologatedCode, int alternativeId, CancellationToken ct)
     {
         return context.AlternativePortfolios
             .AsNoTracking()
             .AnyAsync(ap =>
                     ap.AlternativeId == alternativeId
-                    && ap.Portfolio.StandardCode == standardCode,
+                    && ap.Portfolio.HomologatedCode == homologatedCode,
                 ct);
     }
 
@@ -44,7 +44,7 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
             .AsNoTracking()
             .Where(ap => ap.AlternativeId == alternativeId
                          && ap.IsCollector)
-            .Select(ap => ap.Portfolio.StandardCode)
+            .Select(ap => ap.Portfolio.HomologatedCode)
             .FirstOrDefaultAsync(ct);
     }
 }

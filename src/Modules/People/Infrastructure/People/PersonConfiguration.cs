@@ -14,7 +14,7 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
         builder.HasKey(x => x.PersonId);
         builder.Property(x => x.PersonId).HasColumnName("id");
         builder.Property(x => x.DocumentType).HasColumnName("tipo_documento");
-        builder.Property(x => x.StandardCode).HasColumnName("codigo_homologado");
+        builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
         builder.Property(x => x.Identification).HasColumnName("identificacion");
         builder.Property(x => x.FirstName).HasColumnName("primer_nombre");
         builder.Property(x => x.MiddleName).HasColumnName("segundo_nombre");

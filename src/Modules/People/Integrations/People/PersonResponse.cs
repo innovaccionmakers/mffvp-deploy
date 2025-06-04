@@ -3,7 +3,7 @@ namespace People.Integrations.People;
 public sealed record PersonResponse(
     long PersonId,
     string DocumentType,
-    string StandardCode,
+    string HomologatedCode,
     string Identification,
     string FirstName,
     string MiddleName,

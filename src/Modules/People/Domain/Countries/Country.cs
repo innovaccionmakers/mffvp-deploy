@@ -8,14 +8,14 @@ public sealed class Country : Entity
     public string Name { get; private set; }
     public string ShortName { get; private set; }
     public string DaneCode { get; private set; }
-    public string StandardCode { get; private set; }
+    public string HomologatedCode { get; private set; }
 
     private Country()
     {
     }
 
     public static Result<Country> Create(
-        string name, string shortName, string daneCode, string standardCode
+        string name, string shortName, string daneCode, string homologatedCode
     )
     {
         var country = new Country
@@ -23,9 +23,9 @@ public sealed class Country : Entity
             CountryId = default,
 
             Name = name,
-            ShortName = shortName,
+            ShortName = shortName, 
             DaneCode = daneCode,
-            StandardCode = standardCode
+            HomologatedCode = homologatedCode
         };
 
         country.Raise(new CountryCreatedDomainEvent(country.CountryId));
@@ -33,12 +33,12 @@ public sealed class Country : Entity
     }
 
     public void UpdateDetails(
-        string newName, string newShortName, string newDaneCode, string newStandardCode
+        string newName, string newShortName, string newDaneCode, string newHomologatedCode
     )
     {
         Name = newName;
         ShortName = newShortName;
         DaneCode = newDaneCode;
-        StandardCode = newStandardCode;
+        HomologatedCode = newHomologatedCode;
     }
 }

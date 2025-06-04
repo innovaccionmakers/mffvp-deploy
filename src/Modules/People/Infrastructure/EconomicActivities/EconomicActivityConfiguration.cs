@@ -17,6 +17,6 @@ internal sealed class EconomicActivityConfiguration : IEntityTypeConfiguration<E
         builder.Property(x => x.DivisionName).HasColumnName("nombre_division");
         builder.Property(x => x.GroupName).HasColumnName("nombre_grupo");
         builder.Property(x => x.ClassCode).HasColumnName("codigo_clase");
-        builder.Property(x => x.StandardCode).HasColumnName("codigo_homologado");
+        builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
     }
 }

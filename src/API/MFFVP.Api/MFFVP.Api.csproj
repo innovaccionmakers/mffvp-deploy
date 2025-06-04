@@ -46,8 +46,4 @@
         <ProjectReference Include="..\..\Modules\Trusts\Integrations\Trusts.Integrations.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="BffWeb\Products\" />
-    </ItemGroup>
-
 </Project>

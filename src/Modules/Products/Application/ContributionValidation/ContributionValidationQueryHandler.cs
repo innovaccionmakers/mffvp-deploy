@@ -21,24 +21,24 @@ internal sealed class ContributionValidationQueryHandler(
         var objective = await objectiveRepository
             .GetByIdAsync(request.ObjectiveId, cancellationToken);
 
-        var objectiveExists            = objective is not null;
-        var alternativeId              = objective?.AlternativeId;
+        var objectiveExists = objective is not null;
+        var alternativeId = objective?.AlternativeId;
         var objectiveBelongsToAffiliate = objectiveExists &&
                                           objective!.AffiliateId == request.ActivateId;
-        
-        var isPortfolioCodeProvided = !string.IsNullOrWhiteSpace(request.PortfolioStandardCode);
+
+        var isPortfolioCodeProvided = !string.IsNullOrWhiteSpace(request.PortfolioHomologatedCode);
 
         var portfolioBelongsToAlternative = false;
-        var collectorPortfolioFound       = false;
-        string? effectivePortfolioCode    = request.PortfolioStandardCode;
+        var collectorPortfolioFound = false;
+        var effectivePortfolioCode = request.PortfolioHomologatedCode;
 
         if (isPortfolioCodeProvided)
         {
             portfolioBelongsToAlternative = objectiveExists &&
-                await portfolioRepository.BelongsToAlternativeAsync(
-                    request.PortfolioStandardCode!,
-                    alternativeId!.Value,
-                    cancellationToken);
+                                            await portfolioRepository.BelongsToAlternativeAsync(
+                                                request.PortfolioHomologatedCode!,
+                                                alternativeId!.Value,
+                                                cancellationToken);
         }
         else if (objectiveExists)
         {
@@ -50,19 +50,18 @@ internal sealed class ContributionValidationQueryHandler(
 
         Portfolio? portfolio = null;
         if (!string.IsNullOrWhiteSpace(effectivePortfolioCode))
-            portfolio = await portfolioRepository.GetByStandardCodeAsync(
+            portfolio = await portfolioRepository.GetByHomologatedCodeAsync(
                 effectivePortfolioCode!, cancellationToken);
-        
+
         var validationContext = new
         {
             request.ObjectiveId,
-            ObjectiveExists            = objectiveExists,
-            AlternativeId              = alternativeId,
+            AlternativeId = alternativeId,
             ObjectiveBelongsToAffiliate = objectiveBelongsToAffiliate,
-            IsPortfolioCodeProvided     = isPortfolioCodeProvided,
+            IsPortfolioCodeProvided = isPortfolioCodeProvided,
             PortfolioBelongsToObjectiveAlternative = portfolioBelongsToAlternative,
-            CollectorPortfolioFound       = collectorPortfolioFound,
-            PortfolioStandardCode          = effectivePortfolioCode,
+            CollectorPortfolioFound = collectorPortfolioFound,
+            PortfolioStandardCode = effectivePortfolioCode,
             request.DepositDate,
             request.ExecutionDate,
             request.Amount,
@@ -79,6 +78,7 @@ internal sealed class ContributionValidationQueryHandler(
                 Error.Validation(error.Code, error.Message));
         }
 
-        return Result.Success(new ContributionValidationResponse(true));
+        return Result.Success(new ContributionValidationResponse(true, request.ActivateId, request.ObjectiveId,
+            portfolio!.PortfolioId, portfolio.InitialMinimumAmount));
     }
 }

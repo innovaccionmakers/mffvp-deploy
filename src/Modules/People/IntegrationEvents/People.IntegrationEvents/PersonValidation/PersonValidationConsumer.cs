@@ -19,23 +19,6 @@ public sealed class PersonValidationConsumer : ICapSubscribe
         _personRepository = personRepository;
     }
 
-    [CapSubscribe(nameof(GetPersonValidationRequest))]
-    public async Task<GetPersonValidationResponse> ValidateAsync(
-        GetPersonValidationRequest message,
-        [FromCap] CapHeader header,
-        CancellationToken cancellationToken)
-    {
-        var corr = header[CapRpcClient.Headers.CorrelationId];
-        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
-
-        var result = await _mediator.Send(new GetPersonQuery(message.PersonId), cancellationToken);
-        return result.Match(
-            _ => new GetPersonValidationResponse(true, null, null),
-            err => new GetPersonValidationResponse(false, err.Error.Code, err.Error.Description)
-        );
-    }
-
-
     [CapSubscribe(nameof(PersonDataRequestEvent))]
     public async Task<GetPersonValidationResponse> HandleRequest(PersonDataRequestEvent request, [FromCap] CapHeader header, CancellationToken cancellationToken)
     {
