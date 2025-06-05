@@ -9,7 +9,11 @@ namespace People.IntegrationEvents.DocumentTypeValidation;
 public sealed class DocumentTypeValidationConsumer : ICapSubscribe
 {
     private readonly ISender _mediator;
-    public DocumentTypeValidationConsumer(ISender mediator) => _mediator = mediator;
+
+    public DocumentTypeValidationConsumer(ISender mediator)
+    {
+        _mediator = mediator;
+    }
 
     [CapSubscribe(nameof(GetDocumentTypeIdByCodeRequest))]
     public async Task<GetDocumentTypeIdByCodeResponse> GetDocumentTypeIdAsync(
@@ -25,7 +29,7 @@ public sealed class DocumentTypeValidationConsumer : ICapSubscribe
             cancellationToken);
 
         return result.Match(
-            ok  => new GetDocumentTypeIdByCodeResponse(true,  ok.DocumentTypeId, null, null),
+            ok => new GetDocumentTypeIdByCodeResponse(true, ok.DocumentTypeId, null, null),
             err => new GetDocumentTypeIdByCodeResponse(false, null, err.Error.Code, err.Error.Description));
     }
 }

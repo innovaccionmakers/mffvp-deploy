@@ -64,11 +64,11 @@ public static class ProductsModule
         services.AddScoped<IOfficeRepository, OfficeRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
-        
+
         services.AddScoped<IDocumentTypeValidator, DocumentTypeValidator>();
-        services.AddScoped<IAffiliateLocator,    AffiliateLocator>();
-        services.AddScoped<IObjectiveReader,     ObjectiveReader>();
-        services.AddScoped<IGetObjectivesRules,  GetObjectivesRules>();
+        services.AddScoped<IAffiliateLocator, AffiliateLocator>();
+        services.AddScoped<IObjectiveReader, ObjectiveReader>();
+        services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());

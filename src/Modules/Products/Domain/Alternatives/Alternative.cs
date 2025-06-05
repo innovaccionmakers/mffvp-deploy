@@ -1,6 +1,7 @@
 using Common.SharedKernel.Domain;
 using Products.Domain.AlternativePortfolios;
 using Products.Domain.Objectives;
+using Products.Domain.PlanFunds;
 
 namespace Products.Domain.Alternatives;
 
@@ -12,7 +13,9 @@ public sealed class Alternative : Entity
     public string Status { get; private set; }
     public string Description { get; private set; }
     public string HomologatedCode { get; private set; }
+    public int PlanFundId { get; private set; }
 
+    public PlanFund PlanFund { get; private set; } = null!;
 
     private readonly List<AlternativePortfolio> _portfolios = [];
     public IReadOnlyCollection<AlternativePortfolio> Portfolios => _portfolios;
@@ -26,6 +29,7 @@ public sealed class Alternative : Entity
     }
 
     public static Result<Alternative> Create(
+        PlanFund planFund,
         int alternativeTypeId,
         string name,
         string status,
@@ -36,7 +40,7 @@ public sealed class Alternative : Entity
         var alternative = new Alternative
         {
             AlternativeId = default,
-
+            PlanFundId = planFund.PlanFundId,
             AlternativeTypeId = alternativeTypeId,
             Name = name,
             Status = status,
@@ -53,7 +57,8 @@ public sealed class Alternative : Entity
         string newName,
         string newStatus,
         string newDescription,
-        string newHomologatedCode
+        string newHomologatedCode,
+        PlanFund newPlanFund
     )
     {
         AlternativeTypeId = newAlternativeTypeId;
@@ -61,5 +66,6 @@ public sealed class Alternative : Entity
         Status = newStatus;
         Description = newDescription;
         HomologatedCode = newHomologatedCode;
+        PlanFundId = newPlanFund.PlanFundId;
     }
 }

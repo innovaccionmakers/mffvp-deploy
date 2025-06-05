@@ -24,6 +24,17 @@ internal sealed class AuxiliaryInformationConfiguration : IEntityTypeConfigurati
         builder.Property(x => x.CollectionBank).HasColumnName("banco_recaudo");
         builder.Property(x => x.DepositDate).HasColumnName("fecha_consignacion");
         builder.Property(x => x.SalesUser).HasColumnName("usuario_comercial");
-        builder.Property(x => x.City).HasColumnName("ciudad");
+        builder.Property(x => x.OfficeId).HasColumnName("oficinas_id");
+        builder.Property(x => x.CityId).HasColumnName("ciudad_id");
+        builder.Property(x => x.ChannelId).HasColumnName("canal_id");
+        builder.Property(x => x.UserId).HasColumnName("usuario_id");
+
+        builder.HasOne(x => x.ClientOperation)
+            .WithOne(co => co.AuxiliaryInformation)
+            .HasForeignKey<AuxiliaryInformation>(x => x.ClientOperationId);
+
+        builder.HasOne(x => x.Origin)
+            .WithMany(o => o.AuxiliaryInformations)
+            .HasForeignKey(x => x.OriginId);
     }
 }

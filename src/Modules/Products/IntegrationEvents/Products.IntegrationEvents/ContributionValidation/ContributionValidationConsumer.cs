@@ -26,7 +26,8 @@ public sealed class ContributionValidationConsumer : ICapSubscribe
 
         var result =
             await _mediator.Send(
-                new ContributionValidationQuery(message.ActivateId, message.ObjectiveId, message.PortfolioHomologatedCode,
+                new ContributionValidationQuery(message.ActivateId, message.ObjectiveId,
+                    message.PortfolioHomologatedCode,
                     message.DepositDate,
                     message.ExecutionDate, message.Amount), cancellationToken);
 
@@ -38,8 +39,8 @@ public sealed class ContributionValidationConsumer : ICapSubscribe
                 PortfolioId: result.Value.PortfolioId,
                 PortfolioInitialMinimumAmount: result.Value.PortfolioInitialMinimumAmount),
             err => new ContributionValidationResponse(
-                IsValid: false,
-                Code: err.Error.Code,
-                Message: err.Error.Description));
+                false,
+                err.Error.Code,
+                err.Error.Description));
     }
 }

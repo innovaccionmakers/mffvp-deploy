@@ -1,12 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 using Operations.Application.Abstractions.Rules;
-
 using RulesEngine.HelperFunctions;
 using RulesEngine.Models;
-
 using System.Reflection;
 using System.Text.Json;
 

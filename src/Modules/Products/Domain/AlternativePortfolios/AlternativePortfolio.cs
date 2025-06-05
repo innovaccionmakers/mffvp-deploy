@@ -11,9 +11,9 @@ public sealed class AlternativePortfolio : Entity
     public int PortfolioId { get; private set; }
     public string Status { get; private set; }
     public bool IsCollector { get; private set; }
-    
+
     public Alternative Alternative { get; private set; }
-    public Portfolio   Portfolio   { get; private set; }
+    public Portfolio Portfolio { get; private set; }
 
     private AlternativePortfolio()
     {
@@ -39,7 +39,7 @@ public sealed class AlternativePortfolio : Entity
 
     public void UpdateDetails(
         int newAlternativeId, int newPortfolioId, string newStatus, bool isCollector
-    ) 
+    )
     {
         AlternativeId = newAlternativeId;
         PortfolioId = newPortfolioId;

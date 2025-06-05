@@ -11,6 +11,9 @@ using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
 using Products.Domain.ConfigurationParameters;
 using Products.Domain.Offices;
+using Products.Domain.PensionFunds;
+using Products.Domain.PlanFunds;
+using Products.Domain.Plans;
 using Products.Integrations.Objectives.CreateObjective;
 using RulesEngine.Models;
 
@@ -45,6 +48,43 @@ public class CreateObjectiveCommandHandlerTests
         );
     }
 
+    private Alternative BuildDummyAlternative(string homologatedCode)
+    {
+        var planResult = Plan.Create("Plan Prueba", "Descripción prueba");
+        if (!planResult.IsSuccess)
+            throw new Exception("No se pudo crear el Plan de prueba");
+        var dummyPlan = planResult.Value;
+
+        var pensionResult = PensionFund.Create(
+            1,
+            99999,
+            "Fondo Prueba",
+            "FP",
+            "ACTIVO",
+            "FP-01"
+        );
+        if (!pensionResult.IsSuccess)
+            throw new Exception("No se pudo crear el PensionFund de prueba");
+        var dummyPensionFund = pensionResult.Value;
+
+        var planFundResult = PlanFund.Create(dummyPlan, dummyPensionFund, "ACTIVO");
+        if (!planFundResult.IsSuccess)
+            throw new Exception("No se pudo crear el PlanFund de prueba");
+        var dummyPlanFund = planFundResult.Value;
+
+        var alternativeResult = Alternative.Create(
+            dummyPlanFund,
+            1,
+            "Alt Prueba",
+            "ACTIVO",
+            "Descripción alt",
+            homologatedCode
+        );
+        if (!alternativeResult.IsSuccess)
+            throw new Exception("No se pudo crear la Alternative de prueba");
+        return alternativeResult.Value;
+    }
+
     [Fact]
     public async Task Handle_Should_Create_Objective_When_Request_Is_Valid()
     {
@@ -60,8 +100,10 @@ public class CreateObjectiveCommandHandlerTests
             "COM-123"
         );
 
-        _alternativeRepo.Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Alternative.Create(1, "Alt", "ACTIVO", "desc", request.AlternativeId).Value);
+        var alternativeEntity = BuildDummyAlternative(request.AlternativeId);
+        _alternativeRepo
+            .Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(alternativeEntity);
 
         _configRepo.Setup(r => r.GetByCodeAndScopeAsync(request.ObjectiveType,
                 It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -115,11 +157,10 @@ public class CreateObjectiveCommandHandlerTests
             "Jubilarme", "OF-BOG", "OF-MED", "COM-123"
         );
 
+        var alternativeEntity = BuildDummyAlternative(request.AlternativeId);
         _alternativeRepo
-            .Setup(r => r.GetByHomologatedCodeAsync(
-                request.AlternativeId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Alternative.Create(1, "Alt", "ACTIVO", "desc", request.AlternativeId).Value);
+            .Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(alternativeEntity);
 
         _configRepo
             .Setup(r => r.GetByCodeAndScopeAsync(
@@ -140,7 +181,7 @@ public class CreateObjectiveCommandHandlerTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success<int?>(null));
-        
+
         _ruleEvaluator
             .Setup(r => r.EvaluateAsync(
                 "Products.CreateObjective.Validation",
@@ -154,7 +195,7 @@ public class CreateObjectiveCommandHandlerTests
                     new RuleValidationError("OBJ001", "Invalid office")
                 } as IReadOnlyCollection<RuleValidationError>
             ));
-        
+
         var oficinasSimuladas = new Dictionary<string, Office>
         {
             { "OF-BOG", Office.Create("Bogotá", "ACTIVO", "BO", "OF-BOG", 1).Value },
@@ -165,7 +206,7 @@ public class CreateObjectiveCommandHandlerTests
                 It.IsAny<string[]>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(oficinasSimuladas);
-        
+
         _commercialRepo
             .Setup(r => r.GetByHomologatedCodeAsync(
                 request.Commercial,

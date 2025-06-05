@@ -31,14 +31,14 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
     {
         context.ClientOperations.Remove(clientoperation);
     }
-    
+
     public async Task<bool> ExistsContributionAsync(
         int affiliateId, int objectiveId, int portfolioId, CancellationToken ct)
     {
         return await context.ClientOperations
             .Where(co => co.AffiliateId == affiliateId &&
-                         co.ObjectiveId  == objectiveId  &&
-                         co.PortfolioId  == portfolioId)
+                         co.ObjectiveId == objectiveId &&
+                         co.PortfolioId == portfolioId)
             .Join(context.ConfigurationParameters,
                 co => co.SubtransactionTypeId,
                 st => st.ConfigurationParameterId,
@@ -49,5 +49,4 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                 (x, parent) => parent.Name)
             .AnyAsync(name => name == "Aporte", ct);
     }
-
 }

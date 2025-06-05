@@ -37,10 +37,13 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("estado_certificacion_id");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ciudad");
+                    b.Property<int>("ChannelId")
+                        .HasColumnType("integer")
+                        .HasColumnName("canal_id");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ciudad_id");
 
                     b.Property<long>("ClientOperationId")
                         .HasColumnType("bigint")
@@ -67,6 +70,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_consignacion");
 
+                    b.Property<int>("OfficeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("oficinas_id");
+
                     b.Property<int>("OriginId")
                         .HasColumnType("integer")
                         .HasColumnName("origen_id");
@@ -89,6 +96,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("condicion_tributaria_id");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("usuario_id");
+
                     b.Property<JsonDocument>("VerifiableMedium")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -96,7 +107,47 @@ namespace Operations.Infrastructure.Database.Migrations
 
                     b.HasKey("AuxiliaryInformationId");
 
+                    b.HasIndex("ChannelId");
+
+                    b.HasIndex("ClientOperationId")
+                        .IsUnique();
+
+                    b.HasIndex("OriginId");
+
                     b.ToTable("informacion_auxiliar", "operaciones");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Channels.Channel", b =>
+                {
+                    b.Property<int>("ChannelId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ChannelId"));
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.Property<bool>("System")
+                        .HasColumnType("boolean")
+                        .HasColumnName("sistema");
+
+                    b.HasKey("ChannelId");
+
+                    b.ToTable("canales", "operaciones");
                 });
 
             modelBuilder.Entity("Operations.Domain.ClientOperations.ClientOperation", b =>
@@ -116,9 +167,9 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("valor");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime>("CausationDate")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha");
+                        .HasColumnName("fecha_causacion");
 
                     b.Property<int>("ObjectiveId")
                         .HasColumnType("integer")
@@ -128,11 +179,21 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("portafolio_id");
 
-                    b.Property<int>("SubtransactionTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("subtipotransaccion_id");
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<DateTime>("RegistrationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_radicacion");
+
+                    b.Property<long>("SubtransactionTypeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("subtipo_transaccion_id");
 
                     b.HasKey("ClientOperationId");
+
+                    b.HasIndex("SubtransactionTypeId");
 
                     b.ToTable("operaciones_clientes", "operaciones");
                 });
@@ -208,6 +269,157 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.ToTable("parametros_configuracion", "operaciones");
                 });
 
+            modelBuilder.Entity("Operations.Domain.Origins.Origin", b =>
+                {
+                    b.Property<int>("OriginId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OriginId"));
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.Property<bool>("OriginatorMandatory")
+                        .HasColumnType("boolean")
+                        .HasColumnName("obligatoriedad_originador");
+
+                    b.Property<bool>("RequiresCertification")
+                        .HasColumnType("boolean")
+                        .HasColumnName("exige_certificacion");
+
+                    b.Property<bool>("RequiresContingentWithholding")
+                        .HasColumnType("boolean")
+                        .HasColumnName("exige_retencion_contingente");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.HasKey("OriginId");
+
+                    b.ToTable("origen_aportes", "operaciones");
+                });
+
+            modelBuilder.Entity("Operations.Domain.SubtransactionTypes.SubtransactionType", b =>
+                {
+                    b.Property<long>("SubtransactionTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("SubtransactionTypeId"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("categoria");
+
+                    b.Property<string>("External")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("externo");
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.Property<string>("Nature")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("naturaleza");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.HasKey("SubtransactionTypeId");
+
+                    b.ToTable("subtipo_transacciones", "operaciones");
+                });
+
+            modelBuilder.Entity("Operations.Domain.TrustWithdrawals.TrustWithdrawalOperation", b =>
+                {
+                    b.Property<long>("TrustWithdrawalOperationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TrustWithdrawalOperationId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("valor");
+
+                    b.Property<long>("ClientOperationId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("operaciones_clientes_id");
+
+                    b.Property<long>("TrustId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("fideicomiso_id");
+
+                    b.HasKey("TrustWithdrawalOperationId");
+
+                    b.HasIndex("ClientOperationId");
+
+                    b.ToTable("operaciones_retiro_fideicomiso", "operaciones");
+                });
+
+            modelBuilder.Entity("Operations.Domain.AuxiliaryInformations.AuxiliaryInformation", b =>
+                {
+                    b.HasOne("Operations.Domain.Channels.Channel", "Channel")
+                        .WithMany("AuxiliaryInformations")
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Operations.Domain.ClientOperations.ClientOperation", "ClientOperation")
+                        .WithOne("AuxiliaryInformation")
+                        .HasForeignKey("Operations.Domain.AuxiliaryInformations.AuxiliaryInformation", "ClientOperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Operations.Domain.Origins.Origin", "Origin")
+                        .WithMany("AuxiliaryInformations")
+                        .HasForeignKey("OriginId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Channel");
+
+                    b.Navigation("ClientOperation");
+
+                    b.Navigation("Origin");
+                });
+
+            modelBuilder.Entity("Operations.Domain.ClientOperations.ClientOperation", b =>
+                {
+                    b.HasOne("Operations.Domain.SubtransactionTypes.SubtransactionType", "SubtransactionType")
+                        .WithMany("ClientOperations")
+                        .HasForeignKey("SubtransactionTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SubtransactionType");
+                });
+
             modelBuilder.Entity("Operations.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.HasOne("Operations.Domain.ConfigurationParameters.ConfigurationParameter", "Parent")
@@ -218,9 +430,43 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Operations.Domain.TrustWithdrawals.TrustWithdrawalOperation", b =>
+                {
+                    b.HasOne("Operations.Domain.ClientOperations.ClientOperation", "ClientOperation")
+                        .WithMany("TrustWithdrawals")
+                        .HasForeignKey("ClientOperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClientOperation");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Channels.Channel", b =>
+                {
+                    b.Navigation("AuxiliaryInformations");
+                });
+
+            modelBuilder.Entity("Operations.Domain.ClientOperations.ClientOperation", b =>
+                {
+                    b.Navigation("AuxiliaryInformation")
+                        .IsRequired();
+
+                    b.Navigation("TrustWithdrawals");
+                });
+
             modelBuilder.Entity("Operations.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Origins.Origin", b =>
+                {
+                    b.Navigation("AuxiliaryInformations");
+                });
+
+            modelBuilder.Entity("Operations.Domain.SubtransactionTypes.SubtransactionType", b =>
+                {
+                    b.Navigation("ClientOperations");
                 });
 #pragma warning restore 612, 618
         }

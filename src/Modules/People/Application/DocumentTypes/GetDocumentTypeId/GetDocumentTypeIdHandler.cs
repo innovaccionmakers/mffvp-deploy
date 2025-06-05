@@ -19,14 +19,13 @@ internal sealed class GetDocumentTypeIdHandler(
         GetDocumentTypeIdQuery query,
         CancellationToken cancellationToken)
     {
-        
         var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
             query.TypeIdHomologationCode,
             HomologScope.Of<GetDocumentTypeIdQuery>(c => c.TypeIdHomologationCode),
             cancellationToken);
 
         var validationContext = new { DocumentTypeExists = documentType is not null };
-        
+
         var (ok, _, errors) = await ruleEvaluator.EvaluateAsync(
             DocumentTypeValidationWorkflow,
             validationContext,

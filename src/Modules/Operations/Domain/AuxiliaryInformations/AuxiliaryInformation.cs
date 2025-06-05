@@ -1,5 +1,8 @@
 using System.Text.Json;
 using Common.SharedKernel.Domain;
+using Operations.Domain.Channels;
+using Operations.Domain.ClientOperations;
+using Operations.Domain.Origins;
 
 namespace Operations.Domain.AuxiliaryInformations;
 
@@ -19,19 +22,40 @@ public sealed class AuxiliaryInformation : Entity
     public string CollectionBank { get; private set; }
     public DateTime DepositDate { get; private set; }
     public string SalesUser { get; private set; }
-    public string City { get; private set; }
+    public int OfficeId { get; private set; }
+    public int CityId { get; private set; }
+    public int ChannelId { get; private set; }
+    public int UserId { get; private set; }
+
+    public ClientOperation ClientOperation { get; private set; } = null!;
+    public Origin Origin { get; private set; } = null!;
+    public Channel Channel { get; private set; } = null!;
 
     private AuxiliaryInformation()
     {
     }
 
     public static Result<AuxiliaryInformation> Create(
-        long clientOperationId, int originId, int collectionMethodId, int paymentMethodId, int collectionAccount,
-        JsonDocument paymentMethodDetail, int certificationStatusId, int taxConditionId, int contingentWithholding,
-        JsonDocument verifiableMedium, string collectionBank, DateTime depositDate, string salesUser, string city
+        long clientOperationId,
+        int originId,
+        int collectionMethodId,
+        int paymentMethodId,
+        int collectionAccount,
+        JsonDocument paymentMethodDetail,
+        int certificationStatusId,
+        int taxConditionId,
+        int contingentWithholding,
+        JsonDocument verifiableMedium,
+        string collectionBank,
+        DateTime depositDate,
+        string salesUser,
+        int officeId,
+        int cityId,
+        int channelId,
+        int userId
     )
     {
-        var auxiliaryinformation = new AuxiliaryInformation
+        var auxiliaryInformation = new AuxiliaryInformation
         {
             AuxiliaryInformationId = default,
             ClientOperationId = clientOperationId,
@@ -47,19 +71,35 @@ public sealed class AuxiliaryInformation : Entity
             CollectionBank = collectionBank,
             DepositDate = depositDate,
             SalesUser = salesUser,
-            City = city
+            OfficeId = officeId,
+            CityId = cityId,
+            ChannelId = channelId,
+            UserId = userId
         };
 
-        auxiliaryinformation.Raise(
-            new AuxiliaryInformationCreatedDomainEvent(auxiliaryinformation.AuxiliaryInformationId));
-        return Result.Success(auxiliaryinformation);
+        auxiliaryInformation.Raise(
+            new AuxiliaryInformationCreatedDomainEvent(auxiliaryInformation.AuxiliaryInformationId));
+        return Result.Success(auxiliaryInformation);
     }
 
     public void UpdateDetails(
-        long newClientOperationId, int newOriginId, int newCollectionMethodId, int newPaymentMethodId,
-        int newCollectionAccount, JsonDocument newPaymentMethodDetail, int newCertificationStatusId,
-        int newTaxConditionId, int newContingentWithholding, JsonDocument newVerifiableMedium, string newCollectionBank,
-        DateTime newDepositDate, string newSalesUser, string newCity
+        long newClientOperationId,
+        int newOriginId,
+        int newCollectionMethodId,
+        int newPaymentMethodId,
+        int newCollectionAccount,
+        JsonDocument newPaymentMethodDetail,
+        int newCertificationStatusId,
+        int newTaxConditionId,
+        int newContingentWithholding,
+        JsonDocument newVerifiableMedium,
+        string newCollectionBank,
+        DateTime newDepositDate,
+        string newSalesUser,
+        int newOfficeId,
+        int newCityId,
+        int newChannelId,
+        int newUserId
     )
     {
         ClientOperationId = newClientOperationId;
@@ -75,6 +115,9 @@ public sealed class AuxiliaryInformation : Entity
         CollectionBank = newCollectionBank;
         DepositDate = newDepositDate;
         SalesUser = newSalesUser;
-        City = newCity;
+        OfficeId = newOfficeId;
+        CityId = newCityId;
+        ChannelId = newChannelId;
+        UserId = newUserId;
     }
 }

@@ -25,24 +25,40 @@ public sealed class Person : Entity
     public int CountryId { get; private set; }
     public string Email { get; private set; }
     public string EconomicActivityId { get; private set; }
-    
     public bool Status { get; private set; } = true;
+
+    public Country Country { get; private set; } = null!;
+    public EconomicActivity EconomicActivity { get; private set; } = null!;
 
     private Person()
     {
     }
 
     public static Result<Person> Create(
-        string documentType, string homologatedCode, string identification, string firstName, string middleName,
-        string lastName, string secondLastName, DateTime issueDate, int issueCityId, DateTime birthDate,
-        int birthCityId, string mobile, string fullName, int maritalStatusId, int genderId, string email,
-        Country country, EconomicActivity economicActivity, bool status
+        string documentType,
+        string homologatedCode,
+        string identification,
+        string firstName,
+        string middleName,
+        string lastName,
+        string secondLastName,
+        DateTime issueDate,
+        int issueCityId,
+        DateTime birthDate,
+        int birthCityId,
+        string mobile,
+        string fullName,
+        int maritalStatusId,
+        int genderId,
+        string email,
+        Country country,
+        EconomicActivity economicActivity,
+        bool status
     )
     {
         var person = new Person
         {
             PersonId = default,
-
             DocumentType = documentType,
             HomologatedCode = homologatedCode,
             Identification = identification,
@@ -69,10 +85,25 @@ public sealed class Person : Entity
     }
 
     public void UpdateDetails(
-        string newDocumentType, string newHomologatedCode, string newIdentification, string newFirstName,
-        string newMiddleName, string newLastName, string newSecondLastName, DateTime newIssueDate, int newIssueCityId,
-        DateTime newBirthDate, int newBirthCityId, string newMobile, string newFullName, int newMaritalStatusId,
-        int newGenderId, int newCountryId, string newEmail, string newEconomicActivityId, bool newStatus
+        string newDocumentType,
+        string newHomologatedCode,
+        string newIdentification,
+        string newFirstName,
+        string newMiddleName,
+        string newLastName,
+        string newSecondLastName,
+        DateTime newIssueDate,
+        int newIssueCityId,
+        DateTime newBirthDate,
+        int newBirthCityId,
+        string newMobile,
+        string newFullName,
+        int newMaritalStatusId,
+        int newGenderId,
+        int newCountryId,
+        string newEmail,
+        string newEconomicActivityId,
+        bool newStatus
     )
     {
         DocumentType = newDocumentType;

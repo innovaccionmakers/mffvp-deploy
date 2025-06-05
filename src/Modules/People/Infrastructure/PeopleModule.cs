@@ -53,7 +53,6 @@ public static class PeopleModule
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
         services.AddTransient<PersonValidationConsumer>();
         services.AddTransient<DocumentTypeValidationConsumer>();
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PeopleDbContext>());        
-        
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PeopleDbContext>());
     }
 }

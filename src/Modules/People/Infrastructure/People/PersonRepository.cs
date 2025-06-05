@@ -31,9 +31,12 @@ internal sealed class PersonRepository(PeopleDbContext context) : IPersonReposit
     {
         context.People.Remove(person);
     }
-    public async Task<Person?> GetForIdentificationAsync(string DocumentType, string Identification, CancellationToken cancellationToken = default)
+
+    public async Task<Person?> GetForIdentificationAsync(string DocumentType, string Identification,
+        CancellationToken cancellationToken = default)
     {
-        return await context.People.SingleOrDefaultAsync(x => x.DocumentType == DocumentType && x.Identification == Identification);
+        return await context.People.SingleOrDefaultAsync(x =>
+            x.DocumentType == DocumentType && x.Identification == Identification);
     }
 
     public async Task<Person?> GetByIdentificationAsync(string identification, string documentTypeCode,
@@ -41,7 +44,7 @@ internal sealed class PersonRepository(PeopleDbContext context) : IPersonReposit
     {
         if (string.IsNullOrWhiteSpace(documentTypeCode))
             return null;
-        
+
         return await context.People.SingleOrDefaultAsync(x => x.Identification == identification, cancellationToken);
     }
 }

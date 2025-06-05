@@ -16,10 +16,10 @@ internal sealed class AffiliateLocator(ICapRpcClient rpc) : IAffiliateLocator
             GetActivateIdByIdentificationRequest,
             GetActivateIdByIdentificationResponse>(
             nameof(GetActivateIdByIdentificationRequest),
-            new(docTypeCode, identification),
+            new GetActivateIdByIdentificationRequest(docTypeCode, identification),
             TimeSpan.FromSeconds(5),
             ct);
-        
+
         if (!rsp.Succeeded)
             return Result.Failure<int?>(
                 Error.Validation(rsp.Code, rsp.Message));

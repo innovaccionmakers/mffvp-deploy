@@ -4,6 +4,7 @@ public interface IAlternativeRepository
 {
     Task<IReadOnlyCollection<Alternative>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<Alternative?> GetAsync(int alternativeId, CancellationToken cancellationToken = default);
+
     Task<Alternative?> GetByHomologatedCodeAsync(
         string homologatedCode,
         CancellationToken cancellationToken = default

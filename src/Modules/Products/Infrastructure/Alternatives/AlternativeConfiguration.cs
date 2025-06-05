@@ -16,6 +16,11 @@ internal sealed class AlternativeConfiguration : IEntityTypeConfiguration<Altern
         builder.Property(x => x.Status).HasColumnName("estado");
         builder.Property(x => x.Description).HasColumnName("descripcion");
         builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado)");
+        builder.Property(x => x.PlanFundId)
+            .HasColumnName("planes_fondo_id");
+        builder.HasOne(a => a.PlanFund)
+            .WithMany(pf => pf.Alternatives)
+            .HasForeignKey(a => a.PlanFundId);
         builder.HasMany(a => a.Portfolios)
             .WithOne(ap => ap.Alternative)
             .HasForeignKey(ap => ap.AlternativeId);

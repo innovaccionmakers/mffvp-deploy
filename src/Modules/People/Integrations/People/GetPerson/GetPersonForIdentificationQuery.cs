@@ -6,4 +6,4 @@ namespace Integrations.People.GetPerson;
 public sealed record GetPersonForIdentificationQuery(
     string DocumentType,
     string Identification
-    ) : IQuery<PersonResponse>;
+) : IQuery<PersonResponse>;

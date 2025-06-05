@@ -23,28 +23,32 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.ObjectiveId == objectiveId, ct);
     }
-    
+
     public async Task<IReadOnlyCollection<Objective>> GetByAffiliateAsync(
         int affiliateId, CancellationToken cancellationToken = default)
     {
         return await context.Objectives
             .AsNoTracking()
-            .Include(o => o.Alternative) 
+            .Include(o => o.Alternative)
             .Where(o => o.AffiliateId == affiliateId)
             .ToListAsync(cancellationToken);
     }
-    
-    public Task<bool> AnyAsync(int affiliateId, CancellationToken ct = default) =>
-        context.Objectives
+
+    public Task<bool> AnyAsync(int affiliateId, CancellationToken ct = default)
+    {
+        return context.Objectives
             .AsNoTracking()
             .Where(o => o.AffiliateId == affiliateId)
             .AnyAsync(ct);
+    }
 
-    public Task<bool> AnyWithStatusAsync(int affiliateId, string status, CancellationToken ct = default) =>
-        context.Objectives
+    public Task<bool> AnyWithStatusAsync(int affiliateId, string status, CancellationToken ct = default)
+    {
+        return context.Objectives
             .AsNoTracking()
             .Where(o => o.AffiliateId == affiliateId && o.Status == status)
             .AnyAsync(ct);
+    }
 
     public async Task<IReadOnlyCollection<Objective>> GetByAffiliateAsync(
         int affiliateId,
@@ -61,5 +65,4 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
 
         return await query.ToListAsync(ct);
     }
-
 }
