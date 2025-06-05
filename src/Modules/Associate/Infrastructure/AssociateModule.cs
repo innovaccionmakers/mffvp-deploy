@@ -7,6 +7,7 @@ using Associate.Domain.ConfigurationParameters;
 using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Database;
 using Associate.Infrastructure.RulesEngine;
+using Associate.IntegrationEvents.ActivateValidation;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Infrastructure.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,7 @@ public static class ActivatesModule
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
         services.AddScoped<PensionRequirementCommandHandlerValidation>();
+        services.AddScoped<ActivateValidationConsumer>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());
     }
 }
