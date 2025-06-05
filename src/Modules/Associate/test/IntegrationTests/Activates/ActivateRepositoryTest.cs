@@ -37,11 +37,11 @@ namespace IntegrationTests.Activates
         public void GetByIdTypeAndNumber_ShouldReturnExpectedResult()
         {
             // Arrange
-            
+
             var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
             _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(
-                                It.IsAny<string>(), 
-                                It.IsAny<string>(), 
+                                It.IsAny<string>(),
+                                It.IsAny<string>(),
                                 It.IsAny<CancellationToken>()))
                             .ReturnsAsync(existingActivate);
 
@@ -60,7 +60,7 @@ namespace IntegrationTests.Activates
             var insertedActivates = new List<Activate>();
 
             _repositoryMock.Setup(x => x.Insert(
-                                It.IsAny<Activate>(), 
+                                It.IsAny<Activate>(),
                                 It.IsAny<CancellationToken>()))
                             .Callback<Activate, CancellationToken>((a, _) => insertedActivates.Add(a));
 
@@ -70,6 +70,25 @@ namespace IntegrationTests.Activates
             // Assert
             Assert.Single(insertedActivates);
             Assert.Equal(activate, insertedActivates[0]);
+        }
+
+        [Fact]
+        public async Task Update_ShouldModifyExistingActivate()
+        {
+            // Arrange
+            var existingActivate = Activate.Create("Type1", "123", false, true, DateTime.UtcNow).Value;
+            var updatedActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
+            var updatedActivates = new List<Activate>();
+
+            _repositoryMock.Setup(x => x.Update(It.IsAny<Activate>(), It.IsAny<CancellationToken>()))
+                .Callback<Activate, CancellationToken>((a, _) => updatedActivates.Add(a));
+
+            // Act
+            _repositoryMock.Object.Update(updatedActivate, CancellationToken.None);
+
+            // Assert
+            Assert.Single(updatedActivates);
+            Assert.Equal(updatedActivate, updatedActivates[0]);
         }
     }
 }

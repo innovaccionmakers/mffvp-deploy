@@ -18,7 +18,7 @@ public sealed class PeopleEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/people/people")
+        var group = app.MapGroup("bffWeb/FVP/people/people")
             .WithTags("BFF Web - People")
             .WithOpenApi();
     }

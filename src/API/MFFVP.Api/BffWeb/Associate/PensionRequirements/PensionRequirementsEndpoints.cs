@@ -20,7 +20,7 @@ namespace MFFVP.Api.BffWeb.Associate.PensionRequirements
 
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            var group = app.MapGroup("bffWeb/api/associate/pensionrequirements")
+            var group = app.MapGroup("bffWeb/api/FVP/associate/pensionrequirements")
                 .WithTags("BFF Web - PensionRequirements")
                 .WithOpenApi();
 

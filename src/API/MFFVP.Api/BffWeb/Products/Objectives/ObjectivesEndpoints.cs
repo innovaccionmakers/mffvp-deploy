@@ -16,7 +16,7 @@ public sealed class ObjectivesEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/products/objectives")
+        var group = app.MapGroup("bffWeb/FVP/products/objectives")
             .WithTags("BFF Web - Objectives")
             .WithOpenApi();
 
