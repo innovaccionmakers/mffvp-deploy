@@ -17,7 +17,7 @@ namespace MFFVP.Api.BffWeb.Products.Portfolios
 
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            var group = app.MapGroup("bffWeb/products/portfolios")
+            var group = app.MapGroup("bffWeb/FVP/products/portfolios")
                 .WithTags("BFF Web - Portfolios")
                 .WithOpenApi();
 
