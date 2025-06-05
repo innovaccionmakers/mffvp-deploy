@@ -16,7 +16,7 @@
     "Rules": [
       {
         "RuleName": "ClientActivates",
-        "Expression": "input.ActivateExists != null",
+        "Expression": "input.ActiveExists == false",
         "Properties": {
           "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
         }

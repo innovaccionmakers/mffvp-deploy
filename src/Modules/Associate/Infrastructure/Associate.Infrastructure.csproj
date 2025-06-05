@@ -11,6 +11,7 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
         <ProjectReference Include="..\Application\Associate.Application.csproj"/>
         <ProjectReference Include="..\Domain\Associate.Domain.csproj"/>
+        <ProjectReference Include="..\IntegrationEvents\Associate.IntegrationEvents\Associate.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Presentation\Associate.Presentation.csproj"/>
         <EmbeddedResource Include="..\Rules\**\*.json"/>
     </ItemGroup>
