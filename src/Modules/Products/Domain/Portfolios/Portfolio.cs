@@ -11,8 +11,12 @@ public sealed class Portfolio : Entity
     public string ShortName { get; private set; }
     public int ModalityId { get; private set; }
     public decimal InitialMinimumAmount { get; private set; }
-    
-    private readonly List<AlternativePortfolio> _alternatives = [];
+    public decimal AdditionalMinimumAmount { get; private set; }
+    public DateTime CurrentDate { get; private set; }
+    public int CommissionRateTypeId { get; private set; }
+    public decimal CommissionPercentage { get; private set; }
+
+    private readonly List<AlternativePortfolio> _alternatives = new();
     public IReadOnlyCollection<AlternativePortfolio> Alternatives => _alternatives;
 
     private Portfolio()
@@ -20,18 +24,29 @@ public sealed class Portfolio : Entity
     }
 
     public static Result<Portfolio> Create(
-        string homologatedCode, string name, string shortName, int modalityId, decimal initialMinimumAmount
+        string homologatedCode,
+        string name,
+        string shortName,
+        int modalityId,
+        decimal initialMinimumAmount,
+        decimal additionalMinimumAmount,
+        DateTime currentDate,
+        int commissionRateTypeId,
+        decimal commissionPercentage
     )
     {
         var portfolio = new Portfolio
         {
             PortfolioId = default,
-
             HomologatedCode = homologatedCode,
             Name = name,
             ShortName = shortName,
             ModalityId = modalityId,
-            InitialMinimumAmount = initialMinimumAmount
+            InitialMinimumAmount = initialMinimumAmount,
+            AdditionalMinimumAmount = additionalMinimumAmount,
+            CurrentDate = currentDate,
+            CommissionRateTypeId = commissionRateTypeId,
+            CommissionPercentage = commissionPercentage
         };
 
         portfolio.Raise(new PortfolioCreatedDomainEvent(portfolio.PortfolioId));
@@ -39,7 +54,15 @@ public sealed class Portfolio : Entity
     }
 
     public void UpdateDetails(
-        string newHomologatedCode, string newName, string newShortName, int newModalityId, decimal newInitialMinimumAmount
+        string newHomologatedCode,
+        string newName,
+        string newShortName,
+        int newModalityId,
+        decimal newInitialMinimumAmount,
+        decimal newAdditionalMinimumAmount,
+        DateTime newCurrentDate,
+        int newCommissionRateTypeId,
+        decimal newCommissionPercentage
     )
     {
         HomologatedCode = newHomologatedCode;
@@ -47,5 +70,9 @@ public sealed class Portfolio : Entity
         ShortName = newShortName;
         ModalityId = newModalityId;
         InitialMinimumAmount = newInitialMinimumAmount;
+        AdditionalMinimumAmount = newAdditionalMinimumAmount;
+        CurrentDate = newCurrentDate;
+        CommissionRateTypeId = newCommissionRateTypeId;
+        CommissionPercentage = newCommissionPercentage;
     }
 }

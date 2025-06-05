@@ -24,14 +24,47 @@ namespace Products.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Products.Domain.Alternatives.Alternative", b =>
+            modelBuilder.Entity("Products.Domain.AlternativePortfolios.AlternativePortfolio", b =>
                 {
-                    b.Property<long>("AlternativeId")
+                    b.Property<int>("AlternativePortfolioId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AlternativeId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AlternativePortfolioId"));
+
+                    b.Property<int>("AlternativeId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsCollector")
+                        .HasColumnType("boolean")
+                        .HasColumnName("recaudador");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.HasKey("AlternativePortfolioId");
+
+                    b.HasIndex("AlternativeId");
+
+                    b.HasIndex("PortfolioId");
+
+                    b.ToTable("alternativas_portafolios", "productos");
+                });
+
+            modelBuilder.Entity("Products.Domain.Alternatives.Alternative", b =>
+                {
+                    b.Property<int>("AlternativeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AlternativeId"));
 
                     b.Property<int>("AlternativeTypeId")
                         .HasColumnType("integer")
@@ -42,10 +75,19 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("descripcion");
 
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("nombre");
+
+                    b.Property<int>("PlanFundId")
+                        .HasColumnType("integer")
+                        .HasColumnName("planes_fondo_id");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -54,7 +96,81 @@ namespace Products.Infrastructure.Database.Migrations
 
                     b.HasKey("AlternativeId");
 
+                    b.HasIndex("PlanFundId");
+
                     b.ToTable("alternativas", "productos");
+                });
+
+            modelBuilder.Entity("Products.Domain.Banks.Bank", b =>
+                {
+                    b.Property<int>("BankId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BankId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("BankId");
+
+                    b.ToTable("bancos", "productos");
+                });
+
+            modelBuilder.Entity("Products.Domain.Cities.City", b =>
+                {
+                    b.Property<int>("CityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CityId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("CityId");
+
+                    b.ToTable("ciudades", "productos");
+                });
+
+            modelBuilder.Entity("Products.Domain.Commercials.Commercial", b =>
+                {
+                    b.Property<int>("CommercialId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CommercialId"));
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("prefijo");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.HasKey("CommercialId");
+
+                    b.ToTable("comerciales", "productos");
                 });
 
             modelBuilder.Entity("Products.Domain.ConfigurationParameters.ConfigurationParameter", b =>
@@ -130,12 +246,12 @@ namespace Products.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Products.Domain.Objectives.Objective", b =>
                 {
-                    b.Property<long>("ObjectiveId")
+                    b.Property<int>("ObjectiveId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ObjectiveId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ObjectiveId"));
 
                     b.Property<int>("AffiliateId")
                         .HasColumnType("integer")
@@ -145,9 +261,22 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("alternativa_id");
 
+                    b.Property<decimal>("Balance")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
+                        .HasColumnName("saldo");
+
+                    b.Property<int>("CommercialId")
+                        .HasColumnType("integer")
+                        .HasColumnName("comercial_id");
+
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_creacion");
+
+                    b.Property<int>("CurrentOfficeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("oficina_actual_id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -158,6 +287,10 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("tipo_objetivo_id");
 
+                    b.Property<int>("OpeningOfficeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("oficina_apertura_id");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text")
@@ -165,17 +298,132 @@ namespace Products.Infrastructure.Database.Migrations
 
                     b.HasKey("ObjectiveId");
 
+                    b.HasIndex("AlternativeId");
+
+                    b.HasIndex("CommercialId");
+
                     b.ToTable("objetivos", "productos");
+                });
+
+            modelBuilder.Entity("Products.Domain.Offices.Office", b =>
+                {
+                    b.Property<int>("OfficeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OfficeId"));
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ciudad_id");
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("prefijo");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.HasKey("OfficeId");
+
+                    b.ToTable("oficinas", "productos");
+                });
+
+            modelBuilder.Entity("Products.Domain.PensionFunds.PensionFund", b =>
+                {
+                    b.Property<int>("PensionFundId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PensionFundId"));
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
+                    b.Property<int>("IdentificationNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("identificacion");
+
+                    b.Property<int>("IdentificationTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_identificacion");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.Property<string>("ShortName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre_corto");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.HasKey("PensionFundId");
+
+                    b.ToTable("fondos_voluntarios_pensiones", "productos");
+                });
+
+            modelBuilder.Entity("Products.Domain.PlanFunds.PlanFund", b =>
+                {
+                    b.Property<int>("PlanFundId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PlanFundId"));
+
+                    b.Property<int>("PensionFundId")
+                        .HasColumnType("integer")
+                        .HasColumnName("fondo_id");
+
+                    b.Property<int>("PlanId")
+                        .HasColumnType("integer")
+                        .HasColumnName("plan_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.HasKey("PlanFundId");
+
+                    b.HasIndex("PensionFundId");
+
+                    b.HasIndex("PlanId");
+
+                    b.ToTable("planes_fondo", "productos");
                 });
 
             modelBuilder.Entity("Products.Domain.Plans.Plan", b =>
                 {
-                    b.Property<long>("PlanId")
+                    b.Property<int>("PlanId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PlanId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PlanId"));
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -194,16 +442,37 @@ namespace Products.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Products.Domain.Portfolios.Portfolio", b =>
                 {
-                    b.Property<long>("PortfolioId")
+                    b.Property<int>("PortfolioId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PortfolioId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PortfolioId"));
+
+                    b.Property<decimal>("AdditionalMinimumAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("aporte_minimo_adicional");
+
+                    b.Property<decimal>("CommissionPercentage")
+                        .HasColumnType("numeric")
+                        .HasColumnName("porcentaje_comision");
+
+                    b.Property<int>("CommissionRateTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_tasa_comision");
+
+                    b.Property<DateTime>("CurrentDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_actual");
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologacion");
 
                     b.Property<decimal>("InitialMinimumAmount")
                         .HasColumnType("numeric")
-                        .HasColumnName("monto_minimo_inicial");
+                        .HasColumnName("aporte_minimo_inicial");
 
                     b.Property<int>("ModalityId")
                         .HasColumnType("integer")
@@ -219,14 +488,39 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nombre_corto");
 
-                    b.Property<string>("HomologatedCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("codigo_homologacion");
-
                     b.HasKey("PortfolioId");
 
                     b.ToTable("portafolios", "productos");
+                });
+
+            modelBuilder.Entity("Products.Domain.AlternativePortfolios.AlternativePortfolio", b =>
+                {
+                    b.HasOne("Products.Domain.Alternatives.Alternative", "Alternative")
+                        .WithMany("Portfolios")
+                        .HasForeignKey("AlternativeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Products.Domain.Portfolios.Portfolio", "Portfolio")
+                        .WithMany("Alternatives")
+                        .HasForeignKey("PortfolioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Alternative");
+
+                    b.Navigation("Portfolio");
+                });
+
+            modelBuilder.Entity("Products.Domain.Alternatives.Alternative", b =>
+                {
+                    b.HasOne("Products.Domain.PlanFunds.PlanFund", "PlanFund")
+                        .WithMany("Alternatives")
+                        .HasForeignKey("PlanFundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PlanFund");
                 });
 
             modelBuilder.Entity("Products.Domain.ConfigurationParameters.ConfigurationParameter", b =>
@@ -239,9 +533,74 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Products.Domain.Objectives.Objective", b =>
+                {
+                    b.HasOne("Products.Domain.Alternatives.Alternative", "Alternative")
+                        .WithMany("Objectives")
+                        .HasForeignKey("AlternativeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Products.Domain.Commercials.Commercial", "Commercial")
+                        .WithMany()
+                        .HasForeignKey("CommercialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Alternative");
+
+                    b.Navigation("Commercial");
+                });
+
+            modelBuilder.Entity("Products.Domain.PlanFunds.PlanFund", b =>
+                {
+                    b.HasOne("Products.Domain.PensionFunds.PensionFund", "PensionFund")
+                        .WithMany("PlanFunds")
+                        .HasForeignKey("PensionFundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Products.Domain.Plans.Plan", "Plan")
+                        .WithMany("PlanFunds")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PensionFund");
+
+                    b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("Products.Domain.Alternatives.Alternative", b =>
+                {
+                    b.Navigation("Objectives");
+
+                    b.Navigation("Portfolios");
+                });
+
             modelBuilder.Entity("Products.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("Products.Domain.PensionFunds.PensionFund", b =>
+                {
+                    b.Navigation("PlanFunds");
+                });
+
+            modelBuilder.Entity("Products.Domain.PlanFunds.PlanFund", b =>
+                {
+                    b.Navigation("Alternatives");
+                });
+
+            modelBuilder.Entity("Products.Domain.Plans.Plan", b =>
+                {
+                    b.Navigation("PlanFunds");
+                });
+
+            modelBuilder.Entity("Products.Domain.Portfolios.Portfolio", b =>
+                {
+                    b.Navigation("Alternatives");
                 });
 #pragma warning restore 612, 618
         }

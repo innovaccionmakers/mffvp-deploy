@@ -7,9 +7,17 @@ using Operations.Application.Abstractions.Data;
 using Operations.Domain.ClientOperations;
 using Operations.Infrastructure.ClientOperations;
 using Operations.Domain.AuxiliaryInformations;
+using Operations.Domain.Channels;
 using Operations.Domain.ConfigurationParameters;
+using Operations.Domain.Origins;
+using Operations.Domain.SubtransactionTypes;
+using Operations.Domain.TrustWithdrawals;
 using Operations.Infrastructure.AuxiliaryInformations;
+using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ConfigurationParameters;
+using Operations.Infrastructure.Origins;
+using Operations.Infrastructure.SubtransactionTypes;
+using Operations.Infrastructure.TrustWithdrawals;
 
 namespace Operations.Infrastructure.Database;
 
@@ -18,6 +26,10 @@ public sealed class OperationsDbContext(DbContextOptions<OperationsDbContext> op
 {
     internal DbSet<ClientOperation> ClientOperations { get; set; }
     internal DbSet<AuxiliaryInformation> AuxiliaryInformations { get; set; }
+    internal DbSet<SubtransactionType> SubtransactionTypes { get; set; }
+    internal DbSet<TrustWithdrawalOperation> TrustWithdrawalOperations { get; set; }
+    internal DbSet<Origin> Origins { get; set; }
+    internal DbSet<Channel> Channels { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -26,6 +38,10 @@ public sealed class OperationsDbContext(DbContextOptions<OperationsDbContext> op
 
         modelBuilder.ApplyConfiguration(new ClientOperationConfiguration());
         modelBuilder.ApplyConfiguration(new AuxiliaryInformationConfiguration());
+        modelBuilder.ApplyConfiguration(new SubtransactionTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new TrustWithdrawalOperationConfiguration());
+        modelBuilder.ApplyConfiguration(new OriginConfiguration());
+        modelBuilder.ApplyConfiguration(new ChannelConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
     }
 

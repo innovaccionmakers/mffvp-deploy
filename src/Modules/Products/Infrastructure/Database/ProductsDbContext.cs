@@ -11,6 +11,7 @@ using Products.Infrastructure.Alternatives;
 using Products.Domain.Portfolios;
 using Products.Infrastructure.Portfolios;
 using Products.Domain.AlternativePortfolios;
+using Products.Domain.Banks;
 using Products.Infrastructure.AlternativePortfolios;
 using Products.Domain.Objectives;
 using Products.Infrastructure.Objectives;
@@ -22,6 +23,7 @@ using Products.Infrastructure.Cities;
 using Products.Domain.Offices;
 using Products.Domain.PensionFunds;
 using Products.Domain.PlanFunds;
+using Products.Infrastructure.Banks;
 using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Offices;
 using Products.Infrastructure.PensionFunds;
@@ -43,6 +45,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
     internal DbSet<PlanFund> PlanFunds { get; set; }
     internal DbSet<PensionFund> PensionFunds { get; set; }
+    private DbSet<Bank> Banks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,6 +62,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
         modelBuilder.ApplyConfiguration(new PlanFundConfiguration());
         modelBuilder.ApplyConfiguration(new PensionFundConfiguration());
+        modelBuilder.ApplyConfiguration(new BankConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

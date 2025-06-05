@@ -6,53 +6,55 @@ using People.Application.Abstractions.Rules;
 using People.Domain.People;
 using People.Integrations.People;
 
-namespace People.Application.People.GetPerson
-{
-    public class GetPersonForIdentificationQueryHandle(
+namespace People.Application.People.GetPerson;
+
+public class GetPersonForIdentificationQueryHandle(
     IPersonRepository personRepository,
     IRuleEvaluator<PeopleModuleMarker> ruleEvaluator) : IQueryHandler<GetPersonForIdentificationQuery, PersonResponse>
+{
+    private const string ValidationWorkflow = "People.Person.ValidationAssociate";
+
+    public async Task<Result<PersonResponse>> Handle(GetPersonForIdentificationQuery request,
+        CancellationToken cancellationToken)
     {
-        private const string ValidationWorkflow = "People.Person.ValidationAssociate";
+        var person =
+            await personRepository.GetForIdentificationAsync(request.DocumentType, request.Identification,
+                cancellationToken);
 
-        public async Task<Result<PersonResponse>> Handle(GetPersonForIdentificationQuery request, CancellationToken cancellationToken)
-        {
-            var person = await personRepository.GetForIdentificationAsync(request.DocumentType, request.Identification, cancellationToken);
-
-            var (isValid, _, errors) = await ruleEvaluator
+        var (isValid, _, errors) = await ruleEvaluator
             .EvaluateAsync(
                 ValidationWorkflow,
                 person,
                 cancellationToken);
 
-            if (!isValid)
-            {
-                var first = errors.First();
-                return Result.Failure<PersonResponse>(
-                    Error.Validation(first.Code, first.Message));
-            }
-
-            var response = new PersonResponse(
-                person.PersonId,
-                person.DocumentType,
-                person.HomologatedCode,
-                person.Identification,
-                person.FirstName,
-                person.MiddleName,
-                person.LastName,
-                person.SecondLastName,
-                person.IssueDate,
-                person.IssueCityId,
-                person.BirthDate,
-                person.BirthCityId,
-                person.Mobile,
-                person.FullName,
-                person.MaritalStatusId,
-                person.GenderId,
-                person.CountryId,
-                person.Email,
-                person.EconomicActivityId
-            );
-            return response;
+        if (!isValid)
+        {
+            var first = errors.First();
+            return Result.Failure<PersonResponse>(
+                Error.Validation(first.Code, first.Message));
         }
+
+        var response = new PersonResponse(
+            person.PersonId,
+            person.DocumentType,
+            person.HomologatedCode,
+            person.Identification,
+            person.FirstName,
+            person.MiddleName,
+            person.LastName,
+            person.SecondLastName,
+            person.IssueDate,
+            person.IssueCityId,
+            person.BirthDate,
+            person.BirthCityId,
+            person.Mobile,
+            person.FullName,
+            person.MaritalStatusId,
+            person.GenderId,
+            person.CountryId,
+            person.Email,
+            person.EconomicActivityId
+        );
+        return response;
     }
 }

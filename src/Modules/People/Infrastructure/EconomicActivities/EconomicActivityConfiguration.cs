@@ -10,7 +10,7 @@ internal sealed class EconomicActivityConfiguration : IEntityTypeConfiguration<E
     {
         builder.ToTable("ciuu");
         builder.HasKey(x => x.EconomicActivityId);
-        builder.Property(x => x.EconomicActivityId).HasColumnName("id");
+        builder.Property(x => x.EconomicActivityId).HasColumnName("codgrupo");
         builder.Property(x => x.Description).HasColumnName("descripcion");
         builder.Property(x => x.CiiuCode).HasColumnName("codigo_ciiu");
         builder.Property(x => x.DivisionCode).HasColumnName("codigo_division");

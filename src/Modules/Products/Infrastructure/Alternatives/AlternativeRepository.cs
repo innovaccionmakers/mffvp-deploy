@@ -16,7 +16,7 @@ internal sealed class AlternativeRepository(ProductsDbContext context) : IAltern
         return await context.Alternatives
             .SingleOrDefaultAsync(x => x.AlternativeId == alternativeId, cancellationToken);
     }
-    
+
     public async Task<Alternative?> GetByHomologatedCodeAsync(
         string homologatedCode,
         CancellationToken cancellationToken = default

@@ -35,6 +35,7 @@ internal sealed class ConfigurationParameterRepository : IConfigurationParameter
             .SingleOrDefaultAsync(p => p.HomologationCode == homologationCode,
                 cancellationToken);
     }
+
     public async Task<ConfigurationParameter?> GetByCodeAndScopeAsync(
         string homologationCode,
         string scope,

@@ -13,7 +13,7 @@ internal sealed class DocumentTypeValidator(ICapRpcClient rpc) : IDocumentTypeVa
             GetDocumentTypeIdByCodeRequest,
             GetDocumentTypeIdByCodeResponse>(
             nameof(GetDocumentTypeIdByCodeRequest),
-            new(code),
+            new GetDocumentTypeIdByCodeRequest(code),
             TimeSpan.FromSeconds(5),
             ct);
 

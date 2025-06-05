@@ -15,5 +15,9 @@ internal sealed class CountryConfiguration : IEntityTypeConfiguration<Country>
         builder.Property(x => x.ShortName).HasColumnName("nombre_abreviado");
         builder.Property(x => x.DaneCode).HasColumnName("codigo_dane");
         builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
+
+        builder.HasMany(x => x.People)
+            .WithOne(p => p.Country)
+            .HasForeignKey(p => p.CountryId);
     }
 }

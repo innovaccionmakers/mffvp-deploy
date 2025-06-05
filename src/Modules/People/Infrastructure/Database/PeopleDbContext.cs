@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using People.Application.Abstractions.Data;
+using People.Domain.Cities;
 using People.Domain.ConfigurationParameters;
 using People.Domain.People;
 using People.Infrastructure.People;
 using People.Domain.Countries;
 using People.Infrastructure.Countries;
 using People.Domain.EconomicActivities;
+using People.Infrastructure.Cities;
 using People.Infrastructure.ConfigurationParameters;
 using People.Infrastructure.EconomicActivities;
 
@@ -22,6 +24,7 @@ public sealed class PeopleDbContext(DbContextOptions<PeopleDbContext> options)
     internal DbSet<Country> Countries { get; set; }
     internal DbSet<EconomicActivity> EconomicActivities { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
+    private DbSet<City> Cities { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +34,7 @@ public sealed class PeopleDbContext(DbContextOptions<PeopleDbContext> options)
         modelBuilder.ApplyConfiguration(new CountryConfiguration());
         modelBuilder.ApplyConfiguration(new EconomicActivityConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
+        modelBuilder.ApplyConfiguration(new CityConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

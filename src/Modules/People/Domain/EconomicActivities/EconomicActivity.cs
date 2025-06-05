@@ -18,8 +18,14 @@ public sealed class EconomicActivity : Entity
     }
 
     public static Result<EconomicActivity> Create(
-        string economicActivityId, string description, string ciiuCode, string divisionCode, string divisionName,
-        string groupName, string classCode, string homologatedCode
+        string economicActivityId,
+        string description,
+        string ciiuCode,
+        string divisionCode,
+        string divisionName,
+        string groupName,
+        string classCode,
+        string homologatedCode
     )
     {
         var economicactivity = new EconomicActivity
@@ -39,8 +45,14 @@ public sealed class EconomicActivity : Entity
     }
 
     public void UpdateDetails(
-        string newEconomicActivityId, string newDescription, string newCiiuCode, string newDivisionCode,
-        string newDivisionName, string newGroupName, string newClassCode, string newHomologatedCode
+        string newEconomicActivityId,
+        string newDescription,
+        string newCiiuCode,
+        string newDivisionCode,
+        string newDivisionName,
+        string newGroupName,
+        string newClassCode,
+        string newHomologatedCode
     )
     {
         EconomicActivityId = newEconomicActivityId;

@@ -32,7 +32,7 @@
         }
       }
     ]
-  },  
+  },
   {
     "WorkflowName": "People.Person.ValidationAssociate",
     "Rules": [

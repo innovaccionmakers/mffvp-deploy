@@ -31,22 +31,22 @@ internal sealed class CreateContributionCommandHandler(
             request.Origin,
             HomologScope.Of<CreateContributionCommand>(c => c.Origin),
             cancellationToken);
-        
+
         var originModality = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.OriginModality,
             HomologScope.Of<CreateContributionCommand>(c => c.OriginModality),
             cancellationToken);
-        
+
         var collectionMethod = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.CollectionMethod,
             HomologScope.Of<CreateContributionCommand>(c => c.CollectionMethod),
             cancellationToken);
-        
+
         var paymentMethod = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.PaymentMethod,
             HomologScope.Of<CreateContributionCommand>(c => c.PaymentMethod),
             cancellationToken);
-        
+
         var activateValidation = await rpc.CallAsync<
             GetActivateIdByIdentificationRequest,
             GetActivateIdByIdentificationResponse>(
@@ -58,7 +58,7 @@ internal sealed class CreateContributionCommandHandler(
         if (!activateValidation.Succeeded)
             return Result.Failure<ContributionResponse>(
                 Error.Validation(activateValidation.Code, activateValidation.Message));
-        
+
         var contributionValidation = await rpc.CallAsync<
             ContributionValidationRequest,
             ContributionValidationResponse>(
@@ -75,13 +75,13 @@ internal sealed class CreateContributionCommandHandler(
                     contributionValidation.Code,
                     contributionValidation.Message));
 
-        bool hasPrevious = await clientOperationRepository.ExistsContributionAsync(
+        var hasPrevious = await clientOperationRepository.ExistsContributionAsync(
             contributionValidation.AffiliateId!.Value,
             contributionValidation.ObjectiveId!.Value,
             contributionValidation.PortfolioId!.Value,
             cancellationToken);
 
-        bool isFirstContribution = !hasPrevious;
+        var isFirstContribution = !hasPrevious;
 
         var validationContext = new
         {
@@ -105,9 +105,9 @@ internal sealed class CreateContributionCommandHandler(
                 Exists = paymentMethod is not null,
                 Active = paymentMethod?.Status ?? false
             },
-            IsFirstContribution            = isFirstContribution,
-            PortfolioInitialMinimumAmount  = contributionValidation.PortfolioInitialMinimumAmount!.Value,
-            Amount                         = request.Amount
+            IsFirstContribution = isFirstContribution,
+            PortfolioInitialMinimumAmount = contributionValidation.PortfolioInitialMinimumAmount!.Value,
+            Amount = request.Amount
         };
 
         var (ok, _, errors) = await ruleEvaluator.EvaluateAsync(

@@ -30,5 +30,9 @@ internal sealed class PlanFundConfiguration : IEntityTypeConfiguration<PlanFund>
         builder.HasOne(pf => pf.PensionFund)
             .WithMany(f => f.PlanFunds)
             .HasForeignKey(pf => pf.PensionFundId);
+
+        builder.HasMany(pf => pf.Alternatives)
+            .WithOne(a => a.PlanFund)
+            .HasForeignKey(a => a.PlanFundId);
     }
 }

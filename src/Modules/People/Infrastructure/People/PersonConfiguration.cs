@@ -10,7 +10,7 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
 {
     public void Configure(EntityTypeBuilder<Person> builder)
     {
-        builder.ToTable("personas");
+        builder.ToTable("persona");
         builder.HasKey(x => x.PersonId);
         builder.Property(x => x.PersonId).HasColumnName("id");
         builder.Property(x => x.DocumentType).HasColumnName("tipo_documento");
@@ -28,11 +28,16 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
         builder.Property(x => x.FullName).HasColumnName("nombre_completo");
         builder.Property(x => x.MaritalStatusId).HasColumnName("estado_civil_id");
         builder.Property(x => x.GenderId).HasColumnName("sexo_id");
+        builder.Property(x => x.CountryId).HasColumnName("pais_id");
         builder.Property(x => x.Email).HasColumnName("email");
-        builder.HasOne<Country>()
+        builder.Property(x => x.EconomicActivityId).HasColumnName("actividad_economica_id");
+        builder.Property(x => x.Status).HasColumnName("estado");
+
+        builder.HasOne(x => x.Country)
             .WithMany()
             .HasForeignKey(x => x.CountryId);
-        builder.HasOne<EconomicActivity>()
+
+        builder.HasOne(x => x.EconomicActivity)
             .WithMany()
             .HasForeignKey(x => x.EconomicActivityId);
     }

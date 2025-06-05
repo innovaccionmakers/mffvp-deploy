@@ -1,4 +1,5 @@
 using Common.SharedKernel.Domain;
+using People.Domain.People;
 
 namespace People.Domain.Countries;
 
@@ -10,20 +11,25 @@ public sealed class Country : Entity
     public string DaneCode { get; private set; }
     public string HomologatedCode { get; private set; }
 
+    private readonly List<Person> _people = new();
+    public IReadOnlyCollection<Person> People => _people;
+
     private Country()
     {
     }
 
     public static Result<Country> Create(
-        string name, string shortName, string daneCode, string homologatedCode
+        string name,
+        string shortName,
+        string daneCode,
+        string homologatedCode
     )
     {
         var country = new Country
         {
             CountryId = default,
-
             Name = name,
-            ShortName = shortName, 
+            ShortName = shortName,
             DaneCode = daneCode,
             HomologatedCode = homologatedCode
         };
@@ -33,7 +39,10 @@ public sealed class Country : Entity
     }
 
     public void UpdateDetails(
-        string newName, string newShortName, string newDaneCode, string newHomologatedCode
+        string newName,
+        string newShortName,
+        string newDaneCode,
+        string newHomologatedCode
     )
     {
         Name = newName;

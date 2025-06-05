@@ -24,6 +24,25 @@ namespace People.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("People.Domain.Cities.City", b =>
+                {
+                    b.Property<int>("CityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CityId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("CityId");
+
+                    b.ToTable("ciudad", "personas");
+                });
+
             modelBuilder.Entity("People.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Property<int>("ConfigurationParameterId")
@@ -109,6 +128,11 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("codigo_dane");
 
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -119,11 +143,6 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nombre_abreviado");
 
-                    b.Property<string>("StandardCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("codigo_homologado");
-
                     b.HasKey("CountryId");
 
                     b.ToTable("paises", "personas");
@@ -133,7 +152,7 @@ namespace People.Infrastructure.Database.Migrations
                 {
                     b.Property<string>("EconomicActivityId")
                         .HasColumnType("text")
-                        .HasColumnName("id");
+                        .HasColumnName("codgrupo");
 
                     b.Property<string>("CiiuCode")
                         .IsRequired()
@@ -165,7 +184,7 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nombre_grupo");
 
-                    b.Property<string>("StandardCode")
+                    b.Property<string>("HomologatedCode")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("codigo_homologado");
@@ -193,7 +212,8 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnName("fecha_nacimiento");
 
                     b.Property<int>("CountryId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("pais_id");
 
                     b.Property<string>("DocumentType")
                         .IsRequired()
@@ -202,7 +222,8 @@ namespace People.Infrastructure.Database.Migrations
 
                     b.Property<string>("EconomicActivityId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("actividad_economica_id");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -222,6 +243,11 @@ namespace People.Infrastructure.Database.Migrations
                     b.Property<int>("GenderId")
                         .HasColumnType("integer")
                         .HasColumnName("sexo_id");
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
 
                     b.Property<string>("Identification")
                         .IsRequired()
@@ -260,10 +286,9 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("segundo_apellido");
 
-                    b.Property<string>("StandardCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("codigo_homologado");
+                    b.Property<bool>("Status")
+                        .HasColumnType("boolean")
+                        .HasColumnName("estado");
 
                     b.HasKey("PersonId");
 
@@ -271,7 +296,7 @@ namespace People.Infrastructure.Database.Migrations
 
                     b.HasIndex("EconomicActivityId");
 
-                    b.ToTable("personas", "personas");
+                    b.ToTable("persona", "personas");
                 });
 
             modelBuilder.Entity("People.Domain.ConfigurationParameters.ConfigurationParameter", b =>
@@ -286,22 +311,31 @@ namespace People.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("People.Domain.People.Person", b =>
                 {
-                    b.HasOne("People.Domain.Countries.Country", null)
-                        .WithMany()
+                    b.HasOne("People.Domain.Countries.Country", "Country")
+                        .WithMany("People")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("People.Domain.EconomicActivities.EconomicActivity", null)
+                    b.HasOne("People.Domain.EconomicActivities.EconomicActivity", "EconomicActivity")
                         .WithMany()
                         .HasForeignKey("EconomicActivityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Country");
+
+                    b.Navigation("EconomicActivity");
                 });
 
             modelBuilder.Entity("People.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("People.Domain.Countries.Country", b =>
+                {
+                    b.Navigation("People");
                 });
 #pragma warning restore 612, 618
         }

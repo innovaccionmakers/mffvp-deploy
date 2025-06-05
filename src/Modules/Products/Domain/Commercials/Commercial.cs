@@ -9,6 +9,7 @@ public sealed class Commercial : Entity
     public string Status { get; private set; }
     public string Prefix { get; private set; }
     public string HomologatedCode { get; private set; }
+
     private Commercial()
     {
     }
@@ -34,9 +35,9 @@ public sealed class Commercial : Entity
 
     public void UpdateDetails(string name, string status, string prefix, string homologatedCode)
     {
-        Name             = name;
-        Status           = status;
-        Prefix           = prefix;
-        HomologatedCode  = homologatedCode;
+        Name = name;
+        Status = status;
+        Prefix = prefix;
+        HomologatedCode = homologatedCode;
     }
 }

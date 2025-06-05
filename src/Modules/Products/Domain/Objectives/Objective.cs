@@ -13,11 +13,10 @@ public sealed class Objective : Entity
     public string Name { get; private set; }
     public string Status { get; private set; }
     public DateTime CreationDate { get; private set; }
-    public decimal Balance { get; private set; }
-    
     public int CommercialId { get; private set; }
     public int OpeningOfficeId { get; private set; }
     public int CurrentOfficeId { get; private set; }
+    public decimal Balance { get; private set; }
 
     public Alternative Alternative { get; private set; } = null!;
     public Commercial Commercial { get; private set; } = null!;
