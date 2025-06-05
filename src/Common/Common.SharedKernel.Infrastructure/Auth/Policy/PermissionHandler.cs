@@ -1,5 +1,4 @@
 ﻿using Common.SharedKernel.Application.Auth;
-using Common.SharedKernel.Domain.Auth;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,21 +8,24 @@ namespace Common.SharedKernel.Infrastructure.Auth.Policy;
 public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
 {
     private readonly IHttpContextAccessor _accessor;
+    private readonly IUserPermissionService _permissionService;
 
-    public PermissionHandler(IHttpContextAccessor accessor)
+    public PermissionHandler(IHttpContextAccessor accessor, IUserPermissionService permissionService)
     {
         _accessor = accessor;
+        _permissionService = permissionService;
     }
 
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
         var httpContext = _accessor.HttpContext;
-        var username = httpContext.User.Identity?.Name;
-        if (username != null)
+        var userIdClaim = httpContext.User.FindFirst("sub")?.Value;
+
+        if (int.TryParse(userIdClaim, out var userId))
         {
-            if (PermissionEvaluator.HasPermission(username, requirement.Token))
+            var permissions = await _permissionService.GetPermissionsAsync(userId);
+            if (permissions.Contains(requirement.Token))
                 context.Succeed(requirement);
         }
-        return Task.CompletedTask;
     }
 }

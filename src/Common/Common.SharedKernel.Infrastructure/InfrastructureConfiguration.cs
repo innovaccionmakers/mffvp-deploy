@@ -1,4 +1,5 @@
-﻿using Common.SharedKernel.Application.Messaging;
+﻿using Common.SharedKernel.Application.Auth;
+using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Infrastructure.Auth.Policy;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
@@ -61,6 +62,7 @@ public static class InfrastructureConfiguration
             });
 
         services.AddAuthorization();
+        services.AddSingleton<IUserPermissionService, UserPermissionService>();
         services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
         services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
 

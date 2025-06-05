@@ -25,6 +25,7 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using Trusts.Infrastructure;
 using MFFVP.Api.BffWeb.Associate.PensionRequirements;
 using Microsoft.AspNetCore.Authorization;
+using Common.SharedKernel.Domain.Auth.Permissions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -126,18 +127,33 @@ app.MapGet("/",
 
 app.MapGet("/api/userinfo", [Authorize(AuthenticationSchemes = "JwtBearer")] (HttpContext context) =>
 {
-    var username = context.User.Identity?.Name;
-    return Results.Ok($"Welcome {username}, this is protected data.");
+    var userId = context.User.FindFirst("sub")?.Value;
+    var userName = context.User.Identity?.Name;
+    return Results.Ok($"Welcome {userName} (ID: {userId}), this is protected data.");
 });
 
-app.MapGet("api/secured/insumo-read", [Authorize(Policy = "Permission.MasterData:Insumo:Read")] () =>
+// Allowed: Cristof (direct permission)
+app.MapGet("/api/secured/users/delete", [Authorize(Policy = "FVP.Users.Users.Delete")] () =>
 {
-    return Results.Ok("Access granted for Insumo:Read");
+    return Results.Ok("Access granted for Users.Delete");
 });
 
-app.MapGet("api/secured/insumo-modify", [Authorize(Policy = "Permission.MasterData:Insumo:Modify")] () =>
+// Allowed: CristianVillalobos (direct permission)
+app.MapGet("/api/secured/activates/update", [Authorize(Policy = "FVP.Associate.Activates.Update")] () =>
 {
-    return Results.Ok("Access granted for Insumo:Modify");
+    return Results.Ok("Access granted for Activates.Update");
+});
+
+// Allowed: Cristof (direct permission)
+app.MapGet("/api/secured/activates/view", [Authorize(Policy = "FVP.Associate.Activates.View")] () =>
+{
+    return Results.Ok("Access granted for Activates.View");
+});
+
+// Allowed: Editor role (Cristof, CristianVillalobos)
+app.MapGet("/api/secured/pension-requirements/update", [Authorize(Policy = "FVP.Associate.PensionRequirements.Update")] () =>
+{
+    return Results.Ok("Access granted for PensionRequirements.Update");
 });
 
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
