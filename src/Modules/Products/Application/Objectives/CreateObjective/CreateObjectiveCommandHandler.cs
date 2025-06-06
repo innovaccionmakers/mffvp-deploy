@@ -111,6 +111,6 @@ public class CreateObjectiveCommandHandler(
         await tx.CommitAsync(cancellationToken);
 
         var response = new ObjectiveResponse(creationResult.Value.ObjectiveId);
-        return Result.Success(response);
+        return Result.Success(response,"Objetivo creado Exitosamente");
     }
 }
