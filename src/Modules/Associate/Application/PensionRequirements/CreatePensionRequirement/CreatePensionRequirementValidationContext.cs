@@ -7,11 +7,13 @@ namespace Application.PensionRequirements.CreatePensionRequirement
     {
         public CreatePensionRequirementCommand Request { get; }
         public GetActivateIdResponse ActivateResult { get; }
+        public bool DocumentType { get; }
 
-        public CreatePensionRequirementValidationContext(CreatePensionRequirementCommand request, GetActivateIdResponse activateResult)
+        public CreatePensionRequirementValidationContext(CreatePensionRequirementCommand request, GetActivateIdResponse activateResult, bool documentType)
         {
             Request = request;
             ActivateResult = activateResult;
+            DocumentType = documentType;
         }
     }
 }

@@ -10,12 +10,16 @@ namespace Application.PensionRequirements.UpdatePensionRequirement
         public GetActivateIdResponse ActivateResult { get; }
         public PensionRequirement ExistingPensionRequirement { get; }
 
+        public bool DocumentType { get; }
 
-        public UpdatePensionRequirementValidationContext(UpdatePensionRequirementCommand request, GetActivateIdResponse activateResult, PensionRequirement existingPensionRequirement)
+
+        public UpdatePensionRequirementValidationContext(
+            UpdatePensionRequirementCommand request, GetActivateIdResponse activateResult, PensionRequirement existingPensionRequirement, bool documentType)
         {
             ActivateResult = activateResult;
             Request = request;
             ExistingPensionRequirement = existingPensionRequirement;
+            DocumentType = documentType;
         }
     }
 }

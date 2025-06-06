@@ -37,4 +37,9 @@ internal sealed class ConfigurationParameterRepository(AssociateDbContext contex
         return await context.ConfigurationParameters
             .SingleOrDefaultAsync(p => p.Uuid == uuid, cancellationToken);
     }
+
+    public async Task<bool> GetByCodeAndScopeAsync(string homologationCode, string scope, CancellationToken cancellationToken = default)
+    {
+        return await context.ConfigurationParameters.AnyAsync(p => p.HomologationCode == homologationCode && p.Type == scope, cancellationToken);
+    }
 }
