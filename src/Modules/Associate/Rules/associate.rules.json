@@ -16,7 +16,7 @@
     "Rules": [
       {
         "RuleName": "ClientActivates",
-        "Expression": "input.ActiveExists == false",
+        "Expression": "input.ActivateExists != null",
         "Properties": {
           "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
         }
@@ -31,6 +31,13 @@
         "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
         "Properties": {
           "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
+      },
+      {
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.documentType != false",
+        "Properties": {
+          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
       },
       {
@@ -116,6 +123,13 @@
         }
       },
       {
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.documentType != false",
+        "Properties": {
+          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
+        }
+      },
+      {
         "RuleName": "IdentificationRequired",
         "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)",
         "Properties": {
@@ -160,6 +174,13 @@
         "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
         "Properties": {
           "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
+      },
+      {
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.documentType != false",
+        "Properties": {
+          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
       },
       {
@@ -221,6 +242,13 @@
         "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
         "Properties": {
           "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
+      },
+      {
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.documentType != false",
+        "Properties": {
+          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
       },
       {

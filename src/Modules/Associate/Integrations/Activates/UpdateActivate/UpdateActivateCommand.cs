@@ -1,10 +1,12 @@
 using System.Text.Json.Serialization;
+using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 
 namespace Associate.Integrations.Activates.UpdateActivate;
 
 public sealed record UpdateActivateCommand(
     [property: JsonPropertyName("TipoId")]
+    [property: HomologScope("TipoDocumento")]
     string IdentificationType,
 
     [property: JsonPropertyName("Identificacion")]

@@ -4,8 +4,10 @@ using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Application.Activates.UpdateActivate;
 using Associate.Domain.Activates;
+using Associate.Domain.ConfigurationParameters;
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.UpdateActivate;
+using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 
@@ -14,7 +16,8 @@ namespace Associate.Application.Activates;
 internal sealed class UpdateActivateCommandHandler(
     IActivateRepository activateRepository,
     IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IConfigurationParameterRepository configurationParameterRepository)
     : ICommandHandler<UpdateActivateCommand>
 {
     private const string Workflow = "Associate.Activates.UpdateValidation";
@@ -23,8 +26,11 @@ internal sealed class UpdateActivateCommandHandler(
     {
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);        
         Activate existingActivate = await activateRepository.GetByIdTypeAndNumber(request.IdentificationType, request.Identification, cancellationToken);
+
+        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            request.IdentificationType, HomologScope.Of<UpdateActivateCommand>(c => c.IdentificationType), cancellationToken);
         
-        var validationContext = new ActivateUpdateValidationContext(request, existingActivate);
+        var validationContext = new ActivateUpdateValidationContext(request, existingActivate, documentType);
 
         var (isValid, _, ruleErrors) =
             await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);

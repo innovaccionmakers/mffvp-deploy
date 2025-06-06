@@ -1,3 +1,4 @@
+using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using System;
 using System.Text.Json.Serialization;
@@ -5,6 +6,7 @@ using System.Text.Json.Serialization;
 namespace Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 public sealed record UpdatePensionRequirementCommand(
     [property: JsonPropertyName("TipoId")]
+    [property: HomologScope("TipoDocumento")]
     string IdentificationType,
     
     [property: JsonPropertyName("Identificacion")]

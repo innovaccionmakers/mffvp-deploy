@@ -6,13 +6,16 @@ using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 using Associate.Application.Abstractions.Data;
 using Application.PensionRequirements.UpdatePensionRequirement;
 using Application.PensionRequirements;
+using Associate.Domain.ConfigurationParameters;
+using Common.SharedKernel.Application.Attributes;
 
 namespace Associate.Application.PensionRequirements;
 
 internal sealed class UpdatePensionRequirementCommandHandler(
     IPensionRequirementRepository pensionrequirementRepository,
     IUnitOfWork unitOfWork,
-    PensionRequirementCommandHandlerValidation validator)
+    PensionRequirementCommandHandlerValidation validator,
+    IConfigurationParameterRepository configurationParameterRepository)
     : ICommandHandler<UpdatePensionRequirementCommand>
 {
     private const string Workflow = "Associate.PensionRequirement.UpdateValidation";
@@ -22,12 +25,15 @@ internal sealed class UpdatePensionRequirementCommandHandler(
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var existingPensionRequirement = await pensionrequirementRepository.GetAsync(request.PensionRequirementId, cancellationToken);
         
+        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            request.IdentificationType, HomologScope.Of<UpdatePensionRequirementCommand>(c => c.IdentificationType), cancellationToken);
+
         var validationResult = await validator.ValidateRequestAsync(
                 request,
                 request.IdentificationType,
                 request.Identification,
                 Workflow,
-                (cmd, activateResult) => new UpdatePensionRequirementValidationContext(cmd, activateResult, existingPensionRequirement!),
+                (cmd, activateResult) => new UpdatePensionRequirementValidationContext(cmd, activateResult, existingPensionRequirement!, documentType),
                 cancellationToken);
         
         if (validationResult.IsFailure)

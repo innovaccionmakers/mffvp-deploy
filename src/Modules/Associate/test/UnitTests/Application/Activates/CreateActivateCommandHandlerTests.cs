@@ -31,7 +31,7 @@ namespace UnitTests.Application.Activates
                 .ReturnsAsync(personData);
 
             // Act
-            var validationContext = new CreateActivateValidationContext(command, existingActivate);
+            var validationContext = new CreateActivateValidationContext(command, existingActivate, true);
 
             // Assert
             Assert.Equal(command, validationContext.Request);
