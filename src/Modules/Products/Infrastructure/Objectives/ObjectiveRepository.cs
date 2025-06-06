@@ -65,4 +65,5 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
 
         return await query.ToListAsync(ct);
     }
+    public IQueryable<Objective> Query() => context.Objectives;
 }

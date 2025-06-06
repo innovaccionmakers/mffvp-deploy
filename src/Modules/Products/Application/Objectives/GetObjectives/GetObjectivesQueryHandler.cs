@@ -18,12 +18,12 @@ internal sealed class GetObjectivesQueryHandler(
         GetObjectivesQuery request,
         CancellationToken cancellationToken)
     {
-        var documentValidationResult = await documentTypeValidator
+        Result documentValidationResult = await documentTypeValidator
             .EnsureExistsAsync(request.TypeId, cancellationToken);
         if (!documentValidationResult.IsSuccess)
             return Result.Failure<GetObjectivesResponse>(documentValidationResult.Error!);
 
-        var affiliateValidationResult = await affiliateLocator
+        Result<int?> affiliateValidationResult = await affiliateLocator
             .FindAsync(request.TypeId, request.Identification, cancellationToken);
         if (!affiliateValidationResult.IsSuccess)
             return Result.Failure<GetObjectivesResponse>(affiliateValidationResult.Error!);
@@ -41,10 +41,6 @@ internal sealed class GetObjectivesQueryHandler(
             .EvaluateAsync(validationContext, cancellationToken);
         if (!rulesEvaluationResult.IsSuccess)
             return Result.Failure<GetObjectivesResponse>(rulesEvaluationResult.Error!);
-
-        if (!isAffiliateFound)
-            return Result.Success(
-                new GetObjectivesResponse(Array.Empty<ObjectiveDto>()));
 
         var objectivesList = await objectiveReader.ReadDtosAsync(
             affiliateId.Value,
