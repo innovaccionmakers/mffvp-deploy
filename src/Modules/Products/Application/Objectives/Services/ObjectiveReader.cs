@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Objectives.GetObjectives;
 using Products.Domain.ConfigurationParameters;
@@ -53,29 +54,37 @@ public sealed class ObjectiveReader(
     }
 
     public async Task<IReadOnlyList<ObjectiveDto>> ReadDtosAsync(
-        int affiliateId, StatusType requested, CancellationToken ct)
+        int affiliateId,
+        StatusType requested,
+        CancellationToken ct)
     {
-        var filter = requested switch
+        var statusFilter = requested switch
         {
             StatusType.A => "A",
             StatusType.I => "I",
             _ => null
         };
 
-        var objectives = await repo.GetByAffiliateAsync(affiliateId, filter, ct);
-        if (!objectives.Any()) return Array.Empty<ObjectiveDto>();
-
-        var altIds = objectives.Select(o => o.Alternative.AlternativeTypeId).Distinct();
-        var cfg = await configRepo.GetByIdsAsync(altIds, ct);
-        var map = cfg.ToDictionary(p => p.ConfigurationParameterId, p => p.HomologationCode);
-
-        return objectives
+        var dtos = await repo.Query()
+            .AsNoTracking()
+            .Where(o => o.AffiliateId == affiliateId &&
+                        (statusFilter == null || o.Status == statusFilter))
             .Select(o => new ObjectiveDto(
                 o.ObjectiveId,
                 o.ObjectiveTypeId.ToString(),
                 o.Name,
-                map.GetValueOrDefault(o.Alternative.AlternativeTypeId, string.Empty),
-                o.Status))
-            .ToList();
+                o.Alternative.HomologatedCode,
+                o.Status,
+                o.Alternative.PlanFund.PensionFund.Name,
+                o.Alternative.Name,
+                o.Alternative.Portfolios
+                    .Where(p => p.IsCollector)
+                    .Select(p => p.Portfolio.Name)
+                    .FirstOrDefault() ?? string.Empty,
+                o.Alternative.PlanFund.Plan.Name
+            ))
+            .ToListAsync(ct);
+
+        return dtos;
     }
 }

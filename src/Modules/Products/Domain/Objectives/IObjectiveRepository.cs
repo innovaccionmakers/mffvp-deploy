@@ -17,4 +17,6 @@ public interface IObjectiveRepository
         int affiliateId,
         string? status,
         CancellationToken ct = default);
+    
+    IQueryable<Objective> Query();  
 }
