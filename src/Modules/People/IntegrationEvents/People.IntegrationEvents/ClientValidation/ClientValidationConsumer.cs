@@ -2,7 +2,6 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Presentation.Results;
 using DotNetCore.CAP;
 using MediatR;
-using People.IntegrationEvents.PersonValidation;
 using People.Integrations.People.GetPerson;
 
 namespace People.IntegrationEvents.ClientValidation;

@@ -41,6 +41,7 @@ public sealed record CreateContributionCommand(
     JsonDocument? PaymentMethodDetail,
 
     [property: JsonPropertyName("BancoRecaudo")]
+    [property: HomologScope("BancoRecaudo")]
     string CollectionBank,
 
     [property: JsonPropertyName("CuentaRecaudo")]
@@ -62,5 +63,14 @@ public sealed record CreateContributionCommand(
     string SalesUser,
 
     [property: JsonPropertyName("MedioVerificable")]
-    JsonDocument? VerifiableMedium
+    JsonDocument? VerifiableMedium,
+    
+    [property: JsonPropertyName("Subtipo")]
+    string? Subtype,
+    
+    [property: JsonPropertyName("Canal")]
+    string Channel,
+    
+    [property: JsonPropertyName("Usuario")]
+    string User
 ) : ICommand<ContributionResponse>;

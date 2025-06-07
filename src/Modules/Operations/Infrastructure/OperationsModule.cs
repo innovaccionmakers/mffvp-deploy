@@ -11,9 +11,15 @@ using Operations.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Rules;
+using Operations.Domain.Channels;
 using Operations.Domain.ConfigurationParameters;
+using Operations.Domain.Origins;
+using Operations.Domain.SubtransactionTypes;
+using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ConfigurationParameters;
+using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.RulesEngine;
+using Operations.Infrastructure.SubtransactionTypes;
 
 namespace Operations.Infrastructure;
 
@@ -45,6 +51,10 @@ public static class OperationsModule
         services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
         services.AddScoped<IAuxiliaryInformationRepository, AuxiliaryInformationRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IOriginRepository, OriginRepository>();
+        services.AddScoped<ISubtransactionTypeRepository, SubtransactionTypeRepository>();
+        services.AddScoped<IChannelRepository, ChannelRepository>();
+
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<OperationsDbContext>());

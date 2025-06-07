@@ -52,7 +52,9 @@ internal sealed class ContributionValidationQueryHandler(
         if (!string.IsNullOrWhiteSpace(effectivePortfolioCode))
             portfolio = await portfolioRepository.GetByHomologatedCodeAsync(
                 effectivePortfolioCode!, cancellationToken);
-
+        
+        var nextOperationDate = portfolio?.CurrentDate.AddDays(1);
+        
         var validationContext = new
         {
             request.ObjectiveId,
@@ -65,6 +67,7 @@ internal sealed class ContributionValidationQueryHandler(
             request.DepositDate,
             request.ExecutionDate,
             request.Amount,
+            NextOperationDate = nextOperationDate,
             ExistsByStandardCode = portfolio
         };
 

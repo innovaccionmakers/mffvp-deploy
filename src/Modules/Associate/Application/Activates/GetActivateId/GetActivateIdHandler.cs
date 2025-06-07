@@ -19,7 +19,7 @@ internal sealed class GetActivateIdHandler(
         CancellationToken cancellationToken)
     {
         var activate = await activateRepository
-            .GetByIdTypeAndNumber(query.IdentificationType, query.Identification);
+            .GetByIdTypeAndNumber(query.IdentificationType, query.Identification, cancellationToken);
         
         var validationContext = new { ActivateExists = activate is not null };
         var (ok, _, errors) = await ruleEvaluator

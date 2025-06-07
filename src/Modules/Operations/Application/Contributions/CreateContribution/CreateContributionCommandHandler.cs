@@ -5,8 +5,11 @@ using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Rules;
+using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.ConfigurationParameters;
+using Operations.Domain.Origins;
+using Operations.Domain.SubtransactionTypes;
 using Operations.Integrations.Contributions;
 using Operations.Integrations.Contributions.CreateContribution;
 using People.IntegrationEvents.ClientValidation;
@@ -15,6 +18,9 @@ using Products.IntegrationEvents.ContributionValidation;
 namespace Operations.Application.Contributions.CreateContribution;
 
 internal sealed class CreateContributionCommandHandler(
+    IChannelRepository channelRepository,
+    ISubtransactionTypeRepository subtypeRepo,
+    IOriginRepository originRepository,
     IConfigurationParameterRepository configurationParameterRepository,
     IRuleEvaluator<OperationsModuleMarker> ruleEvaluator,
     ICapRpcClient rpc,
@@ -27,10 +33,12 @@ internal sealed class CreateContributionCommandHandler(
     public async Task<Result<ContributionResponse>> Handle(CreateContributionCommand request,
         CancellationToken cancellationToken)
     {
-        var contributionSource = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.Origin,
-            HomologScope.Of<CreateContributionCommand>(c => c.Origin),
-            cancellationToken);
+        var rawCertified = request.CertifiedContribution?.Trim().ToUpperInvariant();
+        var certifiedValid = string.IsNullOrEmpty(rawCertified)
+                             || rawCertified is "SI" or "NO";
+
+        var contributionSource = await originRepository
+            .FindByHomologatedCodeAsync(request.Origin, cancellationToken);
 
         var originModality = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.OriginModality,
@@ -83,12 +91,29 @@ internal sealed class CreateContributionCommandHandler(
 
         var isFirstContribution = !hasPrevious;
 
+        var subtype = string.IsNullOrWhiteSpace(request.Subtype)
+            ? null
+            : await subtypeRepo.GetByHomologatedCodeAsync(request.Subtype!, cancellationToken);
+
+        var subtypeExists = subtype is not null;
+
+        var config = subtypeExists
+            ? await configurationParameterRepository.GetByUuidAsync(subtype!.Category, cancellationToken)
+            : null;
+
+        var categoryIsContribution = config?.Name == "Aporte";
+
+        var channel = await channelRepository.FindByHomologatedCodeAsync(
+            request.Channel, cancellationToken);
+
+        var channelExists = channel is not null;
+
         var validationContext = new
         {
             ContributionSource = new
             {
                 Exists = contributionSource is not null,
-                Active = contributionSource?.Status ?? false
+                Active = contributionSource?.Status.Equals("A", StringComparison.OrdinalIgnoreCase) == true
             },
             OriginModality = new
             {
@@ -105,9 +130,17 @@ internal sealed class CreateContributionCommandHandler(
                 Exists = paymentMethod is not null,
                 Active = paymentMethod?.Status ?? false
             },
+            Channel = new
+            {
+                Exists = channelExists
+            },
             IsFirstContribution = isFirstContribution,
             PortfolioInitialMinimumAmount = contributionValidation.PortfolioInitialMinimumAmount!.Value,
-            Amount = request.Amount
+            Amount = request.Amount,
+            CertifiedContributionProvided = !string.IsNullOrWhiteSpace(request.CertifiedContribution),
+            CertifiedContributionValid = certifiedValid,
+            SubtypeExists = subtypeExists,
+            CategoryIsContribution = categoryIsContribution
         };
 
         var (ok, _, errors) = await ruleEvaluator.EvaluateAsync(

@@ -8,7 +8,7 @@ public sealed class SubtransactionType : Entity
 {
     public long SubtransactionTypeId { get; private set; }
     public string Name { get; private set; }
-    public string Category { get; private set; }
+    public Guid Category { get; private set; }
     public string Nature { get; private set; }
     public string Status { get; private set; }
     public string External { get; private set; }
@@ -23,7 +23,7 @@ public sealed class SubtransactionType : Entity
 
     public static Result<SubtransactionType> Create(
         string name,
-        string category,
+        Guid category,
         string nature,
         string status,
         string external,
@@ -46,7 +46,7 @@ public sealed class SubtransactionType : Entity
 
     public void UpdateDetails(
         string newName,
-        string newCategory,
+        Guid newCategory,
         string newNature,
         string newStatus,
         string newExternal,

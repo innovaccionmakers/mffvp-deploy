@@ -73,6 +73,46 @@
         "Properties": {
           "errorCode": "1c3f389f-ffe2-4d19-808f-472309c595a8"
         }
+      },
+      {
+        "RuleName": "CertificationRequiredButMissing",
+        "ErrorMessage": "El campo Aporte Certificado solo es obligatorio cuando el Origen sea Afiliado",
+        "Expression": "!input.ContributionSource.RequiresCertification || input.CertifiedContributionProvided",
+        "Properties": {
+          "errorCode": "eb34f98d-518b-4bbb-b94b-5b866361b506"
+        }
+      },
+      {
+        "RuleName": "CertifiedContributionInvalid",
+        "ErrorMessage": "AporteCertificado debe ser 'SI' o 'NO'.",
+        "Expression": "!input.ContributionSource.RequiresCertification || input.CertifiedContributionValid",
+        "Properties": {
+          "errorCode": "224a4f64-a032-4d05-82c7-fa8377018d1d"
+        }
+      },
+      {
+        "RuleName": "SubtransactionTypeExists",
+        "ErrorMessage": "El código homologado del Subtipo no existe.",
+        "Expression": "input.SubtypeExists == true",
+        "Properties": {
+          "errorCode": "f5022b1e-75a9-4400-8138-bc2f6ae4314a"
+        }
+      },
+      {
+        "RuleName": "SubtypeCategoryIsContribution",
+        "ErrorMessage": "El código homologado del Subtipo no corresponde al Aporte",
+        "Expression": "input.CategoryIsContribution == true",
+        "Properties": {
+          "errorCode": "27aa5c54-6f50-4c25-945e-3ce7420ec2f2"
+        }
+      },
+      {
+        "RuleName": "ChannelExists",
+        "ErrorMessage": "El código homologado del Canal no existe.",
+        "Expression": "input.Channel.Exists == true",
+        "Properties": {
+          "errorCode": "fe27ea5b-444f-4e12-a63f-1c1618708677"
+        }
       }
     ]
   }
