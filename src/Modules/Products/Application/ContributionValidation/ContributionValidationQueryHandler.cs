@@ -1,3 +1,4 @@
+using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Rules;
@@ -10,7 +11,8 @@ namespace Products.Application.ContributionValidation;
 internal sealed class ContributionValidationQueryHandler(
     IObjectiveRepository objectiveRepository,
     IPortfolioRepository portfolioRepository,
-    IRuleEvaluator<ProductsModuleMarker> ruleEvaluator)
+    IRuleEvaluator<ProductsModuleMarker> ruleEvaluator) :
+    IQueryHandler<ContributionValidationQuery, ContributionValidationResponse>
 {
     private const string RuleSetName = "Products.Contribution.Validation";
 
@@ -52,9 +54,9 @@ internal sealed class ContributionValidationQueryHandler(
         if (!string.IsNullOrWhiteSpace(effectivePortfolioCode))
             portfolio = await portfolioRepository.GetByHomologatedCodeAsync(
                 effectivePortfolioCode!, cancellationToken);
-        
+
         var nextOperationDate = portfolio?.CurrentDate.AddDays(1);
-        
+
         var validationContext = new
         {
             request.ObjectiveId,

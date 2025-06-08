@@ -14,7 +14,7 @@ using Products.Integrations.Objectives.CreateObjective;
 
 namespace Products.Application.Objectives.CreateObjective;
 
-public class CreateObjectiveCommandHandler(
+internal sealed class CreateObjectiveCommandHandler(
     IConfigurationParameterRepository configurationParameterRepository,
     IDocumentTypeValidator documentTypeValidator,
     IAlternativeRepository alternativeRepository,

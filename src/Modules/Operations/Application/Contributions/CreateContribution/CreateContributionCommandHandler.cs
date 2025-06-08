@@ -62,7 +62,9 @@ internal sealed class CreateContributionCommandHandler(
             new GetActivateIdByIdentificationRequest(request.TypeId, request.Identification),
             TimeSpan.FromSeconds(5),
             cancellationToken);
-
+        
+        var activate = activateValidation.Activate!;
+        
         if (!activateValidation.Succeeded)
             return Result.Failure<ContributionResponse>(
                 Error.Validation(activateValidation.Code, activateValidation.Message));
@@ -71,7 +73,7 @@ internal sealed class CreateContributionCommandHandler(
             ContributionValidationRequest,
             ContributionValidationResponse>(
             nameof(ContributionValidationRequest),
-            new ContributionValidationRequest(activateValidation.ActivateId!.Value, request.ObjectiveId,
+            new ContributionValidationRequest(activate.ActivateId, request.ObjectiveId,
                 request.PortfolioId, request.DepositDate,
                 request.ExecutionDate, request.Amount),
             TimeSpan.FromSeconds(5),
@@ -168,9 +170,65 @@ internal sealed class CreateContributionCommandHandler(
                 Error.Validation(
                     personValidation.Code,
                     personValidation.Message));
+        
+        var pensioner = activate.Pensioner;
+        
+        var exemptOption = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            "1125",
+            "CondicionTributaria",
+            cancellationToken);
+
+        var noRetentionOption = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            "1126",
+            "CondicionTributaria",
+            cancellationToken);
+
+        var retentionOption = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            "1128",
+            "CondicionTributaria",
+            cancellationToken);
+
+        var retentionPctParam = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            "1129",
+            "Porcentaje Retención Contingente",
+            cancellationToken);
+
+        decimal pct = 0.07m;
+        var strPct = retentionPctParam?.Metadata.RootElement.GetString();
+        if (!string.IsNullOrWhiteSpace(strPct) &&
+            decimal.TryParse(strPct.TrimEnd('%'), out var parsed))
+            pct = parsed / 100m;
+
+        int certificationStatusId;
+        decimal withheld = 0;
+
+        if (pensioner)
+        {
+            certificationStatusId = exemptOption!.ConfigurationParameterId;
+        }
+        else if (rawCertified is not null && rawCertified == "SI")
+        {
+            certificationStatusId = noRetentionOption!.ConfigurationParameterId;
+        }
+        else
+        {
+            certificationStatusId = retentionOption!.ConfigurationParameterId;
+            withheld = request.Amount * pct;
+        }
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        
+        var operationResult = ClientOperation.Create(
+            DateTime.UtcNow,
+            contributionValidation.AffiliateId!.Value,
+            contributionValidation.ObjectiveId!.Value,
+            contributionValidation.PortfolioId!.Value,
+            request.Amount,
+            request.ExecutionDate,
+            subtype?.SubtransactionTypeId ?? 0);
 
+        clientOperationRepository.Insert(operationResult.Value);
+        
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var response = new ContributionResponse(

@@ -48,170 +48,51 @@ public class CreateObjectiveCommandHandlerTests
         );
     }
 
-    private Alternative BuildDummyAlternative(string homologatedCode)
+    private static Alternative BuildDummyAlternative(string homologatedCode)
     {
-        var planResult = Plan.Create("Plan Prueba", "Descripción prueba");
-        if (!planResult.IsSuccess)
-            throw new Exception("No se pudo crear el Plan de prueba");
-        var dummyPlan = planResult.Value;
-
-        var pensionResult = PensionFund.Create(
-            1,
-            99999,
-            "Fondo Prueba",
-            "FP",
-            "ACTIVO",
-            "FP-01"
-        );
-        if (!pensionResult.IsSuccess)
-            throw new Exception("No se pudo crear el PensionFund de prueba");
-        var dummyPensionFund = pensionResult.Value;
-
-        var planFundResult = PlanFund.Create(dummyPlan, dummyPensionFund, "ACTIVO");
-        if (!planFundResult.IsSuccess)
-            throw new Exception("No se pudo crear el PlanFund de prueba");
-        var dummyPlanFund = planFundResult.Value;
-
-        var alternativeResult = Alternative.Create(
-            dummyPlanFund,
-            1,
-            "Alt Prueba",
-            "ACTIVO",
-            "Descripción alt",
-            homologatedCode
-        );
-        if (!alternativeResult.IsSuccess)
-            throw new Exception("No se pudo crear la Alternative de prueba");
-        return alternativeResult.Value;
+        var plan = Plan.Create("Plan", "Desc").Value;
+        var pension = PensionFund.Create(1, 1, "Fund", "F", "ACT", "F-1").Value;
+        var planFund = PlanFund.Create(plan, pension, "ACTIVO").Value;
+        return Alternative.Create(planFund, 1, "Alt", "ACT", "Desc", homologatedCode).Value;
     }
 
-    [Fact]
-    public async Task Handle_Should_Create_Objective_When_Request_Is_Valid()
+    private static bool IsValidContext(object ctx)
     {
-        // arrange
-        var request = new CreateObjectiveCommand(
+        var t = ctx.GetType();
+        return (bool)t.GetProperty("AlternativeIdExists")!.GetValue(ctx)! &&
+               (bool)t.GetProperty("ObjectiveTypeExists")!.GetValue(ctx)! &&
+               (bool)t.GetProperty("ClientAffiliated")!.GetValue(ctx)! &&
+               (bool)t.GetProperty("OpeningOfficeExists")!.GetValue(ctx)! &&
+               (bool)t.GetProperty("CurrentOfficeExists")!.GetValue(ctx)! &&
+               (bool)t.GetProperty("CommercialExists")!.GetValue(ctx)!;
+    }
+
+    private CreateObjectiveCommand BuildRequest()
+    {
+        return new CreateObjectiveCommand(
             "CC",
-            "123456",
+            "123",
             "ALT-01",
             "OBJ-PLAN",
             "Jubilarme",
             "OF-BOG",
             "OF-MED",
-            "COM-123"
-        );
-
-        var alternativeEntity = BuildDummyAlternative(request.AlternativeId);
-        _alternativeRepo
-            .Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(alternativeEntity);
-
-        _configRepo.Setup(r => r.GetByCodeAndScopeAsync(request.ObjectiveType,
-                It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ConfigurationParameter.Create("type", request.ObjectiveType));
-
-        _docTypeValidator.Setup(v => v.EnsureExistsAsync(request.IdType, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
-
-        _affiliateLocator.Setup(l => l.FindAsync(request.IdType, request.Identification, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<int?>(99));
-
-        var offices = new Dictionary<string, Office>
-        {
-            { request.OpeningOffice, Office.Create("Bogotá", "ACTIVO", "BO", request.OpeningOffice, 1).Value },
-            { request.CurrentOffice, Office.Create("Medellín", "ACTIVO", "ME", request.CurrentOffice, 2).Value }
-        };
-        _officeRepo.Setup(r => r.GetByHomologatedCodesAsync(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(offices);
-
-        _commercialRepo.Setup(r => r.GetByHomologatedCodeAsync(request.Commercial, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Commercial.Create("Pedro", "ACTIVO", "PE", request.Commercial).Value);
-
-        _ruleEvaluator.Setup(r => r.EvaluateAsync(
-                "Products.CreateObjective.Validation",
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((
-                true,
-                Array.Empty<RuleResultTree>() as IReadOnlyCollection<RuleResultTree>,
-                Array.Empty<RuleValidationError>() as IReadOnlyCollection<RuleValidationError>
-            ));
-
-        var handler = BuildHandler();
-
-        // act
-        var result = await handler.Handle(request, CancellationToken.None);
-
-        // assert
-        result.IsSuccess.Should().BeTrue();
-        result.Value.ObjectiveId.Should().NotBeNull();
-        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        _tx.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+            "COM-123");
     }
 
     [Fact]
-    public async Task Handle_Should_Fail_When_Rule_Evaluator_Fails()
+    public async Task Handle_Should_Return_Failure_When_Document_Type_Invalid()
     {
         // arrange
-        var request = new CreateObjectiveCommand(
-            "CC", "123", "ALT-01", "OBJ-PLAN",
-            "Jubilarme", "OF-BOG", "OF-MED", "COM-123"
-        );
-
-        var alternativeEntity = BuildDummyAlternative(request.AlternativeId);
-        _alternativeRepo
-            .Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(alternativeEntity);
-
-        _configRepo
-            .Setup(r => r.GetByCodeAndScopeAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+        var request = BuildRequest();
+        _alternativeRepo.Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDummyAlternative(request.AlternativeId));
+        _configRepo.Setup(r =>
+                r.GetByCodeAndScopeAsync(request.ObjectiveType, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(ConfigurationParameter.Create("type", request.ObjectiveType));
-
-        _docTypeValidator
-            .Setup(v => v.EnsureExistsAsync(
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
-
-        _affiliateLocator
-            .Setup(l => l.FindAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<int?>(null));
-
-        _ruleEvaluator
-            .Setup(r => r.EvaluateAsync(
-                "Products.CreateObjective.Validation",
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((
-                false,
-                Array.Empty<RuleResultTree>() as IReadOnlyCollection<RuleResultTree>,
-                new[]
-                {
-                    new RuleValidationError("OBJ001", "Invalid office")
-                } as IReadOnlyCollection<RuleValidationError>
-            ));
-
-        var oficinasSimuladas = new Dictionary<string, Office>
-        {
-            { "OF-BOG", Office.Create("Bogotá", "ACTIVO", "BO", "OF-BOG", 1).Value },
-            { "OF-MED", Office.Create("Medellín", "ACTIVO", "ME", "OF-MED", 2).Value }
-        };
-        _officeRepo
-            .Setup(r => r.GetByHomologatedCodesAsync(
-                It.IsAny<string[]>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(oficinasSimuladas);
-
-        _commercialRepo
-            .Setup(r => r.GetByHomologatedCodeAsync(
-                request.Commercial,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Commercial?)null);
+        var error = Error.Validation("DOC", "invalid");
+        _docTypeValidator.Setup(v => v.EnsureExistsAsync(request.IdType, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure(error));
 
         var handler = BuildHandler();
 
@@ -220,9 +101,127 @@ public class CreateObjectiveCommandHandlerTests
 
         // assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Code.Should().Be("OBJ001");
-        result.Error.Description.Should().Be("Invalid office");
+        AssertionExtensions.Should(result.Error).Be(error);
+        _affiliateLocator.Verify(
+            l => l.FindAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _ruleEvaluator.Verify(
+            r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_Failure_When_Affiliate_Locator_Fails()
+    {
+        // arrange
+        var request = BuildRequest();
+        _alternativeRepo.Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDummyAlternative(request.AlternativeId));
+        _configRepo.Setup(r =>
+                r.GetByCodeAndScopeAsync(request.ObjectiveType, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ConfigurationParameter.Create("type", request.ObjectiveType));
+        _docTypeValidator.Setup(v => v.EnsureExistsAsync(request.IdType, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+        var error = Error.NotFound("AFF", "not found");
+        _affiliateLocator.Setup(l => l.FindAsync(request.IdType, request.Identification, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure<int?>(error));
+
+        var handler = BuildHandler();
+
+        // act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // assert
+        result.IsSuccess.Should().BeFalse();
+        AssertionExtensions.Should(result.Error).Be(error);
+        _ruleEvaluator.Verify(
+            r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_Failure_When_Rules_Fail()
+    {
+        // arrange
+        var request = BuildRequest();
+        _alternativeRepo.Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDummyAlternative(request.AlternativeId));
+        _configRepo.Setup(r =>
+                r.GetByCodeAndScopeAsync(request.ObjectiveType, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ConfigurationParameter.Create("type", request.ObjectiveType));
+        _docTypeValidator.Setup(v => v.EnsureExistsAsync(request.IdType, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+        _affiliateLocator.Setup(l => l.FindAsync(request.IdType, request.Identification, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success<int?>(99));
+        _officeRepo.Setup(r => r.GetByHomologatedCodesAsync(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, Office>
+            {
+                { request.OpeningOffice, Office.Create("Bogota", "ACTIVO", "BO", request.OpeningOffice, 1).Value },
+                { request.CurrentOffice, Office.Create("Med", "ACTIVO", "ME", request.CurrentOffice, 2).Value }
+            });
+        _commercialRepo.Setup(r => r.GetByHomologatedCodeAsync(request.Commercial, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Commercial.Create("Com", "ACT", "C", request.Commercial).Value);
+        var error = Error.Validation("RULE", "fail");
+        _ruleEvaluator.Setup(r =>
+                r.EvaluateAsync("Products.CreateObjective.Validation", It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync((false, Array.Empty<RuleResultTree>(),
+                new[] { new RuleValidationError(error.Code, error.Description) }));
+
+        var handler = BuildHandler();
+
+        // act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // assert
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Code.Should().Be(error.Code);
+        _unitOfWork.Verify(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         _tx.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Create_Objective_When_All_Valid()
+    {
+        // arrange
+        var request = BuildRequest();
+        var alternative = BuildDummyAlternative(request.AlternativeId);
+        _alternativeRepo.Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(alternative);
+        _configRepo.Setup(r =>
+                r.GetByCodeAndScopeAsync(request.ObjectiveType, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ConfigurationParameter.Create("type", request.ObjectiveType));
+        _docTypeValidator.Setup(v => v.EnsureExistsAsync(request.IdType, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+        _affiliateLocator.Setup(l => l.FindAsync(request.IdType, request.Identification, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success<int?>(99));
+        var offices = new Dictionary<string, Office>
+        {
+            { request.OpeningOffice, Office.Create("Bogota", "ACTIVO", "BO", request.OpeningOffice, 1).Value },
+            { request.CurrentOffice, Office.Create("Med", "ACTIVO", "ME", request.CurrentOffice, 2).Value }
+        };
+        _officeRepo.Setup(r => r.GetByHomologatedCodesAsync(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offices);
+        var commercial = Commercial.Create("Com", "ACT", "C", request.Commercial).Value;
+        _commercialRepo.Setup(r => r.GetByHomologatedCodeAsync(request.Commercial, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(commercial);
+        _ruleEvaluator.Setup(r =>
+                r.EvaluateAsync("Products.CreateObjective.Validation", It.IsAny<object>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
+
+        var handler = BuildHandler();
+
+        // act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // assert
+        result.IsSuccess.Should().BeTrue();
+        _ruleEvaluator.Verify(
+            r => r.EvaluateAsync("Products.CreateObjective.Validation", It.Is<object>(ctx => IsValidContext(ctx)),
+                It.IsAny<CancellationToken>()), Times.Once);
+        _unitOfWork.Verify(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _tx.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
