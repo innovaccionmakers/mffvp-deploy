@@ -22,7 +22,7 @@ public sealed class AuxiliaryInformation : Entity
     public string CollectionBank { get; private set; }
     public DateTime DepositDate { get; private set; }
     public string SalesUser { get; private set; }
-    public int OfficeId { get; private set; }
+    public int OriginModalityId { get; private set; }
     public int CityId { get; private set; }
     public int ChannelId { get; private set; }
     public int UserId { get; private set; }
@@ -49,7 +49,7 @@ public sealed class AuxiliaryInformation : Entity
         string collectionBank,
         DateTime depositDate,
         string salesUser,
-        int officeId,
+        int originModalityId,
         int cityId,
         int channelId,
         int userId
@@ -71,7 +71,7 @@ public sealed class AuxiliaryInformation : Entity
             CollectionBank = collectionBank,
             DepositDate = depositDate,
             SalesUser = salesUser,
-            OfficeId = officeId,
+            OriginModalityId = originModalityId,
             CityId = cityId,
             ChannelId = channelId,
             UserId = userId
@@ -96,7 +96,7 @@ public sealed class AuxiliaryInformation : Entity
         string newCollectionBank,
         DateTime newDepositDate,
         string newSalesUser,
-        int newOfficeId,
+        int newOriginModalityId,
         int newCityId,
         int newChannelId,
         int newUserId
@@ -115,7 +115,7 @@ public sealed class AuxiliaryInformation : Entity
         CollectionBank = newCollectionBank;
         DepositDate = newDepositDate;
         SalesUser = newSalesUser;
-        OfficeId = newOfficeId;
+        OriginModalityId = newOriginModalityId;
         CityId = newCityId;
         ChannelId = newChannelId;
         UserId = newUserId;

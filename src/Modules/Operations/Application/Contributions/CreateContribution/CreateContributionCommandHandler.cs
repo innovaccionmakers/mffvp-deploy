@@ -1,5 +1,7 @@
 using Associate.IntegrationEvents.ActivateValidation;
 using Common.SharedKernel.Application.Attributes;
+using System.Text.Json;
+using Operations.Domain.AuxiliaryInformations;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions;
@@ -24,6 +26,7 @@ internal sealed class CreateContributionCommandHandler(
     IConfigurationParameterRepository configurationParameterRepository,
     IRuleEvaluator<OperationsModuleMarker> ruleEvaluator,
     ICapRpcClient rpc,
+    IAuxiliaryInformationRepository auxiliaryInformationRepository,
     IClientOperationRepository clientOperationRepository,
     IUnitOfWork unitOfWork)
     : ICommandHandler<CreateContributionCommand, ContributionResponse>
@@ -40,20 +43,20 @@ internal sealed class CreateContributionCommandHandler(
         var contributionSource = await originRepository
             .FindByHomologatedCodeAsync(request.Origin, cancellationToken);
 
-        var originModality = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.OriginModality,
-            HomologScope.Of<CreateContributionCommand>(c => c.OriginModality),
-            cancellationToken);
+        var scopes = new[]
+        {
+            (Code: request.OriginModality, Scope: HomologScope.Of<CreateContributionCommand>(c => c.OriginModality)),
+            (Code: request.CollectionMethod,
+                Scope: HomologScope.Of<CreateContributionCommand>(c => c.CollectionMethod)),
+            (Code: request.PaymentMethod, Scope: HomologScope.Of<CreateContributionCommand>(c => c.PaymentMethod))
+        };
 
-        var collectionMethod = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.CollectionMethod,
-            HomologScope.Of<CreateContributionCommand>(c => c.CollectionMethod),
-            cancellationToken);
+        var batchCfg = await configurationParameterRepository
+            .GetByCodesAndTypesAsync(scopes, cancellationToken);
 
-        var paymentMethod = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.PaymentMethod,
-            HomologScope.Of<CreateContributionCommand>(c => c.PaymentMethod),
-            cancellationToken);
+        var originModality = batchCfg.GetValueOrDefault(scopes[0]);
+        var collectionMethod = batchCfg.GetValueOrDefault(scopes[1]);
+        var paymentMethod = batchCfg.GetValueOrDefault(scopes[2]);
 
         var activateValidation = await rpc.CallAsync<
             GetActivateIdByIdentificationRequest,
@@ -62,9 +65,9 @@ internal sealed class CreateContributionCommandHandler(
             new GetActivateIdByIdentificationRequest(request.TypeId, request.Identification),
             TimeSpan.FromSeconds(5),
             cancellationToken);
-        
+
         var activate = activateValidation.Activate!;
-        
+
         if (!activateValidation.Succeeded)
             return Result.Failure<ContributionResponse>(
                 Error.Validation(activateValidation.Code, activateValidation.Message));
@@ -170,54 +173,43 @@ internal sealed class CreateContributionCommandHandler(
                 Error.Validation(
                     personValidation.Code,
                     personValidation.Message));
-        
-        var pensioner = activate.Pensioner;
-        
-        var exemptOption = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            "1125",
-            "CondicionTributaria",
-            cancellationToken);
 
-        var noRetentionOption = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            "1126",
-            "CondicionTributaria",
-            cancellationToken);
+        var isPensioner = activate.Pensioner;
+        var isCertified = request.CertifiedContribution?.Trim().ToUpperInvariant() == "SI";
 
-        var retentionOption = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            "1128",
-            "CondicionTributaria",
-            cancellationToken);
-
-        var retentionPctParam = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            "1129",
-            "Porcentaje Retención Contingente",
-            cancellationToken);
-
-        decimal pct = 0.07m;
-        var strPct = retentionPctParam?.Metadata.RootElement.GetString();
-        if (!string.IsNullOrWhiteSpace(strPct) &&
-            decimal.TryParse(strPct.TrimEnd('%'), out var parsed))
-            pct = parsed / 100m;
-
-        int certificationStatusId;
-        decimal withheld = 0;
-
-        if (pensioner)
+        var neededUuids = new List<Guid>
         {
-            certificationStatusId = exemptOption!.ConfigurationParameterId;
-        }
-        else if (rawCertified is not null && rawCertified == "SI")
-        {
-            certificationStatusId = noRetentionOption!.ConfigurationParameterId;
-        }
-        else
-        {
-            certificationStatusId = retentionOption!.ConfigurationParameterId;
-            withheld = request.Amount * pct;
-        }
+            isPensioner
+                ? ConfigurationParameterUuids.TaxExempt
+                : isCertified
+                    ? ConfigurationParameterUuids.TaxNoRetention
+                    : ConfigurationParameterUuids.TaxRetention,
+
+            isCertified
+                ? ConfigurationParameterUuids.CertifiedState
+                : ConfigurationParameterUuids.UncertifiedState
+        };
+
+        if (!isPensioner && !isCertified)
+            neededUuids.Add(ConfigurationParameterUuids.RetentionPct);
+
+        var configsByUuid = await configurationParameterRepository.GetByUuidsAsync(neededUuids, cancellationToken);
+        var taxConditionId = configsByUuid[neededUuids[0]].ConfigurationParameterId;
+        var certificationStatusId = configsByUuid[neededUuids[1]].ConfigurationParameterId;
+
+
+        var retentionPct = configsByUuid.TryGetValue(ConfigurationParameterUuids.RetentionPct, out var pctParam)
+            ? decimal.TryParse(pctParam.Metadata.RootElement.GetString()?.TrimEnd('%'), out var p)
+                ? p / 100m
+                : 0m
+            : 0m;
+
+        var withheldAmount = retentionPct > 0
+            ? request.Amount * retentionPct
+            : 0m;
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        
+
         var operationResult = ClientOperation.Create(
             DateTime.UtcNow,
             contributionValidation.AffiliateId!.Value,
@@ -228,7 +220,31 @@ internal sealed class CreateContributionCommandHandler(
             subtype?.SubtransactionTypeId ?? 0);
 
         clientOperationRepository.Insert(operationResult.Value);
-        
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var auxResult = AuxiliaryInformation.Create(
+            operationResult.Value.ClientOperationId,
+            contributionSource!.OriginId,
+            collectionMethod!.ConfigurationParameterId,
+            paymentMethod!.ConfigurationParameterId,
+            int.TryParse(request.CollectionAccount, out var account) ? account : 0,
+            request.PaymentMethodDetail ?? JsonDocument.Parse("{}"),
+            certificationStatusId,
+            taxConditionId,
+            request.ContingentWithholding.HasValue ? (int)request.ContingentWithholding.Value : 0,
+            request.VerifiableMedium ?? JsonDocument.Parse("{}"),
+            request.CollectionBank,
+            request.DepositDate,
+            request.SalesUser,
+            originModality!.ConfigurationParameterId,
+            0,
+            channel?.ChannelId ?? 0,
+            int.TryParse(request.User, out var userId) ? userId : 0
+        );
+
+        auxiliaryInformationRepository.Insert(auxResult.Value);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var response = new ContributionResponse(
