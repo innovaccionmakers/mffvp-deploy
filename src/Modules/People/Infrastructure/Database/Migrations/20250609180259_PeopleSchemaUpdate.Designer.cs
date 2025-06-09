@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using People.Infrastructure.Database;
@@ -12,9 +13,11 @@ using People.Infrastructure.Database;
 namespace People.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(PeopleDbContext))]
-    partial class PeopleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250609180259_PeopleSchemaUpdate")]
+    partial class PeopleSchemaUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -296,7 +299,7 @@ namespace People.Infrastructure.Database.Migrations
 
                     b.HasIndex("EconomicActivityId");
 
-                    b.ToTable("personas", "personas");
+                    b.ToTable("persona", "personas");
                 });
 
             modelBuilder.Entity("People.Domain.ConfigurationParameters.ConfigurationParameter", b =>

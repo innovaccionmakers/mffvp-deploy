@@ -7,12 +7,10 @@ using Trusts.Application.Abstractions;
 using Trusts.Application.Abstractions.Data;
 using Trusts.Application.Abstractions.Rules;
 using Trusts.Domain.ConfigurationParameters;
-using Trusts.Domain.TrustHistories;
 using Trusts.Domain.Trusts;
 using Trusts.Infrastructure.ConfigurationParameters;
 using Trusts.Infrastructure.Database;
 using Trusts.Infrastructure.RulesEngine;
-using Trusts.Infrastructure.TrustHistories;
 using Trusts.Infrastructure.Trusts;
 using Trusts.IntegrationEvents.CreateTrust;
 
@@ -45,7 +43,6 @@ public static class TrustsModule
         });
 
         services.AddScoped<ITrustRepository, TrustRepository>();
-        services.AddScoped<ITrustHistoryRepository, TrustHistoryRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
         services.AddScoped<CreateTrustConsumer>();

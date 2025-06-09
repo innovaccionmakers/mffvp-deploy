@@ -10,7 +10,7 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
 {
     public void Configure(EntityTypeBuilder<Person> builder)
     {
-        builder.ToTable("persona");
+        builder.ToTable("personas");
         builder.HasKey(x => x.PersonId);
         builder.Property(x => x.PersonId).HasColumnName("id");
         builder.Property(x => x.DocumentType).HasColumnName("tipo_documento");

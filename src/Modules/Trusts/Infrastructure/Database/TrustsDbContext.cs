@@ -3,10 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Trusts.Application.Abstractions.Data;
 using Trusts.Domain.ConfigurationParameters;
-using Trusts.Domain.TrustHistories;
 using Trusts.Domain.Trusts;
 using Trusts.Infrastructure.ConfigurationParameters;
-using Trusts.Infrastructure.TrustHistories;
 using Trusts.Infrastructure.Trusts;
 
 namespace Trusts.Infrastructure.Database;
@@ -15,7 +13,6 @@ public sealed class TrustsDbContext(DbContextOptions<TrustsDbContext> options)
     : DbContext(options), IUnitOfWork
 {
     internal DbSet<Trust> Trusts { get; set; }
-    internal DbSet<TrustHistory> TrustHistories { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
@@ -30,7 +27,6 @@ public sealed class TrustsDbContext(DbContextOptions<TrustsDbContext> options)
         modelBuilder.HasDefaultSchema(Schemas.Trusts);
 
         modelBuilder.ApplyConfiguration(new TrustConfiguration());
-        modelBuilder.ApplyConfiguration(new TrustHistoryConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
     }
 }

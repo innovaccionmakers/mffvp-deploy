@@ -13,8 +13,8 @@ using Operations.Infrastructure.Database;
 namespace Operations.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(OperationsDbContext))]
-    [Migration("20250605171037_CreateOperationsModuleTables")]
-    partial class CreateOperationsModuleTables
+    [Migration("20250609182542_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -73,13 +73,13 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_consignacion");
 
-                    b.Property<int>("OfficeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("oficinas_id");
-
                     b.Property<int>("OriginId")
                         .HasColumnType("integer")
                         .HasColumnName("origen_id");
+
+                    b.Property<int>("OriginModalityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("modalidad_origen_id");
 
                     b.Property<JsonDocument>("PaymentMethodDetail")
                         .IsRequired()
@@ -169,10 +169,6 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric")
                         .HasColumnName("valor");
-
-                    b.Property<DateTime>("CausationDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_causacion");
 
                     b.Property<int>("ObjectiveId")
                         .HasColumnType("integer")
@@ -322,9 +318,8 @@ namespace Operations.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("SubtransactionTypeId"));
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<Guid>("Category")
+                        .HasColumnType("uuid")
                         .HasColumnName("categoria");
 
                     b.Property<string>("External")
