@@ -10,7 +10,7 @@ public sealed class Trust : Entity
 
     public long TrustId { get; private set; }
     public int AffiliateId { get; private set; }
-    public int ClientId { get; private set; }
+    public long ClientOperationId { get; private set; }
     public DateTime CreationDate { get; private set; }
     public int ObjectiveId { get; private set; }
     public int PortfolioId { get; private set; }
@@ -22,20 +22,18 @@ public sealed class Trust : Entity
     public decimal ContingentWithholding { get; private set; }
     public decimal EarningsWithholding { get; private set; }
     public decimal AvailableAmount { get; private set; }
-    public decimal ContingentWithholdingPercentage { get; private set; }
 
     public static Result<Trust> Create(
-        int affiliateId, int clientId, DateTime creationDate, int objectiveId, int portfolioId, decimal totalBalance,
-        int totalUnits, decimal principal, decimal earnings, int taxCondition, decimal contingentWithholding,
-        decimal earningsWithholding, decimal availableAmount, decimal contingentWithholdingPercentage
+        int affiliateId, long clientOperationId, DateTime creationDate, int objectiveId, int portfolioId, 
+        decimal totalBalance, int totalUnits, decimal principal, decimal earnings, int taxCondition, 
+        decimal contingentWithholding, decimal earningsWithholding, decimal availableAmount
     )
     {
         var trust = new Trust
         {
             TrustId = default,
-
             AffiliateId = affiliateId,
-            ClientId = clientId,
+            ClientOperationId = clientOperationId,
             CreationDate = creationDate,
             ObjectiveId = objectiveId,
             PortfolioId = portfolioId,
@@ -46,8 +44,7 @@ public sealed class Trust : Entity
             TaxCondition = taxCondition,
             ContingentWithholding = contingentWithholding,
             EarningsWithholding = earningsWithholding,
-            AvailableAmount = availableAmount,
-            ContingentWithholdingPercentage = contingentWithholdingPercentage
+            AvailableAmount = availableAmount
         };
 
         trust.Raise(new TrustCreatedDomainEvent(trust.TrustId));
@@ -55,14 +52,13 @@ public sealed class Trust : Entity
     }
 
     public void UpdateDetails(
-        int newAffiliateId, int newClientId, DateTime newCreationDate, int newObjectiveId, int newPortfolioId,
+        int newAffiliateId, long newClientOperationId, DateTime newCreationDate, int newObjectiveId, int newPortfolioId,
         decimal newTotalBalance, int newTotalUnits, decimal newPrincipal, decimal newEarnings, int newTaxCondition,
-        decimal newContingentWithholding, decimal newEarningsWithholding, decimal newAvailableAmount,
-        decimal newContingentWithholdingPercentage
+        decimal newContingentWithholding, decimal newEarningsWithholding, decimal newAvailableAmount
     )
     {
         AffiliateId = newAffiliateId;
-        ClientId = newClientId;
+        ClientOperationId = newClientOperationId;
         CreationDate = newCreationDate;
         ObjectiveId = newObjectiveId;
         PortfolioId = newPortfolioId;
@@ -74,6 +70,5 @@ public sealed class Trust : Entity
         ContingentWithholding = newContingentWithholding;
         EarningsWithholding = newEarningsWithholding;
         AvailableAmount = newAvailableAmount;
-        ContingentWithholdingPercentage = newContingentWithholdingPercentage;
     }
 }

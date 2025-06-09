@@ -1,7 +1,6 @@
-namespace Trusts.Integrations.Trusts;
+namespace Trusts.IntegrationEvents.CreateTrust;
 
-public sealed record TrustResponse(
-    long TrustId,
+public sealed record CreateTrustRequest(
     int AffiliateId,
     long ClientOperationId,
     DateTime CreationDate,
@@ -14,5 +13,4 @@ public sealed record TrustResponse(
     int TaxCondition,
     decimal ContingentWithholding,
     decimal EarningsWithholding,
-    decimal AvailableAmount
-);
+    decimal AvailableAmount);

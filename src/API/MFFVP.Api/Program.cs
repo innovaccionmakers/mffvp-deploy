@@ -12,7 +12,6 @@ using MFFVP.Api.BffWeb.Associate;
 using MFFVP.Api.BffWeb.Operations;
 using MFFVP.Api.BffWeb.People;
 using MFFVP.Api.BffWeb.Products;
-using MFFVP.Api.BffWeb.Trusts;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
@@ -68,13 +67,11 @@ builder.Services.AddProductsModule(builder.Configuration);
 builder.Services.AddPeopleModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
 
-builder.Services.AddBffTrustsServices();
 builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();
 builder.Services.AddBffPeopleServices();
 builder.Services.AddBffOperationsServices();
 
-builder.Services.AddEndpoints(typeof(TrustsEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(ProductsEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(PeopleEndpoints).Assembly);

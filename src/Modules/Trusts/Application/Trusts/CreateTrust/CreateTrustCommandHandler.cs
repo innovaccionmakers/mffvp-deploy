@@ -19,7 +19,7 @@ internal sealed class CreateTrustCommandHandler(
 
         var result = Trust.Create(
             request.AffiliateId,
-            request.ClientId,
+            request.ClientOperationId,
             request.CreationDate,
             request.ObjectiveId,
             request.PortfolioId,
@@ -30,8 +30,7 @@ internal sealed class CreateTrustCommandHandler(
             request.TaxCondition,
             request.ContingentWithholding,
             request.EarningsWithholding,
-            request.AvailableAmount,
-            request.ContingentWithholdingPercentage
+            request.AvailableAmount
         );
 
         if (result.IsFailure) return Result.Failure<TrustResponse>(result.Error);
@@ -46,7 +45,7 @@ internal sealed class CreateTrustCommandHandler(
         return new TrustResponse(
             trust.TrustId,
             trust.AffiliateId,
-            trust.ClientId,
+            trust.ClientOperationId,
             trust.CreationDate,
             trust.ObjectiveId,
             trust.PortfolioId,
@@ -57,8 +56,7 @@ internal sealed class CreateTrustCommandHandler(
             trust.TaxCondition,
             trust.ContingentWithholding,
             trust.EarningsWithholding,
-            trust.AvailableAmount,
-            trust.ContingentWithholdingPercentage
+            trust.AvailableAmount
         );
     }
 }

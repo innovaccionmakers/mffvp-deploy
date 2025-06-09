@@ -14,6 +14,7 @@ using Trusts.Infrastructure.Database;
 using Trusts.Infrastructure.RulesEngine;
 using Trusts.Infrastructure.TrustHistories;
 using Trusts.Infrastructure.Trusts;
+using Trusts.IntegrationEvents.CreateTrust;
 
 namespace Trusts.Infrastructure;
 
@@ -47,6 +48,7 @@ public static class TrustsModule
         services.AddScoped<ITrustHistoryRepository, TrustHistoryRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
+        services.AddScoped<CreateTrustConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());
     }

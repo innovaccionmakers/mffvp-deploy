@@ -37,7 +37,9 @@ public sealed class ContributionValidationConsumer : ICapSubscribe
                 AffiliateId: result.Value.AffiliateId,
                 ObjectiveId: result.Value.ObjectiveId,
                 PortfolioId: result.Value.PortfolioId,
-                PortfolioInitialMinimumAmount: result.Value.PortfolioInitialMinimumAmount),
+                PortfolioInitialMinimumAmount: result.Value.PortfolioInitialMinimumAmount,
+                PortfolioName: result.Value.PortfolioName
+                ),
             err => new ContributionValidationResponse(
                 false,
                 err.Error.Code,

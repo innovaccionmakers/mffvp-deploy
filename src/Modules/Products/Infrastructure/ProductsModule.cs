@@ -28,6 +28,7 @@ using Products.Infrastructure.Offices;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
 using Products.Infrastructure.RulesEngine;
+using Products.IntegrationEvents.ContributionValidation;
 
 namespace Products.Infrastructure;
 
@@ -69,6 +70,7 @@ public static class ProductsModule
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
         services.AddScoped<IObjectiveReader, ObjectiveReader>();
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();
+        services.AddScoped<ContributionValidationConsumer>();
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());

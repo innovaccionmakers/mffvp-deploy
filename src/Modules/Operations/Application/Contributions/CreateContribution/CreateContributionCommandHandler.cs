@@ -16,6 +16,7 @@ using Operations.Integrations.Contributions;
 using Operations.Integrations.Contributions.CreateContribution;
 using People.IntegrationEvents.ClientValidation;
 using Products.IntegrationEvents.ContributionValidation;
+using Trusts.IntegrationEvents.CreateTrust;
 
 namespace Operations.Application.Contributions.CreateContribution;
 
@@ -45,10 +46,12 @@ internal sealed class CreateContributionCommandHandler(
 
         var scopes = new[]
         {
-            (Code: request.OriginModality, Scope: HomologScope.Of<CreateContributionCommand>(c => c.OriginModality)),
+            (Code: request.OriginModality,
+                Scope: HomologScope.Of<CreateContributionCommand>(c => c.OriginModality)),
             (Code: request.CollectionMethod,
                 Scope: HomologScope.Of<CreateContributionCommand>(c => c.CollectionMethod)),
-            (Code: request.PaymentMethod, Scope: HomologScope.Of<CreateContributionCommand>(c => c.PaymentMethod))
+            (Code: request.PaymentMethod,
+                Scope: HomologScope.Of<CreateContributionCommand>(c => c.PaymentMethod))
         };
 
         var batchCfg = await configurationParameterRepository
@@ -97,8 +100,12 @@ internal sealed class CreateContributionCommandHandler(
         var isFirstContribution = !hasPrevious;
 
         var subtype = string.IsNullOrWhiteSpace(request.Subtype)
-            ? null
+            ? await subtypeRepo.GetByNameAsync("Ninguno", cancellationToken)
             : await subtypeRepo.GetByHomologatedCodeAsync(request.Subtype!, cancellationToken);
+        
+        if (string.IsNullOrWhiteSpace(request.Subtype) && subtype is null)
+            throw new InvalidOperationException(
+                "El SubtransactionType por defecto 'Ninguno' no se encuentra configurado.");
 
         var subtypeExists = subtype is not null;
 
@@ -118,7 +125,8 @@ internal sealed class CreateContributionCommandHandler(
             ContributionSource = new
             {
                 Exists = contributionSource is not null,
-                Active = contributionSource?.Status.Equals("A", StringComparison.OrdinalIgnoreCase) == true
+                Active = contributionSource?.Status.Equals("A", StringComparison.OrdinalIgnoreCase) == true,
+                RequiresCertification = contributionSource?.RequiresCertification ?? false
             },
             OriginModality = new
             {
@@ -197,7 +205,6 @@ internal sealed class CreateContributionCommandHandler(
         var taxConditionId = configsByUuid[neededUuids[0]].ConfigurationParameterId;
         var certificationStatusId = configsByUuid[neededUuids[1]].ConfigurationParameterId;
 
-
         var retentionPct = configsByUuid.TryGetValue(ConfigurationParameterUuids.RetentionPct, out var pctParam)
             ? decimal.TryParse(pctParam.Metadata.RootElement.GetString()?.TrimEnd('%'), out var p)
                 ? p / 100m
@@ -247,19 +254,44 @@ internal sealed class CreateContributionCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        var trustCreation = await rpc.CallAsync<
+            CreateTrustRequest,
+            CreateTrustResponse>(
+            nameof(CreateTrustRequest),
+            new CreateTrustRequest(
+                contributionValidation.AffiliateId!.Value,
+                operationResult.Value.ClientOperationId,
+                DateTime.UtcNow,
+                contributionValidation.ObjectiveId!.Value,
+                contributionValidation.PortfolioId!.Value,
+                request.Amount,
+                0,
+                request.Amount,
+                0m,
+                taxConditionId,
+                withheldAmount,
+                0m,
+                request.Amount),
+            TimeSpan.FromSeconds(5),
+            cancellationToken);
+
+        if (!trustCreation.Succeeded)
+            return Result.Failure<ContributionResponse>(
+                Error.Validation(trustCreation.Code ?? string.Empty, trustCreation.Message ?? string.Empty));
+
+
+        var taxConditionParam = configsByUuid[neededUuids[0]];
+
         var response = new ContributionResponse(
-            "Success",
-            201,
-            "Contribución procesada correctamente",
-            123456789,
+            operationResult.Value.ClientOperationId,
             request.PortfolioId,
-            "Cartera Principal",
-            "RESIDENT",
-            0.0m
+            contributionValidation.PortfolioName,
+            taxConditionParam.Name,
+            withheldAmount
         );
 
         await transaction.CommitAsync(cancellationToken);
 
-        return Result.Success(response);
+        return Result.Success(response, "Transacción causada Exitosamente");
     }
 }
