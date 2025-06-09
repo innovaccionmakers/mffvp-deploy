@@ -24,12 +24,12 @@ internal sealed class ConfigurationParameterRepository : IConfigurationParameter
                 cancellationToken
             );
     }
-    
+
     public async Task<IReadOnlyDictionary<(string Code, string Scope), ConfigurationParameter>>
         GetByCodesAndTypesAsync(IEnumerable<(string Code, string Scope)> pairs, CancellationToken ct)
     {
-        var list   = pairs.ToList();
-        var codes  = list.Select(x => x.Code).Distinct().ToList();
+        var list = pairs.ToList();
+        var codes = list.Select(x => x.Code).Distinct().ToList();
         var scopes = list.Select(x => x.Scope).Distinct().ToList();
 
         var items = await context.ConfigurationParameters
@@ -53,8 +53,8 @@ internal sealed class ConfigurationParameterRepository : IConfigurationParameter
                      && p.Name == scope,
                 cancellationToken);
     }
-    
-    public async Task<IReadOnlyDictionary<Guid, ConfigurationParameter>> 
+
+    public async Task<IReadOnlyDictionary<Guid, ConfigurationParameter>>
         GetByUuidsAsync(IEnumerable<Guid> uuids, CancellationToken cancellationToken)
     {
         var items = await context.ConfigurationParameters

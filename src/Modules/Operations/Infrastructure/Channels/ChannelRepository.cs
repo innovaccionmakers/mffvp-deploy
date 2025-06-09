@@ -8,8 +8,10 @@ internal sealed class ChannelRepository(OperationsDbContext context) : IChannelR
 {
     public Task<Channel?> FindByHomologatedCodeAsync(
         string homologatedCode,
-        CancellationToken cancellationToken = default) =>
-        context.Channels
+        CancellationToken cancellationToken = default)
+    {
+        return context.Channels
             .AsNoTracking()
             .SingleOrDefaultAsync(c => c.HomologatedCode == homologatedCode, cancellationToken);
+    }
 }

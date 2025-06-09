@@ -6,7 +6,7 @@ public interface IConfigurationParameterRepository
         Guid uuid,
         CancellationToken cancellationToken = default
     );
-    
+
     Task<IReadOnlyDictionary<(string Code, string Scope), ConfigurationParameter>>
         GetByCodesAndTypesAsync(
             IEnumerable<(string Code, string Scope)> pairs,
@@ -17,7 +17,7 @@ public interface IConfigurationParameterRepository
         string homologationCode,
         string scope,
         CancellationToken cancellationToken = default);
-    
-    Task<IReadOnlyDictionary<Guid, ConfigurationParameter>> 
+
+    Task<IReadOnlyDictionary<Guid, ConfigurationParameter>>
         GetByUuidsAsync(IEnumerable<Guid> uuids, CancellationToken cancellationToken = default);
 }

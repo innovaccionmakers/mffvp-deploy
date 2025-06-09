@@ -1,297 +1,168 @@
-using Associate.IntegrationEvents.ActivateValidation;
-using Common.SharedKernel.Application.Attributes;
 using System.Text.Json;
-using Operations.Domain.AuxiliaryInformations;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
+using Operations.Application.Abstractions.External;
 using Operations.Application.Abstractions.Rules;
-using Operations.Domain.Channels;
+using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.ConfigurationParameters;
-using Operations.Domain.Origins;
-using Operations.Domain.SubtransactionTypes;
 using Operations.Integrations.Contributions;
 using Operations.Integrations.Contributions.CreateContribution;
-using People.IntegrationEvents.ClientValidation;
-using Products.IntegrationEvents.ContributionValidation;
-using Trusts.IntegrationEvents.CreateTrust;
 
 namespace Operations.Application.Contributions.CreateContribution;
 
 internal sealed class CreateContributionCommandHandler(
-    IChannelRepository channelRepository,
-    ISubtransactionTypeRepository subtypeRepo,
-    IOriginRepository originRepository,
-    IConfigurationParameterRepository configurationParameterRepository,
-    IRuleEvaluator<OperationsModuleMarker> ruleEvaluator,
-    ICapRpcClient rpc,
-    IAuxiliaryInformationRepository auxiliaryInformationRepository,
+    IContributionCatalogResolver catalogResolver,
+    IActivateLocator activateLocator,
+    IContributionRemoteValidator remoteValidator,
+    IPersonValidator personValidator,
+    ITaxCalculator taxCalculator,
     IClientOperationRepository clientOperationRepository,
-    IUnitOfWork unitOfWork)
+    IAuxiliaryInformationRepository auxiliaryInformationRepository,
+    IRuleEvaluator<OperationsModuleMarker> ruleEvaluator,
+    IUnitOfWork unitOfWork,
+    ITrustCreator trustCreator)
     : ICommandHandler<CreateContributionCommand, ContributionResponse>
 {
-    private const string ContributionValidationWorkflow = "Operations.Contribution.Validation";
+    private const string Flow = "Operations.Contribution.Validation";
 
-    public async Task<Result<ContributionResponse>> Handle(CreateContributionCommand request,
+    public async Task<Result<ContributionResponse>> Handle(CreateContributionCommand command,
         CancellationToken cancellationToken)
     {
-        var rawCertified = request.CertifiedContribution?.Trim().ToUpperInvariant();
-        var certifiedValid = string.IsNullOrEmpty(rawCertified)
-                             || rawCertified is "SI" or "NO";
+        var catalogs = await catalogResolver.ResolveAsync(command, cancellationToken);
 
-        var contributionSource = await originRepository
-            .FindByHomologatedCodeAsync(request.Origin, cancellationToken);
+        var actRes =
+            await activateLocator.FindAsync(command.TypeId, command.Identification, cancellationToken);
+        if (!actRes.IsSuccess)
+            return Result.Failure<ContributionResponse>(actRes.Error!);
 
-        var scopes = new[]
-        {
-            (Code: request.OriginModality,
-                Scope: HomologScope.Of<CreateContributionCommand>(c => c.OriginModality)),
-            (Code: request.CollectionMethod,
-                Scope: HomologScope.Of<CreateContributionCommand>(c => c.CollectionMethod)),
-            (Code: request.PaymentMethod,
-                Scope: HomologScope.Of<CreateContributionCommand>(c => c.PaymentMethod))
-        };
+        var remoteRes = await remoteValidator.ValidateAsync(
+            actRes.Value.ActivateId,
+            command.ObjectiveId,
+            command.PortfolioId,
+            command.DepositDate,
+            command.ExecutionDate,
+            command.Amount,
+            cancellationToken);
+        if (!remoteRes.IsSuccess)
+            return Result.Failure<ContributionResponse>(remoteRes.Error!);
 
-        var batchCfg = await configurationParameterRepository
-            .GetByCodesAndTypesAsync(scopes, cancellationToken);
+        var certifiedValid = string.IsNullOrWhiteSpace(command.CertifiedContribution) ||
+                             command.CertifiedContribution.Trim().ToUpperInvariant() is "SI" or "NO";
 
-        var originModality = batchCfg.GetValueOrDefault(scopes[0]);
-        var collectionMethod = batchCfg.GetValueOrDefault(scopes[1]);
-        var paymentMethod = batchCfg.GetValueOrDefault(scopes[2]);
-
-        var activateValidation = await rpc.CallAsync<
-            GetActivateIdByIdentificationRequest,
-            GetActivateIdByIdentificationResponse>(
-            nameof(GetActivateIdByIdentificationRequest),
-            new GetActivateIdByIdentificationRequest(request.TypeId, request.Identification),
-            TimeSpan.FromSeconds(5),
+        var firstContribution = !await clientOperationRepository.ExistsContributionAsync(
+            remoteRes.Value.AffiliateId,
+            remoteRes.Value.ObjectiveId,
+            remoteRes.Value.PortfolioId,
             cancellationToken);
 
-        var activate = activateValidation.Activate!;
-
-        if (!activateValidation.Succeeded)
-            return Result.Failure<ContributionResponse>(
-                Error.Validation(activateValidation.Code, activateValidation.Message));
-
-        var contributionValidation = await rpc.CallAsync<
-            ContributionValidationRequest,
-            ContributionValidationResponse>(
-            nameof(ContributionValidationRequest),
-            new ContributionValidationRequest(activate.ActivateId, request.ObjectiveId,
-                request.PortfolioId, request.DepositDate,
-                request.ExecutionDate, request.Amount),
-            TimeSpan.FromSeconds(5),
-            cancellationToken);
-
-        if (!contributionValidation.IsValid)
-            return Result.Failure<ContributionResponse>(
-                Error.Validation(
-                    contributionValidation.Code,
-                    contributionValidation.Message));
-
-        var hasPrevious = await clientOperationRepository.ExistsContributionAsync(
-            contributionValidation.AffiliateId!.Value,
-            contributionValidation.ObjectiveId!.Value,
-            contributionValidation.PortfolioId!.Value,
-            cancellationToken);
-
-        var isFirstContribution = !hasPrevious;
-
-        var subtype = string.IsNullOrWhiteSpace(request.Subtype)
-            ? await subtypeRepo.GetByNameAsync("Ninguno", cancellationToken)
-            : await subtypeRepo.GetByHomologatedCodeAsync(request.Subtype!, cancellationToken);
-        
-        if (string.IsNullOrWhiteSpace(request.Subtype) && subtype is null)
-            throw new InvalidOperationException(
-                "El SubtransactionType por defecto 'Ninguno' no se encuentra configurado.");
-
-        var subtypeExists = subtype is not null;
-
-        var config = subtypeExists
-            ? await configurationParameterRepository.GetByUuidAsync(subtype!.Category, cancellationToken)
-            : null;
-
-        var categoryIsContribution = config?.Name == "Aporte";
-
-        var channel = await channelRepository.FindByHomologatedCodeAsync(
-            request.Channel, cancellationToken);
-
-        var channelExists = channel is not null;
-
-        var validationContext = new
+        var contextValidation = new
         {
             ContributionSource = new
             {
-                Exists = contributionSource is not null,
-                Active = contributionSource?.Status.Equals("A", StringComparison.OrdinalIgnoreCase) == true,
-                RequiresCertification = contributionSource?.RequiresCertification ?? false
+                Exists = catalogs.Source is not null,
+                Active = catalogs.Source?.Status.Equals("A", StringComparison.OrdinalIgnoreCase) == true,
+                RequiresCertification = catalogs.Source?.RequiresCertification ?? false
             },
-            OriginModality = new
-            {
-                Exists = originModality is not null,
-                Active = originModality?.Status ?? false
-            },
-            CollectionMethod = new
-            {
-                Exists = collectionMethod is not null,
-                Active = collectionMethod?.Status ?? false
-            },
-            PaymentMethod = new
-            {
-                Exists = paymentMethod is not null,
-                Active = paymentMethod?.Status ?? false
-            },
-            Channel = new
-            {
-                Exists = channelExists
-            },
-            IsFirstContribution = isFirstContribution,
-            PortfolioInitialMinimumAmount = contributionValidation.PortfolioInitialMinimumAmount!.Value,
-            Amount = request.Amount,
-            CertifiedContributionProvided = !string.IsNullOrWhiteSpace(request.CertifiedContribution),
+            OriginModality = BuildCtx(catalogs.OriginModality),
+            CollectionMethod = BuildCtx(catalogs.CollectionMethod),
+            PaymentMethod = BuildCtx(catalogs.PaymentMethod),
+            Channel = new { Exists = catalogs.Channel is not null },
+            IsFirstContribution = firstContribution,
+            PortfolioInitialMinimumAmount = remoteRes.Value.PortfolioInitialMinimumAmount,
+            Amount = command.Amount,
+            CertifiedContributionProvided = !string.IsNullOrWhiteSpace(command.CertifiedContribution),
             CertifiedContributionValid = certifiedValid,
-            SubtypeExists = subtypeExists,
-            CategoryIsContribution = categoryIsContribution
+            SubtypeExists = catalogs.Subtype is not null,
+            CategoryIsContribution = catalogs.SubtypeCategoryCfg?.Name == "Aporte"
         };
 
-        var (ok, _, errors) = await ruleEvaluator.EvaluateAsync(
-            ContributionValidationWorkflow,
-            validationContext,
-            cancellationToken);
-
+        var (ok, _, errs) = await ruleEvaluator.EvaluateAsync(Flow, contextValidation, cancellationToken);
         if (!ok)
         {
-            var first = errors.First();
-            return Result.Failure<ContributionResponse>(
-                Error.Validation(first.Code, first.Message));
+            var e = errs.First();
+            return Result.Failure<ContributionResponse>(Error.Validation(e.Code, e.Message));
         }
 
-        var personValidation = await rpc.CallAsync<
-            ValidatePersonByIdentificationRequest,
-            ValidatePersonByIdentificationResponse>(
-            nameof(ValidatePersonByIdentificationRequest),
-            new ValidatePersonByIdentificationRequest(request.TypeId, request.Identification),
-            TimeSpan.FromSeconds(5),
+        var personResult =
+            await personValidator.ValidateAsync(command.TypeId, command.Identification, cancellationToken);
+        if (!personResult.IsSuccess)
+            return Result.Failure<ContributionResponse>(personResult.Error!);
+
+        var isCertified = command.CertifiedContribution?.Trim().ToUpperInvariant() == "SI";
+        var tax = await taxCalculator.ComputeAsync(actRes.Value.IsPensioner, isCertified, command.Amount,
             cancellationToken);
-
-        if (!personValidation.IsValid)
-            return Result.Failure<ContributionResponse>(
-                Error.Validation(
-                    personValidation.Code,
-                    personValidation.Message));
-
-        var isPensioner = activate.Pensioner;
-        var isCertified = request.CertifiedContribution?.Trim().ToUpperInvariant() == "SI";
-
-        var neededUuids = new List<Guid>
-        {
-            isPensioner
-                ? ConfigurationParameterUuids.TaxExempt
-                : isCertified
-                    ? ConfigurationParameterUuids.TaxNoRetention
-                    : ConfigurationParameterUuids.TaxRetention,
-
-            isCertified
-                ? ConfigurationParameterUuids.CertifiedState
-                : ConfigurationParameterUuids.UncertifiedState
-        };
-
-        if (!isPensioner && !isCertified)
-            neededUuids.Add(ConfigurationParameterUuids.RetentionPct);
-
-        var configsByUuid = await configurationParameterRepository.GetByUuidsAsync(neededUuids, cancellationToken);
-        var taxConditionId = configsByUuid[neededUuids[0]].ConfigurationParameterId;
-        var certificationStatusId = configsByUuid[neededUuids[1]].ConfigurationParameterId;
-
-        var retentionPct = configsByUuid.TryGetValue(ConfigurationParameterUuids.RetentionPct, out var pctParam)
-            ? decimal.TryParse(pctParam.Metadata.RootElement.GetString()?.TrimEnd('%'), out var p)
-                ? p / 100m
-                : 0m
-            : 0m;
-
-        var withheldAmount = retentionPct > 0
-            ? request.Amount * retentionPct
-            : 0m;
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        var operationResult = ClientOperation.Create(
+        var operation = ClientOperation.Create(
             DateTime.UtcNow,
-            contributionValidation.AffiliateId!.Value,
-            contributionValidation.ObjectiveId!.Value,
-            contributionValidation.PortfolioId!.Value,
-            request.Amount,
-            request.ExecutionDate,
-            subtype?.SubtransactionTypeId ?? 0);
-
-        clientOperationRepository.Insert(operationResult.Value);
-
+            remoteRes.Value.AffiliateId,
+            remoteRes.Value.ObjectiveId,
+            remoteRes.Value.PortfolioId,
+            command.Amount,
+            command.ExecutionDate,
+            catalogs.Subtype?.SubtransactionTypeId ?? 0).Value;
+        clientOperationRepository.Insert(operation);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var auxResult = AuxiliaryInformation.Create(
-            operationResult.Value.ClientOperationId,
-            contributionSource!.OriginId,
-            collectionMethod!.ConfigurationParameterId,
-            paymentMethod!.ConfigurationParameterId,
-            int.TryParse(request.CollectionAccount, out var account) ? account : 0,
-            request.PaymentMethodDetail ?? JsonDocument.Parse("{}"),
-            certificationStatusId,
-            taxConditionId,
-            request.ContingentWithholding.HasValue ? (int)request.ContingentWithholding.Value : 0,
-            request.VerifiableMedium ?? JsonDocument.Parse("{}"),
-            request.CollectionBank,
-            request.DepositDate,
-            request.SalesUser,
-            originModality!.ConfigurationParameterId,
+        var aux = AuxiliaryInformation.Create(
+            operation.ClientOperationId,
+            catalogs.Source!.OriginId,
+            catalogs.CollectionMethod!.ConfigurationParameterId,
+            catalogs.PaymentMethod!.ConfigurationParameterId,
+            int.TryParse(command.CollectionAccount, out var acc) ? acc : 0,
+            command.PaymentMethodDetail ?? JsonDocument.Parse("{}"),
+            tax.CertificationStatusId,
+            tax.TaxConditionId,
             0,
-            channel?.ChannelId ?? 0,
-            int.TryParse(request.User, out var userId) ? userId : 0
-        );
-
-        auxiliaryInformationRepository.Insert(auxResult.Value);
+            command.VerifiableMedium ?? JsonDocument.Parse("{}"),
+            command.CollectionBank,
+            command.DepositDate,
+            command.SalesUser,
+            catalogs.OriginModality!.ConfigurationParameterId,
+            0,
+            catalogs.Channel?.ChannelId ?? 0,
+            int.TryParse(command.User, out var uid) ? uid : 0).Value;
+        auxiliaryInformationRepository.Insert(aux);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var trustCreation = await rpc.CallAsync<
-            CreateTrustRequest,
-            CreateTrustResponse>(
-            nameof(CreateTrustRequest),
-            new CreateTrustRequest(
-                contributionValidation.AffiliateId!.Value,
-                operationResult.Value.ClientOperationId,
+        var trustRes = await trustCreator.CreateAsync(
+            new TrustCreationDto(
+                remoteRes.Value.AffiliateId,
+                operation.ClientOperationId,
                 DateTime.UtcNow,
-                contributionValidation.ObjectiveId!.Value,
-                contributionValidation.PortfolioId!.Value,
-                request.Amount,
+                remoteRes.Value.ObjectiveId,
+                remoteRes.Value.PortfolioId,
+                command.Amount,
                 0,
-                request.Amount,
+                command.Amount,
                 0m,
-                taxConditionId,
-                withheldAmount,
+                tax.TaxConditionId,
+                tax.WithheldAmount,
                 0m,
-                request.Amount),
-            TimeSpan.FromSeconds(5),
+                command.Amount),
             cancellationToken);
-
-        if (!trustCreation.Succeeded)
-            return Result.Failure<ContributionResponse>(
-                Error.Validation(trustCreation.Code ?? string.Empty, trustCreation.Message ?? string.Empty));
-
-
-        var taxConditionParam = configsByUuid[neededUuids[0]];
-
-        var response = new ContributionResponse(
-            operationResult.Value.ClientOperationId,
-            request.PortfolioId,
-            contributionValidation.PortfolioName,
-            taxConditionParam.Name,
-            withheldAmount
-        );
+        if (!trustRes.IsSuccess)
+            return Result.Failure<ContributionResponse>(trustRes.Error!);
 
         await transaction.CommitAsync(cancellationToken);
 
-        return Result.Success(response, "Transacción causada Exitosamente");
+        var resp = new ContributionResponse(
+            operation.ClientOperationId,
+            command.PortfolioId,
+            remoteRes.Value.PortfolioName,
+            tax.TaxConditionName,
+            tax.WithheldAmount);
+
+        return Result.Success(resp, "Transacción causada Exitosamente");
+    }
+
+    private static object BuildCtx(ConfigurationParameter? p)
+    {
+        return new { Exists = p is not null, Active = p?.Status ?? false };
     }
 }

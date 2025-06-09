@@ -10,13 +10,19 @@ using Operations.Infrastructure.AuxiliaryInformations;
 using Operations.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Operations.Application.Abstractions;
+using Operations.Application.Abstractions.External;
 using Operations.Application.Abstractions.Rules;
+using Operations.Application.Contributions.Services;
 using Operations.Domain.Channels;
 using Operations.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ConfigurationParameters;
+using Operations.Infrastructure.External.Activate;
+using Operations.Infrastructure.External.ContributionValidation;
+using Operations.Infrastructure.External.People;
+using Operations.Infrastructure.External.Trusts;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.RulesEngine;
 using Operations.Infrastructure.SubtransactionTypes;
@@ -54,6 +60,14 @@ public static class OperationsModule
         services.AddScoped<IOriginRepository, OriginRepository>();
         services.AddScoped<ISubtransactionTypeRepository, SubtransactionTypeRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
+
+        services.AddScoped<IActivateLocator, ActivateLocator>();
+        services.AddScoped<IContributionRemoteValidator, ContributionRemoteValidator>();
+        services.AddScoped<IPersonValidator, PersonValidator>();
+        services.AddScoped<ITrustCreator, TrustCreator>();
+
+        services.AddScoped<IContributionCatalogResolver, ContributionCatalogResolver>();
+        services.AddScoped<ITaxCalculator, TaxCalculator>();
 
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
 

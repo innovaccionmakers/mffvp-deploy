@@ -8,15 +8,19 @@ internal sealed class SubtransactionTypeRepository(OperationsDbContext context) 
 {
     public Task<SubtransactionType?> GetByHomologatedCodeAsync(
         string homologatedCode,
-        CancellationToken ct = default) =>
-        context.SubtransactionTypes
+        CancellationToken ct = default)
+    {
+        return context.SubtransactionTypes
             .AsNoTracking()
             .SingleOrDefaultAsync(s => s.HomologatedCode == homologatedCode, ct);
-    
+    }
+
     public Task<SubtransactionType?> GetByNameAsync(
         string name,
-        CancellationToken ct = default) =>
-        context.SubtransactionTypes
+        CancellationToken ct = default)
+    {
+        return context.SubtransactionTypes
             .AsNoTracking()
             .SingleOrDefaultAsync(s => s.Name == name, ct);
+    }
 }

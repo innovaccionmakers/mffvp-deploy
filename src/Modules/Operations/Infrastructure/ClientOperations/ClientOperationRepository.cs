@@ -43,19 +43,16 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         return await context.ClientOperations
             .Where(op =>
                 op.AffiliateId == affiliateId &&
-                op.ObjectiveId  == objectiveId &&
-                op.PortfolioId  == portfolioId)
-            
+                op.ObjectiveId == objectiveId &&
+                op.PortfolioId == portfolioId)
             .Join(context.SubtransactionTypes,
-                op  => op.SubtransactionTypeId,
-                st  => st.SubtransactionTypeId,
+                op => op.SubtransactionTypeId,
+                st => st.SubtransactionTypeId,
                 (op, st) => st)
-            
             .Join(context.ConfigurationParameters,
-                st  => st.Category,
-                cp  => cp.Uuid,
+                st => st.Category,
+                cp => cp.Uuid,
                 (st, cp) => cp.Name)
-            
             .AnyAsync(name => name == contributionLabel, ct);
     }
 }
