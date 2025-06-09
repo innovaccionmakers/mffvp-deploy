@@ -7,5 +7,6 @@ public sealed record ContributionValidationResponse(
     int? AffiliateId = null,
     int? ObjectiveId = null,
     int? PortfolioId = null,
-    decimal? PortfolioInitialMinimumAmount = null
+    decimal? PortfolioInitialMinimumAmount = null,
+    string? PortfolioName = null
 );

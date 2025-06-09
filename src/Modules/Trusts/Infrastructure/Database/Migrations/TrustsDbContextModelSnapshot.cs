@@ -95,38 +95,6 @@ namespace Trusts.Infrastructure.Database.Migrations
                     b.ToTable("parametros_configuracion", "fideicomisos");
                 });
 
-            modelBuilder.Entity("Trusts.Domain.TrustHistories.TrustHistory", b =>
-                {
-                    b.Property<long>("TrustHistoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TrustHistoryId"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha");
-
-                    b.Property<decimal>("Earnings")
-                        .HasColumnType("numeric")
-                        .HasColumnName("rendimiento");
-
-                    b.Property<string>("SalesUserId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("comercial_id");
-
-                    b.Property<long>("TrustId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("TrustHistoryId");
-
-                    b.HasIndex("TrustId");
-
-                    b.ToTable("historicos_fideicomisos", "fideicomisos");
-                });
-
             modelBuilder.Entity("Trusts.Domain.Trusts.Trust", b =>
                 {
                     b.Property<long>("TrustId")
@@ -141,31 +109,27 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .HasColumnName("afiliado_id");
 
                     b.Property<decimal>("AvailableAmount")
-                        .HasColumnType("numeric")
+                        .HasColumnType("decimal(19, 2)")
                         .HasColumnName("disponible");
 
-                    b.Property<int>("ClientId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cliente_id");
+                    b.Property<long>("ClientOperationId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("operaciones_cliente_id");
 
                     b.Property<decimal>("ContingentWithholding")
-                        .HasColumnType("numeric")
+                        .HasColumnType("decimal(19, 2)")
                         .HasColumnName("retencion_contingente");
-
-                    b.Property<decimal>("ContingentWithholdingPercentage")
-                        .HasColumnType("numeric")
-                        .HasColumnName("porcentaje_retencion_contingente");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_creacion");
 
                     b.Property<decimal>("Earnings")
-                        .HasColumnType("numeric")
+                        .HasColumnType("decimal(19, 2)")
                         .HasColumnName("rendimiento");
 
                     b.Property<decimal>("EarningsWithholding")
-                        .HasColumnType("numeric")
+                        .HasColumnType("decimal(19, 2)")
                         .HasColumnName("retencion_rendimiento");
 
                     b.Property<int>("ObjectiveId")
@@ -177,7 +141,7 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .HasColumnName("portafolio_id");
 
                     b.Property<decimal>("Principal")
-                        .HasColumnType("numeric")
+                        .HasColumnType("decimal(19, 2)")
                         .HasColumnName("capital");
 
                     b.Property<int>("TaxCondition")
@@ -185,7 +149,7 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .HasColumnName("condicion_tributaria");
 
                     b.Property<decimal>("TotalBalance")
-                        .HasColumnType("numeric")
+                        .HasColumnType("decimal(19, 2)")
                         .HasColumnName("saldo_total");
 
                     b.Property<int>("TotalUnits")
@@ -205,15 +169,6 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("Trusts.Domain.TrustHistories.TrustHistory", b =>
-                {
-                    b.HasOne("Trusts.Domain.Trusts.Trust", null)
-                        .WithMany()
-                        .HasForeignKey("TrustId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Trusts.Domain.ConfigurationParameters.ConfigurationParameter", b =>

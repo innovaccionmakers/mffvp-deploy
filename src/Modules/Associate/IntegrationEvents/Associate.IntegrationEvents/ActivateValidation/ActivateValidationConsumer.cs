@@ -1,3 +1,4 @@
+using Associate.Integrations.Activates.GetActivate;
 using Associate.Integrations.Activates.GetActivateId;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Presentation.Results;
@@ -21,12 +22,19 @@ public sealed class ActivateValidationConsumer : ICapSubscribe
         var corr = header[CapRpcClient.Headers.CorrelationId];
         header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
 
-        var result = await _mediator.Send(
+        var idResult  = await _mediator.Send(
             new GetActivateIdQuery(message.IdentificationType, message.Identification),
             cancellationToken);
-
-        return result.Match(
-            success  => new GetActivateIdByIdentificationResponse(true,  success.ActivateId, null, null),
-            failure  => new GetActivateIdByIdentificationResponse(false, null, failure.Error.Code, failure.Error.Description));
+        
+        if (!idResult.IsSuccess)
+            return new GetActivateIdByIdentificationResponse(false, null, idResult.Error.Code, idResult.Error.Description);
+        
+        var infoResult = await _mediator.Send(
+            new GetActivateQuery(idResult.Value.ActivateId),
+            cancellationToken);
+        
+        return infoResult.Match(
+            success => new GetActivateIdByIdentificationResponse(true, success, null, null),
+            failure => new GetActivateIdByIdentificationResponse(false, null, failure.Error.Code, failure.Error.Description));
     }
 }

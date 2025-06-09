@@ -16,6 +16,7 @@ using People.Application.Abstractions.Rules;
 using People.Domain.ConfigurationParameters;
 using People.Infrastructure.ConfigurationParameters;
 using People.Infrastructure.RulesEngine;
+using People.IntegrationEvents.ClientValidation;
 using People.IntegrationEvents.DocumentTypeValidation;
 using People.IntegrationEvents.PersonValidation;
 
@@ -52,6 +53,7 @@ public static class PeopleModule
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IErrorCatalog, ErrorCatalog>();
         services.AddTransient<PersonValidationConsumer>();
+        services.AddTransient<ClientValidationConsumer>();
         services.AddTransient<DocumentTypeValidationConsumer>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PeopleDbContext>());
     }

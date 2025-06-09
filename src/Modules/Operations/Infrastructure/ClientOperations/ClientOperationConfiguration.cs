@@ -18,7 +18,6 @@ internal sealed class ClientOperationConfiguration : IEntityTypeConfiguration<Cl
         builder.Property(x => x.PortfolioId).HasColumnName("portafolio_id");
         builder.Property(x => x.Amount).HasColumnName("valor");
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
-        builder.Property(x => x.CausationDate).HasColumnName("fecha_causacion");
         builder.Property(x => x.SubtransactionTypeId).HasColumnName("subtipo_transaccion_id");
 
         builder.HasOne(x => x.SubtransactionType)

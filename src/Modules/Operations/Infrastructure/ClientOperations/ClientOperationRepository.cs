@@ -33,20 +33,26 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
     }
 
     public async Task<bool> ExistsContributionAsync(
-        int affiliateId, int objectiveId, int portfolioId, CancellationToken ct)
+        int affiliateId,
+        int objectiveId,
+        int portfolioId,
+        CancellationToken ct)
     {
+        const string contributionLabel = "Aporte";
+
         return await context.ClientOperations
-            .Where(co => co.AffiliateId == affiliateId &&
-                         co.ObjectiveId == objectiveId &&
-                         co.PortfolioId == portfolioId)
+            .Where(op =>
+                op.AffiliateId == affiliateId &&
+                op.ObjectiveId == objectiveId &&
+                op.PortfolioId == portfolioId)
+            .Join(context.SubtransactionTypes,
+                op => op.SubtransactionTypeId,
+                st => st.SubtransactionTypeId,
+                (op, st) => st)
             .Join(context.ConfigurationParameters,
-                co => co.SubtransactionTypeId,
-                st => st.ConfigurationParameterId,
-                (co, st) => new { co, st })
-            .Join(context.ConfigurationParameters,
-                x => x.st.ParentId,
-                parent => parent.ConfigurationParameterId,
-                (x, parent) => parent.Name)
-            .AnyAsync(name => name == "Aporte", ct);
+                st => st.Category,
+                cp => cp.Uuid,
+                (st, cp) => cp.Name)
+            .AnyAsync(name => name == contributionLabel, ct);
     }
 }

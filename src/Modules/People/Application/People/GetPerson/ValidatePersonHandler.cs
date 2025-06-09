@@ -14,8 +14,7 @@ namespace People.Application.People.GetPerson;
 internal sealed class ValidatePersonHandler(
     IConfigurationParameterRepository configurationParameterRepository,
     IPersonRepository personRepository,
-    IRuleEvaluator<PeopleModuleMarker> ruleEvaluator,
-    ICapRpcClient rpc
+    IRuleEvaluator<PeopleModuleMarker> ruleEvaluator
 ) : IQueryHandler<ValidatePersonQuery, ValidatePersonResponse>
 {
     private const string DocumentTypeValidationWorkflow = "People.Person.Validation";
@@ -42,7 +41,8 @@ internal sealed class ValidatePersonHandler(
         var validationContext = new
         {
             DocumentTypeExists = documentType is not null,
-            PersonExists = person is not null
+            PersonExists = person is not null,
+            PersonIsActive     = person?.Status ?? false
         };
 
         var (rulesOk, _, ruleErrors) = await ruleEvaluator
@@ -54,18 +54,6 @@ internal sealed class ValidatePersonHandler(
             return Result.Failure<ValidatePersonResponse>(
                 Error.Validation(first.Code, first.Message));
         }
-
-        var activateResponse = await rpc.CallAsync<
-            GetActivateIdByIdentificationRequest,
-            GetActivateIdByIdentificationResponse>(
-            nameof(GetActivateIdByIdentificationRequest),
-            new GetActivateIdByIdentificationRequest(documentTypeCode, identification),
-            TimeSpan.FromSeconds(5),
-            cancellationToken);
-
-        if (!activateResponse.Succeeded)
-            return Result.Failure<ValidatePersonResponse>(
-                Error.Validation(activateResponse.Code, activateResponse.Message));
 
         return Result.Success(new ValidatePersonResponse(
             true));

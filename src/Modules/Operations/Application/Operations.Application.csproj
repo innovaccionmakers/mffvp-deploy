@@ -7,12 +7,18 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
         <ProjectReference Include="..\..\People\IntegrationEvents\People.IntegrationEvents\People.IntegrationEvents.csproj"/>
         <ProjectReference Include="..\..\Products\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj"/>
+        <ProjectReference Include="..\..\Trusts\IntegrationEvents\Trusts.IntegrationEvents\Trusts.IntegrationEvents.csproj"/>
         <ProjectReference Include="..\Domain\Operations.Domain.csproj"/>
         <ProjectReference Include="..\Integrations\Operations.Integrations.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="RulesEngine" Version="5.0.6"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Operations.test.UnitTests" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 
     <PropertyGroup>

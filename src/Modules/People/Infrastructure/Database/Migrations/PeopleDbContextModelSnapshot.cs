@@ -296,7 +296,7 @@ namespace People.Infrastructure.Database.Migrations
 
                     b.HasIndex("EconomicActivityId");
 
-                    b.ToTable("persona", "personas");
+                    b.ToTable("personas", "personas");
                 });
 
             modelBuilder.Entity("People.Domain.ConfigurationParameters.ConfigurationParameter", b =>

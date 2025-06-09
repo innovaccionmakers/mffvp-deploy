@@ -30,7 +30,16 @@
         "Properties": {
           "errorCode": "5275d643-465a-40f3-83aa-afec26302136"
         }
+      },
+      {
+        "RuleName":    "ClientMustBeActive",
+        "ErrorMessage":"El Cliente se encuentra Inactivo",
+        "Expression":  "input.DocumentTypeExists && input.PersonExists && input.PersonIsActive",
+        "Properties": {
+          "errorCode":"5f2e044b-fdc7-44c4-81e9-3d1b2e786f91"
+        }
       }
+
     ]
   },
   {

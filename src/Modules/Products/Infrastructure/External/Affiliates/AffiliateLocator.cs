@@ -24,6 +24,6 @@ internal sealed class AffiliateLocator(ICapRpcClient rpc) : IAffiliateLocator
             return Result.Failure<int?>(
                 Error.Validation(rsp.Code, rsp.Message));
 
-        return Result.Success<int?>(rsp.ActivateId);
+        return Result.Success<int?>(rsp.Activate?.ActivateId);
     }
 }

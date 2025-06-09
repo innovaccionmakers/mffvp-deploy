@@ -14,7 +14,6 @@ public sealed class ClientOperation : Entity
     public int PortfolioId { get; private set; }
     public decimal Amount { get; private set; }
     public DateTime ProcessDate { get; private set; }
-    public DateTime CausationDate { get; private set; }
     public long SubtransactionTypeId { get; private set; }
 
     public SubtransactionType SubtransactionType { get; private set; } = null!;
@@ -34,7 +33,6 @@ public sealed class ClientOperation : Entity
         int portfolioId,
         decimal amount,
         DateTime processDate,
-        DateTime causationDate,
         long subtransactionTypeId
     )
     {
@@ -47,7 +45,6 @@ public sealed class ClientOperation : Entity
             PortfolioId = portfolioId,
             Amount = amount,
             ProcessDate = processDate,
-            CausationDate = causationDate,
             SubtransactionTypeId = subtransactionTypeId
         };
 
@@ -62,7 +59,6 @@ public sealed class ClientOperation : Entity
         int newPortfolioId,
         decimal newAmount,
         DateTime newProcessDate,
-        DateTime newCausationDate,
         long newSubtransactionTypeId
     )
     {
@@ -72,7 +68,6 @@ public sealed class ClientOperation : Entity
         PortfolioId = newPortfolioId;
         Amount = newAmount;
         ProcessDate = newProcessDate;
-        CausationDate = newCausationDate;
         SubtransactionTypeId = newSubtransactionTypeId;
     }
 }

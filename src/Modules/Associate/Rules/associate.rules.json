@@ -6,7 +6,7 @@
         "RuleName": "ActivateNotExist",
         "Expression": "input.ActiveExists == false",
         "Properties": {
-          "errorCode": "ee0231e8-e7a7-4f43-ae5c-50a02cacf178"
+          "errorCode": "a4c7072f-92c4-4a42-8a1b-ad928ef445dc"
         }
       }
     ]
