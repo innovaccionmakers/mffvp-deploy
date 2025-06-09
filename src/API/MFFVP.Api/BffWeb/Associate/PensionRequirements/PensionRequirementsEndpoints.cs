@@ -20,11 +20,11 @@ namespace MFFVP.Api.BffWeb.Associate.PensionRequirements
 
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            var group = app.MapGroup("bffWeb/api/FVP/associate/pensionrequirements")
+            var group = app.MapGroup("BffWeb/api/FVP/Associate")
                 .WithTags("BFF Web - PensionRequirements")
                 .WithOpenApi();
 
-            group.MapGet("GetAll", async (ISender sender) =>
+            group.MapGet("GetPensionRequirements", async (ISender sender) =>
             {
                 var result = await _pensionrequirementsService.GetPensionRequirementsAsync(sender);
                 return result;
@@ -32,7 +32,7 @@ namespace MFFVP.Api.BffWeb.Associate.PensionRequirements
             .Produces <IReadOnlyCollection<PensionRequirementResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-            group.MapPost("Create", async ([FromBody] CreatePensionRequirementCommand request, ISender sender) =>
+            group.MapPost("PensionRequirements", async ([FromBody] CreatePensionRequirementCommand request, ISender sender) =>
             {
                 var result = await _pensionrequirementsService.CreatePensionRequirementAsync(request, sender);
                 return result.ToApiResult(result.Description);
@@ -42,7 +42,7 @@ namespace MFFVP.Api.BffWeb.Associate.PensionRequirements
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-            group.MapPut("Update", async ([FromBody] UpdatePensionRequirementCommand command, ISender sender) =>
+            group.MapPut("PutPensionRequirements", async ([FromBody] UpdatePensionRequirementCommand command, ISender sender) =>
             {
                 var result = await _pensionrequirementsService.UpdatePensionRequirementAsync(command, sender);
                 return result.ToApiResult(result.Description);

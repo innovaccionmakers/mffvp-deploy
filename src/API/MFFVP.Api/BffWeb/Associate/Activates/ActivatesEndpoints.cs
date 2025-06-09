@@ -20,11 +20,11 @@ public sealed class ActivatesEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/FVP/associate/activate")
+        var group = app.MapGroup("BffWeb/FVP/Associate")
             .WithTags("BFF Web - Associate")
             .WithOpenApi();
 
-        group.MapGet("GetAll", async (ISender sender) =>
+        group.MapGet("GetAssociates", async (ISender sender) =>
             {
                 var result = await _activatesService.GetActivatesAsync(sender);
                 return result.Value;
@@ -32,7 +32,7 @@ public sealed class ActivatesEndpoints
             .Produces<IReadOnlyCollection<ActivateResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("Create", async ([FromBody] CreateActivateCommand request, ISender sender) =>
+        group.MapPost("Activate", async ([FromBody] CreateActivateCommand request, ISender sender) =>
             {
                 var result = await _activatesService.CreateActivateAsync(request, sender);
                 return result.ToApiResult(result.Description);
@@ -42,7 +42,7 @@ public sealed class ActivatesEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
         
-        group.MapGet("GetById/{activateId}", async (long activateId, ISender sender) =>
+        group.MapGet("GetByIdAssociate/{activateId}", async (long activateId, ISender sender) =>
             {
                 var result = await _activatesService.GetActivateAsync(activateId, sender);
                 return result.ToApiResult();
@@ -50,7 +50,7 @@ public sealed class ActivatesEndpoints
             .Produces<ActivateResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPut("Update", async ([FromBody] UpdateActivateCommand command, ISender sender) =>
+        group.MapPut("PutAssociate", async ([FromBody] UpdateActivateCommand command, ISender sender) =>
             {
                 var result = await _activatesService.UpdateActivateAsync(command, sender);
                 return result.ToApiResult(result.Description);
