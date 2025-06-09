@@ -2,11 +2,11 @@
 
 public class MakersActions
 {
-    public const string View = nameof(View);
-    public const string Search = nameof(Search);
-    public const string Create = nameof(Create);
-    public const string Update = nameof(Update);
-    public const string Delete = nameof(Delete);
-    public const string Export = nameof(Export);
-    public const string Generate = nameof(Generate);
+    public const string view = nameof(view);
+    public const string search = nameof(search);
+    public const string create = nameof(create);
+    public const string update = nameof(update);
+    public const string delete = nameof(delete);
+    public const string export = nameof(export);
+    public const string generate = nameof(generate);
 }

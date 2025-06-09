@@ -2,5 +2,5 @@
 
 public static class MakersModules
 {
-    public const string FVP = nameof(FVP);
+    public const string fvp = nameof(fvp);
 }

@@ -2,13 +2,13 @@
 
 public static class MakersResources
 {
-    public const string Users = nameof(Users);
+    public const string users = nameof(users);
 
-    public const string ConfigurationParameters = nameof(ConfigurationParameters);
+    public const string configurationParameters = nameof(configurationParameters);
 
-    public const string Activates = nameof(Activates);
-    public const string PensionRequirements = nameof(PensionRequirements);
+    public const string activates = nameof(activates);
+    public const string pensionRequirements = nameof(pensionRequirements);
 
-    public const string AuxiliaryInformations = nameof(AuxiliaryInformations);
-    public const string ClientOperations = nameof(ClientOperations);
+    public const string auxiliaryInformations = nameof(auxiliaryInformations);
+    public const string clientOperations = nameof(clientOperations);
 }
