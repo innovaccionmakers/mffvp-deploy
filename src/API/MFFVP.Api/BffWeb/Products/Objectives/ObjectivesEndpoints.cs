@@ -71,7 +71,7 @@ public sealed class ObjectivesEndpoints
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost(
-                "CreateGoal",
+                "Goals",
                 async (
                     CreateObjectiveCommand comando,
                     ISender sender
@@ -82,7 +82,7 @@ public sealed class ObjectivesEndpoints
                     return resultado.ToApiResult();
                 }
             )
-            .WithName("CreateGoal")
+            .WithName("Goals")
             .WithSummary("Crea un nuevo objetivo de ahorro para un cliente")
             .WithDescription("""
                 **Ejemplo de petición (application/json):**
