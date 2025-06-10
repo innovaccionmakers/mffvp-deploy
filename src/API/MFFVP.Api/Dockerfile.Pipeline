@@ -4,3 +4,5 @@ COPY . .
 
 ENV ASPNETCORE_URLS="https://+;http://+"
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password="M4k3r5**"
+
+ENTRYPOINT ["dotnet", "MFFVP.Api.dll"]
