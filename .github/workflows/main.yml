@@ -58,7 +58,7 @@ jobs:
           path: publish
 
       - name: Deploy to Railway
-        run: railway up --service=${{ env.RAILWAY_SERVICE_ID }} --path-as-root publish
+        run: railway up --service=${{ env.RAILWAY_SERVICE_ID }} --path-as-root publish --no-stream
 
   sync-to-azure-devops:
     name: Sync to Azure DevOps
