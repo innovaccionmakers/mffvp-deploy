@@ -1,13 +1,11 @@
 using System.Text.Json;
 using Common.SharedKernel.Domain;
 
-namespace Trusts.Domain.ConfigurationParameters;
+namespace Common.SharedKernel.Domain.ConfigurationParameters;
 
 public sealed class ConfigurationParameter : Entity
 {
-    private ConfigurationParameter()
-    {
-    }
+    private ConfigurationParameter() {}
 
     public int ConfigurationParameterId { get; private set; }
     public Guid Uuid { get; private set; } = Guid.NewGuid();

@@ -1,6 +1,7 @@
+using Trusts.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
 using Trusts.Application.Abstractions.Rules;
-using Trusts.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 
 namespace Trusts.Infrastructure.ConfigurationParameters;
 

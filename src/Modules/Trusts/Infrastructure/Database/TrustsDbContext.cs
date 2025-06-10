@@ -2,9 +2,9 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Trusts.Application.Abstractions.Data;
-using Trusts.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Trusts.Domain.Trusts;
-using Trusts.Infrastructure.ConfigurationParameters;
 using Trusts.Infrastructure.Trusts;
 
 namespace Trusts.Infrastructure.Database;
@@ -27,6 +27,6 @@ public sealed class TrustsDbContext(DbContextOptions<TrustsDbContext> options)
         modelBuilder.HasDefaultSchema(Schemas.Trusts);
 
         modelBuilder.ApplyConfiguration(new TrustConfiguration());
-        modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.Trusts));
     }
 }

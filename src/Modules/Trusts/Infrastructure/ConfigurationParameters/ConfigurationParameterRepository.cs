@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Trusts.Domain.ConfigurationParameters;
+using Microsoft.EntityFrameworkCore;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Trusts.Infrastructure.Database;
 
 namespace Trusts.Infrastructure.ConfigurationParameters;

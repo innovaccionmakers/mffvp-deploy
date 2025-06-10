@@ -1,3 +1,4 @@
+using Associate.Domain.ConfigurationParameters;
 using System.Data.Common;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
@@ -8,7 +9,7 @@ using Associate.Application.Abstractions.Data;
 using Application.PensionRequirements.CreatePensionRequirement;
 using Application.PensionRequirements;
 using Associate.Integrations.Activates.GetActivateId;
-using Associate.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
 
 namespace Associate.Application.PensionRequirements.CreatePensionRequirement;

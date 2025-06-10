@@ -1,5 +1,5 @@
 using Operations.Domain.Channels;
-using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Integrations.Contributions.CreateContribution;

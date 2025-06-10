@@ -1,4 +1,4 @@
-using Associate.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Messaging;
 using System.Text.Json;
 

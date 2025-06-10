@@ -1,3 +1,4 @@
+using Operations.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ using Operations.Application.Abstractions.External;
 using Operations.Application.Abstractions.Rules;
 using Operations.Application.Contributions.Services;
 using Operations.Domain.Channels;
-using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Infrastructure.Channels;

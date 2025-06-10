@@ -1,3 +1,4 @@
+using Common.SharedKernel.Domain.ConfigurationParameters;
 namespace People.Domain.ConfigurationParameters;
 
 public interface IConfigurationParameterRepository

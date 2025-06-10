@@ -1,9 +1,10 @@
+using People.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using People.Application.Abstractions;
 using People.Application.Abstractions.Rules;
-using People.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using People.Integrations.DocumentTypes.GetDocumentTypeId;
 
 namespace People.Application.DocumentTypes.GetDocumentTypeId;

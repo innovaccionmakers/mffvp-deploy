@@ -1,7 +1,7 @@
 using Common.SharedKernel.Application.Messaging;
 using System;
 using System.Text.Json;
-using Associate.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 
 namespace Associate.Integrations.ConfigurationParameters.CreateConfigurationParameter;
 public sealed record CreateConfigurationParameterCommand(
