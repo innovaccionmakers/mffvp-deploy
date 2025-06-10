@@ -6,6 +6,7 @@ using Common.SharedKernel.Presentation.Results;
 using MediatR;
 using MFFVP.Api.Application.Associate;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Any;
 
 namespace MFFVP.Api.BffWeb.Associate.Activates;
 
@@ -42,10 +43,34 @@ public sealed class ActivatesEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
         
-        group.MapGet("GetByIdAssociate/{activateId}", async (long activateId, ISender sender) =>
+        group.MapGet(
+                "GetByIdAssociate",
+                async (
+                    [FromQuery] long activateId,
+                    ISender sender
+                ) =>
+                {
+                    var result = await _activatesService.GetActivateAsync(activateId, sender);
+                    return result.ToApiResult();
+                }
+            )
+            .WithName("GetActivateById")
+            .WithSummary("Obtiene una activación por su identificador")
+            .WithDescription("""
+                             **Ejemplo de llamada:**
+
+                             ```http
+                             GET /BffWeb/FVP/Associate/GetByIdAssociate?activateId=456
+                             ```
+
+                             - `activateId`: Identificador de la activación (e.g., 456)
+                             """)
+            .WithOpenApi(operation =>
             {
-                var result = await _activatesService.GetActivateAsync(activateId, sender);
-                return result.ToApiResult();
+                var p = operation.Parameters.First(p => p.Name == "activateId");
+                p.Description = "Identificador único de la activación";
+                p.Example     = new OpenApiInteger(456);
+                return operation;
             })
             .Produces<ActivateResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
