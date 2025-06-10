@@ -1,10 +1,11 @@
+using Associate.Domain.ConfigurationParameters;
 using System.Data.Common;
 using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Application.Activates.UpdateActivate;
 using Associate.Domain.Activates;
-using Associate.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.UpdateActivate;
 using Common.SharedKernel.Application.Attributes;

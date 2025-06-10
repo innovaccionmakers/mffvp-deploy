@@ -1,9 +1,10 @@
+using Operations.Domain.ConfigurationParameters;
 using System.Text.Json;
 using FluentAssertions;
 using Moq;
 using Operations.Application.Contributions.CreateContribution;
 using Operations.Application.Contributions.Services;
-using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 
 namespace Operations.test.UnitTests.Application.Services;
 

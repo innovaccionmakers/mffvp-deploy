@@ -7,7 +7,7 @@ using Operations.Application.Abstractions.External;
 using Operations.Application.Abstractions.Rules;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
-using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Integrations.Contributions;
 using Operations.Integrations.Contributions.CreateContribution;
 

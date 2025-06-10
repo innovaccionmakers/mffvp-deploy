@@ -1,6 +1,7 @@
+using Operations.Domain.ConfigurationParameters;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Contributions.CreateContribution;
-using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 
 namespace Operations.Application.Contributions.Services;
 

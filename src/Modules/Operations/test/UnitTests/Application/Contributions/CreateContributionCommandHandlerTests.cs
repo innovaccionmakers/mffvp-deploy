@@ -10,7 +10,7 @@ using Operations.Application.Abstractions.Rules;
 using Operations.Application.Contributions.CreateContribution;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
-using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Integrations.Contributions.CreateContribution;
 using RulesEngine.Models;

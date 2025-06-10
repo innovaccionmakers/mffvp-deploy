@@ -1,7 +1,8 @@
+using Products.Domain.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Objectives.GetObjectives;
-using Products.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Integrations.Objectives.GetObjectives;
 

@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Associate.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 
 namespace Associate.Integrations.ConfigurationParameters;
 

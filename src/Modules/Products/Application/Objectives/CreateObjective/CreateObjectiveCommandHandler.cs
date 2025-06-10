@@ -1,3 +1,4 @@
+using Products.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
@@ -7,7 +8,7 @@ using Products.Application.Abstractions.Rules;
 using Products.Application.Abstractions.Services.External;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
-using Products.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Integrations.Objectives.CreateObjective;

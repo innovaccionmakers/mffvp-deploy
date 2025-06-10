@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Associate.Domain.ConfigurationParameters;
+using Microsoft.EntityFrameworkCore;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Associate.Infrastructure.Database;
 
 namespace Associate.Infrastructure;

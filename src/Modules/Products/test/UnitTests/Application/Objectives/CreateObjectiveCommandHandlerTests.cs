@@ -1,3 +1,4 @@
+using Products.Domain.ConfigurationParameters;
 using System.Data.Common;
 using Common.SharedKernel.Domain;
 using FluentAssertions;
@@ -9,7 +10,7 @@ using Products.Application.Abstractions.Services.External;
 using Products.Application.Objectives.CreateObjective;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
-using Products.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Domain.Offices;
 using Products.Domain.PensionFunds;
 using Products.Domain.PlanFunds;

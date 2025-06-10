@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using People.Application.Abstractions.Data;
 using People.Domain.Cities;
-using People.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using People.Domain.People;
 using People.Infrastructure.People;
 using People.Domain.Countries;
 using People.Infrastructure.Countries;
 using People.Domain.EconomicActivities;
 using People.Infrastructure.Cities;
-using People.Infrastructure.ConfigurationParameters;
 using People.Infrastructure.EconomicActivities;
 
 namespace People.Infrastructure.Database;
@@ -33,7 +33,7 @@ public sealed class PeopleDbContext(DbContextOptions<PeopleDbContext> options)
         modelBuilder.ApplyConfiguration(new PersonConfiguration());
         modelBuilder.ApplyConfiguration(new CountryConfiguration());
         modelBuilder.ApplyConfiguration(new EconomicActivityConfiguration());
-        modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.People));
         modelBuilder.ApplyConfiguration(new CityConfiguration());
     }
 

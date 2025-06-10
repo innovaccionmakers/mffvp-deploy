@@ -1,6 +1,7 @@
+using Operations.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
 using Operations.Application.Abstractions.Rules;
-using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 
 namespace Operations.Infrastructure.ConfigurationParameters;
 

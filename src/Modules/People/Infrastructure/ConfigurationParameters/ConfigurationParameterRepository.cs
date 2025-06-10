@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using People.Domain.ConfigurationParameters;
+using Microsoft.EntityFrameworkCore;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using People.Infrastructure.Database;
 
 namespace People.Infrastructure.ConfigurationParameters;

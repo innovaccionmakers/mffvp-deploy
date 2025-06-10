@@ -1,3 +1,4 @@
+using Common.SharedKernel.Domain.ConfigurationParameters;
 namespace Associate.Domain.ConfigurationParameters;
 
 public interface IConfigurationParameterRepository

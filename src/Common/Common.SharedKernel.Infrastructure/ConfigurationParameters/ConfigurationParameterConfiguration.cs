@@ -1,15 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using People.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 
-namespace People.Infrastructure.ConfigurationParameters;
+namespace Common.SharedKernel.Infrastructure.ConfigurationParameters;
 
-internal sealed class ConfigurationParameterConfiguration :
-    IEntityTypeConfiguration<ConfigurationParameter>
+public sealed class ConfigurationParameterConfiguration : IEntityTypeConfiguration<ConfigurationParameter>
 {
+    private readonly string _schema;
+
+    public ConfigurationParameterConfiguration(string schema)
+    {
+        _schema = schema;
+    }
+
     public void Configure(EntityTypeBuilder<ConfigurationParameter> builder)
     {
-        builder.ToTable("parametros_configuracion");
+        builder.ToTable("parametros_configuracion", _schema);
 
         builder.HasKey(p => p.ConfigurationParameterId);
         builder.Property(p => p.ConfigurationParameterId)

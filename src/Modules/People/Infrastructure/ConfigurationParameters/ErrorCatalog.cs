@@ -1,6 +1,7 @@
+using People.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
 using People.Application.Abstractions.Rules;
-using People.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 
 namespace People.Infrastructure.ConfigurationParameters;
 

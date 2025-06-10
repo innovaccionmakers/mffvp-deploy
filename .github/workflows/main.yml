@@ -58,7 +58,7 @@ jobs:
           path: publish
 
       - name: Deploy to Railway
-        run: railway up --service=${{ env.RAILWAY_SERVICE_ID }} --path-as-root publish
+        run: railway up --ci --service=${{ env.RAILWAY_SERVICE_ID }} --path-as-root publish
 
   sync-to-azure-devops:
     name: Sync to Azure DevOps
@@ -68,6 +68,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Configure Git
         run: |

@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.12 AS final
+WORKDIR /app
+COPY . .
+
+ENV ASPNETCORE_URLS="https://+;http://+"
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password="M4k3r5**"
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path="aspnetapp.pfx"
+
+ENTRYPOINT ["dotnet", "MFFVP.Api.dll"]

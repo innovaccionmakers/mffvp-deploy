@@ -1,3 +1,4 @@
+using People.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ using People.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
 using People.Application.Abstractions;
 using People.Application.Abstractions.Rules;
-using People.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using People.Infrastructure.ConfigurationParameters;
 using People.Infrastructure.RulesEngine;
 using People.IntegrationEvents.ClientValidation;
