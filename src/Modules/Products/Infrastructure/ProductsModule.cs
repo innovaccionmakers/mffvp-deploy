@@ -1,3 +1,4 @@
+using Products.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -12,7 +13,7 @@ using Products.Application.Abstractions.Services.Rules;
 using Products.Application.Objectives.Services;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
-using Products.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Domain.Plans;

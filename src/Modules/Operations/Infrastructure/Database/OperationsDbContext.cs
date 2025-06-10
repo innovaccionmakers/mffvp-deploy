@@ -8,13 +8,13 @@ using Operations.Domain.ClientOperations;
 using Operations.Infrastructure.ClientOperations;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.Channels;
-using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Domain.TrustWithdrawals;
 using Operations.Infrastructure.AuxiliaryInformations;
 using Operations.Infrastructure.Channels;
-using Operations.Infrastructure.ConfigurationParameters;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.SubtransactionTypes;
 using Operations.Infrastructure.TrustWithdrawals;
@@ -42,7 +42,7 @@ public sealed class OperationsDbContext(DbContextOptions<OperationsDbContext> op
         modelBuilder.ApplyConfiguration(new TrustWithdrawalOperationConfiguration());
         modelBuilder.ApplyConfiguration(new OriginConfiguration());
         modelBuilder.ApplyConfiguration(new ChannelConfiguration());
-        modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.Operations));
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

@@ -1,3 +1,4 @@
+using Trusts.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -6,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Trusts.Application.Abstractions;
 using Trusts.Application.Abstractions.Data;
 using Trusts.Application.Abstractions.Rules;
-using Trusts.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Trusts.Domain.Trusts;
 using Trusts.Infrastructure.ConfigurationParameters;
 using Trusts.Infrastructure.Database;

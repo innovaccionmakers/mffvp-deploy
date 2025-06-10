@@ -1,10 +1,10 @@
 using System.Data.Common;
 using Associate.Application.Abstractions.Data;
 using Associate.Domain.Activates;
-using Associate.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Activates;
-using Associate.Infrastructure.ConfigurationParameters;
 using Associate.Infrastructure.PensionRequirements;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -30,7 +30,7 @@ public sealed class AssociateDbContext(DbContextOptions<AssociateDbContext> opti
         modelBuilder.HasDefaultSchema(Schemas.Associate);
 
         modelBuilder.ApplyConfiguration(new ActivateConfiguration());
-        modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.Associate));
         modelBuilder.ApplyConfiguration(new PensionRequirementConfiguration());
     }
 }

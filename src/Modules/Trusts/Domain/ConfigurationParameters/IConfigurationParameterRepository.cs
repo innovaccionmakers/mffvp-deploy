@@ -1,3 +1,4 @@
+using Common.SharedKernel.Domain.ConfigurationParameters;
 namespace Trusts.Domain.ConfigurationParameters;
 
 public interface IConfigurationParameterRepository

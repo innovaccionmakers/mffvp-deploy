@@ -1,8 +1,9 @@
+using Products.Domain.ConfigurationParameters;
 using FluentAssertions;
 using Moq;
 using Products.Application.Objectives.Services;
 using Products.Domain.Objectives;
-using Products.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Integrations.Objectives.GetObjectives;
 
 namespace Products.test.UnitTests.Application.Services;

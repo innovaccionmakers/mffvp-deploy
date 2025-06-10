@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Operations.Domain.ConfigurationParameters;
+using Microsoft.EntityFrameworkCore;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Infrastructure.Database;
 
 namespace Operations.Infrastructure.ConfigurationParameters;

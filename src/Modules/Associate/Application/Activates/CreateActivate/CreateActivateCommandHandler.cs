@@ -1,3 +1,4 @@
+using Associate.Domain.ConfigurationParameters;
 using Associate.Application.Abstractions.Data;
 using Associate.Application.Abstractions.Rules;
 using Associate.Domain.Activates;
@@ -8,7 +9,7 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Associate.Application.Abstractions;
 using MediatR;
-using Associate.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
 
 namespace Associate.Application.Activates.CreateActivate;

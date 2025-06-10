@@ -1,5 +1,6 @@
-using Associate.Application.Abstractions.Rules;
 using Associate.Domain.ConfigurationParameters;
+using Associate.Application.Abstractions.Rules;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.ConfigurationParameters;
