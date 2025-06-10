@@ -8,4 +8,3 @@ ENV ASPNETCORE_Kestrel__Certificates__Default__Password="M4k3r5**"
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path="aspnetapp.pfx"
 
 ENTRYPOINT ["dotnet", "MFFVP.Api.dll"]
-EXPOSE 443
