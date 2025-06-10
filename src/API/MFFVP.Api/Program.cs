@@ -110,6 +110,8 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
 
+app.UsePathBase("/fiduciaria/fvp");
+
 app.UseInfrastructure();
 
 app.UseLogContext();

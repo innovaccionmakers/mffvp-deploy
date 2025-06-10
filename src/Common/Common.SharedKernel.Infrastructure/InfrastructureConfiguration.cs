@@ -108,10 +108,14 @@ public static class InfrastructureConfiguration
             var provider = app.DescribeApiVersions();
 
             foreach (var description in provider)
+            {
                 options.SwaggerEndpoint(
-                    $"/swagger/{description.GroupName}/swagger.json",
+                    $"/fiduciaria/fvp/swagger/{description.GroupName}/swagger.json",
                     description.GroupName.ToUpperInvariant());
+            }
+
             options.DocExpansion(DocExpansion.None);
+            options.RoutePrefix = "fiduciaria/fvp/swagger";
         });
 
         app.UseCors("AllowSwaggerUI");
