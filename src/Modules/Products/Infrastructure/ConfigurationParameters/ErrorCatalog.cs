@@ -1,11 +1,12 @@
 using Products.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
-using Products.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
+using Products.Application.Abstractions;
 
 namespace Products.Infrastructure.ConfigurationParameters;
 
-internal sealed class ErrorCatalog : IErrorCatalog
+internal sealed class ErrorCatalog : IErrorCatalog<ProductsModuleMarker>
 {
     private readonly ILogger<ErrorCatalog> _log;
     private readonly IConfigurationParameterRepository _repo;

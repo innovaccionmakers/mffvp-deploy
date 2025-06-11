@@ -1,16 +1,13 @@
-﻿using Associate.Application.Abstractions.Rules;
-
+using System.Reflection;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
+using Common.SharedKernel.Application.Rules;
 using RulesEngine.HelperFunctions;
 using RulesEngine.Models;
 
-using System.Reflection;
-using System.Text.Json;
-
-namespace Associate.Infrastructure.RulesEngine;
+namespace Common.SharedKernel.Infrastructure.RulesEngine;
 
 public sealed class RulesEngineOptions<TModule>
 {
@@ -22,6 +19,7 @@ public static class RulesEngineServiceCollectionExtensions
 {
     public static IServiceCollection AddRulesEngine<TModule>(
         this IServiceCollection services,
+        Assembly? rulesAssembly = null,
         Action<RulesEngineOptions<TModule>>? configure = null)
     {
         if (configure is not null) services.Configure(configure);
@@ -31,7 +29,7 @@ public static class RulesEngineServiceCollectionExtensions
             var opt = sp.GetRequiredService<IOptions<RulesEngineOptions<TModule>>>().Value;
             var logger = sp.GetRequiredService<ILoggerFactory>()
                 .CreateLogger($"RulesEngineLoader.{typeof(TModule).Name}");
-            var assembly = typeof(RulesEngineServiceCollectionExtensions).Assembly;
+            var assembly = rulesAssembly ?? typeof(TModule).Assembly;
 
             var workflows = LoadWorkflowsFromEmbeddedResources(opt, logger, assembly);
             var reSettings = new ReSettings

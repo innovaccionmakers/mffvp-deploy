@@ -4,7 +4,7 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
-using Products.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Products.Application.Abstractions.Services.External;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;

@@ -6,12 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Trusts.Application.Abstractions;
 using Trusts.Application.Abstractions.Data;
-using Trusts.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Trusts.Domain.Trusts;
 using Trusts.Infrastructure.ConfigurationParameters;
 using Trusts.Infrastructure.Database;
-using Trusts.Infrastructure.RulesEngine;
+using Common.SharedKernel.Infrastructure.RulesEngine;
 using Trusts.Infrastructure.Trusts;
 using Trusts.IntegrationEvents.CreateTrust;
 
@@ -23,7 +23,7 @@ public static class TrustsModule
         IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine<TrustsModuleMarker>(opt =>
+        services.AddRulesEngine<TrustsModuleMarker>(typeof(TrustsModule).Assembly, opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
@@ -45,7 +45,7 @@ public static class TrustsModule
 
         services.AddScoped<ITrustRepository, TrustRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
-        services.AddScoped<IErrorCatalog, ErrorCatalog>();
+        services.AddScoped<IErrorCatalog<TrustsModuleMarker>, ErrorCatalog>();
         services.AddScoped<CreateTrustConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());

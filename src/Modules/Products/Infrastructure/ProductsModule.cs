@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
-using Products.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Products.Application.Abstractions.Services.External;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Abstractions.Services.Rules;
@@ -28,7 +28,7 @@ using Products.Infrastructure.Objectives;
 using Products.Infrastructure.Offices;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
-using Products.Infrastructure.RulesEngine;
+using Common.SharedKernel.Infrastructure.RulesEngine;
 using Products.IntegrationEvents.ContributionValidation;
 
 namespace Products.Infrastructure;
@@ -38,7 +38,7 @@ public static class ProductsModule
     public static IServiceCollection AddProductsModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine<ProductsModuleMarker>(opt =>
+        services.AddRulesEngine<ProductsModuleMarker>(typeof(ProductsModule).Assembly, opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
@@ -65,7 +65,7 @@ public static class ProductsModule
         services.AddScoped<ICommercialRepository, CommercialRepository>();
         services.AddScoped<IOfficeRepository, OfficeRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
-        services.AddScoped<IErrorCatalog, ErrorCatalog>();
+        services.AddScoped<IErrorCatalog<ProductsModuleMarker>, ErrorCatalog>();
 
         services.AddScoped<IDocumentTypeValidator, DocumentTypeValidator>();
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
