@@ -38,7 +38,7 @@ public static class PeopleModule
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-        string connectionString = configuration.GetConnectionString("TrustsDatabase");
+        string connectionString = configuration.GetConnectionString("PeopleDatabase");
 
         if (env == "DevMakers2")
         {
@@ -51,7 +51,7 @@ public static class PeopleModule
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
                 .UseNpgsql(
-                    configuration.GetConnectionString("PeopleDatabase"),
+                    connectionString,
                     npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.People)
                 );

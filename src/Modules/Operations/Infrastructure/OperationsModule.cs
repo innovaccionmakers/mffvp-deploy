@@ -46,7 +46,7 @@ public static class OperationsModule
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-        string connectionString = configuration.GetConnectionString("TrustsDatabase");
+        string connectionString = configuration.GetConnectionString("OperationsDatabase");
 
         if (env == "DevMakers2")
         {
@@ -59,7 +59,7 @@ public static class OperationsModule
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
                 .UseNpgsql(
-                    configuration.GetConnectionString("OperationsDatabase"),
+                    connectionString,
                     npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Operations)
                 );
