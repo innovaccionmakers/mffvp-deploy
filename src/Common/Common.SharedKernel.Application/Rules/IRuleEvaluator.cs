@@ -1,8 +1,6 @@
 using RulesEngine.Models;
 
-namespace People.Application.Abstractions.Rules;
-
-public record RuleValidationError(string Code, string Message);
+namespace Common.SharedKernel.Application.Rules;
 
 public interface IRuleEvaluator<TModule>
 {

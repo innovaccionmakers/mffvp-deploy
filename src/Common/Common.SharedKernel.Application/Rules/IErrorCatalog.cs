@@ -1,6 +1,6 @@
-namespace Products.Application.Abstractions.Rules;
+namespace Common.SharedKernel.Application.Rules;
 
-public interface IErrorCatalog
+public interface IErrorCatalog<TModule>
 {
     Task<(string Code, string Message)> GetAsync(
         Guid ruleUuid,

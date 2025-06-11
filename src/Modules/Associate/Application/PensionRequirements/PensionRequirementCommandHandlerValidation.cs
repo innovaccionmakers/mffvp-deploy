@@ -2,7 +2,7 @@
 using Associate.Integrations.Activates.GetActivateId;
 using Common.SharedKernel.Domain;
 using MediatR;
-using Associate.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Associate.Application.Abstractions;
 
 namespace Application.PensionRequirements;

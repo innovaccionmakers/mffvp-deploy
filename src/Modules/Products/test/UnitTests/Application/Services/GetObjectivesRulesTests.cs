@@ -2,7 +2,7 @@ using Common.SharedKernel.Domain;
 using FluentAssertions;
 using Moq;
 using Products.Application.Abstractions;
-using Products.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using RulesEngine.Models;
 using Products.Application.Objectives.GetObjectives;
 using Products.Application.Objectives.Services;

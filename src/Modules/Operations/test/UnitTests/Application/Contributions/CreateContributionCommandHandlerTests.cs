@@ -6,7 +6,7 @@ using Moq;
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.External;
-using Operations.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Operations.Application.Contributions.CreateContribution;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
