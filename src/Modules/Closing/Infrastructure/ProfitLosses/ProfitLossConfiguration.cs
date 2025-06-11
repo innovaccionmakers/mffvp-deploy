@@ -14,7 +14,7 @@ internal sealed class ProfitLossConfiguration : IEntityTypeConfiguration<ProfitL
         builder.Property(x => x.PortfolioId).HasColumnName("portafolio_id");
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
         builder.Property(x => x.EffectiveDate).HasColumnName("fecha_efectiva");
-        builder.Property(x => x.Concept).HasColumnName("concepto");
+        builder.Property(x => x.ProfitLossConceptId).HasColumnName("concepto_id");
         builder.Property(x => x.Amount).HasColumnName("valor").HasColumnType("decimal(19, 2)");
         builder.Property(x => x.Source).HasColumnName("fuente");
     }

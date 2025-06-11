@@ -13,7 +13,6 @@ using Products.Application.Abstractions.Services.Rules;
 using Products.Application.Objectives.Services;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
-using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Domain.Plans;
@@ -30,6 +29,7 @@ using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Products.IntegrationEvents.ContributionValidation;
+using Products.IntegrationEvents.PortfolioValidation;
 
 namespace Products.Infrastructure;
 
@@ -82,6 +82,7 @@ public static class ProductsModule
         services.AddScoped<IObjectiveReader, ObjectiveReader>();
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();
         services.AddScoped<ContributionValidationConsumer>();
+        services.AddTransient<PortfolioValidationConsumer>();
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());

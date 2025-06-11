@@ -8,7 +8,7 @@ public sealed class ProfitLoss : Entity
     public int PortfolioId { get; private set; }
     public DateTime ProcessDate { get; private set; }
     public DateTime EffectiveDate { get; private set; }
-    public string Concept { get; private set; } = null!;
+    public long ProfitLossConceptId { get; private set; }
     public decimal Amount { get; private set; }
     public string Source { get; private set; } = null!;
 
@@ -20,7 +20,7 @@ public sealed class ProfitLoss : Entity
         int portfolioId,
         DateTime processDate,
         DateTime effectiveDate,
-        string concept,
+        long profitLossConceptId,
         decimal amount,
         string source)
     {
@@ -30,7 +30,7 @@ public sealed class ProfitLoss : Entity
             PortfolioId = portfolioId,
             ProcessDate = processDate,
             EffectiveDate = effectiveDate,
-            Concept = concept,
+            ProfitLossConceptId = profitLossConceptId,
             Amount = amount,
             Source = source
         };
@@ -42,14 +42,14 @@ public sealed class ProfitLoss : Entity
         int portfolioId,
         DateTime processDate,
         DateTime effectiveDate,
-        string concept,
+        long profitLossConceptId,
         decimal amount,
         string source)
     {
         PortfolioId = portfolioId;
         ProcessDate = processDate;
         EffectiveDate = effectiveDate;
-        Concept = concept;
+        ProfitLossConceptId = profitLossConceptId;
         Amount = amount;
         Source = source;
     }

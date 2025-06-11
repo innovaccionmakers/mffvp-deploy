@@ -1,1 +1,39 @@
-{}
+[
+  {
+    "WorkflowName": "Closing.ProfitLoss.UploadValidation",
+    "Rules": [
+      {
+        "RuleName": "ExpensesNegativeNotAllowed",
+        "ErrorMessage": "El valor de los gastos no puede ser negativo.",
+        "Expression": "input.AllowNegative == true || input.Expenses >= 0",
+        "Properties": {
+          "errorCode": "d14d6a61-3fe6-4c07-9f04-35c50a6481d3"
+        }
+      },
+      {
+        "RuleName": "GrossConceptConfigured",
+        "ErrorMessage": "El concepto Rendimientos Brutos no existe",
+        "Expression": "input.GrossConceptExists == true",
+        "Properties": {
+          "errorCode": "07075653-c27f-484a-8c93-efb1438e4b6b"
+        }
+      },
+      {
+        "RuleName": "ExpenseConceptConfigured",
+        "ErrorMessage": "El concepto Gastos no existe",
+        "Expression": "input.ExpenseConceptExists == true",
+        "Properties": {
+          "errorCode": "fc056323-db23-49e5-ab44-1238cf0be8da"
+        }
+      },
+      {
+        "RuleName": "ProcessDateNotFuture",
+        "ErrorMessage": "La fecha de proceso no puede ser mayor a la fecha actual",
+        "Expression": "input.EffectiveDate <= DateTime.UtcNow.Date",
+        "Properties": {
+          "errorCode": "5063eccb-3107-47a0-8eef-a9775c5c33a6"
+        }
+      }
+    ]
+  }
+]

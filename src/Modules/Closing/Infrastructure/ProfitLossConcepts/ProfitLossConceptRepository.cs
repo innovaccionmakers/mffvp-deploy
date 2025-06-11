@@ -16,4 +16,11 @@ internal sealed class ProfitLossConceptRepository(ClosingDbContext context) : IP
         return await context.ProfitLossConcepts
             .SingleOrDefaultAsync(x => x.ProfitLossConceptId == profitLossConceptId, cancellationToken);
     }
+    
+    public async Task<ProfitLossConcept?> FindByNameAsync(string concept, CancellationToken cancellationToken = default)
+    {
+        return await context.ProfitLossConcepts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Concept == concept, cancellationToken);
+    }
 }

@@ -16,4 +16,16 @@ internal sealed class ProfitLossRepository(ClosingDbContext context) : IProfitLo
         return await context.ProfitLosses
             .SingleOrDefaultAsync(x => x.ProfitLossId == profitLossId, cancellationToken);
     }
+    
+    public async Task DeleteByPortfolioAndDateAsync(int portfolioId, DateTime effectiveDate, CancellationToken cancellationToken = default)
+    {
+        await context.ProfitLosses
+            .Where(x => x.PortfolioId == portfolioId && x.EffectiveDate == effectiveDate)
+            .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public void InsertRange(IEnumerable<ProfitLoss> profitLosses)
+    {
+        context.ProfitLosses.AddRange(profitLosses);
+    }
 }
