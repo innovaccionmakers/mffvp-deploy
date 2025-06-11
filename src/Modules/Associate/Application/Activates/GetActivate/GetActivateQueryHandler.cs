@@ -3,15 +3,18 @@ using Common.SharedKernel.Application.Rules;
 using Associate.Domain.Activates;
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.GetActivate;
+using Associate.Integrations.ConfigurationParameters.GetConfigurationParameter;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using MediatR;
 
 
 namespace Associate.Application.Activates.GetActivate;
 
 internal sealed class GetActivateQueryHandler(
     IActivateRepository activateRepository,
-    IRuleEvaluator<AssociateModuleMarker> ruleEvaluator) : IQueryHandler<GetActivateQuery, ActivateResponse>
+    IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
+    ISender sender) : IQueryHandler<GetActivateQuery, ActivateResponse>
 {
     private const string ValidationWorkflow = "Associate.GetActivate.Validation";
 
@@ -19,7 +22,7 @@ internal sealed class GetActivateQueryHandler(
         CancellationToken cancellationToken)
     {
         var activate = await activateRepository.GetByIdAsync(request.ActivateId, cancellationToken);
-        
+
         var contextValidation = new
         {
             ActiveExists = activate != null,
@@ -38,7 +41,10 @@ internal sealed class GetActivateQueryHandler(
                 Error.Validation(first.Code, first.Message));
         }
 
-        var response = new ActivateResponse(activate.ActivateId, activate.IdentificationType, activate.Identification,
+        var identificationType = new GetConfigurationParameterQuery(activate!.IdentificationType);
+        var identificationTypeResult = await sender.Send(identificationType, cancellationToken);
+
+        var response = new ActivateResponse(activate.ActivateId, identificationTypeResult.Value.HomologationCode, activate.Identification,
             activate.Pensioner, activate.MeetsPensionRequirements, activate.ActivateDate);
 
         return response;

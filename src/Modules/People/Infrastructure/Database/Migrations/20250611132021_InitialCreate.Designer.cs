@@ -13,8 +13,8 @@ using People.Infrastructure.Database;
 namespace People.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(PeopleDbContext))]
-    [Migration("20250519151716_RenamePKToIdPeople")]
-    partial class RenamePKToIdPeople
+    [Migration("20250611132021_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,6 +112,11 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("codigo_dane");
 
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -122,21 +127,19 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nombre_abreviado");
 
-                    b.Property<string>("StandardCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("codigo_homologado");
-
                     b.HasKey("CountryId");
 
-                    b.ToTable("paises", "personas");
+                    b.ToTable("pais", "personas");
                 });
 
             modelBuilder.Entity("People.Domain.EconomicActivities.EconomicActivity", b =>
                 {
-                    b.Property<string>("EconomicActivityId")
-                        .HasColumnType("text")
+                    b.Property<int>("EconomicActivityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EconomicActivityId"));
 
                     b.Property<string>("CiiuCode")
                         .IsRequired()
@@ -163,19 +166,60 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nombre_division");
 
+                    b.Property<string>("GroupCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codgrupo");
+
                     b.Property<string>("GroupName")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("nombre_grupo");
 
-                    b.Property<string>("StandardCode")
+                    b.Property<string>("HomologatedCode")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("codigo_homologado");
 
                     b.HasKey("EconomicActivityId");
 
-                    b.ToTable("ciuu", "personas");
+                    b.ToTable("actividades_economicas", "personas");
+                });
+
+            modelBuilder.Entity("People.Domain.Municipalities.Municipality", b =>
+                {
+                    b.Property<int>("MunicipalityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MunicipalityId"));
+
+                    b.Property<int>("CityCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("codigo_ciudad");
+
+                    b.Property<int>("DaneCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("codigo_dane");
+
+                    b.Property<int>("DialingCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("indicativo");
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("MunicipalityId");
+
+                    b.ToTable("municipios", "personas");
                 });
 
             modelBuilder.Entity("People.Domain.People.Person", b =>
@@ -187,25 +231,26 @@ namespace People.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PersonId"));
 
-                    b.Property<int>("BirthCityId")
-                        .HasColumnType("integer")
-                        .HasColumnName("ciudad_nacimiento_id");
-
-                    b.Property<DateTime>("BirthDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_nacimiento");
-
-                    b.Property<int>("CountryId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("DocumentType")
+                    b.Property<string>("Address")
                         .IsRequired()
                         .HasColumnType("text")
+                        .HasColumnName("direccion");
+
+                    b.Property<int>("CountryOfResidenceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("pais_residencia_id");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("departamento_id");
+
+                    b.Property<Guid>("DocumentType")
+                        .HasColumnType("uuid")
                         .HasColumnName("tipo_documento");
 
-                    b.Property<string>("EconomicActivityId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("EconomicActivityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("actividad_economica_id");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -226,27 +271,28 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("sexo_id");
 
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
                     b.Property<string>("Identification")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("identificacion");
 
-                    b.Property<int>("IssueCityId")
+                    b.Property<int>("InvestorTypeId")
                         .HasColumnType("integer")
-                        .HasColumnName("ciudad_expedicion_id");
+                        .HasColumnName("tipo_inversionista_id");
 
-                    b.Property<DateTime>("IssueDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_expedicion");
+                    b.Property<bool>("IsDeclarant")
+                        .HasColumnType("boolean")
+                        .HasColumnName("declarante");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("primer_apellido");
-
-                    b.Property<int>("MaritalStatusId")
-                        .HasColumnType("integer")
-                        .HasColumnName("estado_civil_id");
 
                     b.Property<string>("MiddleName")
                         .IsRequired()
@@ -258,21 +304,24 @@ namespace People.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("celular");
 
+                    b.Property<int>("MunicipalityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("municipio_id");
+
+                    b.Property<int>("RiskProfileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("perfil_riesgo_id");
+
                     b.Property<string>("SecondLastName")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("segundo_apellido");
 
-                    b.Property<string>("StandardCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("codigo_homologado");
+                    b.Property<bool>("Status")
+                        .HasColumnType("boolean")
+                        .HasColumnName("estado");
 
                     b.HasKey("PersonId");
-
-                    b.HasIndex("CountryId");
-
-                    b.HasIndex("EconomicActivityId");
 
                     b.ToTable("personas", "personas");
                 });
@@ -285,21 +334,6 @@ namespace People.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("People.Domain.People.Person", b =>
-                {
-                    b.HasOne("People.Domain.Countries.Country", null)
-                        .WithMany()
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("People.Domain.EconomicActivities.EconomicActivity", null)
-                        .WithMany()
-                        .HasForeignKey("EconomicActivityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("People.Domain.ConfigurationParameters.ConfigurationParameter", b =>

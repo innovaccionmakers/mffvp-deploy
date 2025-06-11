@@ -27,7 +27,7 @@ public sealed class PersonValidationConsumer : ICapSubscribe
         header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
 
         var result =
-            await _mediator.Send(new GetPersonForIdentificationQuery(request.DocumentType, request.Identification),
+            await _mediator.Send(new GetPersonForIdentificationQuery(request.IdentificationType, request.Identification),
                 cancellationToken);
 
         return result.Match(

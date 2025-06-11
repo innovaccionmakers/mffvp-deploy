@@ -11,7 +11,7 @@ internal sealed class EconomicActivityRepository(PeopleDbContext context) : IEco
         return await context.EconomicActivities.ToListAsync(cancellationToken);
     }
 
-    public async Task<EconomicActivity?> GetAsync(string economicactivityId,
+    public async Task<EconomicActivity?> GetAsync(int economicactivityId,
         CancellationToken cancellationToken = default)
     {
         return await context.EconomicActivities

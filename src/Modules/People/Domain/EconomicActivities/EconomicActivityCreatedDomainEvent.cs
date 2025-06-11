@@ -2,7 +2,7 @@ using Common.SharedKernel.Domain;
 
 namespace People.Domain.EconomicActivities;
 
-public sealed class EconomicActivityCreatedDomainEvent(string economicactivityId) : DomainEvent
+public sealed class EconomicActivityCreatedDomainEvent(int economicactivityId) : DomainEvent
 {
-    public string EconomicActivityId { get; } = economicactivityId;
+    public int EconomicActivityId { get; } = economicactivityId;
 }

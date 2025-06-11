@@ -16,14 +16,14 @@ namespace UnitTests.Application.Activates
         public async Task UpdateActivate_ShouldWorkThroughRepository()
         {
             // Arrange
-            var existingActivate = Activate.Create("Type1", "123", false, true, DateTime.UtcNow).Value;
+            var existingActivate = Activate.Create(new Guid(), "123", false, true, DateTime.UtcNow).Value;
             var updatedPensionerStatus = true;
 
-            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber("Type1", "123", It.IsAny<CancellationToken>()))
+            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(new Guid(), "123", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingActivate);
 
             // Act
-            var activate = await _repositoryMock.Object.GetByIdTypeAndNumber("Type1", "123");
+            var activate = await _repositoryMock.Object.GetByIdTypeAndNumber(new Guid(), "123");
             activate.UpdateDetails(updatedPensionerStatus);
             _repositoryMock.Object.Update(activate, CancellationToken.None);
 
@@ -39,11 +39,11 @@ namespace UnitTests.Application.Activates
         public async Task UpdateActivate_ShouldFail_WhenNotFound()
         {
             // Arrange
-            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber("Unknown", "999", It.IsAny<CancellationToken>()))
+            _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(new Guid(), "999", It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Activate)null);
 
             // Act
-            var activate = await _repositoryMock.Object.GetByIdTypeAndNumber("Unknown", "999");
+            var activate = await _repositoryMock.Object.GetByIdTypeAndNumber(new Guid(), "999");
 
             // Assert
             Assert.Null(activate);

@@ -4,6 +4,6 @@ using Common.SharedKernel.Application.Messaging;
 namespace People.Integrations.DocumentTypes.GetDocumentTypeId;
 
 public sealed record GetDocumentTypeIdQuery(
-    [property: HomologScope("Tipo documento")]
+    [property: HomologScope("TipoDocumento")]
     string TypeIdHomologationCode)
     : IQuery<GetDocumentTypeIdResponse>;

@@ -21,7 +21,7 @@ internal sealed class ActivateRepository(AssociateDbContext context) : IActivate
         context.Activates.Update(activate);
     }
 
-    public async Task<Activate?> GetByIdTypeAndNumber(string IdentificationType, string identification, CancellationToken cancellationToken = default)
+    public async Task<Activate?> GetByIdTypeAndNumber(Guid IdentificationType, string identification, CancellationToken cancellationToken = default)
     {
         return await context.Activates.SingleOrDefaultAsync(a =>
             a.IdentificationType == IdentificationType && a.Identification == identification);

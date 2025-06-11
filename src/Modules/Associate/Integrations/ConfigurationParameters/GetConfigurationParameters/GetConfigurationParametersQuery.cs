@@ -3,4 +3,4 @@ using System;
 using System.Collections.Generic;
 
 namespace Associate.Integrations.ConfigurationParameters.GetConfigurationParameters;
-public sealed record GetConfigurationParametersQuery() : IQuery<IReadOnlyCollection<ConfigurationParameterResponse>>;
+public sealed record GetConfigurationParametersQuery(IEnumerable<Guid>? Uuids = null) : IQuery<IReadOnlyCollection<ConfigurationParameterResponse>>;

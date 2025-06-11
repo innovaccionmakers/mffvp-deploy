@@ -1,5 +1,4 @@
 using Common.SharedKernel.Domain;
-using People.Domain.People;
 
 namespace People.Domain.Countries;
 
@@ -11,9 +10,6 @@ public sealed class Country : Entity
     public string DaneCode { get; private set; }
     public string HomologatedCode { get; private set; }
 
-    private readonly List<Person> _people = new();
-    public IReadOnlyCollection<Person> People => _people;
-
     private Country()
     {
     }
@@ -22,8 +18,7 @@ public sealed class Country : Entity
         string name,
         string shortName,
         string daneCode,
-        string homologatedCode
-    )
+        string homologatedCode)
     {
         var country = new Country
         {
@@ -42,8 +37,7 @@ public sealed class Country : Entity
         string newName,
         string newShortName,
         string newDaneCode,
-        string newHomologatedCode
-    )
+        string newHomologatedCode)
     {
         Name = newName;
         ShortName = newShortName;

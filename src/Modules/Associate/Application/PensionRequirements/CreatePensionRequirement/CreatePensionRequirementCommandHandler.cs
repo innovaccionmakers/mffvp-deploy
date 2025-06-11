@@ -9,7 +9,6 @@ using Associate.Application.Abstractions.Data;
 using Application.PensionRequirements.CreatePensionRequirement;
 using Application.PensionRequirements;
 using Associate.Integrations.Activates.GetActivateId;
-using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
 
 namespace Associate.Application.PensionRequirements.CreatePensionRequirement;
@@ -29,7 +28,7 @@ internal sealed class CreatePensionRequirementCommandHandler(
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         GetActivateIdResponse? activateData = null;
         
-        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
+        var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.IdentificationType, HomologScope.Of<CreatePensionRequirementCommand>(c => c.IdentificationType), cancellationToken);
 
         var validationResult = await validator.ValidateRequestAsync(
@@ -39,7 +38,7 @@ internal sealed class CreatePensionRequirementCommandHandler(
                 Workflow,
                 (cmd, activateResult) => {
                     activateData = activateResult;
-                    return new CreatePensionRequirementValidationContext(cmd, activateResult, documentType);
+                    return new CreatePensionRequirementValidationContext(cmd, activateResult, configurationParameter.Uuid);
                 },
                 cancellationToken);
 

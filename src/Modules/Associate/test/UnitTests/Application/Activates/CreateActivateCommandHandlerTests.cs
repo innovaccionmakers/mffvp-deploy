@@ -17,11 +17,11 @@ namespace UnitTests.Application.Activates
         {
             // Arrange
             var command = new CreateActivateCommand("Type1", "123", false, false, null, null);
-            var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
+            var existingActivate = Activate.Create(new Guid(), "123", true, true, DateTime.UtcNow).Value;
             var personData = new GetPersonValidationResponse(false, null, null);
 
             _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(
-                                It.IsAny<string>(), 
+                                It.IsAny<Guid>(), 
                                 It.IsAny<string>(), 
                                 It.IsAny<CancellationToken>()))
                             .ReturnsAsync(existingActivate);
@@ -31,7 +31,7 @@ namespace UnitTests.Application.Activates
                 .ReturnsAsync(personData);
 
             // Act
-            var validationContext = new CreateActivateValidationContext(command, existingActivate, true);
+            var validationContext = new CreateActivateValidationContext(command, existingActivate, new Guid());
 
             // Assert
             Assert.Equal(command, validationContext.Request);
@@ -41,7 +41,7 @@ namespace UnitTests.Application.Activates
         public void Activate_Create_ShouldInitializePropertiesCorrectly()
         {
             // Arrange
-            var identificationType = "Type1";
+            var identificationType = new Guid();
             var identification = "123";
             var pensioner = false;
             var meetsRequirements = true;
@@ -57,7 +57,6 @@ namespace UnitTests.Application.Activates
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Equal(identificationType, result.Value.IdentificationType);
             Assert.Equal(identification, result.Value.Identification);
             Assert.Equal(pensioner, result.Value.Pensioner);
         }
@@ -66,19 +65,19 @@ namespace UnitTests.Application.Activates
         public void Repository_ShouldDetectExistingActivate()
         {
             //Arrange            
-            var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
+            var existingActivate = Activate.Create(new Guid(), "123", true, true, DateTime.UtcNow).Value;
             _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(
-                                It.IsAny<string>(), 
+                                It.IsAny<Guid>(), 
                                 It.IsAny<string>(), 
                                 It.IsAny<CancellationToken>()))
                             .ReturnsAsync(existingActivate);
 
             // Act
-            var exists = _repositoryMock.Object.GetByIdTypeAndNumber("Type1", "123");
+            var exists = _repositoryMock.Object.GetByIdTypeAndNumber(new Guid(), "123");
 
             // Assert
             Assert.True(exists is not null);
-            _repositoryMock.Verify(x => x.GetByIdTypeAndNumber("Type1", "123", CancellationToken.None), Times.Once);
+            _repositoryMock.Verify(x => x.GetByIdTypeAndNumber(new Guid(), "123", CancellationToken.None), Times.Once);
         }
 
         [Fact]
@@ -86,7 +85,7 @@ namespace UnitTests.Application.Activates
         {
             // Arrange
             var expectedPerson = new GetPersonValidationResponse(false, null, null);
-            var requestEvent = new PersonDataRequestEvent("Type1", "123");
+            var requestEvent = new PersonDataRequestEvent("T123", "123");
 
             _rpcMock.Setup(x => x.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
                     It.IsAny<string>(), It.IsAny<PersonDataRequestEvent>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))

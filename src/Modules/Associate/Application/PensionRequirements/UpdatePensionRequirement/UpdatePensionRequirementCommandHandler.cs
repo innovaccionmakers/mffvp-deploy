@@ -26,7 +26,7 @@ internal sealed class UpdatePensionRequirementCommandHandler(
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var existingPensionRequirement = await pensionrequirementRepository.GetAsync(request.PensionRequirementId, cancellationToken);
         
-        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
+        var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.IdentificationType, HomologScope.Of<UpdatePensionRequirementCommand>(c => c.IdentificationType), cancellationToken);
 
         var validationResult = await validator.ValidateRequestAsync(
@@ -34,7 +34,7 @@ internal sealed class UpdatePensionRequirementCommandHandler(
                 request.IdentificationType,
                 request.Identification,
                 Workflow,
-                (cmd, activateResult) => new UpdatePensionRequirementValidationContext(cmd, activateResult, existingPensionRequirement!, documentType),
+                (cmd, activateResult) => new UpdatePensionRequirementValidationContext(cmd, activateResult, existingPensionRequirement!, configurationParameter.Uuid),
                 cancellationToken);
         
         if (validationResult.IsFailure)

@@ -9,7 +9,6 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Associate.Application.Abstractions;
 using MediatR;
-using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
 
 namespace Associate.Application.Activates.CreateActivate;
@@ -28,24 +27,24 @@ internal sealed class CreateActivateCommandHandler(
     public async Task<Result> Handle(CreateActivateCommand request, CancellationToken cancellationToken)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        Activate existingActivate = await activateRepository.GetByIdTypeAndNumber(request.IdentificationType, request.Identification, cancellationToken);
-
+        var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            request.IdentificationType, HomologScope.Of<CreateActivateCommand>(c => c.IdentificationType), cancellationToken);
+            
+        Activate? existingActivate = await activateRepository.GetByIdTypeAndNumber(configurationParameter.Uuid, request.Identification, cancellationToken);
+        
         var personData = await rpc.CallAsync<
             PersonDataRequestEvent,
             GetPersonValidationResponse>(
             nameof(PersonDataRequestEvent),
             new PersonDataRequestEvent(request.IdentificationType, request.Identification),
-            TimeSpan.FromSeconds(30),
+            TimeSpan.FromSeconds(60),
             cancellationToken);
 
         if (!personData.IsValid)
             return Result.Failure(
                 Error.Validation(personData.Code ?? string.Empty, personData.Message ?? string.Empty));
 
-        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<CreateActivateCommand>(c => c.IdentificationType), cancellationToken);
-
-        var validationContext = new CreateActivateValidationContext(request, existingActivate, documentType);
+        var validationContext = new CreateActivateValidationContext(request, existingActivate!, configurationParameter.Uuid);
 
         var (isValid, _, ruleErrors) =
             await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);
@@ -61,7 +60,7 @@ internal sealed class CreateActivateCommandHandler(
         }
 
         var result = Activate.Create(
-            request.IdentificationType,
+            configurationParameter.Uuid,
             request.Identification,
             request.Pensioner,
             request.MeetsPensionRequirements ?? false,

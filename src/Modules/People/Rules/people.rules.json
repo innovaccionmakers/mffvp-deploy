@@ -47,14 +47,14 @@
     "Rules": [
       {
         "RuleName": "ClientExists",
-        "Expression": "input.CountryId != null",
+        "Expression": "input.CountryOfResidenceId != null",
         "Properties": {
           "errorCode": "5275d643-465a-40f3-83aa-afec26302136"
         }
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.DocumentType != null",
+        "Expression": "input.IdentificationType != null",
         "Properties": {
           "errorCode": "15afe1e8-4922-4e90-a030-e1f07ae388c6"
         }

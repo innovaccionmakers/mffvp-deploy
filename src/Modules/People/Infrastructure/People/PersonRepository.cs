@@ -32,11 +32,11 @@ internal sealed class PersonRepository(PeopleDbContext context) : IPersonReposit
         context.People.Remove(person);
     }
 
-    public async Task<Person?> GetForIdentificationAsync(string DocumentType, string Identification,
+    public async Task<Person?> GetForIdentificationAsync(Guid IdentificationType, string Identification,
         CancellationToken cancellationToken = default)
     {
         return await context.People.SingleOrDefaultAsync(x =>
-            x.DocumentType == DocumentType && x.Identification == Identification);
+            x.IdentificationType == IdentificationType && x.Identification == Identification);
     }
 
     public async Task<Person?> GetByIdentificationAsync(string identification, string documentTypeCode,
