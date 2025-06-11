@@ -8,6 +8,7 @@ internal static class ConfigurationExtensions
         {
             configurationBuilder.AddJsonFile($"modules.{module}.json", false, true);
             configurationBuilder.AddJsonFile($"modules.{module}.Development.json", true, true);
+            configurationBuilder.AddJsonFile($"modules.{module}.DevMakers2.json", true, true);
         }
     }
 }

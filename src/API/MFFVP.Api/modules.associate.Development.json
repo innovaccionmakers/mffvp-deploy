@@ -1,7 +1,5 @@
 {
     "ConnectionStrings": {
-        "AssociateDatabase": "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;",
-        "AssociateDatabase_WriteOnly": "Host=db-makers-fund-dev-fvp-aurora.cluster-cqgahba446ca.us-east-2.rds.amazonaws.com;Username=makersdb;Password=EBiHr68hj6XKNyCd3FeH;Database=dbfondospension",
-        "AssociateDatabase_ReadOnly": "Host=db-makers-fund-dev-fvp-aurora.cluster-ro-cqgahba446ca.us-east-2.rds.amazonaws.com;Username=makersdb;Password=EBiHr68hj6XKNyCd3FeH;Database=dbfondospension"
+        "AssociateDatabase": "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;"
     }
 }

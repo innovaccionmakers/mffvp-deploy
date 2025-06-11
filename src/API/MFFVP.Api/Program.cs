@@ -1,14 +1,18 @@
-using System.Reflection;
-using Associate.Infrastructure;
 using Asp.Versioning;
+
+using Associate.Infrastructure;
+
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Validation;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Filters;
+
 using FluentValidation;
+
 using MFFVP.Api.BffWeb.Associate;
+using MFFVP.Api.BffWeb.Associate.PensionRequirements;
 using MFFVP.Api.BffWeb.Operations;
 using MFFVP.Api.BffWeb.People;
 using MFFVP.Api.BffWeb.Products;
@@ -16,17 +20,39 @@ using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
-using Operations.Infrastructure;
-using People.Infrastructure;
-using Products.Infrastructure;
-using Serilog;
-using Swashbuckle.AspNetCore.SwaggerUI;
-using Trusts.Infrastructure;
-using MFFVP.Api.BffWeb.Associate.PensionRequirements;
+
 using Microsoft.AspNetCore.Authorization;
-using Common.SharedKernel.Domain.Auth.Permissions;
+
+using Operations.Infrastructure;
+
+using People.Infrastructure;
+
+using Products.Infrastructure;
+
+using Serilog;
+
+using System.Reflection;
+
+using Trusts.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var env = builder.Environment.EnvironmentName;
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+if (env == "DevMakers2")
+{
+    var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
+    var region = builder.Configuration["AWS:SecretsManager:Region"];
+    var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
+
+    builder.Configuration["ConnectionStrings:Database"] = response;
+    builder.Configuration["ConnectionStrings:capDbConnectionString"] = response;
+}
+
 
 builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 
@@ -48,10 +74,10 @@ Assembly[] moduleApplicationAssemblies =
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
 
-var databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
-var mongoDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("MongoDB");
+var databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database"); 
 var databaseConnectionStringSQL = builder.Configuration.GetConnectionStringOrThrow("SqlServerDatabase");
 var capDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("CapDatabase");
+
 
 builder.Services.AddInfrastructure(
     DiagnosticsConfig.ServiceName,

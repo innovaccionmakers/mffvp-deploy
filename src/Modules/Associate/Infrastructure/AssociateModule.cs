@@ -35,6 +35,16 @@ public static class ActivatesModule
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        string connectionString = configuration.GetConnectionString("TrustsDatabase");
+
+        if (env == "DevMakers2")
+        {
+            var secretName = configuration["AWS:SecretsManager:SecretName"];
+            var region = configuration["AWS:SecretsManager:Region"];
+            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
+        }
+
         services.AddDbContext<AssociateDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
