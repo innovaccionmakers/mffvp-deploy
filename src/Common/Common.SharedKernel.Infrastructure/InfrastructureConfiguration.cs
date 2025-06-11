@@ -110,7 +110,7 @@ public static class InfrastructureConfiguration
             foreach (var description in provider)
             {
                 options.SwaggerEndpoint(
-                    $"fiduciaria/fvp/swagger/{description.GroupName}/swagger.json",
+                    $"./swagger/{description.GroupName}/swagger.json",
                     description.GroupName.ToUpperInvariant());
             }
 
