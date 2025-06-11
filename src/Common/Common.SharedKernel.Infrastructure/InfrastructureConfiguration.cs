@@ -115,7 +115,7 @@ public static class InfrastructureConfiguration
             }
 
             options.DocExpansion(DocExpansion.None);
-            options.RoutePrefix = "/fiduciaria/fvp/swagger";
+            options.RoutePrefix = "fiduciaria/fvp/swagger";
         });
 
         app.UseCors("AllowSwaggerUI");
