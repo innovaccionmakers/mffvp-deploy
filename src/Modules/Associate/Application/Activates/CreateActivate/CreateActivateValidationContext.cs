@@ -7,12 +7,12 @@ public sealed class CreateActivateValidationContext
 {
     public CreateActivateCommand Request { get; }
     public Activate ExistingActivate { get; }
-    public bool DocumentType { get; }
+    public Guid IdentificationType { get; }
 
-    public CreateActivateValidationContext(CreateActivateCommand request, Activate existingActivate, bool documentType)
+    public CreateActivateValidationContext(CreateActivateCommand request, Activate existingActivate, Guid identificationType)
     {
         Request = request;
         ExistingActivate = existingActivate;
-        DocumentType = documentType;
+        IdentificationType = identificationType;
     }
 }

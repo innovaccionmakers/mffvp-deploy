@@ -18,8 +18,8 @@ namespace IntegrationTests.Activates
             // Arrange
             var expectedActivates = new List<Activate>
             {
-                Activate.Create("Type1", "123", false, false, DateTime.UtcNow).Value,
-                Activate.Create("Type2", "456", true, true, DateTime.UtcNow).Value
+                Activate.Create(new Guid(), "123", false, false, DateTime.UtcNow).Value,
+                Activate.Create(new Guid(), "456", true, true, DateTime.UtcNow).Value
             };
 
             _repositoryMock.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>()))
@@ -38,15 +38,15 @@ namespace IntegrationTests.Activates
         {
             // Arrange
 
-            var existingActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
+            var existingActivate = Activate.Create(new Guid(), "123", true, true, DateTime.UtcNow).Value;
             _repositoryMock.Setup(x => x.GetByIdTypeAndNumber(
-                                It.IsAny<string>(),
+                                It.IsAny<Guid>(),
                                 It.IsAny<string>(),
                                 It.IsAny<CancellationToken>()))
                             .ReturnsAsync(existingActivate);
 
             // Act
-            var result = _repositoryMock.Object.GetByIdTypeAndNumber("Unknown", "999");
+            var result = _repositoryMock.Object.GetByIdTypeAndNumber(new Guid(), "999");
 
             // Assert
             Assert.False(result is null);
@@ -56,7 +56,7 @@ namespace IntegrationTests.Activates
         public void Insert_ShouldAddNewActivate()
         {
             // Arrange
-            var activate = Activate.Create("Type1", "123", false, false, DateTime.UtcNow).Value;
+            var activate = Activate.Create(new Guid(), "123", false, false, DateTime.UtcNow).Value;
             var insertedActivates = new List<Activate>();
 
             _repositoryMock.Setup(x => x.Insert(
@@ -76,8 +76,8 @@ namespace IntegrationTests.Activates
         public async Task Update_ShouldModifyExistingActivate()
         {
             // Arrange
-            var existingActivate = Activate.Create("Type1", "123", false, true, DateTime.UtcNow).Value;
-            var updatedActivate = Activate.Create("Type1", "123", true, true, DateTime.UtcNow).Value;
+            var existingActivate = Activate.Create(new Guid(), "123", false, true, DateTime.UtcNow).Value;
+            var updatedActivate = Activate.Create(new Guid(), "123", true, true, DateTime.UtcNow).Value;
             var updatedActivates = new List<Activate>();
 
             _repositoryMock.Setup(x => x.Update(It.IsAny<Activate>(), It.IsAny<CancellationToken>()))

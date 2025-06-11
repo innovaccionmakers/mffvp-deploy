@@ -12,10 +12,10 @@ internal sealed class ConfigurationParameterRepository(AssociateDbContext contex
         return await context.ConfigurationParameters.ToListAsync(cancellationToken);
     }
 
-    public async Task<ConfigurationParameter?> GetAsync(int configurationparameterId, CancellationToken cancellationToken = default)
+    public async Task<ConfigurationParameter?> GetAsync(Guid Uuid, CancellationToken cancellationToken = default)
     {
         return await context.ConfigurationParameters
-            .SingleOrDefaultAsync(x => x.ConfigurationParameterId == configurationparameterId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Uuid == Uuid, cancellationToken);
     }
 
     public void Insert(ConfigurationParameter configurationparameter)
@@ -27,20 +27,16 @@ internal sealed class ConfigurationParameterRepository(AssociateDbContext contex
     {
         context.ConfigurationParameters.Update(configurationparameter);
     }
-
-    public void Delete(ConfigurationParameter configurationparameter)
-    {
-        context.ConfigurationParameters.Remove(configurationparameter);
-    }
-
+    
     public async Task<ConfigurationParameter?> GetByUuidAsync(Guid uuid, CancellationToken cancellationToken = default)
     {
         return await context.ConfigurationParameters
             .SingleOrDefaultAsync(p => p.Uuid == uuid, cancellationToken);
     }
 
-    public async Task<bool> GetByCodeAndScopeAsync(string homologationCode, string scope, CancellationToken cancellationToken = default)
+    public async Task<ConfigurationParameter> GetByCodeAndScopeAsync(string homologationCode, string scope, CancellationToken cancellationToken = default)
     {
-        return await context.ConfigurationParameters.AnyAsync(p => p.HomologationCode == homologationCode && p.Type == scope, cancellationToken);
+        return await context.ConfigurationParameters
+                    .SingleOrDefaultAsync(p => p.HomologationCode == homologationCode && p.Type == scope, cancellationToken);
     }
 }

@@ -1,83 +1,80 @@
 using Common.SharedKernel.Domain;
-using People.Domain.Countries;
-using People.Domain.EconomicActivities;
 
 namespace People.Domain.People;
 
 public sealed class Person : Entity
 {
     public long PersonId { get; private set; }
-    public string DocumentType { get; private set; }
+    public Guid IdentificationType { get; private set; }
     public string HomologatedCode { get; private set; }
     public string Identification { get; private set; }
     public string FirstName { get; private set; }
     public string MiddleName { get; private set; }
     public string LastName { get; private set; }
     public string SecondLastName { get; private set; }
-    public DateTime IssueDate { get; private set; }
-    public int IssueCityId { get; private set; }
-    public DateTime BirthDate { get; private set; }
-    public int BirthCityId { get; private set; }
     public string Mobile { get; private set; }
     public string FullName { get; private set; }
-    public int MaritalStatusId { get; private set; }
     public int GenderId { get; private set; }
-    public int CountryId { get; private set; }
+    public int CountryOfResidenceId { get; private set; }
+    public int DepartmentId { get; private set; }
+    public int MunicipalityId { get; private set; }
     public string Email { get; private set; }
-    public string EconomicActivityId { get; private set; }
-    public bool Status { get; private set; } = true;
-
-    public Country Country { get; private set; } = null!;
-    public EconomicActivity EconomicActivity { get; private set; } = null!;
+    public int EconomicActivityId { get; private set; }
+    public bool Status { get; private set; }
+    public string Address { get; private set; }
+    public bool IsDeclarant { get; private set; }
+    public int InvestorTypeId { get; private set; }
+    public int RiskProfileId { get; private set; }
 
     private Person()
     {
     }
 
     public static Result<Person> Create(
-        string documentType,
+        Guid identificationType,
         string homologatedCode,
         string identification,
         string firstName,
         string middleName,
         string lastName,
         string secondLastName,
-        DateTime issueDate,
-        int issueCityId,
-        DateTime birthDate,
-        int birthCityId,
         string mobile,
         string fullName,
-        int maritalStatusId,
         int genderId,
+        int countryOfResidenceId,
+        int departmentId,
+        int municipalityId,
         string email,
-        Country country,
-        EconomicActivity economicActivity,
-        bool status
-    )
+        int economicActivityId,
+        bool status,
+        string address,
+        bool isDeclarant,
+        int investorTypeId,
+        int riskProfileId)
     {
         var person = new Person
         {
             PersonId = default,
-            DocumentType = documentType,
+            IdentificationType = identificationType,
             HomologatedCode = homologatedCode,
             Identification = identification,
             FirstName = firstName,
             MiddleName = middleName,
             LastName = lastName,
             SecondLastName = secondLastName,
-            IssueDate = issueDate,
-            IssueCityId = issueCityId,
-            BirthDate = birthDate,
-            BirthCityId = birthCityId,
             Mobile = mobile,
             FullName = fullName,
-            MaritalStatusId = maritalStatusId,
             GenderId = genderId,
-            CountryId = country.CountryId,
+            CountryOfResidenceId = countryOfResidenceId,
+            DepartmentId = departmentId,
+            MunicipalityId = municipalityId,
             Email = email,
-            EconomicActivityId = economicActivity.EconomicActivityId,
-            Status = status
+            EconomicActivityId = economicActivityId,
+            Status = status,
+            Address = address,
+            IsDeclarant = isDeclarant,
+            InvestorTypeId = investorTypeId,
+            RiskProfileId = riskProfileId
         };
 
         person.Raise(new PersonCreatedDomainEvent(person.PersonId));
@@ -85,45 +82,46 @@ public sealed class Person : Entity
     }
 
     public void UpdateDetails(
-        string newDocumentType,
+        Guid newIdentificationType,
         string newHomologatedCode,
         string newIdentification,
         string newFirstName,
         string newMiddleName,
         string newLastName,
         string newSecondLastName,
-        DateTime newIssueDate,
-        int newIssueCityId,
-        DateTime newBirthDate,
-        int newBirthCityId,
         string newMobile,
         string newFullName,
-        int newMaritalStatusId,
         int newGenderId,
-        int newCountryId,
+        int newCountryOfResidenceId,
+        int newDepartmentId,
+        int newMunicipalityId,
         string newEmail,
-        string newEconomicActivityId,
-        bool newStatus
-    )
+        int newEconomicActivityId,
+        bool newStatus,
+        string newAddress,
+        bool newIsDeclarant,
+        int newInvestorTypeId,
+        int newRiskProfileId)
     {
-        DocumentType = newDocumentType;
+        IdentificationType = newIdentificationType;
         HomologatedCode = newHomologatedCode;
         Identification = newIdentification;
         FirstName = newFirstName;
         MiddleName = newMiddleName;
         LastName = newLastName;
         SecondLastName = newSecondLastName;
-        IssueDate = newIssueDate;
-        IssueCityId = newIssueCityId;
-        BirthDate = newBirthDate;
-        BirthCityId = newBirthCityId;
         Mobile = newMobile;
         FullName = newFullName;
-        MaritalStatusId = newMaritalStatusId;
         GenderId = newGenderId;
-        CountryId = newCountryId;
+        CountryOfResidenceId = newCountryOfResidenceId;
+        DepartmentId = newDepartmentId;
+        MunicipalityId = newMunicipalityId;
         Email = newEmail;
         EconomicActivityId = newEconomicActivityId;
         Status = newStatus;
+        Address = newAddress;
+        IsDeclarant = newIsDeclarant;
+        InvestorTypeId = newInvestorTypeId;
+        RiskProfileId = newRiskProfileId;
     }
 }

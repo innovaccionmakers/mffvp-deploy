@@ -8,7 +8,7 @@ namespace UnitTests.Domain.Activates
         public void Create_ShouldRaiseActivateCreatedDomainEvent()
         {
             // Arrange
-            var identificationType = "Type1";
+            var identificationType = new Guid();
             var identification = "123";
             var pensioner = false;
             var meetsRequirements = true;
@@ -48,7 +48,7 @@ namespace UnitTests.Domain.Activates
         public void UpdateDetails_ShouldChangeOnlyPensionerStatus()
         {
             // Arrange
-            var original = Activate.Create("Type1", "123", false, true, DateTime.UtcNow).Value;
+            var original = Activate.Create(new Guid(), "123", false, true, DateTime.UtcNow).Value;
             var originalIdentificationType = original.IdentificationType;
             var originalIdentification = original.Identification;
             var originalMeetsRequirements = original.MeetsPensionRequirements;
@@ -71,7 +71,7 @@ namespace UnitTests.Domain.Activates
         public void UpdateDetails_ShouldSetCorrectPensionerValue(bool newValue)
         {
             // Arrange
-            var activate = Activate.Create("Type1", "123", !newValue, true, DateTime.UtcNow).Value;
+            var activate = Activate.Create(new Guid(), "123", !newValue, true, DateTime.UtcNow).Value;
 
             // Act
             activate.UpdateDetails(newValue);

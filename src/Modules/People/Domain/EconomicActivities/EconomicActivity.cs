@@ -4,7 +4,8 @@ namespace People.Domain.EconomicActivities;
 
 public sealed class EconomicActivity : Entity
 {
-    public string EconomicActivityId { get; private set; }
+    public int EconomicActivityId { get; private set; }
+    public string GroupCode { get; private set; }
     public string Description { get; private set; }
     public string CiiuCode { get; private set; }
     public string DivisionCode { get; private set; }
@@ -18,7 +19,7 @@ public sealed class EconomicActivity : Entity
     }
 
     public static Result<EconomicActivity> Create(
-        string economicActivityId,
+        int economicActivityId,
         string description,
         string ciiuCode,
         string divisionCode,
@@ -45,7 +46,7 @@ public sealed class EconomicActivity : Entity
     }
 
     public void UpdateDetails(
-        string newEconomicActivityId,
+        int newEconomicActivityId,
         string newDescription,
         string newCiiuCode,
         string newDivisionCode,

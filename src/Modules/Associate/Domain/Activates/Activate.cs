@@ -9,14 +9,14 @@ public sealed class Activate : Entity
     }
 
     public int ActivateId { get; private set; }
-    public string IdentificationType { get; private set; }
+    public Guid IdentificationType { get; private set; }
     public string Identification { get; private set; }
     public bool Pensioner { get; private set; }
     public bool MeetsPensionRequirements { get; private set; }
     public DateTime ActivateDate { get; private set; }
 
     public static Result<Activate> Create(
-        string identificationtype, string identification, bool pensioner, bool meetsrequirements,
+        Guid identificationtype, string identification, bool pensioner, bool meetsrequirements,
         DateTime activatedate
     )
     {

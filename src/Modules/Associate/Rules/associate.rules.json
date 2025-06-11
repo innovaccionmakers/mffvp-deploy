@@ -35,7 +35,7 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.documentType != false",
+        "Expression": "input.identificationType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
@@ -124,7 +124,7 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.documentType != false",
+        "Expression": "input.identificationType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
@@ -178,7 +178,7 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.documentType != false",
+        "Expression": "input.identificationType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
@@ -246,7 +246,7 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.documentType != false",
+        "Expression": "input.identificationType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }

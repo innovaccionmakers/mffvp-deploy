@@ -17,8 +17,8 @@ namespace UnitTests.Application.Activates
             // Arrange
             var activates = new List<Activate>
             {
-                Activate.Create("Type1", "123", false, false, DateTime.UtcNow).Value,
-                Activate.Create("Type2", "456", true, true, DateTime.UtcNow).Value
+                Activate.Create(new Guid(), "123", false, false, DateTime.UtcNow).Value,
+                Activate.Create(new Guid(), "456", true, true, DateTime.UtcNow).Value
             };
 
             _repositoryMock.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>()))
