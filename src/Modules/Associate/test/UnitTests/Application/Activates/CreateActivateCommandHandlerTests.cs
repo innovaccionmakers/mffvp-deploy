@@ -85,7 +85,7 @@ namespace UnitTests.Application.Activates
         {
             // Arrange
             var expectedPerson = new GetPersonValidationResponse(false, null, null);
-            var requestEvent = new PersonDataRequestEvent(new Guid(), "123");
+            var requestEvent = new PersonDataRequestEvent("T123", "123");
 
             _rpcMock.Setup(x => x.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
                     It.IsAny<string>(), It.IsAny<PersonDataRequestEvent>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
