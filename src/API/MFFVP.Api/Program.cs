@@ -1,3 +1,5 @@
+using System.Reflection;
+using Associate.Infrastructure;
 using Asp.Versioning;
 
 using Associate.Infrastructure;
@@ -34,6 +36,10 @@ using Serilog;
 using System.Reflection;
 
 using Trusts.Infrastructure;
+using Closing.Infrastructure;
+using MFFVP.Api.BffWeb.Associate.PensionRequirements;
+using Microsoft.AspNetCore.Authorization;
+using Common.SharedKernel.Domain.Auth.Permissions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,13 +102,14 @@ builder.Services.AddInfrastructure(
     capDbConnectionString,
     databaseConnectionStringSQL);
 
-builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people", "operations"], env);
+builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people", "operations", "closing"], env);
 
 builder.Services.AddTrustsModule(builder.Configuration);
 builder.Services.AddActivatesModule(builder.Configuration);
 builder.Services.AddProductsModule(builder.Configuration);
 builder.Services.AddPeopleModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
+builder.Services.AddClosingModule(builder.Configuration);
 
 builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();

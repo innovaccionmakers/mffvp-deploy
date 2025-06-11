@@ -1,0 +1,7 @@
+namespace Closing.Domain.ProfitLosses;
+
+public interface IProfitLossRepository
+{
+    Task<IReadOnlyCollection<ProfitLoss>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<ProfitLoss?> GetAsync(long profitLossId, CancellationToken cancellationToken = default);
+}
