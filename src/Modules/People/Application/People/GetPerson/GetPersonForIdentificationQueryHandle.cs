@@ -2,7 +2,7 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Integrations.People.GetPerson;
 using People.Application.Abstractions;
-using People.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using People.Domain.People;
 using People.Integrations.People;
 

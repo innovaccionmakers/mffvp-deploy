@@ -1,7 +1,7 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Products.Application.Abstractions;
-using Products.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Products.Domain.Objectives;
 using Products.Domain.Portfolios;
 using Products.Integrations.ContributionValidation;

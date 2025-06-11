@@ -4,7 +4,7 @@ using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.External;
-using Operations.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
 using Common.SharedKernel.Domain.ConfigurationParameters;

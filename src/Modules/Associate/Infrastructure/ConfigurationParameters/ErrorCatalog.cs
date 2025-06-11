@@ -1,11 +1,12 @@
 using Associate.Domain.ConfigurationParameters;
-using Associate.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
+using Associate.Application.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.ConfigurationParameters;
 
-public class ErrorCatalog : IErrorCatalog
+public class ErrorCatalog : IErrorCatalog<AssociateModuleMarker>
 {
     private readonly IConfigurationParameterRepository _repo;
     private readonly ILogger<ErrorCatalog> _log;

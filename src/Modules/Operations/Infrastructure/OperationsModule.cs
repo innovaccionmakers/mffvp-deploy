@@ -12,7 +12,7 @@ using Operations.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.External;
-using Operations.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Operations.Application.Contributions.Services;
 using Operations.Domain.Channels;
 using Common.SharedKernel.Domain.ConfigurationParameters;
@@ -25,7 +25,7 @@ using Operations.Infrastructure.External.ContributionValidation;
 using Operations.Infrastructure.External.People;
 using Operations.Infrastructure.External.Trusts;
 using Operations.Infrastructure.Origins;
-using Operations.Infrastructure.RulesEngine;
+using Common.SharedKernel.Infrastructure.RulesEngine;
 using Operations.Infrastructure.SubtransactionTypes;
 
 namespace Operations.Infrastructure;
@@ -35,7 +35,7 @@ public static class OperationsModule
     public static IServiceCollection AddOperationsModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine<OperationsModuleMarker>(opt =>
+        services.AddRulesEngine<OperationsModuleMarker>(typeof(OperationsModule).Assembly, opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
@@ -70,7 +70,7 @@ public static class OperationsModule
         services.AddScoped<IContributionCatalogResolver, ContributionCatalogResolver>();
         services.AddScoped<ITaxCalculator, TaxCalculator>();
 
-        services.AddScoped<IErrorCatalog, ErrorCatalog>();
+        services.AddScoped<IErrorCatalog<OperationsModuleMarker>, ErrorCatalog>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<OperationsDbContext>());
     }
