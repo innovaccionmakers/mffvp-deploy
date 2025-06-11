@@ -16,9 +16,6 @@
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="RulesEngine" Version="5.0.6"/>
-    </ItemGroup>
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>

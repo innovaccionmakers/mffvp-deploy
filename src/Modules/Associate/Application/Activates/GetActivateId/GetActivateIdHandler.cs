@@ -1,5 +1,5 @@
 using Associate.Application.Abstractions;
-using Associate.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Associate.Domain.Activates;
 using Associate.Domain.ConfigurationParameters;
 using Associate.Integrations.Activates.GetActivateId;

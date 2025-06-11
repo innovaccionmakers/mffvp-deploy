@@ -1,6 +1,6 @@
 using RulesEngine.Models;
 
-namespace Trusts.Application.Abstractions.Rules;
+namespace Common.SharedKernel.Application.Rules;
 
 public interface IRulesEngine<TModule>
 {

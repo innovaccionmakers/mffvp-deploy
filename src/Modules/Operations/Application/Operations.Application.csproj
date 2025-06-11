@@ -12,9 +12,6 @@
         <ProjectReference Include="..\Integrations\Operations.Integrations.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="RulesEngine" Version="5.0.6"/>
-    </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="Operations.test.UnitTests" />

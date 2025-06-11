@@ -2,7 +2,7 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using People.IntegrationEvents.PersonValidation;
 using Products.Application.Abstractions;
-using Products.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Products.Domain.Portfolios;
 using Products.Integrations.Portfolios;
 using Products.Integrations.Portfolios.GetPortfolio;

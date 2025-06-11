@@ -1,10 +1,11 @@
 using Microsoft.Extensions.Logging;
-using People.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using People.Domain.ConfigurationParameters;
+using People.Application.Abstractions;
 
 namespace People.Infrastructure.ConfigurationParameters;
 
-internal sealed class ErrorCatalog : IErrorCatalog
+internal sealed class ErrorCatalog : IErrorCatalog<PeopleModuleMarker>
 {
     private readonly ILogger<ErrorCatalog> _log;
     private readonly IConfigurationParameterRepository _repo;

@@ -2,7 +2,7 @@ using Associate.Domain.ConfigurationParameters;
 using System.Data.Common;
 using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
-using Associate.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Associate.Application.Activates.UpdateActivate;
 using Associate.Domain.Activates;
 using Common.SharedKernel.Domain.ConfigurationParameters;

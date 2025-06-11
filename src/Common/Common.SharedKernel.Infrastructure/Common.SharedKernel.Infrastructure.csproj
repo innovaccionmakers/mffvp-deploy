@@ -14,6 +14,7 @@
     <ItemGroup>
         <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+        <PackageReference Include="RulesEngine" Version="5.0.6" />
         <PackageReference Include="DotNetCore.CAP.Dashboard" Version="8.3.4" />
         <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.3.3" />
         <PackageReference Include="DotNetCore.CAP.Kafka" Version="8.3.3" />

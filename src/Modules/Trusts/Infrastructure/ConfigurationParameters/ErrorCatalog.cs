@@ -1,11 +1,12 @@
 using Trusts.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
-using Trusts.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
+using Trusts.Application.Abstractions;
 
 namespace Trusts.Infrastructure.ConfigurationParameters;
 
-internal sealed class ErrorCatalog : IErrorCatalog
+internal sealed class ErrorCatalog : IErrorCatalog<TrustsModuleMarker>
 {
     private readonly ILogger<ErrorCatalog> _log;
     private readonly IConfigurationParameterRepository _repo;

@@ -12,10 +12,10 @@ using People.Infrastructure.EconomicActivities;
 using People.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
 using People.Application.Abstractions;
-using People.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using People.Domain.ConfigurationParameters;
 using People.Infrastructure.ConfigurationParameters;
-using People.Infrastructure.RulesEngine;
+using Common.SharedKernel.Infrastructure.RulesEngine;
 using People.IntegrationEvents.ClientValidation;
 using People.IntegrationEvents.DocumentTypeValidation;
 using People.IntegrationEvents.PersonValidation;
@@ -27,7 +27,7 @@ public static class PeopleModule
     public static IServiceCollection AddPeopleModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddInfrastructure(configuration);
-        services.AddRulesEngine<PeopleModuleMarker>(opt =>
+        services.AddRulesEngine<PeopleModuleMarker>(typeof(PeopleModule).Assembly, opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
@@ -51,7 +51,7 @@ public static class PeopleModule
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IEconomicActivityRepository, EconomicActivityRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
-        services.AddScoped<IErrorCatalog, ErrorCatalog>();
+        services.AddScoped<IErrorCatalog<PeopleModuleMarker>, ErrorCatalog>();
         services.AddTransient<PersonValidationConsumer>();
         services.AddTransient<ClientValidationConsumer>();
         services.AddTransient<DocumentTypeValidationConsumer>();

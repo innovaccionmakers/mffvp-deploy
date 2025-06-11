@@ -1,7 +1,7 @@
-using Products.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using RulesEngine.Models;
 
-namespace Products.Infrastructure.RulesEngine;
+namespace Common.SharedKernel.Infrastructure.RulesEngine;
 
 public static class RulesEngineExtensions
 {

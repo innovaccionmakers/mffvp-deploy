@@ -2,7 +2,7 @@ using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using People.Application.Abstractions;
-using People.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using People.Domain.ConfigurationParameters;
 using People.Integrations.DocumentTypes.GetDocumentTypeId;
 

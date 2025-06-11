@@ -1,6 +1,6 @@
 using Associate.Domain.ConfigurationParameters;
 using Associate.Application.Abstractions.Data;
-using Associate.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Associate.Domain.Activates;
 using Associate.Integrations.Activates.CreateActivate;
 using Associate.Integrations.PensionRequirements.CreatePensionRequirement;

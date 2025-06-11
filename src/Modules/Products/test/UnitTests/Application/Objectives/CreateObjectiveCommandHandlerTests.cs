@@ -5,7 +5,7 @@ using FluentAssertions;
 using Moq;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
-using Products.Application.Abstractions.Rules;
+using Common.SharedKernel.Application.Rules;
 using Products.Application.Abstractions.Services.External;
 using Products.Application.Objectives.CreateObjective;
 using Products.Domain.Alternatives;
