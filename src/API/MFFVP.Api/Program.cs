@@ -50,24 +50,6 @@ if (env == "DevMakers2")
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
     var region = builder.Configuration["AWS:SecretsManager:Region"];
     var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
-
-    using (var tempProvider = builder.Services.BuildServiceProvider())
-    {
-        var logger = tempProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation("ILogger is working: environment is {EnvironmentName}", builder.Environment.EnvironmentName);
-
-
-        logger.LogInformation($"Response: {response}");
-        if (string.IsNullOrWhiteSpace(response))
-        {
-            logger.LogError("Secret fetched from SecretsManager is empty or null.");
-        }
-        else
-        {
-            logger.LogInformation("Secret fetched from SecretsManager successfully and assigned to configuration.");
-        }
-    }
-    response = "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;SSL Mode=Require;Trust Server Certificate=true;";
     builder.Configuration["ConnectionStrings:Database"] = response;
     builder.Configuration["ConnectionStrings:CapDatabase"] = response;
 }
