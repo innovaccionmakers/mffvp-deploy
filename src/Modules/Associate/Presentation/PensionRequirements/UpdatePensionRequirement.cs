@@ -5,34 +5,25 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
+using Microsoft.AspNetCore.Mvc;
+using Common.SharedKernel.Presentation.Filters;
+using Associate.Integrations.PensionRequirements;
 
 namespace Associate.Presentation.PensionRequirements
 {
     internal sealed class UpdatePensionRequirement : IEndpoint
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapPut("pensionrequirements/{id:int}", async (int id, Request request, ISender sender) =>
+        {            
+            app.MapPut("PutPensionRequirements", async ([FromBody] UpdatePensionRequirementCommand request, ISender sender) =>
             {
-                var command = new UpdatePensionRequirementCommand(
-                    request.IdentificationType, 
-                    request.Identification, 
-                    request.PensionRequirementId,
-                    request.Status
-                );
-
-                var result = await sender.Send(command);
-                return result.Match(Results.Ok, ApiResults.Problem);
+                var result = await  sender.Send(request);
+                return result.ToApiResult(result.Description);
             })
-            .WithTags(Tags.PensionRequirements);
-        }
-
-        internal sealed class Request
-        {
-            public string IdentificationType { get; set; }
-            public string Identification { get; set; }
-            public int PensionRequirementId { get; set; }
-            public bool Status { get; set; }
+            .AddEndpointFilter<TechnicalValidationFilter<UpdatePensionRequirementCommand>>()
+            .Produces<PensionRequirementResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
         }
     }
 }

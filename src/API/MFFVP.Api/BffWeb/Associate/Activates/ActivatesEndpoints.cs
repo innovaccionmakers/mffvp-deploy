@@ -1,6 +1,9 @@
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.CreateActivate;
 using Associate.Integrations.Activates.UpdateActivate;
+using Associate.Integrations.PensionRequirements;
+using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
+using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
@@ -13,10 +16,13 @@ namespace MFFVP.Api.BffWeb.Associate.Activates;
 public sealed class ActivatesEndpoints
 {
     private readonly IActivatesService _activatesService;
+    private readonly IPensionRequirementsService _pensionrequirementsService;
 
-    public ActivatesEndpoints(IActivatesService activatesService)
+
+    public ActivatesEndpoints(IActivatesService activatesService, IPensionRequirementsService pensionrequirementsService)
     {
         _activatesService = activatesService;
+        _pensionrequirementsService = pensionrequirementsService;
     }
 
     public void MapEndpoint(IEndpointRouteBuilder app)
@@ -42,7 +48,7 @@ public sealed class ActivatesEndpoints
             .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
-        
+
         group.MapGet(
                 "GetByIdAssociate",
                 async (
@@ -69,7 +75,7 @@ public sealed class ActivatesEndpoints
             {
                 var p = operation.Parameters.First(p => p.Name == "activateId");
                 p.Description = "Identificador único de la activación";
-                p.Example     = new OpenApiInteger(456);
+                p.Example = new OpenApiInteger(456);
                 return operation;
             })
             .Produces<ActivateResponse>(StatusCodes.Status200OK)
@@ -84,5 +90,33 @@ public sealed class ActivatesEndpoints
             .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet("GetPensionRequirements", async (ISender sender) =>
+            {
+                var result = await _pensionrequirementsService.GetPensionRequirementsAsync(sender);
+                return result;
+            })
+            .Produces<IReadOnlyCollection<PensionRequirementResponse>>()
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPost("PensionRequirements", async ([FromBody] CreatePensionRequirementCommand request, ISender sender) =>
+        {
+            var result = await _pensionrequirementsService.CreatePensionRequirementAsync(request, sender);
+            return result.ToApiResult(result.Description);
+        })
+        .AddEndpointFilter<TechnicalValidationFilter<CreatePensionRequirementCommand>>()
+        .Produces<PensionRequirementResponse>()
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPut("PutPensionRequirements", async ([FromBody] UpdatePensionRequirementCommand command, ISender sender) =>
+        {
+            var result = await _pensionrequirementsService.UpdatePensionRequirementAsync(command, sender);
+            return result.ToApiResult(result.Description);
+        })
+        .AddEndpointFilter<TechnicalValidationFilter<UpdatePensionRequirementCommand>>()
+        .Produces<PensionRequirementResponse>()
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }

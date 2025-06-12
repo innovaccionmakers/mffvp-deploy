@@ -1,9 +1,12 @@
+using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.CreateActivate;
 using Common.SharedKernel.Presentation.Endpoints;
+using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Associate.Presentation.Activates;
@@ -12,27 +15,14 @@ internal sealed class CreateActivate : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("activates", async (Request request, ISender sender) =>
+        app.MapPost("Activate", async ([FromBody] CreateActivateCommand request, ISender sender) =>
             {
-                var result = await sender.Send(new CreateActivateResponseCommand(
-                    request.IdentificationType,
-                    request.Identification,
-                    request.Pensioner,
-                    request.MeetsRequirements,
-                    request.ActivateDate
-                ));
-
-                return result.Match(Results.Ok, ApiResults.Problem);
+                var result = await sender.Send(request);
+                return result.ToApiResult(result.Description);
             })
-            .WithTags(Tags.Activates);
-    }
-
-    internal sealed class Request
-    {
-        public required string IdentificationType { get; init; }
-        public required string Identification { get; init; }
-        public bool Pensioner { get; init; }
-        public bool MeetsRequirements { get; init; }
-        public DateTime ActivateDate { get; init; }
+            .AddEndpointFilter<TechnicalValidationFilter<CreateActivateCommand>>()
+            .Produces<ActivateResponse>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }

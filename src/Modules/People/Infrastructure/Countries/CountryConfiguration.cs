@@ -8,7 +8,7 @@ internal sealed class CountryConfiguration : IEntityTypeConfiguration<Country>
 {
     public void Configure(EntityTypeBuilder<Country> builder)
     {
-        builder.ToTable("pais");
+        builder.ToTable("paises");
         builder.HasKey(x => x.CountryId);
         builder.Property(x => x.CountryId).HasColumnName("id");
         builder.Property(x => x.Name).HasColumnName("nombre");

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Associate.Integrations.PensionRequirements.GetPensionRequirements;
+using Associate.Integrations.PensionRequirements;
 
 namespace Associate.Presentation.PensionRequirements
 {
@@ -12,12 +13,13 @@ namespace Associate.Presentation.PensionRequirements
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapGet("pensionrequirements", async (ISender sender) =>
+            app.MapGet("GetPensionRequirements", async (ISender sender) =>
             {
                 var result = await sender.Send(new GetPensionRequirementsQuery());
-                return result.Match(Results.Ok, ApiResults.Problem);
+                return result;
             })
-            .WithTags(Tags.PensionRequirements);
+            .Produces <IReadOnlyCollection<PensionRequirementResponse>>()
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
         }
     }
 }

@@ -37,7 +37,7 @@ internal sealed class CreateActivateCommandHandler(
             GetPersonValidationResponse>(
             nameof(PersonDataRequestEvent),
             new PersonDataRequestEvent(request.IdentificationType, request.Identification),
-            TimeSpan.FromSeconds(60),
+            TimeSpan.FromSeconds(30),
             cancellationToken);
 
         if (!personData.IsValid)
