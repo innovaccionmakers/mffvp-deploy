@@ -43,14 +43,15 @@ builder.Configuration
     .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
+builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+
 if (env == "DevMakers2")
 {
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
     var region = builder.Configuration["AWS:SecretsManager:Region"];
     var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
 
-    builder.Configuration["ConnectionStrings:Database"] = response;
-    builder.Configuration["ConnectionStrings:CapDatabase"] = response;
+    
 
     Log.Information($"Response: {response}");
     if (string.IsNullOrWhiteSpace(response))
@@ -61,10 +62,13 @@ if (env == "DevMakers2")
     {
         Log.Information("Secret fetched from SecretsManager successfully and assigned to configuration.");
     }
+    response = "Host=127.0.0.1=19437;Database=dbfvp;Username=makersdb;Password=gT7!bX9#qLm2;SSL Mode=Require;Trust Server Certificate=true;";
+    builder.Configuration["ConnectionStrings:Database"] = response;
+    builder.Configuration["ConnectionStrings:CapDatabase"] = response;
 }
 
 
-builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+
 
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
