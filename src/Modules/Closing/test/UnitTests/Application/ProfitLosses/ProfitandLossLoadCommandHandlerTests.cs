@@ -37,7 +37,7 @@ public class ProfitandLossLoadCommandHandlerTests
 
     private static ProfitLossConcept Concept(long id, bool allowNegative)
     {
-        var concept = ProfitLossConcept.Create($"c{id}", "N", allowNegative).Value;
+        var concept = ProfitLossConcept.Create($"c{id}", ProfitLossNature.Income, allowNegative).Value;
         typeof(ProfitLossConcept)
             .GetProperty(nameof(ProfitLossConcept.ProfitLossConceptId))!
             .SetValue(concept, id);

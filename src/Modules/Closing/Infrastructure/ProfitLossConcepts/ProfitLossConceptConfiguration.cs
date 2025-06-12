@@ -12,7 +12,9 @@ internal sealed class ProfitLossConceptConfiguration : IEntityTypeConfiguration<
         builder.HasKey(x => x.ProfitLossConceptId);
         builder.Property(x => x.ProfitLossConceptId).HasColumnName("id");
         builder.Property(x => x.Concept).HasColumnName("concepto");
-        builder.Property(x => x.Nature).HasColumnName("naturaleza");
+        builder.Property(x => x.Nature)
+            .HasColumnName("naturaleza")
+            .HasConversion<string>();
         builder.Property(x => x.AllowNegative).HasColumnName("admite_negativo");
     }
 }

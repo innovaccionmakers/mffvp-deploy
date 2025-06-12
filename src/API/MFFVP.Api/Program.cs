@@ -2,8 +2,6 @@ using System.Reflection;
 using Associate.Infrastructure;
 using Asp.Versioning;
 
-using Associate.Infrastructure;
-
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
 using Common.SharedKernel.Infrastructure.Configuration;
@@ -33,13 +31,8 @@ using Products.Infrastructure;
 
 using Serilog;
 
-using System.Reflection;
-
 using Trusts.Infrastructure;
 using Closing.Infrastructure;
-using MFFVP.Api.BffWeb.Associate.PensionRequirements;
-using Microsoft.AspNetCore.Authorization;
-using Common.SharedKernel.Domain.Auth.Permissions;
 
 var builder = WebApplication.CreateBuilder(args);
 

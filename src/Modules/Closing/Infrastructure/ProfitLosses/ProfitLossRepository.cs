@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Closing.Domain.ProfitLosses;
 using Closing.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Closing.Infrastructure.ProfitLosses;
 
@@ -16,13 +16,42 @@ internal sealed class ProfitLossRepository(ClosingDbContext context) : IProfitLo
         return await context.ProfitLosses
             .SingleOrDefaultAsync(x => x.ProfitLossId == profitLossId, cancellationToken);
     }
-    
-    public async Task DeleteByPortfolioAndDateAsync(int portfolioId, DateTime effectiveDate, CancellationToken cancellationToken = default)
+
+    public async Task<IReadOnlyCollection<ProfitLoss>> GetByPortfolioAndDateAsync(int portfolioId,
+        DateTime effectiveDate, CancellationToken cancellationToken = default)
+    {
+        return await context.ProfitLosses
+            .AsNoTracking()
+            .Where(x => x.PortfolioId == portfolioId && x.EffectiveDate == effectiveDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task DeleteByPortfolioAndDateAsync(int portfolioId, DateTime effectiveDate,
+        CancellationToken cancellationToken = default)
     {
         await context.ProfitLosses
             .Where(x => x.PortfolioId == portfolioId && x.EffectiveDate == effectiveDate)
             .ExecuteDeleteAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<ProfitLossSummary>> GetSummaryAsync(int portfolioId, DateTime effectiveDate,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.ProfitLosses
+            .AsNoTracking()
+            .Where(pl => pl.PortfolioId == portfolioId && pl.EffectiveDate == effectiveDate)
+            .Join(context.ProfitLossConcepts,
+                pl => pl.ProfitLossConceptId,
+                c => c.ProfitLossConceptId,
+                (pl, c) => new { c.Concept, c.Nature, pl.Amount })
+            .GroupBy(x => new { x.Concept, x.Nature })
+            .Select(g => new ProfitLossSummary(
+                g.Key.Concept,
+                g.Key.Nature,
+                g.Sum(e => e.Amount)))
+            .ToListAsync(cancellationToken);
+    }
+
 
     public void InsertRange(IEnumerable<ProfitLoss> profitLosses)
     {

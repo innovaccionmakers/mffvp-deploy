@@ -8,7 +8,9 @@ internal sealed class ProfitLossConceptRepository(ClosingDbContext context) : IP
 {
     public async Task<IReadOnlyCollection<ProfitLossConcept>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await context.ProfitLossConcepts.ToListAsync(cancellationToken);
+        return await context.ProfitLossConcepts
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<ProfitLossConcept?> GetAsync(long profitLossConceptId, CancellationToken cancellationToken = default)
