@@ -51,25 +51,26 @@ if (env == "DevMakers2")
     var region = builder.Configuration["AWS:SecretsManager:Region"];
     var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
 
-    
+    using (var tempProvider = builder.Services.BuildServiceProvider())
+    {
+        var logger = tempProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("ILogger is working: environment is {EnvironmentName}", builder.Environment.EnvironmentName);
 
-    Log.Information($"Response: {response}");
-    if (string.IsNullOrWhiteSpace(response))
-    {
-        Log.Error("Secret fetched from SecretsManager is empty or null.");
+
+        logger.LogInformation($"Response: {response}");
+        if (string.IsNullOrWhiteSpace(response))
+        {
+            logger.LogError("Secret fetched from SecretsManager is empty or null.");
+        }
+        else
+        {
+            logger.LogInformation("Secret fetched from SecretsManager successfully and assigned to configuration.");
+        }
     }
-    else
-    {
-        Log.Information("Secret fetched from SecretsManager successfully and assigned to configuration.");
-    }
-    response = "Host=127.0.0.1=19437;Database=dbfvp;Username=makersdb;Password=gT7!bX9#qLm2;SSL Mode=Require;Trust Server Certificate=true;";
+    response = "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;SSL Mode=Require;Trust Server Certificate=true;";
     builder.Configuration["ConnectionStrings:Database"] = response;
     builder.Configuration["ConnectionStrings:CapDatabase"] = response;
 }
-
-
-
-
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
