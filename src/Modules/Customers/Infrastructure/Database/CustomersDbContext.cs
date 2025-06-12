@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Customers.Application.Abstractions.Data;
-using Customers.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Customers.Domain.People;
 using Customers.Infrastructure.People;
 using Customers.Domain.Countries;

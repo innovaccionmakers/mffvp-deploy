@@ -1,10 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using Customers.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Customers.Infrastructure.Database;
+using Customers.Domain.ConfigurationParameters;
+using Customers.Application.Abstractions;
 
 namespace Customers.Infrastructure.ConfigurationParameters;
 
-internal sealed class ConfigurationParameterRepository : IConfigurationParameterRepository
+internal sealed class ConfigurationParameterRepository :
+    IConfigurationParameterRepository,
+    IConfigurationParameterLookupRepository<CustomersModuleMarker>
 {
     private readonly CustomersDbContext _context;
 

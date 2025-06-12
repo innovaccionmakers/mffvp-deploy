@@ -1,13 +1,8 @@
 using Common.SharedKernel.Domain.ConfigurationParameters;
 namespace Operations.Domain.ConfigurationParameters;
 
-public interface IConfigurationParameterRepository
+public interface IConfigurationParameterRepository : IConfigurationParameterLookupRepository
 {
-    Task<ConfigurationParameter?> GetByUuidAsync(
-        Guid uuid,
-        CancellationToken cancellationToken = default
-    );
-
     Task<IReadOnlyDictionary<(string Code, string Scope), ConfigurationParameter>>
         GetByCodesAndTypesAsync(
             IEnumerable<(string Code, string Scope)> pairs,

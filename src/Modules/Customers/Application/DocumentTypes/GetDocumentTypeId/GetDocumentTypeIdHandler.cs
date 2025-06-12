@@ -2,8 +2,9 @@ using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Customers.Application.Abstractions;
-using Common.SharedKernel.Application.Rules;
 using Customers.Domain.ConfigurationParameters;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Customers.Integrations.DocumentTypes.GetDocumentTypeId;
 
 namespace Customers.Application.DocumentTypes.GetDocumentTypeId;

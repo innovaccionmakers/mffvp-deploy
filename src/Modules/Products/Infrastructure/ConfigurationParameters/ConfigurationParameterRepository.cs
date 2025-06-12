@@ -2,10 +2,13 @@ using Products.Domain.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Infrastructure.Database;
+using Products.Application.Abstractions;
 
 namespace Products.Infrastructure.ConfigurationParameters;
 
-internal sealed class ConfigurationParameterRepository : IConfigurationParameterRepository
+internal sealed class ConfigurationParameterRepository :
+    IConfigurationParameterRepository,
+    IConfigurationParameterLookupRepository<ProductsModuleMarker>
 {
     private readonly ProductsDbContext _context;
 

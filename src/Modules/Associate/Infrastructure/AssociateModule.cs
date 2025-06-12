@@ -10,7 +10,7 @@ using Associate.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Associate.IntegrationEvents.ActivateValidation;
 using Common.SharedKernel.Infrastructure.Configuration;
-using Infrastructure.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -58,7 +58,9 @@ public static class ActivatesModule
         services.AddScoped<IActivateRepository, ActivateRepository>();
         services.AddScoped<IPensionRequirementRepository, PensionRequirementRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
-        services.AddScoped<IErrorCatalog<AssociateModuleMarker>, ErrorCatalog>();
+        services.AddScoped<IConfigurationParameterLookupRepository<AssociateModuleMarker>>(sp =>
+            (IConfigurationParameterLookupRepository<AssociateModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
+        services.AddScoped<IErrorCatalog<AssociateModuleMarker>, ErrorCatalog<AssociateModuleMarker>>();
         services.AddScoped<PensionRequirementCommandHandlerValidation>();
         services.AddScoped<ActivateValidationConsumer>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());

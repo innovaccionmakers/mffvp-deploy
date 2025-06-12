@@ -1,12 +1,8 @@
+using Common.SharedKernel.Domain.ConfigurationParameters;
 namespace Customers.Domain.ConfigurationParameters;
 
-public interface IConfigurationParameterRepository
+public interface IConfigurationParameterRepository : IConfigurationParameterLookupRepository
 {
-    Task<ConfigurationParameter?> GetByUuidAsync(
-        Guid uuid,
-        CancellationToken cancellationToken = default
-    );
-
     Task<ConfigurationParameter?> GetByHomologationCodeAsync(string homologationCode,
         CancellationToken cancellationToken = default);
 
