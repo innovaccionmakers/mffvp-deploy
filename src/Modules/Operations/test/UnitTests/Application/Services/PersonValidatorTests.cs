@@ -2,8 +2,8 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using FluentAssertions;
 using Moq;
-using Operations.Infrastructure.External.People;
-using People.IntegrationEvents.ClientValidation;
+using Operations.Infrastructure.External.Customers;
+using Customers.IntegrationEvents.ClientValidation;
 
 namespace Operations.test.UnitTests.Application.Services;
 

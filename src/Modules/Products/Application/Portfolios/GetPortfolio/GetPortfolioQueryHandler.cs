@@ -1,6 +1,6 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using People.IntegrationEvents.PersonValidation;
+using Customers.IntegrationEvents.PersonValidation;
 using Products.Application.Abstractions;
 using Common.SharedKernel.Application.Rules;
 using Products.Domain.Portfolios;

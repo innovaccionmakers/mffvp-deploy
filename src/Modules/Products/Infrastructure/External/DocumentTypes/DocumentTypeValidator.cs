@@ -1,6 +1,6 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using People.IntegrationEvents.DocumentTypeValidation;
+using Customers.IntegrationEvents.DocumentTypeValidation;
 using Products.Application.Abstractions.Services.External;
 
 namespace Products.Infrastructure.External.DocumentTypes;

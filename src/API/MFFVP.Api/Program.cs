@@ -14,7 +14,7 @@ using FluentValidation;
 using MFFVP.Api.BffWeb.Associate;
 using MFFVP.Api.BffWeb.Associate.PensionRequirements;
 using MFFVP.Api.BffWeb.Operations;
-using MFFVP.Api.BffWeb.People;
+using MFFVP.Api.BffWeb.Customers;
 using MFFVP.Api.BffWeb.Products;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
@@ -25,7 +25,7 @@ using Microsoft.AspNetCore.Authorization;
 
 using Operations.Infrastructure;
 
-using People.Infrastructure;
+using Customers.Infrastructure;
 
 using Products.Infrastructure;
 
@@ -78,7 +78,7 @@ Assembly[] moduleApplicationAssemblies =
     Associate.Application.AssemblyReference.Assembly,
     Trusts.Application.AssemblyReference.Assembly,
     Products.Application.AssemblyReference.Assembly,
-    People.Application.AssemblyReference.Assembly,
+    Customers.Application.AssemblyReference.Assembly,
     Operations.Application.AssemblyReference.Assembly,
 ];
 
@@ -95,23 +95,23 @@ builder.Services.AddInfrastructure(
     capDbConnectionString,
     databaseConnectionStringSQL);
 
-builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people", "operations", "closing"], env);
+builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing"], env);
 
 builder.Services.AddTrustsModule(builder.Configuration);
 builder.Services.AddActivatesModule(builder.Configuration);
 builder.Services.AddProductsModule(builder.Configuration);
-builder.Services.AddPeopleModule(builder.Configuration);
+builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddClosingModule(builder.Configuration);
 
 builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();
-builder.Services.AddBffPeopleServices();
+builder.Services.AddBffCustomersServices();
 builder.Services.AddBffOperationsServices();
 
 builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(ProductsEndpoints).Assembly);
-builder.Services.AddEndpoints(typeof(PeopleEndpoints).Assembly);
+builder.Services.AddEndpoints(typeof(CustomersEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(OperationsEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(PensionRequirementsEndpoints).Assembly);
 

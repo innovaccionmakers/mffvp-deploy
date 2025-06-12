@@ -93,33 +93,33 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{E80F154E
 		associate.rules.json = associate.rules.json
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "People", "People", "{EE0618E7-E219-8D19-38E9-02FC3F9F0725}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Customers", "Customers", "{EE0618E7-E219-8D19-38E9-02FC3F9F0725}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{1A767771-B6E0-FCB5-FBB6-F85FFC2C2835}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People.Application", "src\Modules\People\Application\People.Application.csproj", "{F44B4706-55BE-4299-BC93-E36ABA4D5B1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customers.Application", "src\Modules\Customers\Application\Customers.Application.csproj", "{F44B4706-55BE-4299-BC93-E36ABA4D5B1A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{767B877C-A402-6CD3-CD2A-108E7A783735}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People.Domain", "src\Modules\People\Domain\People.Domain.csproj", "{F39CE962-69E4-409D-AEA7-A46EEA2C0DC9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customers.Domain", "src\Modules\Customers\Domain\Customers.Domain.csproj", "{F39CE962-69E4-409D-AEA7-A46EEA2C0DC9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{6E1973A8-C8E8-B431-DD8C-0BA1BF471150}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People.Infrastructure", "src\Modules\People\Infrastructure\People.Infrastructure.csproj", "{CA283E72-0C0E-4E0A-A13D-60D3CCBFB4C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customers.Infrastructure", "src\Modules\Customers\Infrastructure\Customers.Infrastructure.csproj", "{CA283E72-0C0E-4E0A-A13D-60D3CCBFB4C4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{751FF716-0078-2D5F-DBAC-A39F1B4DACE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People.Integrations", "src\Modules\People\Integrations\People.Integrations.csproj", "{1779E6F6-799C-41DD-82E4-4E348A0BA7CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customers.Integrations", "src\Modules\Customers\Integrations\Customers.Integrations.csproj", "{1779E6F6-799C-41DD-82E4-4E348A0BA7CC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{062AF920-1318-E35B-61B8-ADA35EBC87F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People.Presentation", "src\Modules\People\Presentation\People.Presentation.csproj", "{4B55DC4F-B0F2-4A24-8AFF-BED69BE730B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customers.Presentation", "src\Modules\Customers\Presentation\Customers.Presentation.csproj", "{4B55DC4F-B0F2-4A24-8AFF-BED69BE730B7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{4E43A94C-CB06-1AC0-0F5B-B9761E8BA5FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People.test.UnitTests", "src\Modules\People\test\UnitTests\People.test.UnitTests.csproj", "{F0B246A8-41AE-450F-8A18-B6E7F9A12BAE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customers.test.UnitTests", "src\Modules\Customers\test\UnitTests\Customers.test.UnitTests.csproj", "{F0B246A8-41AE-450F-8A18-B6E7F9A12BAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People.test.IntegrationTests", "src\Modules\People\test\IntegrationTests\People.test.IntegrationTests.csproj", "{500ABC07-956C-4678-9E33-76449A667B30}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customers.test.IntegrationTests", "src\Modules\Customers\test\IntegrationTests\Customers.test.IntegrationTests.csproj", "{500ABC07-956C-4678-9E33-76449A667B30}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Products", "Products", "{1D77E450-A81E-1E16-0499-7D1E23276EBC}"
 EndProject
@@ -158,7 +158,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{7EA33E9A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{A8158072-1059-417C-94E1-30B1081CC05C}"
 	ProjectSection(SolutionItems) = preProject
-		src\Modules\People\Rules\people.rules.json = src\Modules\People\Rules\people.rules.json
+		src\Modules\Customers\Rules\customers.rules.json = src\Modules\Customers\Rules\customers.rules.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Operations", "Operations", "{7217BF7A-28F7-63A4-30A6-0800D8D30F1E}"
@@ -196,7 +196,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{407EDC69
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationEvents", "IntegrationEvents", "{1091AF0D-0C01-4ED1-9CE2-05F621B5960B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People.IntegrationEvents", "src\Modules\People\IntegrationEvents\People.IntegrationEvents\People.IntegrationEvents.csproj", "{A183F83C-FB74-485A-8455-670425E79EA5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customers.IntegrationEvents", "src\Modules\Customers\IntegrationEvents\Customers.IntegrationEvents\Customers.IntegrationEvents.csproj", "{A183F83C-FB74-485A-8455-670425E79EA5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationEvents", "IntegrationEvents", "{1240C8EB-15B0-4309-A04C-1E0353B978AD}"
 EndProject
