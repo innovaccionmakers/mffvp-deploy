@@ -25,6 +25,6 @@ public sealed class ErrorCatalog<TModule> : IErrorCatalog<TModule>
             return (ruleUuid.ToString(), $"Error desconocido ({ruleUuid})");
         }
 
-        return (param.Uuid.ToString(), param.Name);
+        return (param.HomologationCode, param.Name);
     }
 }
