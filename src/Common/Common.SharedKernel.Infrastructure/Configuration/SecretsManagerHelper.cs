@@ -20,7 +20,7 @@ public static class SecretsManagerHelper
         if (secretData is null)
             throw new InvalidOperationException("Failed to deserialize secret.");
 
-        var connectionString = $"Host={secretData.host};Port={secretData.port};Username={secretData.username};Password={secretData.password};Database=dbfvp;SSL Mode=Require;Trust Server Certificate=true;";
+        var connectionString = $"Host={secretData.host};Port=19437;Username={secretData.username};Password={secretData.password};Database=dbfvp;SSL Mode=Require;Trust Server Certificate=true;";
 
         return connectionString;
     }
