@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Trusts.Application.Abstractions;
 using Trusts.Application.Abstractions.Data;
 using Common.SharedKernel.Application.Rules;
-using Common.SharedKernel.Domain.ConfigurationParameters;
 using Trusts.Domain.Trusts;
 using Trusts.Infrastructure.ConfigurationParameters;
 using Trusts.Infrastructure.Database;

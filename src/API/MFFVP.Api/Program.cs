@@ -1,6 +1,6 @@
-using Asp.Versioning;
-
+using System.Reflection;
 using Associate.Infrastructure;
+using Asp.Versioning;
 
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
@@ -31,9 +31,8 @@ using Products.Infrastructure;
 
 using Serilog;
 
-using System.Reflection;
-
 using Trusts.Infrastructure;
+using Closing.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,13 +82,14 @@ builder.Services.AddInfrastructure(
     capDbConnectionString,
     databaseConnectionStringSQL);
 
-builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people", "operations"], env);
+builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people", "operations", "closing"], env);
 
 builder.Services.AddTrustsModule(builder.Configuration);
 builder.Services.AddActivatesModule(builder.Configuration);
 builder.Services.AddProductsModule(builder.Configuration);
 builder.Services.AddPeopleModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
+builder.Services.AddClosingModule(builder.Configuration);
 
 builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();
