@@ -1,6 +1,6 @@
-using Asp.Versioning;
-
+using System.Reflection;
 using Associate.Infrastructure;
+using Asp.Versioning;
 
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
@@ -13,7 +13,7 @@ using FluentValidation;
 
 using MFFVP.Api.BffWeb.Associate;
 using MFFVP.Api.BffWeb.Operations;
-using MFFVP.Api.BffWeb.People;
+using MFFVP.Api.BffWeb.Customers;
 using MFFVP.Api.BffWeb.Products;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
@@ -24,15 +24,14 @@ using Microsoft.AspNetCore.Authorization;
 
 using Operations.Infrastructure;
 
-using People.Infrastructure;
+using Customers.Infrastructure;
 
 using Products.Infrastructure;
 
 using Serilog;
 
-using System.Reflection;
-
 using Trusts.Infrastructure;
+using Closing.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,18 +41,35 @@ builder.Configuration
     .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
+builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+
 if (env == "DevMakers2")
 {
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
     var region = builder.Configuration["AWS:SecretsManager:Region"];
     var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
 
+    using (var tempProvider = builder.Services.BuildServiceProvider())
+    {
+        var logger = tempProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("ILogger is working: environment is {EnvironmentName}", builder.Environment.EnvironmentName);
+
+
+        logger.LogInformation($"Response: {response}");
+        if (string.IsNullOrWhiteSpace(response))
+        {
+            logger.LogError("Secret fetched from SecretsManager is empty or null.");
+        }
+        else
+        {
+            logger.LogInformation("Secret fetched from SecretsManager successfully and assigned to configuration.");
+        }
+    }
+    response = "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;SSL Mode=Require;Trust Server Certificate=true;";
+
     builder.Configuration["ConnectionStrings:Database"] = response;
-    builder.Configuration["ConnectionStrings:capDbConnectionString"] = response;
+    builder.Configuration["ConnectionStrings:CapDatabase"] = response;
 }
-
-
-builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
@@ -67,7 +83,7 @@ Assembly[] moduleApplicationAssemblies =
     Associate.Application.AssemblyReference.Assembly,
     Trusts.Application.AssemblyReference.Assembly,
     Products.Application.AssemblyReference.Assembly,
-    People.Application.AssemblyReference.Assembly,
+    Customers.Application.AssemblyReference.Assembly,
     Operations.Application.AssemblyReference.Assembly,
 ];
 
@@ -84,22 +100,23 @@ builder.Services.AddInfrastructure(
     capDbConnectionString,
     databaseConnectionStringSQL);
 
-builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "people", "operations"], env);
+builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing"], env);
 
 builder.Services.AddTrustsModule(builder.Configuration);
 builder.Services.AddActivatesModule(builder.Configuration);
 builder.Services.AddProductsModule(builder.Configuration);
-builder.Services.AddPeopleModule(builder.Configuration);
+builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
+builder.Services.AddClosingModule(builder.Configuration);
 
 builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();
-builder.Services.AddBffPeopleServices();
+builder.Services.AddBffCustomersServices();
 builder.Services.AddBffOperationsServices();
 
 builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(ProductsEndpoints).Assembly);
-builder.Services.AddEndpoints(typeof(PeopleEndpoints).Assembly);
+builder.Services.AddEndpoints(typeof(CustomersEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(OperationsEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>

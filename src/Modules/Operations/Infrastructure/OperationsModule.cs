@@ -22,7 +22,7 @@ using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ConfigurationParameters;
 using Operations.Infrastructure.External.Activate;
 using Operations.Infrastructure.External.ContributionValidation;
-using Operations.Infrastructure.External.People;
+using Operations.Infrastructure.External.Customers;
 using Operations.Infrastructure.External.Trusts;
 using Operations.Infrastructure.Origins;
 using Common.SharedKernel.Infrastructure.RulesEngine;

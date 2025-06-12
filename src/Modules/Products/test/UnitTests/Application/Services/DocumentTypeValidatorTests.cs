@@ -3,7 +3,7 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using FluentAssertions;
 using Moq;
-using People.IntegrationEvents.DocumentTypeValidation;
+using Customers.IntegrationEvents.DocumentTypeValidation;
 using Products.Infrastructure.External.DocumentTypes;
 
 namespace Products.test.UnitTests.Application.Services;

@@ -1,0 +1,3 @@
+namespace Customers.IntegrationEvents.ClientValidation;
+
+public record ValidatePersonByIdentificationRequest(string DocumentTypeHomologatedCode, string IdentificationNumber);
