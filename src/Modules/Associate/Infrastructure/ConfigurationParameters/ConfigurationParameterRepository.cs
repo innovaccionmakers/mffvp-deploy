@@ -2,10 +2,13 @@ using Associate.Domain.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Associate.Infrastructure.Database;
+using Associate.Application.Abstractions;
 
 namespace Associate.Infrastructure;
 
-internal sealed class ConfigurationParameterRepository(AssociateDbContext context) : IConfigurationParameterRepository
+internal sealed class ConfigurationParameterRepository(AssociateDbContext context) :
+    IConfigurationParameterRepository,
+    IConfigurationParameterLookupRepository<AssociateModuleMarker>
 {
     public async Task<IReadOnlyCollection<ConfigurationParameter>> GetAllAsync(CancellationToken cancellationToken = default)
     {

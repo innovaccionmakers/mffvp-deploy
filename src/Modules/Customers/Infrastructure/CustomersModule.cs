@@ -13,12 +13,14 @@ using Customers.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Customers.Application.Abstractions;
 using Common.SharedKernel.Application.Rules;
-using Customers.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Customers.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Customers.IntegrationEvents.ClientValidation;
 using Customers.IntegrationEvents.DocumentTypeValidation;
 using Customers.IntegrationEvents.PersonValidation;
+using Customers.Domain.ConfigurationParameters;
 
 namespace Customers.Infrastructure;
 
@@ -61,7 +63,9 @@ public static class CustomersModule
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IEconomicActivityRepository, EconomicActivityRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
-        services.AddScoped<IErrorCatalog<CustomersModuleMarker>, ErrorCatalog>();
+        services.AddScoped<IConfigurationParameterLookupRepository<CustomersModuleMarker>>(sp =>
+            (IConfigurationParameterLookupRepository<CustomersModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
+        services.AddScoped<IErrorCatalog<CustomersModuleMarker>, ErrorCatalog<CustomersModuleMarker>>();
         services.AddTransient<PersonValidationConsumer>();
         services.AddTransient<ClientValidationConsumer>();
         services.AddTransient<DocumentTypeValidationConsumer>();

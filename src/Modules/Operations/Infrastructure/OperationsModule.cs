@@ -19,6 +19,7 @@ using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Infrastructure.Channels;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Operations.Infrastructure.ConfigurationParameters;
 using Operations.Infrastructure.External.Activate;
 using Operations.Infrastructure.External.ContributionValidation;
@@ -68,6 +69,8 @@ public static class OperationsModule
         services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
         services.AddScoped<IAuxiliaryInformationRepository, AuxiliaryInformationRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IConfigurationParameterLookupRepository<OperationsModuleMarker>>(sp =>
+            (IConfigurationParameterLookupRepository<OperationsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IOriginRepository, OriginRepository>();
         services.AddScoped<ISubtransactionTypeRepository, SubtransactionTypeRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
@@ -80,7 +83,7 @@ public static class OperationsModule
         services.AddScoped<IContributionCatalogResolver, ContributionCatalogResolver>();
         services.AddScoped<ITaxCalculator, TaxCalculator>();
 
-        services.AddScoped<IErrorCatalog<OperationsModuleMarker>, ErrorCatalog>();
+        services.AddScoped<IErrorCatalog<OperationsModuleMarker>, ErrorCatalog<OperationsModuleMarker>>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<OperationsDbContext>());
     }

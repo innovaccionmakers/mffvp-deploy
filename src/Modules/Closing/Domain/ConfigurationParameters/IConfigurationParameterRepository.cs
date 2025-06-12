@@ -1,11 +1,7 @@
-﻿using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 
 namespace Closing.Domain.ConfigurationParameters;
 
-public interface IConfigurationParameterRepository
+public interface IConfigurationParameterRepository : IConfigurationParameterLookupRepository
 {
-    Task<ConfigurationParameter?> GetByUuidAsync(
-        Guid uuid,
-        CancellationToken cancellationToken = default
-    );
 }
