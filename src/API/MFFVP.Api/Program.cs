@@ -50,7 +50,7 @@ if (env == "DevMakers2")
     var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
 
     builder.Configuration["ConnectionStrings:Database"] = response;
-    builder.Configuration["ConnectionStrings:capDbConnectionString"] = response;
+    builder.Configuration["ConnectionStrings:CapDatabase"] = response;
 
     Log.Information($"Response: {response}");
     if (string.IsNullOrWhiteSpace(response))
