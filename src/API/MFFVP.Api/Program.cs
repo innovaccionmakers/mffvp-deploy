@@ -51,10 +51,21 @@ if (env == "DevMakers2")
 
     builder.Configuration["ConnectionStrings:Database"] = response;
     builder.Configuration["ConnectionStrings:capDbConnectionString"] = response;
+
+    Log.Information($"Response: {response}");
+    if (string.IsNullOrWhiteSpace(response))
+    {
+        Log.Error("Secret fetched from SecretsManager is empty or null.");
+    }
+    else
+    {
+        Log.Information("Secret fetched from SecretsManager successfully and assigned to configuration.");
+    }
 }
 
 
 builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
