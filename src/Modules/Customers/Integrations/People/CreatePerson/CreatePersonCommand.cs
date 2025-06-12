@@ -1,7 +1,8 @@
-namespace Customers.Integrations.People;
+using Common.SharedKernel.Application.Messaging;
+using System;
 
-public sealed record PersonResponse(
-    long PersonId,
+namespace Customers.Integrations.People.CreatePerson;
+public sealed record CreatePersonCommand(
     Guid IdentificationType,
     string HomologatedCode,
     string Identification,
@@ -22,4 +23,4 @@ public sealed record PersonResponse(
     bool IsDeclarant,
     int InvestorTypeId,
     int RiskProfileId
-);
+) : ICommand<PersonResponse>;

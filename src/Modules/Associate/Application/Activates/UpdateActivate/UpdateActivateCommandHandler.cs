@@ -28,10 +28,12 @@ internal sealed class UpdateActivateCommandHandler(
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);        
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.IdentificationType, HomologScope.Of<UpdateActivateCommand>(c => c.IdentificationType), cancellationToken);
-        Activate existingActivate = await activateRepository.GetByIdTypeAndNumber(configurationParameter.Uuid, request.Identification, cancellationToken);
+        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
+        
+        Activate existingActivate = await activateRepository.GetByIdTypeAndNumber(uuid, request.Identification, cancellationToken);
 
         
-        var validationContext = new ActivateUpdateValidationContext(request, existingActivate!, configurationParameter.Uuid);
+        var validationContext = new ActivateUpdateValidationContext(request, existingActivate!, uuid);
 
         var (isValid, _, ruleErrors) =
             await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);

@@ -1,6 +1,5 @@
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
-using Customers.Integrations.People;
 
 namespace Customers.Integrations.People.GetPerson;
 

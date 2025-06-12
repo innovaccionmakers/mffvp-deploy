@@ -9,12 +9,12 @@ public sealed class Person : Entity
     public string HomologatedCode { get; private set; }
     public string Identification { get; private set; }
     public string FirstName { get; private set; }
-    public string MiddleName { get; private set; }
+    public string? MiddleName { get; private set; }
     public string LastName { get; private set; }
-    public string SecondLastName { get; private set; }
+    public string? SecondLastName { get; private set; }
     public string FullName { get; private set; }
     public string Mobile { get; private set; }
-    public Guid GenderId { get; private set; }
+    public int GenderId { get; private set; }
     public int CountryOfResidenceId { get; private set; }
     public int DepartmentId { get; private set; }
     public int MunicipalityId { get; private set; }
@@ -23,8 +23,8 @@ public sealed class Person : Entity
     public bool Status { get; private set; }
     public string Address { get; private set; }
     public bool IsDeclarant { get; private set; }
-    public Guid InvestorTypeId { get; private set; }
-    public Guid RiskProfileId { get; private set; }
+    public int InvestorTypeId { get; private set; }
+    public int RiskProfileId { get; private set; }
 
     private Person()
     {
@@ -40,7 +40,7 @@ public sealed class Person : Entity
         string secondLastName,
         string mobile,
         string fullName,
-        Guid genderId,
+        int genderId,
         int countryOfResidenceId,
         int departmentId,
         int municipalityId,
@@ -49,8 +49,8 @@ public sealed class Person : Entity
         bool status,
         string address,
         bool isDeclarant,
-        Guid investorTypeId,
-        Guid riskProfileId)
+        int investorTypeId,
+        int riskProfileId)
     {
         var person = new Person
         {
@@ -91,7 +91,7 @@ public sealed class Person : Entity
         string newSecondLastName,
         string newMobile,
         string newFullName,
-        Guid newGenderId,
+        int newGenderId,
         int newCountryOfResidenceId,
         int newDepartmentId,
         int newMunicipalityId,
@@ -100,8 +100,8 @@ public sealed class Person : Entity
         bool newStatus,
         string newAddress,
         bool newIsDeclarant,
-        Guid newInvestorTypeId,
-        Guid newRiskProfileId)
+        int newInvestorTypeId,
+        int newRiskProfileId)
     {
         IdentificationType = newIdentificationType;
         HomologatedCode = newHomologatedCode;

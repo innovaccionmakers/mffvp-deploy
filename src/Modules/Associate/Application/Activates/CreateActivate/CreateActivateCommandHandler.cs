@@ -29,22 +29,23 @@ internal sealed class CreateActivateCommandHandler(
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.IdentificationType, HomologScope.Of<CreateActivateCommand>(c => c.IdentificationType), cancellationToken);
-            
-        Activate? existingActivate = await activateRepository.GetByIdTypeAndNumber(configurationParameter.Uuid, request.Identification, cancellationToken);
+        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
+
+        Activate? existingActivate = await activateRepository.GetByIdTypeAndNumber(uuid, request.Identification, cancellationToken);
         
         var personData = await rpc.CallAsync<
             PersonDataRequestEvent,
             GetPersonValidationResponse>(
             nameof(PersonDataRequestEvent),
             new PersonDataRequestEvent(request.IdentificationType, request.Identification),
-            TimeSpan.FromSeconds(60),
+            TimeSpan.FromSeconds(30),
             cancellationToken);
 
         if (!personData.IsValid)
             return Result.Failure(
                 Error.Validation(personData.Code ?? string.Empty, personData.Message ?? string.Empty));
 
-        var validationContext = new CreateActivateValidationContext(request, existingActivate!, configurationParameter.Uuid);
+        var validationContext = new CreateActivateValidationContext(request, existingActivate!, uuid);
 
         var (isValid, _, ruleErrors) =
             await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);

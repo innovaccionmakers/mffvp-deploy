@@ -4,6 +4,8 @@ using Customers.Integrations.People;
 using Common.SharedKernel.Presentation.Results;
 using Microsoft.AspNetCore.Mvc;
 using MFFVP.Api.Application.Customers;
+using Customers.Integrations.People.CreatePerson;
+using Common.SharedKernel.Presentation.Filters;
 
 namespace MFFVP.Api.BffWeb.Customers.Customers;
 
@@ -18,8 +20,26 @@ public sealed class CustomersEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/FVP/customers/customers")
+        var group = app.MapGroup("bffWeb/FVP/Customer")
             .WithTags("BFF Web - Customers")
             .WithOpenApi();
+
+        group.MapGet("GetCustomer", async (ISender sender) =>
+        {
+            var result = await _customersService.GetPersonsAsync(sender);
+            return result.Value;
+        })
+        .Produces<IReadOnlyCollection<PersonResponse>>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPost("PostCustomer", async ([FromBody] CreatePersonCommand request, ISender sender) =>
+        {
+            var result = await _customersService.CreatePersonAsync(request, sender);
+            return result.ToApiResult(result.Description);
+        })
+        .AddEndpointFilter<TechnicalValidationFilter<CreatePersonCommand>>()
+        .Produces<PersonResponse>()
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }
