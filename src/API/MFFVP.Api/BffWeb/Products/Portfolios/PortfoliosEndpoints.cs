@@ -55,6 +55,26 @@ namespace MFFVP.Api.BffWeb.Products.Portfolios
                 })
                 .Produces<PortfolioResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
+            
+            group.MapGet(
+                    "GetAllPortfolios",
+                    async (ISender sender) =>
+                    {
+                        var result = await _portfoliosService.GetPortfoliosAsync(sender);
+                        return result.ToApiResult();
+                    }
+                )
+                .WithName("GetAllPortfolios")
+                .WithSummary("Obtiene todos los portafolios")
+                .WithDescription("""
+                                 **Ejemplo de llamada:**
+
+                                 ```http
+                                 GET /bffWeb/FVP/products/portfolios/GetAllPortfolios
+                                 ```
+                                 """)
+                .Produces<IReadOnlyCollection<PortfolioResponse>>(StatusCodes.Status200OK)
+                .ProducesProblem(StatusCodes.Status500InternalServerError);
         }
     }
 }
