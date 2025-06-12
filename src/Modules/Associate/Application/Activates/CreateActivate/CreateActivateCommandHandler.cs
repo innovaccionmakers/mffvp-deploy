@@ -4,7 +4,7 @@ using Common.SharedKernel.Application.Rules;
 using Associate.Domain.Activates;
 using Associate.Integrations.Activates.CreateActivate;
 using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
-using People.IntegrationEvents.PersonValidation;
+using Customers.IntegrationEvents.PersonValidation;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Associate.Application.Abstractions;

@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "CustomersDatabase": "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;SSL Mode=Require;Trust Server Certificate=true;"
+  }
+}

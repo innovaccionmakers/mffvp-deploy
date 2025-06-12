@@ -3,7 +3,7 @@ using Associate.Domain.Activates;
 using Associate.Integrations.Activates.CreateActivate;
 using Common.SharedKernel.Application.Messaging;
 using Moq;
-using People.IntegrationEvents.PersonValidation;
+using Customers.IntegrationEvents.PersonValidation;
 
 namespace UnitTests.Application.Activates
 {
