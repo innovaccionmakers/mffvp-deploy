@@ -25,11 +25,12 @@ internal sealed class GetActivateIdHandler(
             query.IdentificationType,
             HomologScope.Of<GetActivateIdResponse>(c => c.IdentificationType),
             cancellationToken);
+        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
         Activate? activate = null;
         if (configurationParameter is not null)
             activate = await activateRepository
-                .GetByIdTypeAndNumber(configurationParameter.Uuid, query.Identification, cancellationToken);
+                .GetByIdTypeAndNumber(uuid, query.Identification, cancellationToken);
 
         var validationContext = new
         {
@@ -48,7 +49,7 @@ internal sealed class GetActivateIdHandler(
 
         return Result.Success(new GetActivateIdResponse(
             activate!.ActivateId,
-            configurationParameter.Uuid,
+            uuid,
             activate.Pensioner
         ));
     }

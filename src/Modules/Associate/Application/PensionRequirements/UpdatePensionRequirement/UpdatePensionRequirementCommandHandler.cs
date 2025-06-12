@@ -28,13 +28,14 @@ internal sealed class UpdatePensionRequirementCommandHandler(
         
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.IdentificationType, HomologScope.Of<UpdatePensionRequirementCommand>(c => c.IdentificationType), cancellationToken);
+        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
         var validationResult = await validator.ValidateRequestAsync(
                 request,
                 request.IdentificationType,
                 request.Identification,
                 Workflow,
-                (cmd, activateResult) => new UpdatePensionRequirementValidationContext(cmd, activateResult, existingPensionRequirement!, configurationParameter.Uuid),
+                (cmd, activateResult) => new UpdatePensionRequirementValidationContext(cmd, activateResult, existingPensionRequirement!, uuid),
                 cancellationToken);
         
         if (validationResult.IsFailure)

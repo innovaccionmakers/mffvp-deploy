@@ -5,22 +5,24 @@ namespace Customers.Integrations.People.UpdatePerson;
 
 public sealed record UpdatePersonCommand(
     long PersonId,
-    string NewDocumentType,
+    Guid NewIdentificationType,
     string NewHomologatedCode,
     string NewIdentification,
     string NewFirstName,
     string NewMiddleName,
     string NewLastName,
     string NewSecondLastName,
-    DateTime NewIssueDate,
-    int NewIssueCityId,
-    DateTime NewBirthDate,
-    int NewBirthCityId,
     string NewMobile,
     string NewFullName,
-    int NewMaritalStatusId,
     int NewGenderId,
-    int NewCountryId,
+    int NewCountryOfResidenceId,
+    int NewDepartmentId,
+    int NewMunicipalityId,
     string NewEmail,
-    string NewEconomicActivityId
+    int NewEconomicActivityId,
+    bool NewStatus,
+    string NewAddress,
+    bool NewIsDeclarant,
+    int NewInvestorTypeId,
+    int NewRiskProfileId
 ) : ICommand<PersonResponse>;

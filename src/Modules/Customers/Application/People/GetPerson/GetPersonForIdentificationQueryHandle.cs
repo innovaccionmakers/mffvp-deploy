@@ -5,7 +5,6 @@ using Customers.Integrations.People.GetPerson;
 using Customers.Domain.ConfigurationParameters;
 using Customers.Application.Abstractions;
 using Common.SharedKernel.Application.Rules;
-using Common.SharedKernel.Domain.ConfigurationParameters;
 using Customers.Domain.People;
 using Customers.Integrations.People;
 
@@ -23,9 +22,10 @@ public class GetPersonForIdentificationQueryHandle(
     {
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.IdentificationType, HomologScope.Of<GetPersonForIdentificationQuery>(c => c.IdentificationType), cancellationToken);
+        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
         var person =
-            await personRepository.GetForIdentificationAsync(configurationParameter!.Uuid, request.Identification,
+            await personRepository.GetForIdentificationAsync(uuid, request.Identification,
                 cancellationToken);
 
         var (isValid, _, errors) = await ruleEvaluator
