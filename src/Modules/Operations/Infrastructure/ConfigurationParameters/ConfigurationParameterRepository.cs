@@ -2,10 +2,13 @@ using Operations.Domain.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Infrastructure.Database;
+using Operations.Application.Abstractions;
 
 namespace Operations.Infrastructure.ConfigurationParameters;
 
-internal sealed class ConfigurationParameterRepository : IConfigurationParameterRepository
+internal sealed class ConfigurationParameterRepository :
+    IConfigurationParameterRepository,
+    IConfigurationParameterLookupRepository<OperationsModuleMarker>
 {
     private readonly OperationsDbContext context;
 

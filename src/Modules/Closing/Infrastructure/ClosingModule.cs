@@ -4,12 +4,14 @@ using Closing.Application.Abstractions.External;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.ProfitLossConcepts;
 using Closing.Domain.ProfitLosses;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Closing.Infrastructure.ConfigurationParameters;
 using Closing.Infrastructure.ProfitLossConcepts;
 using Closing.Infrastructure.Database;
 using Closing.Infrastructure.External.Portfolios;
 using Closing.Infrastructure.ProfitLosses;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Microsoft.EntityFrameworkCore;
@@ -46,8 +48,10 @@ public static class ClosingModule
 
         services.AddScoped<IProfitLossConceptRepository, ProfitLossConceptRepository>();
         services.AddScoped<IProfitLossRepository, ProfitLossRepository>();
-        services.AddScoped<IErrorCatalog<ClosingModuleMarker>, ErrorCatalog>();
+        services.AddScoped<IErrorCatalog<ClosingModuleMarker>, ErrorCatalog<ClosingModuleMarker>>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IConfigurationParameterLookupRepository<ClosingModuleMarker>>(sp =>
+            (IConfigurationParameterLookupRepository<ClosingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
 
 
         services.AddScoped<IPortfolioValidator, PortfolioValidator>();

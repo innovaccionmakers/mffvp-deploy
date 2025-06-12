@@ -2,10 +2,13 @@ using Trusts.Domain.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Trusts.Infrastructure.Database;
+using Trusts.Application.Abstractions;
 
 namespace Trusts.Infrastructure.ConfigurationParameters;
 
-internal sealed class ConfigurationParameterRepository : IConfigurationParameterRepository
+internal sealed class ConfigurationParameterRepository :
+    IConfigurationParameterRepository,
+    IConfigurationParameterLookupRepository<TrustsModuleMarker>
 {
     private readonly TrustsDbContext _context;
 

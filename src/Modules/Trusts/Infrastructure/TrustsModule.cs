@@ -7,7 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Trusts.Application.Abstractions;
 using Trusts.Application.Abstractions.Data;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Trusts.Domain.Trusts;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Trusts.Infrastructure.ConfigurationParameters;
 using Trusts.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.RulesEngine;
@@ -54,7 +56,9 @@ public static class TrustsModule
 
         services.AddScoped<ITrustRepository, TrustRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
-        services.AddScoped<IErrorCatalog<TrustsModuleMarker>, ErrorCatalog>();
+        services.AddScoped<IConfigurationParameterLookupRepository<TrustsModuleMarker>>(sp =>
+            (IConfigurationParameterLookupRepository<TrustsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
+        services.AddScoped<IErrorCatalog<TrustsModuleMarker>, ErrorCatalog<TrustsModuleMarker>>();
         services.AddScoped<CreateTrustConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());

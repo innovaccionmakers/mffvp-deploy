@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Application.Abstractions.Services.External;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Abstractions.Services.Rules;
@@ -17,8 +18,10 @@ using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
+using Products.Application.Abstractions;
 using Products.Infrastructure.Alternatives;
 using Products.Infrastructure.Commercials;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Database;
 using Products.Infrastructure.External.Affiliates;
@@ -75,7 +78,9 @@ public static class ProductsModule
         services.AddScoped<ICommercialRepository, CommercialRepository>();
         services.AddScoped<IOfficeRepository, OfficeRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
-        services.AddScoped<IErrorCatalog<ProductsModuleMarker>, ErrorCatalog>();
+        services.AddScoped<IConfigurationParameterLookupRepository<ProductsModuleMarker>>(sp =>
+            (IConfigurationParameterLookupRepository<ProductsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
+        services.AddScoped<IErrorCatalog<ProductsModuleMarker>, ErrorCatalog<ProductsModuleMarker>>();
 
         services.AddScoped<IDocumentTypeValidator, DocumentTypeValidator>();
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
