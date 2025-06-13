@@ -77,6 +77,7 @@ jobs:
           git config --global user.email "actions@github.com"
 
       - name: Add Azure DevOps remote
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
         run: |
           git remote add azure "https://username:${{ secrets.AZURE_PAT }}@${{ secrets.AZURE_REPO_URL }}"
           git push azure HEAD:refs/heads/main --force
