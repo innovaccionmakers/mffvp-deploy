@@ -11,12 +11,12 @@ public sealed class Objective : Entity
     public int AffiliateId { get; private set; }
     public int AlternativeId { get; private set; }
     public string Name { get; private set; }
-    public string Status { get; private set; }
     public DateTime CreationDate { get; private set; }
     public int CommercialId { get; private set; }
     public int OpeningOfficeId { get; private set; }
     public int CurrentOfficeId { get; private set; }
     public decimal Balance { get; private set; }
+    public Status Status { get; private set; }
 
     public Alternative Alternative { get; private set; } = null!;
     public Commercial Commercial { get; private set; } = null!;
@@ -30,7 +30,7 @@ public sealed class Objective : Entity
         int affiliateId,
         Alternative alternative,
         string name,
-        string status,
+        Status status,
         DateTime creationDate,
         Commercial commercial,
         int openingOfficeId,
@@ -63,7 +63,7 @@ public sealed class Objective : Entity
         int affiliateId,
         int alternativeId,
         string name,
-        string status,
+        Status status,
         DateTime creationDate,
         int commercialId,
         int openingOfficeId,

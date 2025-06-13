@@ -1,3 +1,5 @@
+using Common.SharedKernel.Domain;
+using Common.SharedKernel.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Operations.Domain.Origins;
@@ -15,7 +17,9 @@ internal sealed class OriginConfiguration : IEntityTypeConfiguration<Origin>
         builder.Property(x => x.OriginatorMandatory).HasColumnName("obligatoriedad_originador");
         builder.Property(x => x.RequiresCertification).HasColumnName("exige_certificacion");
         builder.Property(x => x.RequiresContingentWithholding).HasColumnName("exige_retencion_contingente");
-        builder.Property(x => x.Status).HasColumnName("estado");
+        builder.Property(x => x.Status)
+            .HasColumnName("estado")
+            .HasConversion(new EnumMemberValueConverter<Status>());
         builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
 
         builder.HasMany(x => x.AuxiliaryInformations)

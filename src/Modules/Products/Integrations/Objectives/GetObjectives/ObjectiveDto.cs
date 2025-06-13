@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Common.SharedKernel.Domain;
 
 namespace Products.Integrations.Objectives.GetObjectives;
 
@@ -28,5 +29,5 @@ public sealed record ObjectiveDto(
     string CollectorPortfolioName,
 
     [property: JsonPropertyName("Estado")]
-    string Status
+    Status Status
 );

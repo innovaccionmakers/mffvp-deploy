@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Customers.Integrations.People.CreatePerson;
+using Common.SharedKernel.Domain;
 
 namespace Customers.Presentation.People
 {
@@ -59,7 +60,7 @@ namespace Customers.Presentation.People
             public int MunicipalityId { get; init; }
             public string Email { get; init; }
             public int EconomicActivityId { get; init; }
-            public bool Status { get; init; }
+            public Status Status { get; init; }
             public string Address { get; init; }
             public bool IsDeclarant { get; init; }
             public int InvestorTypeId { get; init; }

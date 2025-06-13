@@ -76,14 +76,14 @@ public class CreateContributionCommandHandlerTests
 
     private static ContributionCatalogs BuildCatalogs()
     {
-        var origin = Origin.Create("o", false, false, false, "A", "SRC").Value;
+        var origin = Origin.Create("o", false, false, false, Status.Active, "SRC").Value;
         var cfg = ConfigurationParameter.Create("cfg", "h");
-        var channel = Operations.Domain.Channels.Channel.Create("c", "CH", false, "A").Value;
+        var channel = Operations.Domain.Channels.Channel.Create("c", "CH", false, Status.Active).Value;
         var subtype = Domain.SubtransactionTypes.SubtransactionType.Create(
             "s",
             Guid.NewGuid(),
             "N",
-            "A",
+            Status.Active,
             "EXT",
             "SUB").Value;
         return new ContributionCatalogs(origin, cfg, cfg, cfg, channel, subtype,

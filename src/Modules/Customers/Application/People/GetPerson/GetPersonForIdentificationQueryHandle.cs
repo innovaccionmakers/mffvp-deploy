@@ -43,7 +43,7 @@ public class GetPersonForIdentificationQueryHandle(
 
         var response = new PersonResponse(
             person!.PersonId,
-            person.IdentificationType,
+            person.DocumentType,
             person.HomologatedCode,
             person.Identification,
             person.FirstName,

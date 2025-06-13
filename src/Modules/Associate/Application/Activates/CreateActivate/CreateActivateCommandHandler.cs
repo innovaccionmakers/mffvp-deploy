@@ -85,7 +85,7 @@ internal sealed class CreateActivateCommandHandler(
                 request.StartDateReqPen,
                 request.EndDateReqPen,
                 DateTime.UtcNow,
-                "Activo"
+                Status.Active
             );
 
             await sender.Send(CreatePensionRequirementCommand, cancellationToken);

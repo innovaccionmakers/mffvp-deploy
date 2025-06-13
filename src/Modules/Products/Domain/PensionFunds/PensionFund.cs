@@ -6,11 +6,11 @@ namespace Products.Domain.PensionFunds;
 public sealed class PensionFund : Entity
 {
     public int PensionFundId { get; private set; }
-    public int IdentificationTypeId { get; private set; }
+    public int DocumentTypeId { get; private set; }
     public int IdentificationNumber { get; private set; }
     public string Name { get; private set; }
     public string ShortName { get; private set; }
-    public string Status { get; private set; }
+    public Status Status { get; private set; }
     public string HomologatedCode { get; private set; }
 
     public IReadOnlyCollection<PlanFund> PlanFunds { get; private set; } = new List<PlanFund>();
@@ -24,13 +24,13 @@ public sealed class PensionFund : Entity
         int identificationNumber,
         string name,
         string shortName,
-        string status,
+        Status status,
         string homologatedCode
     )
     {
         var fund = new PensionFund
         {
-            IdentificationTypeId = identificationTypeId,
+            DocumentTypeId = identificationTypeId,
             IdentificationNumber = identificationNumber,
             Name = name,
             ShortName = shortName,
@@ -45,11 +45,11 @@ public sealed class PensionFund : Entity
         int identificationNumber,
         string name,
         string shortName,
-        string status,
+        Status status,
         string homologatedCode
     )
     {
-        IdentificationTypeId = identificationTypeId;
+        DocumentTypeId = identificationTypeId;
         IdentificationNumber = identificationNumber;
         Name = name;
         ShortName = shortName;

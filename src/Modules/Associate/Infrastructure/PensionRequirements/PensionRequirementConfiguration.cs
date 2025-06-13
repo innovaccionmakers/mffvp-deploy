@@ -1,3 +1,5 @@
+using Common.SharedKernel.Domain;
+using Common.SharedKernel.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Associate.Domain.PensionRequirements;
@@ -14,7 +16,9 @@ internal sealed class PensionRequirementConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.StartDate).HasColumnName("fecha_inicio");
         builder.Property(x => x.ExpirationDate).HasColumnName("fecha_vencimiento");
         builder.Property(x => x.CreationDate).HasColumnName("fecha_creacion");
-        builder.Property(x => x.Status).HasColumnName("estado");
+        builder.Property(x => x.Status)
+            .HasColumnName("estado")
+            .HasConversion(new EnumMemberValueConverter<Status>());
         builder.HasOne<Activate>().WithMany().HasForeignKey(x => x.ActivateId);
         builder.Property(x => x.ActivateId).HasColumnName("afiliado_id");
     }

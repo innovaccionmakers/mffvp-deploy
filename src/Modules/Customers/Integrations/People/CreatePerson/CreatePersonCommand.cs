@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 using System;
 
 namespace Customers.Integrations.People.CreatePerson;
@@ -18,7 +19,7 @@ public sealed record CreatePersonCommand(
     int MunicipalityId,
     string Email,
     int EconomicActivityId,
-    bool Status,
+    Status Status,
     string Address,
     bool IsDeclarant,
     int InvestorTypeId,

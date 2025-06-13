@@ -6,10 +6,10 @@ public sealed class Office : Entity
 {
     public int OfficeId { get; private set; }
     public string Name { get; private set; }
-    public string Status { get; private set; }
     public string Prefix { get; private set; }
-    public string HomologatedCode { get; private set; }
     public int CityId { get; private set; }
+    public Status Status { get; private set; }
+    public string HomologatedCode { get; private set; }
 
     private Office()
     {
@@ -17,7 +17,7 @@ public sealed class Office : Entity
 
     public static Result<Office> Create(
         string name,
-        string status,
+        Status status,
         string prefix,
         string homologatedCode,
         int cityId
@@ -38,7 +38,7 @@ public sealed class Office : Entity
 
     public void UpdateDetails(
         string name,
-        string status,
+        Status status,
         string prefix,
         string homologatedCode,
         int cityId

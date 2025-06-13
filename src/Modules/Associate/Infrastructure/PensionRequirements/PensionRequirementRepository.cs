@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Database;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Infrastructure;
 
@@ -29,7 +30,7 @@ internal sealed class PensionRequirementRepository(AssociateDbContext context) :
     public async Task<int> DeactivateExistingRequirementsAsync(int activateId, CancellationToken cancellationToken)
     {
         return await context.PensionRequirements
-            .Where(r => r.ActivateId == activateId && r.Status == true)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(r => r.Status, false), cancellationToken);
+            .Where(r => r.ActivateId == activateId && r.Status == Status.Active)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(r => r.Status, Status.Inactive), cancellationToken);
     }
 }

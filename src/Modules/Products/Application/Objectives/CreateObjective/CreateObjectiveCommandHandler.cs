@@ -97,7 +97,7 @@ internal sealed class CreateObjectiveCommandHandler(
             affiliateResult.Value!.Value,
             alternative!,
             request.ObjectiveName,
-            "ACTIVO",
+            Status.Active,
             DateTime.UtcNow,
             commercial!,
             offices[request.OpeningOffice].OfficeId,

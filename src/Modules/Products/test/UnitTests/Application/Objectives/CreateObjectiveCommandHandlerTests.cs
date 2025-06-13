@@ -51,10 +51,10 @@ public class CreateObjectiveCommandHandlerTests
 
     private static Alternative BuildDummyAlternative(string homologatedCode)
     {
-        var plan = Plan.Create("Plan", "Desc").Value;
-        var pension = PensionFund.Create(1, 1, "Fund", "F", "ACT", "F-1").Value;
-        var planFund = PlanFund.Create(plan, pension, "ACTIVO").Value;
-        return Alternative.Create(planFund, 1, "Alt", "ACT", "Desc", homologatedCode).Value;
+        var plan = Plan.Create("Plan", "Desc", "2").Value;
+        var pension = PensionFund.Create(1, 1, "Fund", "F", Status.Active, "F-1").Value;
+        var planFund = PlanFund.Create(plan, pension, Status.Active).Value;
+        return Alternative.Create(planFund, 1, "Alt", Status.Active, "Desc", homologatedCode).Value;
     }
 
     private static bool IsValidContext(object ctx)
@@ -156,11 +156,11 @@ public class CreateObjectiveCommandHandlerTests
         _officeRepo.Setup(r => r.GetByHomologatedCodesAsync(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<string, Office>
             {
-                { request.OpeningOffice, Office.Create("Bogota", "ACTIVO", "BO", request.OpeningOffice, 1).Value },
-                { request.CurrentOffice, Office.Create("Med", "ACTIVO", "ME", request.CurrentOffice, 2).Value }
+                { request.OpeningOffice, Office.Create("Bogota", Status.Active, "BO", request.OpeningOffice, 1).Value },
+                { request.CurrentOffice, Office.Create("Med", Status.Active, "ME", request.CurrentOffice, 2).Value }
             });
         _commercialRepo.Setup(r => r.GetByHomologatedCodeAsync(request.Commercial, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Commercial.Create("Com", "ACT", "C", request.Commercial).Value);
+            .ReturnsAsync(Commercial.Create("Com", Status.Active, "C", request.Commercial).Value);
         var error = Error.Validation("RULE", "fail");
         _ruleEvaluator.Setup(r =>
                 r.EvaluateAsync("Products.CreateObjective.Validation", It.IsAny<object>(),
@@ -198,12 +198,12 @@ public class CreateObjectiveCommandHandlerTests
             .ReturnsAsync(Result.Success<int?>(99));
         var offices = new Dictionary<string, Office>
         {
-            { request.OpeningOffice, Office.Create("Bogota", "ACTIVO", "BO", request.OpeningOffice, 1).Value },
-            { request.CurrentOffice, Office.Create("Med", "ACTIVO", "ME", request.CurrentOffice, 2).Value }
+            { request.OpeningOffice, Office.Create("Bogota", Status.Active, "BO", request.OpeningOffice, 1).Value },
+            { request.CurrentOffice, Office.Create("Med", Status.Active, "ME", request.CurrentOffice, 2).Value }
         };
         _officeRepo.Setup(r => r.GetByHomologatedCodesAsync(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(offices);
-        var commercial = Commercial.Create("Com", "ACT", "C", request.Commercial).Value;
+        var commercial = Commercial.Create("Com", Status.Active, "C", request.Commercial).Value;
         _commercialRepo.Setup(r => r.GetByHomologatedCodeAsync(request.Commercial, It.IsAny<CancellationToken>()))
             .ReturnsAsync(commercial);
         _ruleEvaluator.Setup(r =>

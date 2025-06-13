@@ -6,7 +6,6 @@ namespace Products.Domain.Portfolios;
 public sealed class Portfolio : Entity
 {
     public int PortfolioId { get; private set; }
-    public string HomologatedCode { get; private set; }
     public string Name { get; private set; }
     public string ShortName { get; private set; }
     public int ModalityId { get; private set; }
@@ -15,6 +14,8 @@ public sealed class Portfolio : Entity
     public DateTime CurrentDate { get; private set; }
     public int CommissionRateTypeId { get; private set; }
     public decimal CommissionPercentage { get; private set; }
+    public string HomologatedCode { get; private set; }
+    public Status Status { get; private set; }
 
     private readonly List<AlternativePortfolio> _alternatives = new();
     public IReadOnlyCollection<AlternativePortfolio> Alternatives => _alternatives;
@@ -32,7 +33,8 @@ public sealed class Portfolio : Entity
         decimal additionalMinimumAmount,
         DateTime currentDate,
         int commissionRateTypeId,
-        decimal commissionPercentage
+        decimal commissionPercentage,
+        Status status
     )
     {
         var portfolio = new Portfolio
@@ -46,7 +48,8 @@ public sealed class Portfolio : Entity
             AdditionalMinimumAmount = additionalMinimumAmount,
             CurrentDate = currentDate,
             CommissionRateTypeId = commissionRateTypeId,
-            CommissionPercentage = commissionPercentage
+            CommissionPercentage = commissionPercentage,
+            Status = status
         };
 
         portfolio.Raise(new PortfolioCreatedDomainEvent(portfolio.PortfolioId));
@@ -62,7 +65,8 @@ public sealed class Portfolio : Entity
         decimal newAdditionalMinimumAmount,
         DateTime newCurrentDate,
         int newCommissionRateTypeId,
-        decimal newCommissionPercentage
+        decimal newCommissionPercentage,
+        Status newStatus
     )
     {
         HomologatedCode = newHomologatedCode;
@@ -74,5 +78,6 @@ public sealed class Portfolio : Entity
         CurrentDate = newCurrentDate;
         CommissionRateTypeId = newCommissionRateTypeId;
         CommissionPercentage = newCommissionPercentage;
+        Status = newStatus;
     }
 }
