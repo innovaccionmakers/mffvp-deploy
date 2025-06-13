@@ -37,7 +37,7 @@ public class ActivateRepository : IActivateRepository
     public async Task<Activate?> GetByIdTypeAndNumber(Guid IdentificationType, string identification, CancellationToken cancellationToken = default)
     {
         return await _context.Activates.SingleOrDefaultAsync(a =>
-            a.IdentificationType == IdentificationType && a.Identification == identification);
+            a.DocumentType == IdentificationType && a.Identification == identification);
     }
 
     public async Task<Activate?> GetByIdAsync(long activateId, CancellationToken cancellationToken = default)
