@@ -22,7 +22,7 @@ public static class SecretsManagerHelper
 
         var connectionString = $"Host=db-makers-fund-fvp-adm2-aurora-dev-db-instance.cqgahba446ca.us-east-2.rds.amazonaws.com;Port={secretData.port};Database=dbfvp;Username={secretData.username};Password={secretData.password};SSL Mode=Require;Trust Server Certificate=true;";
 
-        connectionString = "Host=db-makers-fund-dev-fvp-aurora-instance-1.cqgahba446ca.us-east-2.rds.amazonaws.com;Port=5432;Database=dbFondosPensiones;Username=sqlsa;Password=EBiHr68hj6XKNyCd3FeH;SSL Mode=Require;Trust Server Certificate=true;";
+        connectionString = "Host=db-makers-fund-dev-fvp-aurora-instance-1.cqgahba446ca.us-east-2.rds.amazonaws.com;Port=5432;Database=dbfvp;Username=sqlsa;Password=PDGf27t3gG]%;SSL Mode=Require;Trust Server Certificate=true;";
 
         return connectionString;
     }
