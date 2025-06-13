@@ -54,7 +54,7 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.IdentificationType != null",
+        "Expression": "input.DocumentType != null",
         "Properties": {
           "errorCode": "15afe1e8-4922-4e90-a030-e1f07ae388c6"
         }

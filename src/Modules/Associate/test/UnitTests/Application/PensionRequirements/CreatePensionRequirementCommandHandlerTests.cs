@@ -17,7 +17,7 @@ namespace UnitTests.Application.PensionRequirements.CreatePensionRequirement
             var command = new CreatePensionRequirementCommand(idType, idNumber, startDate, endDate);
 
             // Assert
-            Assert.Equal(idType, command.IdentificationType);
+            Assert.Equal(idType, command.DocumentType);
             Assert.Equal(idNumber, command.Identification);
             Assert.Equal(startDate, command.StartDateReqPen);
             Assert.Equal(endDate, command.EndDateReqPen);

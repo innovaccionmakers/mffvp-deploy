@@ -13,8 +13,8 @@ using Products.Infrastructure.Database;
 namespace Products.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(ProductsDbContext))]
-    [Migration("20250609180229_ProductsSchemaUpdate")]
-    partial class ProductsSchemaUpdate
+    [Migration("20250613064244_NewChangesPortfolio")]
+    partial class NewChangesPortfolio
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,6 +26,77 @@ namespace Products.Infrastructure.Database.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
+                {
+                    b.Property<int>("ConfigurationParameterId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ConfigurationParameterId"));
+
+                    b.Property<bool>("Editable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("editable");
+
+                    b.Property<string>("HomologationCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("codigo_homologacion");
+
+                    b.Property<JsonDocument>("Metadata")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata")
+                        .HasDefaultValueSql("'{}'");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nombre");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("padre_id");
+
+                    b.Property<bool>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("estado");
+
+                    b.Property<bool>("System")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("sistema");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("categoria")
+                        .HasColumnName("tipo");
+
+                    b.Property<Guid>("Uuid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.HasKey("ConfigurationParameterId");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("parametros_configuracion", "productos");
+                });
 
             modelBuilder.Entity("Products.Domain.AlternativePortfolios.AlternativePortfolio", b =>
                 {
@@ -81,7 +152,7 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Property<string>("HomologatedCode")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("codigo_homologado)");
+                        .HasColumnName("codigo_homologado");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -174,77 +245,6 @@ namespace Products.Infrastructure.Database.Migrations
                     b.HasKey("CommercialId");
 
                     b.ToTable("comerciales", "productos");
-                });
-
-            modelBuilder.Entity("Products.Domain.ConfigurationParameters.ConfigurationParameter", b =>
-                {
-                    b.Property<int>("ConfigurationParameterId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ConfigurationParameterId"));
-
-                    b.Property<bool>("Editable")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("editable");
-
-                    b.Property<string>("HomologationCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("codigo_homologacion");
-
-                    b.Property<JsonDocument>("Metadata")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("metadata")
-                        .HasDefaultValueSql("'{}'");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("nombre");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("padre_id");
-
-                    b.Property<bool>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("estado");
-
-                    b.Property<bool>("System")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("sistema");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasDefaultValue("categoria")
-                        .HasColumnName("tipo");
-
-                    b.Property<Guid>("Uuid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.HasKey("ConfigurationParameterId");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("parametros_configuracion", "productos");
                 });
 
             modelBuilder.Entity("Products.Domain.Objectives.Objective", b =>
@@ -355,6 +355,10 @@ namespace Products.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PensionFundId"));
 
+                    b.Property<int>("DocumentTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_documento");
+
                     b.Property<string>("HomologatedCode")
                         .IsRequired()
                         .HasColumnType("text")
@@ -363,10 +367,6 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Property<int>("IdentificationNumber")
                         .HasColumnType("integer")
                         .HasColumnName("identificacion");
-
-                    b.Property<int>("IdentificationTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("tipo_identificacion");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -433,6 +433,11 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("descripcion");
 
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -491,9 +496,24 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nombre_corto");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
                     b.HasKey("PortfolioId");
 
                     b.ToTable("portafolios", "productos");
+                });
+
+            modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
+                {
+                    b.HasOne("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("Products.Domain.AlternativePortfolios.AlternativePortfolio", b =>
@@ -524,16 +544,6 @@ namespace Products.Infrastructure.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("PlanFund");
-                });
-
-            modelBuilder.Entity("Products.Domain.ConfigurationParameters.ConfigurationParameter", b =>
-                {
-                    b.HasOne("Products.Domain.ConfigurationParameters.ConfigurationParameter", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("Products.Domain.Objectives.Objective", b =>
@@ -574,16 +584,16 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Navigation("Plan");
                 });
 
+            modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
+                {
+                    b.Navigation("Children");
+                });
+
             modelBuilder.Entity("Products.Domain.Alternatives.Alternative", b =>
                 {
                     b.Navigation("Objectives");
 
                     b.Navigation("Portfolios");
-                });
-
-            modelBuilder.Entity("Products.Domain.ConfigurationParameters.ConfigurationParameter", b =>
-                {
-                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("Products.Domain.PensionFunds.PensionFund", b =>

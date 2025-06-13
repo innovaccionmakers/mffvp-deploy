@@ -29,12 +29,12 @@ internal sealed class CreatePensionRequirementCommandHandler(
         GetActivateIdResponse? activateData = null;
         
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<CreatePensionRequirementCommand>(c => c.IdentificationType), cancellationToken);
+            request.DocumentType, HomologScope.Of<CreatePensionRequirementCommand>(c => c.DocumentType), cancellationToken);
         Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
         
         var validationResult = await validator.ValidateRequestAsync(
                 request,
-                request.IdentificationType,
+                request.DocumentType,
                 request.Identification,
                 Workflow,
                 (cmd, activateResult) => {
@@ -53,7 +53,7 @@ internal sealed class CreatePensionRequirementCommandHandler(
             request.StartDateReqPen,
             request.EndDateReqPen,
             DateTime.UtcNow,
-            true,
+            Status.Active,
             activateId
         );
 

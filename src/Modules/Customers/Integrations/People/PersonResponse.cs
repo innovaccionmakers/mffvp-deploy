@@ -1,14 +1,17 @@
+using Common.SharedKernel.Domain;
+
 namespace Customers.Integrations.People;
 
 public sealed record PersonResponse(
     long PersonId,
-    Guid IdentificationType,
+    Guid DocumentType,
     string HomologatedCode,
     string Identification,
     string FirstName,
     string MiddleName,
     string LastName,
     string SecondLastName,
+    DateTime BirthDate,
     string Mobile,
     string FullName,
     int GenderId,
@@ -17,7 +20,7 @@ public sealed record PersonResponse(
     int MunicipalityId,
     string Email,
     int EconomicActivityId,
-    string Status,
+    Status Status,
     string Address,
     bool IsDeclarant,
     int InvestorTypeId,

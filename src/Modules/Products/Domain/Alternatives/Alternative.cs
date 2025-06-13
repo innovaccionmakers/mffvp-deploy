@@ -10,10 +10,10 @@ public sealed class Alternative : Entity
     public int AlternativeId { get; private set; }
     public int AlternativeTypeId { get; private set; }
     public string Name { get; private set; }
-    public string Status { get; private set; }
     public string Description { get; private set; }
-    public string HomologatedCode { get; private set; }
     public int PlanFundId { get; private set; }
+    public Status Status { get; private set; }
+    public string HomologatedCode { get; private set; }
 
     public PlanFund PlanFund { get; private set; } = null!;
 
@@ -32,7 +32,7 @@ public sealed class Alternative : Entity
         PlanFund planFund,
         int alternativeTypeId,
         string name,
-        string status,
+        Status status,
         string description,
         string homologatedCode
     )
@@ -55,7 +55,7 @@ public sealed class Alternative : Entity
     public void UpdateDetails(
         int newAlternativeTypeId,
         string newName,
-        string newStatus,
+        Status newStatus,
         string newDescription,
         string newHomologatedCode,
         PlanFund newPlanFund

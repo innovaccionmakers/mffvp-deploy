@@ -10,7 +10,7 @@ namespace Integrations.People.CreatePerson
 
         [property: JsonPropertyName("TipoIdentificacion")]
         [property: HomologScope("TipoDocumento")]
-        string IdentificationType,
+        string DocumentType,
 
         [property: JsonPropertyName("Identificacion")]
         string Identification,

@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 
@@ -7,5 +8,5 @@ public class CreatePensionRequirementRequestCommand(
     DateTime? StartDate,
     DateTime? ExpirationDate,
     DateTime CreationDate,
-    string Status
+    Status Status
 ) : ICommand<PensionRequirementResponse>;

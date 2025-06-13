@@ -21,10 +21,10 @@ internal sealed class ActivateRepository(AssociateDbContext context) : IActivate
         context.Activates.Update(activate);
     }
 
-    public async Task<Activate?> GetByIdTypeAndNumber(Guid IdentificationType, string identification, CancellationToken cancellationToken = default)
+    public async Task<Activate?> GetByIdTypeAndNumber(Guid DocumentType, string identification, CancellationToken cancellationToken = default)
     {
         return await context.Activates.SingleOrDefaultAsync(a =>
-            a.IdentificationType == IdentificationType && a.Identification == identification);
+            a.DocumentType == DocumentType && a.Identification == identification);
     }
 
     public async Task<Activate?> GetByIdAsync(long activateId, CancellationToken cancellationToken = default)

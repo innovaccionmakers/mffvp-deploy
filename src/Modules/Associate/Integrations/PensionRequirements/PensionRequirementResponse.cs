@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.PensionRequirements;
 
@@ -19,5 +20,5 @@ public sealed record PensionRequirementResponse(
     DateTime CreationDate,
     
     [property: JsonPropertyName("Estado")]
-    bool Status
+    Status Status
 );

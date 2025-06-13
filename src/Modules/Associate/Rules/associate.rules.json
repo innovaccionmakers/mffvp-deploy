@@ -23,7 +23,7 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.identificationType != null",
+        "Expression": "input.documentType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
@@ -35,14 +35,14 @@
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.DocumentType)",
         "Properties": {
           "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
         }
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.identificationType != null",
+        "Expression": "input.documentType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
@@ -124,14 +124,14 @@
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.DocumentType)",
         "Properties": {
           "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
         }
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.identificationType != null",
+        "Expression": "input.documentType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
@@ -178,14 +178,14 @@
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.DocumentType)",
         "Properties": {
           "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
         }
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.identificationType != null",
+        "Expression": "input.documentType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
@@ -246,14 +246,14 @@
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.IdentificationType)",
+        "Expression": "!string.IsNullOrWhiteSpace(input.request.DocumentType)",
         "Properties": {
           "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
         }
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.identificationType != null",
+        "Expression": "input.documentType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }

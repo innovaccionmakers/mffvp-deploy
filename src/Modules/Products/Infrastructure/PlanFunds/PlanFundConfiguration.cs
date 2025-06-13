@@ -1,3 +1,5 @@
+using Common.SharedKernel.Domain;
+using Common.SharedKernel.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Products.Domain.PlanFunds;
@@ -21,7 +23,8 @@ internal sealed class PlanFundConfiguration : IEntityTypeConfiguration<PlanFund>
             .HasColumnName("fondo_id");
 
         builder.Property(pf => pf.Status)
-            .HasColumnName("estado");
+            .HasColumnName("estado")
+            .HasConversion(new EnumMemberValueConverter<Status>());
 
         builder.HasOne(pf => pf.Plan)
             .WithMany(p => p.PlanFunds)

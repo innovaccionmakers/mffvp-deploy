@@ -28,7 +28,7 @@ internal sealed class CreateActivateCommandHandler(
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<CreateActivateCommand>(c => c.IdentificationType), cancellationToken);
+            request.DocumentType, HomologScope.Of<CreateActivateCommand>(c => c.DocumentType), cancellationToken);
         Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
         Activate? existingActivate = await activateRepository.GetByIdTypeAndNumber(uuid, request.Identification, cancellationToken);
@@ -37,7 +37,7 @@ internal sealed class CreateActivateCommandHandler(
             PersonDataRequestEvent,
             GetPersonValidationResponse>(
             nameof(PersonDataRequestEvent),
-            new PersonDataRequestEvent(request.IdentificationType, request.Identification),
+            new PersonDataRequestEvent(request.DocumentType, request.Identification),
             TimeSpan.FromSeconds(30),
             cancellationToken);
 
@@ -85,7 +85,7 @@ internal sealed class CreateActivateCommandHandler(
                 request.StartDateReqPen,
                 request.EndDateReqPen,
                 DateTime.UtcNow,
-                "Activo"
+                Status.Active
             );
 
             await sender.Send(CreatePensionRequirementCommand, cancellationToken);

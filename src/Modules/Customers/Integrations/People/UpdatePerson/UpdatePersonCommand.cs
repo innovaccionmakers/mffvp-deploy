@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 using System;
 
 namespace Customers.Integrations.People.UpdatePerson;
@@ -20,7 +21,7 @@ public sealed record UpdatePersonCommand(
     int NewMunicipalityId,
     string NewEmail,
     int NewEconomicActivityId,
-    bool NewStatus,
+    Status NewStatus,
     string NewAddress,
     bool NewIsDeclarant,
     int NewInvestorTypeId,

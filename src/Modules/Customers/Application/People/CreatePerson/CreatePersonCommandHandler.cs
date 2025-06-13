@@ -29,7 +29,7 @@ namespace Customers.Application.People.CreatePerson
             await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
             var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<CreatePersonRequestCommand>(c => c.IdentificationType), cancellationToken);
+            request.DocumentType, HomologScope.Of<CreatePersonRequestCommand>(c => c.DocumentType), cancellationToken);
             Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
             Person? existingActivate = await personRepository.GetForIdentificationAsync(uuid, request.Identification, cancellationToken);
@@ -64,6 +64,7 @@ namespace Customers.Application.People.CreatePerson
                 1,
                 request.Email,
                 1,
+                Status.Active,
                 request.Address,
                 request.Declarant,
                 1,

@@ -63,7 +63,7 @@ internal sealed class CreateContributionCommandHandler(
             ContributionSource = new
             {
                 Exists = catalogs.Source is not null,
-                Active = catalogs.Source?.Status.Equals("A", StringComparison.OrdinalIgnoreCase) == true,
+                Active = catalogs.Source?.Status == Status.Active,
                 RequiresCertification = catalogs.Source?.RequiresCertification ?? false
             },
             OriginModality = BuildCtx(catalogs.OriginModality),

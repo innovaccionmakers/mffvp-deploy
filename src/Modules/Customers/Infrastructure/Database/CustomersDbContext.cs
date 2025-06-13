@@ -8,10 +8,12 @@ using Common.SharedKernel.Domain.ConfigurationParameters;
 using Customers.Domain.People;
 using Customers.Infrastructure.People;
 using Customers.Domain.Countries;
+using Customers.Domain.Departments;
 using Customers.Infrastructure.Countries;
 using Customers.Domain.EconomicActivities;
 using Customers.Domain.Municipalities;
 using Customers.Infrastructure.ConfigurationParameters;
+using Customers.Infrastructure.Departments;
 using Customers.Infrastructure.EconomicActivities;
 using Customers.Infrastructure.Municipalities;
 
@@ -25,6 +27,7 @@ public sealed class CustomersDbContext(DbContextOptions<CustomersDbContext> opti
     internal DbSet<EconomicActivity> EconomicActivities { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
     internal DbSet<Municipality> Municipalities { get; set; }
+    internal DbSet<Department> Departments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +38,7 @@ public sealed class CustomersDbContext(DbContextOptions<CustomersDbContext> opti
         modelBuilder.ApplyConfiguration(new EconomicActivityConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration());
         modelBuilder.ApplyConfiguration(new MunicipalityConfiguration());
+        modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

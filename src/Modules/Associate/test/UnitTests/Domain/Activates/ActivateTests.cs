@@ -8,7 +8,7 @@ namespace UnitTests.Domain.Activates
         public void Create_ShouldRaiseActivateCreatedDomainEvent()
         {
             // Arrange
-            var identificationType = new Guid();
+            var documentType = new Guid();
             var identification = "123";
             var pensioner = false;
             var meetsRequirements = true;
@@ -16,7 +16,7 @@ namespace UnitTests.Domain.Activates
 
             // Act
             var result = Activate.Create(
-                identificationType,
+                documentType,
                 identification,
                 pensioner,
                 meetsRequirements,
@@ -49,7 +49,7 @@ namespace UnitTests.Domain.Activates
         {
             // Arrange
             var original = Activate.Create(new Guid(), "123", false, true, DateTime.UtcNow).Value;
-            var originalIdentificationType = original.IdentificationType;
+            var originalIdentificationType = original.DocumentType;
             var originalIdentification = original.Identification;
             var originalMeetsRequirements = original.MeetsPensionRequirements;
             var originalDate = original.ActivateDate;
@@ -59,7 +59,7 @@ namespace UnitTests.Domain.Activates
 
             // Assert
             Assert.True(original.Pensioner);
-            Assert.Equal(originalIdentificationType, original.IdentificationType);
+            Assert.Equal(originalIdentificationType, original.DocumentType);
             Assert.Equal(originalIdentification, original.Identification);
             Assert.Equal(originalMeetsRequirements, original.MeetsPensionRequirements);
             Assert.Equal(originalDate, original.ActivateDate);

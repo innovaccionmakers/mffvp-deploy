@@ -49,7 +49,7 @@ public class ActivateLocatorTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().Be((true, 1, false));
-        captured!.IdentificationType.Should().Be("CC");
+        captured!.DocumentType.Should().Be("CC");
         captured.Identification.Should().Be("321");
     }
 }

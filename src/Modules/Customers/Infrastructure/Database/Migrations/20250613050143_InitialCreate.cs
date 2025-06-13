@@ -56,7 +56,7 @@ namespace Customers.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "pais",
+                name: "paises",
                 schema: "personas",
                 columns: table => new
                 {
@@ -69,7 +69,7 @@ namespace Customers.Infrastructure.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_pais", x => x.id);
+                    table.PrimaryKey("PK_paises", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -108,26 +108,26 @@ namespace Customers.Infrastructure.Database.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    tipo_documento = table.Column<Guid>(type: "uuid", nullable: false),
-                    codigo_homologado = table.Column<string>(type: "text", nullable: false),
+                    tipo_documento_uuid = table.Column<Guid>(type: "uuid", nullable: false),
                     identificacion = table.Column<string>(type: "text", nullable: false),
                     primer_nombre = table.Column<string>(type: "text", nullable: false),
-                    segundo_nombre = table.Column<string>(type: "text", nullable: false),
+                    segundo_nombre = table.Column<string>(type: "text", nullable: true),
                     primer_apellido = table.Column<string>(type: "text", nullable: false),
-                    segundo_apellido = table.Column<string>(type: "text", nullable: false),
-                    celular = table.Column<string>(type: "text", nullable: false),
+                    segundo_apellido = table.Column<string>(type: "text", nullable: true),
                     nombre_completo = table.Column<string>(type: "text", nullable: false),
+                    celular = table.Column<string>(type: "text", nullable: false),
                     sexo_id = table.Column<int>(type: "integer", nullable: false),
                     pais_residencia_id = table.Column<int>(type: "integer", nullable: false),
                     departamento_id = table.Column<int>(type: "integer", nullable: false),
                     municipio_id = table.Column<int>(type: "integer", nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
                     actividad_economica_id = table.Column<int>(type: "integer", nullable: false),
-                    estado = table.Column<bool>(type: "boolean", nullable: false),
                     direccion = table.Column<string>(type: "text", nullable: false),
                     declarante = table.Column<bool>(type: "boolean", nullable: false),
                     tipo_inversionista_id = table.Column<int>(type: "integer", nullable: false),
-                    perfil_riesgo_id = table.Column<int>(type: "integer", nullable: false)
+                    perfil_riesgo_id = table.Column<int>(type: "integer", nullable: false),
+                    estado = table.Column<string>(type: "text", nullable: false),
+                    codigo_homologado = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -153,7 +153,7 @@ namespace Customers.Infrastructure.Database.Migrations
                 schema: "personas");
 
             migrationBuilder.DropTable(
-                name: "pais",
+                name: "paises",
                 schema: "personas");
 
             migrationBuilder.DropTable(

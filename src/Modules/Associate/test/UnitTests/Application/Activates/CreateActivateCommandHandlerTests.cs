@@ -41,7 +41,7 @@ namespace UnitTests.Application.Activates
         public void Activate_Create_ShouldInitializePropertiesCorrectly()
         {
             // Arrange
-            var identificationType = new Guid();
+            var documentType = new Guid();
             var identification = "123";
             var pensioner = false;
             var meetsRequirements = true;
@@ -49,7 +49,7 @@ namespace UnitTests.Application.Activates
 
             // Act
             var result = Activate.Create(
-                identificationType,
+                documentType,
                 identification,
                 pensioner,
                 meetsRequirements,

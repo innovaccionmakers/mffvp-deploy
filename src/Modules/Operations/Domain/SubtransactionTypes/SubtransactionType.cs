@@ -10,7 +10,7 @@ public sealed class SubtransactionType : Entity
     public string Name { get; private set; }
     public Guid Category { get; private set; }
     public string Nature { get; private set; }
-    public string Status { get; private set; }
+    public Status Status { get; private set; }
     public string External { get; private set; }
     public string HomologatedCode { get; private set; }
 
@@ -25,7 +25,7 @@ public sealed class SubtransactionType : Entity
         string name,
         Guid category,
         string nature,
-        string status,
+        Status status,
         string external,
         string homologatedCode
     )
@@ -48,7 +48,7 @@ public sealed class SubtransactionType : Entity
         string newName,
         Guid newCategory,
         string newNature,
-        string newStatus,
+        Status newStatus,
         string newExternal,
         string newHomologatedCode
     )

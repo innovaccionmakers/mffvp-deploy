@@ -19,13 +19,14 @@ internal sealed class GetPersonsQueryHandler(
         var response = entities
             .Select(e => new PersonResponse(
                 e.PersonId,
-                e.IdentificationType,
+                e.DocumentType,
                 e.HomologatedCode,
                 e.Identification,
                 e.FirstName,
                 e.MiddleName,
                 e.LastName,
                 e.SecondLastName,
+                e.BirthDate,
                 e.Mobile,
                 e.FullName,
                 e.GenderId,

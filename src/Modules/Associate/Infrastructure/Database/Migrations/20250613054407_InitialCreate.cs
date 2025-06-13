@@ -23,7 +23,7 @@ namespace Associate.Infrastructure.Database.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    tipo_identificacion = table.Column<string>(type: "text", nullable: false),
+                    tipo_documento_uuid = table.Column<Guid>(type: "uuid", nullable: false),
                     identificacion = table.Column<string>(type: "text", nullable: false),
                     pensionado = table.Column<bool>(type: "boolean", nullable: false),
                     cumple_requisitos_pension = table.Column<bool>(type: "boolean", nullable: false),
@@ -45,7 +45,7 @@ namespace Associate.Infrastructure.Database.Migrations
                     nombre = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     padre_id = table.Column<int>(type: "integer", nullable: true),
                     estado = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                    tipo = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false, defaultValue: "Generico"),
+                    tipo = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false, defaultValue: "categoria"),
                     editable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     sistema = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     metadata = table.Column<JsonDocument>(type: "jsonb", nullable: false, defaultValueSql: "'{}'"),

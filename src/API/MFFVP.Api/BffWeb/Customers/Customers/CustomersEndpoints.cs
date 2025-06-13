@@ -1,10 +1,8 @@
 using MediatR;
-using Customers.Integrations.People.UpdatePerson;
 using Customers.Integrations.People;
 using Common.SharedKernel.Presentation.Results;
 using Microsoft.AspNetCore.Mvc;
 using MFFVP.Api.Application.Customers;
-using Customers.Integrations.People.CreatePerson;
 using Common.SharedKernel.Presentation.Filters;
 using Integrations.People.CreatePerson;
 

@@ -9,7 +9,7 @@ public sealed class Activate : Entity
     }
 
     public int ActivateId { get; private set; }
-    public Guid IdentificationType { get; private set; }
+    public Guid DocumentType { get; private set; }
     public string Identification { get; private set; }
     public bool Pensioner { get; private set; }
     public bool MeetsPensionRequirements { get; private set; }
@@ -23,7 +23,7 @@ public sealed class Activate : Entity
         var activate = new Activate
         {
             ActivateId = new int(),
-            IdentificationType = identificationtype,
+            DocumentType = identificationtype,
             Identification = identification,
             Pensioner = pensioner,
             MeetsPensionRequirements = meetsrequirements,

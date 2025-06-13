@@ -22,8 +22,8 @@ internal sealed class GetActivateIdHandler(
         CancellationToken cancellationToken)
     {
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            query.IdentificationType,
-            HomologScope.Of<GetActivateIdResponse>(c => c.IdentificationType),
+            query.DocumentType,
+            HomologScope.Of<GetActivateIdResponse>(c => c.DocumentType),
             cancellationToken);
         Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
@@ -34,7 +34,7 @@ internal sealed class GetActivateIdHandler(
 
         var validationContext = new
         {
-            identificationType = configurationParameter,
+            documentType = configurationParameter,
             ActivateExists = activate is not null
         };
         var (ok, _, errors) = await ruleEvaluator

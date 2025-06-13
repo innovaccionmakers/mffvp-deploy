@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Customers.Integrations.People.CreatePerson;
+using Common.SharedKernel.Domain;
 
 namespace Customers.Presentation.People
 {
@@ -15,7 +16,7 @@ namespace Customers.Presentation.People
             app.MapPost("persons", async (Request request, ISender sender) =>
             {
                 var result = await sender.Send(new CreatePersonCommand(
-                    request.IdentificationType, 
+                    request.DocumentType, 
                     request.HomologatedCode, 
                     request.Identification, 
                     request.FirstName, 
@@ -44,7 +45,7 @@ namespace Customers.Presentation.People
 
         internal sealed class Request
         {
-            public Guid IdentificationType { get; init; }
+            public Guid DocumentType { get; init; }
             public string HomologatedCode { get; init; }
             public string Identification { get; init; }
             public string FirstName { get; init; }
@@ -59,7 +60,7 @@ namespace Customers.Presentation.People
             public int MunicipalityId { get; init; }
             public string Email { get; init; }
             public int EconomicActivityId { get; init; }
-            public bool Status { get; init; }
+            public Status Status { get; init; }
             public string Address { get; init; }
             public bool IsDeclarant { get; init; }
             public int InvestorTypeId { get; init; }

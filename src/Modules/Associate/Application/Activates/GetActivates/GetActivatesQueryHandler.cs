@@ -18,9 +18,9 @@ internal sealed class GetActivatesQueryHandler(
         CancellationToken cancellationToken)
     {
         var entities = await activateRepository.GetAllAsync(cancellationToken);
-        var listIdentification = entities.Select(x => x.IdentificationType).Distinct().ToList();
-        var identificationType = new GetConfigurationParametersQuery();
-        var configParametersResult = await sender.Send(identificationType, cancellationToken);
+        var listIdentification = entities.Select(x => x.DocumentType).Distinct().ToList();
+        var documentType = new GetConfigurationParametersQuery();
+        var configParametersResult = await sender.Send(documentType, cancellationToken);
 
         var guidToHomologationCode = configParametersResult.Value
             .Where(cp => listIdentification.Contains(cp.Uuid))
@@ -29,7 +29,7 @@ internal sealed class GetActivatesQueryHandler(
         var response = entities
             .Select(e => new ActivateResponse(
                 e.ActivateId,
-                guidToHomologationCode.TryGetValue(e.IdentificationType, out var code) ? code : string.Empty,
+                guidToHomologationCode.TryGetValue(e.DocumentType, out var code) ? code : string.Empty,
                 e.Identification,
                 e.Pensioner,
                 e.MeetsPensionRequirements,

@@ -21,7 +21,7 @@ public class GetPersonForIdentificationQueryHandle(
         CancellationToken cancellationToken)
     {
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<GetPersonForIdentificationQuery>(c => c.IdentificationType), cancellationToken);
+            request.DocumentType, HomologScope.Of<GetPersonForIdentificationQuery>(c => c.DocumentType), cancellationToken);
         Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
         var person =
@@ -43,13 +43,14 @@ public class GetPersonForIdentificationQueryHandle(
 
         var response = new PersonResponse(
             person!.PersonId,
-            person.IdentificationType,
+            person.DocumentType,
             person.HomologatedCode,
             person.Identification,
             person.FirstName,
             person.MiddleName,
             person.LastName,
             person.SecondLastName,
+            person.BirthDate,
             person.Mobile,
             person.FullName,
             person.GenderId,

@@ -1,3 +1,5 @@
+using Common.SharedKernel.Domain;
+using Common.SharedKernel.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Products.Domain.PensionFunds;
@@ -14,8 +16,8 @@ internal sealed class PensionFundConfiguration : IEntityTypeConfiguration<Pensio
         builder.Property(f => f.PensionFundId)
             .HasColumnName("id");
 
-        builder.Property(f => f.IdentificationTypeId)
-            .HasColumnName("tipo_identificacion");
+        builder.Property(f => f.DocumentTypeId)
+            .HasColumnName("tipo_documento");
 
         builder.Property(f => f.IdentificationNumber)
             .HasColumnName("identificacion");
@@ -26,8 +28,9 @@ internal sealed class PensionFundConfiguration : IEntityTypeConfiguration<Pensio
         builder.Property(f => f.ShortName)
             .HasColumnName("nombre_corto");
 
-        builder.Property(f => f.Status)
-            .HasColumnName("estado");
+        builder.Property(x => x.Status)
+            .HasColumnName("estado")
+            .HasConversion(new EnumMemberValueConverter<Status>());
 
         builder.Property(f => f.HomologatedCode)
             .HasColumnName("codigo_homologado");

@@ -10,7 +10,7 @@ public sealed class Origin : Entity
     public bool OriginatorMandatory { get; private set; }
     public bool RequiresCertification { get; private set; }
     public bool RequiresContingentWithholding { get; private set; }
-    public string Status { get; private set; }
+    public Status Status { get; private set; }
     public string HomologatedCode { get; private set; }
 
     private readonly List<AuxiliaryInformation> _auxiliaryInformations = new();
@@ -25,7 +25,7 @@ public sealed class Origin : Entity
         bool originatorMandatory,
         bool requiresCertification,
         bool requiresContingentWithholding,
-        string status,
+        Status status,
         string homologatedCode
     )
     {
@@ -47,7 +47,7 @@ public sealed class Origin : Entity
         bool newOriginatorMandatory,
         bool newRequiresCertification,
         bool newRequiresContingentWithholding,
-        string newStatus,
+        Status newStatus,
         string newHomologatedCode
     )
     {

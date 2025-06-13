@@ -11,7 +11,7 @@ internal sealed class MunicipalityConfiguration : IEntityTypeConfiguration<Munic
         builder.ToTable("municipios");
         builder.HasKey(x => x.MunicipalityId);
         builder.Property(x => x.MunicipalityId).HasColumnName("id");
-        builder.Property(x => x.CityCode).HasColumnName("codigo_ciudad");
+        builder.Property(x => x.CityCode).HasColumnName("codigo_municipio");
         builder.Property(x => x.Name).HasColumnName("nombre");
         builder.Property(x => x.DialingCode).HasColumnName("indicativo");
         builder.Property(x => x.DaneCode).HasColumnName("codigo_dane");
