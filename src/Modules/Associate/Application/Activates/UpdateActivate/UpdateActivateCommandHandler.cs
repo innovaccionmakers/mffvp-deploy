@@ -27,7 +27,7 @@ internal sealed class UpdateActivateCommandHandler(
     {
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);        
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<UpdateActivateCommand>(c => c.IdentificationType), cancellationToken);
+            request.DocumentType, HomologScope.Of<UpdateActivateCommand>(c => c.DocumentType), cancellationToken);
         Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
         
         Activate existingActivate = await activateRepository.GetByIdTypeAndNumber(uuid, request.Identification, cancellationToken);

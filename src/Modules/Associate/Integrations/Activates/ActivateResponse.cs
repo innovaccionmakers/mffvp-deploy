@@ -7,7 +7,7 @@ public sealed record ActivateResponse(
     int ActivateId,
 
     [property: JsonPropertyName("TipoId")]
-    string IdentificationType,
+    string DocumentType,
 
     [property: JsonPropertyName("Identificacion")]
     string Identification,

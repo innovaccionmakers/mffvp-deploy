@@ -7,7 +7,7 @@ namespace Associate.Integrations.Activates.CreateActivate;
 public sealed record CreateActivateCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]
-    string IdentificationType,
+    string DocumentType,
 
     [property: JsonPropertyName("Identificacion")]
     string Identification,

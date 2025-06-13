@@ -54,9 +54,217 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.IdentificationType != null",
+        "Expression": "input.DocumentType != null",
         "Properties": {
           "errorCode": "15afe1e8-4922-4e90-a030-e1f07ae388c6"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "People.Person.ValidationCreateCustomer",
+    "Rules": [
+      {
+        "RuleName": "TipoIdentificacionRequired",
+        "Expression": "input.TipoIdentificacion != null && input.TipoIdentificacion != ''",
+        "Properties": {
+          "errorCode": "3d811200-d868-41ef-898c-fcfd0a42a0fc"
+        }
+      },
+      {
+        "RuleName": "IdentificacionRequired",
+        "Expression": "input.Identificacion != null && input.Identificacion != ''",
+        "Properties": {
+          "errorCode": "6d3642b7-85d0-4adb-a01a-e946533a5bd9"
+        }
+      },
+      {
+        "RuleName": "PrimerNombreRequired",
+        "Expression": "input.PrimerNombre != null && input.PrimerNombre != ''",
+        "Properties": {
+          "errorCode": "735fc004-435c-444a-a213-d9f43a69e650"
+        }
+      },
+      {
+        "RuleName": "PrimerApellidoRequired",
+        "Expression": "input.PrimerApellido != null && input.PrimerApellido != ''",
+        "Properties": {
+          "errorCode": "714a78eb-d357-4cbe-a00d-d1f21cb4c54b"
+        }
+      },
+      {
+        "RuleName": "FechaNacimientoRequired",
+        "Expression": "input.FechaNacimiento != null",
+        "Properties": {
+          "errorCode": "7b729b2d-c8e7-4693-a91a-47fb317eace2"
+        }
+      },
+      {
+        "RuleName": "CelularRequired",
+        "Expression": "input.Celular != null && input.Celular != ''",
+        "Properties": {
+          "errorCode": "81eff097-8a2e-4551-9ab5-ed63d8bac9ed"
+        }
+      },
+      {
+        "RuleName": "SexoRequired",
+        "Expression": "input.Sexo != null && input.Sexo != ''",
+        "Properties": {
+          "errorCode": "168587ee-eb36-418b-a8e7-4b1224ca72ce"
+        }
+      },
+      {
+        "RuleName": "DireccionRequired",
+        "Expression": "input.Direccion != null && input.Direccion != ''",
+        "Properties": {
+          "errorCode": "9dc20014-4d74-43e4-9998-0458f910a05a"
+        }
+      },
+      {
+        "RuleName": "DepartamentoRequired",
+        "Expression": "input.Departamento != null && input.Departamento != ''",
+        "Properties": {
+          "errorCode": "18023f1a-6dcf-40c4-9e19-4a94862f3231"
+        }
+      },
+      {
+        "RuleName": "MunicipioRequired",
+        "Expression": "input.Municipio != null && input.Municipio != ''",
+        "Properties": {
+          "errorCode": "bff2bb19-bef1-4d97-8a3e-d3d395ff636f"
+        }
+      },
+      {
+        "RuleName": "PaisResidenciaRequired",
+        "Expression": "input.PaisResidencia != null && input.PaisResidencia != ''",
+        "Properties": {
+          "errorCode": "59238ae4-971e-4103-9591-6c9e254f6abf"
+        }
+      },
+      {
+        "RuleName": "EmailRequired",
+        "Expression": "input.Email != null && input.Email != ''",
+        "Properties": {
+          "errorCode": "83c5eef9-830f-4932-a531-cef28bd6fde9"
+        }
+      },
+      {
+        "RuleName": "ActividadEconomicaRequired",
+        "Expression": "input.ActividadEconomica != null && input.ActividadEconomica != ''",
+        "Properties": {
+          "errorCode": "a1ea1556-bb4f-40bc-a02d-b5b48bf9974a"
+        }
+      },
+      {
+        "RuleName": "DeclaranteRequired",
+        "Expression": "input.Declarante != null",
+        "Properties": {
+          "errorCode": "d7f4e4fa-7929-4af0-82cd-99d3e614a490"
+        }
+      },
+      {
+        "RuleName": "PerfilRiesgoRequired",
+        "Expression": "input.PerfilRiesgo != null && input.PerfilRiesgo != ''",
+        "Properties": {
+          "errorCode": "fdd15423-16a9-4e2c-aaed-3ce28c454f16"
+        }
+      },
+      {
+        "RuleName": "TipoInversionistaRequired",
+        "Expression": "input.TipoInversionista != null && input.TipoInversionista != ''",
+        "Properties": {
+          "errorCode": "6c773110-b093-4f0d-9e36-ddd8022411e2"
+        }
+      },
+      {
+        "RuleName": "DocumentTypeNotHomologated",
+        "Expression": "input.TipoIdentificacionHomologado",
+        "Properties": {
+          "errorCode": "ce71ee50-78fa-487e-8cf6-fd2cebcdcb7f"
+        }
+      },
+      {
+        "RuleName": "SexoNotHomologated",
+        "Expression": "input.SexoHomologado",
+        "Properties": {
+          "errorCode": "ab159851-c6ac-4870-9135-57d77f6a2181"
+        }
+      },
+      {
+        "RuleName": "DepartamentoNotHomologated",
+        "Expression": "input.DepartamentoHomologado",
+        "Properties": {
+          "errorCode": "1514199f-aeb7-49b8-97f0-fc65e3488db0"
+        }
+      },
+      {
+        "RuleName": "MunicipioNotHomologated",
+        "Expression": "input.MunicipioHomologado",
+        "Properties": {
+          "errorCode": "26832d6d-1771-479c-aedb-c923da3b315f"
+        }
+      },
+      {
+        "RuleName": "PaisResidenciaNotHomologated",
+        "Expression": "input.PaisResidenciaHomologado",
+        "Properties": {
+          "errorCode": "33b5e385-a607-403e-9473-990ee783828a"
+        }
+      },
+      {
+        "RuleName": "ActividadEconomicaNotHomologated",
+        "Expression": "input.ActividadEconomicaHomologado",
+        "Properties": {
+          "errorCode": "184c3b01-13ac-4b82-b580-0e3d04477f2c"
+        }
+      },
+      {
+        "RuleName": "DeclaranteNotHomologated",
+        "Expression": "input.DeclaranteHomologado",
+        "Properties": {
+          "errorCode": "252d3387-df96-4368-b7d8-7c447c7dd30e"
+        }
+      },
+      {
+        "RuleName": "PerfilRiesgoNotHomologated",
+        "Expression": "input.PerfilRiesgoHomologado",
+        "Properties": {
+          "errorCode": "b04c4b05-ad7c-407a-8377-b877d65ad854"
+        }
+      },
+      {
+        "RuleName": "TipoInversionistaNotHomologated",
+        "Expression": "input.TipoInversionistaHomologado",
+        "Properties": {
+          "errorCode": "2d7226f2-c92b-4b58-8717-3fa31532bed4"
+        }
+      },
+      {
+        "RuleName": "CodigoHomologadoMaxLength",
+        "Expression": "input.CodigoHomologado == null || input.CodigoHomologado.length <= 40",
+        "Properties": {
+          "errorCode": "6e3f5f08-ba4d-4b06-abff-5b9a785c6a76"
+        }
+      },
+      {
+        "RuleName": "CodigoHomologadoExists",
+        "Expression": "!input.CodigoHomologadoExists",
+        "Properties": {
+          "errorCode": "5e11d60b-88cd-4699-9c2f-d541247f72b3"
+        }
+      },
+      {
+        "RuleName": "DeclaranteBoolean",
+        "Expression": "input.Declarante === true || input.Declarante === false",
+        "Properties": {
+          "errorCode": "27fa5cbd-d713-482c-8f2d-1b61d3f4bcb9"
+        }
+      },
+      {
+        "RuleName": "ClientAlreadyExists",
+        "Expression": "!input.ClientExists",
+        "Properties": {
+          "errorCode": "e70a689e-e3b0-4c79-ae71-a2450b2fa276"
         }
       }
     ]

@@ -19,8 +19,8 @@ internal sealed class GetActivatesQueryHandler(
     {
         var entities = await activateRepository.GetAllAsync(cancellationToken);
         var listIdentification = entities.Select(x => x.DocumentType).Distinct().ToList();
-        var identificationType = new GetConfigurationParametersQuery();
-        var configParametersResult = await sender.Send(identificationType, cancellationToken);
+        var documentType = new GetConfigurationParametersQuery();
+        var configParametersResult = await sender.Send(documentType, cancellationToken);
 
         var guidToHomologationCode = configParametersResult.Value
             .Where(cp => listIdentification.Contains(cp.Uuid))

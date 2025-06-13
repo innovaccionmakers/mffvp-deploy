@@ -7,7 +7,7 @@ namespace Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 public sealed record UpdatePensionRequirementCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]
-    string IdentificationType,
+    string DocumentType,
     
     [property: JsonPropertyName("Identificacion")]
     string Identification,

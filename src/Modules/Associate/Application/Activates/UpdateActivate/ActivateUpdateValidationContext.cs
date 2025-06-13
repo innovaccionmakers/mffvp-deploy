@@ -7,13 +7,13 @@ namespace Associate.Application.Activates.UpdateActivate
     {
         public UpdateActivateCommand Request { get; }
         public Activate ExistingActivate { get; }
-        public Guid IdentificationType { get; }
+        public Guid DocumentType { get; }
 
-        public ActivateUpdateValidationContext(UpdateActivateCommand request, Activate existingActivate, Guid identificationType)
+        public ActivateUpdateValidationContext(UpdateActivateCommand request, Activate existingActivate, Guid documentType)
         {
             Request = request;
             ExistingActivate = existingActivate;
-            IdentificationType = identificationType;
+            DocumentType = documentType;
         }
     }
 }
