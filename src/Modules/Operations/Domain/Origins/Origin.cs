@@ -1,5 +1,6 @@
 using Common.SharedKernel.Domain;
 using Operations.Domain.AuxiliaryInformations;
+using Operations.Domain.OriginModes;
 
 namespace Operations.Domain.Origins;
 
@@ -12,6 +13,9 @@ public sealed class Origin : Entity
     public bool RequiresContingentWithholding { get; private set; }
     public Status Status { get; private set; }
     public string HomologatedCode { get; private set; }
+    
+    private readonly List<OriginMode> _originModes = new();
+    public IReadOnlyCollection<OriginMode> OriginModes => _originModes;
 
     private readonly List<AuxiliaryInformation> _auxiliaryInformations = new();
     public IReadOnlyCollection<AuxiliaryInformation> AuxiliaryInformations => _auxiliaryInformations;

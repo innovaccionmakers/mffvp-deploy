@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Operations.Infrastructure.Database;
@@ -12,9 +13,11 @@ using Operations.Infrastructure.Database;
 namespace Operations.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(OperationsDbContext))]
-    partial class OperationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250613184529_DeleteTableBanksProducts")]
+    partial class DeleteTableBanksProducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -330,7 +333,8 @@ namespace Operations.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OriginId");
+                    b.HasIndex("OriginId")
+                        .IsUnique();
 
                     b.ToTable("origenaportes_modorigen", "operaciones");
                 });
@@ -506,8 +510,8 @@ namespace Operations.Infrastructure.Database.Migrations
             modelBuilder.Entity("Operations.Domain.OriginModes.OriginMode", b =>
                 {
                     b.HasOne("Operations.Domain.Origins.Origin", "Origin")
-                        .WithMany("OriginModes")
-                        .HasForeignKey("OriginId")
+                        .WithOne("OriginMode")
+                        .HasForeignKey("Operations.Domain.OriginModes.OriginMode", "OriginId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -552,7 +556,8 @@ namespace Operations.Infrastructure.Database.Migrations
                 {
                     b.Navigation("AuxiliaryInformations");
 
-                    b.Navigation("OriginModes");
+                    b.Navigation("OriginMode")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Operations.Domain.SubtransactionTypes.SubtransactionType", b =>

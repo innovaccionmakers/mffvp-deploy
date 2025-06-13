@@ -17,6 +17,25 @@ namespace Operations.Infrastructure.Database.Migrations
                 name: "operaciones");
 
             migrationBuilder.CreateTable(
+                name: "Bank",
+                schema: "operaciones",
+                columns: table => new
+                {
+                    BankId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nit = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    CompensationCode = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    HomologatedCode = table.Column<string>(type: "text", nullable: false),
+                    CheckClearingDays = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bank", x => x.BankId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "canales",
                 schema: "operaciones",
                 columns: table => new
@@ -101,6 +120,28 @@ namespace Operations.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OriginMode",
+                schema: "operaciones",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OriginId = table.Column<int>(type: "integer", nullable: false),
+                    ModalityOriginId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OriginMode", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OriginMode_origen_aportes_OriginId",
+                        column: x => x.OriginId,
+                        principalSchema: "operaciones",
+                        principalTable: "origen_aportes",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "operaciones_clientes",
                 schema: "operaciones",
                 columns: table => new
@@ -144,17 +185,25 @@ namespace Operations.Infrastructure.Database.Migrations
                     condicion_tributaria_id = table.Column<int>(type: "integer", nullable: false),
                     retencion_contingente = table.Column<int>(type: "integer", nullable: false),
                     medio_verificable = table.Column<JsonDocument>(type: "jsonb", nullable: false),
-                    banco_recaudo = table.Column<string>(type: "text", nullable: false),
+                    banco_recaudo = table.Column<int>(type: "integer", nullable: false),
                     fecha_consignacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     usuario_comercial = table.Column<string>(type: "text", nullable: false),
                     modalidad_origen_id = table.Column<int>(type: "integer", nullable: false),
                     ciudad_id = table.Column<int>(type: "integer", nullable: false),
                     canal_id = table.Column<int>(type: "integer", nullable: false),
-                    usuario_id = table.Column<int>(type: "integer", nullable: false)
+                    usuario_id = table.Column<int>(type: "integer", nullable: false),
+                    BankId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_informacion_auxiliar", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_informacion_auxiliar_Bank_BankId",
+                        column: x => x.BankId,
+                        principalSchema: "operaciones",
+                        principalTable: "Bank",
+                        principalColumn: "BankId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_informacion_auxiliar_canales_canal_id",
                         column: x => x.canal_id,
@@ -202,6 +251,12 @@ namespace Operations.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_informacion_auxiliar_BankId",
+                schema: "operaciones",
+                table: "informacion_auxiliar",
+                column: "BankId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_informacion_auxiliar_canal_id",
                 schema: "operaciones",
                 table: "informacion_auxiliar",
@@ -233,6 +288,13 @@ namespace Operations.Infrastructure.Database.Migrations
                 column: "operaciones_clientes_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OriginMode_OriginId",
+                schema: "operaciones",
+                table: "OriginMode",
+                column: "OriginId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_parametros_configuracion_padre_id",
                 schema: "operaciones",
                 table: "parametros_configuracion",
@@ -251,7 +313,15 @@ namespace Operations.Infrastructure.Database.Migrations
                 schema: "operaciones");
 
             migrationBuilder.DropTable(
+                name: "OriginMode",
+                schema: "operaciones");
+
+            migrationBuilder.DropTable(
                 name: "parametros_configuracion",
+                schema: "operaciones");
+
+            migrationBuilder.DropTable(
+                name: "Bank",
                 schema: "operaciones");
 
             migrationBuilder.DropTable(
@@ -259,11 +329,11 @@ namespace Operations.Infrastructure.Database.Migrations
                 schema: "operaciones");
 
             migrationBuilder.DropTable(
-                name: "origen_aportes",
+                name: "operaciones_clientes",
                 schema: "operaciones");
 
             migrationBuilder.DropTable(
-                name: "operaciones_clientes",
+                name: "origen_aportes",
                 schema: "operaciones");
 
             migrationBuilder.DropTable(
