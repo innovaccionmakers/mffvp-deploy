@@ -10,11 +10,15 @@ using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.Channels;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Operations.Domain.Banks;
+using Operations.Domain.OriginModes;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Domain.TrustWithdrawals;
 using Operations.Infrastructure.AuxiliaryInformations;
+using Operations.Infrastructure.Banks;
 using Operations.Infrastructure.Channels;
+using Operations.Infrastructure.OriginModes;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.SubtransactionTypes;
 using Operations.Infrastructure.TrustWithdrawals;
@@ -31,6 +35,8 @@ public sealed class OperationsDbContext(DbContextOptions<OperationsDbContext> op
     internal DbSet<Origin> Origins { get; set; }
     internal DbSet<Channel> Channels { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
+    internal DbSet<OriginMode> OriginModes { get; set; }
+    internal DbSet<Bank> Banks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -43,6 +49,8 @@ public sealed class OperationsDbContext(DbContextOptions<OperationsDbContext> op
         modelBuilder.ApplyConfiguration(new OriginConfiguration());
         modelBuilder.ApplyConfiguration(new ChannelConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.Operations));
+        modelBuilder.ApplyConfiguration(new OriginModeConfiguration());
+        modelBuilder.ApplyConfiguration(new BankConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

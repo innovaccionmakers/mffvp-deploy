@@ -21,9 +21,12 @@ internal sealed class OriginConfiguration : IEntityTypeConfiguration<Origin>
             .HasColumnName("estado")
             .HasConversion(new EnumMemberValueConverter<Status>());
         builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
-
         builder.HasMany(x => x.AuxiliaryInformations)
             .WithOne(ai => ai.Origin)
             .HasForeignKey(ai => ai.OriginId);
+        builder.HasMany(o => o.OriginModes)
+            .WithOne(om => om.Origin)
+            .HasForeignKey(om => om.OriginId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
