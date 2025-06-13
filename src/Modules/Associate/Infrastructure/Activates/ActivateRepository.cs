@@ -1,34 +1,47 @@
+using Amazon.Runtime.Internal.Util;
+
 using Associate.Domain.Activates;
 using Associate.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Associate.Infrastructure;
 
-internal sealed class ActivateRepository(AssociateDbContext context) : IActivateRepository
+public class ActivateRepository : IActivateRepository
 {
+    private readonly AssociateDbContext _context;
+    private readonly ILogger<ActivateRepository> _logger;
+
+    public ActivateRepository(AssociateDbContext context, ILogger<ActivateRepository> logger)
+    {
+        _context = context;
+        _logger = logger;
+    }
+
     public async Task<IReadOnlyCollection<Activate>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await context.Activates.ToListAsync(cancellationToken);
+        _logger.LogInformation(_context.Database.GetDbConnection().ConnectionString);
+        return await _context.Activates.ToListAsync(cancellationToken);
     }
 
     public void Insert(Activate activate, CancellationToken cancellationToken = default)
     {
-        context.Activates.Add(activate);
+        _context.Activates.Add(activate);
     }    
 
     public void Update(Activate activate, CancellationToken cancellationToken = default)
     {
-        context.Activates.Update(activate);
+        _context.Activates.Update(activate);
     }
 
-    public async Task<Activate?> GetByIdTypeAndNumber(Guid DocumentType, string identification, CancellationToken cancellationToken = default)
+    public async Task<Activate?> GetByIdTypeAndNumber(Guid IdentificationType, string identification, CancellationToken cancellationToken = default)
     {
-        return await context.Activates.SingleOrDefaultAsync(a =>
-            a.DocumentType == DocumentType && a.Identification == identification);
+        return await _context.Activates.SingleOrDefaultAsync(a =>
+            a.IdentificationType == IdentificationType && a.Identification == identification);
     }
 
     public async Task<Activate?> GetByIdAsync(long activateId, CancellationToken cancellationToken = default)
     {
-        return await context.Activates.SingleOrDefaultAsync(x => x.ActivateId == activateId, cancellationToken);
+        return await _context.Activates.SingleOrDefaultAsync(x => x.ActivateId == activateId, cancellationToken);
     }
 }
