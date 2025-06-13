@@ -43,7 +43,7 @@ internal sealed class ValidatePersonHandler(
         {
             DocumentTypeExists = documentType is not null,
             PersonExists = person is not null,
-            PersonIsActive     = person?.Status ?? false
+            PersonIsActive = person?.Status ?? "Inactive"
         };
 
         var (rulesOk, _, ruleErrors) = await ruleEvaluator

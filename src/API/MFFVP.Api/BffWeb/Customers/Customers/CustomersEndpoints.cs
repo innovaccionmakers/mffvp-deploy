@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using MFFVP.Api.Application.Customers;
 using Customers.Integrations.People.CreatePerson;
 using Common.SharedKernel.Presentation.Filters;
+using Integrations.People.CreatePerson;
 
 namespace MFFVP.Api.BffWeb.Customers.Customers;
 
@@ -32,12 +33,12 @@ public sealed class CustomersEndpoints
         .Produces<IReadOnlyCollection<PersonResponse>>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("PostCustomer", async ([FromBody] CreatePersonCommand request, ISender sender) =>
+        group.MapPost("PostCustomer", async ([FromBody] CreatePersonRequestCommand request, ISender sender) =>
         {
             var result = await _customersService.CreatePersonAsync(request, sender);
             return result.ToApiResult(result.Description);
         })
-        .AddEndpointFilter<TechnicalValidationFilter<CreatePersonCommand>>()
+        .AddEndpointFilter<TechnicalValidationFilter<CreatePersonRequestCommand>>()
         .Produces<PersonResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status500InternalServerError);

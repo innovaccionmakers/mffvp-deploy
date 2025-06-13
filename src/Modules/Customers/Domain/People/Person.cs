@@ -12,6 +12,7 @@ public sealed class Person : Entity
     public string? MiddleName { get; private set; }
     public string LastName { get; private set; }
     public string? SecondLastName { get; private set; }
+    public DateTime BirthDate { get; private set; }
     public string FullName { get; private set; }
     public string Mobile { get; private set; }
     public int GenderId { get; private set; }
@@ -20,7 +21,7 @@ public sealed class Person : Entity
     public int MunicipalityId { get; private set; }
     public string Email { get; private set; }
     public int EconomicActivityId { get; private set; }
-    public bool Status { get; private set; }
+    public string Status { get; private set; }
     public string Address { get; private set; }
     public bool IsDeclarant { get; private set; }
     public int InvestorTypeId { get; private set; }
@@ -31,22 +32,20 @@ public sealed class Person : Entity
     }
 
     public static Result<Person> Create(
-        Guid identificationType,
-        string homologatedCode,
+        string? homologatedCode,
         string identification,
         string firstName,
-        string middleName,
+        string? middleName,
         string lastName,
-        string secondLastName,
+        string? secondLastName,        
+        DateTime birthDate,
         string mobile,
-        string fullName,
         int genderId,
         int countryOfResidenceId,
         int departmentId,
         int municipalityId,
         string email,
         int economicActivityId,
-        bool status,
         string address,
         bool isDeclarant,
         int investorTypeId,
@@ -55,22 +54,23 @@ public sealed class Person : Entity
         var person = new Person
         {
             PersonId = default,
-            IdentificationType = identificationType,
-            HomologatedCode = homologatedCode,
+            IdentificationType = new Guid(),
+            HomologatedCode = homologatedCode ?? string.Empty,
             Identification = identification,
             FirstName = firstName,
-            MiddleName = middleName,
+            MiddleName = middleName ?? string.Empty,
             LastName = lastName,
-            SecondLastName = secondLastName,
+            SecondLastName = secondLastName ?? string.Empty,
+            BirthDate = birthDate,
             Mobile = mobile,
-            FullName = fullName,
+            FullName = $"{firstName} {middleName} {lastName} {secondLastName}",
             GenderId = genderId,
             CountryOfResidenceId = countryOfResidenceId,
             DepartmentId = departmentId,
             MunicipalityId = municipalityId,
             Email = email,
             EconomicActivityId = economicActivityId,
-            Status = status,
+            Status = "Activo",
             Address = address,
             IsDeclarant = isDeclarant,
             InvestorTypeId = investorTypeId,
@@ -97,7 +97,7 @@ public sealed class Person : Entity
         int newMunicipalityId,
         string newEmail,
         int newEconomicActivityId,
-        bool newStatus,
+        string newStatus,
         string newAddress,
         bool newIsDeclarant,
         int newInvestorTypeId,

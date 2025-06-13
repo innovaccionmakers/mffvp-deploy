@@ -17,7 +17,7 @@ public sealed record PersonResponse(
     int MunicipalityId,
     string Email,
     int EconomicActivityId,
-    bool Status,
+    string Status,
     string Address,
     bool IsDeclarant,
     int InvestorTypeId,

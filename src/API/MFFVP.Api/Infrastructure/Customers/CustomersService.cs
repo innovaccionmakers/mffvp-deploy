@@ -8,12 +8,13 @@ using MFFVP.Api.Application.Customers;
 using Customers.Integrations.People.CreatePerson;
 using Customers.Integrations.People;
 using Customers.Integrations.People.GetPersons;
+using Integrations.People.CreatePerson;
 
 namespace MFFVP.Api.Infrastructure.Customers
 {
     public sealed class CustomersService : ICustomersService
     {
-        public async Task<Result> CreatePersonAsync(CreatePersonCommand request, ISender sender)
+        public async Task<Result> CreatePersonAsync(CreatePersonRequestCommand request, ISender sender)
         {
             return await sender.Send(request);
         }
