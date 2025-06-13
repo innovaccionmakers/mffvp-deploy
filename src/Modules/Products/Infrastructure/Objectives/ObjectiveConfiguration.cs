@@ -1,3 +1,5 @@
+using Common.SharedKernel.Domain;
+using Common.SharedKernel.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Products.Domain.Objectives;
@@ -28,24 +30,25 @@ internal sealed class ObjectiveConfiguration : IEntityTypeConfiguration<Objectiv
         builder.Property(o => o.Name)
             .HasColumnName("nombre");
 
-        builder.Property(o => o.Status)
-            .HasColumnName("estado");
-
         builder.Property(o => o.CreationDate)
             .HasColumnName("fecha_creacion");
-
-        builder.Property(o => o.Balance)
-            .HasColumnName("saldo")
-            .HasPrecision(19, 2);
-
+        
         builder.Property(o => o.CommercialId)
             .HasColumnName("comercial_id");
-
+        
         builder.Property(o => o.OpeningOfficeId)
             .HasColumnName("oficina_apertura_id");
 
         builder.Property(o => o.CurrentOfficeId)
             .HasColumnName("oficina_actual_id");
+
+        builder.Property(o => o.Balance)
+            .HasColumnName("saldo")
+            .HasPrecision(19, 2);
+        
+        builder.Property(o => o.Status)
+            .HasColumnName("estado")
+            .HasConversion(new EnumMemberValueConverter<Status>());
 
         builder.HasOne(o => o.Alternative)
             .WithMany(a => a.Objectives)

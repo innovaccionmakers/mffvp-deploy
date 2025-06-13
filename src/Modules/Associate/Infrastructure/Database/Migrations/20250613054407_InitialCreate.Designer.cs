@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Associate.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(AssociateDbContext))]
-    [Migration("20250529212602_InitialCreate")]
+    [Migration("20250613054407_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -40,15 +40,14 @@ namespace Associate.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_activacion");
 
+                    b.Property<Guid>("DocumentType")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tipo_documento_uuid");
+
                     b.Property<string>("Identification")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("identificacion");
-
-                    b.Property<string>("IdentificationType")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("tipo_identificacion");
 
                     b.Property<bool>("MeetsPensionRequirements")
                         .HasColumnType("boolean")
@@ -63,7 +62,44 @@ namespace Associate.Infrastructure.Database.Migrations
                     b.ToTable("activacion_afiliados", "afiliados");
                 });
 
-            modelBuilder.Entity("Associate.Domain.ConfigurationParameters.ConfigurationParameter", b =>
+            modelBuilder.Entity("Associate.Domain.PensionRequirements.PensionRequirement", b =>
+                {
+                    b.Property<int>("PensionRequirementId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PensionRequirementId"));
+
+                    b.Property<int>("ActivateId")
+                        .HasColumnType("integer")
+                        .HasColumnName("afiliado_id");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_creacion");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_vencimiento");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_inicio");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.HasKey("PensionRequirementId");
+
+                    b.HasIndex("ActivateId");
+
+                    b.ToTable("requisitos_pension", "afiliados");
+                });
+
+            modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Property<int>("ConfigurationParameterId")
                         .ValueGeneratedOnAdd()
@@ -118,7 +154,7 @@ namespace Associate.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasDefaultValue("Generico")
+                        .HasDefaultValue("categoria")
                         .HasColumnName("tipo");
 
                     b.Property<Guid>("Uuid")
@@ -136,53 +172,6 @@ namespace Associate.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Associate.Domain.PensionRequirements.PensionRequirement", b =>
                 {
-                    b.Property<int>("PensionRequirementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PensionRequirementId"));
-
-                    b.Property<int>("ActivateId")
-                        .HasColumnType("integer")
-                        .HasColumnName("afiliado_id");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_creacion");
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_vencimiento");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_inicio");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("estado");
-
-                    b.HasKey("PensionRequirementId");
-
-                    b.HasIndex("ActivateId");
-
-                    b.ToTable("requisitos_pension", "afiliados");
-                });
-
-            modelBuilder.Entity("Associate.Domain.ConfigurationParameters.ConfigurationParameter", b =>
-                {
-                    b.HasOne("Associate.Domain.ConfigurationParameters.ConfigurationParameter", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("Associate.Domain.PensionRequirements.PensionRequirement", b =>
-                {
                     b.HasOne("Associate.Domain.Activates.Activate", null)
                         .WithMany()
                         .HasForeignKey("ActivateId")
@@ -190,7 +179,17 @@ namespace Associate.Infrastructure.Database.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Associate.Domain.ConfigurationParameters.ConfigurationParameter", b =>
+            modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
+                {
+                    b.HasOne("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Navigation("Children");
                 });

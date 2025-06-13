@@ -1,6 +1,7 @@
 using Associate.Domain.PensionRequirements;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using Common.SharedKernel.Domain;
 
 namespace IntegrationTests.PensionRequirements
 {
@@ -19,8 +20,8 @@ namespace IntegrationTests.PensionRequirements
             // Arrange
             var expectedRequirements = new List<PensionRequirement>
             {
-                PensionRequirement.Create(DateTime.Now, DateTime.Now.AddYears(1), DateTime.UtcNow, true, 123).Value,
-                PensionRequirement.Create(DateTime.Now, DateTime.Now.AddYears(1), DateTime.UtcNow, false, 456).Value
+                PensionRequirement.Create(DateTime.Now, DateTime.Now.AddYears(1), DateTime.UtcNow, Status.Active, 123).Value,
+                PensionRequirement.Create(DateTime.Now, DateTime.Now.AddYears(1), DateTime.UtcNow, Status.Inactive, 456).Value
             };
 
             _repositoryMock.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>()))
@@ -42,7 +43,7 @@ namespace IntegrationTests.PensionRequirements
                 DateTime.Now,
                 DateTime.Now.AddYears(1),
                 DateTime.UtcNow,
-                true,
+                Status.Active,
                 789).Value;
 
             _repositoryMock.Setup(x => x.GetAsync(
@@ -56,7 +57,7 @@ namespace IntegrationTests.PensionRequirements
             // Assert
             Assert.NotNull(result);
             Assert.Equal(789, result.ActivateId);
-            Assert.True(result.Status);
+            Assert.Equal(Status.Active, result.Status);
         }
 
         [Fact]
@@ -83,7 +84,7 @@ namespace IntegrationTests.PensionRequirements
                 DateTime.Now,
                 DateTime.Now.AddYears(1),
                 DateTime.UtcNow,
-                true,
+                Status.Active,
                 101).Value;
 
             var insertedRequirements = new List<PensionRequirement>();
@@ -124,7 +125,7 @@ namespace IntegrationTests.PensionRequirements
                 DateTime.Now,
                 DateTime.Now.AddYears(1),
                 DateTime.UtcNow,
-                true,
+                Status.Active,
                 202).Value;
 
             var updatedRequirements = new List<PensionRequirement>();
@@ -133,13 +134,13 @@ namespace IntegrationTests.PensionRequirements
                 .Callback<PensionRequirement>(r => updatedRequirements.Add(r));
 
             // Act
-            requirement.UpdateDetails(false);
+            requirement.UpdateDetails(Status.Inactive);
             _repositoryMock.Object.Update(requirement);
 
             // Assert
             Assert.Single(updatedRequirements);
             Assert.Equal(requirement, updatedRequirements[0]);
-            Assert.False(updatedRequirements[0].Status);
+            Assert.Equal(Status.Inactive, updatedRequirements[0].Status);
         }
     }
 }

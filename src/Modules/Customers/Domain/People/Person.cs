@@ -5,8 +5,7 @@ namespace Customers.Domain.People;
 public sealed class Person : Entity
 {
     public long PersonId { get; private set; }
-    public Guid IdentificationType { get; private set; }
-    public string HomologatedCode { get; private set; }
+    public Guid DocumentType { get; private set; }
     public string Identification { get; private set; }
     public string FirstName { get; private set; }
     public string? MiddleName { get; private set; }
@@ -20,11 +19,12 @@ public sealed class Person : Entity
     public int MunicipalityId { get; private set; }
     public string Email { get; private set; }
     public int EconomicActivityId { get; private set; }
-    public bool Status { get; private set; }
     public string Address { get; private set; }
     public bool IsDeclarant { get; private set; }
     public int InvestorTypeId { get; private set; }
     public int RiskProfileId { get; private set; }
+    public Status Status { get; private set; }
+    public string HomologatedCode { get; private set; }
 
     private Person()
     {
@@ -46,7 +46,7 @@ public sealed class Person : Entity
         int municipalityId,
         string email,
         int economicActivityId,
-        bool status,
+        Status status,
         string address,
         bool isDeclarant,
         int investorTypeId,
@@ -55,7 +55,7 @@ public sealed class Person : Entity
         var person = new Person
         {
             PersonId = default,
-            IdentificationType = identificationType,
+            DocumentType = identificationType,
             HomologatedCode = homologatedCode,
             Identification = identification,
             FirstName = firstName,
@@ -97,13 +97,13 @@ public sealed class Person : Entity
         int newMunicipalityId,
         string newEmail,
         int newEconomicActivityId,
-        bool newStatus,
+        Status newStatus,
         string newAddress,
         bool newIsDeclarant,
         int newInvestorTypeId,
         int newRiskProfileId)
     {
-        IdentificationType = newIdentificationType;
+        DocumentType = newIdentificationType;
         HomologatedCode = newHomologatedCode;
         Identification = newIdentification;
         FirstName = newFirstName;

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Products.Domain.Objectives;
 using Products.Infrastructure.Database;
+using Common.SharedKernel.Domain;
 
 namespace Products.Infrastructure.Objectives;
 
@@ -42,7 +43,7 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
             .AnyAsync(ct);
     }
 
-    public Task<bool> AnyWithStatusAsync(int affiliateId, string status, CancellationToken ct = default)
+    public Task<bool> AnyWithStatusAsync(int affiliateId, Status status, CancellationToken ct = default)
     {
         return context.Objectives
             .AsNoTracking()
@@ -52,7 +53,7 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
 
     public async Task<IReadOnlyCollection<Objective>> GetByAffiliateAsync(
         int affiliateId,
-        string? status,
+        Status? status,
         CancellationToken ct = default)
     {
         var query = context.Objectives
@@ -60,7 +61,7 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
             .AsNoTracking()
             .Where(o => o.AffiliateId == affiliateId);
 
-        if (!string.IsNullOrEmpty(status))
+        if (status is not null)
             query = query.Where(o => o.Status == status);
 
         return await query.ToListAsync(ct);

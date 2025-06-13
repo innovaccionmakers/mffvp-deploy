@@ -1,6 +1,7 @@
 using Associate.Integrations.PensionRequirements;
 using Associate.Integrations.PensionRequirements.GetPensionRequirements;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 
 namespace UnitTests.Application.PensionRequirements
 {
@@ -35,7 +36,7 @@ namespace UnitTests.Application.PensionRequirements
             var startDate = DateTime.Now;
             var expirationDate = DateTime.Now.AddYears(1);
             var creationDate = DateTime.UtcNow;
-            var status = true;
+            var status = Status.Active;
 
             // Act
             var response = new PensionRequirementResponse(

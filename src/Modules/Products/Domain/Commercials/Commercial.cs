@@ -6,8 +6,8 @@ public sealed class Commercial : Entity
 {
     public int CommercialId { get; private set; }
     public string Name { get; private set; }
-    public string Status { get; private set; }
     public string Prefix { get; private set; }
+    public Status Status { get; private set; }
     public string HomologatedCode { get; private set; }
 
     private Commercial()
@@ -16,7 +16,7 @@ public sealed class Commercial : Entity
 
     public static Result<Commercial> Create(
         string name,
-        string status,
+        Status status,
         string prefix,
         string homologatedCode
     )
@@ -33,7 +33,7 @@ public sealed class Commercial : Entity
         return Result.Success(commercial);
     }
 
-    public void UpdateDetails(string name, string status, string prefix, string homologatedCode)
+    public void UpdateDetails(string name, Status status, string prefix, string homologatedCode)
     {
         Name = name;
         Status = status;

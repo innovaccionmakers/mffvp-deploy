@@ -53,7 +53,7 @@ internal sealed class CreatePensionRequirementCommandHandler(
             request.StartDateReqPen,
             request.EndDateReqPen,
             DateTime.UtcNow,
-            true,
+            Status.Active,
             activateId
         );
 

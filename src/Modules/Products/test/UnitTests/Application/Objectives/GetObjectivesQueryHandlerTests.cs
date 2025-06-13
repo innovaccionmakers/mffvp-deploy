@@ -123,8 +123,8 @@ public class GetObjectivesQueryHandlerTests
             .ReturnsAsync(Result.Success());
         var objectives = new List<ObjectiveDto>
         {
-            new(1, "T1", "Name1", "F1", "Plan1", "ALT1", "AltName", "Port", "A"),
-            new(2, "T2", "Name2", "F2", "Plan2", "ALT2", "AltName2", "Port2", "I")
+            new(1, "T1", "Name1", "F1", "Plan1", "ALT1", "AltName", "Port", Status.Active),
+            new(2, "T2", "Name2", "F2", "Plan2", "ALT2", "AltName2", "Port2", Status.Inactive)
         };
         _objectiveReader.Setup(r => r.ReadDtosAsync(99, StatusType.A, It.IsAny<CancellationToken>()))
             .ReturnsAsync(objectives);

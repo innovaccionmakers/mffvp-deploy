@@ -1,4 +1,5 @@
 using Associate.Domain.PensionRequirements;
+using Common.SharedKernel.Domain;
 
 namespace UnitTests.Domain.PensionRequirements
 {
@@ -14,7 +15,7 @@ namespace UnitTests.Domain.PensionRequirements
             var activateId = 123;
 
             // Act
-            var result = PensionRequirement.Create(startDate, expirationDate, creationDate, true, activateId);
+            var result = PensionRequirement.Create(startDate, expirationDate, creationDate, Status.Active, activateId);
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -23,7 +24,7 @@ namespace UnitTests.Domain.PensionRequirements
             Assert.Equal(startDate, result.Value.StartDate);
             Assert.Equal(expirationDate, result.Value.ExpirationDate);
             Assert.Equal(creationDate, result.Value.CreationDate);
-            Assert.True(result.Value.Status);
+            Assert.Equal(Status.Active, result.Value.Status);
         }
 
         [Fact]
@@ -34,14 +35,14 @@ namespace UnitTests.Domain.PensionRequirements
                 DateTime.Now,
                 DateTime.Now.AddYears(1),
                 DateTime.UtcNow,
-                true,
+                Status.Active,
                 123).Value;
 
             // Act
-            pensionRequirement.UpdateDetails(false);
+            pensionRequirement.UpdateDetails(Status.Inactive);
 
             // Assert
-            Assert.False(pensionRequirement.Status);
+            Assert.Equal(Status.Inactive, pensionRequirement.Status);
         }
         
         [Fact]
@@ -52,7 +53,7 @@ namespace UnitTests.Domain.PensionRequirements
             var expirationDate = DateTime.Now.AddYears(1);
             var creationDate = DateTime.UtcNow;
             var activateId = 123;
-            var status = true;
+            var status = Status.Active;
 
             // Act
             var result = PensionRequirement.Create(startDate, expirationDate, creationDate, status, activateId);
@@ -75,10 +76,10 @@ namespace UnitTests.Domain.PensionRequirements
                 DateTime.Now,
                 DateTime.Now.AddYears(1),
                 DateTime.UtcNow,
-                true,
+                Status.Active,
                 123).Value;
 
-            var newStatus = false;
+            var newStatus = Status.Inactive;
 
             // Act
             requirement.UpdateDetails(newStatus);
@@ -100,7 +101,7 @@ namespace UnitTests.Domain.PensionRequirements
                 DateTime.Now,
                 DateTime.Now.AddYears(1),
                 DateTime.UtcNow,
-                true,
+                Status.Active,
                 123).Value;
 
             // Act

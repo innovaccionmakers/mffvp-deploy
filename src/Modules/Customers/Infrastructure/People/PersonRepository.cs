@@ -36,7 +36,7 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
         CancellationToken cancellationToken = default)
     {
         return await context.Customers.SingleOrDefaultAsync(x =>
-            x.IdentificationType == IdentificationType && x.Identification == Identification);
+            x.DocumentType == IdentificationType && x.Identification == Identification);
     }
 
     public async Task<Person?> GetByIdentificationAsync(string identification, string documentTypeCode,

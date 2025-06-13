@@ -1,3 +1,5 @@
+using Common.SharedKernel.Domain;
+
 namespace Customers.Integrations.People;
 
 public sealed record PersonResponse(
@@ -17,7 +19,7 @@ public sealed record PersonResponse(
     int MunicipalityId,
     string Email,
     int EconomicActivityId,
-    bool Status,
+    Status Status,
     string Address,
     bool IsDeclarant,
     int InvestorTypeId,

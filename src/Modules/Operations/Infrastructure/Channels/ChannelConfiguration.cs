@@ -1,3 +1,5 @@
+using Common.SharedKernel.Domain;
+using Common.SharedKernel.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Operations.Domain.Channels;
@@ -14,6 +16,8 @@ internal sealed class ChannelConfiguration : IEntityTypeConfiguration<Channel>
         builder.Property(x => x.Name).HasColumnName("nombre");
         builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
         builder.Property(x => x.System).HasColumnName("sistema");
-        builder.Property(x => x.Status).HasColumnName("estado");
+        builder.Property(x => x.Status)
+            .HasColumnName("estado")
+            .HasConversion(new EnumMemberValueConverter<Status>());
     }
 }

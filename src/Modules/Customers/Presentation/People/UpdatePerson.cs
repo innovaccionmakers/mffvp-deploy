@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Customers.Integrations.People.UpdatePerson;
+using Common.SharedKernel.Domain;
 
 namespace Customers.Presentation.People
 {
@@ -61,7 +62,7 @@ namespace Customers.Presentation.People
             public int NewMunicipalityId { get; set; }
             public string NewEmail { get; set; }
             public int NewEconomicActivityId { get; set; }
-            public bool NewStatus { get; set; }
+            public Status NewStatus { get; set; }
             public string NewAddress { get; set; }
             public bool NewIsDeclarant { get; set; }
             public int NewInvestorTypeId { get; set; }

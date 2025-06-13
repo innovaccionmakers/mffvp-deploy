@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Objectives.GetObjectives;
 using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain;
 using Products.Domain.Objectives;
 using Products.Integrations.Objectives.GetObjectives;
 
@@ -28,16 +29,16 @@ public sealed class ObjectiveReader(
             switch (requested)
             {
                 case StatusType.A:
-                    active = await repo.AnyWithStatusAsync(id, "A", ct);
+                    active = await repo.AnyWithStatusAsync(id, Status.Active, ct);
                     break;
                 case StatusType.I:
-                    inactive = await repo.AnyWithStatusAsync(id, "I", ct);
+                    inactive = await repo.AnyWithStatusAsync(id, Status.Inactive, ct);
                     break;
                 case StatusType.T:
                     (active, inactive) = await Task
                         .WhenAll(
-                            repo.AnyWithStatusAsync(id, "A", ct),
-                            repo.AnyWithStatusAsync(id, "I", ct))
+                            repo.AnyWithStatusAsync(id, Status.Active, ct),
+                            repo.AnyWithStatusAsync(id, Status.Inactive, ct))
                         .ContinueWith(t => (t.Result[0], t.Result[1]));
                     break;
             }
@@ -59,10 +60,10 @@ public sealed class ObjectiveReader(
         StatusType requested,
         CancellationToken ct)
     {
-        var statusFilter = requested switch
+        Status? statusFilter = requested switch
         {
-            StatusType.A => "A",
-            StatusType.I => "I",
+            StatusType.A => Status.Active,
+            StatusType.I => Status.Inactive,
             _ => null
         };
 
@@ -74,15 +75,15 @@ public sealed class ObjectiveReader(
                 o.ObjectiveId,
                 o.ObjectiveTypeId.ToString(),
                 o.Name,
-                o.Alternative.HomologatedCode,
-                o.Status,
                 o.Alternative.PlanFund.PensionFund.Name,
+                o.Alternative.PlanFund.Plan.Name,
+                o.Alternative.HomologatedCode,
                 o.Alternative.Name,
                 o.Alternative.Portfolios
                     .Where(p => p.IsCollector)
                     .Select(p => p.Portfolio.Name)
                     .FirstOrDefault() ?? string.Empty,
-                o.Alternative.PlanFund.Plan.Name
+                o.Status
             ))
             .ToListAsync(ct);
 

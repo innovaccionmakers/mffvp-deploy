@@ -10,7 +10,7 @@ public sealed class Channel : Entity
     public string Name { get; private set; }
     public string HomologatedCode { get; private set; }
     public bool System { get; private set; }
-    public string Status { get; private set; }
+    public Status Status { get; private set; }
 
     private readonly List<AuxiliaryInformation> _auxiliaryInformations = new();
     public IReadOnlyCollection<AuxiliaryInformation> AuxiliaryInformations => _auxiliaryInformations;
@@ -23,7 +23,7 @@ public sealed class Channel : Entity
         string name,
         string homologatedCode,
         bool system,
-        string status
+        Status status
     )
     {
         var channel = new Channel
@@ -42,7 +42,7 @@ public sealed class Channel : Entity
         string newName,
         string newHomologatedCode,
         bool newSystem,
-        string newStatus
+        Status newStatus
     )
     {
         Name = newName;
