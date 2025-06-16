@@ -1,7 +1,6 @@
 using Common.SharedKernel.Domain;
 
 namespace Customers.Domain.EconomicActivities;
-
 public sealed class EconomicActivity : Entity
 {
     public int EconomicActivityId { get; private set; }
@@ -14,49 +13,33 @@ public sealed class EconomicActivity : Entity
     public string ClassCode { get; private set; }
     public string HomologatedCode { get; private set; }
 
-    private EconomicActivity()
-    {
-    }
+    private EconomicActivity() { }
 
     public static Result<EconomicActivity> Create(
-        int economicActivityId,
-        string description,
-        string ciiuCode,
-        string divisionCode,
-        string divisionName,
-        string groupName,
-        string classCode,
-        string homologatedCode
+        string groupcode, string description, string ciiucode, string divisioncode, string divisionname, string groupname, string classcode, string homologatedcode
     )
     {
         var economicactivity = new EconomicActivity
         {
-            EconomicActivityId = economicActivityId,
-            Description = description,
-            CiiuCode = ciiuCode,
-            DivisionCode = divisionCode,
-            DivisionName = divisionName,
-            GroupName = groupName,
-            ClassCode = classCode,
-            HomologatedCode = homologatedCode
+                EconomicActivityId = new int(),
+                GroupCode = groupcode,
+                Description = description,
+                CiiuCode = ciiucode,
+                DivisionCode = divisioncode,
+                DivisionName = divisionname,
+                GroupName = groupname,
+                ClassCode = classcode,
+                HomologatedCode = homologatedcode,
         };
-
         economicactivity.Raise(new EconomicActivityCreatedDomainEvent(economicactivity.EconomicActivityId));
         return Result.Success(economicactivity);
     }
 
     public void UpdateDetails(
-        int newEconomicActivityId,
-        string newDescription,
-        string newCiiuCode,
-        string newDivisionCode,
-        string newDivisionName,
-        string newGroupName,
-        string newClassCode,
-        string newHomologatedCode
+        string newGroupCode, string newDescription, string newCiiuCode, string newDivisionCode, string newDivisionName, string newGroupName, string newClassCode, string newHomologatedCode
     )
     {
-        EconomicActivityId = newEconomicActivityId;
+        GroupCode = newGroupCode;
         Description = newDescription;
         CiiuCode = newCiiuCode;
         DivisionCode = newDivisionCode;

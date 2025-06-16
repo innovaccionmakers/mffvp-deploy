@@ -78,14 +78,13 @@ internal sealed class CreateActivateCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        if (request.MeetsPensionRequirements == true)
+        if (request.MeetsPensionRequirements == true && request.Pensioner == false)
         {
-            var CreatePensionRequirementCommand = new CreatePensionRequirementRequestCommand(
-                activate.ActivateId,
-                request.StartDateReqPen,
-                request.EndDateReqPen,
-                DateTime.UtcNow,
-                Status.Active
+            var CreatePensionRequirementCommand = new CreatePensionRequirementCommand(
+                request.DocumentType,
+                request.Identification,
+                request.StartDateReqPen ?? DateTime.UtcNow,
+                request.EndDateReqPen ?? DateTime.UtcNow
             );
 
             await sender.Send(CreatePensionRequirementCommand, cancellationToken);

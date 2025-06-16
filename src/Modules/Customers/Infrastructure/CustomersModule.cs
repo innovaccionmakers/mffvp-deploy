@@ -21,6 +21,9 @@ using Customers.IntegrationEvents.ClientValidation;
 using Customers.IntegrationEvents.DocumentTypeValidation;
 using Customers.IntegrationEvents.PersonValidation;
 using Customers.Domain.ConfigurationParameters;
+using Application.People;
+using Customers.Domain.Departments;
+using Customers.Domain.Municipalities;
 
 namespace Customers.Infrastructure;
 
@@ -61,7 +64,9 @@ public static class CustomersModule
 
         services.AddScoped<IPersonRepository, PersonRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
+        services.AddScoped<IDepartmentRepository, DepartmentRepository>();
         services.AddScoped<IEconomicActivityRepository, EconomicActivityRepository>();
+        services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<CustomersModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<CustomersModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
@@ -69,6 +74,7 @@ public static class CustomersModule
         services.AddTransient<PersonValidationConsumer>();
         services.AddTransient<ClientValidationConsumer>();
         services.AddTransient<DocumentTypeValidationConsumer>();
+        services.AddTransient<PersonCommandHandlerValidation>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CustomersDbContext>());
     }
 }

@@ -25,4 +25,23 @@ public static class HomologScope
                ?? throw new InvalidOperationException(
                    $"La propiedad '{propertyAccess.Member.Name}' no tiene HomologScopeAttribute.");
     }
+
+    public static Dictionary<string, (string Scope, object? Value)> GetScopesAndValues<TCommand>(TCommand command)
+            where TCommand : class
+    {
+        var result = new Dictionary<string, (string, object?)>();
+        var properties = typeof(TCommand).GetProperties();
+
+        foreach (var property in properties)
+        {
+            var scopeAttribute = property.GetCustomAttribute<HomologScopeAttribute>(false);
+            if (scopeAttribute != null)
+            {
+                var value = property.GetValue(command);
+                result.Add(property.Name, (scopeAttribute.Scope, value));
+            }
+        }
+
+        return result;
+    }
 }

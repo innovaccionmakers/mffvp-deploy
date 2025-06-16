@@ -52,4 +52,24 @@ internal sealed class ConfigurationParameterRepository :
                      && p.Type == scope,
                 cancellationToken);
     }
+
+    public async Task<IEnumerable<ConfigurationParameter>> GetByCodesAndScopesAsync(IEnumerable<(string Code, string Scope)> parameters, CancellationToken cancellationToken = default)
+    {
+        var parameterList = parameters.ToList();
+
+        if (!parameterList.Any())
+            return Enumerable.Empty<ConfigurationParameter>();
+
+        var query = _context.ConfigurationParameters.AsNoTracking();
+
+        foreach (var param in parameterList.Skip(1))
+        {
+            query = query.Union(_context.ConfigurationParameters.AsNoTracking()
+                .Where(p =>
+                    p.HomologationCode == param.Code &&
+                    p.Type == param.Scope));
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
 }

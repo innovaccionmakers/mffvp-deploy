@@ -34,41 +34,36 @@ namespace Integrations.People.CreatePerson
         string Mobile,
 
         [property: JsonPropertyName("Sexo")]
-        [property: HomologScope("CodigosDeError")]
+        [property: HomologScope("Sexo")]
         string Gender,
 
         [property: JsonPropertyName("PaisResidencia")]
-        [property: HomologScope("CodigosDeError")]
         string CountryOfResidence,
 
         [property: JsonPropertyName("Departamento")]
-        [property: HomologScope("CodigosDeError")]
         string Department,
 
         [property: JsonPropertyName("Municipio")]
-        [property: HomologScope("CodigosDeError")]
         string Municipality,
 
         [property: JsonPropertyName("Email")]
         string Email,
 
         [property: JsonPropertyName("ActividadEconomica")]
-        [property: HomologScope("CodigosDeError")]
         string EconomicActivity,
 
         [property: JsonPropertyName("Direccion")]
         string Address,
 
-        [property: JsonPropertyName("Declarante")]
-        [property: HomologScope("CodigosDeError")]
+        [property: JsonPropertyName("Declaracion")]
         bool Declarant,
 
         [property: JsonPropertyName("TipoInversionista")]
-        [property: HomologScope("CodigosDeError")]
+        [property: HomologScope("TipoInversionista")]
         string InvestorType,
 
         [property: JsonPropertyName("PerfilRiesgo")]
-        [property: HomologScope("CodigosDeError")]
+        [property: HomologScope("PerfilRiesgo")]
         string RiskProfile
     ) : ICommand;
 }
