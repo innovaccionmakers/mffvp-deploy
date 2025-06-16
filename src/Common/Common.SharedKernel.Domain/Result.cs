@@ -57,13 +57,11 @@ public class Result
 public class Result<TValue> : Result
 {
     private readonly TValue? _value;
-    private readonly string Description;
 
     public Result(TValue? value, bool isSuccess, Error error, string? description = null)
-        : base(isSuccess, error)
+        : base(isSuccess, error, description)
     {
         _value = value;
-        Description = description!;
     }
 
     [NotNull]

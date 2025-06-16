@@ -1,14 +1,16 @@
+using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Products.Application.Abstractions.Services.External;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Abstractions.Services.Rules;
+using Products.Domain.ConfigurationParameters;
 using Products.Integrations.Objectives.GetObjectives;
 
 namespace Products.Application.Objectives.GetObjectives;
 
 internal sealed class GetObjectivesQueryHandler(
-    IDocumentTypeValidator documentTypeValidator,
+    IConfigurationParameterRepository configurationParameterRepository,
     IAffiliateLocator affiliateLocator,
     IObjectiveReader objectiveReader,
     IGetObjectivesRules objectivesRules)
@@ -18,10 +20,10 @@ internal sealed class GetObjectivesQueryHandler(
         GetObjectivesQuery request,
         CancellationToken cancellationToken)
     {
-        Result documentValidationResult = await documentTypeValidator
-            .EnsureExistsAsync(request.TypeId, cancellationToken);
-        if (!documentValidationResult.IsSuccess)
-            return Result.Failure<GetObjectivesResponse>(documentValidationResult.Error!);
+        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            request.TypeId,
+            HomologScope.Of<GetObjectivesQuery>(c => c.TypeId),
+            cancellationToken);
 
         Result<int?> affiliateValidationResult = await affiliateLocator
             .FindAsync(request.TypeId, request.Identification, cancellationToken);
@@ -30,11 +32,13 @@ internal sealed class GetObjectivesQueryHandler(
 
         var affiliateId = affiliateValidationResult.Value;
         var isAffiliateFound = affiliateId.HasValue;
+        var docExists        = documentType is not null;
 
         var validationContext = await objectiveReader.BuildValidationContextAsync(
             isAffiliateFound,
             affiliateId,
             request.Status,
+            docExists,
             cancellationToken);
 
         var rulesEvaluationResult = await objectivesRules

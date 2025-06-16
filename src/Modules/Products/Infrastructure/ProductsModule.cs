@@ -18,14 +18,12 @@ using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
-using Products.Application.Abstractions;
 using Products.Infrastructure.Alternatives;
 using Products.Infrastructure.Commercials;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Database;
 using Products.Infrastructure.External.Affiliates;
-using Products.Infrastructure.External.DocumentTypes;
 using Products.Infrastructure.Objectives;
 using Products.Infrastructure.Offices;
 using Products.Infrastructure.Plans;
@@ -81,8 +79,7 @@ public static class ProductsModule
         services.AddScoped<IConfigurationParameterLookupRepository<ProductsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<ProductsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<ProductsModuleMarker>, ErrorCatalog<ProductsModuleMarker>>();
-
-        services.AddScoped<IDocumentTypeValidator, DocumentTypeValidator>();
+        
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
         services.AddScoped<IObjectiveReader, ObjectiveReader>();
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();

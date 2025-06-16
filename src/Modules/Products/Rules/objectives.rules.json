@@ -64,6 +64,14 @@
     "WorkflowName": "Products.Objective.ValidateGetObjectives",
     "Rules": [
       {
+        "RuleName": "IdTypeHomologated",
+        "ErrorMessage": "El Tipo de documento no se encuentra homologado",
+        "Expression": "input.DocumentTypeExists",
+        "Properties": {
+          "errorCode": "4aabd72c-3564-48da-897d-19542ad4fd80"
+        }
+      },
+      {
         "RuleName": "AffiliateExists",
         "ErrorMessage": "No existe un afiliado con Tipo Id e Identificación diligenciados",
         "Expression": "input.AffiliateExists == true",
