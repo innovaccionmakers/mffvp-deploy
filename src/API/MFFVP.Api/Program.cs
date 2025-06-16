@@ -12,6 +12,7 @@ using Common.SharedKernel.Presentation.Filters;
 using FluentValidation;
 
 using MFFVP.Api.BffWeb.Associate;
+//using MFFVP.Api.BffWeb.Associate.PensionRequirements;
 using MFFVP.Api.BffWeb.Operations;
 using MFFVP.Api.BffWeb.Customers;
 using MFFVP.Api.BffWeb.Products;
@@ -63,7 +64,6 @@ if (env == "DevMakers2")
             logger.LogInformation("Secret fetched from SecretsManager successfully and assigned to configuration.");
         }
     }
-    response = "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;SSL Mode=Require;Trust Server Certificate=true;";
 
     builder.Configuration["ConnectionStrings:Database"] = response;
     builder.Configuration["ConnectionStrings:CapDatabase"] = response;
@@ -116,6 +116,7 @@ builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(ProductsEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(CustomersEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(OperationsEndpoints).Assembly);
+//builder.Services.AddEndpoints(typeof(PensionRequirementsEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));

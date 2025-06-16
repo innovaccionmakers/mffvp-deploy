@@ -70,7 +70,7 @@ public static class InfrastructureConfiguration
         {
             x.UseInMemoryStorage();
             x.UseInMemoryMessageQueue();
-            x.UsePostgreSql(capDbConnectionString);
+            x.UsePostgreSql("Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;SSL Mode=Require;Trust Server Certificate=true;");
             x.FailedRetryInterval = 5;
             x.FailedRetryCount = 10;
             x.UseDashboard();
