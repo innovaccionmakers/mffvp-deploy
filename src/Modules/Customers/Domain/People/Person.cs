@@ -33,6 +33,7 @@ public sealed class Person : Entity
 
     public static Result<Person> Create(
         string? homologatedCode,
+        Guid uuid,
         string identification,
         string firstName,
         string? middleName,
@@ -55,7 +56,7 @@ public sealed class Person : Entity
         var person = new Person
         {
             PersonId = default,
-            DocumentType = new Guid(),
+            DocumentType = uuid,
             HomologatedCode = homologatedCode ?? string.Empty,
             Identification = identification,
             FirstName = firstName,

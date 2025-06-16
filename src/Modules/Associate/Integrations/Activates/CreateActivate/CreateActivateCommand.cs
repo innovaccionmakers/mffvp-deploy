@@ -19,8 +19,10 @@ public sealed record CreateActivateCommand(
     bool? MeetsPensionRequirements,
 
     [property: JsonPropertyName("FechaInicioReqPen")]
+    [property: JsonIgnore]
     DateTime? StartDateReqPen,
 
     [property: JsonPropertyName("FechaFinReqPen")]
+    [property: JsonIgnore]
     DateTime? EndDateReqPen
 ) : ICommand;

@@ -5,11 +5,10 @@ using Customers.Domain.People;
 using Customers.Integrations.People;
 using Customers.Application.Abstractions.Data;
 using Integrations.People.CreatePerson;
-using Common.SharedKernel.Application.Attributes;
 using Customers.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Rules;
 using Customers.Application.Abstractions;
-using Application.People.CreatePerson;
+using Application.People;
 
 namespace Customers.Application.People.CreatePerson
 
@@ -17,27 +16,20 @@ namespace Customers.Application.People.CreatePerson
     internal sealed class CreatePersonCommandHandler(
         IPersonRepository personRepository,
         IUnitOfWork unitOfWork,
-        IConfigurationParameterRepository configurationParameterRepository,
-        IRuleEvaluator<CustomersModuleMarker> ruleEvaluator)
+        IRuleEvaluator<CustomersModuleMarker> ruleEvaluator,
+        PersonCommandHandlerValidation validator)
         : ICommandHandler<CreatePersonRequestCommand>
     {
-        
-        private const string Workflow = "Associate.Activates.ValidationCreateCustomer";
+
+        private const string Workflow = "People.Person.ValidationCreateCustomer";
 
         public async Task<Result> Handle(CreatePersonRequestCommand request, CancellationToken cancellationToken)
         {
             await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-
-            var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.DocumentType, HomologScope.Of<CreatePersonRequestCommand>(c => c.DocumentType), cancellationToken);
-            Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
-
-            Person? existingActivate = await personRepository.GetForIdentificationAsync(uuid, request.Identification, cancellationToken);
-
-            var validationContext = new CreatePersonValidationContext(request, existingActivate!, uuid);
+            var validationResults = await validator.ValidateRequestAsync(request, cancellationToken);
 
             var (isValid, _, ruleErrors) =
-                        await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);
+                        await ruleEvaluator.EvaluateAsync(Workflow, validationResults, cancellationToken);
 
             if (!isValid)
             {
@@ -51,6 +43,7 @@ namespace Customers.Application.People.CreatePerson
 
             var result = Person.Create(
                 request.HomologatedCode,
+                validationResults.Uuid,
                 request.Identification,
                 request.FirstName,
                 request.MiddleName,
@@ -58,17 +51,17 @@ namespace Customers.Application.People.CreatePerson
                 request.SecondLastName,
                 request.BirthDate,
                 request.Mobile,
-                1,
-                1,
-                1,
-                1,
+                validationResults.GenderId ?? 0,
+                validationResults.CountryId ?? 0,
+                validationResults.DepartmentId ?? 0,
+                validationResults.MunicipalityId ?? 0,
                 request.Email,
-                1,
+                validationResults.EconomicActivityId ?? 0,
                 Status.Active,
                 request.Address,
                 request.Declarant,
-                1,
-                1
+                validationResults.InvestorTypeId ?? 0,
+                validationResults.RiskProfileId ?? 0
             );
 
             if (result.IsFailure)

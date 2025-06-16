@@ -32,13 +32,6 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
         context.Customers.Remove(person);
     }
 
-    public async Task<Person?> GetForIdentificationAsync(Guid DocumentType, string Identification,
-        CancellationToken cancellationToken = default)
-    {
-        return await context.Customers.SingleOrDefaultAsync(x =>
-            x.DocumentType == DocumentType && x.Identification == Identification);
-    }
-
     public async Task<Person?> GetByIdentificationAsync(string identification, string documentTypeCode,
         CancellationToken cancellationToken = default)
     {
@@ -46,5 +39,11 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
             return null;
 
         return await context.Customers.SingleOrDefaultAsync(x => x.Identification == identification, cancellationToken);
+    }
+
+    public async Task<Person?> GetForIdentificationAsync(Guid? DocumentType, string Identification, CancellationToken cancellationToken = default)
+    {
+        return await context.Customers.SingleOrDefaultAsync(x =>
+            x.DocumentType == DocumentType && x.Identification == Identification);
     }
 }

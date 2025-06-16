@@ -11,10 +11,12 @@ internal sealed class CountryRepository(CustomersDbContext context) : ICountryRe
         return await context.Countries.ToListAsync(cancellationToken);
     }
 
-    public async Task<Country?> GetAsync(int countryId, CancellationToken cancellationToken = default)
+    public async Task<Country?> GetAsync(string HomologatedCode, CancellationToken cancellationToken = default)
     {
-        return await context.Countries
-            .SingleOrDefaultAsync(x => x.CountryId == countryId, cancellationToken);
+        var result = await context.Countries
+            .SingleOrDefaultAsync(x => x.HomologatedCode == HomologatedCode, cancellationToken);
+            
+        return result;
     }
 
     public void Insert(Country country)
