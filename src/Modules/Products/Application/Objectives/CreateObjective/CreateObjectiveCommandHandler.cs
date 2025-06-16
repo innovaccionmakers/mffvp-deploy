@@ -8,7 +8,6 @@ using Common.SharedKernel.Application.Rules;
 using Products.Application.Abstractions.Services.External;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
-using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Integrations.Objectives.CreateObjective;
@@ -17,7 +16,6 @@ namespace Products.Application.Objectives.CreateObjective;
 
 internal sealed class CreateObjectiveCommandHandler(
     IConfigurationParameterRepository configurationParameterRepository,
-    IDocumentTypeValidator documentTypeValidator,
     IAlternativeRepository alternativeRepository,
     IAffiliateLocator affiliateLocator,
     ICommercialRepository commercialRepository,
@@ -39,9 +37,10 @@ internal sealed class CreateObjectiveCommandHandler(
             HomologScope.Of<CreateObjectiveCommand>(c => c.ObjectiveType),
             cancellationToken);
 
-        var docResult = await documentTypeValidator.EnsureExistsAsync(request.IdType, cancellationToken);
-        if (!docResult.IsSuccess)
-            return Result.Failure<ObjectiveResponse>(docResult.Error!);
+        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            request.IdType,
+            HomologScope.Of<CreateObjectiveCommand>(c => c.IdType),
+            cancellationToken);
 
         var affiliateResult = await affiliateLocator.FindAsync(
             request.IdType, request.Identification, cancellationToken);
@@ -68,6 +67,7 @@ internal sealed class CreateObjectiveCommandHandler(
 
         var validationContext = new
         {
+            DocumentTypeExists = documentType is not null,
             AlternativeIdExists = alternative is not null,
             ObjectiveTypeExists = objectiveType is not null,
             ClientAffiliated = clientAffiliated,

@@ -23,7 +23,7 @@ internal sealed class GetActivateIdHandler(
     {
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
             query.DocumentType,
-            HomologScope.Of<GetActivateIdResponse>(c => c.DocumentType),
+            HomologScope.Of<GetActivateIdQuery>(c => c.DocumentType),
             cancellationToken);
         Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
