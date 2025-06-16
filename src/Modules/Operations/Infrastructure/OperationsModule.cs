@@ -28,6 +28,8 @@ using Operations.Infrastructure.External.Trusts;
 using Operations.Infrastructure.Origins;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Operations.Infrastructure.SubtransactionTypes;
+using Operations.Domain.TransactionTypes;
+using Operations.Infrastructure.TransactionTypes;
 
 namespace Operations.Infrastructure;
 
@@ -72,6 +74,7 @@ public static class OperationsModule
         services.AddScoped<IConfigurationParameterLookupRepository<OperationsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<OperationsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IOriginRepository, OriginRepository>();
+        services.AddScoped<ITransactionTypeRepository, TransactionTypeRepository>();
         services.AddScoped<ISubtransactionTypeRepository, SubtransactionTypeRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
 
