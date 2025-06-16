@@ -82,7 +82,7 @@
       {
         "RuleName": "StatusValueAccepted",
         "ErrorMessage": "El campo Estado solo recibe los valores \"A\", \"I\" y \"T\"",
-        "Expression": "input.StatusValueAccepted == true",
+        "Expression": "input.RequestedStatusAccepted == true",
         "Properties": {
           "errorCode": "7251f852-4ae5-476c-9eff-60ae92714d68"
         }
@@ -98,7 +98,7 @@
       {
         "RuleName": "AffiliateHasActiveObjectives",
         "ErrorMessage": "El Afiliado no tiene objetivos activos",
-        "Expression": "input.RequestedStatus != 'A' || input.AffiliateHasActiveObjectives == true",
+        "Expression": "input.RequestedStatus != \"A\" || input.AffiliateHasActive == true",
         "Properties": {
           "errorCode": "d5f56fa8-9480-4b57-b919-978d1f2f4bd6"
         }
@@ -106,7 +106,7 @@
       {
         "RuleName": "AffiliateHasInactiveObjectives",
         "ErrorMessage": "El Afiliado no tiene objetivos inactivos",
-        "Expression": "input.RequestedStatus != 'I' || input.AffiliateHasInactiveObjectives == true",
+        "Expression": "input.RequestedStatus != \"I\" || input.AffiliateHasInactive == true",
         "Properties": {
           "errorCode": "6d4d324c-23b3-4976-8180-0633b6e81c55"
         }
