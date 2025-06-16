@@ -3,6 +3,14 @@
     "WorkflowName": "Products.CreateObjective.Validation",
     "Rules": [
       {
+        "RuleName": "IdTypeHomologated",
+        "ErrorMessage": "El TipoId no se encuentra homologado",
+        "Expression": "input.DocumentTypeExists == true",
+        "Properties": {
+          "errorCode": "4aabd72c-3564-48da-897d-19542ad4fd80"
+        }
+      },
+      {
         "RuleName": "AlternativeIdExists",
         "ErrorMessage": "El IdAlternativa no se encuentra homologado",
         "Expression": "input.AlternativeIdExists == true",
@@ -55,6 +63,14 @@
   {
     "WorkflowName": "Products.Objective.ValidateGetObjectives",
     "Rules": [
+      {
+        "RuleName": "IdTypeHomologated",
+        "ErrorMessage": "El Tipo de documento no se encuentra homologado",
+        "Expression": "input.DocumentTypeExists",
+        "Properties": {
+          "errorCode": "4aabd72c-3564-48da-897d-19542ad4fd80"
+        }
+      },
       {
         "RuleName": "AffiliateExists",
         "ErrorMessage": "No existe un afiliado con Tipo Id e Identificación diligenciados",

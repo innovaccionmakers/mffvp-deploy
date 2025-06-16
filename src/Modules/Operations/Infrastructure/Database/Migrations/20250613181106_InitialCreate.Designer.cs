@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Operations.Infrastructure.Database;
@@ -12,9 +13,11 @@ using Operations.Infrastructure.Database;
 namespace Operations.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(OperationsDbContext))]
-    partial class OperationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250613181106_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -196,42 +199,35 @@ namespace Operations.Infrastructure.Database.Migrations
                 {
                     b.Property<int>("BankId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BankId"));
 
                     b.Property<int>("CheckClearingDays")
-                        .HasColumnType("integer")
-                        .HasColumnName("dias_de_canje_cheques");
+                        .HasColumnType("integer");
 
                     b.Property<int>("CompensationCode")
-                        .HasColumnType("integer")
-                        .HasColumnName("codigo_compensacion");
+                        .HasColumnType("integer");
 
                     b.Property<string>("HomologatedCode")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("codigo_homologado");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("nombre");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nit")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("nit");
+                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("estado");
+                        .HasColumnType("text");
 
                     b.HasKey("BankId");
 
-                    b.ToTable("bancos", "operaciones");
+                    b.ToTable("Bank", "operaciones");
                 });
 
             modelBuilder.Entity("Operations.Domain.Channels.Channel", b =>
@@ -315,24 +311,22 @@ namespace Operations.Infrastructure.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ModalityOriginId")
-                        .HasColumnType("integer")
-                        .HasColumnName("modalidad_origen_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("OriginId")
-                        .HasColumnType("integer")
-                        .HasColumnName("origen_id");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OriginId");
+                    b.HasIndex("OriginId")
+                        .IsUnique();
 
-                    b.ToTable("origenaportes_modorigen", "operaciones");
+                    b.ToTable("OriginMode", "operaciones");
                 });
 
             modelBuilder.Entity("Operations.Domain.Origins.Origin", b =>
@@ -506,9 +500,9 @@ namespace Operations.Infrastructure.Database.Migrations
             modelBuilder.Entity("Operations.Domain.OriginModes.OriginMode", b =>
                 {
                     b.HasOne("Operations.Domain.Origins.Origin", "Origin")
-                        .WithMany("OriginModes")
-                        .HasForeignKey("OriginId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .WithOne("OriginMode")
+                        .HasForeignKey("Operations.Domain.OriginModes.OriginMode", "OriginId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Origin");
@@ -552,7 +546,8 @@ namespace Operations.Infrastructure.Database.Migrations
                 {
                     b.Navigation("AuxiliaryInformations");
 
-                    b.Navigation("OriginModes");
+                    b.Navigation("OriginMode")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Operations.Domain.SubtransactionTypes.SubtransactionType", b =>

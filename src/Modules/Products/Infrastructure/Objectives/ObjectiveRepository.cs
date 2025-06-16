@@ -7,6 +7,10 @@ namespace Products.Infrastructure.Objectives;
 
 internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiveRepository
 {
+    public async Task AddAsync(Objective objective, CancellationToken ct = default)
+    {
+        await context.Objectives.AddAsync(objective, ct);
+    }
     public async Task<IReadOnlyCollection<Objective>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await context.Objectives.ToListAsync(cancellationToken);

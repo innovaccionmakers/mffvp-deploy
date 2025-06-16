@@ -4,7 +4,7 @@ using Common.SharedKernel.Application.Messaging;
 namespace Customers.Integrations.People.GetPerson;
 
 public sealed record ValidatePersonQuery(
-    [property: HomologScope("Tipo documento")]
+    [property: HomologScope("TipoDocumento")]
     string DocumentTypeHomologatedCode,
     string IdentificationNumber)
     : IQuery<ValidatePersonResponse>;

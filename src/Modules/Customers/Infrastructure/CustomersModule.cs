@@ -18,7 +18,6 @@ using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Customers.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Customers.IntegrationEvents.ClientValidation;
-using Customers.IntegrationEvents.DocumentTypeValidation;
 using Customers.IntegrationEvents.PersonValidation;
 using Customers.Domain.ConfigurationParameters;
 using Application.People;
@@ -73,7 +72,6 @@ public static class CustomersModule
         services.AddScoped<IErrorCatalog<CustomersModuleMarker>, ErrorCatalog<CustomersModuleMarker>>();
         services.AddTransient<PersonValidationConsumer>();
         services.AddTransient<ClientValidationConsumer>();
-        services.AddTransient<DocumentTypeValidationConsumer>();
         services.AddTransient<PersonCommandHandlerValidation>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CustomersDbContext>());
     }

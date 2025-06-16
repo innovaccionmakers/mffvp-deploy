@@ -63,7 +63,7 @@ internal sealed class CreateContributionCommandHandler(
             ContributionSource = new
             {
                 Exists = catalogs.Source is not null,
-                Active = catalogs.Source?.Status == Status.Active,
+                Active = Status.Active,
                 RequiresCertification = catalogs.Source?.RequiresCertification ?? false
             },
             OriginModality = BuildCtx(catalogs.OriginModality),
@@ -119,7 +119,7 @@ internal sealed class CreateContributionCommandHandler(
             tax.TaxConditionId,
             0,
             command.VerifiableMedium ?? JsonDocument.Parse("{}"),
-            command.CollectionBank,
+            0, // command.CollectionBank,
             command.DepositDate,
             command.SalesUser,
             catalogs.OriginModality!.ConfigurationParameterId,

@@ -20,7 +20,7 @@ public static class SecretsManagerHelper
         if (secretData is null)
             throw new InvalidOperationException("Failed to deserialize secret.");
 
-        var connectionString = $"Host=db-makers-fund-fvp-adm2-aurora-dev-db-instance.cqgahba446ca.us-east-2.rds.amazonaws.com;Port={secretData.port};Database=dbfvp;Username={secretData.username};Password={secretData.password};SSL Mode=Require;Trust Server Certificate=true;";
+        var connectionString = $"Host={secretData.host};Port={secretData.port};Database=dbfvp;Username={secretData.username};Password={secretData.password};SSL Mode=Require;Trust Server Certificate=true;";
 
         return connectionString;
     }

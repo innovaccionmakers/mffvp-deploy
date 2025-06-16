@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Common.SharedKernel.Domain;
+using Operations.Domain.Banks;
 using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.Origins;
@@ -19,7 +20,7 @@ public sealed class AuxiliaryInformation : Entity
     public int TaxConditionId { get; private set; }
     public int ContingentWithholding { get; private set; }
     public JsonDocument VerifiableMedium { get; private set; }
-    public string CollectionBank { get; private set; }
+    public int CollectionBankId { get; private set; }
     public DateTime DepositDate { get; private set; }
     public string SalesUser { get; private set; }
     public int OriginModalityId { get; private set; }
@@ -30,6 +31,7 @@ public sealed class AuxiliaryInformation : Entity
     public ClientOperation ClientOperation { get; private set; } = null!;
     public Origin Origin { get; private set; } = null!;
     public Channel Channel { get; private set; } = null!;
+    public Bank Bank { get; private set; } = null!;
 
     private AuxiliaryInformation()
     {
@@ -46,7 +48,7 @@ public sealed class AuxiliaryInformation : Entity
         int taxConditionId,
         int contingentWithholding,
         JsonDocument verifiableMedium,
-        string collectionBank,
+        int collectionBank,
         DateTime depositDate,
         string salesUser,
         int originModalityId,
@@ -68,7 +70,7 @@ public sealed class AuxiliaryInformation : Entity
             TaxConditionId = taxConditionId,
             ContingentWithholding = contingentWithholding,
             VerifiableMedium = verifiableMedium,
-            CollectionBank = collectionBank,
+            CollectionBankId = collectionBank,
             DepositDate = depositDate,
             SalesUser = salesUser,
             OriginModalityId = originModalityId,
@@ -93,7 +95,7 @@ public sealed class AuxiliaryInformation : Entity
         int newTaxConditionId,
         int newContingentWithholding,
         JsonDocument newVerifiableMedium,
-        string newCollectionBank,
+        int newCollectionBank,
         DateTime newDepositDate,
         string newSalesUser,
         int newOriginModalityId,
@@ -112,7 +114,7 @@ public sealed class AuxiliaryInformation : Entity
         TaxConditionId = newTaxConditionId;
         ContingentWithholding = newContingentWithholding;
         VerifiableMedium = newVerifiableMedium;
-        CollectionBank = newCollectionBank;
+        CollectionBankId = newCollectionBank;
         DepositDate = newDepositDate;
         SalesUser = newSalesUser;
         OriginModalityId = newOriginModalityId;

@@ -4,7 +4,7 @@
     "Rules": [
       {
         "RuleName": "ActivateNotExist",
-        "Expression": "input.ActiveExists == false",
+        "Expression": "input.ActiveExists",
         "Properties": {
           "errorCode": "a4c7072f-92c4-4a42-8a1b-ad928ef445dc"
         }

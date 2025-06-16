@@ -18,6 +18,7 @@ public sealed class ObjectiveReader(
         bool affiliateFound,
         int? affiliateId,
         StatusType requested,
+        bool documentTypeExists,
         CancellationToken ct)
     {
         bool any = false, active = false, inactive = false;
@@ -46,12 +47,13 @@ public sealed class ObjectiveReader(
 
         return new ObjectiveValidationContext
         {
-            AffiliateExists = affiliateFound,
-            RequestedStatusAccepted = requested is StatusType.A or StatusType.I or StatusType.T,
-            AffiliateHasObjectives = any,
-            AffiliateHasActive = active,
-            AffiliateHasInactive = inactive,
-            RequestedStatus = requested.ToString()
+            AffiliateExists           = affiliateFound,
+            RequestedStatusAccepted   = requested is StatusType.A or StatusType.I or StatusType.T,
+            AffiliateHasObjectives    = any,
+            AffiliateHasActive        = active,
+            AffiliateHasInactive      = inactive,
+            RequestedStatus           = requested.ToString(),
+            DocumentTypeExists        = documentTypeExists
         };
     }
 

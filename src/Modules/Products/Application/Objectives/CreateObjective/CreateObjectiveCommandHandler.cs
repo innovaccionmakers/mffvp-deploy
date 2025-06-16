@@ -1,14 +1,13 @@
-using Products.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
-using Common.SharedKernel.Application.Rules;
 using Products.Application.Abstractions.Services.External;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
-using Common.SharedKernel.Domain.ConfigurationParameters;
+using Products.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Integrations.Objectives.CreateObjective;
@@ -17,8 +16,8 @@ namespace Products.Application.Objectives.CreateObjective;
 
 internal sealed class CreateObjectiveCommandHandler(
     IConfigurationParameterRepository configurationParameterRepository,
-    IDocumentTypeValidator documentTypeValidator,
     IAlternativeRepository alternativeRepository,
+    IObjectiveRepository objectiveRepository,
     IAffiliateLocator affiliateLocator,
     ICommercialRepository commercialRepository,
     IOfficeRepository officeRepository,
@@ -39,17 +38,24 @@ internal sealed class CreateObjectiveCommandHandler(
             HomologScope.Of<CreateObjectiveCommand>(c => c.ObjectiveType),
             cancellationToken);
 
-        var docResult = await documentTypeValidator.EnsureExistsAsync(request.IdType, cancellationToken);
-        if (!docResult.IsSuccess)
-            return Result.Failure<ObjectiveResponse>(docResult.Error!);
+        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            request.IdType,
+            HomologScope.Of<CreateObjectiveCommand>(c => c.IdType),
+            cancellationToken);
 
-        var affiliateResult = await affiliateLocator.FindAsync(
-            request.IdType, request.Identification, cancellationToken);
+        var affiliateResult = Result.Success<int?>(null);
+        var clientAffiliated = false;
 
-        if (!affiliateResult.IsSuccess)
-            return Result.Failure<ObjectiveResponse>(affiliateResult.Error!);
+        if (documentType is not null)
+        {
+            affiliateResult = await affiliateLocator.FindAsync(
+                request.IdType, request.Identification, cancellationToken);
 
-        var clientAffiliated = affiliateResult.Value.HasValue;
+            if (!affiliateResult.IsSuccess)
+                return Result.Failure<ObjectiveResponse>(affiliateResult.Error!);
+
+            clientAffiliated = affiliateResult.Value.HasValue;
+        }
 
         var officeCodes = new[]
             {
@@ -68,6 +74,7 @@ internal sealed class CreateObjectiveCommandHandler(
 
         var validationContext = new
         {
+            DocumentTypeExists = documentType is not null,
             AlternativeIdExists = alternative is not null,
             ObjectiveTypeExists = objectiveType is not null,
             ClientAffiliated = clientAffiliated,
@@ -107,11 +114,12 @@ internal sealed class CreateObjectiveCommandHandler(
 
         if (!creationResult.IsSuccess)
             return Result.Failure<ObjectiveResponse>(creationResult.Error!);
-
+        
+        await objectiveRepository.AddAsync(creationResult.Value, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await tx.CommitAsync(cancellationToken);
 
         var response = new ObjectiveResponse(creationResult.Value.ObjectiveId);
-        return Result.Success(response,"Objetivo creado Exitosamente");
+        return Result.Success(response, "Objetivo creado Exitosamente");
     }
 }
