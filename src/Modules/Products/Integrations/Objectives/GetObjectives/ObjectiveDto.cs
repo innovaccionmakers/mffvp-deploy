@@ -29,5 +29,5 @@ public sealed record ObjectiveDto(
     string CollectorPortfolioName,
 
     [property: JsonPropertyName("Estado")]
-    Status Status
+    string Status
 );

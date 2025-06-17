@@ -9,6 +9,10 @@ using Products.Application.Abstractions.Services.Rules;
 using Products.Application.Objectives.GetObjectives;
 using Products.Domain.ConfigurationParameters;
 using Products.Integrations.Objectives.GetObjectives;
+using System.Linq;
+using Common.SharedKernel.Application.Rules;
+using Products.Application.Abstractions;
+using RulesEngine.Models;
 
 namespace Products.test.UnitTests.Application.Objectives;
 
@@ -16,12 +20,13 @@ public class GetObjectivesQueryHandlerTests
 {
     private readonly Mock<IConfigurationParameterRepository> _configRepo = new();
     private readonly Mock<IAffiliateLocator> _affiliateLocator = new();
+    private readonly Mock<IRuleEvaluator<ProductsModuleMarker>> _ruleEval  = new();
     private readonly Mock<IObjectiveReader> _objectiveReader = new();
     private readonly Mock<IGetObjectivesRules> _rules = new();
 
     private GetObjectivesQueryHandler BuildHandler()
     {
-        return new GetObjectivesQueryHandler(_configRepo.Object, _affiliateLocator.Object, _objectiveReader.Object,
+        return new GetObjectivesQueryHandler(_configRepo.Object, _affiliateLocator.Object, _ruleEval.Object, _objectiveReader.Object,
             _rules.Object);
     }
 
@@ -30,6 +35,13 @@ public class GetObjectivesQueryHandlerTests
     {
         // arrange
         var error = Error.Validation("DOC001", "Invalid type");
+
+        _ruleEval
+            .Setup(r => r.EvaluateAsync(
+                "Products.Objective.RequiredFieldsGetObjectives",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
 
         _configRepo
             .Setup(r => r.GetByCodeAndScopeAsync("CC",
@@ -66,7 +78,7 @@ public class GetObjectivesQueryHandlerTests
         _configRepo.VerifyAll();
         _affiliateLocator.Verify(
             a => a.FindAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
         _objectiveReader.Verify(r => r.BuildValidationContextAsync(It.IsAny<bool>(),
                 It.IsAny<int?>(),
                 It.IsAny<StatusType>(),
@@ -84,6 +96,12 @@ public class GetObjectivesQueryHandlerTests
     public async Task Handle_Should_Return_Failure_When_Affiliate_Locator_Fails()
     {
         // arrange
+        _ruleEval
+            .Setup(r => r.EvaluateAsync(
+                "Products.Objective.RequiredFieldsGetObjectives",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         _configRepo
             .Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(),
                 HomologScope.Of<GetObjectivesQuery>(c => c.TypeId),
@@ -120,6 +138,12 @@ public class GetObjectivesQueryHandlerTests
     public async Task Handle_Should_Return_Failure_When_Rules_Evaluation_Fails()
     {
         // arrange
+        _ruleEval
+            .Setup(r => r.EvaluateAsync(
+                "Products.Objective.RequiredFieldsGetObjectives",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         _configRepo
             .Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(),
                 HomologScope.Of<GetObjectivesQuery>(c => c.TypeId),
@@ -165,6 +189,12 @@ public class GetObjectivesQueryHandlerTests
     public async Task Handle_Should_Return_Objectives_When_All_Dependency_Succeed()
     {
         // arrange
+        _ruleEval
+            .Setup(r => r.EvaluateAsync(
+                "Products.Objective.RequiredFieldsGetObjectives",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         _configRepo
             .Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(),
                 HomologScope.Of<GetObjectivesQuery>(c => c.TypeId),
@@ -191,8 +221,8 @@ public class GetObjectivesQueryHandlerTests
 
         var objectives = new List<ObjectiveDto>
         {
-            new(1, "T1", "Name1", "F1", "Plan1", "ALT1", "AltName", "Port", Status.Active),
-            new(2, "T2", "Name2", "F2", "Plan2", "ALT2", "AltName2", "Port2", Status.Inactive)
+            new(1, "T1", "Name1", "F1", "Plan1", "ALT1", "AltName", "Port", "Activo"),
+            new(2, "T2", "Name2", "F2", "Plan2", "ALT2", "AltName2", "Port2", "Inactivo")
         };
 
         _objectiveReader
@@ -207,6 +237,6 @@ public class GetObjectivesQueryHandlerTests
 
         // assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Objectives.Should().BeEquivalentTo(objectives);
+        result.Value.Should().BeEquivalentTo(objectives.Select(o => new ObjectiveItem(o)));
     }
 }

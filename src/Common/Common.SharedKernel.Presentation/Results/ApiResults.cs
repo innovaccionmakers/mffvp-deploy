@@ -23,8 +23,7 @@ public static class ApiResults
             {
                 Estado = "Fallida",
                 CodigoRespuesta = code,
-                DescripcionRespuesta = failure.Error.Description,
-                traceId = GetTraceId()
+                DescripcionRespuesta = failure.Error.Description
             },
             statusCode: StatusCodes.Status400BadRequest);
     }
@@ -41,8 +40,6 @@ public static class ApiResults
 
     private static IResult BuildProblem(Error error)
     {
-        var traceId = GetTraceId();
-
         var pd = new ProblemDetails
         {
             Title = error.Code,
@@ -62,17 +59,9 @@ public static class ApiResults
             }
         };
 
-        if (!string.IsNullOrWhiteSpace(traceId))
-            pd.Extensions["traceId"] = traceId;
-
         if (error is ValidationError ve)
             pd.Extensions["errors"] = ve.Errors.Select(e => new { e.Code, e.Description });
 
         return HttpResults.Problem(pd);
-    }
-
-    private static string? GetTraceId()
-    {
-        return Activity.Current?.TraceId.ToString();
     }
 }

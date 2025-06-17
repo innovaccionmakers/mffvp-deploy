@@ -1,9 +1,8 @@
-using Products.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Objectives.GetObjectives;
-using Common.SharedKernel.Domain.ConfigurationParameters;
-using Common.SharedKernel.Domain;
+using Products.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Integrations.Objectives.GetObjectives;
 
@@ -36,24 +35,31 @@ public sealed class ObjectiveReader(
                     inactive = await repo.AnyWithStatusAsync(id, Status.Inactive, ct);
                     break;
                 case StatusType.T:
-                    (active, inactive) = await Task
-                        .WhenAll(
-                            repo.AnyWithStatusAsync(id, Status.Active, ct),
-                            repo.AnyWithStatusAsync(id, Status.Inactive, ct))
-                        .ContinueWith(t => (t.Result[0], t.Result[1]));
+                    var flags = await repo.Query()
+                        .Where(o => o.AffiliateId == id &&
+                                    (o.Status == Status.Active || o.Status == Status.Inactive))
+                        .GroupBy(_ => 1)
+                        .Select(g => new {
+                            HasActive   = g.Any(x => x.Status == Status.Active),
+                            HasInactive = g.Any(x => x.Status == Status.Inactive)
+                        })
+                        .FirstOrDefaultAsync(ct);
+
+                    active   = flags?.HasActive   ?? false;
+                    inactive = flags?.HasInactive ?? false;
                     break;
             }
         }
 
         return new ObjectiveValidationContext
         {
-            AffiliateExists           = affiliateFound,
-            RequestedStatusAccepted   = requested is StatusType.A or StatusType.I or StatusType.T,
-            AffiliateHasObjectives    = any,
-            AffiliateHasActive        = active,
-            AffiliateHasInactive      = inactive,
-            RequestedStatus           = requested.ToString(),
-            DocumentTypeExists        = documentTypeExists
+            AffiliateExists = affiliateFound,
+            RequestedStatusAccepted = requested is StatusType.A or StatusType.I or StatusType.T,
+            AffiliateHasObjectives = any,
+            AffiliateHasActive = active,
+            AffiliateHasInactive = inactive,
+            RequestedStatus = requested.ToString(),
+            DocumentTypeExists = documentTypeExists
         };
     }
 
@@ -85,7 +91,7 @@ public sealed class ObjectiveReader(
                     .Where(p => p.IsCollector)
                     .Select(p => p.Portfolio.Name)
                     .FirstOrDefault() ?? string.Empty,
-                o.Status
+                o.Status == Status.Active ? "Activo" : "Inactivo"
             ))
             .ToListAsync(ct);
 
