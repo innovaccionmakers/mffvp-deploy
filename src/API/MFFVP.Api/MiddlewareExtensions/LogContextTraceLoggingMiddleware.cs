@@ -13,7 +13,8 @@ internal sealed class LogContextTraceLoggingMiddleware(RequestDelegate next)
 
         context.Response.OnStarting(() =>
         {
-            context.Response.Headers.TryAdd("X-Trace-Id", traceId);
+            if (context.Response.StatusCode >= 500)
+                context.Response.Headers.TryAdd("X-Trace-Id", traceId);
             return Task.CompletedTask;
         });
 

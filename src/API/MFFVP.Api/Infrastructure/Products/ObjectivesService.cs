@@ -8,7 +8,7 @@ namespace MFFVP.Api.Infrastructure.Products;
 
 public sealed class ObjectivesService : IObjectivesService
 {
-    public Task<Result<GetObjectivesResponse>> GetObjectivesAsync(
+    public Task<Result<IReadOnlyCollection<ObjectiveItem>>> GetObjectivesAsync(
         string typeId,
         string identification,
         StatusType status,

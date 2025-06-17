@@ -14,9 +14,9 @@ internal sealed class GetObjectivesQueryHandler(
     IAffiliateLocator affiliateLocator,
     IObjectiveReader objectiveReader,
     IGetObjectivesRules objectivesRules)
-    : IQueryHandler<GetObjectivesQuery, GetObjectivesResponse>
+    : IQueryHandler<GetObjectivesQuery, IReadOnlyCollection<ObjectiveItem>>
 {
-    public async Task<Result<GetObjectivesResponse>> Handle(
+    public async Task<Result<IReadOnlyCollection<ObjectiveItem>>> Handle(
         GetObjectivesQuery request,
         CancellationToken cancellationToken)
     {
@@ -28,7 +28,7 @@ internal sealed class GetObjectivesQueryHandler(
         Result<int?> affiliateValidationResult = await affiliateLocator
             .FindAsync(request.TypeId, request.Identification, cancellationToken);
         if (!affiliateValidationResult.IsSuccess)
-            return Result.Failure<GetObjectivesResponse>(affiliateValidationResult.Error!);
+            return Result.Failure<IReadOnlyCollection<ObjectiveItem>>(affiliateValidationResult.Error!);
 
         var affiliateId = affiliateValidationResult.Value;
         var isAffiliateFound = affiliateId.HasValue;
@@ -44,13 +44,17 @@ internal sealed class GetObjectivesQueryHandler(
         var rulesEvaluationResult = await objectivesRules
             .EvaluateAsync(validationContext, cancellationToken);
         if (!rulesEvaluationResult.IsSuccess)
-            return Result.Failure<GetObjectivesResponse>(rulesEvaluationResult.Error!);
+            return Result.Failure<IReadOnlyCollection<ObjectiveItem>>(rulesEvaluationResult.Error!);
 
         var objectivesList = await objectiveReader.ReadDtosAsync(
             affiliateId.Value,
             request.Status,
             cancellationToken);
 
-        return Result.Success(new GetObjectivesResponse(objectivesList));
+        var wrapper = objectivesList
+            .Select(o => new ObjectiveItem(o))
+            .ToList();
+
+        return Result.Success<IReadOnlyCollection<ObjectiveItem>>(wrapper);
     }
 }

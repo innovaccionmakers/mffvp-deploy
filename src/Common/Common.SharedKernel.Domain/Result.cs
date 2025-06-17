@@ -48,9 +48,16 @@ public class Result
         return new Result<TValue>(default, false, error);
     }
 
-    public object Match(Func<object?, IResult> ok, Func<Result, IResult> problem)
+    public IResult Match(Func<object?, IResult> ok, Func<Result, IResult> problem)
     {
-        throw new NotImplementedException();
+        if (IsSuccess)
+        {
+            var valueProperty = GetType().GetProperty("Value");
+            object? val = valueProperty?.GetValue(this);
+            return ok(val);
+        }
+
+        return problem(this);
     }
 }
 
