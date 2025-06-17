@@ -1,6 +1,8 @@
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
+using Products.Application.Abstractions;
 using Products.Application.Abstractions.Services.External;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Abstractions.Services.Rules;
@@ -12,14 +14,36 @@ namespace Products.Application.Objectives.GetObjectives;
 internal sealed class GetObjectivesQueryHandler(
     IConfigurationParameterRepository configurationParameterRepository,
     IAffiliateLocator affiliateLocator,
+    IRuleEvaluator<ProductsModuleMarker> ruleEvaluator,
     IObjectiveReader objectiveReader,
     IGetObjectivesRules objectivesRules)
     : IQueryHandler<GetObjectivesQuery, IReadOnlyCollection<ObjectiveItem>>
 {
+    private const string RequiredFieldsWorkflow = "Products.Objective.RequiredFieldsGetObjectives";
+    
     public async Task<Result<IReadOnlyCollection<ObjectiveItem>>> Handle(
         GetObjectivesQuery request,
         CancellationToken ct)
     {
+        var requiredContext = new
+        {
+            request.TypeId,
+            request.Identification,
+            request.Status
+        };
+        
+        var (requiredOk, _, requiredErrors) =
+            await ruleEvaluator.EvaluateAsync(RequiredFieldsWorkflow,
+                requiredContext,
+                ct);
+
+        if (!requiredOk)
+        {
+            var first = requiredErrors.First();
+            return Result.Failure<IReadOnlyCollection<ObjectiveItem>>(
+                Error.Validation(first.Code, first.Message));
+        }
+        
         var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.TypeId,
             HomologScope.Of<GetObjectivesQuery>(c => c.TypeId),
