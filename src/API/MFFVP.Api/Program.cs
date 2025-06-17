@@ -44,7 +44,7 @@ builder.Configuration
 
 builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 
-if (env == "DevMakers2")
+if (env != "Development")
 {
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
     var region = builder.Configuration["AWS:SecretsManager:Region"];

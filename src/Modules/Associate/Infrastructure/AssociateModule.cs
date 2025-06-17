@@ -38,7 +38,7 @@ public static class ActivatesModule
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("AssociateDatabase");
 
-        if (env == "DevMakers2")
+        if (env != "Development")
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];
             var region = configuration["AWS:SecretsManager:Region"];

@@ -52,7 +52,7 @@ public static class ProductsModule
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("ProductsDatabase");
 
-        if (env == "DevMakers2")
+        if (env != "Development")
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];
             var region = configuration["AWS:SecretsManager:Region"];
