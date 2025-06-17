@@ -11,5 +11,7 @@ public enum StatusType
     [EnumMember(Value = "I")]
     I = 'I',
     [EnumMember(Value = "T")]
-    T = 'T'
+    T = 'T',
+    
+    Unknown = '?'
 }
