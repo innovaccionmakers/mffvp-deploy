@@ -7,10 +7,12 @@ namespace Operations.Infrastructure.TransactionTypes;
 
 public class TransactionTypeRepository(OperationsDbContext context) : ITransactionTypeRepository
 {
-    public async Task<IReadOnlyCollection<TransactionType>> GetTransactionTypesByTypeAsync(string type, CancellationToken cancellationToken = default)
+    const string ConfigurationParameterType = "TipoTransaccion";
+
+    public async Task<IReadOnlyCollection<TransactionType>> GetTransactionTypesAsync(CancellationToken cancellationToken = default)
     {
         var query = context.ConfigurationParameters
-           .Where(cp => cp.Type == type && cp.Status);
+           .Where(cp => cp.Type == ConfigurationParameterType && cp.Status);
 
         return await query
             .Select(cp => TransactionType.Create(

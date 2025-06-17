@@ -1,4 +1,3 @@
-using HotChocolate.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Operations.Presentation.GraphQL;

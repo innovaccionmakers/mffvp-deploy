@@ -2,7 +2,6 @@
 
 public interface ITransactionTypeRepository
 {
-    Task<IReadOnlyCollection<TransactionType>> GetTransactionTypesByTypeAsync(
-        string type,
+    Task<IReadOnlyCollection<TransactionType>> GetTransactionTypesAsync(
         CancellationToken cancellationToken = default);
 }
