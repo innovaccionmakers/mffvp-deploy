@@ -90,6 +90,13 @@ public class CreateObjectiveCommandHandlerTests
     {
         var request = BuildRequest();
 
+        _ruleEvaluator
+            .Setup(r => r.EvaluateAsync(
+                "Products.CreateObjective.RequiredFields",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
+
         _alternativeRepo
             .Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDummyAlternative(request.AlternativeId));
@@ -142,7 +149,8 @@ public class CreateObjectiveCommandHandlerTests
         _affiliateLocator.Verify(
             l => l.FindAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         _ruleEvaluator.Verify(
-            r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
+            r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
         _objectiveRepo.Verify(r => r.AddAsync(It.IsAny<Objective>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWork.Verify(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -151,6 +159,13 @@ public class CreateObjectiveCommandHandlerTests
     public async Task Handle_Should_Return_Failure_When_Affiliate_Locator_Fails()
     {
         var request = BuildRequest();
+
+        _ruleEvaluator
+            .Setup(r => r.EvaluateAsync(
+                "Products.CreateObjective.RequiredFields",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
 
         _alternativeRepo
             .Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
@@ -179,7 +194,8 @@ public class CreateObjectiveCommandHandlerTests
         AssertionExtensions.Should(result.Error).Be(error);
 
         _ruleEvaluator.Verify(
-            r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Never);
+            r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()),
+            Times.Once);
         _objectiveRepo.Verify(r => r.AddAsync(It.IsAny<Objective>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWork.Verify(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -188,6 +204,13 @@ public class CreateObjectiveCommandHandlerTests
     public async Task Handle_Should_Return_Failure_When_Rules_Fail()
     {
         var request = BuildRequest();
+
+        _ruleEvaluator
+            .Setup(r => r.EvaluateAsync(
+                "Products.CreateObjective.RequiredFields",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
 
         _alternativeRepo
             .Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))
@@ -245,6 +268,13 @@ public class CreateObjectiveCommandHandlerTests
     {
         var request = BuildRequest();
         var alternative = BuildDummyAlternative(request.AlternativeId);
+
+        _ruleEvaluator
+            .Setup(r => r.EvaluateAsync(
+                "Products.CreateObjective.RequiredFields",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
 
         _alternativeRepo
             .Setup(r => r.GetByHomologatedCodeAsync(request.AlternativeId, It.IsAny<CancellationToken>()))

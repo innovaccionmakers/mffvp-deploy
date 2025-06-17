@@ -25,11 +25,36 @@ internal sealed class CreateObjectiveCommandHandler(
     IUnitOfWork unitOfWork)
     : ICommandHandler<CreateObjectiveCommand, ObjectiveResponse>
 {
+    private const string RequiredFieldsWorkflow  = "Products.CreateObjective.RequiredFields";
     private const string ObjectiveCreationValidationWorkflow = "Products.CreateObjective.Validation";
 
     public async Task<Result<ObjectiveResponse>> Handle(CreateObjectiveCommand request,
         CancellationToken cancellationToken)
     {
+        var requiredContext = new
+        {
+            request.IdType,
+            request.Identification,
+            request.AlternativeId,
+            request.ObjectiveType,
+            request.ObjectiveName,
+            request.OpeningOffice,
+            request.CurrentOffice,
+            request.Commercial
+        };
+
+        var (requiredOk, _, requiredErrors) =
+            await ruleEvaluator.EvaluateAsync(RequiredFieldsWorkflow,
+                requiredContext,
+                cancellationToken);
+
+        if (!requiredOk)
+        {
+            var first = requiredErrors.First();
+            return Result.Failure<ObjectiveResponse>(
+                Error.Validation(first.Code, first.Message));
+        }
+        
         var alternative =
             await alternativeRepository.GetByHomologatedCodeAsync(request.AlternativeId, cancellationToken);
 

@@ -1,5 +1,103 @@
 [
   {
+    "WorkflowName": "Products.Objective.RequiredFieldsGetObjectives",
+    "Rules": [
+      {
+        "RuleName": "TypeIdRequired",
+        "ErrorMessage": "El Tipo Id es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.TypeId) == false",
+        "Properties": { 
+          "errorCode": "df221640-b4af-4d28-8e53-6ade541e5113"
+        }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "ErrorMessage": "La Identificación es obligatoria",
+        "Expression": "string.IsNullOrWhiteSpace(input.Identification) == false",
+        "Properties": { 
+          "errorCode": "4e8736d8-8801-4c54-ae02-05b94f79ff9a"
+        }
+      },
+      {
+        "RuleName": "StatusRequired",
+        "ErrorMessage": "El Estado es obligatorio",
+        "Expression": "input.Status != 0",
+        "Properties": {
+          "errorCode": "847f0903-ec9f-443a-98ac-d5c552a0bbd6"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Products.CreateObjective.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "IdTypeRequired",
+        "ErrorMessage": "El TipoId es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.IdType) == false",
+        "Properties": { 
+          "errorCode": "df221640-b4af-4d28-8e53-6ade541e5113"
+        }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "ErrorMessage": "La Identificacion es obligatoria",
+        "Expression": "string.IsNullOrWhiteSpace(input.Identification) == false",
+        "Properties": { 
+          "errorCode": "4e8736d8-8801-4c54-ae02-05b94f79ff9a"
+        }
+      },
+      {
+        "RuleName": "AlternativeIdRequired",
+        "ErrorMessage": "El IdAlternativa es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.AlternativeId) == false",
+        "Properties": { 
+          "errorCode": "aa9b60f3-f329-4920-b12f-16e4142e66ee"
+        }
+      },
+      {
+        "RuleName": "ObjectiveTypeRequired",
+        "ErrorMessage": "El TipoObjetivo es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.ObjectiveType) == false",
+        "Properties": { 
+          "errorCode": "6729f994-b722-4798-a9b9-54109b027205"
+        }
+      },
+      {
+        "RuleName": "ObjectiveNameRequired",
+        "ErrorMessage": "El NombreObjetivo es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.ObjectiveName) == false",
+        "Properties": { 
+          "errorCode": "81a0ab61-7930-40f1-87e5-89b2beb6803b"
+        }
+      },
+      {
+        "RuleName": "OpeningOfficeRequired",
+        "ErrorMessage": "La OficinaApertura es obligatoria",
+        "Expression": "string.IsNullOrWhiteSpace(input.OpeningOffice) == false",
+        "Properties": { 
+          "errorCode": "3ea951b6-ea4c-4e7e-9121-167f9c6aa245"
+        }
+      },
+      {
+        "RuleName": "CurrentOfficeRequired",
+        "ErrorMessage": "La OficinaActual es obligatoria",
+        "Expression": "string.IsNullOrWhiteSpace(input.CurrentOffice) == false",
+        "Properties": { 
+          "errorCode": "494e6787-24df-41ed-a16f-1f5b72395bb7"
+        }
+      },
+      {
+        "RuleName": "CommercialRequired",
+        "ErrorMessage": "El Comercial es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.Commercial) == false",
+        "Properties": { 
+          "errorCode": "905b6468-0d28-4353-9bba-9073d3ae5474"
+        }
+      }
+    ]
+  },
+  {
     "WorkflowName": "Products.CreateObjective.Validation",
     "Rules": [
       {

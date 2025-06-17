@@ -29,9 +29,9 @@ public sealed class ObjectivesEndpoints
         group.MapGet(
                 "GetGoals",
                 async (
-                    [FromQuery] string typeId,
-                    [FromQuery] string identification,
-                    [FromQuery] string status,
+                    [FromQuery] string? typeId,
+                    [FromQuery] string? identification,
+                    [FromQuery] string? status,
                     ISender sender
                 ) =>
                 {
@@ -127,11 +127,13 @@ public sealed class ObjectivesEndpoints
     }
     
     private static StatusType MapStatus(string? raw) =>
-        raw?.Trim().ToUpperInvariant() switch
-        {
-            "A" => StatusType.A,
-            "I" => StatusType.I,
-            "T" => StatusType.T,
-            _   => StatusType.Unknown
-        };
+        string.IsNullOrWhiteSpace(raw)
+            ? StatusType.Missing
+            : raw.Trim().ToUpperInvariant() switch
+            {
+                "A" => StatusType.A,
+                "I" => StatusType.I,
+                "T" => StatusType.T,
+                _   => StatusType.Unknown
+            };
 }

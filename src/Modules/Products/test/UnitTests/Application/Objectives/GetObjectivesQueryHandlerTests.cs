@@ -10,6 +10,9 @@ using Products.Application.Objectives.GetObjectives;
 using Products.Domain.ConfigurationParameters;
 using Products.Integrations.Objectives.GetObjectives;
 using System.Linq;
+using Common.SharedKernel.Application.Rules;
+using Products.Application.Abstractions;
+using RulesEngine.Models;
 
 namespace Products.test.UnitTests.Application.Objectives;
 
@@ -17,12 +20,13 @@ public class GetObjectivesQueryHandlerTests
 {
     private readonly Mock<IConfigurationParameterRepository> _configRepo = new();
     private readonly Mock<IAffiliateLocator> _affiliateLocator = new();
+    private readonly Mock<IRuleEvaluator<ProductsModuleMarker>> _ruleEval  = new();
     private readonly Mock<IObjectiveReader> _objectiveReader = new();
     private readonly Mock<IGetObjectivesRules> _rules = new();
 
     private GetObjectivesQueryHandler BuildHandler()
     {
-        return new GetObjectivesQueryHandler(_configRepo.Object, _affiliateLocator.Object, _objectiveReader.Object,
+        return new GetObjectivesQueryHandler(_configRepo.Object, _affiliateLocator.Object, _ruleEval.Object, _objectiveReader.Object,
             _rules.Object);
     }
 
@@ -31,6 +35,13 @@ public class GetObjectivesQueryHandlerTests
     {
         // arrange
         var error = Error.Validation("DOC001", "Invalid type");
+
+        _ruleEval
+            .Setup(r => r.EvaluateAsync(
+                "Products.Objective.RequiredFieldsGetObjectives",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
 
         _configRepo
             .Setup(r => r.GetByCodeAndScopeAsync("CC",
@@ -85,6 +96,12 @@ public class GetObjectivesQueryHandlerTests
     public async Task Handle_Should_Return_Failure_When_Affiliate_Locator_Fails()
     {
         // arrange
+        _ruleEval
+            .Setup(r => r.EvaluateAsync(
+                "Products.Objective.RequiredFieldsGetObjectives",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         _configRepo
             .Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(),
                 HomologScope.Of<GetObjectivesQuery>(c => c.TypeId),
@@ -121,6 +138,12 @@ public class GetObjectivesQueryHandlerTests
     public async Task Handle_Should_Return_Failure_When_Rules_Evaluation_Fails()
     {
         // arrange
+        _ruleEval
+            .Setup(r => r.EvaluateAsync(
+                "Products.Objective.RequiredFieldsGetObjectives",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         _configRepo
             .Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(),
                 HomologScope.Of<GetObjectivesQuery>(c => c.TypeId),
@@ -166,6 +189,12 @@ public class GetObjectivesQueryHandlerTests
     public async Task Handle_Should_Return_Objectives_When_All_Dependency_Succeed()
     {
         // arrange
+        _ruleEval
+            .Setup(r => r.EvaluateAsync(
+                "Products.Objective.RequiredFieldsGetObjectives",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         _configRepo
             .Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(),
                 HomologScope.Of<GetObjectivesQuery>(c => c.TypeId),
