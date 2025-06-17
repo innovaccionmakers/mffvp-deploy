@@ -17,6 +17,15 @@ public sealed class ObjectivesService : IObjectivesService
         return sender.Send(new GetObjectivesQuery(typeId, identification, status));
     }
     
+    private static StatusType MapStatus(string? raw) =>
+        raw?.Trim().ToUpperInvariant() switch
+        {
+            "A" => StatusType.A,
+            "I" => StatusType.I,
+            "T" => StatusType.T,
+            _   => StatusType.Unknown
+        };
+    
     public Task<Result<ObjectiveResponse>> CreateObjectiveAsync(
         CreateObjectiveCommand command,
         ISender sender)

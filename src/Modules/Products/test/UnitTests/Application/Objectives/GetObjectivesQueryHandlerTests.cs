@@ -67,7 +67,7 @@ public class GetObjectivesQueryHandlerTests
         _configRepo.VerifyAll();
         _affiliateLocator.Verify(
             a => a.FindAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
         _objectiveReader.Verify(r => r.BuildValidationContextAsync(It.IsAny<bool>(),
                 It.IsAny<int?>(),
                 It.IsAny<StatusType>(),
