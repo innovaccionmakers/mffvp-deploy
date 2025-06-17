@@ -5,13 +5,14 @@ using Operations.Presentation.DTOs;
 
 namespace Operations.Presentation.GraphQL;
 
+[ExtendObjectType("Query")]
 public class OperationsQueries
 {
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(
         [Service] IMediator mediator,
         CancellationToken cancellationToken = default)
     {
-        var result = await mediator.Send(new GetTransactionTypesQuery(), cancellationToken);
+            var result = await mediator.Send(new GetTransactionTypesQuery(), cancellationToken);
 
         if (!result.IsSuccess || result.Value == null)
         {

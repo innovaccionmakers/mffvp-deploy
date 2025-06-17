@@ -21,9 +21,11 @@ using Microsoft.AspNetCore.Authorization;
 using Operations.Infrastructure;
 using Operations.Presentation.GraphQL;
 using Products.Infrastructure;
+using Products.Presentation.GraphQL;
 using Serilog;
 using System.Reflection;
 using Trusts.Infrastructure;
+using MFFVP.Api.GraphQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,7 +101,13 @@ builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddClosingModule(builder.Configuration);
 
-builder.Services.AddOperationsGraphQL();
+builder.Services.AddGraphQLServer()
+            .AddQueryType<Query>()
+            .AddType<OperationsQueries>()
+            .AddType<ProductsQueries>()
+            .AddFiltering()
+            .AddSorting()
+            .AddProjections();
 
 builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();

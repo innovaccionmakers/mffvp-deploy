@@ -7,26 +7,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0"/>
-        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0"/>
-        <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.3.3"/>
-        <PackageReference Include="FluentValidation" Version="12.0.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3"/>
-        <PackageReference Include="MongoDB.Driver" Version="3.3.0"/>
-        <PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="8.2.1"/>
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3"/>
-        <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.1.1"/>
-        <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1"/>
+        <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+        <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.3.3" />
+        <PackageReference Include="FluentValidation" Version="12.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3" />
+        <PackageReference Include="MongoDB.Driver" Version="3.3.0" />
+        <PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="8.2.1" />
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+        <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.1.1" />
+        <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj"/>
-        <ProjectReference Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj"/>
-        <ProjectReference Include="..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
-        <ProjectReference Include="..\..\Modules\Associate\Application\Associate.Application.csproj"/>
-        <ProjectReference Include="..\..\Modules\Associate\Infrastructure\Associate.Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
+        <ProjectReference Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\..\Modules\Associate\Application\Associate.Application.csproj" />
+        <ProjectReference Include="..\..\Modules\Associate\Infrastructure\Associate.Infrastructure.csproj" />
         <ProjectReference Include="..\..\Modules\Closing\Domain\Closing.Domain.csproj" />
         <ProjectReference Include="..\..\Modules\Closing\Infrastructure\Closing.Infrastructure.csproj" />
         <ProjectReference Include="..\..\Modules\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
@@ -47,8 +47,8 @@
         <ProjectReference Include="..\..\Modules\Products\Infrastructure\Products.Infrastructure.csproj" />
         <ProjectReference Include="..\..\Modules\Products\Integrations\Products.Integrations.csproj" />
         <ProjectReference Include="..\..\Modules\Products\Presentation\Products.Presentation.csproj" />
-        <ProjectReference Include="..\..\Modules\Trusts\Infrastructure\Trusts.Infrastructure.csproj"/>
-        <ProjectReference Include="..\..\Modules\Trusts\Integrations\Trusts.Integrations.csproj"/>
+        <ProjectReference Include="..\..\Modules\Trusts\Infrastructure\Trusts.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\Modules\Trusts\Integrations\Trusts.Integrations.csproj" />
     </ItemGroup>
 
 </Project>
