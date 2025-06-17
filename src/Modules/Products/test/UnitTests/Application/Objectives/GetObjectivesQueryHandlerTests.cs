@@ -9,6 +9,7 @@ using Products.Application.Abstractions.Services.Rules;
 using Products.Application.Objectives.GetObjectives;
 using Products.Domain.ConfigurationParameters;
 using Products.Integrations.Objectives.GetObjectives;
+using System.Linq;
 
 namespace Products.test.UnitTests.Application.Objectives;
 
@@ -207,6 +208,6 @@ public class GetObjectivesQueryHandlerTests
 
         // assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Objectives.Should().BeEquivalentTo(objectives);
+        result.Value.Should().BeEquivalentTo(objectives.Select(o => new ObjectiveItem(o)));
     }
 }

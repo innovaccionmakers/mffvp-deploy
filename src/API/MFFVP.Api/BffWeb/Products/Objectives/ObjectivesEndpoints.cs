@@ -35,7 +35,7 @@ public sealed class ObjectivesEndpoints
                 {
                     var result = await _objectivesService
                         .GetObjectivesAsync(typeId, identification, status, sender);
-                    return result.ToApiResult();
+                    return result.Match(Results.Ok, ApiResults.Problem);
                 }
             )
             .WithName("GetGoals")
@@ -67,7 +67,7 @@ public sealed class ObjectivesEndpoints
 
                 return operation;
             })
-            .Produces<GetObjectivesResponse>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyCollection<ObjectiveItem>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost(

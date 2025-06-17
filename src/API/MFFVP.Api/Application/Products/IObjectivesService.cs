@@ -9,7 +9,7 @@ namespace MFFVP.Api.Application.Products
 {
     public interface IObjectivesService
     {
-        Task<Result<GetObjectivesResponse>> GetObjectivesAsync(
+        Task<Result<IReadOnlyCollection<ObjectiveItem>>> GetObjectivesAsync(
             string typeId,
             string identification,
             StatusType status,

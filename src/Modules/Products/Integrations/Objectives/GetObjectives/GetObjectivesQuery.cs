@@ -14,4 +14,4 @@ public record GetObjectivesQuery(
     
     [property: JsonPropertyName("Estado")]
     StatusType Status
-) : IQuery<GetObjectivesResponse>;
+) : IQuery<IReadOnlyCollection<ObjectiveItem>>;
