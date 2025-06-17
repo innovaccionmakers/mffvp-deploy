@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.Activates.CreateActivate;
 
@@ -19,10 +20,10 @@ public sealed record CreateActivateCommand(
     bool? MeetsPensionRequirements,
 
     [property: JsonPropertyName("FechaInicioReqPen")]
-    [property: JsonIgnore]
+    [property: JsonConverter(typeof(EmptyStringToNullDateTimeConverter))]
     DateTime? StartDateReqPen,
 
     [property: JsonPropertyName("FechaFinReqPen")]
-    [property: JsonIgnore]
+    [property: JsonConverter(typeof(EmptyStringToNullDateTimeConverter))]
     DateTime? EndDateReqPen
 ) : ICommand;

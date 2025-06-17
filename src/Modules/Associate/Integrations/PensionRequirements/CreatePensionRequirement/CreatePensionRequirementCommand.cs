@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 public sealed record CreatePensionRequirementCommand(

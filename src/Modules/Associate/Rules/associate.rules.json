@@ -15,17 +15,17 @@
     "WorkflowName": "Associate.GetActivateId.Validation",
     "Rules": [
       {
-        "RuleName": "ClientActivates",
-        "Expression": "input.ActivateExists",
-        "Properties": {
-          "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
-        }
-      },
-      {
         "RuleName": "IdTypeHomologated",
         "Expression": "input.documentType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
+        }
+      },
+      {
+        "RuleName": "ClientActivates",
+        "Expression": "input.ActivateExists",
+        "Properties": {
+          "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
         }
       }
     ]
@@ -185,7 +185,7 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.documentType != null",
+        "Expression": "input.DocumentTypeExists != false",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }

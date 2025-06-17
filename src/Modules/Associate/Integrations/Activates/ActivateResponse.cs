@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.Activates;
 
