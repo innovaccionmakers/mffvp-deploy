@@ -47,4 +47,25 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
             .Select(ap => ap.Portfolio.HomologatedCode)
             .FirstOrDefaultAsync(ct);
     }
+
+    public async Task<PortfolioInformationResponse?> GetPortfolioInformationByObjectiveIdAsync(string objectiveId, CancellationToken cancellationToken)
+    {
+        var result = await (from o in _context.Objetivos
+                            join a in _context.Alternativas on o.AlternativaId equals a.Id
+                            join pf in _context.PlanesFondo on a.PlanesFondoId equals pf.PlanId
+                            join f in _context.Fondos on pf.FondoId equals f.Identificacion
+                            join ap in _context.AlternativaPortafolio on a.Id equals ap.AlternativaId
+                            join p in _context.Portafolios on ap.PortafolioId equals p.Id
+                            where o.TipoObjetivoIni == objectiveId
+                            select new PortfolioInformationResponse
+                            {
+                                Found = f.Nombre,
+                                Plan = pf.PlanId.ToString(),
+                                Alternative = a.Nombre,
+                                Portfolio = p.Nombre
+                            }).FirstOrDefaultAsync(cancellationToken);
+
+        return result;
+    }
+
 }

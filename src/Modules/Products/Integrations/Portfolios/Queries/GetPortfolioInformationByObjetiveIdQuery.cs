@@ -2,6 +2,6 @@
 using Common.SharedKernel.Application.Messaging;
 
 
-public sealed record GetPortfolioInformationByObjetiveIdQuery(
+public sealed record class GetPortfolioInformationByObjetiveIdQuery(
     string ObjetiveId
     ) : IQuery<PortfolioInformationResponse>;
