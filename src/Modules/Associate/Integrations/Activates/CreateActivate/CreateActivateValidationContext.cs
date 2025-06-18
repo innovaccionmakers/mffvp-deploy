@@ -8,6 +8,7 @@ public sealed class CreateActivateValidationContext
     public CreateActivateCommand Request { get; }
     public Activate ExistingActivate { get; }
     public Guid DocumentType { get; }
+    public bool DocumentTypeExists { get; set; }
 
     public CreateActivateValidationContext(CreateActivateCommand request, Activate existingActivate, Guid documentType)
     {

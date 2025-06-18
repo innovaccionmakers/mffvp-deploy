@@ -3,17 +3,16 @@ using Associate.Integrations.Activates.UpdateActivate;
 
 namespace Associate.Application.Activates.UpdateActivate
 {
-    internal class ActivateUpdateValidationContext
+    public class UpdateActivateValidationContext
     {
         public UpdateActivateCommand Request { get; }
         public Activate ExistingActivate { get; }
-        public Guid DocumentType { get; }
+        public bool DocumentTypeExists { get; set; }
 
-        public ActivateUpdateValidationContext(UpdateActivateCommand request, Activate existingActivate, Guid documentType)
+        public UpdateActivateValidationContext(UpdateActivateCommand request, Activate existingActivate)
         {
             Request = request;
             ExistingActivate = existingActivate;
-            DocumentType = documentType;
         }
     }
 }

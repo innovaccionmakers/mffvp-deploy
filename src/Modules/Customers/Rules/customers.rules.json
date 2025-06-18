@@ -7,7 +7,7 @@
         "ErrorMessage": "El tipo de documento no se encuentra homologado",
         "Expression": "input.DocumentTypeExists",
         "Properties": {
-          "errorCode": "15afe1e8-4922-4e90-a030-e1f07ae388c6"
+          "errorCode": "ce71ee50-78fa-487e-8cf6-fd2cebcdcb7f"
         }
       }
     ]
@@ -20,7 +20,7 @@
         "ErrorMessage": "El tipo Id no se encuentra homologado",
         "Expression": "input.DocumentTypeExists",
         "Properties": {
-          "errorCode": "15afe1e8-4922-4e90-a030-e1f07ae388c6"
+          "errorCode": "ce71ee50-78fa-487e-8cf6-fd2cebcdcb7f"
         }
       },
       {
@@ -45,17 +45,17 @@
     "WorkflowName": "Customers.Person.ValidationAssociate",
     "Rules": [
       {
-        "RuleName": "ClientExists",
-        "Expression": "input.CountryOfResidenceId != null",
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.DocumentTypeExists != false",
         "Properties": {
-          "errorCode": "5275d643-465a-40f3-83aa-afec26302136"
+          "errorCode": "ce71ee50-78fa-487e-8cf6-fd2cebcdcb7f"
         }
       },
       {
-        "RuleName": "IdTypeHomologated",
-        "Expression": "input.DocumentType != null",
+        "RuleName": "ClientExists",
+        "Expression": "input.Person != null",
         "Properties": {
-          "errorCode": "15afe1e8-4922-4e90-a030-e1f07ae388c6"
+          "errorCode": "5275d643-465a-40f3-83aa-afec26302136"
         }
       }
     ]

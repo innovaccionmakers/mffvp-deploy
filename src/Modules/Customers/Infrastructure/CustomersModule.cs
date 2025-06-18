@@ -23,6 +23,7 @@ using Customers.Domain.ConfigurationParameters;
 using Application.People;
 using Customers.Domain.Departments;
 using Customers.Domain.Municipalities;
+using Application.People.GetPerson;
 
 namespace Customers.Infrastructure;
 
@@ -73,6 +74,7 @@ public static class CustomersModule
         services.AddTransient<PersonValidationConsumer>();
         services.AddTransient<ClientValidationConsumer>();
         services.AddTransient<PersonCommandHandlerValidation>();
+        services.AddTransient<GetPersonQueryHandlerValidation>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CustomersDbContext>());
     }
 }

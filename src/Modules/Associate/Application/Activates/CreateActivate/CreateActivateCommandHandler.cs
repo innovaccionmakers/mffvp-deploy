@@ -10,6 +10,7 @@ using Common.SharedKernel.Domain;
 using Associate.Application.Abstractions;
 using MediatR;
 using Common.SharedKernel.Application.Attributes;
+using Application.Activates;
 
 namespace Associate.Application.Activates.CreateActivate;
 
@@ -19,7 +20,8 @@ internal sealed class CreateActivateCommandHandler(
     IUnitOfWork unitOfWork,
     ICapRpcClient rpc,
     ISender sender,
-    IConfigurationParameterRepository configurationParameterRepository)
+    IConfigurationParameterRepository configurationParameterRepository,
+    ActivatesCommandHandlerValidation validator)
     : ICommandHandler<CreateActivateCommand>
 {
     private const string Workflow = "Associate.Activates.CreateValidation";
@@ -27,12 +29,22 @@ internal sealed class CreateActivateCommandHandler(
     public async Task<Result> Handle(CreateActivateCommand request, CancellationToken cancellationToken)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.DocumentType, HomologScope.Of<CreateActivateCommand>(c => c.DocumentType), cancellationToken);
-        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
-        Activate? existingActivate = await activateRepository.GetByIdTypeAndNumber(uuid, request.Identification, cancellationToken);
-        
+        var validationResults = await validator.CreateUpdateValidateRequestAsync(request, cancellationToken);
+
+        var (isValid, _, ruleErrors) =
+            await ruleEvaluator.EvaluateAsync(Workflow, validationResults, cancellationToken);
+
+        if (!isValid)
+        {
+            var first = ruleErrors
+                .OrderByDescending(r => r.Code)
+                .First();
+
+            return Result.Failure(
+                Error.Validation(first.Code, first.Message));
+        }
+
         var personData = await rpc.CallAsync<
             PersonDataRequestEvent,
             GetPersonValidationResponse>(
@@ -45,23 +57,8 @@ internal sealed class CreateActivateCommandHandler(
             return Result.Failure(
                 Error.Validation(personData.Code ?? string.Empty, personData.Message ?? string.Empty));
 
-        var validationContext = new CreateActivateValidationContext(request, existingActivate!, uuid);
-
-        var (isValid, _, ruleErrors) =
-            await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);
-
-        if (!isValid)
-        {
-            var first = ruleErrors
-                .OrderByDescending(r => r.Code)
-                .First();
-
-            return Result.Failure(
-                Error.Validation(first.Code, first.Message));
-        }
-
         var result = Activate.Create(
-            configurationParameter.Uuid,
+            validationResults.DocumentType,
             request.Identification,
             request.Pensioner,
             request.MeetsPensionRequirements ?? false,

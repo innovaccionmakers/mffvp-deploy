@@ -13,13 +13,13 @@ public class PensionRequirementCommandHandlerValidation(
 {
     public async Task<Result> ValidateRequestAsync<TCommand>(
             TCommand request,
-            string documentType,
+            string identificationType,
             string identification,
             string Workflow,
             Func<TCommand, GetActivateIdResponse, object> validationContextFactory,
             CancellationToken cancellationToken)
     {
-        var activateQuery = new GetActivateIdQuery(documentType, identification);
+        var activateQuery = new GetActivateIdQuery(identificationType, identification);
         var activateResult = await sender.Send(activateQuery, cancellationToken);
 
         if (activateResult.IsFailure)

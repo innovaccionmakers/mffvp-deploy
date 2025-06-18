@@ -10,6 +10,8 @@ using Application.PensionRequirements.CreatePensionRequirement;
 using Application.PensionRequirements;
 using Associate.Integrations.Activates.GetActivateId;
 using Common.SharedKernel.Application.Attributes;
+using Common.SharedKernel.Application.Rules;
+using Associate.Application.Abstractions;
 
 namespace Associate.Application.PensionRequirements.CreatePensionRequirement;
 
@@ -18,26 +20,48 @@ internal sealed class CreatePensionRequirementCommandHandler(
     IPensionRequirementRepository pensionrequirementRepository,
     IUnitOfWork unitOfWork,
     PensionRequirementCommandHandlerValidation validator,
+    IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
     IConfigurationParameterRepository configurationParameterRepository)
     : ICommandHandler<CreatePensionRequirementCommand>
 {
     private const string Workflow = "Associate.PensionRequirement.CreateValidation";
-
+    private const string RequiredFieldsWorkflow = "Associate.PensionRequirement.RequiredFields";
     public async Task<Result> Handle(CreatePensionRequirementCommand request, CancellationToken cancellationToken)
     {
+        var requiredContext = new
+        {
+            request.DocumentType,
+            request.Identification,
+            request.StartDateReqPen,
+            request.EndDateReqPen
+        };
+
+        var (requiredOk, _, requiredErrors) =
+            await ruleEvaluator.EvaluateAsync(RequiredFieldsWorkflow,
+                requiredContext,
+                cancellationToken);
+
+        if (!requiredOk)
+        {
+            var first = requiredErrors.First();
+            return Result.Failure(
+                Error.Validation(first.Code, first.Message));
+        }
+
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         GetActivateIdResponse? activateData = null;
-        
+
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.DocumentType, HomologScope.Of<CreatePensionRequirementCommand>(c => c.DocumentType), cancellationToken);
         Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
-        
+
         var validationResult = await validator.ValidateRequestAsync(
                 request,
                 request.DocumentType,
                 request.Identification,
                 Workflow,
-                (cmd, activateResult) => {
+                (cmd, activateResult) =>
+                {
                     activateData = activateResult;
                     return new CreatePensionRequirementValidationContext(cmd, activateResult, uuid);
                 },
@@ -60,7 +84,7 @@ internal sealed class CreatePensionRequirementCommandHandler(
         if (result.IsFailure)
             return Result.Failure<PensionRequirementResponse>(result.Error);
 
-        await pensionrequirementRepository.DeactivateExistingRequirementsAsync(activateId,  cancellationToken);
+        await pensionrequirementRepository.DeactivateExistingRequirementsAsync(activateId, cancellationToken);
 
         pensionrequirementRepository.Insert(result.Value);
 

@@ -7,7 +7,8 @@ namespace Application.PensionRequirements.CreatePensionRequirement
     {
         public CreatePensionRequirementCommand Request { get; }
         public GetActivateIdResponse ActivateResult { get; }
-        public Guid DocumentType { get; }
+        public Guid DocumentType { get; }        
+        public bool DocumentTypeExists { get; set; }
 
         public CreatePensionRequirementValidationContext(CreatePensionRequirementCommand request, GetActivateIdResponse activateResult, Guid documentType)
         {

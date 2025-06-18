@@ -15,17 +15,17 @@
     "WorkflowName": "Associate.GetActivateId.Validation",
     "Rules": [
       {
-        "RuleName": "ClientActivates",
-        "Expression": "input.ActivateExists",
-        "Properties": {
-          "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
-        }
-      },
-      {
         "RuleName": "IdTypeHomologated",
         "Expression": "input.documentType != null",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
+        }
+      },
+      {
+        "RuleName": "ClientActivates",
+        "Expression": "input.ActivateExists",
+        "Properties": {
+          "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
         }
       }
     ]
@@ -35,21 +35,14 @@
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.DocumentType)",
+        "Expression": "input.request.documentType != null && !string.IsNullOrWhiteSpace(input.request.documentType)",
         "Properties": {
           "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
         }
       },
       {
-        "RuleName": "IdTypeHomologated",
-        "Expression": "input.documentType != null",
-        "Properties": {
-          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
-        }
-      },
-      {
         "RuleName": "IdentificationRequired",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)",
+        "Expression": "input.request.Identification != null && !string.IsNullOrWhiteSpace(input.request.Identification)",
         "Properties": {
           "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
         }
@@ -62,6 +55,27 @@
         }
       },
       {
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.DocumentTypeExists == true",
+        "Properties": {
+          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
+        }
+      },
+      {
+        "RuleName": "PensionRequirementsWhenFalse",
+        "Expression": "(input.request.Pensioner == true && input.request.MeetsPensionRequirements == null) || (input.request.Pensioner == false && input.request.MeetsPensionRequirements == true)",
+        "Properties": {
+          "errorCode": "56de1714-0675-487f-8c66-d1bfb1bb0199"
+        }
+      },
+      {
+        "RuleName": "MeetsPensionRequirementsValidation",
+        "Expression": "(input.request.Pensioner == true && (input.request.MeetsPensionRequirements == null || input.request.MeetsPensionRequirements == true)) || (input.request.Pensioner == false && input.request.MeetsPensionRequirements == true)",
+        "Properties": {
+          "errorCode": "b718b8c3-d37d-417d-8153-0dadb82345b7"
+        }
+      },
+      {
         "RuleName": "PensionerBoolean",
         "Expression": "input.request.Pensioner == true || input.request.Pensioner == false",
         "Properties": {
@@ -69,29 +83,15 @@
         }
       },
       {
-        "RuleName": "PensionRequirementsWhenFalse",
-        "Expression": "input.request.Pensioner == true || (input.request.Pensioner == false && input.request.MeetsPensionRequirements != null)",
-        "Properties": {
-          "errorCode": "56de1714-0675-487f-8c66-d1bfb1bb0199"
-        }
-      },
-      {
-        "RuleName": "MeetsPensionRequirementsBoolean",
-        "Expression": "input.request.MeetsPensionRequirements == null || input.request.MeetsPensionRequirements == true || input.request.MeetsPensionRequirements == false",
-        "Properties": {
-          "errorCode": "b718b8c3-d37d-417d-8153-0dadb82345b7"
-        }
-      },
-      {
         "RuleName": "StartDateNotRequiredWhenPensionerTrue",
-        "Expression": "input.request.Pensioner != true || input.request.MeetsPensionRequirements != true || input.request.StartDateReqPen != null",
+        "Expression": "(input.request.Pensioner == true && input.request.StartDateReqPen == null) || (input.request.Pensioner == false && input.request.StartDateReqPen != null)",
         "Properties": {
           "errorCode": "49c2aec8-f175-4ee2-a199-385614f2de9c"
         }
       },
       {
         "RuleName": "EndDateRequiredWhenConditionsMet",
-        "Expression": "input.request.Pensioner != true || input.request.MeetsPensionRequirements != true || input.request.EndDateReqPen != null",
+        "Expression": "(input.request.Pensioner == true && input.request.EndDateReqPen == null) || (input.request.Pensioner == false && input.request.EndDateReqPen != null)",
         "Properties": {
           "errorCode": "ae13c8bd-2ee0-4cfa-980e-ed8a4aa6f054"
         }
@@ -124,23 +124,30 @@
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.DocumentType)",
+        "Expression": "input.request.DocumentType != null && !string.IsNullOrWhiteSpace(input.request.DocumentType)",
         "Properties": {
           "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
         }
       },
       {
-        "RuleName": "IdTypeHomologated",
-        "Expression": "input.documentType != null",
+        "RuleName": "IdentificationRequired",
+        "Expression": "input.request.Identification != null && !string.IsNullOrWhiteSpace(input.request.Identification)",
         "Properties": {
-          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
+          "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
         }
       },
       {
-        "RuleName": "IdentificationRequired",
-        "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)",
+        "RuleName": "PensionerRequired",
+        "Expression": "input.request.Pensioner != null",
         "Properties": {
-          "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
+          "errorCode": "e2f1e883-6d9a-4ee3-a173-fdb66fff0272"
+        }
+      },
+      {
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.DocumentTypeExists == true",
+        "Properties": {
+          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
       },
       {
@@ -152,7 +159,7 @@
       },
       {
         "RuleName": "PensionerStatusMatchTrue",
-        "Expression": "input.request.Pensioner == false || input.ExistingActivate.Pensioner == false",
+        "Expression": "input.ExistingActivate == null || input.request.Pensioner == false || input.ExistingActivate.Pensioner == false",
         "Properties": {
           "errorCode": "b9b0cf7b-7438-45c4-be1c-eb2be50769a7"
         }
@@ -185,7 +192,7 @@
       },
       {
         "RuleName": "IdTypeHomologated",
-        "Expression": "input.documentType != null",
+        "Expression": "input.DocumentTypeExists != false",
         "Properties": {
           "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
@@ -312,6 +319,43 @@
         "Expression": "input.request.Status == false",
         "Properties": {
           "errorCode": "0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Associate.PensionRequirement.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "IdTypeRequired",
+        "ErrorMessage": "El TipoId es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.DocumentType) == false",
+        "Properties": {
+          "errorCode": "df221640-b4af-4d28-8e53-6ade541e5113"
+        }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "ErrorMessage": "La Identificacion es obligatoria",
+        "Expression": "string.IsNullOrWhiteSpace(input.Identification) == false",
+        "Properties": {
+          "errorCode": "4e8736d8-8801-4c54-ae02-05b94f79ff9a"
+        }
+      },
+      {
+        "RuleName": "StartDateReqPenRequired",
+        "ErrorMessage": "El IdAlternativa es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.StartDateReqPen) == false",
+        "Properties": {
+          "errorCode": "aa9b60f3-f329-4920-b12f-16e4142e66ee"
+        }
+      },
+      {
+        "RuleName": "EndDateReqPenRequired",
+        "ErrorMessage": "El TipoObjetivo es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.EndDateReqPen) == false",
+        "Properties": {
+          "errorCode": "6729f994-b722-4798-a9b9-54109b027205"
         }
       }
     ]
