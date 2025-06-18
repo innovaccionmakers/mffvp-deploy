@@ -79,6 +79,7 @@ public sealed class ObjectiveReader(
             .AsNoTracking()
             .Where(o => o.AffiliateId == affiliateId &&
                         (statusFilter == null || o.Status == statusFilter))
+            .OrderBy(o => o.ObjectiveId)
             .Select(o => new ObjectiveDto(
                 o.ObjectiveId,
                 o.ObjectiveTypeId.ToString(),

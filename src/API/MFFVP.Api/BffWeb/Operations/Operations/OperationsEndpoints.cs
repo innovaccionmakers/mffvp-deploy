@@ -30,7 +30,7 @@ public sealed class OperationsEndpoints
                 ) =>
                 {
                     var result = await _operationsService.CreateContribution(request, sender);
-                    return result.Match(() => Results.Ok(), ApiResults.Problem);
+                    return result.ToApiResult();
                 }
             )
             .WithName("CreateContribution")

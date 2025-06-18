@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using HttpResults = Microsoft.AspNetCore.Http.Results;
 
@@ -25,8 +26,18 @@ internal static class ApiSuccessBuilder
             typeof(T),
             t => t.GetProperties(BindingFlags.Instance | BindingFlags.Public));
 
-        foreach (var p in props) dict[p.Name] = p.GetValue(payload);
+        foreach (var p in props)
+        {
+            var jsonPropertyName = GetJsonPropertyName(p);
+            dict[jsonPropertyName] = p.GetValue(payload);
+        }
 
         return HttpResults.Json(dict, statusCode: StatusCodes.Status200OK);
+    }
+
+    private static string GetJsonPropertyName(PropertyInfo property)
+    {
+        var jsonPropertyNameAttribute = property.GetCustomAttribute<JsonPropertyNameAttribute>();
+        return jsonPropertyNameAttribute?.Name ?? property.Name;
     }
 }
