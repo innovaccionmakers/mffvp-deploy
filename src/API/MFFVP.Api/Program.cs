@@ -12,7 +12,6 @@ using Common.SharedKernel.Presentation.Filters;
 using FluentValidation;
 
 using MFFVP.Api.BffWeb.Associate;
-//using MFFVP.Api.BffWeb.Associate.PensionRequirements;
 using MFFVP.Api.BffWeb.Operations;
 using MFFVP.Api.BffWeb.Customers;
 using MFFVP.Api.BffWeb.Products;
@@ -116,7 +115,6 @@ builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(ProductsEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(CustomersEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(OperationsEndpoints).Assembly);
-//builder.Services.AddEndpoints(typeof(PensionRequirementsEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));
