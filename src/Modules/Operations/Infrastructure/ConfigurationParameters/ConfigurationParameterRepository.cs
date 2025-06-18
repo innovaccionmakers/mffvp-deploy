@@ -54,7 +54,7 @@ internal sealed class ConfigurationParameterRepository :
             .AsNoTracking()
             .SingleOrDefaultAsync(
                 p => p.HomologationCode == homologationCode
-                     && p.Name == scope,
+                     && p.Type == scope,
                 cancellationToken);
     }
 
