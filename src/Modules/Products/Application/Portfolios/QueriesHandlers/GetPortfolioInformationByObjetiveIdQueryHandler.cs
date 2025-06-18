@@ -10,18 +10,13 @@ namespace Products.Application.Portfolios.QueriesHandlers;
 
 internal sealed class GetPortfolioInformationByObjetiveIdQueryHandler(
     IPortfolioRepository repository)
-    : IQueryHandler<GetPortfolioInformationByObjetiveIdQuery, PortfolioInformationResponse>
+    : IQueryHandler<GetPortfolioInformationByObjetiveIdQuery, PortfolioInformation>
 {
-    public async Task<Result<PortfolioInformationResponse>> Handle(
+    public async Task<Result<PortfolioInformation>> Handle(
     GetPortfolioInformationByObjetiveIdQuery request,
     CancellationToken cancellationToken)
     {
         var result = await repository.GetPortfolioInformationByObjectiveIdAsync(request.ObjetiveId, cancellationToken);
-
-        if (result is null)
-        {
-            return Result.Failure<PortfolioInformationResponse>("No se encontró información para el objetivo.");
-        }
 
         return Result.Success(result);
     }

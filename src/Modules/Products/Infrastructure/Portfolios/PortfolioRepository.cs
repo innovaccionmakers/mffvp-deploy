@@ -48,24 +48,23 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<PortfolioInformationResponse?> GetPortfolioInformationByObjectiveIdAsync(string objectiveId, CancellationToken cancellationToken)
+    public async Task<PortfolioInformation?> GetPortfolioInformationByObjectiveIdAsync(string objectiveId, CancellationToken cancellationToken)
     {
-        var result = await (from o in _context.Objetivos
-                            join a in _context.Alternativas on o.AlternativaId equals a.Id
-                            join pf in _context.PlanesFondo on a.PlanesFondoId equals pf.PlanId
-                            join f in _context.Fondos on pf.FondoId equals f.Identificacion
-                            join ap in _context.AlternativaPortafolio on a.Id equals ap.AlternativaId
-                            join p in _context.Portafolios on ap.PortafolioId equals p.Id
-                            where o.TipoObjetivoIni == objectiveId
-                            select new PortfolioInformationResponse
-                            {
-                                Found = f.Nombre,
-                                Plan = pf.PlanId.ToString(),
-                                Alternative = a.Nombre,
-                                Portfolio = p.Nombre
-                            }).FirstOrDefaultAsync(cancellationToken);
+        var result = await(from o in context.Objectives
+                           join a in context.Alternatives on o.AlternativeId equals a.AlternativeId
+                           join pf in context.PlanFunds on a.PlanFundId equals pf.PlanId
+                           join pl in context.Plans on pf.PlanId equals pl.PlanId
+                           join f in context.PensionFunds on pf.PensionFundId equals f.PensionFundId
+                           join ap in context.AlternativePortfolios on a.AlternativeId equals ap.AlternativeId
+                           join p in context.Portfolios on ap.PortfolioId equals p.PortfolioId
+                           where o.ObjectiveId.ToString() == objectiveId
+                           select PortfolioInformation.Create(
+                                f.Name,
+                                pl.Name,
+                                a.Name,
+                                p.Name
+                               )).FirstOrDefaultAsync(cancellationToken);
 
         return result;
     }
-
 }
