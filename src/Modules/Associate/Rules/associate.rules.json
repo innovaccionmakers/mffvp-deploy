@@ -15,6 +15,20 @@
     "WorkflowName": "Associate.GetActivateId.Validation",
     "Rules": [
       {
+        "RuleName": "IdTypeRequired",
+        "Expression": "input.request.documentType != null && !string.IsNullOrWhiteSpace(input.request.documentType)",
+        "Properties": {
+          "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "Expression": "input.request.Identification != null && !string.IsNullOrWhiteSpace(input.request.Identification)",
+        "Properties": {
+          "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
+        }
+      },
+      {
         "RuleName": "IdTypeHomologated",
         "Expression": "input.documentType != null",
         "Properties": {
@@ -182,7 +196,7 @@
   },
   {
     "WorkflowName": "Associate.PensionRequirement.CreateValidation",
-    "Rules": [
+    "Rules": [      
       {
         "RuleName": "IdTypeRequired",
         "Expression": "!string.IsNullOrWhiteSpace(input.request.DocumentType)",
@@ -191,17 +205,31 @@
         }
       },
       {
-        "RuleName": "IdTypeHomologated",
-        "Expression": "input.DocumentTypeExists != false",
-        "Properties": {
-          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
-        }
-      },
-      {
         "RuleName": "IdentificationRequired",
         "Expression": "!string.IsNullOrWhiteSpace(input.request.Identification)",
         "Properties": {
           "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
+        }
+      },
+      {
+        "RuleName": "StartDateReqPenRequired",
+        "Expression": "input.request.StartDateReqPen != null",
+        "Properties": {
+          "errorCode": "5a8f3b9c-1d2a-4e7f-b8d3-6e9f0a1b2c4d"
+        }
+      },
+      {
+        "RuleName": "EndDateReqPenRequired",
+        "Expression": "input.request.EndDateReqPen != null",
+        "Properties": {
+          "errorCode": "7b2c4d6e-8f1a-3d5e-9b0c-4a6e7f8d1e2f"
+        }
+      },
+      {
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.DocumentTypeExists != false",
+        "Properties": {
+          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
         }
       },
       {
@@ -309,7 +337,7 @@
       },
       {
         "RuleName": "PensionRequirementNotInactive",
-        "Expression": "input.ExistingPensionRequirement.Status != false",
+        "Expression": "input.ExistingPensionRequirement.Status != Inactive",
         "Properties": {
           "errorCode": "9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d"
         }
@@ -319,43 +347,6 @@
         "Expression": "input.request.Status == false",
         "Properties": {
           "errorCode": "0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e"
-        }
-      }
-    ]
-  },
-  {
-    "WorkflowName": "Associate.PensionRequirement.RequiredFields",
-    "Rules": [
-      {
-        "RuleName": "IdTypeRequired",
-        "ErrorMessage": "El TipoId es obligatorio",
-        "Expression": "string.IsNullOrWhiteSpace(input.DocumentType) == false",
-        "Properties": {
-          "errorCode": "df221640-b4af-4d28-8e53-6ade541e5113"
-        }
-      },
-      {
-        "RuleName": "IdentificationRequired",
-        "ErrorMessage": "La Identificacion es obligatoria",
-        "Expression": "string.IsNullOrWhiteSpace(input.Identification) == false",
-        "Properties": {
-          "errorCode": "4e8736d8-8801-4c54-ae02-05b94f79ff9a"
-        }
-      },
-      {
-        "RuleName": "StartDateReqPenRequired",
-        "ErrorMessage": "El IdAlternativa es obligatorio",
-        "Expression": "string.IsNullOrWhiteSpace(input.StartDateReqPen) == false",
-        "Properties": {
-          "errorCode": "aa9b60f3-f329-4920-b12f-16e4142e66ee"
-        }
-      },
-      {
-        "RuleName": "EndDateReqPenRequired",
-        "ErrorMessage": "El TipoObjetivo es obligatorio",
-        "Expression": "string.IsNullOrWhiteSpace(input.EndDateReqPen) == false",
-        "Properties": {
-          "errorCode": "6729f994-b722-4798-a9b9-54109b027205"
         }
       }
     ]

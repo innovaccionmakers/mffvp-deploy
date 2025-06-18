@@ -5,14 +5,12 @@ using Associate.Domain.ConfigurationParameters;
 using Associate.Integrations.Activates.CreateActivate;
 using Associate.Integrations.Activates.UpdateActivate;
 using Common.SharedKernel.Application.Attributes;
-using Common.SharedKernel.Application.Messaging;
 
 namespace Application.Activates
 {
     public class ActivatesCommandHandlerValidation(
         IConfigurationParameterRepository configurationParameterRepository,
-        IActivateRepository activateRepository,
-        ICapRpcClient rpc)
+        IActivateRepository activateRepository)
     {
         public async Task<UpdateActivateValidationContext> UpdateActivateValidationContext(
             UpdateActivateCommand request,
@@ -33,7 +31,7 @@ namespace Application.Activates
             };
         }
 
-        public async Task<CreateActivateValidationContext> CreateUpdateValidateRequestAsync(
+        public async Task<CreateActivateValidationContext> CreateActivateValidateRequestAsync(
             CreateActivateCommand request,
             CancellationToken cancellationToken)
         {

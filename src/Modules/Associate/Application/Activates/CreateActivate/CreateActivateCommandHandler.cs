@@ -1,4 +1,3 @@
-using Associate.Domain.ConfigurationParameters;
 using Associate.Application.Abstractions.Data;
 using Common.SharedKernel.Application.Rules;
 using Associate.Domain.Activates;
@@ -9,7 +8,6 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Associate.Application.Abstractions;
 using MediatR;
-using Common.SharedKernel.Application.Attributes;
 using Application.Activates;
 
 namespace Associate.Application.Activates.CreateActivate;
@@ -20,7 +18,6 @@ internal sealed class CreateActivateCommandHandler(
     IUnitOfWork unitOfWork,
     ICapRpcClient rpc,
     ISender sender,
-    IConfigurationParameterRepository configurationParameterRepository,
     ActivatesCommandHandlerValidation validator)
     : ICommandHandler<CreateActivateCommand>
 {
@@ -30,7 +27,7 @@ internal sealed class CreateActivateCommandHandler(
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        var validationResults = await validator.CreateUpdateValidateRequestAsync(request, cancellationToken);
+        var validationResults = await validator.CreateActivateValidateRequestAsync(request, cancellationToken);
 
         var (isValid, _, ruleErrors) =
             await ruleEvaluator.EvaluateAsync(Workflow, validationResults, cancellationToken);

@@ -9,8 +9,8 @@ namespace Application.PensionRequirements.UpdatePensionRequirement
         public UpdatePensionRequirementCommand Request { get; }
         public GetActivateIdResponse ActivateResult { get; }
         public PensionRequirement ExistingPensionRequirement { get; }
-
-        public Guid DocumentType { get; }
+        public Guid DocumentType { get; }        
+        public bool DocumentTypeExists { get; set; }
 
 
         public UpdatePensionRequirementValidationContext(

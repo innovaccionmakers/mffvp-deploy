@@ -2,6 +2,7 @@ using Associate.Application.Abstractions;
 using Associate.Domain.Activates;
 using Associate.Domain.ConfigurationParameters;
 using Associate.Integrations.Activates.GetActivateId;
+using Azure.Core;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
@@ -35,7 +36,8 @@ internal sealed class GetActivateIdHandler(
         var validationContext = new
         {
             documentType = configurationParameter,
-            ActivateExists = activate is not null
+            ActivateExists = activate is not null,
+            request = query
         };
         var (ok, _, errors) = await ruleEvaluator
             .EvaluateAsync(ActivateValidationWorkflow, validationContext, cancellationToken);

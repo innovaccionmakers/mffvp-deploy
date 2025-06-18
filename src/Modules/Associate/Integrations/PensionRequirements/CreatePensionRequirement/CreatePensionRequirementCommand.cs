@@ -13,8 +13,10 @@ public sealed record CreatePensionRequirementCommand(
     string Identification,
     
     [property: JsonPropertyName("FechaInicioReqPen")]
-    DateTime StartDateReqPen,
+    [property: JsonConverter(typeof(EmptyStringToNullDateTimeConverter))]
+    DateTime? StartDateReqPen,
     
     [property: JsonPropertyName("FechaFinReqPen")]
-    DateTime EndDateReqPen
+    [property: JsonConverter(typeof(EmptyStringToNullDateTimeConverter))]
+    DateTime? EndDateReqPen
 ) : ICommand;
