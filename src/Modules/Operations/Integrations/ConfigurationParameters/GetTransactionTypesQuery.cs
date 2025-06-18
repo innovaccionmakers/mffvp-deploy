@@ -1,7 +1,7 @@
 ﻿using Common.SharedKernel.Application.Messaging;
-using Operations.Domain.TransactionTypes;
+using Operations.Domain.ConfigurationParameters;
 
-namespace Operations.Integrations.TransactionTypes;
+namespace Operations.Integrations.ConfigurationParameters;
 
 public sealed record class GetTransactionTypesQuery : IQuery<IReadOnlyCollection<TransactionType>>;
     

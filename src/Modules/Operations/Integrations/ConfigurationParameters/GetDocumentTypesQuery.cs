@@ -1,6 +1,6 @@
 ﻿using Common.SharedKernel.Application.Messaging;
-using Operations.Domain.DocumentTypes;
+using Operations.Domain.ConfigurationParameters;
 
-namespace Operations.Integrations.DocumentTypes;
+namespace Operations.Integrations.ConfigurationParameters;
 
 public sealed record class GetDocumentTypesQuery : IQuery<IReadOnlyCollection<DocumentType>>;

@@ -1,6 +1,6 @@
 ﻿using Operations.Domain.SubtransactionTypes;
 
-namespace Operations.Domain.TransactionTypes;
+namespace Operations.Domain.ConfigurationParameters;
 
 public class TransactionType
 {

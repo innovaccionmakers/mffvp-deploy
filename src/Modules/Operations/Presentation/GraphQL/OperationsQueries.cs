@@ -1,6 +1,5 @@
 using MediatR;
-using Operations.Integrations.DocumentTypes;
-using Operations.Integrations.TransactionTypes;
+using Operations.Integrations.ConfigurationParameters;
 using Operations.Presentation.DTOs;
 
 namespace Operations.Presentation.GraphQL;
@@ -57,5 +56,23 @@ public class OperationsQueries
             x.HomologatedCode
         )).ToList();
 
+    }
+
+    public async Task<IReadOnlyCollection<CertificationStatusDto>> GetCertificationStatusesAsync(
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetCertificationStatusesQuery(), cancellationToken);
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve certification statuses.");
+        }
+        var certificationStatuses = result.Value;
+        return certificationStatuses.Select(x => new CertificationStatusDto(
+            x.CertificationStatusId.ToString(),
+            x.Name,
+            x.Status,
+            x.HomologatedCode
+        )).ToList();
     }
 }
