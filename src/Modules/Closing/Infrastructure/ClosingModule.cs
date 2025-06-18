@@ -36,11 +36,21 @@ public static class ClosingModule
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        string connectionString = configuration.GetConnectionString("OperationsDatabase");
+
+        if (env != "Development")
+        {
+            var secretName = configuration["AWS:SecretsManager:SecretName"];
+            var region = configuration["AWS:SecretsManager:Region"];
+            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
+        }
+
         services.AddDbContext<ClosingDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
                 .UseNpgsql(
-                    configuration.GetConnectionString("ClosingDatabase"),
+                    connectionString,
                     npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Closing)
                 );
