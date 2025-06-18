@@ -3,6 +3,7 @@
 using MediatR;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
+using Products.Integrations.Banks;
 
 
 [ExtendObjectType("Query")]
@@ -41,6 +42,28 @@ public class ProductsQueries
             .SetCode("UNEXPECTED_ERROR")
             .Build());
         }
+
+    }
+
+    public async Task<IReadOnlyCollection<BankDto>> GetBanksAsync(
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken = default)
+    {
+
+        var result = await mediator.Send(new GetBanksQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve banks.");
+        }
+
+        var banks = result.Value;
+
+
+        return banks.Select(x => new BankDto(
+            x.BankId.ToString(),
+            x.Name
+        )).ToList();
 
     }
 }
