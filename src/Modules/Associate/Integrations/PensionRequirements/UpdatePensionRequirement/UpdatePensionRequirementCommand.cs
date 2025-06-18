@@ -15,6 +15,7 @@ public sealed record UpdatePensionRequirementCommand(
     [property: JsonPropertyName("IdRequisitoPension")]
     int PensionRequirementId,
     
-    [property: JsonPropertyName("Estado")]
-    Status Status
+    [property: JsonPropertyName("Estado")]    
+    [property: JsonConverter(typeof(BooleanOrStringToBooleanConverter))]
+    bool? Status
 ) : ICommand;
