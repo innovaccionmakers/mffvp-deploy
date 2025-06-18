@@ -19,7 +19,6 @@ using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
-using Products.Application.Abstractions;
 using Products.Infrastructure.Alternatives;
 using Products.Infrastructure.Banks;
 using Products.Infrastructure.Commercials;

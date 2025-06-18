@@ -22,18 +22,6 @@ public sealed class Bank : Entity
         return Result.Success(bank);
     }
 
-    public static Bank CreateforGraphql(
-        int bankId,
-        string name
-    )
-    {
-        return new Bank
-        {
-            BankId = bankId,
-            Name = name
-        };
-    }
-
     public void UpdateDetails(string newName)
     {
         Name = newName;

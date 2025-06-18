@@ -8,10 +8,6 @@ public class BankRepository(ProductsDbContext context) : IBankRepository
 {
     public async Task<IReadOnlyCollection<Bank>> GetBanksAsync(CancellationToken cancellationToken = default)
     {
-        return await context.Bank
-            .Select(dt => Bank.CreateforGraphql(
-                dt.Name,
-                dt.BankId
-            )).ToListAsync(cancellationToken);
+        return await context.Banks.ToListAsync(cancellationToken);
     }
 }
