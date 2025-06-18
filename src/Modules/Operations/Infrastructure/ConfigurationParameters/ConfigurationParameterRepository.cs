@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Infrastructure.Database;
 using Operations.Application.Abstractions;
+using Common.SharedKernel.Domain;
 
 namespace Operations.Infrastructure.ConfigurationParameters;
 
@@ -65,5 +66,46 @@ internal sealed class ConfigurationParameterRepository :
             .Where(p => uuids.Contains(p.Uuid))
             .ToListAsync(cancellationToken);
         return items.ToDictionary(p => p.Uuid);
+    }
+
+    public async Task<IReadOnlyCollection<TransactionType>> GetTransactionTypesAsync(CancellationToken cancellationToken = default)
+    {
+        var query = context.ConfigurationParameters
+           .Where(cp => cp.Type == ConfigurationParameterType.TipoTransaccion.ToString() && cp.Status);
+
+        return await query
+            .Select(cp => TransactionType.Create(
+                cp.ConfigurationParameterId,
+                cp.HomologationCode,
+                cp.Name,
+                cp.Status,
+                context.SubtransactionTypes
+                    .Where(st => st.Category == cp.Uuid && st.Status == Status.Active)
+                    .ToList()
+                )).ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<DocumentType>> GetDocumentTypesAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.ConfigurationParameters
+            .Where(dt => dt.Status && dt.Type == ConfigurationParameterType.TipoDocumento.ToString())
+            .Select(dt => DocumentType.Create(
+                dt.ConfigurationParameterId,
+                dt.HomologationCode,
+                dt.Name,
+                dt.Status
+            )).ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<CertificationStatus>> GetCertificationStatusesAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.ConfigurationParameters
+            .Where(dt => dt.Status && dt.Type == ConfigurationParameterType.EstadosCertificacion.ToString())
+            .Select(dt => CertificationStatus.Create(
+                dt.ConfigurationParameterId,
+                dt.HomologationCode,
+                dt.Name,
+                dt.Status
+            )).ToListAsync(cancellationToken);
     }
 }

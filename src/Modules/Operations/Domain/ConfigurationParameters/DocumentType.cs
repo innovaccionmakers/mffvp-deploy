@@ -1,4 +1,4 @@
-﻿namespace Operations.Domain.DocumentTypes;
+﻿namespace Operations.Domain.ConfigurationParameters;
 
 public class DocumentType
 {

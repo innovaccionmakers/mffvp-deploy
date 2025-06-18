@@ -15,10 +15,8 @@ using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.ConfigurationParameters;
-using Operations.Domain.DocumentTypes;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
-using Operations.Domain.TransactionTypes;
 using Operations.Infrastructure.AuxiliaryInformations;
 using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ClientOperations;
@@ -30,8 +28,6 @@ using Operations.Infrastructure.External.Customers;
 using Operations.Infrastructure.External.Trusts;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.SubtransactionTypes;
-using Operations.Infrastructure.TransactionTypes;
-using Operations.Infrastructure.DocumentTypes;
 
 namespace Operations.Infrastructure;
 
@@ -76,8 +72,6 @@ public static class OperationsModule
         services.AddScoped<IConfigurationParameterLookupRepository<OperationsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<OperationsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IOriginRepository, OriginRepository>();
-        services.AddScoped<ITransactionTypeRepository, TransactionTypeRepository>();
-        services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
         services.AddScoped<ISubtransactionTypeRepository, SubtransactionTypeRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
 

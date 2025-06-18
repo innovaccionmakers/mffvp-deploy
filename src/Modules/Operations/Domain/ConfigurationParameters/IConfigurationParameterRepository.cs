@@ -16,4 +16,13 @@ public interface IConfigurationParameterRepository : IConfigurationParameterLook
 
     Task<IReadOnlyDictionary<Guid, ConfigurationParameter>>
         GetByUuidsAsync(IEnumerable<Guid> uuids, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<TransactionType>> GetTransactionTypesAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<DocumentType>> GetDocumentTypesAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<CertificationStatus>> GetCertificationStatusesAsync(
+        CancellationToken cancellationToken = default);
 }

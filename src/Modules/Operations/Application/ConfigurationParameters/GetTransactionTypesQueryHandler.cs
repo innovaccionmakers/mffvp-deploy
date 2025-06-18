@@ -1,12 +1,12 @@
 ﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Operations.Domain.TransactionTypes;
-using Operations.Integrations.TransactionTypes;
+using Operations.Domain.ConfigurationParameters;
+using Operations.Integrations.ConfigurationParameters;
 
-namespace Operations.Application.TransactionTypes;
+namespace Operations.Application.ConfigurationParameters;
 
 public class GetTransactionTypesQueryHandler(
-    ITransactionTypeRepository repository
+    IConfigurationParameterRepository repository
     ) : IQueryHandler<GetTransactionTypesQuery, IReadOnlyCollection<TransactionType>>
 {    
     public async Task<Result<IReadOnlyCollection<TransactionType>>> Handle(GetTransactionTypesQuery request, CancellationToken cancellationToken)
