@@ -28,7 +28,7 @@ public sealed class ActivatesEndpoints
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("BffWeb/FVP/Associate")
-            .WithTags("BFF Web - Associate")
+            .WithTags("Associate")
             .WithOpenApi();
 
         group.MapGet("GetAssociates", async (ISender sender) =>
@@ -36,6 +36,7 @@ public sealed class ActivatesEndpoints
                 var result = await _activatesService.GetActivatesAsync(sender);
                 return result.Value;
             })
+            .WithSummary("Retorna una lista de activaciones")
             .Produces<IReadOnlyCollection<ActivateResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -44,6 +45,7 @@ public sealed class ActivatesEndpoints
                 var result = await _activatesService.CreateActivateAsync(request, sender);
                 return result.ToApiResult(result.Description);
             })
+            .WithSummary("Crea una activación")
             .AddEndpointFilter<TechnicalValidationFilter<CreateActivateCommand>>()
             .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -86,6 +88,7 @@ public sealed class ActivatesEndpoints
                 var result = await _activatesService.UpdateActivateAsync(command, sender);
                 return result.ToApiResult(result.Description);
             })
+            .WithSummary("Actualiza una activación")
             .AddEndpointFilter<TechnicalValidationFilter<UpdateActivateCommand>>()
             .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -96,6 +99,7 @@ public sealed class ActivatesEndpoints
                 var result = await _pensionrequirementsService.GetPensionRequirementsAsync(sender);
                 return result;
             })
+            .WithSummary("Retorna lista de requerimientos de pensioó")
             .Produces<IReadOnlyCollection<PensionRequirementResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -104,6 +108,7 @@ public sealed class ActivatesEndpoints
             var result = await _pensionrequirementsService.CreatePensionRequirementAsync(request, sender);
             return result.ToApiResult(result.Description);
         })
+        .WithSummary("Crea un requerimiento de pensión")
         .AddEndpointFilter<TechnicalValidationFilter<CreatePensionRequirementCommand>>()
         .Produces<PensionRequirementResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -114,6 +119,7 @@ public sealed class ActivatesEndpoints
             var result = await _pensionrequirementsService.UpdatePensionRequirementAsync(command, sender);
             return result.ToApiResult(result.Description);
         })
+        .WithSummary("Actualiza un requerimiento de pensión")
         .AddEndpointFilter<TechnicalValidationFilter<UpdatePensionRequirementCommand>>()
         .Produces<PensionRequirementResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)

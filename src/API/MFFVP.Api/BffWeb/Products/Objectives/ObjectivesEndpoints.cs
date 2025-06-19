@@ -23,7 +23,7 @@ public sealed class ObjectivesEndpoints
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("bffWeb/FVP/Product")
-            .WithTags("BFF Web - Objectives")
+            .WithTags("Objectives")
             .WithOpenApi();
 
         group.MapGet(

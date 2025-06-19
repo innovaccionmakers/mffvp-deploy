@@ -19,7 +19,7 @@ public sealed class OperationsEndpoints
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("bffWeb/FVP/Product")
-            .WithTags("BFF Web - Contributions")
+            .WithTags("Contributions")
             .WithOpenApi();
 
         group.MapPost(
