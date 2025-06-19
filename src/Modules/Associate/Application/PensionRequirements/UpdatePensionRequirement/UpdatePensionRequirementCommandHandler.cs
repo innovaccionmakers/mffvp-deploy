@@ -20,7 +20,7 @@ internal sealed class UpdatePensionRequirementCommandHandler(
     public async Task<Result> Handle(UpdatePensionRequirementCommand request, CancellationToken cancellationToken)
     {
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        var existingPensionRequirement = await pensionrequirementRepository.GetAsync(request.PensionRequirementId, cancellationToken);
+        var existingPensionRequirement = await pensionrequirementRepository.GetAsync(request.PensionRequirementId ?? 0, cancellationToken);
         var validationResult = await validator.UpdatePensionRequirementValidationContext(request, Workflow, existingPensionRequirement!, cancellationToken);
 
         if (validationResult.IsFailure)
