@@ -16,6 +16,7 @@ namespace Common.SharedKernel.Domain
                 case JsonTokenType.String:
                     return string.IsNullOrEmpty(reader.GetString()) ? null : bool.Parse(reader.GetString());
                 case JsonTokenType.Null:
+                case JsonTokenType.Number:
                     return null;
                 default:
                     throw new JsonException($"Unexpected token type: {reader.TokenType}");

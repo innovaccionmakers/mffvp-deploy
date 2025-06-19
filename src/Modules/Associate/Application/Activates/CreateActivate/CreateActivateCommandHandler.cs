@@ -57,7 +57,7 @@ internal sealed class CreateActivateCommandHandler(
         var result = Activate.Create(
             validationResults.DocumentType,
             request.Identification,
-            request.Pensioner,
+            request.Pensioner ?? false,
             request.MeetsPensionRequirements ?? false,
             DateTime.UtcNow
         );
