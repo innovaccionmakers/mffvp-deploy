@@ -1,4 +1,4 @@
-﻿namespace Operations.Presentation.DTOs;
+﻿namespace Products.Presentation.DTOs;
 
 public record DocumentTypeDto(
     string Uuid,

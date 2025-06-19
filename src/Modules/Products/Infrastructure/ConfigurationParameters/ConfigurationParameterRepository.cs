@@ -1,8 +1,9 @@
-using Products.Domain.ConfigurationParameters;
-using Microsoft.EntityFrameworkCore;
+using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.ConfigurationParameters;
-using Products.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 using Products.Application.Abstractions;
+using Products.Domain.ConfigurationParameters;
+using Products.Infrastructure.Database;
 
 namespace Products.Infrastructure.ConfigurationParameters;
 
@@ -83,5 +84,14 @@ internal sealed class ConfigurationParameterRepository :
                 p => p.HomologationCode == homologationCode
                      && p.Name == scope,
                 cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<ConfigurationParameter>> GetActiveConfigurationParametersByTypeAsync(
+       ConfigurationParameterType type,
+       CancellationToken cancellationToken = default)
+    {
+        return await _context.ConfigurationParameters
+            .Where(cp => cp.Type == type.ToString() && cp.Status)
+            .ToListAsync(cancellationToken);
     }
 }

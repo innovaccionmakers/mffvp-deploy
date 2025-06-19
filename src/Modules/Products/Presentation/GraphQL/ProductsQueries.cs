@@ -4,6 +4,7 @@ using MediatR;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
 using Products.Integrations.Banks;
+using Products.Integrations.ConfigurationParameters.DocumentTypes;
 
 
 [ExtendObjectType("Query")]
@@ -42,6 +43,30 @@ public class ProductsQueries
             .SetCode("UNEXPECTED_ERROR")
             .Build());
         }
+
+    }
+
+    public async Task<IReadOnlyCollection<DocumentTypeDto>> GetDocumentTypesAsync(
+      [Service] IMediator mediator,
+      CancellationToken cancellationToken = default)
+    {
+
+        var result = await mediator.Send(new GetDocumentTypesQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve transaction types.");
+        }
+
+        var documentTypes = result.Value;
+
+
+        return documentTypes.Select(x => new DocumentTypeDto(
+            x.Id.ToString(),
+            x.Name,
+            x.Status,
+            x.HomologatedCode
+        )).ToList();
 
     }
 

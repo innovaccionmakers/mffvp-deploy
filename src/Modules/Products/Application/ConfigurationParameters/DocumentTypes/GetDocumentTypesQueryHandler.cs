@@ -1,9 +1,9 @@
 ﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Operations.Domain.ConfigurationParameters;
-using Operations.Integrations.ConfigurationParameters;
+using Products.Domain.ConfigurationParameters;
+using Products.Integrations.ConfigurationParameters.DocumentTypes;
 
-namespace Operations.Application.ConfigurationParameters;
+namespace Products.Application.ConfigurationParameters.DocumentTypes;
 
 public class GetDocumentTypesQueryHandler(IConfigurationParameterRepository repository) : IQueryHandler<GetDocumentTypesQuery, IReadOnlyCollection<ConfigurationParameterResponse>>
 {

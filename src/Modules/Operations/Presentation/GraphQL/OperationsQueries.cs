@@ -34,31 +34,7 @@ public class OperationsQueries
             )).ToList()
         )).ToList();
     }
-
-    public async Task<IReadOnlyCollection<DocumentTypeDto>> GetDocumentTypesAsync(
-        [Service] IMediator mediator,
-        CancellationToken cancellationToken = default)
-    {
-
-        var result = await mediator.Send(new GetDocumentTypesQuery(), cancellationToken);
-
-        if (!result.IsSuccess || result.Value == null)
-        {
-            throw new InvalidOperationException("Failed to retrieve transaction types.");
-        }
-
-        var documentTypes = result.Value;
-
-
-        return documentTypes.Select(x => new DocumentTypeDto(
-            x.Id.ToString(),
-            x.Name,
-            x.Status,
-            x.HomologatedCode
-        )).ToList();
-
-    }
-
+  
     public async Task<IReadOnlyCollection<CertificationStatusDto>> GetCertificationStatusesAsync(
         [Service] IMediator mediator,
         CancellationToken cancellationToken = default)

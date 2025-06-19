@@ -1,5 +1,5 @@
 ﻿using Common.SharedKernel.Application.Messaging;
 
-namespace Operations.Integrations.ConfigurationParameters;
+namespace Products.Integrations.ConfigurationParameters.DocumentTypes;
 
 public sealed record class GetDocumentTypesQuery : IQuery<IReadOnlyCollection<ConfigurationParameterResponse>>;
