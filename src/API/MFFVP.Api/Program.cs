@@ -26,6 +26,7 @@ using Serilog;
 using System.Reflection;
 using Trusts.Infrastructure;
 using MFFVP.Api.GraphQL;
+using Associate.Presentation.GraphQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,6 +106,7 @@ builder.Services.AddGraphQLServer()
             .AddQueryType<Query>()
             .AddType<OperationsQueries>()
             .AddType<ProductsQueries>()
+            .AddType<AssociateQueries>()
             .AddFiltering()
             .AddSorting()
             .AddProjections();
