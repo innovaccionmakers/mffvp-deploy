@@ -6,5 +6,6 @@ public enum ConfigurationParameterType
     TipoDocumento,
     EstadosCertificacion,
     ModalidadOrigen,
-    MetodoRecaudo
+    MetodoRecaudo,
+    FormaPago,
 }

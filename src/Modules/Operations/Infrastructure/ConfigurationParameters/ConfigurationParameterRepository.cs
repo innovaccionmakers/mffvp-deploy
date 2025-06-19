@@ -132,4 +132,16 @@ internal sealed class ConfigurationParameterRepository :
                 cm.Status
             )).ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<PaymentMethod>> GetPaymentMethodsAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.ConfigurationParameters
+            .Where(cp => cp.Status && cp.Type == ConfigurationParameterType.FormaPago.ToString())
+            .Select(cp => PaymentMethod.Create(
+                cp.ConfigurationParameterId,
+                cp.Name,
+                cp.Status,
+                cp.HomologationCode
+            )).ToListAsync(cancellationToken)
+    }
 }

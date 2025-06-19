@@ -31,4 +31,8 @@ public interface IConfigurationParameterRepository : IConfigurationParameterLook
 
     Task<IReadOnlyCollection<CollectionMethod>> GetCollectionMethodsAsync(
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<PaymentMethod>> GetPaymentMethodsAsync(
+        CancellationToken cancellationToken = default
+    );
 }

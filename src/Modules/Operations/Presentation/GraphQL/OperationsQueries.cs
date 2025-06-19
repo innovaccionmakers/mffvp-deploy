@@ -20,7 +20,7 @@ public class OperationsQueries
         }
 
         var transactionTypes = result.Value;
-        
+
         return transactionTypes.Select(x => new TransactionTypeDto(
             x.TransactionTypeId.ToString(),
             x.Name,
@@ -111,6 +111,28 @@ public class OperationsQueries
             x.Status,
             x.HomologatedCode
         )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<PaymentMethodDto>> GetPaymentMethodsAsync(
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken = default
+    ){
+        var result = await mediator.Send(new GetPaymentMethodsQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve payment methods");
+        }
+
+        var paymentMethods = result.Value;
+
+        return paymentMethods.Select(x => new PaymentMethodDto(
+            x.PaymentMethodId.ToString(),
+            x.Name,
+            x.Status,
+            x.HomologatedCode
+        ))
+
     }
 
     public async Task<IReadOnlyCollection<OriginContributionDto>> GetOriginContributionsAsync(
