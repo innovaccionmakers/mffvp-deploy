@@ -22,7 +22,7 @@ namespace Common.SharedKernel.Domain
                 case JsonTokenType.Number:
                     return null;
                 default:
-                    throw new JsonException($"Unexpected token type: {reader.TokenType}");
+                    return null;
             }
         }
 

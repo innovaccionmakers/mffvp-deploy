@@ -7,9 +7,11 @@ namespace Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 public sealed record CreatePensionRequirementCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]
+    [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
     string DocumentType,
     
     [property: JsonPropertyName("Identificacion")]
+    [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
     string Identification,
     
     [property: JsonPropertyName("FechaInicioReqPen")]

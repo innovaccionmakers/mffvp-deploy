@@ -159,6 +159,8 @@ app.UseAuthorization();
 
 app.MapEndpoints();
 
+app.UseMiddleware<JsonExceptionHandlingMiddleware>();
+
 app.MapGet("/",
     () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
 
