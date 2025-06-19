@@ -1,6 +1,5 @@
 ﻿using Common.SharedKernel.Application.Messaging;
-using Operations.Domain.ConfigurationParameters;
 
 namespace Operations.Integrations.ConfigurationParameters;
 
-public sealed record class GetCertificationStatusesQuery : IQuery<IReadOnlyCollection<CertificationStatus>>;
+public sealed record class GetCertificationStatusesQuery : IQuery<IReadOnlyCollection<ConfigurationParameterResponse>>;

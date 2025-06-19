@@ -7,13 +7,21 @@ namespace Operations.Application.ConfigurationParameters;
 
 public class GetCollectionMethodsQueryHandler(
     IConfigurationParameterRepository repository
-    ) : IQueryHandler<GetCollectionMethodsQuery, IReadOnlyCollection<CollectionMethod>>
+    ) : IQueryHandler<GetCollectionMethodsQuery, IReadOnlyCollection<ConfigurationParameterResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<CollectionMethod>>> Handle(GetCollectionMethodsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<ConfigurationParameterResponse>>> Handle(GetCollectionMethodsQuery request, CancellationToken cancellationToken)
     {
         
-        var list = await repository.GetCollectionMethodsAsync(cancellationToken);
+        var list = await repository.GetActiveConfigurationParametersByTypeAsync(ConfigurationParameterType.MetodoRecaudo, cancellationToken);
 
-        return Result.Success(list);
+        var response = list
+            .Select(e => new ConfigurationParameterResponse(
+                e.ConfigurationParameterId.ToString(),
+                e.Name,
+                e.HomologationCode,
+                e.Status))
+            .ToList();
+
+        return Result.Success<IReadOnlyCollection<ConfigurationParameterResponse>>(response);
     }
 }

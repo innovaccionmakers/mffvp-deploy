@@ -51,7 +51,7 @@ public class OperationsQueries
 
 
         return documentTypes.Select(x => new DocumentTypeDto(
-            x.DocumentTypeId.ToString(),
+            x.Id.ToString(),
             x.Name,
             x.Status,
             x.HomologatedCode
@@ -70,7 +70,7 @@ public class OperationsQueries
         }
         var certificationStatuses = result.Value;
         return certificationStatuses.Select(x => new CertificationStatusDto(
-            x.CertificationStatusId.ToString(),
+            x.Id.ToString(),
             x.Name,
             x.Status,
             x.HomologatedCode
@@ -88,7 +88,7 @@ public class OperationsQueries
         }
         var originModes = result.Value;
         return originModes.Select(x => new OriginModeDto(
-            x.OriginModeId.ToString(),
+            x.Id.ToString(),
             x.Name,
             x.Status,
             x.HomologatedCode
@@ -106,7 +106,7 @@ public class OperationsQueries
         }
         var collectionMethods = result.Value;
         return collectionMethods.Select(x => new CollectionMethodDto(
-            x.CollectionMethodId.ToString(),
+            x.Id.ToString(),
             x.Name,
             x.Status,
             x.HomologatedCode
@@ -127,7 +127,7 @@ public class OperationsQueries
         var paymentMethods = result.Value;
 
         return paymentMethods.Select(x => new PaymentMethodDto(
-            x.PaymentMethodId.ToString(),
+            x.Id.ToString(),
             x.Name,
             x.Status,
             x.HomologatedCode

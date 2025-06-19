@@ -85,63 +85,12 @@ internal sealed class ConfigurationParameterRepository :
                 )).ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<DocumentType>> GetDocumentTypesAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<ConfigurationParameter>> GetActiveConfigurationParametersByTypeAsync(
+        ConfigurationParameterType type,
+        CancellationToken cancellationToken = default)
     {
         return await context.ConfigurationParameters
-            .Where(dt => dt.Status && dt.Type == ConfigurationParameterType.TipoDocumento.ToString())
-            .Select(dt => DocumentType.Create(
-                dt.ConfigurationParameterId,
-                dt.HomologationCode,
-                dt.Name,
-                dt.Status
-            )).ToListAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyCollection<CertificationStatus>> GetCertificationStatusesAsync(CancellationToken cancellationToken = default)
-    {
-        return await context.ConfigurationParameters
-            .Where(dt => dt.Status && dt.Type == ConfigurationParameterType.EstadosCertificacion.ToString())
-            .Select(dt => CertificationStatus.Create(
-                dt.ConfigurationParameterId,
-                dt.HomologationCode,
-                dt.Name,
-                dt.Status
-            )).ToListAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyCollection<OriginMode>> GetOriginModesAsync(CancellationToken cancellationToken = default)
-    {
-        return await context.ConfigurationParameters
-            .Where(dt => dt.Status && dt.Type == ConfigurationParameterType.ModalidadOrigen.ToString())
-            .Select(dt => OriginMode.Create(
-                dt.ConfigurationParameterId,
-                dt.HomologationCode,
-                dt.Name,
-                dt.Status
-            )).ToListAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyCollection<CollectionMethod>> GetCollectionMethodsAsync(CancellationToken cancellationToken = default)
-    {
-       return await context.ConfigurationParameters
-            .Where(cm => cm.Status && cm.Type == ConfigurationParameterType.MetodoRecaudo.ToString())
-            .Select(cm => CollectionMethod.Create(
-                cm.ConfigurationParameterId,
-                cm.HomologationCode,
-                cm.Name,
-                cm.Status
-            )).ToListAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyCollection<PaymentMethod>> GetPaymentMethodsAsync(CancellationToken cancellationToken = default)
-    {
-        return await context.ConfigurationParameters
-            .Where(cp => cp.Status && cp.Type == ConfigurationParameterType.FormaPago.ToString())
-            .Select(cp => PaymentMethod.Create(
-                cp.ConfigurationParameterId,
-                cp.Name,
-                cp.Status,
-                cp.HomologationCode
-            )).ToListAsync(cancellationToken);
+            .Where(cp => cp.Type == type.ToString() && cp.Status)
+            .ToListAsync(cancellationToken);
     }
 }

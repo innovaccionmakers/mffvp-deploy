@@ -1,3 +1,4 @@
+using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 namespace Operations.Domain.ConfigurationParameters;
 
@@ -20,19 +21,7 @@ public interface IConfigurationParameterRepository : IConfigurationParameterLook
     Task<IReadOnlyCollection<TransactionType>> GetTransactionTypesAsync(
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<DocumentType>> GetDocumentTypesAsync(
+    Task<IReadOnlyCollection<ConfigurationParameter>> GetActiveConfigurationParametersByTypeAsync(
+        ConfigurationParameterType type,
         CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyCollection<CertificationStatus>> GetCertificationStatusesAsync(
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyCollection<OriginMode>> GetOriginModesAsync(
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyCollection<CollectionMethod>> GetCollectionMethodsAsync(
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyCollection<PaymentMethod>> GetPaymentMethodsAsync(
-        CancellationToken cancellationToken = default
-    );
 }

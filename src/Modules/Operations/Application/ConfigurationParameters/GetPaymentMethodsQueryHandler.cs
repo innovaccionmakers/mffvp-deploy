@@ -7,12 +7,20 @@ namespace Operations.Application.ConfigurationParameters;
 
 public class GetPaymentMethodsQueryHandler(
     IConfigurationParameterRepository repository
-) : IQueryHandler<GetPaymentMethodsQuery, IReadOnlyCollection<PaymentMethod>>
+) : IQueryHandler<GetPaymentMethodsQuery, IReadOnlyCollection<ConfigurationParameterResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<PaymentMethod>>> Handle(GetPaymentMethodsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<ConfigurationParameterResponse>>> Handle(GetPaymentMethodsQuery request, CancellationToken cancellationToken)
     {
-        var list = await repository.GetPaymentMethodsAsync(cancellationToken);
+        var list = await repository.GetActiveConfigurationParametersByTypeAsync(ConfigurationParameterType.FormaPago, cancellationToken);
 
-        return Result.Success(list);
+        var response = list
+            .Select(e => new ConfigurationParameterResponse(
+                e.ConfigurationParameterId.ToString(),
+                e.Name,
+                e.HomologationCode,
+                e.Status))
+            .ToList();
+
+        return Result.Success<IReadOnlyCollection<ConfigurationParameterResponse>>(response);
     }
 }
