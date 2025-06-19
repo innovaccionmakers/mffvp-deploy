@@ -92,6 +92,13 @@
         }
       },
       {
+        "RuleName": "ClientAlreadyExists",
+        "Expression": "input.ExistingPerson == null",
+        "Properties": {
+          "errorCode": "e70a689e-e3b0-4c79-ae71-a2450b2fa276"
+        }
+      },
+      {
         "RuleName": "RequiredFirstName",
         "Expression": "input.Request.FirstName != null && input.Request.FirstName != string.Empty",
         "Properties": {
@@ -134,10 +141,17 @@
         }
       },
       {
-        "RuleName": "RequiredAddress",
-        "Expression": "input.Request.Address != null && input.Request.Address != string.Empty",
+        "RuleName": "RequiredCountryOfResidence",
+        "Expression": "input.Request.CountryOfResidence != null && input.Request.CountryOfResidence != string.Empty",
         "Properties": {
-          "errorCode": "9dc20014-4d74-43e4-9998-0458f910a05a"
+          "errorCode": "59238ae4-971e-4103-9591-6c9e254f6abf"
+        }
+      },
+      {
+        "RuleName": "CountryNotHomologated",
+        "Expression": "input.CountryHomologated",
+        "Properties": {
+          "errorCode": "33b5e385-a607-403e-9473-990ee783828a"
         }
       },
       {
@@ -148,6 +162,13 @@
         }
       },
       {
+        "RuleName": "DepartmentNotHomologated",
+        "Expression": "input.DepartmentHomologated",
+        "Properties": {
+          "errorCode": "1514199f-aeb7-49b8-97f0-fc65e3488db0"
+        }
+      },
+      {
         "RuleName": "RequiredMunicipality",
         "Expression": "input.Request.Municipality != null && input.Request.Municipality != string.Empty",
         "Properties": {
@@ -155,10 +176,10 @@
         }
       },
       {
-        "RuleName": "RequiredCountryOfResidence",
-        "Expression": "input.Request.CountryOfResidence != null && input.Request.CountryOfResidence != string.Empty",
+        "RuleName": "MunicipalityNotHomologated",
+        "Expression": "input.MunicipalityHomologated",
         "Properties": {
-          "errorCode": "59238ae4-971e-4103-9591-6c9e254f6abf"
+          "errorCode": "26832d6d-1771-479c-aedb-c923da3b315f"
         }
       },
       {
@@ -176,17 +197,25 @@
         }
       },
       {
-        "RuleName": "RequiredDeclarant",
-        "Expression": "input.Request.Declarant != null",
+        "RuleName": "EconomicActivityNotHomologated",
+        "Expression": "input.EconomicActivityHomologated",
         "Properties": {
-          "errorCode": "d7f4e4fa-7929-4af0-82cd-99d3e614a490"
+          "errorCode": "184c3b01-13ac-4b82-b580-0e3d04477f2c"
         }
       },
       {
-        "RuleName": "RequiredRiskProfile",
-        "Expression": "input.Request.RiskProfile != null && input.Request.RiskProfile != string.Empty",
+        "RuleName": "RequiredAddress",
+        "Expression": "input.Request.Address != null && input.Request.Address != string.Empty",
         "Properties": {
-          "errorCode": "fdd15423-16a9-4e2c-aaed-3ce28c454f16"
+          "errorCode": "9dc20014-4d74-43e4-9998-0458f910a05a"
+        }
+      },
+      {
+        "RuleName": "ValidDeclarantValue",
+        "ErrorMessage": "El campo Declarante solo recibe valor 'true' o 'false'.",
+        "Expression": "input.Request.Declarant != null || input.Request.Declarant == true || input.Request.Declarant == false",
+        "Properties": {
+          "errorCode": "27fa5cbd-d713-482c-8f2d-1b61d3f4bcb9"
         }
       },
       {
@@ -197,41 +226,6 @@
         }
       },
       {
-        "RuleName": "DepartmentNotHomologated",
-        "Expression": "input.DepartmentHomologated",
-        "Properties": {
-          "errorCode": "1514199f-aeb7-49b8-97f0-fc65e3488db0"
-        }
-      },
-      {
-        "RuleName": "MunicipalityNotHomologated",
-        "Expression": "input.MunicipalityHomologated",
-        "Properties": {
-          "errorCode": "26832d6d-1771-479c-aedb-c923da3b315f"
-        }
-      },
-      {
-        "RuleName": "CountryNotHomologated",
-        "Expression": "input.CountryHomologated",
-        "Properties": {
-          "errorCode": "33b5e385-a607-403e-9473-990ee783828a"
-        }
-      },
-      {
-        "RuleName": "EconomicActivityNotHomologated",
-        "Expression": "input.EconomicActivityHomologated",
-        "Properties": {
-          "errorCode": "184c3b01-13ac-4b82-b580-0e3d04477f2c"
-        }
-      },
-      {
-        "RuleName": "RiskProfileNotHomologated",
-        "Expression": "input.RiskProfileHomologated",
-        "Properties": {
-          "errorCode": "b04c4b05-ad7c-407a-8377-b877d65ad854"
-        }
-      },
-      {
         "RuleName": "InvestorTypeNotHomologated",
         "Expression": "input.InvestorTypeHomologated",
         "Properties": {
@@ -239,18 +233,17 @@
         }
       },
       {
-        "RuleName": "ClientAlreadyExists",
-        "Expression": "input.ExistingPerson == null",
+        "RuleName": "RequiredRiskProfile",
+        "Expression": "input.Request.RiskProfile != null && input.Request.RiskProfile != string.Empty",
         "Properties": {
-          "errorCode": "e70a689e-e3b0-4c79-ae71-a2450b2fa276"
+          "errorCode": "fdd15423-16a9-4e2c-aaed-3ce28c454f16"
         }
       },
       {
-        "RuleName": "ValidDeclarantValue",
-        "ErrorMessage": "El campo Declarante solo recibe valor 'true' o 'false'.",
-        "Expression": "input.Request.Declarant == null || input.Request.Declarant == true || input.Request.Declarant == false",
+        "RuleName": "RiskProfileNotHomologated",
+        "Expression": "input.RiskProfileHomologated",
         "Properties": {
-          "errorCode": "27fa5cbd-d713-482c-8f2d-1b61d3f4bcb9"
+          "errorCode": "b04c4b05-ad7c-407a-8377-b877d65ad854"
         }
       }
     ]
