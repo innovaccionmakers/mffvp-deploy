@@ -25,4 +25,7 @@ public interface IConfigurationParameterRepository : IConfigurationParameterLook
 
     Task<IReadOnlyCollection<CertificationStatus>> GetCertificationStatusesAsync(
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<OriginMode>> GetOriginModesAsync(
+        CancellationToken cancellationToken = default);
 }

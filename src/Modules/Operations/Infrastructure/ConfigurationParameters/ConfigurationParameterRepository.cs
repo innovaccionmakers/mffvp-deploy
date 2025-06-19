@@ -108,4 +108,16 @@ internal sealed class ConfigurationParameterRepository :
                 dt.Status
             )).ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<OriginMode>> GetOriginModesAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.ConfigurationParameters
+            .Where(dt => dt.Status && dt.Type == ConfigurationParameterType.ModalidadOrigen.ToString())
+            .Select(dt => OriginMode.Create(
+                dt.ConfigurationParameterId,
+                dt.HomologationCode,
+                dt.Name,
+                dt.Status
+            )).ToListAsync(cancellationToken);
+    }
 }

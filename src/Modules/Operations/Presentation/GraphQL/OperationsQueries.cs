@@ -75,4 +75,22 @@ public class OperationsQueries
             x.HomologatedCode
         )).ToList();
     }
+
+    public async Task<IReadOnlyCollection<OriginModeDto>> GetOriginModesAsync(
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetOriginModesQuery(), cancellationToken);
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve origin modes.");
+        }
+        var originModes = result.Value;
+        return originModes.Select(x => new OriginModeDto(
+            x.OriginModeId.ToString(),
+            x.Name,
+            x.Status,
+            x.HomologatedCode
+        )).ToList();
+    }
 }
