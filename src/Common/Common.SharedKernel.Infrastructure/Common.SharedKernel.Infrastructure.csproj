@@ -44,5 +44,6 @@
 
     <ItemGroup>
       <Folder Include="Auth\Jwt\" />
+      <Folder Include="Database\Migrations\" />
     </ItemGroup>
 </Project>
