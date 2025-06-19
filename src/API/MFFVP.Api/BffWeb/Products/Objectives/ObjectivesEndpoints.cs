@@ -22,7 +22,7 @@ public sealed class ObjectivesEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/FVP/Product")
+        var group = app.MapGroup("FVP/Product")
             .WithTags("Objectives")
             .WithOpenApi();
 
@@ -52,7 +52,7 @@ public sealed class ObjectivesEndpoints
                              **Ejemplo de llamada (query):**
 
                              ```http
-                             GET /bffWeb/FVP/Product/GetGoals?typeId=C&identification=123456789&status=A
+                             GET /FVP/Product/GetGoals?typeId=C&identification=123456789&status=A
                              ```
 
                              - `typeId`: C (Ciudadanía)  

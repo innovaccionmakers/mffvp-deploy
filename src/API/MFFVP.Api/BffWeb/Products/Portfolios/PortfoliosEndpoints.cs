@@ -19,7 +19,7 @@ namespace MFFVP.Api.BffWeb.Products.Portfolios
 
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            var group = app.MapGroup("bffWeb/FVP/products/portfolios")
+            var group = app.MapGroup("FVP/products/portfolios")
                 .WithTags("Portfolios")
                 .WithOpenApi();
 
@@ -41,7 +41,7 @@ namespace MFFVP.Api.BffWeb.Products.Portfolios
                                  **Ejemplo de llamada:**
 
                                  ```http
-                                 GET /bffWeb/FVP/products/portfolios/GetById?portfolioId=123
+                                 GET /FVP/products/portfolios/GetById?portfolioId=123
                                  ```
 
                                  - `portfolioId`: Identificador del portafolio (e.g., 123)
@@ -70,7 +70,7 @@ namespace MFFVP.Api.BffWeb.Products.Portfolios
                                  **Ejemplo de llamada:**
 
                                  ```http
-                                 GET /bffWeb/FVP/products/portfolios/GetAllPortfolios
+                                 GET /FVP/products/portfolios/GetAllPortfolios
                                  ```
                                  """)
                 .Produces<IReadOnlyCollection<PortfolioResponse>>(StatusCodes.Status200OK)

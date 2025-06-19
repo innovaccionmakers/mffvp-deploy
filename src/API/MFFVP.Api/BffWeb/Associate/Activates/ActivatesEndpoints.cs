@@ -27,7 +27,7 @@ public sealed class ActivatesEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("BffWeb/FVP/Associate")
+        var group = app.MapGroup("FVP/Associate")
             .WithTags("Associate")
             .WithOpenApi();
 
