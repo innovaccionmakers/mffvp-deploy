@@ -4,5 +4,7 @@ public enum ConfigurationParameterType
 {
     TipoTransaccion,
     TipoDocumento,
-    EstadosCertificacion
+    EstadosCertificacion,
+    ModalidadOrigen,
+    MetodoRecaudo
 }
