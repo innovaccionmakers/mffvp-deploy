@@ -19,8 +19,8 @@ public sealed class CustomersEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/FVP/Customer")
-            .WithTags("BFF Web - Customers")
+        var group = app.MapGroup("FVP/Customer")
+            .WithTags("Customers")
             .WithOpenApi();
 
         group.MapGet("GetCustomer", async (ISender sender) =>
@@ -28,6 +28,7 @@ public sealed class CustomersEndpoints
             var result = await _customersService.GetPersonsAsync(sender);
             return result.Value;
         })
+        .WithSummary("Retorna una lista de clientes")
         .Produces<IReadOnlyCollection<PersonResponse>>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -36,6 +37,7 @@ public sealed class CustomersEndpoints
             var result = await _customersService.CreatePersonAsync(request, sender);
             return result.ToApiResult(result.Description);
         })
+        .WithSummary("Crea un cliente")
         .AddEndpointFilter<TechnicalValidationFilter<CreatePersonRequestCommand>>()
         .Produces<PersonResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)
