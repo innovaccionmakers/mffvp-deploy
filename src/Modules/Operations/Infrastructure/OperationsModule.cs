@@ -9,6 +9,8 @@ using Operations.Infrastructure.ClientOperations;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Infrastructure.AuxiliaryInformations;
 using Operations.Infrastructure.Database;
+using Operations.Domain.Banks;
+using Operations.Infrastructure.Banks;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.External;
@@ -74,6 +76,7 @@ public static class OperationsModule
         services.AddScoped<IOriginRepository, OriginRepository>();
         services.AddScoped<ISubtransactionTypeRepository, SubtransactionTypeRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
+        services.AddScoped<IBankRepository, BankRepository>();
 
         services.AddScoped<IActivateLocator, ActivateLocator>();
         services.AddScoped<IContributionRemoteValidator, ContributionRemoteValidator>();

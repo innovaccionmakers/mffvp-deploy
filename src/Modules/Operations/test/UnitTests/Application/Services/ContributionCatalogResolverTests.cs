@@ -72,9 +72,9 @@ public class ContributionCatalogResolverTests
         _cfgRepo.Setup(r => r.GetByCodesAndTypesAsync(It.IsAny<IEnumerable<(string Code, string Scope)>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<(string, string), ConfigurationParameter>
             {
-                { ("MOD", "Modalidad Origen Aporte"), mod },
-                { ("COL", "Metodo de Recaudo"), coll },
-                { ("PAY", "Metodo de Pago"), pay }
+                { ("MOD", "ModalidadOrigen"), mod },
+                { ("COL", "MetodoRecaudo"), coll },
+                { ("PAY", "FormaPago"), pay }
             });
         _subRepo.Setup(r => r.GetByHomologatedCodeAsync("SUB", It.IsAny<CancellationToken>()))
             .ReturnsAsync(sub);
@@ -102,8 +102,8 @@ public class ContributionCatalogResolverTests
         var sub = Subtype();
         _subRepo.Setup(r => r.GetByNameAsync("Ninguno", It.IsAny<CancellationToken>()))
             .ReturnsAsync(sub);
-        _cfgRepo.Setup(r => r.GetByCodesAndTypesAsync(It.IsAny<IEnumerable<(string,string)>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<(string,string), ConfigurationParameter>());
+        _cfgRepo.Setup(r => r.GetByCodesAndTypesAsync(It.IsAny<IEnumerable<(string, string)>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<(string, string), ConfigurationParameter>());
         var resolver = BuildResolver();
         var cmd = Cmd(null);
 
@@ -117,8 +117,8 @@ public class ContributionCatalogResolverTests
     {
         _subRepo.Setup(r => r.GetByNameAsync("Ninguno", It.IsAny<CancellationToken>()))
             .ReturnsAsync((SubtransactionType?)null);
-        _cfgRepo.Setup(r => r.GetByCodesAndTypesAsync(It.IsAny<IEnumerable<(string,string)>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<(string,string), ConfigurationParameter>());
+        _cfgRepo.Setup(r => r.GetByCodesAndTypesAsync(It.IsAny<IEnumerable<(string, string)>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<(string, string), ConfigurationParameter>());
         var resolver = BuildResolver();
         var cmd = Cmd(string.Empty);
 

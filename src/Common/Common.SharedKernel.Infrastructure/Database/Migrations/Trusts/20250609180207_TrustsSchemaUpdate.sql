@@ -1,5 +1,4 @@
-﻿START TRANSACTION;
-DROP TABLE fideicomisos.historicos_fideicomisos;
+﻿DROP TABLE fideicomisos.historicos_fideicomisos;
 
 ALTER TABLE fideicomisos.fideicomisos DROP COLUMN cliente_id;
 
@@ -22,5 +21,4 @@ ALTER TABLE fideicomisos.fideicomisos ADD operaciones_cliente_id bigint NOT NULL
 INSERT INTO fideicomisos."__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20250609180207_TrustsSchemaUpdate', '9.0.3');
 
-COMMIT;
 

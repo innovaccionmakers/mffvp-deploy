@@ -1,5 +1,4 @@
-﻿START TRANSACTION;
-ALTER TABLE operaciones.informacion_auxiliar DROP CONSTRAINT "FK_informacion_auxiliar_Bank_BankId";
+﻿ALTER TABLE operaciones.informacion_auxiliar DROP CONSTRAINT "FK_informacion_auxiliar_Bank_BankId";
 
 ALTER TABLE operaciones."OriginMode" DROP CONSTRAINT "FK_OriginMode_origen_aportes_OriginId";
 
@@ -50,5 +49,4 @@ ALTER TABLE operaciones.origenaportes_modorigen ADD CONSTRAINT "FK_origenaportes
 INSERT INTO operaciones."__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('20250613183655_ChangeName', '9.0.3');
 
-COMMIT;
 

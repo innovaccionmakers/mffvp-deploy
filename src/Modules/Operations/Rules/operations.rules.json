@@ -1,7 +1,140 @@
 [
   {
+    "WorkflowName": "Operations.Contribution.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "TypeIdRequired",
+        "ErrorMessage": "El TipoId es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.TypeId) == false",
+        "Properties": {
+          "errorCode": "b80dca55-9c0b-487a-978b-2a4cada14b43"
+        }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "ErrorMessage": "La Identificación es obligatoria",
+        "Expression": "string.IsNullOrWhiteSpace(input.Identification) == false",
+        "Properties": {
+          "errorCode": "bf0ca02c-f46f-476c-9676-6dbdf44fc4bc"
+        }
+      },
+      {
+        "RuleName": "ObjectiveIdRequired",
+        "ErrorMessage": "El IdObjetivo es obligatorio",
+        "Expression": "input.ObjectiveId != 0",
+        "Properties": {
+          "errorCode": "301d9dd6-3aea-4c4c-9d36-a70ce448930b"
+        }
+      },
+      {
+        "RuleName": "AmountRequired",
+        "ErrorMessage": "El Valor es obligatorio",
+        "Expression": "input.Amount > 0",
+        "Properties": {
+          "errorCode": "1a4d5605-1859-432a-8022-ab0c40821ba8"
+        }
+      },
+      {
+        "RuleName": "OriginRequired",
+        "ErrorMessage": "El Origen es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.Origin) == false",
+        "Properties": {
+          "errorCode": "376a7166-8ceb-420b-83fb-4e383a1093b1"
+        }
+      },
+      {
+        "RuleName": "OriginModalityRequired",
+        "ErrorMessage": "La ModalidadOrigen es obligatoria",
+        "Expression": "string.IsNullOrWhiteSpace(input.OriginModality) == false",
+        "Properties": {
+          "errorCode": "1155fabb-9b92-4ed6-af1c-5ac6541f8129"
+        }
+      },
+      {
+        "RuleName": "CollectionMethodRequired",
+        "ErrorMessage": "El MetodoRecaudo es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.CollectionMethod) == false",
+        "Properties": {
+          "errorCode": "711fcf19-bebb-4e1a-b376-6b5ab61ff9bd"
+        }
+      },
+      {
+        "RuleName": "PaymentMethodRequired",
+        "ErrorMessage": "La FormaPago es obligatoria",
+        "Expression": "string.IsNullOrWhiteSpace(input.PaymentMethod) == false",
+        "Properties": {
+          "errorCode": "b730a03a-f89a-4891-9623-a1c5770a1a5f"
+        }
+      },
+      {
+        "RuleName": "CollectionBankRequired",
+        "ErrorMessage": "El BancoRecaudo es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.CollectionBank) == false",
+        "Properties": {
+          "errorCode": "ede67390-3eb2-4ae1-8cf5-2db1239921df"
+        }
+      },
+      {
+        "RuleName": "CollectionAccountRequired",
+        "ErrorMessage": "La CuentaRecaudo es obligatoria",
+        "Expression": "string.IsNullOrWhiteSpace(input.CollectionAccount) == false",
+        "Properties": {
+          "errorCode": "7b997a7f-ca51-4820-bf40-636de6609a5a"
+        }
+      },
+      {
+        "RuleName": "DepositDateRequired",
+        "ErrorMessage": "La FechaConsignacion es obligatoria",
+        "Expression": "input.DepositDate != null",
+        "Properties": {
+          "errorCode": "78a4bb66-23bf-4341-811f-982e76cbcc97"
+        }
+      },
+      {
+        "RuleName": "ExecutionDateRequired",
+        "ErrorMessage": "La FechaEjecucion es obligatoria",
+        "Expression": "input.ExecutionDate != null",
+        "Properties": {
+          "errorCode": "ce9da775-494d-4b90-95a8-976bf14bb290"
+        }
+      },
+      {
+        "RuleName": "SalesUserRequired",
+        "ErrorMessage": "El UsuarioComercial es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.SalesUser) == false",
+        "Properties": {
+          "errorCode": "83e68c0f-9b0a-49b3-8fdf-5c8cd7b68188"
+        }
+      },
+      {
+        "RuleName": "ChannelRequired",
+        "ErrorMessage": "El Canal es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.Channel) == false",
+        "Properties": {
+          "errorCode": "71d5eac1-7775-4330-be32-66c906e7fb1b"
+        }
+      },
+      {
+        "RuleName": "UserRequired",
+        "ErrorMessage": "El Usuario es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.User) == false",
+        "Properties": {
+          "errorCode": "cce544fc-13d6-4367-ac24-18b61fedc1fe"
+        }
+      }
+    ]
+  },
+  {
     "WorkflowName": "Operations.Contribution.Validation",
     "Rules": [
+      {
+        "RuleName": "TypeId_Homologated",
+        "ErrorMessage": "El tipo de documento no se encuentra homologado",
+        "Expression": "input.DocumentTypeExists",
+        "Properties": {
+          "errorCode": "3d89a6f4-10e5-47ec-90cb-edd92fd2234a"
+        }
+      },
       {
         "RuleName": "FirstContribution_MinimumAmount",
         "ErrorMessage": "El primer aporte debe ser mayor o igual al monto mínimo inicial del portafolio.",
@@ -13,7 +146,7 @@
       {
         "RuleName": "ContributionSourceNotHomologated",
         "ErrorMessage": "El código homologado del Origen no existe",
-        "Expression": "input.ContributionSource.Exists",
+        "Expression": "input.ContributionSourceExists",
         "Properties": {
           "errorCode": "c431dbad-410c-4e3d-be80-938b1c703c82"
         }
@@ -21,7 +154,7 @@
       {
         "RuleName": "ContributionSourceInactive",
         "ErrorMessage": "El Origen se encuentra inactivo",
-        "Expression": "input.ContributionSource.Active",
+        "Expression": "input.ContributionSourceActive",
         "Properties": {
           "errorCode": "3ec4d1a5-eb5a-42e0-b930-2bfba953b7ff"
         }
@@ -29,7 +162,7 @@
       {
         "RuleName": "OriginModalityNotHomologated",
         "ErrorMessage": "El código homologado de la Modalidad Origen no existe",
-        "Expression": "input.OriginModality.Exists",
+        "Expression": "input.OriginModalityExists",
         "Properties": {
           "errorCode": "cb3f3075-cf88-4851-a414-7705d387ac8f"
         }
@@ -37,7 +170,7 @@
       {
         "RuleName": "OriginModalityInactive",
         "ErrorMessage": "La Modalidad Origen se encuentra inactiva",
-        "Expression": "input.OriginModality.Active",
+        "Expression": "input.OriginModalityActive",
         "Properties": {
           "errorCode": "559c3228-0f69-43ee-9bdd-8efa0fa9373d"
         }
@@ -45,7 +178,7 @@
       {
         "RuleName": "CollectionMethodNotHomologated",
         "ErrorMessage": "El código homologado del Método de Recaudo no existe",
-        "Expression": "input.CollectionMethod.Exists",
+        "Expression": "input.CollectionMethodExists",
         "Properties": {
           "errorCode": "4da720d3-8f87-4dec-bbf8-fcf89c1dcd9c"
         }
@@ -53,7 +186,7 @@
       {
         "RuleName": "CollectionMethodInactive",
         "ErrorMessage": "El Método de Recaudo se encuentra inactivo",
-        "Expression": "input.CollectionMethod.Active",
+        "Expression": "input.CollectionMethodActive",
         "Properties": {
           "errorCode": "7345e786-9032-4593-9f15-d007d244513f"
         }
@@ -61,7 +194,7 @@
       {
         "RuleName": "PaymentMethodNotHomologated",
         "ErrorMessage": "El código homologado de la forma de pago no existe",
-        "Expression": "input.PaymentMethod.Exists",
+        "Expression": "input.PaymentMethodExists",
         "Properties": {
           "errorCode": "05a7c156-bbd6-4139-b467-3fc47ffaca78"
         }
@@ -69,15 +202,23 @@
       {
         "RuleName": "PaymentMethodInactive",
         "ErrorMessage": "La forma de pago se encuentra inactiva",
-        "Expression": "input.PaymentMethod.Active",
+        "Expression": "input.PaymentMethodActive",
         "Properties": {
           "errorCode": "1c3f389f-ffe2-4d19-808f-472309c595a8"
         }
       },
       {
+        "RuleName": "CollectionBankExists",
+        "ErrorMessage": "El código homologado del Banco no existe.",
+        "Expression": "input.CollectionBankExists == true",
+        "Properties": {
+          "errorCode": "dffcfc5b-c9f9-42a6-be7f-d3a8caa16c78"
+        }
+      },
+      {
         "RuleName": "CertificationRequiredButMissing",
         "ErrorMessage": "El campo Aporte Certificado solo es obligatorio cuando el Origen sea Afiliado",
-        "Expression": "!input.ContributionSource.RequiresCertification || input.CertifiedContributionProvided",
+        "Expression": "!input.ContributionSourceRequiresCertification || input.CertifiedContributionProvided",
         "Properties": {
           "errorCode": "eb34f98d-518b-4bbb-b94b-5b866361b506"
         }
@@ -85,7 +226,7 @@
       {
         "RuleName": "CertifiedContributionInvalid",
         "ErrorMessage": "AporteCertificado debe ser 'SI' o 'NO'.",
-        "Expression": "!input.ContributionSource.RequiresCertification || input.CertifiedContributionValid",
+        "Expression": "!input.ContributionSourceRequiresCertification || input.CertifiedContributionValid",
         "Properties": {
           "errorCode": "224a4f64-a032-4d05-82c7-fa8377018d1d"
         }
@@ -109,7 +250,7 @@
       {
         "RuleName": "ChannelExists",
         "ErrorMessage": "El código homologado del Canal no existe.",
-        "Expression": "input.Channel.Exists == true",
+        "Expression": "input.ChannelExists == true",
         "Properties": {
           "errorCode": "fe27ea5b-444f-4e12-a63f-1c1618708677"
         }
