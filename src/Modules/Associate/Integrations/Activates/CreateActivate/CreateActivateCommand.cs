@@ -14,9 +14,11 @@ public sealed record CreateActivateCommand(
     string Identification,
 
     [property: JsonPropertyName("Pensionado")]
-    bool Pensioner,
+    [property: JsonConverter(typeof(BooleanOrStringToBooleanConverter))]
+    bool? Pensioner,
 
-    [property: JsonPropertyName("CumpleRequisitosPension")]
+    [property: JsonPropertyName("CumpleRequisitosPension")]    
+    [property: JsonConverter(typeof(BooleanOrStringToBooleanConverter))]
     bool? MeetsPensionRequirements,
 
     [property: JsonPropertyName("FechaInicioReqPen")]

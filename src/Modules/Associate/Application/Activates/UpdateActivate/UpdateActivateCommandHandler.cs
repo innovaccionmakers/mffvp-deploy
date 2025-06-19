@@ -36,7 +36,7 @@ internal sealed class UpdateActivateCommandHandler(
         }
 
         validationResults.ExistingActivate.UpdateDetails(
-            request.Pensioner
+            request.Pensioner ?? false
         );
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

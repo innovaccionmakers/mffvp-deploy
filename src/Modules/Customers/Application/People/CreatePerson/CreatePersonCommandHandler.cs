@@ -49,7 +49,7 @@ namespace Customers.Application.People.CreatePerson
                 request.MiddleName,
                 request.LastName,
                 request.SecondLastName,
-                request.BirthDate,
+                request.BirthDate ?? DateTime.UtcNow,
                 request.Mobile,
                 validationResults.GenderId ?? 0,
                 validationResults.CountryId ?? 0,
@@ -59,7 +59,7 @@ namespace Customers.Application.People.CreatePerson
                 validationResults.EconomicActivityId ?? 0,
                 Status.Active,
                 request.Address,
-                request.Declarant,
+                request.Declarant ?? false,
                 validationResults.InvestorTypeId ?? 0,
                 validationResults.RiskProfileId ?? 0
             );

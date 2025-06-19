@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.Activates.UpdateActivate;
 
@@ -12,6 +13,7 @@ public sealed record UpdateActivateCommand(
     [property: JsonPropertyName("Identificacion")]
     string Identification,
 
-    [property: JsonPropertyName("Pensionado")]
-    bool Pensioner
+    [property: JsonPropertyName("Pensionado")]    
+    [property: JsonConverter(typeof(BooleanOrStringToBooleanConverter))]
+    bool? Pensioner
 ) : ICommand;

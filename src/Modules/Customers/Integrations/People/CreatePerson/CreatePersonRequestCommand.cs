@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 
 namespace Integrations.People.CreatePerson
 {
@@ -28,7 +29,8 @@ namespace Integrations.People.CreatePerson
         string? SecondLastName,
 
         [property: JsonPropertyName("FechaNacimiento")]
-        DateTime BirthDate,
+        [property: JsonConverter(typeof(EmptyStringToNullDateTimeConverter))]
+        DateTime? BirthDate,
 
         [property: JsonPropertyName("Celular")]
         string Mobile,
@@ -55,8 +57,9 @@ namespace Integrations.People.CreatePerson
         [property: JsonPropertyName("Direccion")]
         string Address,
 
-        [property: JsonPropertyName("Declaracion")]
-        bool Declarant,
+        [property: JsonPropertyName("Declarante")]        
+        [property: JsonConverter(typeof(BooleanOrStringToBooleanConverter))]
+        bool? Declarant,
 
         [property: JsonPropertyName("TipoInversionista")]
         [property: HomologScope("TipoInversionista")]

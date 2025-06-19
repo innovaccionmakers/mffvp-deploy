@@ -62,18 +62,30 @@
   },
   {
     "WorkflowName": "People.Person.ValidationCreateCustomer",
-    "Rules": [
+    "Rules": [      
+      {
+        "RuleName": "HomologatedCodeLength",
+        "Expression": "input.Request.HomologatedCode == null || input.Request.HomologatedCode.Length <= 40",
+        "Properties": {
+          "errorCode": "6e3f5f08-ba4d-4b06-abff-5b9a785c6a76"
+        }
+      },
       {
         "RuleName": "RequiredDocumentType",
-        "ErrorMessage": "El campo TipoIdentificacion es Obligatorio",
         "Expression": "input.Request.DocumentType != null && input.Request.DocumentType != string.Empty",
         "Properties": {
           "errorCode": "3d811200-d868-41ef-898c-fcfd0a42a0fc"
         }
       },
       {
+        "RuleName": "DocumentTypeNotHomologated",
+        "Expression": "input.DocumentTypeHomologated",
+        "Properties": {
+          "errorCode": "ce71ee50-78fa-487e-8cf6-fd2cebcdcb7f"
+        }
+      },
+      {
         "RuleName": "RequiredIdentification",
-        "ErrorMessage": "El campo Identificacion es Obligatorio",
         "Expression": "input.Request.Identification != null && input.Request.Identification != string.Empty",
         "Properties": {
           "errorCode": "6d3642b7-85d0-4adb-a01a-e946533a5bd9"
@@ -81,7 +93,6 @@
       },
       {
         "RuleName": "RequiredFirstName",
-        "ErrorMessage": "El campo PrimerNombre es Obligatorio",
         "Expression": "input.Request.FirstName != null && input.Request.FirstName != string.Empty",
         "Properties": {
           "errorCode": "735fc004-435c-444a-a213-d9f43a69e650"
@@ -89,7 +100,6 @@
       },
       {
         "RuleName": "RequiredLastName",
-        "ErrorMessage": "El campo PrimerApellido es Obligatorio",
         "Expression": "input.Request.LastName != null && input.Request.LastName != string.Empty",
         "Properties": {
           "errorCode": "714a78eb-d357-4cbe-a00d-d1f21cb4c54b"
@@ -97,7 +107,6 @@
       },
       {
         "RuleName": "RequiredBirthDate",
-        "ErrorMessage": "El campo FechaNacimiento es Obligatorio",
         "Expression": "input.Request.BirthDate != null",
         "Properties": {
           "errorCode": "7b729b2d-c8e7-4693-a91a-47fb317eace2"
@@ -105,7 +114,6 @@
       },
       {
         "RuleName": "RequiredMobile",
-        "ErrorMessage": "El campo Celular es Obligatorio",
         "Expression": "input.Request.Mobile != null && input.Request.Mobile != string.Empty",
         "Properties": {
           "errorCode": "81eff097-8a2e-4551-9ab5-ed63d8bac9ed"
@@ -113,15 +121,20 @@
       },
       {
         "RuleName": "RequiredGender",
-        "ErrorMessage": "El campo Sexo es Obligatorio",
         "Expression": "input.Request.Gender != null && input.Request.Gender != string.Empty",
         "Properties": {
           "errorCode": "168587ee-eb36-418b-a8e7-4b1224ca72ce"
         }
       },
       {
+        "RuleName": "GenderNotHomologated",
+        "Expression": "input.GenderHomologated",
+        "Properties": {
+          "errorCode": "ab159851-c6ac-4870-9135-57d77f6a2181"
+        }
+      },
+      {
         "RuleName": "RequiredAddress",
-        "ErrorMessage": "El campo Direccion es Obligatorio",
         "Expression": "input.Request.Address != null && input.Request.Address != string.Empty",
         "Properties": {
           "errorCode": "9dc20014-4d74-43e4-9998-0458f910a05a"
@@ -129,7 +142,6 @@
       },
       {
         "RuleName": "RequiredDepartment",
-        "ErrorMessage": "El campo Departamento es Obligatorio",
         "Expression": "input.Request.Department != null && input.Request.Department != string.Empty",
         "Properties": {
           "errorCode": "18023f1a-6dcf-40c4-9e19-4a94862f3231"
@@ -137,7 +149,6 @@
       },
       {
         "RuleName": "RequiredMunicipality",
-        "ErrorMessage": "El campo Municipio es Obligatorio",
         "Expression": "input.Request.Municipality != null && input.Request.Municipality != string.Empty",
         "Properties": {
           "errorCode": "bff2bb19-bef1-4d97-8a3e-d3d395ff636f"
@@ -145,7 +156,6 @@
       },
       {
         "RuleName": "RequiredCountryOfResidence",
-        "ErrorMessage": "El campo PaisResidencia es Obligatorio",
         "Expression": "input.Request.CountryOfResidence != null && input.Request.CountryOfResidence != string.Empty",
         "Properties": {
           "errorCode": "59238ae4-971e-4103-9591-6c9e254f6abf"
@@ -153,7 +163,6 @@
       },
       {
         "RuleName": "RequiredEmail",
-        "ErrorMessage": "El campo Email es Obligatorio",
         "Expression": "input.Request.Email != null && input.Request.Email != string.Empty",
         "Properties": {
           "errorCode": "83c5eef9-830f-4932-a531-cef28bd6fde9"
@@ -161,7 +170,6 @@
       },
       {
         "RuleName": "RequiredEconomicActivity",
-        "ErrorMessage": "El campo ActividadEconomica es Obligatorio",
         "Expression": "input.Request.EconomicActivity != null && input.Request.EconomicActivity != string.Empty",
         "Properties": {
           "errorCode": "a1ea1556-bb4f-40bc-a02d-b5b48bf9974a"
@@ -169,7 +177,6 @@
       },
       {
         "RuleName": "RequiredDeclarant",
-        "ErrorMessage": "El campo Declarante es Obligatorio",
         "Expression": "input.Request.Declarant != null",
         "Properties": {
           "errorCode": "d7f4e4fa-7929-4af0-82cd-99d3e614a490"
@@ -177,7 +184,6 @@
       },
       {
         "RuleName": "RequiredRiskProfile",
-        "ErrorMessage": "El campo PerfilRiesgo es Obligatorio",
         "Expression": "input.Request.RiskProfile != null && input.Request.RiskProfile != string.Empty",
         "Properties": {
           "errorCode": "fdd15423-16a9-4e2c-aaed-3ce28c454f16"
@@ -185,31 +191,13 @@
       },
       {
         "RuleName": "RequiredInvestorType",
-        "ErrorMessage": "El campo TipoInversionista es Obligatorio",
         "Expression": "input.Request.InvestorType != null && input.Request.InvestorType != string.Empty",
         "Properties": {
           "errorCode": "6c773110-b093-4f0d-9e36-ddd8022411e2"
         }
       },
       {
-        "RuleName": "DocumentTypeNotHomologated",
-        "ErrorMessage": "El Tipo Identificacion no se encuentra homologado",
-        "Expression": "input.DocumentTypeHomologated",
-        "Properties": {
-          "errorCode": "ce71ee50-78fa-487e-8cf6-fd2cebcdcb7f"
-        }
-      },
-      {
-        "RuleName": "GenderNotHomologated",
-        "ErrorMessage": "EL Sexo no se encuentra homologado",
-        "Expression": "input.GenderHomologated",
-        "Properties": {
-          "errorCode": "ab159851-c6ac-4870-9135-57d77f6a2181"
-        }
-      },
-      {
         "RuleName": "DepartmentNotHomologated",
-        "ErrorMessage": "EL Departamento no se encuentra homologado",
         "Expression": "input.DepartmentHomologated",
         "Properties": {
           "errorCode": "1514199f-aeb7-49b8-97f0-fc65e3488db0"
@@ -217,7 +205,6 @@
       },
       {
         "RuleName": "MunicipalityNotHomologated",
-        "ErrorMessage": "EL Municipio no se encuentra homologado",
         "Expression": "input.MunicipalityHomologated",
         "Properties": {
           "errorCode": "26832d6d-1771-479c-aedb-c923da3b315f"
@@ -225,7 +212,6 @@
       },
       {
         "RuleName": "CountryNotHomologated",
-        "ErrorMessage": "EL PaisResidencia no se encuentra homologado",
         "Expression": "input.CountryHomologated",
         "Properties": {
           "errorCode": "33b5e385-a607-403e-9473-990ee783828a"
@@ -233,7 +219,6 @@
       },
       {
         "RuleName": "EconomicActivityNotHomologated",
-        "ErrorMessage": "La ActividadEconomica no se encuentra homologado",
         "Expression": "input.EconomicActivityHomologated",
         "Properties": {
           "errorCode": "184c3b01-13ac-4b82-b580-0e3d04477f2c"
@@ -241,7 +226,6 @@
       },
       {
         "RuleName": "RiskProfileNotHomologated",
-        "ErrorMessage": "EL PerfilRiesgo no se encuentra homologado",
         "Expression": "input.RiskProfileHomologated",
         "Properties": {
           "errorCode": "b04c4b05-ad7c-407a-8377-b877d65ad854"
@@ -249,7 +233,6 @@
       },
       {
         "RuleName": "InvestorTypeNotHomologated",
-        "ErrorMessage": "EL TipoInversionista no se encuentra homologado",
         "Expression": "input.InvestorTypeHomologated",
         "Properties": {
           "errorCode": "2d7226f2-c92b-4b58-8717-3fa31532bed4"
@@ -257,24 +240,15 @@
       },
       {
         "RuleName": "ClientAlreadyExists",
-        "ErrorMessage": "Ya se encuentra creado un cliente con ese Tipo de Identificación e Identificación",
         "Expression": "input.ExistingPerson == null",
         "Properties": {
           "errorCode": "e70a689e-e3b0-4c79-ae71-a2450b2fa276"
         }
       },
       {
-        "RuleName": "HomologatedCodeLength",
-        "ErrorMessage": "El campo código homologado solo admite una longitud menor o igual a 40 dígitos.",
-        "Expression": "input.Request.HomologatedCode == null || input.Request.HomologatedCode.Length <= 40",
-        "Properties": {
-          "errorCode": "6e3f5f08-ba4d-4b06-abff-5b9a785c6a76"
-        }
-      },
-      {
         "RuleName": "ValidDeclarantValue",
         "ErrorMessage": "El campo Declarante solo recibe valor 'true' o 'false'.",
-        "Expression": "input.Request.Declarant == true || input.Request.Declarant == false",
+        "Expression": "input.Request.Declarant == null || input.Request.Declarant == true || input.Request.Declarant == false",
         "Properties": {
           "errorCode": "27fa5cbd-d713-482c-8f2d-1b61d3f4bcb9"
         }
