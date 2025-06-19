@@ -130,7 +130,7 @@ public class OperationsQueries
             x.Name,
             x.Status,
             x.HomologatedCode
-        ))
+        )).ToList();
 
     }
 }

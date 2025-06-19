@@ -6,7 +6,7 @@ using Operations.Integrations.ConfigurationParameters;
 namespace Operations.Application.ConfigurationParameters;
 
 public class GetPaymentMethodsQueryHandler(
-    IConfigurationParameterRepository repository,
+    IConfigurationParameterRepository repository
 ) : IQueryHandler<GetPaymentMethodsQuery, IReadOnlyCollection<PaymentMethod>>
 {
     public async Task<Result<IReadOnlyCollection<PaymentMethod>>> Handle(GetPaymentMethodsQuery request, CancellationToken cancellationToken)

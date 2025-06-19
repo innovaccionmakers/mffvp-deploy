@@ -142,6 +142,6 @@ internal sealed class ConfigurationParameterRepository :
                 cp.Name,
                 cp.Status,
                 cp.HomologationCode
-            )).ToListAsync(cancellationToken)
+            )).ToListAsync(cancellationToken);
     }
 }
