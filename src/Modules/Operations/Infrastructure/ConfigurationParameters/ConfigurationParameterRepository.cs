@@ -120,4 +120,16 @@ internal sealed class ConfigurationParameterRepository :
                 dt.Status
             )).ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<CollectionMethod>> GetCollectionMethodsAsync(CancellationToken cancellationToken = default)
+    {
+       return await context.ConfigurationParameters
+            .Where(cm => cm.Status && cm.Type == ConfigurationParameterType.MetodoRecaudo.ToString())
+            .Select(cm => CollectionMethod.Create(
+                cm.ConfigurationParameterId,
+                cm.HomologationCode,
+                cm.Name,
+                cm.Status
+            )).ToListAsync(cancellationToken);
+    }
 }

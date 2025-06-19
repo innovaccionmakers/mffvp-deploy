@@ -93,4 +93,22 @@ public class OperationsQueries
             x.HomologatedCode
         )).ToList();
     }
+
+    public async Task<IReadOnlyCollection<CollectionMethodDto>> GetCollectionMethodsAsync(
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetCollectionMethodsQuery(), cancellationToken);
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve collection methods.");
+        }
+        var collectionMethods = result.Value;
+        return collectionMethods.Select(x => new CollectionMethodDto(
+            x.CollectionMethodId.ToString(),
+            x.Name,
+            x.Status,
+            x.HomologatedCode
+        )).ToList();
+    }
 }
