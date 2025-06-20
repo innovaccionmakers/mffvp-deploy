@@ -46,4 +46,12 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
         return await context.Customers.SingleOrDefaultAsync(x =>
             x.DocumentType == DocumentType && x.Identification == Identification);
     }
+
+    public async Task<bool?> GetExistingHomologatedCode(string homologatedCode, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(homologatedCode))
+            return null;
+
+        return await context.Customers.AnyAsync(x => x.HomologatedCode == homologatedCode, cancellationToken);
+    }
 }

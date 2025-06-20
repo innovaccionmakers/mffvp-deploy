@@ -14,4 +14,6 @@ public interface IPersonRepository
 
     Task<Person?> GetByIdentificationAsync(string identification, string documentTypeCode,
         CancellationToken cancellationToken = default);
+
+    Task<bool?> GetExistingHomologatedCode(string homologatedCode, CancellationToken cancellationToken = default);
 }

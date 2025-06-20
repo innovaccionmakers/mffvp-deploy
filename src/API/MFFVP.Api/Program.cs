@@ -172,7 +172,7 @@ app.MapGraphQL("/experience/graphql", "BFFSuperExperience");
 
 app.MapEndpoints();
 
-app.UseMiddleware<JsonExceptionHandlingMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapGet("/",
     () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));

@@ -27,9 +27,12 @@ namespace Application.People
             var existingPerson = await personRepository.GetForIdentificationAsync(
                 docTypeUuid, request.Identification, cancellationToken);
 
+            var existingHomologatedCode = await personRepository.GetExistingHomologatedCode(request.HomologatedCode!, cancellationToken);
+
             var context = new CreatePersonValidationContext(request, existingPerson, docTypeUuid)
             {
-                DocumentTypeHomologated = docTypeParam != null
+                DocumentTypeHomologated = docTypeParam != null,
+                ExistingHomologatedCode = existingHomologatedCode
             };
 
             await ValidateCountries(context, cancellationToken);

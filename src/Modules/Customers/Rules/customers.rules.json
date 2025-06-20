@@ -71,6 +71,13 @@
         }
       },
       {
+        "RuleName": "ExistingHomologatedCode",
+        "Expression": "input.ExistingHomologatedCode != true",
+        "Properties": {
+          "errorCode": "5e11d60b-88cd-4699-9c2f-d541247f72b3"
+        }
+      },
+      {
         "RuleName": "RequiredDocumentType",
         "Expression": "input.Request.DocumentType != null && input.Request.DocumentType != string.Empty",
         "Properties": {
