@@ -50,11 +50,11 @@ namespace Customers.IntegrationTests.People
 
             _repositoryMock.Setup(x => x.Insert(person));
             _unitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Returns((Task<int>)Task.CompletedTask);
+                .ReturnsAsync(1); 
 
             // Act
             _repositoryMock.Object.Insert(person);
-            await _unitOfWorkMock.Object.SaveChangesAsync(CancellationToken.None);
+            var result = await _unitOfWorkMock.Object.SaveChangesAsync(CancellationToken.None);
 
             // Assert
             _repositoryMock.Verify(x => x.Insert(person), Times.Once);

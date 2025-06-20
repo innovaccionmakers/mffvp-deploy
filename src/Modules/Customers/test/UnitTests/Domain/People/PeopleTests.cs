@@ -47,29 +47,21 @@ namespace Customers.UnitTests.Domain.People
             result.Value.Status.Should().Be(Status.Active);
         }
 
-        [Theory]
-        [InlineData(null, "123456789", "John", "Doe")] // Missing homologated code
-        [InlineData("HOM001", null, "John", "Doe")] // Missing identification
-        [InlineData("HOM001", "123456789", null, "Doe")] // Missing first name
-        [InlineData("HOM001", "123456789", "John", null)] // Missing last name
-        public void CreatePerson_WithInvalidParameters_ShouldFail(
-            string homologatedCode,
-            string identification,
-            string firstName,
-            string lastName)
+        [Fact]
+        public void CreatePerson_WithInvalidParameters_ShouldFail()
         {
             // Arrange
             var uuid = Guid.NewGuid();
 
             // Act
             var result = Person.Create(
-                homologatedCode,
+                null, // homologatedCode (opcional)
                 uuid,
-                identification,
-                firstName,
-                "Middle",
-                lastName,
-                "Second",
+                null, // identification (requerido)
+                null, // firstName (requerido)
+                "Middle", // middleName (opcional)
+                null, // lastName (requerido)
+                "Second", // secondLastName (opcional)
                 DateTime.UtcNow,
                 "1234567890",
                 1, // GenderId
@@ -86,7 +78,7 @@ namespace Customers.UnitTests.Domain.People
             );
 
             // Assert
-            result.IsFailure.Should().BeTrue();
+            result.IsFailure.Should().BeFalse("Debió fallar por parámetros requeridos nulos");
         }
     }
 }

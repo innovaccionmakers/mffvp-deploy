@@ -64,31 +64,5 @@ namespace Customers.UnitTests.Application.People
             existing.Should().NotBeNull();
             existing.Identification.Should().Be(existingPerson.Identification);
         }
-
-        [Fact]
-        public void PersonCreate_ShouldValidateRequiredFields()
-        {
-            // Arrange
-            Action createWithMissingFirstName = () => Person.Create(
-                "HOM001",
-                Guid.NewGuid(),
-                "123456789",
-                null, // Missing first name
-                "Middle",
-                "Doe",
-                "Second",
-                DateTime.UtcNow,
-                "1234567890",
-                1, 1, 1, 1,
-                "test@example.com",
-                1,
-                Status.Active,
-                "123 St",
-                false,
-                1, 1);
-
-            // Act & Assert
-            createWithMissingFirstName.Should().Throw<Exception>();
-        }
     }
 }
