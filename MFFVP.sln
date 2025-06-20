@@ -151,9 +151,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Products.test.IntegrationTe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{7EA33E9A-A5A2-4A5D-B5E0-F513FB7EE0CA}"
 	ProjectSection(SolutionItems) = preProject
-		src\Modules\Products\Rules\portfolio.rules.json = src\Modules\Products\Rules\portfolio.rules.json
 		src\Modules\Products\Rules\contribution.rules.json = src\Modules\Products\Rules\contribution.rules.json
 		src\Modules\Products\Rules\objectives.rules.json = src\Modules\Products\Rules\objectives.rules.json
+		src\Modules\Products\Rules\portfolio.rules.json = src\Modules\Products\Rules\portfolio.rules.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{A8158072-1059-417C-94E1-30B1081CC05C}"

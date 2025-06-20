@@ -1,37 +1,30 @@
-using System.Reflection;
-using Associate.Infrastructure;
 using Asp.Versioning;
-
+using Associate.Infrastructure;
+using Associate.Presentation.GraphQL;
+using Closing.Infrastructure;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Validation;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Filters;
-
+using Customers.Infrastructure;
 using FluentValidation;
-
 using MFFVP.Api.BffWeb.Associate;
-using MFFVP.Api.BffWeb.Operations;
 using MFFVP.Api.BffWeb.Customers;
+using MFFVP.Api.BffWeb.Operations;
 using MFFVP.Api.BffWeb.Products;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
+using MFFVP.Api.GraphQL;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
-
 using Microsoft.AspNetCore.Authorization;
-
 using Operations.Infrastructure;
-
-using Customers.Infrastructure;
-
 using Products.Infrastructure;
-
 using Serilog;
-
+using System.Reflection;
 using Trusts.Infrastructure;
-using Closing.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,7 +79,7 @@ Assembly[] moduleApplicationAssemblies =
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
 
-var databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database"); 
+var databaseConnectionString = builder.Configuration.GetConnectionStringOrThrow("Database");
 var databaseConnectionStringSQL = builder.Configuration.GetConnectionStringOrThrow("SqlServerDatabase");
 var capDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("CapDatabase");
 
@@ -105,6 +98,19 @@ builder.Services.AddProductsModule(builder.Configuration);
 builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddClosingModule(builder.Configuration);
+
+        
+builder.Services.AddSchemaStitching(builder.Configuration);
+
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+if (environment == "Development")
+{
+    builder.Services.AddDevelopmentConfiguration(builder.Configuration);
+}
+else
+{
+    builder.Services.AddProductionConfiguration(builder.Configuration);
+}
 
 builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();
@@ -156,6 +162,9 @@ app.UseLogContext();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGraphQL("/experience/graphql", "BFFSuperExperience");
+
 
 app.MapEndpoints();
 

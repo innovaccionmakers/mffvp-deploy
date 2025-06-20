@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Operations.Domain.Origins;
 using Operations.Infrastructure.Database;
+using Common.SharedKernel.Domain;
 
 namespace Operations.Infrastructure.Origins;
 
@@ -15,5 +16,14 @@ internal sealed class OriginRepository(OperationsDbContext context) : IOriginRep
             .FirstOrDefaultAsync(
                 o => o.HomologatedCode == homologatedCode,
                 cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<Origin>> GetOriginsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await context.Set<Origin>()
+            .Where(o => o.Status == Status.Active)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 }

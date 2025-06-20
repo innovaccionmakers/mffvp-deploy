@@ -45,7 +45,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
     internal DbSet<PlanFund> PlanFunds { get; set; }
     internal DbSet<PensionFund> PensionFunds { get; set; }
-    private DbSet<Bank> Banks { get; set; }
+    internal DbSet<Bank> Banks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
