@@ -1,3 +1,4 @@
+using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 namespace Products.Domain.ConfigurationParameters;
 
@@ -16,5 +17,8 @@ public interface IConfigurationParameterRepository : IConfigurationParameterLook
     Task<ConfigurationParameter?> GetByCodeAndScopeAsync(
         string homologationCode,
         string scope,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<ConfigurationParameter>> GetActiveConfigurationParametersByTypeAsync(ConfigurationParameterType type,
         CancellationToken cancellationToken = default);
 }

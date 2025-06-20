@@ -20,26 +20,32 @@ internal sealed class ProfitLossRepository(ClosingDbContext context) : IProfitLo
     public async Task<IReadOnlyCollection<ProfitLoss>> GetByPortfolioAndDateAsync(int portfolioId,
         DateTime effectiveDate, CancellationToken cancellationToken = default)
     {
+        var effectiveDateUtc = EnsureUtcDateTime(effectiveDate);
+
         return await context.ProfitLosses
             .AsNoTracking()
-            .Where(x => x.PortfolioId == portfolioId && x.EffectiveDate == effectiveDate)
+            .Where(x => x.PortfolioId == portfolioId && x.EffectiveDate == effectiveDateUtc)
             .ToListAsync(cancellationToken);
     }
 
     public async Task DeleteByPortfolioAndDateAsync(int portfolioId, DateTime effectiveDate,
         CancellationToken cancellationToken = default)
     {
+        var effectiveDateUtc = EnsureUtcDateTime(effectiveDate);
+
         await context.ProfitLosses
-            .Where(x => x.PortfolioId == portfolioId && x.EffectiveDate == effectiveDate)
+            .Where(x => x.PortfolioId == portfolioId && x.EffectiveDate == effectiveDateUtc)
             .ExecuteDeleteAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<ProfitLossSummary>> GetSummaryAsync(int portfolioId, DateTime effectiveDate,
         CancellationToken cancellationToken = default)
     {
+        var effectiveDateUtc = EnsureUtcDateTime(effectiveDate);
+
         return await context.ProfitLosses
             .AsNoTracking()
-            .Where(pl => pl.PortfolioId == portfolioId && pl.EffectiveDate == effectiveDate)
+            .Where(pl => pl.PortfolioId == portfolioId && pl.EffectiveDate == effectiveDateUtc)
             .Join(context.ProfitLossConcepts,
                 pl => pl.ProfitLossConceptId,
                 c => c.ProfitLossConceptId,
@@ -52,9 +58,14 @@ internal sealed class ProfitLossRepository(ClosingDbContext context) : IProfitLo
             .ToListAsync(cancellationToken);
     }
 
-
     public void InsertRange(IEnumerable<ProfitLoss> profitLosses)
     {
         context.ProfitLosses.AddRange(profitLosses);
+    }
+    private static DateTime EnsureUtcDateTime(DateTime dateTime)
+    {
+        return dateTime.Kind == DateTimeKind.Unspecified
+            ? DateTime.SpecifyKind(dateTime, DateTimeKind.Utc)
+            : dateTime.ToUniversalTime();
     }
 }

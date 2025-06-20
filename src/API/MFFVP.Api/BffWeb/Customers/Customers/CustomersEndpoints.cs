@@ -38,6 +38,32 @@ public sealed class CustomersEndpoints
             return result.ToApiResult(result.Description);
         })
         .WithSummary("Crea un cliente")
+        .WithDescription("""
+                             **Ejemplo de petición (application/json):**
+                             ```json
+                             {
+                               "CodigoHomologado": "string",
+                               "TipoIdentificacion": "C",
+                               "Identificacion": "12345689",
+                               "PrimerNombre": "Primera",
+                               "SegundoNombre": "",
+                               "PrimerApellido": "Prueba",
+                               "SegundoApellido": "",
+                               "FechaNacimiento": "2025-06-13T17:18:12.576Z",
+                               "Celular": "987654321",
+                               "Sexo": "M",
+                               "PaisResidencia": "1",
+                               "Departamento": "91",
+                               "Municipio": "5002",
+                               "Email": "priemera@prueba.com",
+                               "ActividadEconomica": "10",
+                               "Direccion": "Calle",
+                               "Declarante": true,
+                               "TipoInversionista": "INV",
+                               "PerfilRiesgo": "MOD"
+                             }
+                             ```
+                             """)
         .AddEndpointFilter<TechnicalValidationFilter<CreatePersonRequestCommand>>()
         .Produces<PersonResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)

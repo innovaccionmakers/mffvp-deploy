@@ -50,18 +50,18 @@ namespace MFFVP.Api.BffWeb.Products.Portfolios
                 {
                     var p = operation.Parameters.First(p => p.Name == "portfolioId");
                     p.Description = "Identificador único del portafolio";
-                    p.Example     = new OpenApiInteger(123);
+                    p.Example = new OpenApiInteger(123);
                     return operation;
                 })
                 .Produces<PortfolioResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
-            
+
             group.MapGet(
                     "GetAllPortfolios",
                     async (ISender sender) =>
                     {
                         var result = await _portfoliosService.GetPortfoliosAsync(sender);
-                        return result.ToApiResult();
+                        return result.Value;
                     }
                 )
                 .WithName("GetAllPortfolios")
