@@ -10,4 +10,8 @@ public interface IConfigurationParameterRepository : IConfigurationParameterLook
         string homologationCode,
         string scope,
         CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<ConfigurationParameter>> GetByCodesAndScopesAsync(
+            IEnumerable<(string Code, string Scope)> parameters,
+            CancellationToken cancellationToken = default);
 }

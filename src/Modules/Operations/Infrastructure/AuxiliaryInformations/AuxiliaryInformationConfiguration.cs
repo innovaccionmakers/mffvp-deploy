@@ -21,7 +21,7 @@ internal sealed class AuxiliaryInformationConfiguration : IEntityTypeConfigurati
         builder.Property(x => x.TaxConditionId).HasColumnName("condicion_tributaria_id");
         builder.Property(x => x.ContingentWithholding).HasColumnName("retencion_contingente");
         builder.Property(x => x.VerifiableMedium).HasColumnName("medio_verificable");
-        builder.Property(x => x.CollectionBank).HasColumnName("banco_recaudo");
+        builder.Property(x => x.CollectionBankId).HasColumnName("banco_recaudo");
         builder.Property(x => x.DepositDate).HasColumnName("fecha_consignacion");
         builder.Property(x => x.SalesUser).HasColumnName("usuario_comercial");
         builder.Property(x => x.OriginModalityId).HasColumnName("modalidad_origen_id");
@@ -36,5 +36,10 @@ internal sealed class AuxiliaryInformationConfiguration : IEntityTypeConfigurati
         builder.HasOne(x => x.Origin)
             .WithMany(o => o.AuxiliaryInformations)
             .HasForeignKey(x => x.OriginId);
+
+        builder.HasOne(x => x.Bank)
+            .WithMany(b => b.AuxiliaryInformations)
+            .HasForeignKey(x => x.CollectionBankId)
+            .HasPrincipalKey(b => b.BankId);
     }
 }

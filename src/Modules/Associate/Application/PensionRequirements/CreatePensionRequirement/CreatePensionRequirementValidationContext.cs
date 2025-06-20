@@ -7,13 +7,14 @@ namespace Application.PensionRequirements.CreatePensionRequirement
     {
         public CreatePensionRequirementCommand Request { get; }
         public GetActivateIdResponse ActivateResult { get; }
-        public Guid IdentificationType { get; }
+        public Guid DocumentType { get; }        
+        public bool DocumentTypeExists { get; set; }
 
-        public CreatePensionRequirementValidationContext(CreatePensionRequirementCommand request, GetActivateIdResponse activateResult, Guid identificationType)
+        public CreatePensionRequirementValidationContext(CreatePensionRequirementCommand request, GetActivateIdResponse activateResult, Guid documentType)
         {
             Request = request;
             ActivateResult = activateResult;
-            IdentificationType = identificationType;
+            DocumentType = documentType;
         }
     }
 }

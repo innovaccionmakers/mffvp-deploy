@@ -26,6 +26,7 @@ internal sealed class GetPersonsQueryHandler(
                 e.MiddleName,
                 e.LastName,
                 e.SecondLastName,
+                e.BirthDate,
                 e.Mobile,
                 e.FullName,
                 e.GenderId,

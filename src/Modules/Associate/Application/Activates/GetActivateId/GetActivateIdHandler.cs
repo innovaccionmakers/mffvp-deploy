@@ -2,6 +2,7 @@ using Associate.Application.Abstractions;
 using Associate.Domain.Activates;
 using Associate.Domain.ConfigurationParameters;
 using Associate.Integrations.Activates.GetActivateId;
+using Azure.Core;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
@@ -22,8 +23,8 @@ internal sealed class GetActivateIdHandler(
         CancellationToken cancellationToken)
     {
         var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            query.IdentificationType,
-            HomologScope.Of<GetActivateIdResponse>(c => c.IdentificationType),
+            query.DocumentType,
+            HomologScope.Of<GetActivateIdQuery>(c => c.DocumentType),
             cancellationToken);
         Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
@@ -34,8 +35,9 @@ internal sealed class GetActivateIdHandler(
 
         var validationContext = new
         {
-            identificationType = configurationParameter,
-            ActivateExists = activate is not null
+            documentType = configurationParameter,
+            ActivateExists = activate is not null,
+            request = query
         };
         var (ok, _, errors) = await ruleEvaluator
             .EvaluateAsync(ActivateValidationWorkflow, validationContext, cancellationToken);

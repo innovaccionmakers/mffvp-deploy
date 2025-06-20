@@ -4,13 +4,14 @@ namespace Customers.Integrations.People;
 
 public sealed record PersonResponse(
     long PersonId,
-    Guid IdentificationType,
+    Guid DocumentType,
     string HomologatedCode,
     string Identification,
     string FirstName,
     string MiddleName,
     string LastName,
     string SecondLastName,
+    DateTime BirthDate,
     string Mobile,
     string FullName,
     int GenderId,

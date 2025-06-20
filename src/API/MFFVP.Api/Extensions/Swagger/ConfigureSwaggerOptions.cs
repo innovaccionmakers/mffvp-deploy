@@ -21,9 +21,9 @@ public sealed class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGenO
                 description.GroupName,
                 new OpenApiInfo
                 {
-                    Title = $"MFFVP API {description.ApiVersion}",
+                    Title = $"API {description.ApiVersion}",
                     Version = description.ApiVersion.ToString(),
-                    Description = "BFF Web – FullContributions"
+                    Description = string.Empty
                 });
     }
 

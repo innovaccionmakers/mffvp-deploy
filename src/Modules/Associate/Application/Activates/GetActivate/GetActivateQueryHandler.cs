@@ -41,8 +41,8 @@ internal sealed class GetActivateQueryHandler(
                 Error.Validation(first.Code, first.Message));
         }
 
-        var identificationType = new GetConfigurationParameterQuery(activate!.DocumentType);
-        var identificationTypeResult = await sender.Send(identificationType, cancellationToken);
+        var documentType = new GetConfigurationParameterQuery(activate!.DocumentType);
+        var identificationTypeResult = await sender.Send(documentType, cancellationToken);
 
         var response = new ActivateResponse(activate.ActivateId, identificationTypeResult.Value.HomologationCode, activate.Identification,
             activate.Pensioner, activate.MeetsPensionRequirements, activate.ActivateDate);

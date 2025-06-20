@@ -8,7 +8,7 @@ namespace UnitTests.Domain.Activates
         public void Create_ShouldRaiseActivateCreatedDomainEvent()
         {
             // Arrange
-            var identificationType = new Guid();
+            var documentType = new Guid();
             var identification = "123";
             var pensioner = false;
             var meetsRequirements = true;
@@ -16,7 +16,7 @@ namespace UnitTests.Domain.Activates
 
             // Act
             var result = Activate.Create(
-                identificationType,
+                documentType,
                 identification,
                 pensioner,
                 meetsRequirements,

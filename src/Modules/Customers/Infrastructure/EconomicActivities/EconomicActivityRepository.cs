@@ -11,11 +11,11 @@ internal sealed class EconomicActivityRepository(CustomersDbContext context) : I
         return await context.EconomicActivities.ToListAsync(cancellationToken);
     }
 
-    public async Task<EconomicActivity?> GetAsync(int economicactivityId,
+    public async Task<EconomicActivity?> GetAsync(string homologatedCode,
         CancellationToken cancellationToken = default)
     {
         return await context.EconomicActivities
-            .SingleOrDefaultAsync(x => x.EconomicActivityId == economicactivityId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.HomologatedCode == homologatedCode, cancellationToken);
     }
 
     public void Insert(EconomicActivity economicactivity)

@@ -6,7 +6,9 @@ using Common.SharedKernel.Application.Messaging;
 namespace Operations.Integrations.Contributions.CreateContribution;
 
 public sealed record CreateContributionCommand(
-    [property: JsonPropertyName("TipoId")] string TypeId,
+    [property: JsonPropertyName("TipoId")]
+    [property: HomologScope("TipoDocumento")]
+    string TypeId,
     [property: JsonPropertyName("Identificacion")]
     string Identification,
     [property: JsonPropertyName("IdObjetivo")]
@@ -18,13 +20,13 @@ public sealed record CreateContributionCommand(
     [property: HomologScope("Origen Aporte")]
     string Origin,
     [property: JsonPropertyName("ModalidadOrigen")]
-    [property: HomologScope("Modalidad Origen Aporte")]
+    [property: HomologScope("ModalidadOrigen")]
     string OriginModality,
     [property: JsonPropertyName("MetodoRecaudo")]
-    [property: HomologScope("Metodo de Recaudo")]
+    [property: HomologScope("MetodoRecaudo")]
     string CollectionMethod,
     [property: JsonPropertyName("FormaPago")]
-    [property: HomologScope("Metodo de Pago")]
+    [property: HomologScope("FormaPago")]
     string PaymentMethod,
     [property: JsonPropertyName("DetalleFormaPago")]
     JsonDocument? PaymentMethodDetail,

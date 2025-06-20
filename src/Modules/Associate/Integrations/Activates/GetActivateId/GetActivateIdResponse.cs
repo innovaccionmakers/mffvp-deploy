@@ -5,6 +5,6 @@ namespace Associate.Integrations.Activates.GetActivateId;
 public sealed record GetActivateIdResponse(
     int ActivateId,
     [property: HomologScope("TipoDocumento")]
-    Guid IdentificationType,
+    Guid DocumentType,
     bool Pensioner
     );

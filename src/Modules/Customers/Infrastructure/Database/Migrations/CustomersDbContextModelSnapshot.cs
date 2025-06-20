@@ -261,6 +261,10 @@ namespace Customers.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("direccion");
 
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_nacimiento");
+
                     b.Property<int>("CountryOfResidenceId")
                         .HasColumnType("integer")
                         .HasColumnName("pais_residencia_id");

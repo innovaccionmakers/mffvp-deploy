@@ -16,7 +16,7 @@ namespace Customers.Presentation.People
             app.MapPost("persons", async (Request request, ISender sender) =>
             {
                 var result = await sender.Send(new CreatePersonCommand(
-                    request.IdentificationType, 
+                    request.DocumentType, 
                     request.HomologatedCode, 
                     request.Identification, 
                     request.FirstName, 
@@ -45,7 +45,7 @@ namespace Customers.Presentation.People
 
         internal sealed class Request
         {
-            public Guid IdentificationType { get; init; }
+            public Guid DocumentType { get; init; }
             public string HomologatedCode { get; init; }
             public string Identification { get; init; }
             public string FirstName { get; init; }

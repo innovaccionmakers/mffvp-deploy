@@ -1,26 +1,33 @@
 using System.Text.Json.Serialization;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.Activates.CreateActivate;
 
 public sealed record CreateActivateCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]
-    string IdentificationType,
+    [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
+    string DocumentType,
 
     [property: JsonPropertyName("Identificacion")]
+    [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
     string Identification,
 
     [property: JsonPropertyName("Pensionado")]
-    bool Pensioner,
+    [property: JsonConverter(typeof(BooleanOrStringToBooleanConverter))]
+    bool? Pensioner,
 
-    [property: JsonPropertyName("CumpleRequisitosPension")]
+    [property: JsonPropertyName("CumpleRequisitosPension")]    
+    [property: JsonConverter(typeof(BooleanOrStringToBooleanConverter))]
     bool? MeetsPensionRequirements,
 
     [property: JsonPropertyName("FechaInicioReqPen")]
+    [property: JsonConverter(typeof(EmptyStringToNullDateTimeConverter))]
     DateTime? StartDateReqPen,
 
     [property: JsonPropertyName("FechaFinReqPen")]
+    [property: JsonConverter(typeof(EmptyStringToNullDateTimeConverter))]
     DateTime? EndDateReqPen
 ) : ICommand;

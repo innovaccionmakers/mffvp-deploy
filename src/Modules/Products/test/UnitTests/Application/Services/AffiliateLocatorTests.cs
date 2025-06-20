@@ -59,7 +59,7 @@ public class AffiliateLocatorTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().Be(55);
-        captured!.IdentificationType.Should().Be("CC");
+        captured!.DocumentType.Should().Be("CC");
         captured.Identification.Should().Be("321");
     }
 }

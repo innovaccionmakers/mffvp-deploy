@@ -5,18 +5,14 @@ using Common.SharedKernel.Domain;
 using Associate.Domain.PensionRequirements;
 using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 using Associate.Application.Abstractions.Data;
-using Application.PensionRequirements.UpdatePensionRequirement;
 using Application.PensionRequirements;
-using Common.SharedKernel.Domain.ConfigurationParameters;
-using Common.SharedKernel.Application.Attributes;
 
 namespace Associate.Application.PensionRequirements;
 
 internal sealed class UpdatePensionRequirementCommandHandler(
     IPensionRequirementRepository pensionrequirementRepository,
     IUnitOfWork unitOfWork,
-    PensionRequirementCommandHandlerValidation validator,
-    IConfigurationParameterRepository configurationParameterRepository)
+    PensionRequirementCommandHandlerValidation validator)
     : ICommandHandler<UpdatePensionRequirementCommand>
 {
     private const string Workflow = "Associate.PensionRequirement.UpdateValidation";
@@ -24,26 +20,15 @@ internal sealed class UpdatePensionRequirementCommandHandler(
     public async Task<Result> Handle(UpdatePensionRequirementCommand request, CancellationToken cancellationToken)
     {
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        var existingPensionRequirement = await pensionrequirementRepository.GetAsync(request.PensionRequirementId, cancellationToken);
-        
-        var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<UpdatePensionRequirementCommand>(c => c.IdentificationType), cancellationToken);
-        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
+        var existingPensionRequirement = await pensionrequirementRepository.GetAsync(request.PensionRequirementId ?? 0, cancellationToken);
+        var validationResult = await validator.UpdatePensionRequirementValidationContext(request, Workflow, existingPensionRequirement!, cancellationToken);
 
-        var validationResult = await validator.ValidateRequestAsync(
-                request,
-                request.IdentificationType,
-                request.Identification,
-                Workflow,
-                (cmd, activateResult) => new UpdatePensionRequirementValidationContext(cmd, activateResult, existingPensionRequirement!, uuid),
-                cancellationToken);
-        
         if (validationResult.IsFailure)
             return Result.Failure(
                 Error.Validation(validationResult.Error.Code ?? string.Empty, validationResult.Error.Description ?? string.Empty));
 
         existingPensionRequirement!.UpdateDetails(
-            request.Status
+            (bool)request.Status! ? Status.Active : Status.Inactive
         );
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

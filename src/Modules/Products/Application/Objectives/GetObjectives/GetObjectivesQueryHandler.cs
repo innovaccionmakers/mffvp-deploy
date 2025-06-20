@@ -1,52 +1,83 @@
+using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
+using Products.Application.Abstractions;
 using Products.Application.Abstractions.Services.External;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Abstractions.Services.Rules;
+using Products.Domain.ConfigurationParameters;
 using Products.Integrations.Objectives.GetObjectives;
 
 namespace Products.Application.Objectives.GetObjectives;
 
 internal sealed class GetObjectivesQueryHandler(
-    IDocumentTypeValidator documentTypeValidator,
+    IConfigurationParameterRepository configurationParameterRepository,
     IAffiliateLocator affiliateLocator,
+    IRuleEvaluator<ProductsModuleMarker> ruleEvaluator,
     IObjectiveReader objectiveReader,
     IGetObjectivesRules objectivesRules)
-    : IQueryHandler<GetObjectivesQuery, GetObjectivesResponse>
+    : IQueryHandler<GetObjectivesQuery, IReadOnlyCollection<ObjectiveItem>>
 {
-    public async Task<Result<GetObjectivesResponse>> Handle(
+    private const string RequiredFieldsWorkflow = "Products.Objective.RequiredFieldsGetObjectives";
+    
+    public async Task<Result<IReadOnlyCollection<ObjectiveItem>>> Handle(
         GetObjectivesQuery request,
-        CancellationToken cancellationToken)
+        CancellationToken ct)
     {
-        Result documentValidationResult = await documentTypeValidator
-            .EnsureExistsAsync(request.TypeId, cancellationToken);
-        if (!documentValidationResult.IsSuccess)
-            return Result.Failure<GetObjectivesResponse>(documentValidationResult.Error!);
+        var requiredContext = new
+        {
+            request.TypeId,
+            request.Identification,
+            request.Status
+        };
+        
+        var (requiredOk, _, requiredErrors) =
+            await ruleEvaluator.EvaluateAsync(RequiredFieldsWorkflow,
+                requiredContext,
+                ct);
 
-        Result<int?> affiliateValidationResult = await affiliateLocator
-            .FindAsync(request.TypeId, request.Identification, cancellationToken);
-        if (!affiliateValidationResult.IsSuccess)
-            return Result.Failure<GetObjectivesResponse>(affiliateValidationResult.Error!);
+        if (!requiredOk)
+        {
+            var first = requiredErrors.First();
+            return Result.Failure<IReadOnlyCollection<ObjectiveItem>>(
+                Error.Validation(first.Code, first.Message));
+        }
+        
+        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            request.TypeId,
+            HomologScope.Of<GetObjectivesQuery>(c => c.TypeId),
+            ct);
 
-        var affiliateId = affiliateValidationResult.Value;
-        var isAffiliateFound = affiliateId.HasValue;
+        var documentTypeExists = documentType is not null;
+
+        var affiliateRaw = documentTypeExists
+            ? await affiliateLocator.FindAsync(request.TypeId, request.Identification, ct)
+            : Result.Success<int?>(null);
+
+        if (!affiliateRaw.IsSuccess)
+            return Result.Failure<IReadOnlyCollection<ObjectiveItem>>(affiliateRaw.Error!);
+
+        var affiliateId = affiliateRaw.Value;
+        var affiliateFound = affiliateId.HasValue;
 
         var validationContext = await objectiveReader.BuildValidationContextAsync(
-            isAffiliateFound,
+            affiliateFound,
             affiliateId,
             request.Status,
-            cancellationToken);
+            documentTypeExists,
+            ct);
 
-        var rulesEvaluationResult = await objectivesRules
-            .EvaluateAsync(validationContext, cancellationToken);
-        if (!rulesEvaluationResult.IsSuccess)
-            return Result.Failure<GetObjectivesResponse>(rulesEvaluationResult.Error!);
+        var rulesResult = await objectivesRules.EvaluateAsync(validationContext, ct);
+        if (!rulesResult.IsSuccess)
+            return Result.Failure<IReadOnlyCollection<ObjectiveItem>>(rulesResult.Error!);
 
-        var objectivesList = await objectiveReader.ReadDtosAsync(
-            affiliateId.Value,
+        var dtos = await objectiveReader.ReadDtosAsync(
+            affiliateId!.Value,
             request.Status,
-            cancellationToken);
+            ct);
 
-        return Result.Success(new GetObjectivesResponse(objectivesList));
+        var wrapper = dtos.Select(d => new ObjectiveItem(d)).ToList();
+        return Result.Success<IReadOnlyCollection<ObjectiveItem>>(wrapper);
     }
 }

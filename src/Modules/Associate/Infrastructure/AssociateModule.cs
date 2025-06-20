@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Application.Activates;
 
 namespace Associate.Infrastructure;
 
@@ -38,7 +39,7 @@ public static class ActivatesModule
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("AssociateDatabase");
 
-        if (env == "DevMakers2")
+        if (env != "Development")
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];
             var region = configuration["AWS:SecretsManager:Region"];
@@ -63,6 +64,7 @@ public static class ActivatesModule
         services.AddScoped<IErrorCatalog<AssociateModuleMarker>, ErrorCatalog<AssociateModuleMarker>>();
         services.AddScoped<PensionRequirementCommandHandlerValidation>();
         services.AddScoped<ActivateValidationConsumer>();
+        services.AddScoped<ActivatesCommandHandlerValidation>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());
     }
 }

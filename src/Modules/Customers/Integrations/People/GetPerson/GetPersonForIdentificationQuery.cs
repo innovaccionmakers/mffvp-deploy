@@ -5,6 +5,6 @@ namespace Customers.Integrations.People.GetPerson;
 
 public sealed record GetPersonForIdentificationQuery(    
     [property: HomologScope("TipoDocumento")]
-    string IdentificationType,
+    string DocumentType,
     string Identification
 ) : IQuery<PersonResponse>;

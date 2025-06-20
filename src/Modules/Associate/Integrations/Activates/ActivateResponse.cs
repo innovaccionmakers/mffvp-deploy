@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.Activates;
 
@@ -7,7 +8,7 @@ public sealed record ActivateResponse(
     int ActivateId,
 
     [property: JsonPropertyName("TipoId")]
-    string IdentificationType,
+    string DocumentType,
 
     [property: JsonPropertyName("Identificacion")]
     string Identification,

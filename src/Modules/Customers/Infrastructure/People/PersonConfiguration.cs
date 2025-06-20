@@ -20,6 +20,7 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
         builder.Property(x => x.MiddleName).HasColumnName("segundo_nombre");
         builder.Property(x => x.LastName).HasColumnName("primer_apellido");
         builder.Property(x => x.SecondLastName).HasColumnName("segundo_apellido");
+        builder.Property(x => x.BirthDate).HasColumnName("fecha_nacimiento");
         builder.Property(x => x.FullName).HasColumnName("nombre_completo");
         builder.Property(x => x.Mobile).HasColumnName("celular");
         builder.Property(x => x.GenderId).HasColumnName("sexo_id");

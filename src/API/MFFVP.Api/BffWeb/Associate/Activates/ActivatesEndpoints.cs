@@ -27,8 +27,8 @@ public sealed class ActivatesEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("BffWeb/FVP/Associate")
-            .WithTags("BFF Web - Associate")
+        var group = app.MapGroup("FVP/Associate")
+            .WithTags("Associate")
             .WithOpenApi();
 
         group.MapGet("GetAssociates", async (ISender sender) =>
@@ -36,6 +36,7 @@ public sealed class ActivatesEndpoints
                 var result = await _activatesService.GetActivatesAsync(sender);
                 return result.Value;
             })
+            .WithSummary("Retorna una lista de activaciones")
             .Produces<IReadOnlyCollection<ActivateResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -44,6 +45,30 @@ public sealed class ActivatesEndpoints
                 var result = await _activatesService.CreateActivateAsync(request, sender);
                 return result.ToApiResult(result.Description);
             })
+            .WithSummary("Crea una activación")
+            .WithDescription("""
+                             **Ejemplo de petición (application/json):**
+                             
+                             *Ejemplo A*
+                             ```json
+                             {
+                               "TipoId": "C",
+                               "Identificacion": "01234567890",
+                               "Pensionado": true
+                             }
+                             ```
+                             *Ejemplo B*
+                             ```json                             
+                             {
+                               "TipoId": "C",
+                               "Identificacion": "01234567890",
+                               "Pensionado": false,
+                               "CumpleRequisitosPension": true,
+                               "FechaInicioReqPen": "2025-06-18T14:44:54.188Z",
+                               "FechaFinReqPen": "2026-06-18T14:44:54.188Z"
+                             }
+                             ```
+                             """)
             .AddEndpointFilter<TechnicalValidationFilter<CreateActivateCommand>>()
             .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -86,6 +111,17 @@ public sealed class ActivatesEndpoints
                 var result = await _activatesService.UpdateActivateAsync(command, sender);
                 return result.ToApiResult(result.Description);
             })
+            .WithSummary("Actualiza una activación")
+            .WithDescription("""
+                             **Ejemplo de petición (application/json):**
+                             ```json
+                             {
+                               "TipoId": "C",
+                               "Identificacion": "01234567890",
+                               "Pensionado": false
+                             }
+                             ```
+                             """)
             .AddEndpointFilter<TechnicalValidationFilter<UpdateActivateCommand>>()
             .Produces<ActivateResponse>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -96,6 +132,7 @@ public sealed class ActivatesEndpoints
                 var result = await _pensionrequirementsService.GetPensionRequirementsAsync(sender);
                 return result;
             })
+            .WithSummary("Retorna lista de requerimientos de pensioó")
             .Produces<IReadOnlyCollection<PensionRequirementResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -104,6 +141,18 @@ public sealed class ActivatesEndpoints
             var result = await _pensionrequirementsService.CreatePensionRequirementAsync(request, sender);
             return result.ToApiResult(result.Description);
         })
+        .WithSummary("Crea un requerimiento de pensión")
+        .WithDescription("""
+                             **Ejemplo de petición (application/json):**
+                             ```json
+                             {
+                               "TipoId": "C",
+                               "Identificacion": "01234567890",
+                               "FechaInicioReqPen": "2025-06-18",
+                               "FechaFinReqPen": "2025-06-19"
+                             }
+                             ```
+                             """)
         .AddEndpointFilter<TechnicalValidationFilter<CreatePensionRequirementCommand>>()
         .Produces<PensionRequirementResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -114,6 +163,18 @@ public sealed class ActivatesEndpoints
             var result = await _pensionrequirementsService.UpdatePensionRequirementAsync(command, sender);
             return result.ToApiResult(result.Description);
         })
+        .WithSummary("Actualiza un requerimiento de pensión")
+        .WithDescription("""
+                             **Ejemplo de petición (application/json):**
+                             ```json
+                             {
+                               "TipoId": "C",
+                               "Identificacion": "01234567890",
+                               "IdRequisitoPension": 13,
+                               "Estado": "Inactive"
+                             }
+                             ```
+                             """)
         .AddEndpointFilter<TechnicalValidationFilter<UpdatePensionRequirementCommand>>()
         .Produces<PensionRequirementResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)

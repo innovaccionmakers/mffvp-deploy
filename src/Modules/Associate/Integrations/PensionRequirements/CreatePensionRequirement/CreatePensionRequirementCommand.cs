@@ -1,19 +1,24 @@
 using System.Text.Json.Serialization;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 public sealed record CreatePensionRequirementCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]
-    string IdentificationType,
+    [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
+    string DocumentType,
     
     [property: JsonPropertyName("Identificacion")]
+    [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
     string Identification,
     
     [property: JsonPropertyName("FechaInicioReqPen")]
-    DateTime StartDateReqPen,
+    [property: JsonConverter(typeof(EmptyStringToNullDateTimeConverter))]
+    DateTime? StartDateReqPen,
     
     [property: JsonPropertyName("FechaFinReqPen")]
-    DateTime EndDateReqPen
+    [property: JsonConverter(typeof(EmptyStringToNullDateTimeConverter))]
+    DateTime? EndDateReqPen
 ) : ICommand;

@@ -62,8 +62,8 @@ jobs:
 
   sync-to-azure-devops:
     name: Sync to Azure DevOps
-    if: always()
-    needs: deploy-to-railway
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

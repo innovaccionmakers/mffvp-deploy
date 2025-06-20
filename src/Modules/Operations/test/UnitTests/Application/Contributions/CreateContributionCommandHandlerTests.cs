@@ -8,12 +8,14 @@ using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.External;
 using Common.SharedKernel.Application.Rules;
 using Operations.Application.Contributions.CreateContribution;
+using Operations.Domain.Banks;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Integrations.Contributions.CreateContribution;
 using RulesEngine.Models;
+using Operations.Domain.ConfigurationParameters;
 
 namespace Operations.test.UnitTests.Application.Contributions;
 
@@ -26,6 +28,8 @@ public class CreateContributionCommandHandlerTests
     private readonly Mock<ITaxCalculator> _taxCalculator = new();
     private readonly Mock<IClientOperationRepository> _operationRepo = new();
     private readonly Mock<IAuxiliaryInformationRepository> _auxRepo = new();
+    private readonly Mock<IBankRepository> _bankRepo = new();
+    private readonly Mock<IConfigurationParameterRepository> _configRepo = new();
     private readonly Mock<IRuleEvaluator<OperationsModuleMarker>> _ruleEvaluator = new();
     private readonly Mock<IUnitOfWork> _uow = new();
     private readonly Mock<ITrustCreator> _trustCreator = new();
@@ -43,6 +47,8 @@ public class CreateContributionCommandHandlerTests
             _taxCalculator.Object,
             _operationRepo.Object,
             _auxRepo.Object,
+            _bankRepo.Object,
+            _configRepo.Object,
             _ruleEvaluator.Object,
             _uow.Object,
             _trustCreator.Object);
@@ -96,6 +102,8 @@ public class CreateContributionCommandHandlerTests
         _catalogResolver
             .Setup(r => r.ResolveAsync(It.IsAny<CreateContributionCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildCatalogs());
+        _configRepo.Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ConfigurationParameter.Create("TipoDocumento", "CC"));
         _activateLocator.Setup(l => l.FindAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success((true, 1, false)));
         _remoteValidator.Setup(v => v.ValidateAsync(1, 10, "1", It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1000m,
@@ -103,6 +111,8 @@ public class CreateContributionCommandHandlerTests
             .ReturnsAsync(Result.Success(new ContributionRemoteData(1, 10, 1, "port", 50m)));
         _operationRepo.Setup(r => r.ExistsContributionAsync(1, 10, 1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
+        _bankRepo.Setup(r => r.FindByHomologatedCodeAsync("BANK", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Bank.Create("n", "bank", 0, Status.Active, "BANK", 0).Value);
         _ruleEvaluator
             .Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
@@ -136,6 +146,12 @@ public class CreateContributionCommandHandlerTests
     public async Task Handle_Should_Return_Error_When_ActivateLocator_Fails()
     {
         // arrange
+        _configRepo.Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ConfigurationParameter.Create("TipoDocumento", "CC"));
+        _ruleEvaluator
+            .Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
+
         var error = Error.NotFound("A", "fail");
         _activateLocator.Setup(l => l.FindAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure<(bool, int, bool)>(error));
@@ -157,6 +173,12 @@ public class CreateContributionCommandHandlerTests
     public async Task Handle_Should_Return_Error_When_RemoteValidator_Fails()
     {
         // arrange
+        _configRepo.Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ConfigurationParameter.Create("TipoDocumento", "CC"));
+        _ruleEvaluator
+            .Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
+
         _activateLocator.Setup(l => l.FindAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success((true, 1, false)));
         var error = Error.Problem("R", "bad");
@@ -288,6 +310,52 @@ public class CreateContributionCommandHandlerTests
         // assert
         captured.Should().NotBeNull();
         var prop = captured!.GetType().GetProperty("IsFirstContribution")!;
+        prop.GetValue(captured).Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Not_Call_ActivateLocator_When_DocumentType_Not_Found()
+    {
+        // arrange
+        SetupHappyPath();
+        _configRepo.Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ConfigurationParameter?)null);
+        var handler = BuildHandler();
+        var command = BuildCommand();
+
+        // act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // assert
+        result.IsSuccess.Should().BeTrue();
+        _activateLocator.Verify(l => l.FindAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _remoteValidator.Verify(v => v.ValidateAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()), Times.Never);
+        _personValidator.Verify(p => p.ValidateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    public async Task Handle_Should_Set_DocumentTypeExists_Flag(bool documentExists, bool expected)
+    {
+        // arrange
+        SetupHappyPath();
+        _configRepo.Setup(r => r.GetByCodeAndScopeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(documentExists ? ConfigurationParameter.Create("TipoDocumento", "CC") : null);
+        object? captured = null;
+        _ruleEvaluator
+            .Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, ctx, _) => captured = ctx)
+            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
+        var handler = BuildHandler();
+        var command = BuildCommand();
+
+        // act
+        await handler.Handle(command, CancellationToken.None);
+
+        // assert
+        captured.Should().NotBeNull();
+        var prop = captured!.GetType().GetProperty("DocumentTypeExists")!;
         prop.GetValue(captured).Should().Be(expected);
     }
 }

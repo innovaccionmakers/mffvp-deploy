@@ -1,37 +1,28 @@
-using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Customers.Integrations.People.GetPerson;
-using Customers.Domain.ConfigurationParameters;
 using Customers.Application.Abstractions;
 using Common.SharedKernel.Application.Rules;
-using Customers.Domain.People;
 using Customers.Integrations.People;
+using Application.People.GetPerson;
 
 namespace Customers.Application.People.GetPerson;
 
 public class GetPersonForIdentificationQueryHandle(
-    IPersonRepository personRepository,
     IRuleEvaluator<CustomersModuleMarker> ruleEvaluator,
-    IConfigurationParameterRepository configurationParameterRepository) : IQueryHandler<GetPersonForIdentificationQuery, PersonResponse>
+    GetPersonQueryHandlerValidation validator) : IQueryHandler<GetPersonForIdentificationQuery, PersonResponse>
 {
     private const string ValidationWorkflow = "Customers.Person.ValidationAssociate";
 
     public async Task<Result<PersonResponse>> Handle(GetPersonForIdentificationQuery request,
         CancellationToken cancellationToken)
     {
-        var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<GetPersonForIdentificationQuery>(c => c.IdentificationType), cancellationToken);
-        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
-
-        var person =
-            await personRepository.GetForIdentificationAsync(uuid, request.Identification,
-                cancellationToken);
+        var validationContext = await validator.ValidateAsync(request, cancellationToken);
 
         var (isValid, _, errors) = await ruleEvaluator
             .EvaluateAsync(
                 ValidationWorkflow,
-                person,
+                validationContext,
                 cancellationToken);
 
         if (!isValid)
@@ -40,6 +31,9 @@ public class GetPersonForIdentificationQueryHandle(
             return Result.Failure<PersonResponse>(
                 Error.Validation(first.Code, first.Message));
         }
+
+        // Si todo está bien, devolver la persona encontrada
+        var person = validationContext.Person!;
 
         var response = new PersonResponse(
             person!.PersonId,
@@ -50,6 +44,7 @@ public class GetPersonForIdentificationQueryHandle(
             person.MiddleName,
             person.LastName,
             person.SecondLastName,
+            person.BirthDate,
             person.Mobile,
             person.FullName,
             person.GenderId,

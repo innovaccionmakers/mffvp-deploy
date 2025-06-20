@@ -9,17 +9,17 @@ namespace Application.PensionRequirements.UpdatePensionRequirement
         public UpdatePensionRequirementCommand Request { get; }
         public GetActivateIdResponse ActivateResult { get; }
         public PensionRequirement ExistingPensionRequirement { get; }
-
-        public Guid IdentificationType { get; }
+        public Guid DocumentType { get; }        
+        public bool DocumentTypeExists { get; set; }
 
 
         public UpdatePensionRequirementValidationContext(
-            UpdatePensionRequirementCommand request, GetActivateIdResponse activateResult, PensionRequirement existingPensionRequirement, Guid identificationType)
+            UpdatePensionRequirementCommand request, GetActivateIdResponse activateResult, PensionRequirement existingPensionRequirement, Guid documentType)
         {
             ActivateResult = activateResult;
             Request = request;
             ExistingPensionRequirement = existingPensionRequirement;
-            IdentificationType = identificationType;
+            DocumentType = documentType;
         }
     }
 }

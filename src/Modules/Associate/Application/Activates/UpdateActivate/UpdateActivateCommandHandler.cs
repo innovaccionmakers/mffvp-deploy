@@ -1,42 +1,29 @@
-using Associate.Domain.ConfigurationParameters;
 using System.Data.Common;
 using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
 using Common.SharedKernel.Application.Rules;
-using Associate.Application.Activates.UpdateActivate;
-using Associate.Domain.Activates;
-using Common.SharedKernel.Domain.ConfigurationParameters;
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.UpdateActivate;
-using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using Application.Activates;
 
 namespace Associate.Application.Activates;
 
 internal sealed class UpdateActivateCommandHandler(
-    IActivateRepository activateRepository,
     IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork,
-    IConfigurationParameterRepository configurationParameterRepository)
+    ActivatesCommandHandlerValidation validator)
     : ICommandHandler<UpdateActivateCommand>
 {
     private const string Workflow = "Associate.Activates.UpdateValidation";
-
     public async Task<Result> Handle(UpdateActivateCommand request, CancellationToken cancellationToken)
-    {
-        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);        
-        var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<UpdateActivateCommand>(c => c.IdentificationType), cancellationToken);
-        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
-        
-        Activate existingActivate = await activateRepository.GetByIdTypeAndNumber(uuid, request.Identification, cancellationToken);
-
-        
-        var validationContext = new ActivateUpdateValidationContext(request, existingActivate!, uuid);
+    {       
+        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        var validationResults = await validator.UpdateActivateValidationContext(request, cancellationToken);
 
         var (isValid, _, ruleErrors) =
-            await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);
+            await ruleEvaluator.EvaluateAsync(Workflow, validationResults, cancellationToken);
 
         if (!isValid)
         {
@@ -48,8 +35,8 @@ internal sealed class UpdateActivateCommandHandler(
                 Error.Validation(first.Code, first.Message));
         }
 
-        existingActivate.UpdateDetails(
-            request.Pensioner
+        validationResults.ExistingActivate.UpdateDetails(
+            request.Pensioner ?? false
         );
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

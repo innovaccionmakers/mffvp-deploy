@@ -9,6 +9,7 @@ public interface IObjectiveReader
         bool affiliateFound,
         int? affiliateId,
         StatusType requestedStatus,
+        bool documentTypeExists,
         CancellationToken ct);
 
     Task<IReadOnlyList<ObjectiveDto>> ReadDtosAsync(

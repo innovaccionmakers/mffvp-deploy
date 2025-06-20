@@ -1,9 +1,11 @@
+using Common.SharedKernel.Domain;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
 using MFFVP.Api.Application.Products;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Products.Integrations.Objectives.CreateObjective;
 using Products.Integrations.Objectives.GetObjectives;
 
@@ -20,22 +22,28 @@ public sealed class ObjectivesEndpoints
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bffWeb/FVP/Product")
-            .WithTags("BFF Web - Objectives")
+        var group = app.MapGroup("FVP/Product")
+            .WithTags("Objectives")
             .WithOpenApi();
 
         group.MapGet(
                 "GetGoals",
                 async (
-                    [FromQuery] string typeId,
-                    [FromQuery] string identification,
-                    [FromQuery] StatusType status,
+                    [FromQuery] string? typeId,
+                    [FromQuery] string? identification,
+                    [FromQuery] string? status,
                     ISender sender
                 ) =>
                 {
+                    var st = MapStatus(status);
                     var result = await _objectivesService
-                        .GetObjectivesAsync(typeId, identification, status, sender);
-                    return result.ToApiResult();
+                        .GetObjectivesAsync(typeId, identification, st, sender);
+                    return result.Match(
+                        Results.Ok,
+                        r => r.Error.Type == ErrorType.Validation
+                            ? ApiResults.Failure(r)
+                            : ApiResults.Problem(r)
+                    );
                 }
             )
             .WithName("GetGoals")
@@ -44,11 +52,11 @@ public sealed class ObjectivesEndpoints
                              **Ejemplo de llamada (query):**
 
                              ```http
-                             GET /bffWeb/FVP/Product/GetGoals?typeId=C&identification=123456789&status=A
+                             GET /FVP/Product/GetGoals?typeId=C&identification=123456789&status=A
                              ```
 
                              - `typeId`: C (Ciudadanía)  
-                             - `identification`: 123456789  
+                             - `identification`: 27577533  
                              - `status`: A (Activo)  
                              """)
             .WithOpenApi(operation =>
@@ -59,15 +67,27 @@ public sealed class ObjectivesEndpoints
 
                 var p1 = operation.Parameters.First(p => p.Name == "identification");
                 p1.Description = "Número de documento";
-                p1.Example     = new OpenApiString("123456789");
-
+                p1.Example     = new OpenApiString("27577533");
+                
                 var p2 = operation.Parameters.First(p => p.Name == "status");
                 p2.Description = "Estado de los objetivos (A=Activo, I=Inactivo, T=Todos)";
                 p2.Example     = new OpenApiString("A");
+                
+                p2.Schema ??= new OpenApiSchema { Type = "string" };
+                
+                if (p2.Schema.Enum is null || p2.Schema.Enum.Count == 0)
+                {
+                    p2.Schema.Enum = new List<IOpenApiAny>
+                    {
+                        new OpenApiString("A"),
+                        new OpenApiString("I"),
+                        new OpenApiString("T")
+                    };
+                }
 
                 return operation;
             })
-            .Produces<GetObjectivesResponse>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyCollection<ObjectiveItem>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost(
@@ -105,4 +125,15 @@ public sealed class ObjectivesEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
+    
+    private static StatusType MapStatus(string? raw) =>
+        string.IsNullOrWhiteSpace(raw)
+            ? StatusType.Missing
+            : raw.Trim().ToUpperInvariant() switch
+            {
+                "A" => StatusType.A,
+                "I" => StatusType.I,
+                "T" => StatusType.T,
+                _   => StatusType.Unknown
+            };
 }

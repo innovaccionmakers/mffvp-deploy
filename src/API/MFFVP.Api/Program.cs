@@ -36,7 +36,7 @@ builder.Configuration
 
 builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 
-if (env == "DevMakers2")
+if (env != "Development")
 {
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
     var region = builder.Configuration["AWS:SecretsManager:Region"];
@@ -56,7 +56,6 @@ if (env == "DevMakers2")
             logger.LogInformation("Secret fetched from SecretsManager successfully and assigned to configuration.");
         }
     }
-    response = "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;SSL Mode=Require;Trust Server Certificate=true;";
 
     builder.Configuration["ConnectionStrings:Database"] = response;
     builder.Configuration["ConnectionStrings:CapDatabase"] = response;
@@ -169,39 +168,41 @@ app.MapGraphQL("/experience/graphql", "BFFSuperExperience");
 
 app.MapEndpoints();
 
+app.UseMiddleware<JsonExceptionHandlingMiddleware>();
+
 app.MapGet("/",
     () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
 
-app.MapGet("/api/userinfo", [Authorize(AuthenticationSchemes = "JwtBearer")] (HttpContext context) =>
-{
-    var userId = context.User.FindFirst("sub")?.Value;
-    var userName = context.User.Identity?.Name;
-    return Results.Ok($"Welcome {userName} (ID: {userId}), this is protected data.");
-});
+//app.MapGet("/api/userinfo", [Authorize(AuthenticationSchemes = "JwtBearer")] (HttpContext context) =>
+//{
+//    var userId = context.User.FindFirst("sub")?.Value;
+//    var userName = context.User.Identity?.Name;
+//    return Results.Ok($"Welcome {userName} (ID: {userId}), this is protected data.");
+//});
 
-// Allowed: Cristof (direct permission)
-app.MapGet("/api/secured/users/delete", [Authorize(Policy = "FVP.Users.Users.Delete")] () =>
-{
-    return Results.Ok("Access granted for Users.Delete");
-});
+//// Allowed: Cristof (direct permission)
+//app.MapGet("/api/secured/users/delete", [Authorize(Policy = "FVP.Users.Users.Delete")] () =>
+//{
+//    return Results.Ok("Access granted for Users.Delete");
+//});
 
-// Allowed: CristianVillalobos (direct permission)
-app.MapGet("/api/secured/activates/update", [Authorize(Policy = "FVP.Associate.Activates.Update")] () =>
-{
-    return Results.Ok("Access granted for Activates.Update");
-});
+//// Allowed: CristianVillalobos (direct permission)
+//app.MapGet("/api/secured/activates/update", [Authorize(Policy = "FVP.Associate.Activates.Update")] () =>
+//{
+//    return Results.Ok("Access granted for Activates.Update");
+//});
 
-// Allowed: Cristof (direct permission)
-app.MapGet("/api/secured/activates/view", [Authorize(Policy = "FVP.Associate.Activates.View")] () =>
-{
-    return Results.Ok("Access granted for Activates.View");
-});
+//// Allowed: Cristof (direct permission)
+//app.MapGet("/api/secured/activates/view", [Authorize(Policy = "FVP.Associate.Activates.View")] () =>
+//{
+//    return Results.Ok("Access granted for Activates.View");
+//});
 
-// Allowed: Editor role (Cristof, CristianVillalobos)
-app.MapGet("/api/secured/pension-requirements/update", [Authorize(Policy = "FVP.Associate.PensionRequirements.Update")] () =>
-{
-    return Results.Ok("Access granted for PensionRequirements.Update");
-});
+//// Allowed: Editor role (Cristof, CristianVillalobos)
+//app.MapGet("/api/secured/pension-requirements/update", [Authorize(Policy = "FVP.Associate.PensionRequirements.Update")] () =>
+//{
+//    return Results.Ok("Access granted for PensionRequirements.Update");
+//});
 
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
 

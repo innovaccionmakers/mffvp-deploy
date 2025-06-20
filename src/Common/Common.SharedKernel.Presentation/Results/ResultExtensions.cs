@@ -23,16 +23,17 @@ public static class ResultExtensions
 
     public static IResult ToApiResult<T>(this Result<T> result, string? description = null)
     {
+        var desc = string.IsNullOrWhiteSpace(description) ? result.Description : description;
         return result.IsSuccess
-            ? ApiResults.Ok(result.Value, description ?? string.Empty)
+            ? ApiResults.Ok(result.Value, desc ?? string.Empty)
             : ApiResults.Failure(result);
     }
 
-
     public static IResult ToApiResult(this Result result, string? description = null)
     {
+        var desc = string.IsNullOrWhiteSpace(description) ? result.Description : description;
         return result.IsSuccess
-            ? ApiResults.Ok(result.IsSuccess, description ?? string.Empty)
+            ? ApiResults.Ok(result.IsSuccess, desc ?? string.Empty)
             : ApiResults.Failure(result);
     }
 }

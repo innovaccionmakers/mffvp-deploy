@@ -4,7 +4,7 @@ using System;
 
 namespace Customers.Integrations.People.CreatePerson;
 public sealed record CreatePersonCommand(
-    Guid IdentificationType,
+    Guid DocumentType,
     string HomologatedCode,
     string Identification,
     string FirstName,

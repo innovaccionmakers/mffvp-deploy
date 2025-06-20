@@ -23,7 +23,7 @@ public sealed class ActivateValidationConsumer : ICapSubscribe
         header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
 
         var idResult  = await _mediator.Send(
-            new GetActivateIdQuery(message.IdentificationType, message.Identification),
+            new GetActivateIdQuery(message.DocumentType, message.Identification),
             cancellationToken);
         
         if (!idResult.IsSuccess)

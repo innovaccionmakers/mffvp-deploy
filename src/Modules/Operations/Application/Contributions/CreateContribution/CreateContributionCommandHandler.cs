@@ -7,9 +7,12 @@ using Operations.Application.Abstractions.External;
 using Common.SharedKernel.Application.Rules;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
+using Operations.Domain.Banks;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Integrations.Contributions;
 using Operations.Integrations.Contributions.CreateContribution;
+using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Application.Attributes;
 
 namespace Operations.Application.Contributions.CreateContribution;
 
@@ -21,55 +24,126 @@ internal sealed class CreateContributionCommandHandler(
     ITaxCalculator taxCalculator,
     IClientOperationRepository clientOperationRepository,
     IAuxiliaryInformationRepository auxiliaryInformationRepository,
+    IBankRepository bankRepository,
+    IConfigurationParameterRepository configurationParameterRepository,
     IRuleEvaluator<OperationsModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork,
     ITrustCreator trustCreator)
     : ICommandHandler<CreateContributionCommand, ContributionResponse>
 {
     private const string Flow = "Operations.Contribution.Validation";
+    private const string RequiredFieldsFlow = "Operations.Contribution.RequiredFields";
 
     public async Task<Result<ContributionResponse>> Handle(CreateContributionCommand command,
         CancellationToken cancellationToken)
     {
-        var catalogs = await catalogResolver.ResolveAsync(command, cancellationToken);
+        var requiredCtx = new
+        {
+            command.TypeId,
+            command.Identification,
+            command.ObjectiveId,
+            command.Amount,
+            command.Origin,
+            command.OriginModality,
+            command.CollectionMethod,
+            command.PaymentMethod,
+            command.CollectionBank,
+            command.CollectionAccount,
+            command.DepositDate,
+            command.ExecutionDate,
+            command.SalesUser,
+            command.Channel,
+            command.User
+        };
 
-        var actRes =
-            await activateLocator.FindAsync(command.TypeId, command.Identification, cancellationToken);
+        var (requiredOk, _, requiredErrs) = await ruleEvaluator.EvaluateAsync(
+            RequiredFieldsFlow, requiredCtx, cancellationToken);
+
+        if (!requiredOk)
+        {
+            var e = requiredErrs.First();
+            return Result.Failure<ContributionResponse>(
+                Error.Validation(e.Code, e.Message));
+        }
+
+        var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
+            command.TypeId,
+            HomologScope.Of<CreateContributionCommand>(c => c.TypeId),
+            cancellationToken);
+
+        var documentTypeExists = documentType is not null;
+
+        var actRes = documentTypeExists
+            ? await activateLocator.FindAsync(command.TypeId, command.Identification, cancellationToken)
+            : Result.Success((false, 0, false));
+
         if (!actRes.IsSuccess)
             return Result.Failure<ContributionResponse>(actRes.Error!);
 
-        var remoteRes = await remoteValidator.ValidateAsync(
-            actRes.Value.ActivateId,
-            command.ObjectiveId,
-            command.PortfolioId,
-            command.DepositDate,
-            command.ExecutionDate,
-            command.Amount,
-            cancellationToken);
+        var affiliateFound = actRes.Value.Item1;
+
+        Result<ContributionRemoteData> remoteRes;
+        if (affiliateFound)
+        {
+            remoteRes = await remoteValidator.ValidateAsync(
+                actRes.Value.Item2,
+                command.ObjectiveId,
+                command.PortfolioId,
+                command.DepositDate,
+                command.ExecutionDate,
+                command.Amount,
+                cancellationToken);
+        }
+        else
+        {
+            remoteRes = Result.Success(new ContributionRemoteData(
+                AffiliateId: 0,
+                ObjectiveId: command.ObjectiveId,
+                PortfolioId: 0,
+                PortfolioName: string.Empty,
+                PortfolioInitialMinimumAmount: 0));
+        }
+
         if (!remoteRes.IsSuccess)
             return Result.Failure<ContributionResponse>(remoteRes.Error!);
+
+        var catalogs = await catalogResolver.ResolveAsync(command, cancellationToken);
 
         var certifiedValid = string.IsNullOrWhiteSpace(command.CertifiedContribution) ||
                              command.CertifiedContribution.Trim().ToUpperInvariant() is "SI" or "NO";
 
-        var firstContribution = !await clientOperationRepository.ExistsContributionAsync(
+        var firstContribution = affiliateFound && !await clientOperationRepository.ExistsContributionAsync(
             remoteRes.Value.AffiliateId,
             remoteRes.Value.ObjectiveId,
             remoteRes.Value.PortfolioId,
             cancellationToken);
 
+        var bank = await bankRepository.FindByHomologatedCodeAsync(
+            command.CollectionBank,
+            cancellationToken);
+
+
+
         var contextValidation = new
         {
-            ContributionSource = new
-            {
-                Exists = catalogs.Source is not null,
-                Active = catalogs.Source?.Status == Status.Active,
-                RequiresCertification = catalogs.Source?.RequiresCertification ?? false
-            },
-            OriginModality = BuildCtx(catalogs.OriginModality),
-            CollectionMethod = BuildCtx(catalogs.CollectionMethod),
-            PaymentMethod = BuildCtx(catalogs.PaymentMethod),
-            Channel = new { Exists = catalogs.Channel is not null },
+            DocumentTypeExists = documentTypeExists,
+            AffiliateFound = affiliateFound,
+            // ContributionSource con propiedades planas
+            ContributionSourceExists = catalogs.Source is not null,
+            ContributionSourceActive = catalogs.Source?.Status == Status.Active,
+            ContributionSourceRequiresCertification = catalogs.Source?.RequiresCertification ?? false,
+            // OriginModality con propiedades planas
+            OriginModalityExists = catalogs.OriginModality is not null,
+            OriginModalityActive = catalogs.OriginModality?.Status ?? false,
+            // CollectionMethod con propiedades planas
+            CollectionMethodExists = catalogs.CollectionMethod is not null,
+            CollectionMethodActive = catalogs.CollectionMethod?.Status ?? false,
+            // PaymentMethod con propiedades planas
+            PaymentMethodExists = catalogs.PaymentMethod is not null,
+            PaymentMethodActive = catalogs.PaymentMethod?.Status ?? false,
+            // Otros campos planos
+            ChannelExists = catalogs.Channel is not null,
+            CollectionBankExists = bank is not null,
             IsFirstContribution = firstContribution,
             PortfolioInitialMinimumAmount = remoteRes.Value.PortfolioInitialMinimumAmount,
             Amount = command.Amount,
@@ -79,6 +153,8 @@ internal sealed class CreateContributionCommandHandler(
             CategoryIsContribution = catalogs.SubtypeCategoryCfg?.Name == "Aporte"
         };
 
+
+
         var (ok, _, errs) = await ruleEvaluator.EvaluateAsync(Flow, contextValidation, cancellationToken);
         if (!ok)
         {
@@ -86,14 +162,29 @@ internal sealed class CreateContributionCommandHandler(
             return Result.Failure<ContributionResponse>(Error.Validation(e.Code, e.Message));
         }
 
-        var personResult =
-            await personValidator.ValidateAsync(command.TypeId, command.Identification, cancellationToken);
-        if (!personResult.IsSuccess)
-            return Result.Failure<ContributionResponse>(personResult.Error!);
+        if (affiliateFound)
+        {
+            var personResult = await personValidator.ValidateAsync(command.TypeId, command.Identification, cancellationToken);
+            if (!personResult.IsSuccess)
+                return Result.Failure<ContributionResponse>(personResult.Error!);
+        }
 
         var isCertified = command.CertifiedContribution?.Trim().ToUpperInvariant() == "SI";
-        var tax = await taxCalculator.ComputeAsync(actRes.Value.IsPensioner, isCertified, command.Amount,
-            cancellationToken);
+
+        TaxResult tax = default;
+        if (affiliateFound)
+        {
+            tax = await taxCalculator.ComputeAsync(actRes.Value.Item3, isCertified, command.Amount,
+                cancellationToken);
+        }
+        else
+        {
+            tax = new TaxResult(
+                TaxConditionId: 0,
+                CertificationStatusId: 0,
+                WithheldAmount: 0m,
+                TaxConditionName: string.Empty);
+        }
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
@@ -103,7 +194,7 @@ internal sealed class CreateContributionCommandHandler(
             remoteRes.Value.ObjectiveId,
             remoteRes.Value.PortfolioId,
             command.Amount,
-            command.ExecutionDate,
+            DateTime.SpecifyKind(command.ExecutionDate, DateTimeKind.Utc),
             catalogs.Subtype?.SubtransactionTypeId ?? 0).Value;
         clientOperationRepository.Insert(operation);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -119,8 +210,8 @@ internal sealed class CreateContributionCommandHandler(
             tax.TaxConditionId,
             0,
             command.VerifiableMedium ?? JsonDocument.Parse("{}"),
-            command.CollectionBank,
-            command.DepositDate,
+            bank?.BankId ?? 0,
+            DateTime.SpecifyKind(command.DepositDate, DateTimeKind.Utc),
             command.SalesUser,
             catalogs.OriginModality!.ConfigurationParameterId,
             0,
@@ -134,7 +225,7 @@ internal sealed class CreateContributionCommandHandler(
             new TrustCreationDto(
                 remoteRes.Value.AffiliateId,
                 operation.ClientOperationId,
-                DateTime.UtcNow,
+                DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
                 remoteRes.Value.ObjectiveId,
                 remoteRes.Value.PortfolioId,
                 command.Amount,
@@ -153,7 +244,7 @@ internal sealed class CreateContributionCommandHandler(
 
         var resp = new ContributionResponse(
             operation.ClientOperationId,
-            command.PortfolioId,
+            remoteRes.Value.PortfolioId.ToString(),
             remoteRes.Value.PortfolioName,
             tax.TaxConditionName,
             tax.WithheldAmount);
@@ -161,8 +252,5 @@ internal sealed class CreateContributionCommandHandler(
         return Result.Success(resp, "Transacción causada Exitosamente");
     }
 
-    private static object BuildCtx(ConfigurationParameter? p)
-    {
-        return new { Exists = p is not null, Active = p?.Status ?? false };
-    }
+
 }

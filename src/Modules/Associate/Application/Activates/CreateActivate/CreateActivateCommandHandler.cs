@@ -1,4 +1,3 @@
-using Associate.Domain.ConfigurationParameters;
 using Associate.Application.Abstractions.Data;
 using Common.SharedKernel.Application.Rules;
 using Associate.Domain.Activates;
@@ -9,7 +8,7 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Associate.Application.Abstractions;
 using MediatR;
-using Common.SharedKernel.Application.Attributes;
+using Application.Activates;
 
 namespace Associate.Application.Activates.CreateActivate;
 
@@ -19,7 +18,7 @@ internal sealed class CreateActivateCommandHandler(
     IUnitOfWork unitOfWork,
     ICapRpcClient rpc,
     ISender sender,
-    IConfigurationParameterRepository configurationParameterRepository)
+    ActivatesCommandHandlerValidation validator)
     : ICommandHandler<CreateActivateCommand>
 {
     private const string Workflow = "Associate.Activates.CreateValidation";
@@ -27,28 +26,11 @@ internal sealed class CreateActivateCommandHandler(
     public async Task<Result> Handle(CreateActivateCommand request, CancellationToken cancellationToken)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        var configurationParameter = await configurationParameterRepository.GetByCodeAndScopeAsync(
-            request.IdentificationType, HomologScope.Of<CreateActivateCommand>(c => c.IdentificationType), cancellationToken);
-        Guid uuid = configurationParameter == null ? new Guid() : configurationParameter.Uuid;
 
-        Activate? existingActivate = await activateRepository.GetByIdTypeAndNumber(uuid, request.Identification, cancellationToken);
-        
-        var personData = await rpc.CallAsync<
-            PersonDataRequestEvent,
-            GetPersonValidationResponse>(
-            nameof(PersonDataRequestEvent),
-            new PersonDataRequestEvent(request.IdentificationType, request.Identification),
-            TimeSpan.FromSeconds(30),
-            cancellationToken);
-
-        if (!personData.IsValid)
-            return Result.Failure(
-                Error.Validation(personData.Code ?? string.Empty, personData.Message ?? string.Empty));
-
-        var validationContext = new CreateActivateValidationContext(request, existingActivate!, uuid);
+        var validationResults = await validator.CreateActivateValidateRequestAsync(request, cancellationToken);
 
         var (isValid, _, ruleErrors) =
-            await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);
+            await ruleEvaluator.EvaluateAsync(Workflow, validationResults, cancellationToken);
 
         if (!isValid)
         {
@@ -60,10 +42,22 @@ internal sealed class CreateActivateCommandHandler(
                 Error.Validation(first.Code, first.Message));
         }
 
+        var personData = await rpc.CallAsync<
+            PersonDataRequestEvent,
+            GetPersonValidationResponse>(
+            nameof(PersonDataRequestEvent),
+            new PersonDataRequestEvent(request.DocumentType, request.Identification),
+            TimeSpan.FromSeconds(30),
+            cancellationToken);
+
+        if (!personData.IsValid)
+            return Result.Failure(
+                Error.Validation(personData.Code ?? string.Empty, personData.Message ?? string.Empty));
+
         var result = Activate.Create(
-            configurationParameter.Uuid,
+            validationResults.DocumentType,
             request.Identification,
-            request.Pensioner,
+            request.Pensioner ?? false,
             request.MeetsPensionRequirements ?? false,
             DateTime.UtcNow
         );
@@ -78,14 +72,13 @@ internal sealed class CreateActivateCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        if (request.MeetsPensionRequirements == true)
+        if (request.MeetsPensionRequirements == true && request.Pensioner == false)
         {
-            var CreatePensionRequirementCommand = new CreatePensionRequirementRequestCommand(
-                activate.ActivateId,
-                request.StartDateReqPen,
-                request.EndDateReqPen,
-                DateTime.UtcNow,
-                Status.Active
+            var CreatePensionRequirementCommand = new CreatePensionRequirementCommand(
+                request.DocumentType,
+                request.Identification,
+                request.StartDateReqPen ?? DateTime.UtcNow,
+                request.EndDateReqPen ?? DateTime.UtcNow
             );
 
             await sender.Send(CreatePensionRequirementCommand, cancellationToken);

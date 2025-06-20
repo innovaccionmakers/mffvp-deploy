@@ -9,6 +9,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
+using Operations.Domain.ClientOperations;
+using Operations.Infrastructure.ClientOperations;
+using Operations.Domain.AuxiliaryInformations;
+using Operations.Infrastructure.AuxiliaryInformations;
+using Operations.Infrastructure.Database;
+using Operations.Domain.Banks;
+using Operations.Infrastructure.Banks;
+using Common.SharedKernel.Infrastructure.Configuration;
+using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.External;
 using Operations.Application.Contributions.Services;
 using Operations.Domain.AuxiliaryInformations;
@@ -49,7 +58,7 @@ public static class OperationsModule
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("OperationsDatabase");
 
-        if (env == "DevMakers2")
+        if (env != "Development")
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];
             var region = configuration["AWS:SecretsManager:Region"];
@@ -74,6 +83,7 @@ public static class OperationsModule
         services.AddScoped<IOriginRepository, OriginRepository>();
         services.AddScoped<ISubtransactionTypeRepository, SubtransactionTypeRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
+        services.AddScoped<IBankRepository, BankRepository>();
 
         services.AddScoped<IActivateLocator, ActivateLocator>();
         services.AddScoped<IContributionRemoteValidator, ContributionRemoteValidator>();
