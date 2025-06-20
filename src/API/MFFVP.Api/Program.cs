@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Associate.Infrastructure;
+using Associate.Presentation.GraphQL;
 using Closing.Infrastructure;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
@@ -7,6 +8,7 @@ using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Validation;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Filters;
+using Common.SharedKernel.Presentation.GraphQL;
 using Customers.Infrastructure;
 using FluentValidation;
 using MFFVP.Api.BffWeb.Associate;
@@ -25,8 +27,6 @@ using Products.Presentation.GraphQL;
 using Serilog;
 using System.Reflection;
 using Trusts.Infrastructure;
-using MFFVP.Api.GraphQL;
-using Associate.Presentation.GraphQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -103,7 +103,7 @@ builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddClosingModule(builder.Configuration);
 
 builder.Services.AddGraphQLServer()
-            .AddQueryType<Query>()
+            .AddQueryType<RootQueryGraphQL>()
             .AddType<OperationsQueries>()
             .AddType<ProductsQueries>()
             .AddType<AssociateQueries>()

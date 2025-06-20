@@ -1,10 +1,11 @@
 ﻿using Associate.Integrations.Associates;
 using Associate.Presentation.DTOs;
+using Common.SharedKernel.Presentation.GraphQL;
 using MediatR;
 
 namespace Associate.Presentation.GraphQL;
 
-[ExtendObjectType("Query")]
+[ExtendObjectType(nameof(RootQueryGraphQL))]
 public class AssociateQueries
 {
     public async Task<IReadOnlyCollection<AssociateDto>> GetAssociatesAsync(

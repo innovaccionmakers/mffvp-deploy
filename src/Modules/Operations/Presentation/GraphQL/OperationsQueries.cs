@@ -1,3 +1,4 @@
+using Common.SharedKernel.Presentation.GraphQL;
 using MediatR;
 using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.Origins;
@@ -5,7 +6,7 @@ using Operations.Presentation.DTOs;
 
 namespace Operations.Presentation.GraphQL;
 
-[ExtendObjectType("Query")]
+[ExtendObjectType(nameof(RootQueryGraphQL))]
 public class OperationsQueries
 {
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(
