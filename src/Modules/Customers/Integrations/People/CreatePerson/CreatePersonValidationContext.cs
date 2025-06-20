@@ -10,6 +10,7 @@ namespace Application.People.CreatePerson
         public Person? ExistingPerson { get; }
         public Guid Uuid { get; }
 
+        public bool? ExistingHomologatedCode { get; set; }
         public bool DocumentTypeHomologated { get; set; }
         public bool CountryHomologated { get; set; }
         public bool DepartmentHomologated { get; set; }
