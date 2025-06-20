@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Closing.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(ClosingDbContext))]
-    [Migration("20250620173549_ChangeNameShema")]
-    partial class ChangeNameShema
+    [Migration("20250620191551_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
