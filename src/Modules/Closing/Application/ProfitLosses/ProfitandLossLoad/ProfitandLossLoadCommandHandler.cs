@@ -1,12 +1,12 @@
-﻿using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
-using Common.SharedKernel.Application.Rules;
-using Closing.Application.Abstractions;
+﻿using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
 using Closing.Domain.ProfitLossConcepts;
 using Closing.Domain.ProfitLosses;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
+using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Domain;
 
 namespace Closing.Application.ProfitLosses.ProfitandLossLoad;
 
@@ -15,63 +15,67 @@ internal sealed class ProfitandLossLoadCommandHandler(
     IProfitLossRepository profitLossRepository,
     IPortfolioValidator portfolioValidator,
     IRuleEvaluator<ClosingModuleMarker> ruleEvaluator,
-    IUnitOfWork unitOfWork
-) : ICommandHandler<ProfitandLossLoadCommand, bool>
+    IUnitOfWork unitOfWork)
+    : ICommandHandler<ProfitandLossLoadCommand, bool>
 {
-    private const string Workflow = "Closing.ProfitLoss.UploadValidation";
+    private const string WorkflowName = "Closing.ProfitLoss.UploadValidationV2";
 
-    public async Task<Result<bool>> Handle(ProfitandLossLoadCommand request, CancellationToken cancellationToken)
+    public async Task<Result<bool>> Handle(ProfitandLossLoadCommand command, CancellationToken cancellationToken)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        
-        var portfolioResult = await portfolioValidator.EnsureExistsAsync(request.PortfolioId, cancellationToken);
-        if (!portfolioResult.IsSuccess)
+
+        var portfolioValidationResult = await portfolioValidator
+            .EnsureExistsAsync(command.PortfolioId, cancellationToken);
+        if (!portfolioValidationResult.IsSuccess)
+            return Result.Failure<bool>(portfolioValidationResult.Error!);
+
+        var conceptNames = command.ConceptAmounts.Keys.ToArray();
+        var profitLossConcepts = await conceptRepository
+            .FindByNamesAsync(conceptNames, cancellationToken);
+
+        if (profitLossConcepts.Count != conceptNames.Length)
         {
-            return Result.Failure<bool>(portfolioResult.Error!);
+            var missingConceptNames = conceptNames.Except(profitLossConcepts.Select(c => c.Concept));
+            return Result.Failure<bool>(Error.Validation(
+                "Concept.NotFound",
+                $"No existen los conceptos: {string.Join(", ", missingConceptNames)}"));
         }
 
-        var grossConcept = await conceptRepository.FindByNameAsync("Rendimientos Brutos", cancellationToken);
-        var expenseConcept = await conceptRepository.FindByNameAsync("Gastos", cancellationToken);
-
-        var validationContext = new
+        var ruleContext = new
         {
-            AllowNegative = expenseConcept?.AllowNegative ?? false,
-            Expenses = request.Expenses,
-            EffectiveDate = request.EffectiveDate,
-            GrossConceptExists = grossConcept is not null,
-            ExpenseConceptExists = expenseConcept is not null
+            command.EffectiveDate,
+            Concepts = profitLossConcepts.Select(c => new
+            {
+                c.ProfitLossConceptId,
+                c.Concept,
+                c.Nature,
+                c.AllowNegative,
+                Amount = command.ConceptAmounts[c.Concept]
+            }).ToArray()
         };
-        
-        var (ok, _, errors) = await ruleEvaluator.EvaluateAsync(Workflow, validationContext, cancellationToken);
 
-        if (!ok)
+        var (isValid, _, validationErrors) = await ruleEvaluator
+            .EvaluateAsync(WorkflowName, ruleContext, cancellationToken);
+        if (!isValid)
         {
-            var first = errors.First();
-            return Result.Failure<bool>(Error.Validation(first.Code, first.Message));
+            var firstError = validationErrors.First();
+            return Result.Failure<bool>(Error.Validation(firstError.Code, firstError.Message));
         }
 
-        await profitLossRepository.DeleteByPortfolioAndDateAsync(request.PortfolioId, request.EffectiveDate, cancellationToken);
+        await profitLossRepository
+            .DeleteByPortfolioAndDateAsync(command.PortfolioId, command.EffectiveDate, cancellationToken);
 
-        var now = DateTime.UtcNow;
-        
-        var gross = ProfitLoss.Create(
-            request.PortfolioId,
-            now,
-            request.EffectiveDate,
-            grossConcept!.ProfitLossConceptId,
-            request.GrossReturns,
-            "Externa").Value;
+        var processDateUtc = DateTime.UtcNow;
+        var profitLossEntries = ruleContext.Concepts.Select(item =>
+            ProfitLoss.Create(
+                command.PortfolioId,
+                processDateUtc,
+                command.EffectiveDate,
+                item.ProfitLossConceptId,
+                item.Amount,
+                "Externa").Value);
 
-        var expense = ProfitLoss.Create(
-            request.PortfolioId,
-            now,
-            request.EffectiveDate,
-            expenseConcept!.ProfitLossConceptId,
-            request.Expenses,
-            "Externa").Value;
-
-
-        profitLossRepository.InsertRange(new[] { gross, expense });
+        profitLossRepository.InsertRange(profitLossEntries);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Closing.Domain.ProfitLossConcepts;
+using Common.SharedKernel.Infrastructure.ValueConverters;
 
 namespace Closing.Infrastructure.ProfitLossConcepts;
 
@@ -14,7 +15,7 @@ internal sealed class ProfitLossConceptConfiguration : IEntityTypeConfiguration<
         builder.Property(x => x.Concept).HasColumnName("concepto");
         builder.Property(x => x.Nature)
             .HasColumnName("naturaleza")
-            .HasConversion<string>();
+            .HasConversion(new EnumMemberValueConverter<ProfitLossNature>());
         builder.Property(x => x.AllowNegative).HasColumnName("admite_negativo");
     }
 }
