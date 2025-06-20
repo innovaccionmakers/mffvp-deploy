@@ -16,6 +16,7 @@ public static class SchemaStitchingConfiguration
             .AddType<AssociateQueries>()
             .AddType<ProductsQueries>()
             .AddType<OperationsQueries>()
+            .AddType<QuerySaraza>()
             .AddProjections()
             .AddFiltering()
             .AddSorting()

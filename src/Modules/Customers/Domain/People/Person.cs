@@ -126,4 +126,28 @@ public sealed class Person : Entity
         InvestorTypeId = newInvestorTypeId;
         RiskProfileId = newRiskProfileId;
     }
+
+    public string GetFullName()
+    {
+        return BuildFullName(FirstName, MiddleName, LastName, SecondLastName);
+    }
+
+    private static string BuildFullName(string firstName, string? middleName, string lastName, string? secondLastName)
+    {
+        var names = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(firstName))
+            names.Add(firstName);
+
+        if (!string.IsNullOrWhiteSpace(middleName))
+            names.Add(middleName);
+
+        if (!string.IsNullOrWhiteSpace(lastName))
+            names.Add(lastName);
+
+        if (!string.IsNullOrWhiteSpace(secondLastName))
+            names.Add(secondLastName);
+
+        return string.Join(" ", names);
+    }
 }

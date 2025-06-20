@@ -14,7 +14,7 @@ namespace Associate.Infrastructure.Database;
 public sealed class AssociateDbContext(DbContextOptions<AssociateDbContext> options)
     : DbContext(options), IUnitOfWork
 {
-    internal DbSet<Activate> Activates { get; set; }
+    public DbSet<Activate> Activates { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
     internal DbSet<PensionRequirement> PensionRequirements { get; set; }
 
