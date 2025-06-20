@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Closing.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(ClosingDbContext))]
-    [Migration("20250612180941_InitialCreate")]
+    [Migration("20250620191551_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -21,7 +21,7 @@ namespace Closing.Infrastructure.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("closing")
+                .HasDefaultSchema("cierre")
                 .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -52,7 +52,7 @@ namespace Closing.Infrastructure.Database.Migrations
 
                     b.HasKey("ProfitLossConceptId");
 
-                    b.ToTable("conceptos_pyg", "closing");
+                    b.ToTable("conceptos_pyg", "cierre");
                 });
 
             modelBuilder.Entity("Closing.Domain.ProfitLosses.ProfitLoss", b =>
@@ -91,7 +91,7 @@ namespace Closing.Infrastructure.Database.Migrations
 
                     b.HasKey("ProfitLossId");
 
-                    b.ToTable("pyg", "closing");
+                    b.ToTable("pyg", "cierre");
                 });
 
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
@@ -162,7 +162,7 @@ namespace Closing.Infrastructure.Database.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("parametros_configuracion", "closing");
+                    b.ToTable("parametros_configuracion", "cierre");
                 });
 
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>

@@ -6,7 +6,6 @@ using Products.Domain.Objectives;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
 using Products.Domain.Offices;
-using Products.Domain.Cities;
 
 namespace Products.Infrastructure.Objectives;
 

@@ -19,6 +19,15 @@ internal sealed class ProfitLossConceptRepository(ClosingDbContext context) : IP
             .SingleOrDefaultAsync(x => x.ProfitLossConceptId == profitLossConceptId, cancellationToken);
     }
     
+    public async Task<IReadOnlyCollection<ProfitLossConcept>> FindByNamesAsync(IEnumerable<string> names, CancellationToken ct = default)
+    {
+        var list = names.Select(n => n.Trim()).ToArray();
+        return await context.ProfitLossConcepts
+            .AsNoTracking()
+            .Where(c => list.Contains(c.Concept))
+            .ToListAsync(ct);
+    }
+    
     public async Task<ProfitLossConcept?> FindByNameAsync(string concept, CancellationToken cancellationToken = default)
     {
         return await context.ProfitLossConcepts

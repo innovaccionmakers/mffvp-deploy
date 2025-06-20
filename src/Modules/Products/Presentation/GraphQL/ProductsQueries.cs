@@ -2,7 +2,6 @@
 
 using Common.SharedKernel.Presentation.GraphQL;
 using MediatR;
-using Products.Integrations.Banks;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
@@ -67,28 +66,6 @@ public class ProductsQueries
             x.Name,
             x.Status,
             x.HomologatedCode
-        )).ToList();
-
-    }
-
-    public async Task<IReadOnlyCollection<BankDto>> GetBanksAsync(
-        [Service] IMediator mediator,
-        CancellationToken cancellationToken = default)
-    {
-
-        var result = await mediator.Send(new GetBanksQuery(), cancellationToken);
-
-        if (!result.IsSuccess || result.Value == null)
-        {
-            throw new InvalidOperationException("Failed to retrieve banks.");
-        }
-
-        var banks = result.Value;
-
-
-        return banks.Select(x => new BankDto(
-            x.BankId.ToString(),
-            x.Name
         )).ToList();
 
     }

@@ -34,6 +34,6 @@ internal sealed class GetProfitandLossQueryHandler(
         decimal netReturn = incomes - expenses;
 
         var response = new GetProfitandLossResponse(values, netReturn);
-        return Result.Success(response);
+        return Result.Success(response,"Consulta realizada correctamente");
     }
 }

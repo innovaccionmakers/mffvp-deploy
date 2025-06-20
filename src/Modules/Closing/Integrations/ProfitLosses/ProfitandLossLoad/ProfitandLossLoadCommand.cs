@@ -5,6 +5,5 @@ namespace Closing.Integrations.ProfitLosses.ProfitandLossLoad;
 public sealed record ProfitandLossLoadCommand(
     int PortfolioId,
     DateTime EffectiveDate,
-    decimal GrossReturns,
-    decimal Expenses
+    IReadOnlyDictionary<string, decimal> ConceptAmounts
 ) : ICommand<bool>;
