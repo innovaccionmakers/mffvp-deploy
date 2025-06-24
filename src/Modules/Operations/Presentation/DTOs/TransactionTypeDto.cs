@@ -1,16 +1,18 @@
 ﻿namespace Operations.Presentation.DTOs;
 
+[GraphQLName("TipoTransaccion")]
 public record TransactionTypeDto(
-    string Uuid,
-    string Name,
-    bool Status,
-    string HomologationCode,
-    List<TransactionSubtypesDto> Subtypes
+    [property: GraphQLName("uuid")] string Uuid,
+    [property: GraphQLName("nombre")] string Name,
+    [property: GraphQLName("estado")] bool Status,
+    [property: GraphQLName("codigoHomologacion")] string HomologationCode,
+    [property: GraphQLName("subtipos")] List<TransactionSubtypesDto> Subtypes
 );
 
+[GraphQLName("SubtipoTransaccion")]
 public record TransactionSubtypesDto(
-    string Id,
-    string Name,
-    string HomologationCode
+    [property: GraphQLName("id")] string Id,
+    [property: GraphQLName("nombre")] string Name,
+    [property: GraphQLName("codigoHomologacion")] string HomologationCode
 );
 
