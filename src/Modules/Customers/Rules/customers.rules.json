@@ -148,17 +148,10 @@
         }
       },
       {
-        "RuleName": "RequiredCountryOfResidence",
-        "Expression": "input.Request.CountryOfResidence != null && input.Request.CountryOfResidence != string.Empty",
+        "RuleName": "RequiredAddress",
+        "Expression": "input.Request.Address != null && input.Request.Address != string.Empty",
         "Properties": {
-          "errorCode": "59238ae4-971e-4103-9591-6c9e254f6abf"
-        }
-      },
-      {
-        "RuleName": "CountryNotHomologated",
-        "Expression": "input.CountryHomologated",
-        "Properties": {
-          "errorCode": "33b5e385-a607-403e-9473-990ee783828a"
+          "errorCode": "9dc20014-4d74-43e4-9998-0458f910a05a"
         }
       },
       {
@@ -190,6 +183,20 @@
         }
       },
       {
+        "RuleName": "RequiredCountryOfResidence",
+        "Expression": "input.Request.CountryOfResidence != null && input.Request.CountryOfResidence != string.Empty",
+        "Properties": {
+          "errorCode": "59238ae4-971e-4103-9591-6c9e254f6abf"
+        }
+      },
+      {
+        "RuleName": "CountryNotHomologated",
+        "Expression": "input.CountryHomologated",
+        "Properties": {
+          "errorCode": "33b5e385-a607-403e-9473-990ee783828a"
+        }
+      },
+      {
         "RuleName": "RequiredEmail",
         "Expression": "input.Request.Email != null && input.Request.Email != string.Empty",
         "Properties": {
@@ -211,32 +218,10 @@
         }
       },
       {
-        "RuleName": "RequiredAddress",
-        "Expression": "input.Request.Address != null && input.Request.Address != string.Empty",
-        "Properties": {
-          "errorCode": "9dc20014-4d74-43e4-9998-0458f910a05a"
-        }
-      },
-      {
         "RuleName": "ValidDeclarantValue",
-        "ErrorMessage": "El campo Declarante solo recibe valor 'true' o 'false'.",
         "Expression": "input.Request.Declarant != null || input.Request.Declarant == true || input.Request.Declarant == false",
         "Properties": {
           "errorCode": "27fa5cbd-d713-482c-8f2d-1b61d3f4bcb9"
-        }
-      },
-      {
-        "RuleName": "RequiredInvestorType",
-        "Expression": "input.Request.InvestorType != null && input.Request.InvestorType != string.Empty",
-        "Properties": {
-          "errorCode": "6c773110-b093-4f0d-9e36-ddd8022411e2"
-        }
-      },
-      {
-        "RuleName": "InvestorTypeNotHomologated",
-        "Expression": "input.InvestorTypeHomologated",
-        "Properties": {
-          "errorCode": "2d7226f2-c92b-4b58-8717-3fa31532bed4"
         }
       },
       {
@@ -251,6 +236,20 @@
         "Expression": "input.RiskProfileHomologated",
         "Properties": {
           "errorCode": "b04c4b05-ad7c-407a-8377-b877d65ad854"
+        }
+      },
+      {
+        "RuleName": "RequiredInvestorType",
+        "Expression": "input.Request.InvestorType != null && input.Request.InvestorType != string.Empty",
+        "Properties": {
+          "errorCode": "6c773110-b093-4f0d-9e36-ddd8022411e2"
+        }
+      },
+      {
+        "RuleName": "InvestorTypeNotHomologated",
+        "Expression": "input.InvestorTypeHomologated",
+        "Properties": {
+          "errorCode": "2d7226f2-c92b-4b58-8717-3fa31532bed4"
         }
       }
     ]

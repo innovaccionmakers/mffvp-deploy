@@ -48,9 +48,9 @@ namespace Integrations.People.CreatePerson
         [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
         string Gender,
 
-        [property: JsonPropertyName("PaisResidencia")]
+        [property: JsonPropertyName("Direccion")]
         [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
-        string CountryOfResidence,
+        string Address,
 
         [property: JsonPropertyName("Departamento")]
         [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
@@ -60,6 +60,10 @@ namespace Integrations.People.CreatePerson
         [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
         string Municipality,
 
+        [property: JsonPropertyName("PaisResidencia")]
+        [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
+        string CountryOfResidence,
+
         [property: JsonPropertyName("Email")]
         [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
         string Email,
@@ -68,22 +72,18 @@ namespace Integrations.People.CreatePerson
         [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
         string EconomicActivity,
 
-        [property: JsonPropertyName("Direccion")]
-        [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
-        string Address,
-
         [property: JsonPropertyName("Declarante")]
         [property: JsonConverter(typeof(BooleanOrStringToBooleanConverter))]
         bool? Declarant,
 
-        [property: JsonPropertyName("TipoInversionista")]
-        [property: HomologScope("TipoInversionista")]
-        [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
-        string InvestorType,
-
         [property: JsonPropertyName("PerfilRiesgo")]
         [property: HomologScope("PerfilRiesgo")]
         [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
-        string RiskProfile
+        string RiskProfile,
+
+        [property: JsonPropertyName("TipoInversionista")]
+        [property: HomologScope("TipoInversionista")]
+        [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]
+        string InvestorType
     ) : ICommand;
 }
