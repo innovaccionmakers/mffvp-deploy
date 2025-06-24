@@ -84,23 +84,9 @@
       },
       {
         "RuleName": "PensionRequirementsWhenFalse",
-        "Expression": "!(input.request.Pensioner == true && input.request.MeetsPensionRequirements != null)",
-        "Properties": {
-          "errorCode": "56de1714-0675-487f-8c66-d1bfb1bb0199"
-        }
-      },
-      {
-        "RuleName": "PensionerBoolean",
-        "Expression": "input.request.Pensioner == true || input.request.Pensioner == false",
-        "Properties": {
-          "errorCode": "e2f1e883-6d9a-4ee3-a173-fdb66fff0272"
-        }
-      },
-      {
-        "RuleName": "MeetsPensionRequirementsValidation",
         "Expression": "!(input.request.Pensioner == false && input.request.MeetsPensionRequirements == null)",
         "Properties": {
-          "errorCode": "b718b8c3-d37d-417d-8153-0dadb82345b7"
+          "errorCode": "56de1714-0675-487f-8c66-d1bfb1bb0199"
         }
       },
       {
@@ -169,13 +155,6 @@
         "Expression": "input.request.Pensioner != null",
         "Properties": {
           "errorCode": "05633775-b370-4247-9c13-76f3eff23773"
-        }
-      },
-      {
-        "RuleName": "PensionerBoolean",
-        "Expression": "input.request.Pensioner == true || input.request.Pensioner == false",
-        "Properties": {
-          "errorCode": "e2f1e883-6d9a-4ee3-a173-fdb66fff0272"
         }
       },
       {
