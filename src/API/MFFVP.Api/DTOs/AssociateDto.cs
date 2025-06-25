@@ -1,4 +1,6 @@
-﻿namespace Associate.Presentation.DTOs;
+﻿using HotChocolate;
+
+namespace MFFVP.Api.DTOs;
 
 [GraphQLName("Afiliado")]
 public sealed record AssociateDto(

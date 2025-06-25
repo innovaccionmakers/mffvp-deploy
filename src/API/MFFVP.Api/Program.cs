@@ -1,6 +1,5 @@
 using Asp.Versioning;
 using Associate.Infrastructure;
-using Associate.Presentation.GraphQL;
 using Closing.Infrastructure;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Infrastructure;
@@ -19,7 +18,6 @@ using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.GraphQL;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
-using Microsoft.AspNetCore.Authorization;
 using Operations.Infrastructure;
 using Products.Infrastructure;
 using Serilog;

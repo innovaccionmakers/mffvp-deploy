@@ -1,5 +1,4 @@
-﻿using Associate.Presentation.GraphQL;
-using Common.SharedKernel.Presentation.GraphQL;
+﻿using Common.SharedKernel.Presentation.GraphQL;
 using Operations.Presentation.GraphQL;
 using Products.Presentation.GraphQL;
 
@@ -13,10 +12,9 @@ public static class SchemaStitchingConfiguration
     {
         services.AddGraphQLServer("BFFSuperExperience")
             .AddQueryType<RootQueryGraphQL>()
-            .AddType<AssociateQueries>()
             .AddType<ProductsQueries>()
             .AddType<OperationsQueries>()
-            .AddType<QuerySaraza>()
+            .AddType<BffQueries>()
             .AddProjections()
             .AddFiltering()
             .AddSorting()
