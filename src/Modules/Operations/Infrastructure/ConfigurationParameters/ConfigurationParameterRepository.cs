@@ -68,23 +68,6 @@ internal sealed class ConfigurationParameterRepository :
         return items.ToDictionary(p => p.Uuid);
     }
 
-    public async Task<IReadOnlyCollection<TransactionType>> GetTransactionTypesAsync(CancellationToken cancellationToken = default)
-    {
-        var query = context.ConfigurationParameters
-           .Where(cp => cp.Type == ConfigurationParameterType.TipoTransaccion.ToString() && cp.Status);
-
-        return await query
-            .Select(cp => TransactionType.Create(
-                cp.ConfigurationParameterId,
-                cp.HomologationCode,
-                cp.Name,
-                cp.Status,
-                context.SubtransactionTypes
-                    .Where(st => st.Category == cp.Uuid && st.Status == Status.Active)
-                    .ToList()
-                )).ToListAsync(cancellationToken);
-    }
-
     public async Task<IReadOnlyCollection<ConfigurationParameter>> GetActiveConfigurationParametersByTypeAsync(
         ConfigurationParameterType type,
         CancellationToken cancellationToken = default)

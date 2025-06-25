@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Infrastructure.Database;
+using Common.SharedKernel.Domain;
 
 namespace Operations.Infrastructure.SubtransactionTypes;
 
@@ -22,5 +23,13 @@ internal sealed class SubtransactionTypeRepository(OperationsDbContext context) 
         return context.SubtransactionTypes
             .AsNoTracking()
             .SingleOrDefaultAsync(s => s.Name == name, ct);
+    }
+
+    public async Task<IReadOnlyCollection<SubtransactionType>> GetCategoryIdAsync(Guid categoryId, CancellationToken ct = default)
+    {
+        return await context.SubtransactionTypes
+            .AsNoTracking()
+            .Where(s => s.Category == categoryId && s.Status == Status.Active)
+            .ToListAsync(ct);
     }
 }

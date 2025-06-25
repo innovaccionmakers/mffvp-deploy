@@ -4,6 +4,7 @@ using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.Origins;
 using Operations.Integrations.Banks;
 using Operations.Presentation.DTOs;
+using Operations.Integrations.SubTransactionTypes;
 
 namespace Operations.Presentation.GraphQL;
 
@@ -24,19 +25,31 @@ public class OperationsQueries
         var transactionTypes = result.Value;
 
         return transactionTypes.Select(x => new TransactionTypeDto(
-            x.TransactionTypeId.ToString(),
+            x.Id.ToString(),
             x.Name,
             x.Status,
-            x.HomologatedCode,
-            x.SubtransactionTypes.Select(st => new TransactionSubtypesDto
-            (
-                st.SubtransactionTypeId.ToString(),
-                st.Name,
-                st.HomologatedCode
-            )).ToList()
+            x.HomologatedCode
         )).ToList();
     }
-  
+
+    public async Task<IReadOnlyCollection<SubTransactionTypeDto>> GetSubTransactionTypesAsync(
+        Guid categoryId,
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetSubTransactionTypesQuery(categoryId), cancellationToken);
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve transaction subtypes.");
+        }
+        var transactionSubtypes = result.Value;
+        return transactionSubtypes.Select(x => new SubTransactionTypeDto(
+            x.SubtransactionTypeId.ToString(),
+            x.Name,
+            x.HomologatedCode
+        )).ToList();
+    }
+
     public async Task<IReadOnlyCollection<CertificationStatusDto>> GetCertificationStatusesAsync(
         [Service] IMediator mediator,
         CancellationToken cancellationToken = default)
