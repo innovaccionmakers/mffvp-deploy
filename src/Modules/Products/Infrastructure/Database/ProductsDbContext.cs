@@ -11,20 +11,16 @@ using Products.Infrastructure.Alternatives;
 using Products.Domain.Portfolios;
 using Products.Infrastructure.Portfolios;
 using Products.Domain.AlternativePortfolios;
-using Products.Domain.Banks;
 using Products.Infrastructure.AlternativePortfolios;
 using Products.Domain.Objectives;
 using Products.Infrastructure.Objectives;
 using Products.Domain.Commercials;
 using Products.Infrastructure.Commercials;
-using Products.Domain.Cities;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
-using Products.Infrastructure.Cities;
 using Products.Domain.Offices;
 using Products.Domain.PensionFunds;
 using Products.Domain.PlanFunds;
-using Products.Infrastructure.Banks;
 using Products.Infrastructure.Offices;
 using Products.Infrastructure.PensionFunds;
 using Products.Infrastructure.PlanFunds;
@@ -40,12 +36,10 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
     internal DbSet<AlternativePortfolio> AlternativePortfolios { get; set; }
     internal DbSet<Objective> Objectives { get; set; }
     internal DbSet<Commercial> Commercials { get; set; }
-    internal DbSet<City> Cities { get; set; }
     internal DbSet<Office> Offices { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
     internal DbSet<PlanFund> PlanFunds { get; set; }
     internal DbSet<PensionFund> PensionFunds { get; set; }
-    internal DbSet<Bank> Banks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,12 +51,10 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
         modelBuilder.ApplyConfiguration(new AlternativePortfolioConfiguration());
         modelBuilder.ApplyConfiguration(new ObjectiveConfiguration());
         modelBuilder.ApplyConfiguration(new CommercialConfiguration());
-        modelBuilder.ApplyConfiguration(new CityConfiguration());
         modelBuilder.ApplyConfiguration(new OfficeConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.Products));
         modelBuilder.ApplyConfiguration(new PlanFundConfiguration());
         modelBuilder.ApplyConfiguration(new PensionFundConfiguration());
-        modelBuilder.ApplyConfiguration(new BankConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

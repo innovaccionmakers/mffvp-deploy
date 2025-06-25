@@ -1,11 +1,10 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Products.Domain.Banks;
-using Products.Integrations.Banks;
+using Operations.Domain.Banks;
+using Operations.Integrations.Banks;
 using System.Text.Json;
 
-
-namespace Products.Application.Banks;
+namespace Operations.Application.Banks;
 
 public class GetBanksQueryHandler(
     IBankRepository repository)

@@ -39,7 +39,7 @@ public sealed class CustomersEndpoints
         })
         .WithSummary("Crea un cliente")
         .WithDescription("""
-                             **Ejemplo de petición (application/json):**
+                             **Ejemplo de peticiï¿½n (application/json):**
                              ```json
                              {
                                "CodigoHomologado": "string",
@@ -52,15 +52,15 @@ public sealed class CustomersEndpoints
                                "FechaNacimiento": "2025-06-13T17:18:12.576Z",
                                "Celular": "987654321",
                                "Sexo": "M",
-                               "PaisResidencia": "1",
+                               "Direccion": "Calle",
                                "Departamento": "91",
                                "Municipio": "5002",
+                               "PaisResidencia": "1",
                                "Email": "priemera@prueba.com",
                                "ActividadEconomica": "10",
-                               "Direccion": "Calle",
                                "Declarante": true,
-                               "TipoInversionista": "INV",
-                               "PerfilRiesgo": "MOD"
+                               "PerfilRiesgo": "MOD",
+                               "TipoInversionista": "INV"
                              }
                              ```
                              """)

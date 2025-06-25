@@ -1,13 +1,14 @@
 using Common.SharedKernel.Domain;
-using Associate.Domain.Activates;
 
 namespace Associate.Domain.PensionRequirements;
 
 public sealed class PensionRequirement : Entity
 {
+    private DateTime? _startDate;
+    private int? _activateId;
     public int PensionRequirementId { get; private set; }
-    public int ActivateId { get; private set; }
-    public DateTime StartDate { get; private set; }
+    public int ActivateId { get => _activateId ?? 0; private set => _activateId = value; }
+    public DateTime StartDate { get => _startDate ?? DateTime.UtcNow; private set => _startDate = value; }
     public DateTime ExpirationDate { get; private set; }
     public DateTime CreationDate { get; private set; }
     public Status Status { get; private set; }

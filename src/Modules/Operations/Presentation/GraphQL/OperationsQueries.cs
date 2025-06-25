@@ -2,6 +2,7 @@ using Common.SharedKernel.Presentation.GraphQL;
 using MediatR;
 using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.Origins;
+using Operations.Integrations.Banks;
 using Operations.Presentation.DTOs;
 
 namespace Operations.Presentation.GraphQL;
@@ -126,5 +127,27 @@ public class OperationsQueries
             x.OriginId.ToString(),
             x.Name
         )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<BankDto>> GetBanksAsync(
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken = default)
+    {
+
+        var result = await mediator.Send(new GetBanksQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve banks.");
+        }
+
+        var banks = result.Value;
+
+
+        return banks.Select(x => new BankDto(
+            x.BankId.ToString(),
+            x.Name
+        )).ToList();
+
     }
 }

@@ -14,11 +14,11 @@ namespace Closing.Infrastructure.Database.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "closing");
+                name: "cierre");
 
             migrationBuilder.CreateTable(
                 name: "conceptos_pyg",
-                schema: "closing",
+                schema: "cierre",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
@@ -34,7 +34,7 @@ namespace Closing.Infrastructure.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "parametros_configuracion",
-                schema: "closing",
+                schema: "cierre",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -55,7 +55,7 @@ namespace Closing.Infrastructure.Database.Migrations
                     table.ForeignKey(
                         name: "FK_parametros_configuracion_parametros_configuracion_padre_id",
                         column: x => x.padre_id,
-                        principalSchema: "closing",
+                        principalSchema: "cierre",
                         principalTable: "parametros_configuracion",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
@@ -63,7 +63,7 @@ namespace Closing.Infrastructure.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "pyg",
-                schema: "closing",
+                schema: "cierre",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
@@ -82,7 +82,7 @@ namespace Closing.Infrastructure.Database.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_parametros_configuracion_padre_id",
-                schema: "closing",
+                schema: "cierre",
                 table: "parametros_configuracion",
                 column: "padre_id");
         }
@@ -92,15 +92,15 @@ namespace Closing.Infrastructure.Database.Migrations
         {
             migrationBuilder.DropTable(
                 name: "conceptos_pyg",
-                schema: "closing");
+                schema: "cierre");
 
             migrationBuilder.DropTable(
                 name: "parametros_configuracion",
-                schema: "closing");
+                schema: "cierre");
 
             migrationBuilder.DropTable(
                 name: "pyg",
-                schema: "closing");
+                schema: "cierre");
         }
     }
 }

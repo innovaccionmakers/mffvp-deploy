@@ -13,6 +13,7 @@ using MFFVP.Api.BffWeb.Associate;
 using MFFVP.Api.BffWeb.Customers;
 using MFFVP.Api.BffWeb.Operations;
 using MFFVP.Api.BffWeb.Products;
+using MFFVP.Api.BffWeb.Closing;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.GraphQL;
@@ -73,6 +74,7 @@ Assembly[] moduleApplicationAssemblies =
     Products.Application.AssemblyReference.Assembly,
     Customers.Application.AssemblyReference.Assembly,
     Operations.Application.AssemblyReference.Assembly,
+    Closing.Application.AssemblyReference.Assembly,
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
@@ -114,11 +116,13 @@ builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();
 builder.Services.AddBffCustomersServices();
 builder.Services.AddBffOperationsServices();
+builder.Services.AddBffClosingServices();
 
 builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(ProductsEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(CustomersEndpoints).Assembly);
 builder.Services.AddEndpoints(typeof(OperationsEndpoints).Assembly);
+builder.Services.AddEndpoints(typeof(ClosingEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));
@@ -127,7 +131,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSwaggerUI", policy =>
     {
-        policy.WithOrigins("https://localhost:7203", "https://localhost:5173")
+        policy.WithOrigins("https://localhost:7203", "https://localhost:5173", "http://localhost:3000", "https://mffvp-frontend.pages.dev")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -166,7 +170,7 @@ app.MapGraphQL("/experience/graphql", "BFFSuperExperience");
 
 app.MapEndpoints();
 
-app.UseMiddleware<JsonExceptionHandlingMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapGet("/",
     () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));

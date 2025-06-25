@@ -14,4 +14,13 @@ internal sealed class BankRepository(OperationsDbContext context) : IBankReposit
             .AsNoTracking()
             .SingleOrDefaultAsync(b => b.HomologatedCode == homologatedCode, cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<Bank>> GetBanksAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.Banks
+            .Select(dt => Bank.CreateforGraphql(
+                dt.BankId,
+                dt.Name
+            )).ToListAsync(cancellationToken);
+    }
 }

@@ -172,44 +172,6 @@ namespace Products.Infrastructure.Database.Migrations
                     b.ToTable("alternativas", "productos");
                 });
 
-            modelBuilder.Entity("Products.Domain.Banks.Bank", b =>
-                {
-                    b.Property<int>("BankId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BankId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("nombre");
-
-                    b.HasKey("BankId");
-
-                    b.ToTable("bancos", "productos");
-                });
-
-            modelBuilder.Entity("Products.Domain.Cities.City", b =>
-                {
-                    b.Property<int>("CityId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CityId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("nombre");
-
-                    b.HasKey("CityId");
-
-                    b.ToTable("ciudades", "productos");
-                });
-
             modelBuilder.Entity("Products.Domain.Commercials.Commercial", b =>
                 {
                     b.Property<int>("CommercialId")
