@@ -19,10 +19,9 @@ public class BffQueries
         [Service] CustomersDbContext customersDbContext = null!,
         CancellationToken cancellationToken = default)
     {
-        // Primero: Consulta y filtra Customers según los criterios de búsqueda
         var customersQuery = customersDbContext.Customers.AsNoTracking();
 
-        // Aplicar filtro por tipo de identificación si se proporciona
+
         if (!string.IsNullOrWhiteSpace(tipoIdentificacion))
         {
             if (Guid.TryParse(tipoIdentificacion, out var documentTypeGuid))
@@ -31,10 +30,9 @@ public class BffQueries
             }
         }
 
-        // Aplicar filtros de búsqueda por texto si se proporcionan searchBy y text
         if (!string.IsNullOrWhiteSpace(searchBy) && !string.IsNullOrWhiteSpace(text))
         {
-            var searchText = $"%{text}%"; // Agregar wildcards para búsqueda LIKE
+            var searchText = $"%{text}%";
 
             switch (searchBy.ToLower())
             {
@@ -51,28 +49,27 @@ public class BffQueries
             }
         }
 
-        // Limitar a 20 resultados desde la base de datos
         customersQuery = customersQuery.Take(20);
 
         var customers = await customersQuery.ToListAsync(cancellationToken);
 
-        // Si no hay customers que coincidan con los filtros, retornar lista vacía
+
         if (customers.Count == 0)
         {
             return [];
         }
 
-        // Segundo: Crear un diccionario de customers filtrados para búsqueda rápida
+        
         var customerLookup = customers.ToDictionary(
             c => (c.DocumentType, c.Identification),
             c => c);
 
-        // Tercero: Consultar todos los Activates y filtrar en memoria
+        
         var activates = await associateDbContext.Activates
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        // Cuarto: Hacer la intersección en memoria usando foreach
+        
         var result = new List<AssociateDto>();
         var count = 0;
 
