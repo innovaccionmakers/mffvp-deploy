@@ -133,7 +133,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSwaggerUI", policy =>
     {
-        policy.WithOrigins("https://localhost:7203", "https://localhost:5173")
+        policy.WithOrigins("https://localhost:7203", "https://localhost:5173", "http://localhost:3000", "https://mffvp-frontend.pages.dev")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
