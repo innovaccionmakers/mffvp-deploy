@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Closing.Application.Abstractions;
+using Closing.Infrastructure;
 
 namespace Closing.test.UnitTests.Application.ProfitLosses;
 
@@ -19,7 +20,11 @@ public class InternalRuleEvaluatorIntegrationTests
     {
         var services = new ServiceCollection();
 
-        services.AddRulesEngine<ClosingModuleMarker>(typeof(ClosingModuleMarker).Assembly);
+        services.AddRulesEngine<ClosingModuleMarker>(typeof(ClosingModule).Assembly, opt =>
+        {
+            opt.CacheSizeLimitMb = 64;
+            opt.EmbeddedResourceSearchPatterns = [".rules.json"];
+        });
 
         services.AddLogging(builder => builder.AddConsole());
 
@@ -32,9 +37,11 @@ public class InternalRuleEvaluatorIntegrationTests
         // Arrange
         var evaluator = _serviceProvider.GetRequiredService<IInternalRuleEvaluator<ClosingModuleMarker>>();
 
+        var conceptNames = new[] { "Rendimientos Brutos", "Gastos" };
         var ruleContext = new
         {
             EffectiveDate = DateTime.UtcNow.AddDays(1),
+            RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
                 new
@@ -43,7 +50,9 @@ public class InternalRuleEvaluatorIntegrationTests
                     Concept = "Rendimientos Brutos",
                     Nature = ProfitLossNature.Income,
                     AllowNegative = true,
-                    Amount = 100m
+                    Amount = 100m,
+                    IsIncome = true,
+                    IsExpense = false
                 },
                 new
                 {
@@ -51,7 +60,9 @@ public class InternalRuleEvaluatorIntegrationTests
                     Concept = "Gastos",
                     Nature = ProfitLossNature.Expense,
                     AllowNegative = false,
-                    Amount = 50m
+                    Amount = 50m,
+                    IsIncome = false,
+                    IsExpense = true
                 }
             }
         };
@@ -75,9 +86,11 @@ public class InternalRuleEvaluatorIntegrationTests
         // Arrange
         var evaluator = _serviceProvider.GetRequiredService<IInternalRuleEvaluator<ClosingModuleMarker>>();
 
+        var conceptNames = new[] { "Rendimientos Brutos", "Gastos" };
         var ruleContext = new
         {
             EffectiveDate = DateTime.UtcNow.Date,
+            RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
                 new
@@ -86,7 +99,9 @@ public class InternalRuleEvaluatorIntegrationTests
                     Concept = "Rendimientos Brutos",
                     Nature = ProfitLossNature.Income,
                     AllowNegative = true,
-                    Amount = 100m
+                    Amount = 100m,
+                    IsIncome = true,
+                    IsExpense = false
                 },
                 new
                 {
@@ -94,7 +109,9 @@ public class InternalRuleEvaluatorIntegrationTests
                     Concept = "Gastos",
                     Nature = ProfitLossNature.Expense,
                     AllowNegative = false,
-                    Amount = -50m
+                    Amount = -50m,
+                    IsIncome = false,
+                    IsExpense = true
                 }
             }
         };
@@ -113,14 +130,55 @@ public class InternalRuleEvaluatorIntegrationTests
     }
 
     [Fact]
+    public async Task InternalRuleEvaluator_Should_Validate_All_Concepts_Exist_Rule()
+    {
+        // Arrange
+        var evaluator = _serviceProvider.GetRequiredService<IInternalRuleEvaluator<ClosingModuleMarker>>();
+
+        var conceptNames = new[] { "Concepto Inexistente", "Otro Concepto", "Concepto Válido" };
+        var ruleContext = new
+        {
+            EffectiveDate = DateTime.UtcNow.Date,
+            RequestedConceptNames = conceptNames, // 3 conceptos solicitados
+            Concepts = new[] // Solo 1 concepto encontrado
+            {
+                new
+                {
+                    ProfitLossConceptId = 1L,
+                    Concept = "Concepto Válido",
+                    Nature = ProfitLossNature.Income,
+                    AllowNegative = true,
+                    Amount = 100m,
+                    IsIncome = true,
+                    IsExpense = false
+                }
+            }
+        };
+
+        // Act
+        var (isValid, _, validationErrors) = await evaluator
+            .EvaluateAsync("Closing.ProfitLoss.UploadValidationV2", ruleContext);
+
+        // Assert
+        isValid.Should().BeFalse();
+        validationErrors.Should().HaveCount(1);
+
+        var error = validationErrors.First();
+        error.Code.Should().Be("CLOSING_000");
+        error.Message.Should().Be("No existen algunos de los conceptos solicitados");
+    }
+
+    [Fact]
     public async Task InternalRuleEvaluator_Should_Validate_At_Least_One_Income_Rule()
     {
         // Arrange
         var evaluator = _serviceProvider.GetRequiredService<IInternalRuleEvaluator<ClosingModuleMarker>>();
 
+        var conceptNames = new[] { "Gastos Administrativos", "Otros Gastos" };
         var ruleContext = new
         {
             EffectiveDate = DateTime.UtcNow.Date,
+            RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
                 new
@@ -129,7 +187,9 @@ public class InternalRuleEvaluatorIntegrationTests
                     Concept = "Gastos Administrativos",
                     Nature = ProfitLossNature.Expense, // Solo gastos, sin ingresos
                     AllowNegative = false,
-                    Amount = 100m
+                    Amount = 100m,
+                    IsIncome = false,
+                    IsExpense = true
                 },
                 new
                 {
@@ -137,7 +197,9 @@ public class InternalRuleEvaluatorIntegrationTests
                     Concept = "Otros Gastos",
                     Nature = ProfitLossNature.Expense,
                     AllowNegative = false,
-                    Amount = 50m
+                    Amount = 50m,
+                    IsIncome = false,
+                    IsExpense = true
                 }
             }
         };
@@ -161,9 +223,11 @@ public class InternalRuleEvaluatorIntegrationTests
         // Arrange
         var evaluator = _serviceProvider.GetRequiredService<IInternalRuleEvaluator<ClosingModuleMarker>>();
 
+        var conceptNames = new[] { "Rendimientos Brutos", "Gastos" };
         var ruleContext = new
         {
             EffectiveDate = DateTime.UtcNow.Date,
+            RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
                 new
@@ -172,7 +236,9 @@ public class InternalRuleEvaluatorIntegrationTests
                     Concept = "Rendimientos Brutos",
                     Nature = ProfitLossNature.Income,
                     AllowNegative = true,
-                    Amount = 100m
+                    Amount = 100m,
+                    IsIncome = true,
+                    IsExpense = false
                 },
                 new
                 {
@@ -180,7 +246,9 @@ public class InternalRuleEvaluatorIntegrationTests
                     Concept = "Gastos",
                     Nature = ProfitLossNature.Expense,
                     AllowNegative = false,
-                    Amount = 50m
+                    Amount = 50m,
+                    IsIncome = false,
+                    IsExpense = true
                 }
             }
         };

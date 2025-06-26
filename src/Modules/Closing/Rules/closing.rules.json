@@ -3,6 +3,15 @@
     "WorkflowName": "Closing.ProfitLoss.UploadValidationV2",
     "Rules": [
       {
+        "RuleName": "AllConceptsExist",
+        "ErrorMessage": "No existen algunos de los conceptos solicitados",
+        "Expression": "input.RequestedConceptNames.Length == input.Concepts.Length",
+        "Properties": {
+          "errorCode": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "internalCode": "CLOSING_000"
+        }
+      },
+      {
         "RuleName": "NoFutureDate",
         "ErrorMessage": "La fecha de proceso no puede ser mayor a la fecha actual",
         "Expression": "input.EffectiveDate <= DateTime.UtcNow.Date",
@@ -23,7 +32,7 @@
       {
         "RuleName": "AtLeastOneIncome",
         "ErrorMessage": "Debe existir al menos un concepto de naturaleza Ingreso",
-        "Expression": "input.Concepts.Any(c => c.Nature == ProfitLossNature.Income)",
+        "Expression": "input.Concepts.Any(c => c.IsIncome == true)",
         "Properties": {
           "errorCode": "07075653-c27f-484a-8c93-efb1438e4b6b",
           "internalCode": "CLOSING_003"
@@ -32,7 +41,7 @@
       {
         "RuleName": "AtLeastOneExpense",
         "ErrorMessage": "Debe existir al menos un concepto de naturaleza Gasto",
-        "Expression": "input.Concepts.Any(c => c.Nature == ProfitLossNature.Expense)",
+        "Expression": "input.Concepts.Any(c => c.IsExpense == true)",
         "Properties": {
           "errorCode": "fc056323-db23-49e5-ab44-1238cf0be8da",
           "internalCode": "CLOSING_004"
