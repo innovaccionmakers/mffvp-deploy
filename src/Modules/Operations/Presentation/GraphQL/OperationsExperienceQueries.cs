@@ -8,7 +8,6 @@ using Operations.Integrations.SubTransactionTypes;
 
 namespace Operations.Presentation.GraphQL;
     
-[ExtendObjectType(nameof(RootQueryGraphQL))]
 public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperienceQueries
 {
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(        

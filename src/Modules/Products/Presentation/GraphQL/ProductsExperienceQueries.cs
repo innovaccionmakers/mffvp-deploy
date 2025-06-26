@@ -1,13 +1,11 @@
 ﻿namespace Products.Presentation.GraphQL;
 
-using Common.SharedKernel.Presentation.GraphQL;
 using MediatR;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
 
 
-[ExtendObjectType(nameof(RootQueryGraphQL))]
 public class ProductsExperienceQueries(IMediator mediator) : IProductsExperienceQueries
 {
     public async Task<PortfolioDto> GetPortfolioAsync(string objetiveId,

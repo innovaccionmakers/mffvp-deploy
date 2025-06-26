@@ -1,4 +1,6 @@
-﻿namespace Products.Presentation.DTOs;
+﻿using HotChocolate;
+
+namespace Products.Presentation.DTOs;
 
 [GraphQLName("Portafolio")]
 public record PortfolioDto(

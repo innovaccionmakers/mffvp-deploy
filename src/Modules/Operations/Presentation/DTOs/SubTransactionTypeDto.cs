@@ -1,4 +1,6 @@
 ﻿
+using HotChocolate;
+
 namespace Operations.Presentation.DTOs;
 
 [GraphQLName("SubtipoTransaccion")]

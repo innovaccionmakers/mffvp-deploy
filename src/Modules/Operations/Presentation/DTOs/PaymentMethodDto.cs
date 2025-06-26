@@ -1,4 +1,6 @@
-﻿namespace Operations.Presentation.DTOs;
+﻿using HotChocolate;
+
+namespace Operations.Presentation.DTOs;
 
 
 [GraphQLName("MetodoPago")]
