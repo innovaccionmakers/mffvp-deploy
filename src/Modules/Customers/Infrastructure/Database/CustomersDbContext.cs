@@ -22,7 +22,7 @@ namespace Customers.Infrastructure.Database;
 public sealed class CustomersDbContext(DbContextOptions<CustomersDbContext> options)
     : DbContext(options), IUnitOfWork
 {
-    public DbSet<Person> Customers { get; set; }
+    internal DbSet<Person> Customers { get; set; }
     internal DbSet<Country> Countries { get; set; }
     internal DbSet<EconomicActivity> EconomicActivities { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
