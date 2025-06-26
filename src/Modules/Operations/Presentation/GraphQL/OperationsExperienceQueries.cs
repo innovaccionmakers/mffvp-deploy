@@ -1,4 +1,3 @@
-using Common.SharedKernel.Presentation.GraphQL;
 using MediatR;
 using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.Origins;

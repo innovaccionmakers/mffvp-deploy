@@ -3,6 +3,7 @@ using Customers.Presentation.DTOs;
 using MFFVP.BFF.Services;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
+using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
 using Products.Presentation.GraphQL;
 
@@ -83,5 +84,11 @@ public class Query
                                                                        CancellationToken cancellationToken)
     {
         return await experienceOrchestrator.GetAllAssociatesAsync(identificationType, searchBy, text, cancellationToken);
+    }
+
+    [GraphQLName("objetivo")]
+    public async Task<IReadOnlyCollection<GoalDto>> GetGoals(string typeId, string identification, StatusType status, [Service] IProductsExperienceQueries productsExperienceQueries, CancellationToken cancellationToken)
+    {
+        return await productsExperienceQueries.GetGoalsAsync(typeId, identification, status, cancellationToken);
     }
 }

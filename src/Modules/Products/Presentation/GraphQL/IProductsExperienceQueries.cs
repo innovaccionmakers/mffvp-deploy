@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
 
 namespace Products.Presentation.GraphQL;
@@ -10,5 +10,10 @@ public interface IProductsExperienceQueries
 
     Task<IReadOnlyCollection<DocumentTypeDto>> GetDocumentTypesAsync(      
       CancellationToken cancellationToken = default);
+
+
+    Task<IReadOnlyCollection<GoalDto>> GetGoalsAsync(
+        string typeId, string identification, StatusType status,
+        CancellationToken cancellationToken = default);
 
 }
