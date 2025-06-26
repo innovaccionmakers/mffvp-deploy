@@ -85,7 +85,7 @@
       {
         "RuleName": "DepositDateRequired",
         "ErrorMessage": "La FechaConsignacion es obligatoria",
-        "Expression": "input.DepositDate != null",
+        "Expression": "input.DepositDate != DateTime.MinValue",
         "Properties": {
           "errorCode": "78a4bb66-23bf-4341-811f-982e76cbcc97"
         }
@@ -93,7 +93,7 @@
       {
         "RuleName": "ExecutionDateRequired",
         "ErrorMessage": "La FechaEjecucion es obligatoria",
-        "Expression": "input.ExecutionDate != null",
+        "Expression": "input.ExecutionDate != DateTime.MinValue",
         "Properties": {
           "errorCode": "ce9da775-494d-4b90-95a8-976bf14bb290"
         }

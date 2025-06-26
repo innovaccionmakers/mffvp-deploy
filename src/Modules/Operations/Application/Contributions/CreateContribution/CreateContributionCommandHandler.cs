@@ -128,20 +128,15 @@ internal sealed class CreateContributionCommandHandler(
         {
             DocumentTypeExists = documentTypeExists,
             AffiliateFound = affiliateFound,
-            // ContributionSource con propiedades planas
             ContributionSourceExists = catalogs.Source is not null,
             ContributionSourceActive = catalogs.Source?.Status == Status.Active,
             ContributionSourceRequiresCertification = catalogs.Source?.RequiresCertification ?? false,
-            // OriginModality con propiedades planas
             OriginModalityExists = catalogs.OriginModality is not null,
             OriginModalityActive = catalogs.OriginModality?.Status ?? false,
-            // CollectionMethod con propiedades planas
             CollectionMethodExists = catalogs.CollectionMethod is not null,
             CollectionMethodActive = catalogs.CollectionMethod?.Status ?? false,
-            // PaymentMethod con propiedades planas
             PaymentMethodExists = catalogs.PaymentMethod is not null,
             PaymentMethodActive = catalogs.PaymentMethod?.Status ?? false,
-            // Otros campos planos
             ChannelExists = catalogs.Channel is not null,
             CollectionBankExists = bank is not null,
             IsFirstContribution = firstContribution,
