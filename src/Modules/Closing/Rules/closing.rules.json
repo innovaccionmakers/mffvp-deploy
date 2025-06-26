@@ -6,25 +6,37 @@
         "RuleName": "NoFutureDate",
         "ErrorMessage": "La fecha de proceso no puede ser mayor a la fecha actual",
         "Expression": "input.EffectiveDate <= DateTime.UtcNow.Date",
-        "Properties": { "errorCode": "5063eccb-3107-47a0-8eef-a9775c5c33a6" }
+        "Properties": {
+          "errorCode": "5063eccb-3107-47a0-8eef-a9775c5c33a6",
+          "internalCode": "CLOSING_001"
+        }
       },
       {
         "RuleName": "NegativesOnlyIfAllowed",
         "ErrorMessage": "Existen montos negativos en conceptos que no lo permiten",
         "Expression": "input.Concepts.All(c => c.AllowNegative == true || c.Amount >= 0)",
-        "Properties": { "errorCode": "d14d6a61-3fe6-4c07-9f04-35c50a6481d3" }
+        "Properties": {
+          "errorCode": "d14d6a61-3fe6-4c07-9f04-35c50a6481d3",
+          "internalCode": "CLOSING_002"
+        }
       },
       {
         "RuleName": "AtLeastOneIncome",
         "ErrorMessage": "Debe existir al menos un concepto de naturaleza Ingreso",
         "Expression": "input.Concepts.Any(c => c.Nature == ProfitLossNature.Income)",
-        "Properties": { "errorCode": "07075653-c27f-484a-8c93-efb1438e4b6b" }
+        "Properties": {
+          "errorCode": "07075653-c27f-484a-8c93-efb1438e4b6b",
+          "internalCode": "CLOSING_003"
+        }
       },
       {
         "RuleName": "AtLeastOneExpense",
         "ErrorMessage": "Debe existir al menos un concepto de naturaleza Gasto",
         "Expression": "input.Concepts.Any(c => c.Nature == ProfitLossNature.Expense)",
-        "Properties": { "errorCode": "fc056323-db23-49e5-ab44-1238cf0be8da" }
+        "Properties": {
+          "errorCode": "fc056323-db23-49e5-ab44-1238cf0be8da",
+          "internalCode": "CLOSING_004"
+        }
       }
     ]
   }

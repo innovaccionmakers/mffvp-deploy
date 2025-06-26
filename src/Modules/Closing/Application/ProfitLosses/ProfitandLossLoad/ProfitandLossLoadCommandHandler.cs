@@ -14,7 +14,7 @@ internal sealed class ProfitandLossLoadCommandHandler(
     IProfitLossConceptRepository conceptRepository,
     IProfitLossRepository profitLossRepository,
     IPortfolioValidator portfolioValidator,
-    IRuleEvaluator<ClosingModuleMarker> ruleEvaluator,
+    IInternalRuleEvaluator<ClosingModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork)
     : ICommandHandler<ProfitandLossLoadCommand, bool>
 {

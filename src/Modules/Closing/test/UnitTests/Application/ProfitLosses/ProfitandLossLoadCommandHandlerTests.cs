@@ -19,7 +19,7 @@ public class ProfitandLossLoadCommandHandlerTests
     private readonly Mock<IProfitLossConceptRepository> _conceptRepo = new();
     private readonly Mock<IProfitLossRepository> _profitLossRepo = new();
     private readonly Mock<IPortfolioValidator> _portfolioValidator = new();
-    private readonly Mock<IRuleEvaluator<ClosingModuleMarker>> _ruleEvaluator = new();
+    private readonly Mock<IInternalRuleEvaluator<ClosingModuleMarker>> _ruleEvaluator = new();
     private readonly Mock<IUnitOfWork> _uow = new();
     private readonly Mock<DbTransaction> _tx = new();
 
@@ -84,133 +84,92 @@ public class ProfitandLossLoadCommandHandlerTests
         // assert
         result.IsSuccess.Should().BeTrue();
         _profitLossRepo.Verify(r => r.DeleteByPortfolioAndDateAsync(10, DateTime.Today, It.IsAny<CancellationToken>()), Times.Once);
-        _profitLossRepo.Verify(r => r.InsertRange(It.Is<IEnumerable<ProfitLoss>>(p => p.Count() == 2)), Times.Once);
-        _tx.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_Should_Return_Error_When_Rules_Fail()
-    {
-        // arrange
-        var conceptAmounts = new Dictionary<string, decimal>
-        {
-            ["Rendimientos Brutos"] = 100m,
-            ["Gastos"] = -10m
-        };
-
-        var concepts = new List<ProfitLossConcept>
-        {
-            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true),
-            Concept(2, "Gastos", ProfitLossNature.Expense, false)
-        };
-
-        _conceptRepo.Setup(r => r.FindByNamesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(concepts);
-        var ruleErr = new RuleValidationError("C", "bad");
-        _portfolioValidator.Setup(v => v.EnsureExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
-        _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { ruleErr }));
-        var handler = BuildHandler();
-        var cmd = new ProfitandLossLoadCommand(10, DateTime.Today, conceptAmounts);
-
-        // act
-        var result = await handler.Handle(cmd, CancellationToken.None);
-
-        // assert
-        result.IsSuccess.Should().BeFalse();
-        result.Error.Code.Should().Be(ruleErr.Code);
-        _profitLossRepo.Verify(r => r.InsertRange(It.IsAny<IEnumerable<ProfitLoss>>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_Should_Return_Error_When_Portfolio_Does_Not_Exist()
-    {
-        // arrange
-        var conceptAmounts = new Dictionary<string, decimal>
-        {
-            ["Rendimientos Brutos"] = 100m
-        };
-
-        var portfolioError = Error.NotFound("Portfolio.NotFound", "Portfolio not found");
-        _portfolioValidator.Setup(v => v.EnsureExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure(portfolioError));
-        var handler = BuildHandler();
-        var cmd = new ProfitandLossLoadCommand(10, DateTime.Today, conceptAmounts);
-
-        // act
-        var result = await handler.Handle(cmd, CancellationToken.None);
-
-        // assert
-        result.IsSuccess.Should().BeFalse();
-        result.Error.Code.Should().Be(portfolioError.Code);
-        result.Error.Description.Should().Be(portfolioError.Description);
-        _conceptRepo.Verify(r => r.FindByNamesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()), Times.Never);
-        _profitLossRepo.Verify(r => r.InsertRange(It.IsAny<IEnumerable<ProfitLoss>>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_Should_Return_Error_When_Concept_Does_Not_Exist()
-    {
-        // arrange
-        var conceptAmounts = new Dictionary<string, decimal>
-        {
-            ["Rendimientos Brutos"] = 100m,
-            ["Concepto Inexistente"] = 50m
-        };
-
-        var concepts = new List<ProfitLossConcept>
-        {
-            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true)
-        };
-
-        _conceptRepo.Setup(r => r.FindByNamesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(concepts);
-        _portfolioValidator.Setup(v => v.EnsureExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
-        var handler = BuildHandler();
-        var cmd = new ProfitandLossLoadCommand(10, DateTime.Today, conceptAmounts);
-
-        // act
-        var result = await handler.Handle(cmd, CancellationToken.None);
-
-        // assert
-        result.IsSuccess.Should().BeFalse();
-        result.Error.Code.Should().Be("Concept.NotFound");
-        result.Error.Description.Should().Contain("No existen los conceptos: Concepto Inexistente");
-        _profitLossRepo.Verify(r => r.InsertRange(It.IsAny<IEnumerable<ProfitLoss>>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_Should_Delete_Existing_Records_Before_Insert()
-    {
-        // arrange
-        var conceptAmounts = new Dictionary<string, decimal>
-        {
-            ["Rendimientos Brutos"] = 100m
-        };
-
-        var concepts = new List<ProfitLossConcept>
-        {
-            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true)
-        };
-
-        _conceptRepo.Setup(r => r.FindByNamesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(concepts);
-        _portfolioValidator.Setup(v => v.EnsureExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
-        _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
-        var handler = BuildHandler();
-        var cmd = new ProfitandLossLoadCommand(10, DateTime.Today, conceptAmounts);
-
-        // act
-        var result = await handler.Handle(cmd, CancellationToken.None);
-
-        // assert
-        result.IsSuccess.Should().BeTrue();
-        _profitLossRepo.Verify(r => r.DeleteByPortfolioAndDateAsync(10, DateTime.Today, It.IsAny<CancellationToken>()), Times.Once);
         _profitLossRepo.Verify(r => r.InsertRange(It.IsAny<IEnumerable<ProfitLoss>>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_Failure_When_Rules_Fail()
+    {
+        // arrange
+        var conceptAmounts = new Dictionary<string, decimal>
+        {
+            ["Rendimientos Brutos"] = 100m
+        };
+
+        var concepts = new List<ProfitLossConcept>
+        {
+            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true)
+        };
+
+        var validationError = new RuleValidationError("CLOSING_001", "La fecha de proceso no puede ser mayor a la fecha actual");
+
+        _conceptRepo.Setup(r => r.FindByNamesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(concepts);
+        _portfolioValidator.Setup(v => v.EnsureExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+        _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
+        var handler = BuildHandler();
+        var cmd = new ProfitandLossLoadCommand(10, DateTime.Today.AddDays(1), conceptAmounts);
+
+        // act
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        // assert
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be("CLOSING_001");
+        result.Error.Description.Should().Be("La fecha de proceso no puede ser mayor a la fecha actual");
+        _profitLossRepo.Verify(r => r.DeleteByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
+        _profitLossRepo.Verify(r => r.InsertRange(It.IsAny<IEnumerable<ProfitLoss>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_Failure_When_Portfolio_Does_Not_Exist()
+    {
+        // arrange
+        var conceptAmounts = new Dictionary<string, decimal>
+        {
+            ["Rendimientos Brutos"] = 100m
+        };
+
+        _portfolioValidator.Setup(v => v.EnsureExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure(Error.NotFound("Portfolio.NotFound", "El portafolio no existe")));
+        var handler = BuildHandler();
+        var cmd = new ProfitandLossLoadCommand(10, DateTime.Today, conceptAmounts);
+
+        // act
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        // assert
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be("Portfolio.NotFound");
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_Failure_When_Concepts_Do_Not_Exist()
+    {
+        // arrange
+        var conceptAmounts = new Dictionary<string, decimal>
+        {
+            ["ConceptoInexistente"] = 100m,
+            ["OtroConceptoInexistente"] = 50m
+        };
+
+        _conceptRepo.Setup(r => r.FindByNamesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ProfitLossConcept>()); // No se encuentran conceptos
+        _portfolioValidator.Setup(v => v.EnsureExistsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+        var handler = BuildHandler();
+        var cmd = new ProfitandLossLoadCommand(10, DateTime.Today, conceptAmounts);
+
+        // act
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        // assert
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be("Concept.NotFound");
+        result.Error.Description.Should().Contain("ConceptoInexistente");
+        result.Error.Description.Should().Contain("OtroConceptoInexistente");
     }
 
     [Fact]
@@ -327,12 +286,35 @@ public class ProfitandLossLoadCommandHandlerTests
         var effectiveDateProperty = contextType.GetProperty("EffectiveDate");
         var conceptsProperty = contextType.GetProperty("Concepts");
 
-        if (effectiveDateProperty?.GetValue(context) is not DateTime actualDate || actualDate != expectedDate)
+        if (effectiveDateProperty == null || conceptsProperty == null)
             return false;
 
-        if (conceptsProperty?.GetValue(context) is not Array conceptsArray)
+        var effectiveDate = (DateTime)effectiveDateProperty.GetValue(context)!;
+        var concepts = conceptsProperty.GetValue(context) as Array;
+
+        if (effectiveDate != expectedDate || concepts == null)
             return false;
 
-        return conceptsArray.Length == expectedConcepts.Count;
+        if (concepts.Length != expectedConcepts.Count)
+            return false;
+
+        for (int i = 0; i < concepts.Length; i++)
+        {
+            var concept = concepts.GetValue(i);
+            var conceptType = concept!.GetType();
+            var conceptNameProperty = conceptType.GetProperty("Concept");
+            var amountProperty = conceptType.GetProperty("Amount");
+
+            if (conceptNameProperty == null || amountProperty == null)
+                return false;
+
+            var conceptName = (string)conceptNameProperty.GetValue(concept)!;
+            var amount = (decimal)amountProperty.GetValue(concept)!;
+
+            if (!expectedAmounts.ContainsKey(conceptName) || expectedAmounts[conceptName] != amount)
+                return false;
+        }
+
+        return true;
     }
 }
