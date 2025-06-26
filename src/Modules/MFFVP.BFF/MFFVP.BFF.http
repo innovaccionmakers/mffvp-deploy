@@ -1,0 +1,6 @@
+@MFFVP.BFF_HostAddress = http://localhost:5065
+
+GET {{MFFVP.BFF_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

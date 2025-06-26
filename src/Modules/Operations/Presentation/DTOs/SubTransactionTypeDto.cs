@@ -5,5 +5,5 @@ namespace Operations.Presentation.DTOs;
 public record SubTransactionTypeDto(
     [property: GraphQLName("id")] string Id,
     [property: GraphQLName("nombre")] string Name,
-    [property: GraphQLName("codigoHomologacion")] string HomologationCode
+    [property: GraphQLName("codigoHomologado")] string HomologationCode
 );

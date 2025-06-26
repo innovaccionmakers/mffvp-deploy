@@ -24,6 +24,7 @@ using Application.People;
 using Customers.Domain.Departments;
 using Customers.Domain.Municipalities;
 using Application.People.GetPerson;
+using Customers.Presentation.GraphQL;
 
 namespace Customers.Infrastructure;
 
@@ -68,6 +69,8 @@ public static class CustomersModule
         services.AddScoped<IEconomicActivityRepository, EconomicActivityRepository>();
         services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<ICustomersExperienceQueries, CustomersExperienceQueries>();
+
         services.AddScoped<IConfigurationParameterLookupRepository<CustomersModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<CustomersModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<CustomersModuleMarker>, ErrorCatalog<CustomersModuleMarker>>();

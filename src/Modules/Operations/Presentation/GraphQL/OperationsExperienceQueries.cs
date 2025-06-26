@@ -7,12 +7,11 @@ using Operations.Presentation.DTOs;
 using Operations.Integrations.SubTransactionTypes;
 
 namespace Operations.Presentation.GraphQL;
-
+    
 [ExtendObjectType(nameof(RootQueryGraphQL))]
-public class OperationsQueries
+public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperienceQueries
 {
-    public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(
-        [Service] IMediator mediator,
+    public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(        
         CancellationToken cancellationToken = default)
     {
             var result = await mediator.Send(new GetTransactionTypesQuery(), cancellationToken);
@@ -25,7 +24,7 @@ public class OperationsQueries
         var transactionTypes = result.Value;
 
         return transactionTypes.Select(x => new TransactionTypeDto(
-            x.Id.ToString(),
+            x.Uuid,
             x.Name,
             x.Status,
             x.HomologatedCode
@@ -34,7 +33,6 @@ public class OperationsQueries
 
     public async Task<IReadOnlyCollection<SubTransactionTypeDto>> GetSubTransactionTypesAsync(
         Guid categoryId,
-        [Service] IMediator mediator,
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetSubTransactionTypesQuery(categoryId), cancellationToken);
@@ -50,8 +48,7 @@ public class OperationsQueries
         )).ToList();
     }
 
-    public async Task<IReadOnlyCollection<CertificationStatusDto>> GetCertificationStatusesAsync(
-        [Service] IMediator mediator,
+    public async Task<IReadOnlyCollection<CertificationStatusDto>> GetCertificationStatusesAsync(        
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetCertificationStatusesQuery(), cancellationToken);
@@ -61,7 +58,7 @@ public class OperationsQueries
         }
         var certificationStatuses = result.Value;
         return certificationStatuses.Select(x => new CertificationStatusDto(
-            x.Id.ToString(),
+            x.Uuid,
             x.Name,
             x.Status,
             x.HomologatedCode
@@ -69,7 +66,6 @@ public class OperationsQueries
     }
 
     public async Task<IReadOnlyCollection<OriginModeDto>> GetOriginModesAsync(
-        [Service] IMediator mediator,
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetOriginModesQuery(), cancellationToken);
@@ -79,7 +75,7 @@ public class OperationsQueries
         }
         var originModes = result.Value;
         return originModes.Select(x => new OriginModeDto(
-            x.Id.ToString(),
+            x.Uuid,
             x.Name,
             x.Status,
             x.HomologatedCode
@@ -87,7 +83,6 @@ public class OperationsQueries
     }
 
     public async Task<IReadOnlyCollection<CollectionMethodDto>> GetCollectionMethodsAsync(
-        [Service] IMediator mediator,
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetCollectionMethodsQuery(), cancellationToken);
@@ -97,15 +92,14 @@ public class OperationsQueries
         }
         var collectionMethods = result.Value;
         return collectionMethods.Select(x => new CollectionMethodDto(
-            x.Id.ToString(),
+            x.Uuid,
             x.Name,
             x.Status,
             x.HomologatedCode
         )).ToList();
     }
 
-    public async Task<IReadOnlyCollection<PaymentMethodDto>> GetPaymentMethodsAsync(
-        [Service] IMediator mediator,
+    public async Task<IReadOnlyCollection<PaymentMethodDto>> GetPaymentMethodsAsync(        
         CancellationToken cancellationToken = default
     ){
         var result = await mediator.Send(new GetPaymentMethodsQuery(), cancellationToken);
@@ -118,7 +112,7 @@ public class OperationsQueries
         var paymentMethods = result.Value;
 
         return paymentMethods.Select(x => new PaymentMethodDto(
-            x.Id.ToString(),
+            x.Uuid,
             x.Name,
             x.Status,
             x.HomologatedCode
@@ -127,7 +121,6 @@ public class OperationsQueries
     }
 
     public async Task<IReadOnlyCollection<OriginContributionDto>> GetOriginContributionsAsync(
-        [Service] IMediator mediator,
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetOriginContributionsQuery(), cancellationToken);
@@ -143,7 +136,6 @@ public class OperationsQueries
     }
 
     public async Task<IReadOnlyCollection<BankDto>> GetBanksAsync(
-        [Service] IMediator mediator,
         CancellationToken cancellationToken = default)
     {
 

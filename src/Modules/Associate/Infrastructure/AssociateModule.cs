@@ -1,21 +1,22 @@
-using Associate.Domain.ConfigurationParameters;
+using Application.Activates;
 using Application.PensionRequirements;
 using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
-using Common.SharedKernel.Application.Rules;
 using Associate.Domain.Activates;
-using Common.SharedKernel.Domain.ConfigurationParameters;
+using Associate.Domain.ConfigurationParameters;
 using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Database;
-using Common.SharedKernel.Infrastructure.RulesEngine;
 using Associate.IntegrationEvents.ActivateValidation;
+using Associate.Presentation.GraphQL;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.RulesEngine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Application.Activates;
 
 namespace Associate.Infrastructure;
 
@@ -59,6 +60,7 @@ public static class ActivatesModule
         services.AddScoped<IActivateRepository, ActivateRepository>();
         services.AddScoped<IPensionRequirementRepository, PensionRequirementRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IAssociatesExperienceQueries, AssociatesExperienceQueries>();
         services.AddScoped<IConfigurationParameterLookupRepository<AssociateModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<AssociateModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<AssociateModuleMarker>, ErrorCatalog<AssociateModuleMarker>>();

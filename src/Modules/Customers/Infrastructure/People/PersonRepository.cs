@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Customers.Domain.People;
 using Customers.Infrastructure.Database;
+using Common.SharedKernel.Domain;
 
 namespace Customers.Infrastructure.People;
 
@@ -53,5 +54,37 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
             return null;
 
         return await context.Customers.AnyAsync(x => x.HomologatedCode == homologatedCode, cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<Person>> GetByFilterAsync(string identificationType,
+                                                              SearchByType? searchBy = null,
+                                                              string? text = null,
+                                                              CancellationToken cancellationToken = default)
+    {
+        var query = context.Customers.AsQueryable();
+
+        query = query.Where(x => x.DocumentType.ToString() == identificationType);
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            text = text.ToLower();
+
+            switch (searchBy)
+            {
+                case SearchByType.Nombre:
+                    query = query.Where(x => x.FullName.ToLower().Contains(text));
+                    break;
+                case SearchByType.Identificacion:
+                    query = query.Where(x => x.Identification.ToLower().Contains(text));
+                    break;
+            }
+        }
+
+        if (searchBy == null && string.IsNullOrWhiteSpace(text))
+        {
+            query = query.Take(20);
+        }
+
+        return await query.ToListAsync(cancellationToken);
     }
 }

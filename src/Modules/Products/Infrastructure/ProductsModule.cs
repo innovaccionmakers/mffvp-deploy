@@ -1,26 +1,27 @@
-using Products.Domain.ConfigurationParameters;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.RulesEngine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
-using Common.SharedKernel.Application.Rules;
-using Common.SharedKernel.Domain.ConfigurationParameters;
 using Products.Application.Abstractions.Services.External;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Abstractions.Services.Rules;
 using Products.Application.Objectives.Services;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
+using Products.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
 using Products.Infrastructure.Alternatives;
 using Products.Infrastructure.Commercials;
-using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Database;
 using Products.Infrastructure.External.Affiliates;
@@ -28,9 +29,9 @@ using Products.Infrastructure.Objectives;
 using Products.Infrastructure.Offices;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
-using Common.SharedKernel.Infrastructure.RulesEngine;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.PortfolioValidation;
+using Products.Presentation.GraphQL;
 
 namespace Products.Infrastructure;
 
@@ -79,7 +80,8 @@ public static class ProductsModule
         services.AddScoped<IConfigurationParameterLookupRepository<ProductsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<ProductsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<ProductsModuleMarker>, ErrorCatalog<ProductsModuleMarker>>();
-        
+        services.AddScoped<IProductsExperienceQueries, ProductsExperienceQueries>();
+
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
         services.AddScoped<IObjectiveReader, ObjectiveReader>();
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();

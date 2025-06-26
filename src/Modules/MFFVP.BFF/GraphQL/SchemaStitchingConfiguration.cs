@@ -1,28 +1,31 @@
-﻿using Common.SharedKernel.Presentation.GraphQL;
-using Operations.Presentation.GraphQL;
-using Products.Presentation.GraphQL;
-
-namespace MFFVP.Api.GraphQL;
+namespace MFFVP.BFF.GraphQL;
 
 public static class SchemaStitchingConfiguration
 {
+
     public static IServiceCollection AddSchemaStitching(
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddGraphQLServer("BFFSuperExperience")
-            .AddQueryType<RootQueryGraphQL>()
-            .AddType<ProductsQueries>()
-            .AddType<OperationsQueries>()
-            .AddType<BffQueries>()
+        services
+            .AddGraphQLServer("BFFGateway")
+            .AddQueryType<Query>()
+            .ModifyOptions(options =>
+            {
+                options.RemoveUnreachableTypes = true;
+                options.StrictValidation = false;
+                options.UseXmlDocumentation = true;
+            })
             .AddProjections()
             .AddFiltering()
             .AddSorting()
+            .AddGlobalObjectIdentification()
             .ModifyRequestOptions(options =>
             {
                 options.IncludeExceptionDetails = true;
                 options.ExecutionTimeout = TimeSpan.FromSeconds(30);
             });
+
         return services;
     }
 
@@ -30,10 +33,9 @@ public static class SchemaStitchingConfiguration
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // Configuración adicional solo para desarrollo
-        if (configuration.GetValue<bool>("Development:EnablePlayground", true))
+        if (configuration.GetValue("Development:EnablePlayground", true))
         {
-            services.AddGraphQLServer("BFFSuperExperience")
+            services.AddGraphQLServer("BFFGateway")
                 .ModifyRequestOptions(options =>
                 {
                     options.IncludeExceptionDetails = true;
@@ -44,10 +46,10 @@ public static class SchemaStitchingConfiguration
     }
 
     public static IServiceCollection AddProductionConfiguration(
-       this IServiceCollection services,
-       IConfiguration configuration)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        services.AddGraphQLServer("BFFSuperExperience")
+        services.AddGraphQLServer("BFFGateway")
             .ModifyRequestOptions(options =>
             {
                 options.IncludeExceptionDetails = false;

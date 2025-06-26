@@ -14,6 +14,7 @@ public class GetOriginModesQueryHandler(IConfigurationParameterRepository reposi
         var response = list
             .Select(e => new ConfigurationParameterResponse(
                 e.ConfigurationParameterId.ToString(),
+                e.Uuid,
                 e.Name,
                 e.HomologationCode,
                 e.Status))

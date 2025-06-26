@@ -2,21 +2,22 @@ using Asp.Versioning;
 using Associate.Infrastructure;
 using Closing.Infrastructure;
 using Common.SharedKernel.Application;
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Infrastructure;
 using Common.SharedKernel.Infrastructure.Configuration;
+using Common.SharedKernel.Infrastructure.Extensions;
 using Common.SharedKernel.Infrastructure.Validation;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Filters;
 using Customers.Infrastructure;
 using FluentValidation;
 using MFFVP.Api.BffWeb.Associate;
+using MFFVP.Api.BffWeb.Closing;
 using MFFVP.Api.BffWeb.Customers;
 using MFFVP.Api.BffWeb.Operations;
 using MFFVP.Api.BffWeb.Products;
-using MFFVP.Api.BffWeb.Closing;
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
-using MFFVP.Api.GraphQL;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
 using Operations.Infrastructure;
@@ -98,19 +99,14 @@ builder.Services.AddProductsModule(builder.Configuration);
 builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddClosingModule(builder.Configuration);
+       
 
-        
-builder.Services.AddSchemaStitching(builder.Configuration);
+var bffAssembly = Assembly.GetAssembly(typeof(MFFVP.BFF.ModuleConfiguration));
+if (bffAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(bffAssembly, builder.Configuration);
+}
 
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-if (environment == "Development")
-{
-    builder.Services.AddDevelopmentConfiguration(builder.Configuration);
-}
-else
-{
-    builder.Services.AddProductionConfiguration(builder.Configuration);
-}
 
 builder.Services.AddBffActivatesServices();
 builder.Services.AddBffProductsServices();
@@ -156,6 +152,12 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
 
+var moduleConfigurations = app.Services.GetServices<IModuleConfiguration>();
+foreach (var module in moduleConfigurations)
+{
+    module.Configure(app, app.Environment);
+}
+
 app.UsePathBase("/fiduciaria/fvp");
 
 app.UseInfrastructure();
@@ -164,9 +166,6 @@ app.UseLogContext();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapGraphQL("/experience/graphql", "BFFSuperExperience");
-
 
 app.MapEndpoints();
 

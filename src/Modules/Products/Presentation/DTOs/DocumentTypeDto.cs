@@ -2,8 +2,8 @@
 
 [GraphQLName("TipoDocumento")]
 public record DocumentTypeDto(
-    [property: GraphQLName("uuid")] string Uuid,
+    [property: GraphQLName("uuid")] Guid Uuid,
     [property: GraphQLName("nombre")] string Name,
     [property: GraphQLName("estado")] bool Status,
-    [property: GraphQLName("codigoHomologacion")] string HomologationCode
+    [property: GraphQLName("codigoHomologado")] string HomologationCode
 );
