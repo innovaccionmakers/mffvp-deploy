@@ -13,6 +13,8 @@ using Operations.Integrations.Contributions;
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
+using Common.SharedKernel.Application.EventBus;
+using Trusts.IntegrationEvents.CreateTrustRequested;
 
 namespace Operations.Application.Contributions.CreateContribution;
 
@@ -28,7 +30,7 @@ internal sealed class CreateContributionCommandHandler(
     IConfigurationParameterRepository configurationParameterRepository,
     IRuleEvaluator<OperationsModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork,
-    ITrustCreator trustCreator)
+    IEventBus eventBus)
     : ICommandHandler<CreateContributionCommand, ContributionResponse>
 {
     private const string Flow = "Operations.Contribution.Validation";
@@ -192,8 +194,7 @@ internal sealed class CreateContributionCommandHandler(
             DateTime.SpecifyKind(command.ExecutionDate, DateTimeKind.Utc),
             catalogs.Subtype?.SubtransactionTypeId ?? 0).Value;
         clientOperationRepository.Insert(operation);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        
         var aux = AuxiliaryInformation.Create(
             operation.ClientOperationId,
             catalogs.Source!.OriginId,
@@ -216,24 +217,22 @@ internal sealed class CreateContributionCommandHandler(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var trustRes = await trustCreator.CreateAsync(
-            new TrustCreationDto(
-                remoteRes.Value.AffiliateId,
-                operation.ClientOperationId,
-                DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
-                remoteRes.Value.ObjectiveId,
-                remoteRes.Value.PortfolioId,
-                command.Amount,
-                0,
-                command.Amount,
-                0m,
-                tax.TaxConditionId,
-                tax.WithheldAmount,
-                0m,
-                command.Amount),
-            cancellationToken);
-        if (!trustRes.IsSuccess)
-            return Result.Failure<ContributionResponse>(trustRes.Error!);
+        var createTrustEvent = new CreateTrustRequestedIntegrationEvent(
+            remoteRes.Value.AffiliateId,
+            operation.ClientOperationId,
+            DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
+            remoteRes.Value.ObjectiveId,
+            remoteRes.Value.PortfolioId,
+            command.Amount,
+            0,
+            command.Amount,
+            0m,
+            tax.TaxConditionId,
+            tax.WithheldAmount,
+            0m,
+            command.Amount);
+
+        await eventBus.PublishAsync(createTrustEvent, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
 

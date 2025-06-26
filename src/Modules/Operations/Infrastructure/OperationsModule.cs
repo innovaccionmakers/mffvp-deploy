@@ -34,7 +34,6 @@ using Operations.Infrastructure.Database;
 using Operations.Infrastructure.External.Activate;
 using Operations.Infrastructure.External.ContributionValidation;
 using Operations.Infrastructure.External.Customers;
-using Operations.Infrastructure.External.Trusts;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.SubtransactionTypes;
 
@@ -88,7 +87,6 @@ public static class OperationsModule
         services.AddScoped<IActivateLocator, ActivateLocator>();
         services.AddScoped<IContributionRemoteValidator, ContributionRemoteValidator>();
         services.AddScoped<IPersonValidator, PersonValidator>();
-        services.AddScoped<ITrustCreator, TrustCreator>();
 
         services.AddScoped<IContributionCatalogResolver, ContributionCatalogResolver>();
         services.AddScoped<ITaxCalculator, TaxCalculator>();
