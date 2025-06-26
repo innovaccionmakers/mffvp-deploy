@@ -83,8 +83,8 @@
         }
       },
       {
-        "RuleName": "PensionRequirementsWhenFalse",
-        "Expression": "!(input.request.Pensioner == false && input.request.MeetsPensionRequirements == null)",
+        "RuleName": "PensionRequirementsValidation",
+        "Expression": "!((input.request.Pensioner == true && input.request.MeetsPensionRequirements != null) || (input.request.Pensioner == false && input.request.MeetsPensionRequirements == null))",
         "Properties": {
           "errorCode": "56de1714-0675-487f-8c66-d1bfb1bb0199"
         }
