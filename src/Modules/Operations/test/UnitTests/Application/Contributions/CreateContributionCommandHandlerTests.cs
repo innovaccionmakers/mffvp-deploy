@@ -16,6 +16,7 @@ using Operations.Domain.Origins;
 using Operations.Integrations.Contributions.CreateContribution;
 using RulesEngine.Models;
 using Operations.Domain.ConfigurationParameters;
+using Common.SharedKernel.Application.EventBus;
 
 namespace Operations.test.UnitTests.Application.Contributions;
 
@@ -32,7 +33,7 @@ public class CreateContributionCommandHandlerTests
     private readonly Mock<IConfigurationParameterRepository> _configRepo = new();
     private readonly Mock<IRuleEvaluator<OperationsModuleMarker>> _ruleEvaluator = new();
     private readonly Mock<IUnitOfWork> _uow = new();
-    private readonly Mock<ITrustCreator> _trustCreator = new();
+    private readonly Mock<IEventBus> _eventBus = new();
     private readonly Mock<DbTransaction> _tx = new();
 
     private CreateContributionCommandHandler BuildHandler()
@@ -51,7 +52,7 @@ public class CreateContributionCommandHandlerTests
             _configRepo.Object,
             _ruleEvaluator.Object,
             _uow.Object,
-            _trustCreator.Object);
+            _eventBus.Object);
     }
 
     private static CreateContributionCommand BuildCommand(string? certified = "SI")
@@ -96,9 +97,8 @@ public class CreateContributionCommandHandlerTests
             ConfigurationParameter.Create("cat", "h"));
     }
 
-    private void SetupHappyPath(Result? trustResult = null)
+    private void SetupHappyPath()
     {
-        trustResult ??= Result.Success();
         _catalogResolver
             .Setup(r => r.ResolveAsync(It.IsAny<CreateContributionCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildCatalogs());
@@ -120,8 +120,8 @@ public class CreateContributionCommandHandlerTests
             .ReturnsAsync(Result.Success());
         _taxCalculator.Setup(t => t.ComputeAsync(false, true, 1000m, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TaxResult(1, 2, 3m, "name"));
-        _trustCreator.Setup(t => t.CreateAsync(It.IsAny<TrustCreationDto>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(trustResult);
+        _eventBus.Setup(e => e.PublishAsync(It.IsAny<IntegrationEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     [Fact]
@@ -236,26 +236,8 @@ public class CreateContributionCommandHandlerTests
         // assert
         result.IsSuccess.Should().BeFalse();
         AssertionExtensions.Should(result.Error).Be(error);
-        _trustCreator.Verify(t => t.CreateAsync(It.IsAny<TrustCreationDto>(), It.IsAny<CancellationToken>()),
+        _eventBus.Verify(e => e.PublishAsync(It.IsAny<IntegrationEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_Should_Return_Error_When_TrustCreator_Fails()
-    {
-        // arrange
-        var trustErr = Error.Conflict("T", "fail");
-        SetupHappyPath(Result.Failure(trustErr));
-        var handler = BuildHandler();
-        var command = BuildCommand();
-
-        // act
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        // assert
-        result.IsSuccess.Should().BeFalse();
-        AssertionExtensions.Should(result.Error).Be(trustErr);
-        _tx.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]

@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Application.Auth;
+using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Infrastructure.Auth.Policy;
 using Common.SharedKernel.Infrastructure.Configuration;
@@ -95,6 +96,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<DatabaseConnectionContext>();
         services.AddSingleton<ICapRpcClient, CapRpcClient>();
         services.AddSingleton<CapCallbackSubscriber>();
+        services.AddScoped<IEventBus, Common.SharedKernel.Infrastructure.EventBus.EventBus>();
 
         return services;
     }
@@ -119,7 +121,7 @@ public static class InfrastructureConfiguration
         });
 
         app.UseCors("AllowSwaggerUI");
-        
+
         return app;
     }
 }

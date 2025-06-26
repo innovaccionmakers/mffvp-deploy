@@ -42,6 +42,7 @@ public static class RulesEngineServiceCollectionExtensions
         });
 
         services.AddScoped<IRuleEvaluator<TModule>, RuleEvaluator<TModule>>();
+        services.AddScoped<IInternalRuleEvaluator<TModule>, InternalRuleEvaluator<TModule>>();
 
         return services;
     }

@@ -15,6 +15,7 @@ using Trusts.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Trusts.Infrastructure.Trusts;
 using Trusts.IntegrationEvents.CreateTrust;
+using Trusts.IntegrationEvents.CreateTrustRequested;
 
 namespace Trusts.Infrastructure;
 
@@ -60,6 +61,7 @@ public static class TrustsModule
             (IConfigurationParameterLookupRepository<TrustsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<TrustsModuleMarker>, ErrorCatalog<TrustsModuleMarker>>();
         services.AddScoped<CreateTrustConsumer>();
+        services.AddScoped<CreateTrustRequestedConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());
     }

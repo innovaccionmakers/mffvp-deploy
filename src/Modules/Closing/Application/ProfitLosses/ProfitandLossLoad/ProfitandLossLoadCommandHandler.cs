@@ -14,7 +14,7 @@ internal sealed class ProfitandLossLoadCommandHandler(
     IProfitLossConceptRepository conceptRepository,
     IProfitLossRepository profitLossRepository,
     IPortfolioValidator portfolioValidator,
-    IRuleEvaluator<ClosingModuleMarker> ruleEvaluator,
+    IInternalRuleEvaluator<ClosingModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork)
     : ICommandHandler<ProfitandLossLoadCommand, bool>
 {
@@ -33,24 +33,19 @@ internal sealed class ProfitandLossLoadCommandHandler(
         var profitLossConcepts = await conceptRepository
             .FindByNamesAsync(conceptNames, cancellationToken);
 
-        if (profitLossConcepts.Count != conceptNames.Length)
-        {
-            var missingConceptNames = conceptNames.Except(profitLossConcepts.Select(c => c.Concept));
-            return Result.Failure<bool>(Error.Validation(
-                "Concept.NotFound",
-                $"No existen los conceptos: {string.Join(", ", missingConceptNames)}"));
-        }
-
         var ruleContext = new
         {
             command.EffectiveDate,
+            RequestedConceptNames = conceptNames,
             Concepts = profitLossConcepts.Select(c => new
             {
                 c.ProfitLossConceptId,
                 c.Concept,
                 c.Nature,
                 c.AllowNegative,
-                Amount = command.ConceptAmounts[c.Concept]
+                Amount = command.ConceptAmounts[c.Concept],
+                IsIncome = c.Nature == ProfitLossNature.Income,
+                IsExpense = c.Nature == ProfitLossNature.Expense
             }).ToArray()
         };
 
@@ -66,20 +61,24 @@ internal sealed class ProfitandLossLoadCommandHandler(
             .DeleteByPortfolioAndDateAsync(command.PortfolioId, command.EffectiveDate, cancellationToken);
 
         var processDateUtc = DateTime.UtcNow;
+        var effectiveDateUtc =
+            command.EffectiveDate.Kind == DateTimeKind.Unspecified
+                ? DateTime.SpecifyKind(command.EffectiveDate, DateTimeKind.Utc)
+                : command.EffectiveDate.ToUniversalTime();
         var profitLossEntries = ruleContext.Concepts.Select(item =>
             ProfitLoss.Create(
                 command.PortfolioId,
                 processDateUtc,
-                command.EffectiveDate,
+                effectiveDateUtc,
                 item.ProfitLossConceptId,
                 item.Amount,
-                "Externa").Value);
+                "Externa").Value).ToArray();
 
         profitLossRepository.InsertRange(profitLossEntries);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return Result.Success(true);
+        return Result.Success(true, "La operacion se realizo exitosamente.");
     }
 }
