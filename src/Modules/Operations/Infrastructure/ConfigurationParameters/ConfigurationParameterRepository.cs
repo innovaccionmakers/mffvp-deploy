@@ -76,4 +76,19 @@ internal sealed class ConfigurationParameterRepository :
             .Where(cp => cp.Type == type.ToString() && cp.Status)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<ConfigurationParameter>> GetOriginModeByOriginIdAsync(int originId, CancellationToken cancellationToken = default)
+    {
+        return await context.ConfigurationParameters
+            .Join(
+                context.OriginModes,
+                    cp => cp.ConfigurationParameterId,
+                    om => om.ModalityOriginId,
+                    (cp, om) => new { cp, om }
+                )
+            .Where(x => x.om.OriginId == originId)
+            .Where(x => x.cp.Type == ConfigurationParameterType.ModalidadOrigen.ToString() && x.cp.Status)
+            .Select(x => x.cp)
+            .ToListAsync(cancellationToken);
+    }
 }

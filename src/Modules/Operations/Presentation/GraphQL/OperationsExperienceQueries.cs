@@ -64,9 +64,10 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
     }
 
     public async Task<IReadOnlyCollection<OriginModeDto>> GetOriginModesAsync(
+        int originId,
         CancellationToken cancellationToken = default)
     {
-        var result = await mediator.Send(new GetOriginModesQuery(), cancellationToken);
+        var result = await mediator.Send(new GetOriginModesQuery(originId), cancellationToken);
         if (!result.IsSuccess || result.Value == null)
         {
             throw new InvalidOperationException("Failed to retrieve origin modes.");
@@ -128,7 +129,7 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         }
         var originContributions = result.Value;
         return originContributions.Select(x => new OriginContributionDto(
-            x.OriginId.ToString(),
+            x.OriginId,
             x.Name
         )).ToList();
     }

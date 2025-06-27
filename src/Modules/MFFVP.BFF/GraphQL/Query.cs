@@ -45,9 +45,9 @@ public class Query
     }
 
     [GraphQLName("modalidadOrigen")]
-    public async Task<IReadOnlyCollection<OriginModeDto>> GetOriginModes([Service] IOperationsExperienceQueries operationsQueries, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<OriginModeDto>> GetOriginModes(int originId, [Service] IOperationsExperienceQueries operationsQueries, CancellationToken cancellationToken)
     {
-        return await operationsQueries.GetOriginModesAsync(cancellationToken);
+        return await operationsQueries.GetOriginModesAsync(originId, cancellationToken);
     }
 
     [GraphQLName("metodoRecaudo")]
