@@ -2,4 +2,6 @@
 
 namespace Operations.Integrations.ConfigurationParameters;
 
-public sealed record class GetOriginModesQuery : IQuery<IReadOnlyCollection<ConfigurationParameterResponse>>;
+public sealed record class GetOriginModesQuery(
+    int OriginId
+) : IQuery<IReadOnlyCollection<ConfigurationParameterResponse>>;

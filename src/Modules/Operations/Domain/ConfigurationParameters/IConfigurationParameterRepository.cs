@@ -21,4 +21,8 @@ public interface IConfigurationParameterRepository : IConfigurationParameterLook
     Task<IReadOnlyCollection<ConfigurationParameter>> GetActiveConfigurationParametersByTypeAsync(
         ConfigurationParameterType type,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<ConfigurationParameter>> GetOriginModeByOriginIdAsync(
+        int originId,
+        CancellationToken cancellationToken = default);
 }

@@ -9,8 +9,8 @@ public class GetOriginModesQueryHandler(IConfigurationParameterRepository reposi
 {
     public async Task<Result<IReadOnlyCollection<ConfigurationParameterResponse>>> Handle(GetOriginModesQuery request, CancellationToken cancellationToken)
     {
-        var list = await repository.GetActiveConfigurationParametersByTypeAsync(ConfigurationParameterType.ModalidadOrigen, cancellationToken);
-
+        var list = await repository.GetOriginModeByOriginIdAsync(request.OriginId, cancellationToken);
+        
         var response = list
             .Select(e => new ConfigurationParameterResponse(
                 e.ConfigurationParameterId.ToString(),

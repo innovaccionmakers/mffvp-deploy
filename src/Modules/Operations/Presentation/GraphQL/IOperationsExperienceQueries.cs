@@ -15,6 +15,7 @@ public interface IOperationsExperienceQueries
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<OriginModeDto>> GetOriginModesAsync(
+        int originId,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<CollectionMethodDto>> GetCollectionMethodsAsync(
