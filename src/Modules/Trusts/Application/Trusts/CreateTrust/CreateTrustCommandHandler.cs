@@ -30,7 +30,9 @@ internal sealed class CreateTrustCommandHandler(
             request.TaxCondition,
             request.ContingentWithholding,
             request.EarningsWithholding,
-            request.AvailableAmount
+            request.AvailableAmount,
+            request.AccumulatedEarnings,
+            request.Status
         );
 
         if (result.IsFailure) return Result.Failure<TrustResponse>(result.Error);
@@ -56,7 +58,9 @@ internal sealed class CreateTrustCommandHandler(
             trust.TaxCondition,
             trust.ContingentWithholding,
             trust.EarningsWithholding,
-            trust.AvailableAmount
+            trust.AvailableAmount,
+            trust.AccumulatedEarnings,
+            trust.Status
         );
     }
 }

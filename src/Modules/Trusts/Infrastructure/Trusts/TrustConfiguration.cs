@@ -36,5 +36,9 @@ internal sealed class TrustConfiguration : IEntityTypeConfiguration<Trust>
         builder.Property(x => x.AvailableAmount)
             .HasColumnName("disponible")
             .HasColumnType("decimal(19, 2)");
+        builder.Property(x => x.AccumulatedEarnings)
+            .HasColumnName("rendimiento_acumulado")
+            .HasColumnType("decimal(19, 2)");
+        builder.Property(x => x.Status).HasColumnName("estado");
     }
 }

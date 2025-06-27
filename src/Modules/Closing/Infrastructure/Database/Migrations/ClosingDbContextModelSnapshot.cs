@@ -24,6 +24,114 @@ namespace Closing.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Closing.Domain.ClientOperations.ClientOperation", b =>
+                {
+                    b.Property<long>("ClientOperationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ClientOperationId"));
+
+                    b.Property<int>("AffiliateId")
+                        .HasColumnType("integer")
+                        .HasColumnName("afiliado_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("valor");
+
+                    b.Property<DateTime>("ApplicationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_aplicacion");
+
+                    b.Property<DateTime>("FilingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_radicacion");
+
+                    b.Property<int>("ObjectiveId")
+                        .HasColumnType("integer")
+                        .HasColumnName("objetivo_id");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portafolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<long>("TransactionSubtypeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("subtipo_transaccion_id");
+
+                    b.HasKey("ClientOperationId");
+
+                    b.ToTable("operaciones_cliente", "cierre");
+                });
+
+            modelBuilder.Entity("Closing.Domain.PortfolioValuations.PortfolioValuation", b =>
+                {
+                    b.Property<long>("PortfolioValuationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PortfolioValuationId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("valor");
+
+                    b.Property<DateTime>("ClosingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_cierre");
+
+                    b.Property<decimal>("CostPerUnit")
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("costo_unidad");
+
+                    b.Property<decimal>("DailyProfitability")
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("rentabilidad_diaria");
+
+                    b.Property<decimal>("GrossYieldPerUnit")
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("rendimiento_bruto_unidad");
+
+                    b.Property<decimal>("IncomingOperations")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("operaciones_entrada");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("cerrado");
+
+                    b.Property<decimal>("OutgoingOperations")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("operaciones_salida");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portafolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("date")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<decimal>("UnitValue")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("valor_unidad");
+
+                    b.Property<decimal>("Units")
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("unidades");
+
+                    b.HasKey("PortfolioValuationId");
+
+                    b.ToTable("valoracion_portafolio", "cierre");
+                });
+
             modelBuilder.Entity("Closing.Domain.ProfitLossConcepts.ProfitLossConcept", b =>
                 {
                     b.Property<long>("ProfitLossConceptId")
@@ -88,7 +196,196 @@ namespace Closing.Infrastructure.Database.Migrations
 
                     b.HasKey("ProfitLossId");
 
+                    b.HasIndex("ProfitLossConceptId");
+
                     b.ToTable("pyg", "cierre");
+                });
+
+            modelBuilder.Entity("Closing.Domain.TrustYields.TrustYield", b =>
+                {
+                    b.Property<long>("TrustYieldId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TrustYieldId"));
+
+                    b.Property<decimal>("Capital")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("capital");
+
+                    b.Property<decimal>("ClosingBalance")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("saldo_cierre");
+
+                    b.Property<DateTime>("ClosingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_cierre");
+
+                    b.Property<decimal>("Commissions")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("comisiones");
+
+                    b.Property<decimal>("ContingentRetention")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("retencion_contingente");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("costo");
+
+                    b.Property<decimal>("Expenses")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("gastos");
+
+                    b.Property<decimal>("Income")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("ingresos");
+
+                    b.Property<decimal>("Participation")
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("participacion");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portafolio_id");
+
+                    b.Property<decimal>("PreClosingBalance")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("saldo_precierre");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<int>("TrustId")
+                        .HasColumnType("integer")
+                        .HasColumnName("fideicomiso_id");
+
+                    b.Property<decimal>("Units")
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("unidades");
+
+                    b.Property<decimal>("YieldAmount")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("rendimientos");
+
+                    b.Property<decimal>("YieldRetention")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("retencion_rendimiento");
+
+                    b.HasKey("TrustYieldId");
+
+                    b.ToTable("rendimientos_fideicomisos", "cierre");
+                });
+
+            modelBuilder.Entity("Closing.Domain.YieldDetails.YieldDetail", b =>
+                {
+                    b.Property<long>("YieldDetailId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("YieldDetailId"));
+
+                    b.Property<DateTime>("ClosingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_cierre");
+
+                    b.Property<decimal>("Commissions")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("comisiones");
+
+                    b.Property<JsonDocument>("Concept")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("concepto");
+
+                    b.Property<decimal>("Expenses")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("gastos");
+
+                    b.Property<decimal>("Income")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("ingresos");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("cerrado");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portafolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("fuente");
+
+                    b.Property<long>("YieldId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("rendimiento_id");
+
+                    b.HasKey("YieldDetailId");
+
+                    b.HasIndex("YieldId");
+
+                    b.ToTable("detalle_rendimientos", "cierre");
+                });
+
+            modelBuilder.Entity("Closing.Domain.Yields.Yield", b =>
+                {
+                    b.Property<long>("YieldId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("YieldId"));
+
+                    b.Property<DateTime>("ClosingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_cierre");
+
+                    b.Property<decimal>("Commissions")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("comisiones");
+
+                    b.Property<decimal>("Costs")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("costos");
+
+                    b.Property<decimal>("Expenses")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("gastos");
+
+                    b.Property<decimal>("Income")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("ingresos");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("cerrado");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portafolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<decimal>("YieldToCredit")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("rendimientos_abonar");
+
+                    b.HasKey("YieldId");
+
+                    b.ToTable("rendimientos", "cierre");
                 });
 
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
@@ -162,6 +459,28 @@ namespace Closing.Infrastructure.Database.Migrations
                     b.ToTable("parametros_configuracion", "cierre");
                 });
 
+            modelBuilder.Entity("Closing.Domain.ProfitLosses.ProfitLoss", b =>
+                {
+                    b.HasOne("Closing.Domain.ProfitLossConcepts.ProfitLossConcept", "ProfitLossConcept")
+                        .WithMany("ProfitLosses")
+                        .HasForeignKey("ProfitLossConceptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProfitLossConcept");
+                });
+
+            modelBuilder.Entity("Closing.Domain.YieldDetails.YieldDetail", b =>
+                {
+                    b.HasOne("Closing.Domain.Yields.Yield", "Yield")
+                        .WithMany("YieldDetails")
+                        .HasForeignKey("YieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Yield");
+                });
+
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.HasOne("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", "Parent")
@@ -170,6 +489,16 @@ namespace Closing.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Closing.Domain.ProfitLossConcepts.ProfitLossConcept", b =>
+                {
+                    b.Navigation("ProfitLosses");
+                });
+
+            modelBuilder.Entity("Closing.Domain.Yields.Yield", b =>
+                {
+                    b.Navigation("YieldDetails");
                 });
 
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>

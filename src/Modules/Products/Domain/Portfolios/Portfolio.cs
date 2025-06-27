@@ -1,5 +1,7 @@
 using Common.SharedKernel.Domain;
 using Products.Domain.AlternativePortfolios;
+using Products.Domain.Commissions;
+using Products.Domain.PortfolioValuations;
 
 namespace Products.Domain.Portfolios;
 
@@ -19,6 +21,12 @@ public sealed class Portfolio : Entity
 
     private readonly List<AlternativePortfolio> _alternatives = new();
     public IReadOnlyCollection<AlternativePortfolio> Alternatives => _alternatives;
+
+    private readonly List<Commission> _commissions = new();
+    public IReadOnlyCollection<Commission> Commissions => _commissions;
+
+    private readonly List<PortfolioValuation> _portfolioValuations = new();
+    public IReadOnlyCollection<PortfolioValuation> PortfolioValuations => _portfolioValuations;
 
     private Portfolio()
     {

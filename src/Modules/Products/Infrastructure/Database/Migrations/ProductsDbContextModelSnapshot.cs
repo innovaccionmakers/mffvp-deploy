@@ -95,6 +95,57 @@ namespace Products.Infrastructure.Database.Migrations
                     b.ToTable("parametros_configuracion", "productos");
                 });
 
+            modelBuilder.Entity("Products.Domain.AccumulatedCommissions.AccumulatedCommission", b =>
+                {
+                    b.Property<int>("AccumulatedCommissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AccumulatedCommissionId"));
+
+                    b.Property<decimal>("AccumulatedValue")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
+                        .HasColumnName("valor_acumulado");
+
+                    b.Property<DateTime>("CloseDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_cierre");
+
+                    b.Property<int>("CommissionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("comisiones_id");
+
+                    b.Property<decimal>("PaidValue")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
+                        .HasColumnName("valor_pagado");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_pago");
+
+                    b.Property<decimal>("PendingValue")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
+                        .HasColumnName("valor_pendiente");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portfolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.HasKey("AccumulatedCommissionId");
+
+                    b.HasIndex("CommissionId");
+
+                    b.ToTable("comisiones_acumuladas", "productos");
+                });
+
             modelBuilder.Entity("Products.Domain.AlternativePortfolios.AlternativePortfolio", b =>
                 {
                     b.Property<int>("AlternativePortfolioId")
@@ -204,6 +255,71 @@ namespace Products.Infrastructure.Database.Migrations
                     b.HasKey("CommercialId");
 
                     b.ToTable("comerciales", "productos");
+                });
+
+            modelBuilder.Entity("Products.Domain.Commissions.Commission", b =>
+                {
+                    b.Property<int>("CommissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CommissionId"));
+
+                    b.Property<string>("CalculationBase")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("base_calculo");
+
+                    b.Property<string>("CalculationRule")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("regla_calculo");
+
+                    b.Property<string>("CommissionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("tipo_comision");
+
+                    b.Property<string>("Concept")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("concepto");
+
+                    b.Property<string>("Modality")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modalidad");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("periodo");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portfolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("activo");
+
+                    b.HasKey("CommissionId");
+
+                    b.HasIndex("PortfolioId");
+
+                    b.ToTable("comisiones", "productos");
                 });
 
             modelBuilder.Entity("Products.Domain.Objectives.Objective", b =>
@@ -407,6 +523,74 @@ namespace Products.Infrastructure.Database.Migrations
                     b.ToTable("planes", "productos");
                 });
 
+            modelBuilder.Entity("Products.Domain.PortfolioValuations.PortfolioValuation", b =>
+                {
+                    b.Property<int>("PortfolioValuationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PortfolioValuationId"));
+
+                    b.Property<DateTime>("CloseDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_cierre");
+
+                    b.Property<decimal>("DailyYield")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
+                        .HasColumnName("rentabilidad_diaria");
+
+                    b.Property<decimal>("GrossYieldUnits")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
+                        .HasColumnName("rendimiento_bruto_unidad");
+
+                    b.Property<decimal>("IncomingOperations")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
+                        .HasColumnName("operaciones_entrada");
+
+                    b.Property<decimal>("OutgoingOperations")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
+                        .HasColumnName("operaciones_salida");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portfolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<decimal>("UnitCost")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
+                        .HasColumnName("costo_unidad");
+
+                    b.Property<decimal>("UnitValue")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
+                        .HasColumnName("valor_unidad");
+
+                    b.Property<decimal>("Units")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
+                        .HasColumnName("unidades");
+
+                    b.Property<decimal>("Value")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
+                        .HasColumnName("valor");
+
+                    b.HasKey("PortfolioValuationId");
+
+                    b.HasIndex("PortfolioId");
+
+                    b.ToTable("valoracion_portafolio_dia", "productos");
+                });
+
             modelBuilder.Entity("Products.Domain.Portfolios.Portfolio", b =>
                 {
                     b.Property<int>("PortfolioId")
@@ -475,6 +659,17 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Products.Domain.AccumulatedCommissions.AccumulatedCommission", b =>
+                {
+                    b.HasOne("Products.Domain.Commissions.Commission", "Commission")
+                        .WithMany("AccumulatedCommissions")
+                        .HasForeignKey("CommissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Commission");
+                });
+
             modelBuilder.Entity("Products.Domain.AlternativePortfolios.AlternativePortfolio", b =>
                 {
                     b.HasOne("Products.Domain.Alternatives.Alternative", "Alternative")
@@ -503,6 +698,17 @@ namespace Products.Infrastructure.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("PlanFund");
+                });
+
+            modelBuilder.Entity("Products.Domain.Commissions.Commission", b =>
+                {
+                    b.HasOne("Products.Domain.Portfolios.Portfolio", "Portfolio")
+                        .WithMany("Commissions")
+                        .HasForeignKey("PortfolioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Portfolio");
                 });
 
             modelBuilder.Entity("Products.Domain.Objectives.Objective", b =>
@@ -543,6 +749,17 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Navigation("Plan");
                 });
 
+            modelBuilder.Entity("Products.Domain.PortfolioValuations.PortfolioValuation", b =>
+                {
+                    b.HasOne("Products.Domain.Portfolios.Portfolio", "Portfolio")
+                        .WithMany("PortfolioValuations")
+                        .HasForeignKey("PortfolioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Portfolio");
+                });
+
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Navigation("Children");
@@ -553,6 +770,11 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Navigation("Objectives");
 
                     b.Navigation("Portfolios");
+                });
+
+            modelBuilder.Entity("Products.Domain.Commissions.Commission", b =>
+                {
+                    b.Navigation("AccumulatedCommissions");
                 });
 
             modelBuilder.Entity("Products.Domain.PensionFunds.PensionFund", b =>
@@ -573,6 +795,10 @@ namespace Products.Infrastructure.Database.Migrations
             modelBuilder.Entity("Products.Domain.Portfolios.Portfolio", b =>
                 {
                     b.Navigation("Alternatives");
+
+                    b.Navigation("Commissions");
+
+                    b.Navigation("PortfolioValuations");
                 });
 #pragma warning restore 612, 618
         }

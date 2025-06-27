@@ -26,7 +26,15 @@ internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfoli
             .HasConversion(new EnumMemberValueConverter<Status>());
         builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologacion");
         builder.HasMany(p => p.Alternatives)
-            .WithOne(ap => ap.Portfolio)
-            .HasForeignKey(ap => ap.PortfolioId);
+    .WithOne(ap => ap.Portfolio)
+    .HasForeignKey(ap => ap.PortfolioId);
+
+        builder.HasMany(p => p.Commissions)
+    .WithOne(c => c.Portfolio)
+    .HasForeignKey(c => c.PortfolioId);
+
+        builder.HasMany(p => p.PortfolioValuations)
+            .WithOne(pv => pv.Portfolio)
+            .HasForeignKey(pv => pv.PortfolioId);
     }
 }

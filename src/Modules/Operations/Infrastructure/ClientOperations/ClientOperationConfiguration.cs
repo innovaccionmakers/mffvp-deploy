@@ -19,6 +19,7 @@ internal sealed class ClientOperationConfiguration : IEntityTypeConfiguration<Cl
         builder.Property(x => x.Amount).HasColumnName("valor");
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
         builder.Property(x => x.SubtransactionTypeId).HasColumnName("subtipo_transaccion_id");
+        builder.Property(x => x.ApplicationDate).HasColumnName("fecha_aplicacion");
 
         builder.HasOne(x => x.SubtransactionType)
             .WithMany(st => st.ClientOperations)
@@ -27,5 +28,9 @@ internal sealed class ClientOperationConfiguration : IEntityTypeConfiguration<Cl
         builder.HasOne(x => x.AuxiliaryInformation)
             .WithOne(ai => ai.ClientOperation)
             .HasForeignKey<AuxiliaryInformation>(ai => ai.ClientOperationId);
+
+        builder.HasMany(x => x.TrustOperations)
+            .WithOne(to => to.ClientOperation)
+            .HasForeignKey(to => to.ClientOperationId);
     }
 }

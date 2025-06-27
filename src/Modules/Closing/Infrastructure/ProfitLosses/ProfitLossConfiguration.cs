@@ -17,5 +17,9 @@ internal sealed class ProfitLossConfiguration : IEntityTypeConfiguration<ProfitL
         builder.Property(x => x.ProfitLossConceptId).HasColumnName("concepto_id");
         builder.Property(x => x.Amount).HasColumnName("valor").HasColumnType("decimal(19, 2)");
         builder.Property(x => x.Source).HasColumnName("fuente");
+        
+        builder.HasOne(x => x.ProfitLossConcept)
+            .WithMany(x => x.ProfitLosses)
+            .HasForeignKey(x => x.ProfitLossConceptId);
     }
 }
