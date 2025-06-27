@@ -195,6 +195,8 @@ internal sealed class CreateContributionCommandHandler(
             catalogs.Subtype?.SubtransactionTypeId ?? 0,
             DateTime.UtcNow).Value;
         clientOperationRepository.Insert(operation);
+        
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var aux = AuxiliaryInformation.Create(
             operation.ClientOperationId,
