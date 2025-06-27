@@ -11,6 +11,7 @@ public sealed class ProfitLoss : Entity
     public long ProfitLossConceptId { get; private set; }
     public decimal Amount { get; private set; }
     public string Source { get; private set; } = null!;
+    public ProfitLossConcepts.ProfitLossConcept? ProfitLossConcept { get; private set; }
 
     private ProfitLoss()
     {
@@ -34,7 +35,7 @@ public sealed class ProfitLoss : Entity
             Amount = amount,
             Source = source
         };
-        
+
         return Result.Success(profitLoss);
     }
 

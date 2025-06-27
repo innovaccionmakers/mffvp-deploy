@@ -22,12 +22,15 @@ public sealed class Trust : Entity
     public decimal ContingentWithholding { get; private set; }
     public decimal EarningsWithholding { get; private set; }
     public decimal AvailableAmount { get; private set; }
+    public decimal AccumulatedEarnings { get; private set; }
+    public bool Status { get; private set; }
 
     public static Result<Trust> Create(
-        int affiliateId, long clientOperationId, DateTime creationDate, int objectiveId, int portfolioId, 
-        decimal totalBalance, int totalUnits, decimal principal, decimal earnings, int taxCondition, 
-        decimal contingentWithholding, decimal earningsWithholding, decimal availableAmount
-    )
+    int affiliateId, long clientOperationId, DateTime creationDate, int objectiveId, int portfolioId,
+    decimal totalBalance, int totalUnits, decimal principal, decimal earnings, int taxCondition,
+    decimal contingentWithholding, decimal earningsWithholding, decimal availableAmount,
+    decimal accumulatedEarnings, bool status
+)
     {
         var trust = new Trust
         {
@@ -44,7 +47,9 @@ public sealed class Trust : Entity
             TaxCondition = taxCondition,
             ContingentWithholding = contingentWithholding,
             EarningsWithholding = earningsWithholding,
-            AvailableAmount = availableAmount
+            AvailableAmount = availableAmount,
+            AccumulatedEarnings = accumulatedEarnings,
+            Status = status
         };
 
         trust.Raise(new TrustCreatedDomainEvent(trust.TrustId));
@@ -54,7 +59,8 @@ public sealed class Trust : Entity
     public void UpdateDetails(
         int newAffiliateId, long newClientOperationId, DateTime newCreationDate, int newObjectiveId, int newPortfolioId,
         decimal newTotalBalance, int newTotalUnits, decimal newPrincipal, decimal newEarnings, int newTaxCondition,
-        decimal newContingentWithholding, decimal newEarningsWithholding, decimal newAvailableAmount
+        decimal newContingentWithholding, decimal newEarningsWithholding, decimal newAvailableAmount,
+        decimal newAccumulatedEarnings, bool newStatus
     )
     {
         AffiliateId = newAffiliateId;
@@ -70,5 +76,7 @@ public sealed class Trust : Entity
         ContingentWithholding = newContingentWithholding;
         EarningsWithholding = newEarningsWithholding;
         AvailableAmount = newAvailableAmount;
+        AccumulatedEarnings = newAccumulatedEarnings;
+        Status = newStatus;
     }
 }

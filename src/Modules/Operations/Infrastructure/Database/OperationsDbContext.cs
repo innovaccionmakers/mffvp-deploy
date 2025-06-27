@@ -14,14 +14,14 @@ using Operations.Domain.Banks;
 using Operations.Domain.OriginModes;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
-using Operations.Domain.TrustWithdrawals;
+using Operations.Domain.TrustOperations;
 using Operations.Infrastructure.AuxiliaryInformations;
 using Operations.Infrastructure.Banks;
 using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.OriginModes;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.SubtransactionTypes;
-using Operations.Infrastructure.TrustWithdrawals;
+using Operations.Infrastructure.TrustOperations;
 
 namespace Operations.Infrastructure.Database;
 
@@ -31,7 +31,7 @@ public sealed class OperationsDbContext(DbContextOptions<OperationsDbContext> op
     internal DbSet<ClientOperation> ClientOperations { get; set; }
     internal DbSet<AuxiliaryInformation> AuxiliaryInformations { get; set; }
     internal DbSet<SubtransactionType> SubtransactionTypes { get; set; }
-    internal DbSet<TrustWithdrawalOperation> TrustWithdrawalOperations { get; set; }
+    internal DbSet<TrustOperation> TrustOperations { get; set; }
     internal DbSet<Origin> Origins { get; set; }
     internal DbSet<Channel> Channels { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
@@ -45,7 +45,7 @@ public sealed class OperationsDbContext(DbContextOptions<OperationsDbContext> op
         modelBuilder.ApplyConfiguration(new ClientOperationConfiguration());
         modelBuilder.ApplyConfiguration(new AuxiliaryInformationConfiguration());
         modelBuilder.ApplyConfiguration(new SubtransactionTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new TrustWithdrawalOperationConfiguration());
+        modelBuilder.ApplyConfiguration(new TrustOperationConfiguration());
         modelBuilder.ApplyConfiguration(new OriginConfiguration());
         modelBuilder.ApplyConfiguration(new ChannelConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.Operations));

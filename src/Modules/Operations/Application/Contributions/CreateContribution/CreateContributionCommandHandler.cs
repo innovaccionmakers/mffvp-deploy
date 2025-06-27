@@ -192,9 +192,10 @@ internal sealed class CreateContributionCommandHandler(
             remoteRes.Value.PortfolioId,
             command.Amount,
             DateTime.SpecifyKind(command.ExecutionDate, DateTimeKind.Utc),
-            catalogs.Subtype?.SubtransactionTypeId ?? 0).Value;
+            catalogs.Subtype?.SubtransactionTypeId ?? 0,
+            DateTime.UtcNow).Value;
         clientOperationRepository.Insert(operation);
-        
+
         var aux = AuxiliaryInformation.Create(
             operation.ClientOperationId,
             catalogs.Source!.OriginId,
@@ -230,7 +231,9 @@ internal sealed class CreateContributionCommandHandler(
             tax.TaxConditionId,
             tax.WithheldAmount,
             0m,
-            command.Amount);
+            command.Amount,
+            0m,
+            true);
 
         await eventBus.PublishAsync(createTrustEvent, cancellationToken);
 

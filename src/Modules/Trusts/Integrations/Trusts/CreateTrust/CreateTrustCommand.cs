@@ -15,5 +15,7 @@ public sealed record CreateTrustCommand(
     int TaxCondition,
     decimal ContingentWithholding,
     decimal EarningsWithholding,
-    decimal AvailableAmount
+    decimal AvailableAmount,
+    decimal AccumulatedEarnings,
+    bool Status
 ) : ICommand<TrustResponse>;

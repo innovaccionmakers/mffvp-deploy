@@ -281,6 +281,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("valor");
 
+                    b.Property<DateTime>("ApplicationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_aplicacion");
+
                     b.Property<int>("ObjectiveId")
                         .HasColumnType("integer")
                         .HasColumnName("objetivo_id");
@@ -416,32 +420,52 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.ToTable("subtipo_transacciones", "operaciones");
                 });
 
-            modelBuilder.Entity("Operations.Domain.TrustWithdrawals.TrustWithdrawalOperation", b =>
+            modelBuilder.Entity("Operations.Domain.TrustOperations.TrustOperation", b =>
                 {
-                    b.Property<long>("TrustWithdrawalOperationId")
+                    b.Property<long>("TrustOperationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TrustWithdrawalOperationId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TrustOperationId"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric")
                         .HasColumnName("valor");
 
+                    b.Property<DateTime>("ApplicationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_aplicacion");
+
                     b.Property<long>("ClientOperationId")
                         .HasColumnType("bigint")
                         .HasColumnName("operaciones_clientes_id");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portafolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<DateTime>("RegistrationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_radicacion");
+
+                    b.Property<long>("SubtransactionTypeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("subtipo_transaccion_id");
 
                     b.Property<long>("TrustId")
                         .HasColumnType("bigint")
                         .HasColumnName("fideicomiso_id");
 
-                    b.HasKey("TrustWithdrawalOperationId");
+                    b.HasKey("TrustOperationId");
 
                     b.HasIndex("ClientOperationId");
 
-                    b.ToTable("operaciones_retiro_fideicomiso", "operaciones");
+                    b.ToTable("operaciones_fideicomiso", "operaciones");
                 });
 
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
@@ -511,10 +535,10 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Navigation("Origin");
                 });
 
-            modelBuilder.Entity("Operations.Domain.TrustWithdrawals.TrustWithdrawalOperation", b =>
+            modelBuilder.Entity("Operations.Domain.TrustOperations.TrustOperation", b =>
                 {
                     b.HasOne("Operations.Domain.ClientOperations.ClientOperation", "ClientOperation")
-                        .WithMany("TrustWithdrawals")
+                        .WithMany("TrustOperations")
                         .HasForeignKey("ClientOperationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -542,7 +566,7 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Navigation("AuxiliaryInformation")
                         .IsRequired();
 
-                    b.Navigation("TrustWithdrawals");
+                    b.Navigation("TrustOperations");
                 });
 
             modelBuilder.Entity("Operations.Domain.Origins.Origin", b =>

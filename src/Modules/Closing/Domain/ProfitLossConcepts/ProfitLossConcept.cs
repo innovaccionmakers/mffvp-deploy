@@ -8,6 +8,8 @@ public sealed class ProfitLossConcept : Entity
     public string Concept { get; private set; } = null!;
     public ProfitLossNature Nature { get; private set; }
     public bool AllowNegative { get; private set; }
+    
+    public ICollection<ProfitLosses.ProfitLoss> ProfitLosses { get; private set; } = [];
 
     private ProfitLossConcept()
     {
@@ -22,7 +24,7 @@ public sealed class ProfitLossConcept : Entity
             Nature = nature,
             AllowNegative = allowNegative
         };
-        
+
         return Result.Success(entity);
     }
 

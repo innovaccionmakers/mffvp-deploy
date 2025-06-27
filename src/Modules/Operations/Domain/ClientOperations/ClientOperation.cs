@@ -1,6 +1,6 @@
 using Common.SharedKernel.Domain;
 using Operations.Domain.AuxiliaryInformations;
-using Operations.Domain.TrustWithdrawals;
+using Operations.Domain.TrustOperations;
 using Operations.Domain.SubtransactionTypes;
 
 namespace Operations.Domain.ClientOperations;
@@ -15,10 +15,11 @@ public sealed class ClientOperation : Entity
     public decimal Amount { get; private set; }
     public DateTime ProcessDate { get; private set; }
     public long SubtransactionTypeId { get; private set; }
+    public DateTime ApplicationDate { get; private set; }
 
     public SubtransactionType SubtransactionType { get; private set; } = null!;
-    private readonly List<TrustWithdrawalOperation> _trustWithdrawals = new();
-    public IReadOnlyCollection<TrustWithdrawalOperation> TrustWithdrawals => _trustWithdrawals;
+    private readonly List<TrustOperation> _trustOperations = new();
+    public IReadOnlyCollection<TrustOperation> TrustOperations => _trustOperations;
 
     public AuxiliaryInformation AuxiliaryInformation { get; private set; } = null!;
 
@@ -33,7 +34,8 @@ public sealed class ClientOperation : Entity
         int portfolioId,
         decimal amount,
         DateTime processDate,
-        long subtransactionTypeId
+        long subtransactionTypeId,
+        DateTime applicationDate
     )
     {
         var clientOperation = new ClientOperation
@@ -45,7 +47,8 @@ public sealed class ClientOperation : Entity
             PortfolioId = portfolioId,
             Amount = amount,
             ProcessDate = processDate,
-            SubtransactionTypeId = subtransactionTypeId
+            SubtransactionTypeId = subtransactionTypeId,
+            ApplicationDate = applicationDate
         };
 
         clientOperation.Raise(new ClientOperationCreatedDomainEvent(clientOperation.ClientOperationId));
@@ -59,7 +62,8 @@ public sealed class ClientOperation : Entity
         int newPortfolioId,
         decimal newAmount,
         DateTime newProcessDate,
-        long newSubtransactionTypeId
+        long newSubtransactionTypeId,
+        DateTime newApplicationDate
     )
     {
         RegistrationDate = newRegistrationDate;
@@ -69,5 +73,6 @@ public sealed class ClientOperation : Entity
         Amount = newAmount;
         ProcessDate = newProcessDate;
         SubtransactionTypeId = newSubtransactionTypeId;
+        ApplicationDate = newApplicationDate;
     }
 }

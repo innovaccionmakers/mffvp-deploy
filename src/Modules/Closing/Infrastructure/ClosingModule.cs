@@ -65,7 +65,7 @@ public static class ClosingModule
 
 
         services.AddScoped<IPortfolioValidator, PortfolioValidator>();
-        
+
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
     }
 }

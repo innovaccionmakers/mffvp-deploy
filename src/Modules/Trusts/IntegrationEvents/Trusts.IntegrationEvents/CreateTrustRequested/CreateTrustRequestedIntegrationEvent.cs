@@ -17,7 +17,9 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
         int taxCondition,
         decimal contingentWithholding,
         decimal earningsWithholding,
-        decimal availableAmount)
+        decimal availableAmount,
+        decimal accumulatedEarnings,
+        bool status)
         : base(Guid.NewGuid(), DateTime.UtcNow)
     {
         AffiliateId = affiliateId;
@@ -33,6 +35,8 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
         ContingentWithholding = contingentWithholding;
         EarningsWithholding = earningsWithholding;
         AvailableAmount = availableAmount;
+        AccumulatedEarnings = accumulatedEarnings;
+        Status = status;
     }
 
     public int AffiliateId { get; init; }
@@ -48,4 +52,6 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
     public decimal ContingentWithholding { get; init; }
     public decimal EarningsWithholding { get; init; }
     public decimal AvailableAmount { get; init; }
+    public decimal AccumulatedEarnings { get; init; }
+    public bool Status { get; init; }
 }

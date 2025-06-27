@@ -24,7 +24,7 @@ namespace Trusts.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Trusts.Domain.ConfigurationParameters.ConfigurationParameter", b =>
+            modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Property<int>("ConfigurationParameterId")
                         .ValueGeneratedOnAdd()
@@ -104,6 +104,10 @@ namespace Trusts.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TrustId"));
 
+                    b.Property<decimal>("AccumulatedEarnings")
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("rendimiento_acumulado");
+
                     b.Property<int>("AffiliateId")
                         .HasColumnType("integer")
                         .HasColumnName("afiliado_id");
@@ -144,6 +148,10 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("capital");
 
+                    b.Property<bool>("Status")
+                        .HasColumnType("boolean")
+                        .HasColumnName("estado");
+
                     b.Property<int>("TaxCondition")
                         .HasColumnType("integer")
                         .HasColumnName("condicion_tributaria");
@@ -161,9 +169,9 @@ namespace Trusts.Infrastructure.Database.Migrations
                     b.ToTable("fideicomisos", "fideicomisos");
                 });
 
-            modelBuilder.Entity("Trusts.Domain.ConfigurationParameters.ConfigurationParameter", b =>
+            modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
-                    b.HasOne("Trusts.Domain.ConfigurationParameters.ConfigurationParameter", "Parent")
+                    b.HasOne("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -171,7 +179,7 @@ namespace Trusts.Infrastructure.Database.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Trusts.Domain.ConfigurationParameters.ConfigurationParameter", b =>
+            modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Navigation("Children");
                 });
