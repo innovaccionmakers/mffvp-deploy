@@ -1,3 +1,5 @@
+using Common.SharedKernel.Domain;
+
 namespace Customers.Domain.People;
 
 public interface IPersonRepository
@@ -16,4 +18,8 @@ public interface IPersonRepository
         CancellationToken cancellationToken = default);
 
     Task<bool?> GetExistingHomologatedCode(string homologatedCode, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<Person>> GetByFilterAsync(string identificationType,
+                                                       SearchByType? searchBy = null,
+                                                       string? text = null,
+                                                       CancellationToken cancellationToken = default);
 }

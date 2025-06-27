@@ -1,16 +1,11 @@
-﻿namespace Operations.Presentation.DTOs;
+﻿using HotChocolate;
 
+namespace Operations.Presentation.DTOs;
+
+[GraphQLName("TipoTransaccion")]
 public record TransactionTypeDto(
-    string Uuid,
-    string Name,
-    bool Status,
-    string HomologationCode,
-    List<TransactionSubtypesDto> Subtypes
+    [property: GraphQLName("uuid")] Guid Uuid,
+    [property: GraphQLName("nombre")] string Name,
+    [property: GraphQLName("estado")] bool Status,
+    [property: GraphQLName("codigoHomologado")] string HomologationCode
 );
-
-public record TransactionSubtypesDto(
-    string Id,
-    string Name,
-    string HomologationCode
-);
-

@@ -1,8 +1,11 @@
-﻿namespace Products.Presentation.DTOs;
+﻿using HotChocolate;
 
+namespace Products.Presentation.DTOs;
+
+[GraphQLName("TipoDocumento")]
 public record DocumentTypeDto(
-    string Uuid,
-    string Name,
-    bool Status,
-    string HomologationCode
+    [property: GraphQLName("uuid")] Guid Uuid,
+    [property: GraphQLName("nombre")] string Name,
+    [property: GraphQLName("estado")] bool Status,
+    [property: GraphQLName("codigoHomologado")] string HomologationCode
 );

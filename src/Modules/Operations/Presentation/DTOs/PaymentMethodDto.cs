@@ -1,9 +1,14 @@
-﻿namespace Operations.Presentation.DTOs;
+﻿using HotChocolate;
 
+namespace Operations.Presentation.DTOs;
+
+
+[GraphQLName("MetodoPago")]
 public record PaymentMethodDto(
-    string Uuid,
-    string Name,
-    bool Status,
-    string HomologationCode
+    [property: GraphQLName("uuid")] Guid Uuid,
+    [property: GraphQLName("nombre")] string Name,
+    [property: GraphQLName("estado")] bool Status,
+    [property: GraphQLName("codigoHomologado")] string HomologationCode
 );
+
 

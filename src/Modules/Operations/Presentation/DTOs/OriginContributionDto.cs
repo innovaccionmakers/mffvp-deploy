@@ -1,6 +1,9 @@
-﻿namespace Operations.Presentation.DTOs;
+﻿using HotChocolate;
 
+namespace Operations.Presentation.DTOs;
+
+[GraphQLName("ContribucionOrigen")]
 public record OriginContributionDto(
-       string Id,
-       string Name
-    );
+    [property: GraphQLName("id")] string Id,
+    [property: GraphQLName("nombre")] string Name
+);

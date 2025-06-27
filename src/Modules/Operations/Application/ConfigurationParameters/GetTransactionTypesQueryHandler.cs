@@ -7,12 +7,21 @@ namespace Operations.Application.ConfigurationParameters;
 
 public class GetTransactionTypesQueryHandler(
     IConfigurationParameterRepository repository
-    ) : IQueryHandler<GetTransactionTypesQuery, IReadOnlyCollection<TransactionType>>
+    ) : IQueryHandler<GetTransactionTypesQuery, IReadOnlyCollection<ConfigurationParameterResponse>>
 {    
-    public async Task<Result<IReadOnlyCollection<TransactionType>>> Handle(GetTransactionTypesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<ConfigurationParameterResponse>>> Handle(GetTransactionTypesQuery request, CancellationToken cancellationToken)
     {
-        var list = await repository.GetTransactionTypesAsync(cancellationToken);
+        var list = await repository.GetActiveConfigurationParametersByTypeAsync(ConfigurationParameterType.TipoTransaccion, cancellationToken);
 
-        return Result.Success(list);
+        var response = list
+            .Select(e => new ConfigurationParameterResponse(
+                e.ConfigurationParameterId.ToString(),
+                e.Uuid,
+                e.Name,
+                e.HomologationCode,
+                e.Status))
+            .ToList();
+
+        return Result.Success<IReadOnlyCollection<ConfigurationParameterResponse>>(response);
     }
 }

@@ -36,6 +36,7 @@ using Operations.Infrastructure.External.ContributionValidation;
 using Operations.Infrastructure.External.Customers;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.SubtransactionTypes;
+using Operations.Presentation.GraphQL;
 
 namespace Operations.Infrastructure;
 
@@ -83,6 +84,7 @@ public static class OperationsModule
         services.AddScoped<ISubtransactionTypeRepository, SubtransactionTypeRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
         services.AddScoped<IBankRepository, BankRepository>();
+        services.AddScoped<IOperationsExperienceQueries, OperationsExperienceQueries>();
 
         services.AddScoped<IActivateLocator, ActivateLocator>();
         services.AddScoped<IContributionRemoteValidator, ContributionRemoteValidator>();

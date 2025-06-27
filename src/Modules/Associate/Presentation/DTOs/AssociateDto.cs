@@ -1,7 +1,6 @@
 ﻿namespace Associate.Presentation.DTOs;
 
-public sealed record AssociateDto(
-    string IdentificationType,
+public record AssociateDto(
     string Identification,
-    string FullName
+    string IdentificationType
 );

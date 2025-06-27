@@ -1,10 +1,6 @@
 using Customers.Domain.People;
 using Customers.Application.Abstractions.Data;
-using Xunit;
 using Moq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using FluentAssertions;
 using Common.SharedKernel.Domain;
 
