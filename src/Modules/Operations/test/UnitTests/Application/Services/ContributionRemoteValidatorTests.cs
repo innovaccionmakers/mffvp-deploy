@@ -33,7 +33,7 @@ public class ContributionRemoteValidatorTests
     [Fact]
     public async Task ValidateAsync_Should_Return_Data_When_Rpc_Succeeds()
     {
-        var rsp = new ContributionValidationResponse(true, null, null, 10, 20, 30, 50m, "name");
+        var rsp = new ContributionValidationResponse(true, null, null, 10, 20, 30, 50m, 25m, "name");
         ContributionValidationRequest? captured = null;
         _rpc.Setup(r => r.CallAsync<ContributionValidationRequest, ContributionValidationResponse>(
                 nameof(ContributionValidationRequest),
@@ -49,7 +49,7 @@ public class ContributionRemoteValidatorTests
         var result = await validator.ValidateAsync(1, 20, "P", deposit, exec, 100m, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().Be(new ContributionRemoteData(10, 20, 30, "name", 50m));
+        result.Value.Should().Be(new ContributionRemoteData(10, 20, 30, "name", 50m, 25m));
         captured!.ActivateId.Should().Be(1);
         captured.ObjectiveId.Should().Be(20);
         captured.PortfolioHomologatedCode.Should().Be("P");

@@ -84,6 +84,6 @@ internal sealed class ContributionValidationQueryHandler(
         }
 
         return Result.Success(new ContributionValidationResponse(true, request.ActivateId, request.ObjectiveId,
-            portfolio!.PortfolioId, portfolio.InitialMinimumAmount, portfolio.Name));
+            portfolio!.PortfolioId, portfolio.InitialMinimumAmount, portfolio.AdditionalMinimumAmount, portfolio.Name));
     }
 }
