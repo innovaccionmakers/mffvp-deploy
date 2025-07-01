@@ -30,7 +30,8 @@ internal sealed class ContributionRemoteValidator(ICapRpcClient rpc) : IContribu
                 rsp.ObjectiveId!.Value,
                 rsp.PortfolioId!.Value,
                 rsp.PortfolioName!,
-                rsp.PortfolioInitialMinimumAmount!.Value))
+                rsp.PortfolioInitialMinimumAmount!.Value,
+                rsp.PortfolioAdditionalMinimumAmount!.Value))
             : Result.Failure<ContributionRemoteData>(Error.Validation(rsp.Code, rsp.Message));
     }
 }

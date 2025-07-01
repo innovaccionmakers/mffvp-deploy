@@ -19,4 +19,5 @@ public readonly record struct ContributionRemoteData(
     int ObjectiveId,
     int PortfolioId,
     string PortfolioName,
-    decimal PortfolioInitialMinimumAmount);
+    decimal PortfolioInitialMinimumAmount,
+    decimal PortfolioAdditionalMinimumAmount);
