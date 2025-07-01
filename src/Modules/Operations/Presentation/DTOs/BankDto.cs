@@ -1,6 +1,9 @@
+using HotChocolate;
+
 namespace Operations.Presentation.DTOs;
 
 public record BankDto(
-    string BankId,
-    string Name
+    [property: GraphQLName("bancoId")] string BankId,
+    [property: GraphQLName("nombre")] string Name,
+    [property: GraphQLName("codigoHomologado")] string HomologationCode
 );

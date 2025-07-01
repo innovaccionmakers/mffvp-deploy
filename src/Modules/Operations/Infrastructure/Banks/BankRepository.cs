@@ -17,10 +17,6 @@ internal sealed class BankRepository(OperationsDbContext context) : IBankReposit
 
     public async Task<IReadOnlyCollection<Bank>> GetBanksAsync(CancellationToken cancellationToken = default)
     {
-        return await context.Banks
-            .Select(dt => Bank.CreateforGraphql(
-                dt.BankId,
-                dt.Name
-            )).ToListAsync(cancellationToken);
+        return await context.Banks.ToListAsync(cancellationToken);
     }
 }

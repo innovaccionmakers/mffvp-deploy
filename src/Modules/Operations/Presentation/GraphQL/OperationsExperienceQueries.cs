@@ -150,7 +150,8 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
 
         return banks.Select(x => new BankDto(
             x.BankId.ToString(),
-            x.Name
+            x.Name,
+            x.HomologatedCode
         )).ToList();
 
     }
