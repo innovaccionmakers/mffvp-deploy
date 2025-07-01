@@ -130,7 +130,8 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         var originContributions = result.Value;
         return originContributions.Select(x => new OriginContributionDto(
             x.OriginId,
-            x.Name
+            x.Name,
+            x.HomologatedCode
         )).ToList();
     }
 
