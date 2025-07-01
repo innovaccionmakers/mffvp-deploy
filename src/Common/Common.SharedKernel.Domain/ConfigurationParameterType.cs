@@ -8,4 +8,5 @@ public enum ConfigurationParameterType
     ModalidadOrigen,
     MetodoRecaudo,
     FormaPago,
+    PorcentajeRetencionContingente
 }

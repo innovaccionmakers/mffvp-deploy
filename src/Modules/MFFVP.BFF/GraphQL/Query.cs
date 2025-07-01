@@ -28,6 +28,16 @@ public class Query
         return await productsQueries.GetPortfolioAsync(objetiveId, cancellationToken);
     }
 
+    [GraphQLName("objetivo")]
+    public async Task<IReadOnlyCollection<GoalDto>> GetGoals([GraphQLName("idTipo")] string typeId,
+                                                         [GraphQLName("identificacion")] string identification,
+                                                         [GraphQLName("estado")] StatusType status,
+                                                         [Service] IProductsExperienceQueries productsExperienceQueries,
+                                                         CancellationToken cancellationToken)
+    {
+        return await productsExperienceQueries.GetGoalsAsync(typeId, identification, status, cancellationToken);
+    }
+
     //Operations Queries
     [GraphQLName("tipoTransaccion")]
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypes([Service] IOperationsExperienceQueries operationsQueries,
@@ -99,13 +109,10 @@ public class Query
         return await experienceOrchestrator.GetAllAssociatesAsync(identificationType, searchBy, text, cancellationToken);
     }
 
-    [GraphQLName("objetivo")]
-    public async Task<IReadOnlyCollection<GoalDto>> GetGoals([GraphQLName("idTipo")] string typeId,
-                                                             [GraphQLName("identificacion")] string identification,
-                                                             [GraphQLName("estado")]  StatusType status,
-                                                             [Service] IProductsExperienceQueries productsExperienceQueries,
-                                                             CancellationToken cancellationToken)
+    [GraphQLName("retencionContingente")]
+    public async Task<string> GetWithholdingContingency([Service] IOperationsExperienceQueries operationsQueries,
+                                                                             CancellationToken cancellationToken)
     {
-        return await productsExperienceQueries.GetGoalsAsync(typeId, identification, status, cancellationToken);
+        return await operationsQueries.GetWithholdingContingencyAsync(cancellationToken);
     }
 }

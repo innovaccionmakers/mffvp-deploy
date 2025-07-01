@@ -156,4 +156,16 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         )).ToList();
 
     }
+
+    public async Task<string> GetWithholdingContingencyAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetWithholdingContingencyQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve withholding contingency.");
+        }
+
+        return result.Value;
+    }
 }

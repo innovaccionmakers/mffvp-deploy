@@ -28,4 +28,7 @@ public interface IOperationsExperienceQueries
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<BankDto>> GetBanksAsync(CancellationToken cancellationToken = default);
+
+    Task<string> GetWithholdingContingencyAsync(
+        CancellationToken cancellationToken = default);
 }
