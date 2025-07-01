@@ -144,6 +144,14 @@
         }
       },
       {
+        "RuleName": "AdditionalContribution_MinimumAmount",
+        "ErrorMessage": "Los aportes adicionales deben ser mayor o igual al monto mínimo adicional del portafolio.",
+        "Expression": "input.IsFirstContribution == true || input.Amount >= input.PortfolioAdditionalMinimumAmount",
+        "Properties": {
+          "errorCode": "e32ef4fe-39ab-40d2-9036-e181dc255745"
+        }
+      },
+      {
         "RuleName": "ContributionSourceNotHomologated",
         "ErrorMessage": "El código homologado del Origen no existe",
         "Expression": "input.ContributionSourceExists",

@@ -6,5 +6,6 @@ public sealed record ContributionValidationResponse(
     int? ObjectiveId,
     int? PortfolioId,
     decimal? PortfolioInitialMinimumAmount,
+    decimal? PortfolioAdditionalMinimumAmount,
     string? PortfolioName
 );

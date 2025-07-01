@@ -11,19 +11,19 @@
         }
       },
       {
-        "RuleName": "PortfolioBelongsToObjectiveAlternative",
-        "ErrorMessage": "El portafolio no pertenece a la alternativa del objetivo.",
-        "Expression": "input.IsPortfolioCodeProvided == false || input.PortfolioBelongsToObjectiveAlternative == true",
-        "Properties": {
-          "errorCode": "f95e55a4-b96f-4499-a6af-da8fb63a8a75"
-        }
-      },
-      {
         "RuleName": "PortfolioStandardCodeExists",
         "ErrorMessage": "El código homologado del Portafolio no existe.",
         "Expression": "input.ExistsByStandardCode != null",
         "Properties": {
           "errorCode": "3ac5cff3-bbea-4dd1-a16f-1ad1c9426958"
+        }
+      },
+      {
+        "RuleName": "PortfolioBelongsToObjectiveAlternative",
+        "ErrorMessage": "El portafolio no pertenece a la alternativa del objetivo.",
+        "Expression": "input.IsPortfolioCodeProvided == false || input.PortfolioBelongsToObjectiveAlternative == true",
+        "Properties": {
+          "errorCode": "f95e55a4-b96f-4499-a6af-da8fb63a8a75"
         }
       },
       {

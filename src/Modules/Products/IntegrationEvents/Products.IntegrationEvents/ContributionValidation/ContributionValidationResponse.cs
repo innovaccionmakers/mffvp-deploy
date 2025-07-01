@@ -8,5 +8,6 @@ public sealed record ContributionValidationResponse(
     int? ObjectiveId = null,
     int? PortfolioId = null,
     decimal? PortfolioInitialMinimumAmount = null,
+    decimal? PortfolioAdditionalMinimumAmount = null,
     string? PortfolioName = null
 );

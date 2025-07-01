@@ -103,7 +103,8 @@ internal sealed class CreateContributionCommandHandler(
                 ObjectiveId: command.ObjectiveId,
                 PortfolioId: 0,
                 PortfolioName: string.Empty,
-                PortfolioInitialMinimumAmount: 0));
+                PortfolioInitialMinimumAmount: 0,
+                PortfolioAdditionalMinimumAmount: 0));
         }
 
         if (!remoteRes.IsSuccess)
@@ -143,6 +144,7 @@ internal sealed class CreateContributionCommandHandler(
             CollectionBankExists = bank is not null,
             IsFirstContribution = firstContribution,
             PortfolioInitialMinimumAmount = remoteRes.Value.PortfolioInitialMinimumAmount,
+            PortfolioAdditionalMinimumAmount = remoteRes.Value.PortfolioAdditionalMinimumAmount,
             Amount = command.Amount,
             CertifiedContributionProvided = !string.IsNullOrWhiteSpace(command.CertifiedContribution),
             CertifiedContributionValid = certifiedValid,
@@ -195,7 +197,7 @@ internal sealed class CreateContributionCommandHandler(
             catalogs.Subtype?.SubtransactionTypeId ?? 0,
             DateTime.UtcNow).Value;
         clientOperationRepository.Insert(operation);
-        
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var aux = AuxiliaryInformation.Create(

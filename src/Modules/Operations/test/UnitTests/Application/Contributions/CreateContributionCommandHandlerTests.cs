@@ -108,7 +108,7 @@ public class CreateContributionCommandHandlerTests
             .ReturnsAsync(Result.Success((true, 1, false)));
         _remoteValidator.Setup(v => v.ValidateAsync(1, 10, "1", It.IsAny<DateTime>(), It.IsAny<DateTime>(), 1000m,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(new ContributionRemoteData(1, 10, 1, "port", 50m)));
+            .ReturnsAsync(Result.Success(new ContributionRemoteData(1, 10, 1, "port", 50m, 25m)));
         _operationRepo.Setup(r => r.ExistsContributionAsync(1, 10, 1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         _bankRepo.Setup(r => r.FindByHomologatedCodeAsync("BANK", It.IsAny<CancellationToken>()))
