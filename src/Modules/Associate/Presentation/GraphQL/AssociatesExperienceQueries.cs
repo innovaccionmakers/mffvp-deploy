@@ -17,7 +17,9 @@ public class AssociatesExperienceQueries(IMediator mediator) : IAssociatesExperi
 
         return associates.Select(x => new AssociateDto(
             x.Identification,
-            x.DocumentType.ToString()
+            x.DocumentType.ToString(),
+            x.ActivateId,
+            x.Pensioner
         )).ToList();
     }
 }

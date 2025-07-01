@@ -2,5 +2,7 @@
 
 public record AssociateDto(
     string Identification,
-    string IdentificationType
+    string IdentificationType,
+    int Id,
+    bool Pensioner
 );

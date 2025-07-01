@@ -130,7 +130,8 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         var originContributions = result.Value;
         return originContributions.Select(x => new OriginContributionDto(
             x.OriginId,
-            x.Name
+            x.Name,
+            x.HomologatedCode
         )).ToList();
     }
 
@@ -150,8 +151,21 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
 
         return banks.Select(x => new BankDto(
             x.BankId.ToString(),
-            x.Name
+            x.Name,
+            x.HomologatedCode
         )).ToList();
 
+    }
+
+    public async Task<string> GetWithholdingContingencyAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetWithholdingContingencyQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve withholding contingency.");
+        }
+
+        return result.Value;
     }
 }
