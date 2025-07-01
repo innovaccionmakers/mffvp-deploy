@@ -20,7 +20,11 @@ public class ModuleConfiguration : IModuleConfiguration
         // Configuración específica por ambiente
         if (configuration.GetValue("Development:IsEnabled", true))
         {
-            // Development configuration
+            services.AddDevelopmentConfiguration(configuration);
+        }
+        else
+        {
+            services.AddProductionConfiguration(configuration);
         }
     }
 

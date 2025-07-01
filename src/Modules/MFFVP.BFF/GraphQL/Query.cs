@@ -20,7 +20,7 @@ public class Query
         return await productsQueries.GetDocumentTypesAsync(cancellationToken);
     }
 
-    [GraphQLName("PortafolioPorObjetivo")]
+    [GraphQLName("portafolio")]
     public async Task<PortfolioDto> GetPortfolio(string objetiveId, [Service] IProductsExperienceQueries productsQueries, CancellationToken cancellationToken)
     {
         return await productsQueries.GetPortfolioAsync(objetiveId, cancellationToken);

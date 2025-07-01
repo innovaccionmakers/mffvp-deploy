@@ -15,8 +15,8 @@ public class ExperienceOrchestrator(IAssociatesExperienceQueries associatesQueri
         var associates = await associatesQueries.GetAllAssociatesAsync(cancellationToken);
 
         var associatePensioners = associates
-            .ToDictionary(a => a.Identification,
-            StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(a => a.Identification);
+
 
         var filteredPersons = persons
             .Where(p => associatePensioners.ContainsKey(p.Identification))
