@@ -1,5 +1,6 @@
 ﻿using Common.SharedKernel.Domain;
 using Customers.Presentation.DTOs;
+using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
@@ -77,7 +78,7 @@ public class Query
     }
 
     [GraphQLName("afilidado")]
-    public async Task<IReadOnlyCollection<PeopleDto>> GetAllAssociates(string identificationType,
+    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates(string identificationType,
                                                                        SearchByType? searchBy,
                                                                        string? text,
                                                                        [Service] ExperienceOrchestrator experienceOrchestrator,
