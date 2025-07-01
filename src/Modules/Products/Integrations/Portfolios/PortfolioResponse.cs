@@ -14,5 +14,7 @@ public sealed record PortfolioResponse(
     [property: JsonPropertyName("IdModalidad")]
     int ModalityId,
     [property: JsonPropertyName("MontoMinimoInicial")]
-    decimal InitialMinimumAmount
+    decimal InitialMinimumAmount,
+    [property: JsonPropertyName("FechaActual")]
+    DateTime CurrentDate
 );

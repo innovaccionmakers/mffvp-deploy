@@ -21,4 +21,19 @@ internal sealed class PortfolioValidator(ICapRpcClient rpc) : IPortfolioValidato
             ? Result.Success()
             : Result.Failure(Error.Validation(response.Code, response.Message));
     }
+
+    public async Task<Result<PortfolioData>> GetPortfolioDataAsync(int portfolioId, CancellationToken ct)
+    {
+        var response = await rpc.CallAsync<
+            GetPortfolioDataRequest,
+            GetPortfolioDataResponse>(
+            nameof(GetPortfolioDataRequest),
+            new GetPortfolioDataRequest(portfolioId),
+            TimeSpan.FromSeconds(5),
+            ct);
+
+        return response.IsValid
+            ? Result.Success(new PortfolioData(portfolioId, response.CurrentDate!.Value))
+            : Result.Failure<PortfolioData>(Error.Validation(response.Code, response.Message));
+    }
 }
