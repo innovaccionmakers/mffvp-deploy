@@ -1,5 +1,6 @@
 ﻿namespace Products.Presentation.GraphQL;
 
+using HotChocolate;
 using MediatR;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
 using Products.Integrations.Objectives.GetObjectives;
@@ -59,7 +60,20 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
 
         if (!result.IsSuccess || result.Value == null)
         {
-            throw new InvalidOperationException("Failed to retrieve goals.");
+            var error = new GoalError(
+                result.Error.Code,
+                result.Error.Type.ToString(),
+                result.Error.Description
+            );
+
+            throw new GraphQLException(
+                ErrorBuilder.New()
+                    .SetMessage(error.Description)
+                    .SetCode(error.Code)
+                    .SetExtension("type", error.Type)
+                    .SetExtension("description", error.Description)
+                    .Build()
+            );
         }
 
         var goals = result.Value;

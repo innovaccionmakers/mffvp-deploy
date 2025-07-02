@@ -1,7 +1,9 @@
-﻿namespace Products.Presentation.DTOs;
+﻿using HotChocolate;
+
+namespace Products.Presentation.DTOs;
 
 public record class GoalDto(
-    int Id,
-    string Name,
-    string Status
+    [property: GraphQLName("id")] int Id,
+    [property: GraphQLName("nombre")] string Name,
+    [property: GraphQLName("estado")] string Status
 );
