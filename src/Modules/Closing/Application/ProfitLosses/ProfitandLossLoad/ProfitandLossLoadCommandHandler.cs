@@ -24,10 +24,12 @@ internal sealed class ProfitandLossLoadCommandHandler(
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        var portfolioValidationResult = await portfolioValidator
-            .EnsureExistsAsync(command.PortfolioId, cancellationToken);
-        if (!portfolioValidationResult.IsSuccess)
-            return Result.Failure<bool>(portfolioValidationResult.Error!);
+        var portfolioDataResult = await portfolioValidator
+            .GetPortfolioDataAsync(command.PortfolioId, cancellationToken);
+        if (!portfolioDataResult.IsSuccess)
+            return Result.Failure<bool>(portfolioDataResult.Error!);
+
+        var portfolioData = portfolioDataResult.Value;
 
         var conceptNames = command.ConceptAmounts.Keys.ToArray();
         var profitLossConcepts = await conceptRepository
@@ -36,6 +38,7 @@ internal sealed class ProfitandLossLoadCommandHandler(
         var ruleContext = new
         {
             command.EffectiveDate,
+            PortfolioCurrentDate = portfolioData.CurrentDate,
             RequestedConceptNames = conceptNames,
             Concepts = profitLossConcepts.Select(c => new
             {

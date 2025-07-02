@@ -23,7 +23,8 @@ internal sealed class GetPortfoliosQueryHandler(
                 p.Name,
                 p.ShortName,
                 p.ModalityId,
-                p.InitialMinimumAmount))
+                p.InitialMinimumAmount,
+                p.CurrentDate))
             .ToList();
 
         return Result.Success<IReadOnlyCollection<PortfolioResponse>>(response);

@@ -30,4 +30,20 @@ public sealed class PortfolioValidationConsumer : ICapSubscribe
             _ => new ValidatePortfolioResponse(true, null, null),
             err => new ValidatePortfolioResponse(false, err.Error.Code, err.Error.Description));
     }
+
+    [CapSubscribe(nameof(GetPortfolioDataRequest))]
+    public async Task<GetPortfolioDataResponse> GetPortfolioDataAsync(
+        GetPortfolioDataRequest message,
+        [FromCap] CapHeader header,
+        CancellationToken cancellationToken)
+    {
+        var corr = header[CapRpcClient.Headers.CorrelationId];
+        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
+
+        var result = await _mediator.Send(new GetPortfolioQuery(message.PortfolioId), cancellationToken);
+
+        return result.Match(
+            success => new GetPortfolioDataResponse(true, null, null, success.CurrentDate),
+            err => new GetPortfolioDataResponse(false, err.Error.Code, err.Error.Description));
+    }
 }
