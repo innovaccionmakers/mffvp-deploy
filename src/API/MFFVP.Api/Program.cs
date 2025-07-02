@@ -3,6 +3,7 @@ using Associate.Infrastructure;
 using Closing.Infrastructure;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Infrastructure;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Extensions;
@@ -173,6 +174,17 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapGet("/",
     () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
+
+// Return a permission list
+app.MapGet("/api/v1/Security/Permissions", () =>
+{
+    Dictionary<string, string> All = MakersPermissionsOperationsAuxiliaryInformations.All
+        .Concat(MakersPermissionsOperationsClientOperations.All)
+        .ToDictionary(p => p.Key, p => p.Value);
+
+    return Results.Ok(All);
+});
+
 
 //app.MapGet("/api/userinfo", [Authorize(AuthenticationSchemes = "JwtBearer")] (HttpContext context) =>
 //{
