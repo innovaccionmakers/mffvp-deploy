@@ -41,6 +41,7 @@ public class InternalRuleEvaluatorIntegrationTests
         var ruleContext = new
         {
             EffectiveDate = DateTime.UtcNow.AddDays(1),
+            PortfolioCurrentDate = DateTime.UtcNow.Date,
             RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
@@ -90,6 +91,7 @@ public class InternalRuleEvaluatorIntegrationTests
         var ruleContext = new
         {
             EffectiveDate = DateTime.UtcNow.Date,
+            PortfolioCurrentDate = DateTime.UtcNow.Date.AddDays(-1),
             RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
@@ -139,8 +141,9 @@ public class InternalRuleEvaluatorIntegrationTests
         var ruleContext = new
         {
             EffectiveDate = DateTime.UtcNow.Date,
-            RequestedConceptNames = conceptNames, // 3 conceptos solicitados
-            Concepts = new[] // Solo 1 concepto encontrado
+            PortfolioCurrentDate = DateTime.UtcNow.Date.AddDays(-1),
+            RequestedConceptNames = conceptNames,
+            Concepts = new[]
             {
                 new
                 {
@@ -178,6 +181,7 @@ public class InternalRuleEvaluatorIntegrationTests
         var ruleContext = new
         {
             EffectiveDate = DateTime.UtcNow.Date,
+            PortfolioCurrentDate = DateTime.UtcNow.Date.AddDays(-2),
             RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
@@ -185,7 +189,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 1L,
                     Concept = "Gastos Administrativos",
-                    Nature = ProfitLossNature.Expense, // Solo gastos, sin ingresos
+                    Nature = ProfitLossNature.Expense,
                     AllowNegative = false,
                     Amount = 100m,
                     IsIncome = false,
@@ -213,8 +217,8 @@ public class InternalRuleEvaluatorIntegrationTests
         validationErrors.Should().HaveCount(1);
 
         var error = validationErrors.First();
-        error.Code.Should().Be("CLOSING_003");
-        error.Message.Should().Be("Debe existir al menos un concepto de naturaleza Ingreso");
+        error.Code.Should().Be("CLOSING_005");
+        error.Message.Should().Be("La fecha efectiva debe ser exactamente un día después de la fecha actual del portafolio");
     }
 
     [Fact]
@@ -224,9 +228,12 @@ public class InternalRuleEvaluatorIntegrationTests
         var evaluator = _serviceProvider.GetRequiredService<IInternalRuleEvaluator<ClosingModuleMarker>>();
 
         var conceptNames = new[] { "Rendimientos Brutos", "Gastos" };
+        var portfolioCurrentDate = DateTime.UtcNow.Date.AddDays(-1);
+        var effectiveDate = portfolioCurrentDate.AddDays(1);
         var ruleContext = new
         {
-            EffectiveDate = DateTime.UtcNow.Date,
+            EffectiveDate = effectiveDate,
+            PortfolioCurrentDate = portfolioCurrentDate,
             RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
