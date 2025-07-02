@@ -2,7 +2,8 @@
 
 namespace Customers.Presentation.DTOs;
 
-public record PeopleDto(
+public record PersonDto(
+    [property: GraphQLName("idPersona")] long PersonId,
     [property: GraphQLName("nombreCompleto")] string FullName,
     [property: GraphQLName("identificacion")] string Identification,
     [property: GraphQLName("tipoDocumento")] string IdentificationType

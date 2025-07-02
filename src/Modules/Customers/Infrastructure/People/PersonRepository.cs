@@ -56,14 +56,14 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
         return await context.Customers.AnyAsync(x => x.HomologatedCode == homologatedCode, cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<Person>> GetByFilterAsync(string identificationType,
+    public async Task<IReadOnlyCollection<Person>> GetActivePersonsByFilterAsync(string identificationType,
                                                               SearchByType? searchBy = null,
                                                               string? text = null,
                                                               CancellationToken cancellationToken = default)
     {
         var query = context.Customers.AsQueryable();
 
-        query = query.Where(x => x.DocumentType.ToString() == identificationType);
+        query = query.Where(x => x.DocumentType.ToString() == identificationType && x.Status == Status.Active);
 
         if (!string.IsNullOrWhiteSpace(text))
         {
