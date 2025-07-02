@@ -40,7 +40,8 @@ internal sealed class GetPortfolioQueryHandler(
             portfolio.Name,
             portfolio.ShortName,
             portfolio.ModalityId,
-            portfolio.InitialMinimumAmount
+            portfolio.InitialMinimumAmount,
+            portfolio.CurrentDate
         );
         return response;
     }

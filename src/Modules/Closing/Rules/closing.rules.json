@@ -30,21 +30,21 @@
         }
       },
       {
-        "RuleName": "AtLeastOneIncome",
-        "ErrorMessage": "Debe existir al menos un concepto de naturaleza Ingreso",
-        "Expression": "input.Concepts.Any(c => c.IsIncome == true)",
+        "RuleName": "AtLeastOneConcept",
+        "ErrorMessage": "Debe existir al menos un concepto",
+        "Expression": "input.Concepts.Any()",
         "Properties": {
           "errorCode": "07075653-c27f-484a-8c93-efb1438e4b6b",
           "internalCode": "CLOSING_003"
         }
       },
       {
-        "RuleName": "AtLeastOneExpense",
-        "ErrorMessage": "Debe existir al menos un concepto de naturaleza Gasto",
-        "Expression": "input.Concepts.Any(c => c.IsExpense == true)",
+        "RuleName": "EffectiveDateMustBeNextDay",
+        "ErrorMessage": "La fecha efectiva debe ser exactamente un día después de la fecha actual del portafolio",
+        "Expression": "input.EffectiveDate.Date == input.PortfolioCurrentDate.Date.AddDays(1)",
         "Properties": {
-          "errorCode": "fc056323-db23-49e5-ab44-1238cf0be8da",
-          "internalCode": "CLOSING_004"
+          "errorCode": "2b8c9e1f-4a7d-6b3e-8c5f-9d2e7a4b8c6f",
+          "internalCode": "CLOSING_005"
         }
       }
     ]
