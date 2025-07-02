@@ -1,4 +1,6 @@
 ﻿using Common.SharedKernel.Domain;
+using Customers.Presentation.DTOs;
+using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services;
 using Operations.Presentation.DTOs;
@@ -114,5 +116,16 @@ public class Query
                                                                              CancellationToken cancellationToken)
     {
         return await operationsQueries.GetWithholdingContingencyAsync(cancellationToken);
+    }
+
+    //customers Queries
+    [GraphQLName("persona")]
+    public async Task<IReadOnlyCollection<PersonDto>> GetPersonsByFilter([GraphQLName("tipoIdentificacion")] string identificationType,
+                                                                         [GraphQLName("buscarPor")] SearchByType? searchBy,
+                                                                         [GraphQLName("texto")] string? text,
+                                                                         [Service] ICustomersExperienceQueries customersQueries,
+                                                                         CancellationToken cancellationToken)
+    {
+        return await customersQueries.GetPersonsByFilter(identificationType, searchBy, text, cancellationToken);
     }
 }

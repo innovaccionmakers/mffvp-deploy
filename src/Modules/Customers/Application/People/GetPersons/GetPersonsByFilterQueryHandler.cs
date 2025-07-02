@@ -10,7 +10,7 @@ internal sealed class GetPersonsByFilterQueryHandler(IPersonRepository repositor
 {
     public async Task<Result<IReadOnlyCollection<PersonResponse>>> Handle(GetPersonsByFilterQuery request, CancellationToken cancellationToken)
     {
-        var persons = await repository.GetByFilterAsync(request.IdentificationType, request.SearchBy, request.Text);
+        var persons = await repository.GetActivePersonsByFilterAsync(request.IdentificationType, request.SearchBy, request.Text, cancellationToken);
 
         var response = persons
             .Select(e => new PersonResponse(

@@ -3,6 +3,7 @@ using Common.SharedKernel.Domain;
 using Customers.Presentation.DTOs;
 using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
+using System.Linq;
 
 namespace MFFVP.BFF.Services;
 
@@ -26,7 +27,7 @@ public class ExperienceOrchestrator(IAssociatesExperienceQueries associatesQueri
 
                 return new AffiliateDto(
                     p.FullName,
-                    p.Identification,
+                    associate.Identification,
                     p.IdentificationType,
                     associate.Id,
                     associate.Pensioner
