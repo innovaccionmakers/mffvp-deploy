@@ -20,7 +20,8 @@ public class AssociatesExperienceQueries(IMediator mediator) : IAssociatesExperi
             x.Identification,
             x.DocumentType.ToString(),
             x.ActivateId,
-            x.Pensioner
+            x.Pensioner,
+            x.ActivateDate
         )).ToList();
     }
 
@@ -36,7 +37,8 @@ public class AssociatesExperienceQueries(IMediator mediator) : IAssociatesExperi
             associate.Identification,
             associate.DocumentType.ToString(),
             associate.ActivateId,
-            associate.Pensioner
+            associate.Pensioner,
+            associate.ActivateDate  
         );
     }
 }

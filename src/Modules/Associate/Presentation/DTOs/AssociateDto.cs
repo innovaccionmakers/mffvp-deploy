@@ -4,5 +4,6 @@ public record AssociateDto(
     string Identification,
     string IdentificationType,
     int Id,
-    bool Pensioner
+    bool Pensioner,
+    DateTime ActivateDate
 );

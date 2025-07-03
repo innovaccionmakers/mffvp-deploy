@@ -28,7 +28,8 @@ public class ExperienceOrchestrator(IAssociatesExperienceQueries associatesQueri
                     associate.Identification,
                     p.IdentificationType,
                     associate.Id,
-                    associate.Pensioner
+                    associate.Pensioner,
+                    associate.ActivateDate
                 );
             }).ToList();
 
@@ -49,7 +50,8 @@ public class ExperienceOrchestrator(IAssociatesExperienceQueries associatesQueri
             associate.Identification,
             person.IdentificationType,
             associate.Id,
-            associate.Pensioner
+            associate.Pensioner,
+            associate.ActivateDate
         );
     }
 }
