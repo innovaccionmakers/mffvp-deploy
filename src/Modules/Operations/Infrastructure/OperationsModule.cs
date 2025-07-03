@@ -1,32 +1,30 @@
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
-using Operations.Domain.ClientOperations;
-using Operations.Infrastructure.ClientOperations;
-using Operations.Domain.AuxiliaryInformations;
-using Operations.Infrastructure.AuxiliaryInformations;
-using Operations.Infrastructure.Database;
-using Operations.Domain.Banks;
-using Operations.Infrastructure.Banks;
-using Common.SharedKernel.Infrastructure.Configuration;
-using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.External;
 using Operations.Application.Contributions.Services;
 using Operations.Domain.AuxiliaryInformations;
+using Operations.Domain.Banks;
 using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Infrastructure.AuxiliaryInformations;
+using Operations.Infrastructure.Banks;
 using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ClientOperations;
 using Operations.Infrastructure.ConfigurationParameters;
@@ -37,24 +35,23 @@ using Operations.Infrastructure.External.Customers;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.SubtransactionTypes;
 using Operations.Presentation.GraphQL;
+using Operations.Presentation.MinimalApis;
 
 namespace Operations.Infrastructure;
 
-public static class OperationsModule
+public class OperationsModule: IModuleConfiguration
 {
-    public static IServiceCollection AddOperationsModule(this IServiceCollection services, IConfiguration configuration)
+    public string ModuleName => "Operations";
+    public string RoutePrefix => "api/operations";
+
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddInfrastructure(configuration);
         services.AddRulesEngine<OperationsModuleMarker>(typeof(OperationsModule).Assembly, opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
         });
-        return services;
-    }
 
-    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("OperationsDatabase");
 
@@ -96,5 +93,15 @@ public static class OperationsModule
         services.AddScoped<IErrorCatalog<OperationsModuleMarker>, ErrorCatalog<OperationsModuleMarker>>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<OperationsDbContext>());
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseRouting();
+
+        if (app is WebApplication webApp)
+        {
+            webApp.MapOperationsBusinessEndpoints();
+        }
     }
 }

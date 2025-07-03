@@ -95,12 +95,29 @@ builder.Services.AddInfrastructure(
 builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing"], env);
 
 builder.Services.AddTrustsModule(builder.Configuration);
-builder.Services.AddActivatesModule(builder.Configuration);
+//builder.Services.AddActivatesModule(builder.Configuration);
 builder.Services.AddProductsModule(builder.Configuration);
-builder.Services.AddCustomersModule(builder.Configuration);
-builder.Services.AddOperationsModule(builder.Configuration);
+//builder.Services.AddCustomersModule(builder.Configuration);
+//builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddClosingModule(builder.Configuration);
        
+var activatesModuleAssembly = Assembly.GetAssembly(typeof(Associate.Infrastructure.ActivatesModule));
+if (activatesModuleAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(activatesModuleAssembly, builder.Configuration);
+}
+
+var customersModuleAssembly = Assembly.GetAssembly(typeof(Customers.Infrastructure.CustomersModule));
+if (customersModuleAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(customersModuleAssembly, builder.Configuration);
+}
+
+var operationsModuleAssembly = Assembly.GetAssembly(typeof(Operations.Infrastructure.OperationsModule));
+if (operationsModuleAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(operationsModuleAssembly, builder.Configuration);
+}
 
 var bffAssembly = Assembly.GetAssembly(typeof(MFFVP.BFF.ModuleConfiguration));
 if (bffAssembly != null)

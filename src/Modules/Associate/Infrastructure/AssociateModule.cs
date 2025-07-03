@@ -1,5 +1,6 @@
 using Application.Activates;
 using Application.PensionRequirements;
+
 using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
 using Associate.Domain.Activates;
@@ -8,11 +9,18 @@ using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Database;
 using Associate.IntegrationEvents.ActivateValidation;
 using Associate.Presentation.GraphQL;
+using Associate.Presentation.MinimalApis;
+
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
+
+using Microsoft.AspNetCore.Builder;
+
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -20,23 +28,19 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Associate.Infrastructure;
 
-public static class ActivatesModule
+public class ActivatesModule: IModuleConfiguration
 {
-    public static IServiceCollection AddActivatesModule(this IServiceCollection services,
-        IConfiguration configuration)
+    public string ModuleName => "Activates";
+    public string RoutePrefix => "api/activates";
+
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddInfrastructure(configuration);
         services.AddRulesEngine<AssociateModuleMarker>(typeof(ActivatesModule).Assembly, opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
         });
-        return services;
-    }
 
-
-    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("AssociateDatabase");
 
@@ -68,5 +72,15 @@ public static class ActivatesModule
         services.AddScoped<ActivateValidationConsumer>();
         services.AddScoped<ActivatesCommandHandlerValidation>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseRouting();
+
+        if (app is WebApplication webApp)
+        {
+            webApp.MapAssociateBusinessEndpoints();
+        }
     }
 }

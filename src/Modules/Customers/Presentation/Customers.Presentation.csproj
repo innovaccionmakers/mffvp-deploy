@@ -2,6 +2,7 @@
 
     <ItemGroup>
       <PackageReference Include="HotChocolate.Types" Version="15.1.6" />
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
     </ItemGroup>
 
     <ItemGroup>
