@@ -101,16 +101,6 @@ public class Query
         return await operationsQueries.GetBanksAsync(cancellationToken);
     }
 
-    [GraphQLName("afilidado")]
-    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([GraphQLName("tipoIdentificacion")] string identificationType,
-                                                                       [GraphQLName("buscarPor")] SearchByType? searchBy,
-                                                                       [GraphQLName("texto")]  string? text,
-                                                                       [Service] ExperienceOrchestrator experienceOrchestrator,
-                                                                       CancellationToken cancellationToken)
-    {
-        return await experienceOrchestrator.GetAllAssociatesAsync(identificationType, searchBy, text, cancellationToken);
-    }
-
     [GraphQLName("retencionContingente")]
     public async Task<string> GetWithholdingContingency([Service] IOperationsExperienceQueries operationsQueries,
                                                                              CancellationToken cancellationToken)
@@ -118,7 +108,7 @@ public class Query
         return await operationsQueries.GetWithholdingContingencyAsync(cancellationToken);
     }
 
-    //customers Queries
+    //Customers Queries
     [GraphQLName("persona")]
     public async Task<IReadOnlyCollection<PersonDto>> GetPersonsByFilter([GraphQLName("tipoIdentificacion")] string identificationType,
                                                                          [GraphQLName("buscarPor")] SearchByType? searchBy,
@@ -127,5 +117,25 @@ public class Query
                                                                          CancellationToken cancellationToken)
     {
         return await customersQueries.GetPersonsByFilter(identificationType, searchBy, text, cancellationToken);
+    }
+
+    //Orchestrator Queries
+
+    [GraphQLName("afilidado")]
+    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([GraphQLName("tipoIdentificacion")] string identificationType,
+                                                                   [GraphQLName("buscarPor")] SearchByType? searchBy,
+                                                                   [GraphQLName("texto")] string? text,
+                                                                   [Service] ExperienceOrchestrator experienceOrchestrator,
+                                                                   CancellationToken cancellationToken)
+    {
+        return await experienceOrchestrator.GetAllAssociatesAsync(identificationType, searchBy, text, cancellationToken);
+    }
+
+    [GraphQLName("afilidadoPorId")]
+    public async Task<AffiliateDto?> GetAffiliateById([GraphQLName("idAfiliado")] int affiliateId,
+                                                     [Service] ExperienceOrchestrator experienceOrchestrator,
+                                                     CancellationToken cancellationToken)
+    {
+        return await experienceOrchestrator.GetAffiliateByIdAsync(affiliateId, cancellationToken);
     }
 }

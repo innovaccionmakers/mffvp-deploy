@@ -7,5 +7,6 @@ public record AffiliateDto(
     [property: GraphQLName("identificacion")] string Identication,
     [property: GraphQLName("tipoDocumento")] string IdentificationType,
     [property: GraphQLName("idAfiliado")] int AffiliateId,
-    [property: GraphQLName("esPensionado")] bool Pensioner
+    [property: GraphQLName("esPensionado")] bool Pensioner,
+    [property: GraphQLName("fechaActivacion")] DateTime ActivateDate
 );

@@ -3,13 +3,11 @@ using Common.SharedKernel.Domain;
 using Customers.Presentation.DTOs;
 using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
-using System.Linq;
 
 namespace MFFVP.BFF.Services;
 
 public class ExperienceOrchestrator(IAssociatesExperienceQueries associatesQueries, ICustomersExperienceQueries customersQueries)
 {
-
     public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesAsync(string identificationType, SearchByType? searchBy, string? text, CancellationToken cancellationToken = default)
     {
         var persons = await customersQueries.GetPersonsByFilter(identificationType, searchBy, text, cancellationToken);
@@ -30,11 +28,30 @@ public class ExperienceOrchestrator(IAssociatesExperienceQueries associatesQueri
                     associate.Identification,
                     p.IdentificationType,
                     associate.Id,
-                    associate.Pensioner
+                    associate.Pensioner,
+                    associate.ActivateDate
                 );
-            }).ToList(); 
+            }).ToList();
 
         return filteredPersons;
     }
+    public async Task<AffiliateDto?> GetAffiliateByIdAsync(long affiliateId, CancellationToken cancellationToken = default)
+    {
+       var associate = await associatesQueries.GetAssociateByIdAsync(affiliateId, cancellationToken);
 
+        if (associate == null) return null;
+
+        var person = await customersQueries.GetPersonByIdentification(associate.IdentificationType, associate.Identification, cancellationToken);
+
+        if (person == null) return null;
+
+        return new AffiliateDto(
+            person.FullName,
+            associate.Identification,
+            person.IdentificationType,
+            associate.Id,
+            associate.Pensioner,
+            associate.ActivateDate
+        );
+    }
 }

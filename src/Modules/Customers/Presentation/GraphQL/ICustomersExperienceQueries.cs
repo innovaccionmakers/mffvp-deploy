@@ -9,4 +9,8 @@ public interface ICustomersExperienceQueries
         string identificationType,
         SearchByType? searchBy, 
         string? text, CancellationToken cancellationToken);
+
+    Task<PersonDto?> GetPersonByIdentification(string documentType,
+                                               string identification,
+                                               CancellationToken cancellationToken);
 }
