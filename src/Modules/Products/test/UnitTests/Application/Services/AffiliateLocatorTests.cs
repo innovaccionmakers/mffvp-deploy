@@ -36,6 +36,7 @@ public class AffiliateLocatorTests
         var activate = new ActivateResponse(
             55,
             "CC",
+            Guid.NewGuid(),
             "321",
             false,
             false,
