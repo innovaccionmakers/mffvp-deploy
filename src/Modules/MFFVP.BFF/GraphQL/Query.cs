@@ -1,4 +1,6 @@
 ﻿using Common.SharedKernel.Domain;
+using Customers.Presentation.DTOs;
+using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services;
 using Operations.Presentation.DTOs;
@@ -104,16 +106,6 @@ public class Query
                                                              CancellationToken cancellationToken)
     {
         return await operationsQueries.GetBanksAsync(cancellationToken);
-    }
-
-    [GraphQLName("afilidado")]
-    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([GraphQLName("tipoIdentificacion")] string identificationType,
-                                                                       [GraphQLName("buscarPor")] SearchByType? searchBy,
-                                                                       [GraphQLName("texto")]  string? text,
-                                                                       [Service] ExperienceOrchestrator experienceOrchestrator,
-                                                                       CancellationToken cancellationToken)
-    {
-        return await experienceOrchestrator.GetAllAssociatesAsync(identificationType, searchBy, text, cancellationToken);
     }
 
     [GraphQLName("retencionContingente")]
