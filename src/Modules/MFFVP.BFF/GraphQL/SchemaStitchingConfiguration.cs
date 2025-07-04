@@ -10,6 +10,7 @@ public static class SchemaStitchingConfiguration
         services
             .AddGraphQLServer("BFFGateway")
             .AddQueryType<Query>()
+            .AddMutationType<Mutation>()
             .ModifyOptions(options =>
             {
                 options.RemoveUnreachableTypes = true;
