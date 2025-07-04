@@ -1,6 +1,4 @@
 ﻿using Common.SharedKernel.Domain;
-using Customers.Presentation.DTOs;
-using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services;
 using Operations.Presentation.DTOs;
@@ -101,6 +99,16 @@ public class Query
         return await operationsQueries.GetBanksAsync(cancellationToken);
     }
 
+    [GraphQLName("afilidado")]
+    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([GraphQLName("tipoIdentificacion")] string identificationType,
+                                                                       [GraphQLName("buscarPor")] SearchByType? searchBy,
+                                                                       [GraphQLName("texto")]  string? text,
+                                                                       [Service] ExperienceOrchestrator experienceOrchestrator,
+                                                                       CancellationToken cancellationToken)
+    {
+        return await experienceOrchestrator.GetAllAssociatesAsync(identificationType, searchBy, text, cancellationToken);
+    }
+
     [GraphQLName("retencionContingente")]
     public async Task<string> GetWithholdingContingency([Service] IOperationsExperienceQueries operationsQueries,
                                                                              CancellationToken cancellationToken)
@@ -108,34 +116,10 @@ public class Query
         return await operationsQueries.GetWithholdingContingencyAsync(cancellationToken);
     }
 
-    //Customers Queries
-    [GraphQLName("persona")]
-    public async Task<IReadOnlyCollection<PersonDto>> GetPersonsByFilter([GraphQLName("tipoIdentificacion")] string identificationType,
-                                                                         [GraphQLName("buscarPor")] SearchByType? searchBy,
-                                                                         [GraphQLName("texto")] string? text,
-                                                                         [Service] ICustomersExperienceQueries customersQueries,
-                                                                         CancellationToken cancellationToken)
+    [GraphQLName("tipoObjetivo")]
+    public async Task<IReadOnlyCollection<GoalTypeDto>> GetGoalTypesAsync([Service] IProductsExperienceQueries productsQueries,
+                                                                          CancellationToken cancellationToken = default)
     {
-        return await customersQueries.GetPersonsByFilter(identificationType, searchBy, text, cancellationToken);
-    }
-
-    //Orchestrator Queries
-
-    [GraphQLName("afilidado")]
-    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([GraphQLName("tipoIdentificacion")] string identificationType,
-                                                                   [GraphQLName("buscarPor")] SearchByType? searchBy,
-                                                                   [GraphQLName("texto")] string? text,
-                                                                   [Service] ExperienceOrchestrator experienceOrchestrator,
-                                                                   CancellationToken cancellationToken)
-    {
-        return await experienceOrchestrator.GetAllAssociatesAsync(identificationType, searchBy, text, cancellationToken);
-    }
-
-    [GraphQLName("afilidadoPorId")]
-    public async Task<AffiliateDto?> GetAffiliateById([GraphQLName("idAfiliado")] int affiliateId,
-                                                     [Service] ExperienceOrchestrator experienceOrchestrator,
-                                                     CancellationToken cancellationToken)
-    {
-        return await experienceOrchestrator.GetAffiliateByIdAsync(affiliateId, cancellationToken);
+        return await productsQueries.GetGoalTypesAsync(cancellationToken);
     }
 }
