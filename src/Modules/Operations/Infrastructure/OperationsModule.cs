@@ -82,6 +82,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IChannelRepository, ChannelRepository>();
         services.AddScoped<IBankRepository, BankRepository>();
         services.AddScoped<IOperationsExperienceQueries, OperationsExperienceQueries>();
+        services.AddScoped<IOperationsExperienceMutation, OperationsExperienceMutation>();
 
         services.AddScoped<IActivateLocator, ActivateLocator>();
         services.AddScoped<IContributionRemoteValidator, ContributionRemoteValidator>();
