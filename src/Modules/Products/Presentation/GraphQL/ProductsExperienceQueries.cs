@@ -3,6 +3,7 @@
 using HotChocolate;
 using MediatR;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
+using Products.Integrations.ConfigurationParameters.GoalTypes;
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
@@ -53,6 +54,27 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
         )).ToList();
     }
 
+    public async Task<IReadOnlyCollection<GoalTypeDto>> GetGoalTypesAsync(
+        CancellationToken cancellationToken = default
+    )
+    {
+        var result = await mediator.Send(new GetGoalTypesQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve goal types.");
+        }
+
+        var goalTypes = result.Value;
+
+        return goalTypes.Select(x => new GoalTypeDto(
+            x.Uuid,
+            x.Name,
+            x.Status,
+            x.HomologationCode
+        )).ToList();
+    }
+
 
     public async Task<IReadOnlyCollection<GoalDto>> GetGoalsAsync(string typeId, string identification, StatusType status, CancellationToken cancellationToken = default)
     {
@@ -83,5 +105,27 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
              x.Objective.ObjectiveName,
              x.Objective.Status
         )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<AlternativeDto>> GetAlternativesAsync(
+        CancellationToken cancellationToken = default)
+    {
+
+        var result = await mediator.Send(new GetAlternativesQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve alternatives.");
+        }
+
+        var alternatives = result.Value;
+
+
+        return alternatives.Select(x => new AlternativeDto(
+            x.BankId.ToString(),
+            x.Name,
+            x.HomologatedCode
+        )).ToList();
+
     }
 }
