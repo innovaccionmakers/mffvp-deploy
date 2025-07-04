@@ -18,24 +18,26 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Common.SharedKernel.Application.Abstractions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Closing.Presentation.MinimalApis;
 
 namespace Closing.Infrastructure;
 
-public static class ClosingModule
+public class ClosingModule : IModuleConfiguration
 {
-    public static IServiceCollection AddClosingModule(this IServiceCollection services, IConfiguration configuration)
+    public string ModuleName => "Closing";
+    public string RoutePrefix => "api/closing";
+
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddInfrastructure(configuration);
         services.AddRulesEngine<ClosingModuleMarker>(typeof(ClosingModule).Assembly, opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
         });
-        return services;
-    }
 
-    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("OperationsDatabase");
 
@@ -67,5 +69,15 @@ public static class ClosingModule
         services.AddScoped<IPortfolioValidator, PortfolioValidator>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseRouting();
+
+        if (app is WebApplication webApp)
+        {
+            webApp.MapClosingBusinessEndpoints();
+        }
     }
 }
