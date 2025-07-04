@@ -18,7 +18,8 @@ public class AssociatesExperienceQueries(IMediator mediator) : IAssociatesExperi
 
         return associates.Select(x => new AssociateDto(
             x.Identification,
-            x.DocumentType.ToString(),
+            x.DocumentType,
+            x.DocumentTypeUuid,
             x.ActivateId,
             x.Pensioner,
             x.ActivateDate
@@ -35,7 +36,8 @@ public class AssociatesExperienceQueries(IMediator mediator) : IAssociatesExperi
 
         return new AssociateDto(
             associate.Identification,
-            associate.DocumentType.ToString(),
+            associate.DocumentType,
+            associate.DocumentTypeUuid,
             associate.ActivateId,
             associate.Pensioner,
             associate.ActivateDate  

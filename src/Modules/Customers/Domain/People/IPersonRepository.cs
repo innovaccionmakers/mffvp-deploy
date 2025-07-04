@@ -22,4 +22,8 @@ public interface IPersonRepository
                                                        SearchByType? searchBy = null,
                                                        string? text = null,
                                                        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Person>> GetPersonsByDocumentsAsync(
+        IReadOnlyCollection<PersonDocumentKey> documents,
+        CancellationToken cancellationToken = default);
 }

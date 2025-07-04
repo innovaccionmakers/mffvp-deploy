@@ -1,7 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+using Common.SharedKernel.Domain;
 using Customers.Domain.People;
 using Customers.Infrastructure.Database;
-using Common.SharedKernel.Domain;
+using Customers.Integrations.People;
+using Microsoft.EntityFrameworkCore;
 
 namespace Customers.Infrastructure.People;
 
@@ -86,5 +87,24 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
         }
 
         return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<Person>> GetPersonsByDocumentsAsync(IReadOnlyCollection<PersonDocumentKey> documents, CancellationToken cancellationToken = default)
+    {
+        if(documents == null || documents.Count == 0)
+            return [];
+
+        var keys = documents
+            .Select(d => (d.DocumentTypeUuid, d.Identification))
+            .ToList();
+
+        var documentTypes = keys.Select(k => k.DocumentTypeUuid).Distinct().ToList();
+        var documentNumbers = keys.Select(k => k.Identification).Distinct().ToList();
+
+        var result = await context.Customers
+            .Where(p => documentTypes.Contains(p.DocumentType) && documentNumbers.Contains(p.Identification))
+            .ToListAsync(cancellationToken);
+
+        return result;
     }
 }
