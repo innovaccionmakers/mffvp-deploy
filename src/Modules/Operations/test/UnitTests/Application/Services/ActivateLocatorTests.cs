@@ -33,7 +33,7 @@ public class ActivateLocatorTests
     [Fact]
     public async Task FindAsync_Should_Return_Data_When_Rpc_Succeeds()
     {
-        var activate = new ActivateResponse(1, "CC", "321", false, false, DateTime.Today);
+        var activate = new ActivateResponse(1, "CC", Guid.NewGuid(), "321", false, false, DateTime.Today);
         var rsp = new GetActivateIdByIdentificationResponse(true, activate, null, null);
         GetActivateIdByIdentificationRequest? captured = null;
         _rpc.Setup(r => r.CallAsync<GetActivateIdByIdentificationRequest, GetActivateIdByIdentificationResponse>(

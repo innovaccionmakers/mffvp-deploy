@@ -38,6 +38,7 @@ namespace UnitTests.Application.Activates
             // Arrange
             var activateId = 1;
             var documentType = "Type1";
+            var documentTypeUuid = Guid.NewGuid();
             var identification = "123";
             var pensioner = false;
             var meetsRequirements = true;
@@ -47,6 +48,7 @@ namespace UnitTests.Application.Activates
             var response = new ActivateResponse(
                 activateId,
                 documentType,
+                documentTypeUuid,
                 identification,
                 pensioner,
                 meetsRequirements,
@@ -55,6 +57,7 @@ namespace UnitTests.Application.Activates
             // Assert
             Assert.Equal(activateId, response.ActivateId);
             Assert.Equal(documentType, response.DocumentType);
+            Assert.Equal(documentTypeUuid, response.DocumentTypeUuid);
             Assert.Equal(pensioner, response.Pensioner);
         }
 

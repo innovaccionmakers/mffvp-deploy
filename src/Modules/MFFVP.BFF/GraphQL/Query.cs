@@ -121,14 +121,21 @@ public class Query
 
     //Orchestrator Queries
 
-    [GraphQLName("afilidado")]
-    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([GraphQLName("tipoIdentificacion")] string identificationType,
+    [GraphQLName("obtenerAfiliadosConFiltros")]
+    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesByFilter([GraphQLName("tipoIdentificacion")] string identificationType,
                                                                    [GraphQLName("buscarPor")] SearchByType? searchBy,
                                                                    [GraphQLName("texto")] string? text,
                                                                    [Service] ExperienceOrchestrator experienceOrchestrator,
                                                                    CancellationToken cancellationToken)
     {
-        return await experienceOrchestrator.GetAllAssociatesAsync(identificationType, searchBy, text, cancellationToken);
+        return await experienceOrchestrator.GetAllAssociatesByFilterAsync(identificationType, searchBy, text, cancellationToken);
+    }
+
+    [GraphQLName("obtenerAfiliados")]
+    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([Service] ExperienceOrchestrator experienceOrchestrator,
+                                                                          CancellationToken cancellationToken)
+    {
+        return await experienceOrchestrator.GetAllAssociatesAsync(cancellationToken);
     }
 
     [GraphQLName("afilidadoPorId")]
@@ -136,6 +143,6 @@ public class Query
                                                      [Service] ExperienceOrchestrator experienceOrchestrator,
                                                      CancellationToken cancellationToken)
     {
-        return await experienceOrchestrator.GetAffiliateByIdAsync(affiliateId, cancellationToken);
+        return await experienceOrchestrator.GetAssociateByIdAsync(affiliateId, cancellationToken);
     }
 }

@@ -30,6 +30,7 @@ internal sealed class GetActivatesQueryHandler(
             .Select(e => new ActivateResponse(
                 e.ActivateId,
                 guidToHomologationCode.TryGetValue(e.DocumentType, out var code) ? code : string.Empty,
+                e.DocumentType,
                 e.Identification,
                 e.Pensioner,
                 e.MeetsPensionRequirements,
