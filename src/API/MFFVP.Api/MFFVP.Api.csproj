@@ -47,6 +47,7 @@
         <ProjectReference Include="..\..\Modules\Products\Infrastructure\Products.Infrastructure.csproj" />
         <ProjectReference Include="..\..\Modules\Products\Integrations\Products.Integrations.csproj" />
         <ProjectReference Include="..\..\Modules\Products\Presentation\Products.Presentation.csproj" />
+        <ProjectReference Include="..\..\Modules\Security\Infrastructure\Security.Infrastructure.csproj" />
         <ProjectReference Include="..\..\Modules\Trusts\Infrastructure\Trusts.Infrastructure.csproj" />
         <ProjectReference Include="..\..\Modules\Trusts\Integrations\Trusts.Integrations.csproj" />
     </ItemGroup>

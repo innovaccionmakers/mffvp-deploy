@@ -29,7 +29,7 @@
       {
         "RuleName": "ExecutionDateMatchesOperationDate",
         "ErrorMessage": "La fecha de ejecución debe ser igual a la fecha de operación del portafolio",
-        "Expression": "input.ExecutionDate == input.NextOperationDate",
+        "Expression": "input.ExecutionDateOnly == input.NextOperationDateOnly",
         "Properties": {
           "errorCode": "7a786462-e7a1-4852-8181-28e37aedf0b3"
         }
@@ -37,7 +37,7 @@
       {
         "RuleName": "DepositDateBeforeOrEqualOperationDate",
         "ErrorMessage": "La Fecha de consignación debe ser igual o menor a la fecha de operación de portafolio",
-        "Expression": "input.DepositDate <= input.NextOperationDate",
+        "Expression": "input.DepositDateOnly <= input.NextOperationDateOnly",
         "Properties": {
           "errorCode": "047eff70-b659-4d03-9e65-23b3dec28287"
         }

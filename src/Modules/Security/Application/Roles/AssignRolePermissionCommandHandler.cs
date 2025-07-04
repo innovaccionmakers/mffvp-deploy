@@ -6,7 +6,7 @@ using Security.Domain.RolePermissions;
 
 namespace Security.Application.Roles;
 
-public sealed class AssignRolePermissionCommandHandler(IRolePermissionRepository repository)
+public sealed record AssignRolePermissionCommandHandler(IRolePermissionRepository repository)
     : ICommandHandler<AssignRolePermissionCommand>
 {
     public async Task<Result> Handle(AssignRolePermissionCommand request, CancellationToken cancellationToken)

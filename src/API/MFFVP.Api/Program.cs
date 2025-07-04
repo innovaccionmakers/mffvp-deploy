@@ -1,6 +1,5 @@
 using Asp.Versioning;
-using Associate.Infrastructure;
-using Closing.Infrastructure;
+
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Domain.Auth.Permissions;
@@ -10,21 +9,18 @@ using Common.SharedKernel.Infrastructure.Extensions;
 using Common.SharedKernel.Infrastructure.Validation;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Filters;
-using Customers.Infrastructure;
+
 using FluentValidation;
-using MFFVP.Api.BffWeb.Associate;
-using MFFVP.Api.BffWeb.Closing;
-using MFFVP.Api.BffWeb.Customers;
-using MFFVP.Api.BffWeb.Operations;
-using MFFVP.Api.BffWeb.Products;
+
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
-using Operations.Infrastructure;
-using Products.Infrastructure;
+
 using Serilog;
+
 using System.Reflection;
+
 using Trusts.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -95,16 +91,17 @@ builder.Services.AddInfrastructure(
 builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing"], env);
 
 builder.Services.AddTrustsModule(builder.Configuration);
-//builder.Services.AddActivatesModule(builder.Configuration);
-builder.Services.AddProductsModule(builder.Configuration);
-//builder.Services.AddCustomersModule(builder.Configuration);
-//builder.Services.AddOperationsModule(builder.Configuration);
-builder.Services.AddClosingModule(builder.Configuration);
        
 var activatesModuleAssembly = Assembly.GetAssembly(typeof(Associate.Infrastructure.ActivatesModule));
 if (activatesModuleAssembly != null)
 {
     builder.Services.AddModulesFromAssembly(activatesModuleAssembly, builder.Configuration);
+}
+
+var productsModuleAssembly = Assembly.GetAssembly(typeof(Products.Infrastructure.ProductsModule));
+if (productsModuleAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(productsModuleAssembly, builder.Configuration);
 }
 
 var customersModuleAssembly = Assembly.GetAssembly(typeof(Customers.Infrastructure.CustomersModule));
@@ -119,24 +116,23 @@ if (operationsModuleAssembly != null)
     builder.Services.AddModulesFromAssembly(operationsModuleAssembly, builder.Configuration);
 }
 
+var closingModuleAssembly = Assembly.GetAssembly(typeof(Closing.Infrastructure.ClosingModule));
+if (closingModuleAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(closingModuleAssembly, builder.Configuration);
+}
+
+var securityModuleAssembly = Assembly.GetAssembly(typeof(Security.Infrastructure.SecurityModule));
+if (securityModuleAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(securityModuleAssembly, builder.Configuration);
+}
+
 var bffAssembly = Assembly.GetAssembly(typeof(MFFVP.BFF.ModuleConfiguration));
 if (bffAssembly != null)
 {
     builder.Services.AddModulesFromAssembly(bffAssembly, builder.Configuration);
 }
-
-
-builder.Services.AddBffActivatesServices();
-builder.Services.AddBffProductsServices();
-builder.Services.AddBffCustomersServices();
-builder.Services.AddBffOperationsServices();
-builder.Services.AddBffClosingServices();
-
-builder.Services.AddEndpoints(typeof(AssociateEndpoints).Assembly);
-builder.Services.AddEndpoints(typeof(ProductsEndpoints).Assembly);
-builder.Services.AddEndpoints(typeof(CustomersEndpoints).Assembly);
-builder.Services.AddEndpoints(typeof(OperationsEndpoints).Assembly);
-builder.Services.AddEndpoints(typeof(ClosingEndpoints).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));

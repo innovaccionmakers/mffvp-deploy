@@ -70,6 +70,9 @@ internal sealed class ContributionValidationQueryHandler(
             request.ExecutionDate,
             request.Amount,
             NextOperationDate = nextOperationDate,
+            DepositDateOnly = request.DepositDate.Date,
+            ExecutionDateOnly = request.ExecutionDate.Date,
+            NextOperationDateOnly = nextOperationDate?.Date,
             ExistsByStandardCode = portfolio
         };
 

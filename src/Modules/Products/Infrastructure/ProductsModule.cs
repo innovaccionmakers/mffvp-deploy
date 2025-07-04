@@ -1,8 +1,12 @@
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
+using Microsoft.AspNetCore.Builder;
+
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -32,24 +36,23 @@ using Products.Infrastructure.Portfolios;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.PortfolioValidation;
 using Products.Presentation.GraphQL;
+using Products.Presentation.MinimalApis;
 
 namespace Products.Infrastructure;
 
-public static class ProductsModule
+public class ProductsModule: IModuleConfiguration
 {
-    public static IServiceCollection AddProductsModule(this IServiceCollection services, IConfiguration configuration)
+    public string ModuleName => "Productos";
+    public string RoutePrefix => "api/products";
+
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddInfrastructure(configuration);
         services.AddRulesEngine<ProductsModuleMarker>(typeof(ProductsModule).Assembly, opt =>
         {
             opt.CacheSizeLimitMb = 64;
             opt.EmbeddedResourceSearchPatterns = [".rules.json"];
         });
-        return services;
-    }
 
-    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("ProductsDatabase");
 
@@ -90,5 +93,15 @@ public static class ProductsModule
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseRouting();
+
+        if (app is WebApplication webApp)
+        {
+            webApp.MapProductsBusinessEndpoints();
+        }
     }
 }

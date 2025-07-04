@@ -1,5 +1,8 @@
-﻿using Common.SharedKernel.Infrastructure.Configuration;
+﻿using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Infrastructure.Configuration;
 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -17,18 +20,16 @@ using Security.Infrastructure.Roles;
 using Security.Infrastructure.UserPermissions;
 using Security.Infrastructure.UserRoles;
 using Security.Infrastructure.Users;
+using Security.Presentation.MinimalApis;
 
 namespace Security.Infrastructure;
 
-public static class OperationsModule
+public class SecurityModule: IModuleConfiguration
 {
-    public static IServiceCollection AddSecurityModule(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddInfrastructure(configuration);
-        return services;
-    }
+    public string ModuleName => "Security";
+    public string RoutePrefix => "api/security";
 
-    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("OperationsDatabase");
@@ -57,5 +58,15 @@ public static class OperationsModule
         services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SecurityDbContext>());
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseRouting();
+
+        if (app is WebApplication webApp)
+        {
+            webApp.MapSecurityBusinessEndpoints();
+        }
     }
 }

@@ -1,37 +1,32 @@
+﻿using Closing.Integrations.ProfitLosses.GetProfitandLoss;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
-using Closing.Integrations.ProfitLosses.GetProfitandLoss;
+
 using Common.SharedKernel.Presentation.Results;
+
 using MediatR;
-using MFFVP.Api.Application.Closing;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Any;
 
-namespace MFFVP.Api.BffWeb.Closing.ProfitLosses
+namespace Closing.Presentation.MinimalApis;
+
+public static class ClosingBusinessApi
 {
-    public sealed class ProfitLossEndpoints
+    public static void MapClosingBusinessEndpoints(this WebApplication app)
     {
-        private readonly IProfitLossService _profitLossService;
-
-        public ProfitLossEndpoints(IProfitLossService profitLossService)
-        {
-            _profitLossService = profitLossService;
-        }
-
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            var group = app.MapGroup("FVP/closing/profit-losses")
+        var group = app.MapGroup("api/v1/FVP/closing/profit-losses")
                 .WithTags("Profit & Loss")
                 .WithOpenApi();
 
-            group.MapPost(
+        group.MapPost(
                     "LoadProfitLoss",
                     async (
-                        [FromBody] ProfitandLossLoadCommand request,
+                        [Microsoft.AspNetCore.Mvc.FromBody] ProfitandLossLoadCommand request,
                         ISender sender
                     ) =>
                     {
-                        var result = await _profitLossService
-                            .LoadProfitLossAsync(request, sender);
+                        var result = await sender.Send(request);
                         return result.ToApiResult();
                     }
                 )
@@ -67,7 +62,7 @@ namespace MFFVP.Api.BffWeb.Closing.ProfitLosses
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-            group.MapGet(
+        group.MapGet(
                     "GetProfitandLoss",
                     async (
                         [FromQuery] int portfolioId,
@@ -76,8 +71,7 @@ namespace MFFVP.Api.BffWeb.Closing.ProfitLosses
                     ) =>
                     {
                         var request = new GetProfitandLossQuery(portfolioId, effectiveDate);
-                        var result = await _profitLossService
-                            .GetProfitandLossAsync(request, sender);
+                        var result = await sender.Send(request);
                         return result.ToApiResult();
                     }
                 )
@@ -117,6 +111,5 @@ namespace MFFVP.Api.BffWeb.Closing.ProfitLosses
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
-        }
     }
 }

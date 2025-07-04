@@ -1,30 +1,30 @@
-using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Domain;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using MediatR;
-using MFFVP.Api.Application.Products;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+
 using Products.Integrations.Objectives.CreateObjective;
 using Products.Integrations.Objectives.GetObjectives;
+using Products.Integrations.Portfolios;
+using Products.Integrations.Portfolios.GetPortfolio;
+using Products.Integrations.Portfolios.GetPortfolios;
 
-namespace MFFVP.Api.BffWeb.Products.Objectives;
+namespace Products.Presentation.MinimalApis;
 
-public sealed class ObjectivesEndpoints
+public static class ProductsBusinessApi
 {
-    private readonly IObjectivesService _objectivesService;
-
-    public ObjectivesEndpoints(IObjectivesService objectivesService)
+    public static void MapProductsBusinessEndpoints(this WebApplication app)
     {
-        _objectivesService = objectivesService;
-    }
-
-    public void MapEndpoint(IEndpointRouteBuilder app)
-    {
-        var group = app.MapGroup("FVP/Product")
-            .WithTags("Product")
-            .WithOpenApi();
+        var group = app.MapGroup("api/v1/FVP/Product")
+                .WithTags("Product")
+                .WithOpenApi();
 
         group.MapGet(
                 "GetGoals",
@@ -36,8 +36,7 @@ public sealed class ObjectivesEndpoints
                 ) =>
                 {
                     var st = MapStatus(status);
-                    var result = await _objectivesService
-                        .GetObjectivesAsync(typeId, identification, st, sender);
+                    var result = await sender.Send(new GetObjectivesQuery(typeId, identification, st));
                     return result.Match(
                         Results.Ok,
                         r => r.Error.Type == ErrorType.Validation
@@ -63,18 +62,18 @@ public sealed class ObjectivesEndpoints
             {
                 var p0 = operation.Parameters.First(p => p.Name == "typeId");
                 p0.Description = "Tipo de identificación del cliente (C=Ciudadanía, R=RUC, P=Pasaporte)";
-                p0.Example     = new OpenApiString("C");
+                p0.Example = new OpenApiString("C");
 
                 var p1 = operation.Parameters.First(p => p.Name == "identification");
                 p1.Description = "Número de documento";
-                p1.Example     = new OpenApiString("27577533");
-                
+                p1.Example = new OpenApiString("27577533");
+
                 var p2 = operation.Parameters.First(p => p.Name == "status");
                 p2.Description = "Estado de los objetivos (A=Activo, I=Inactivo, T=Todos)";
-                p2.Example     = new OpenApiString("A");
-                
+                p2.Example = new OpenApiString("A");
+
                 p2.Schema ??= new OpenApiSchema { Type = "string" };
-                
+
                 if (p2.Schema.Enum is null || p2.Schema.Enum.Count == 0)
                 {
                     p2.Schema.Enum = new List<IOpenApiAny>
@@ -97,8 +96,7 @@ public sealed class ObjectivesEndpoints
                     ISender sender
                 ) =>
                 {
-                    var resultado = await _objectivesService
-                        .CreateObjectiveAsync(comando, sender);
+                    var resultado = await sender.Send(comando);
                     return resultado.ToApiResult();
                 }
             )
@@ -124,8 +122,62 @@ public sealed class ObjectivesEndpoints
             .Produces<ObjectiveResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet(
+                    "Portfolios/GetById",
+                    async (
+                        [FromQuery] int portfolioId,
+                        ISender sender
+                    ) =>
+                    {
+                        var result = await sender.Send(new GetPortfolioQuery(portfolioId));
+                        return result.ToApiResult();
+                    }
+                )
+                .WithName("GetPortfolioById")
+                .WithSummary("Obtiene un portafolio por su identificador")
+                .WithDescription("""
+                                 **Ejemplo de llamada:**
+
+                                 ```http
+                                 GET /FVP/products/portfolios/GetById?portfolioId=123
+                                 ```
+
+                                 - `portfolioId`: Identificador del portafolio (e.g., 123)
+                                 """)
+                .WithOpenApi(operation =>
+                {
+                    var p = operation.Parameters.First(p => p.Name == "portfolioId");
+                    p.Description = "Identificador único del portafolio";
+                    p.Example = new OpenApiInteger(123);
+                    return operation;
+                })
+                .Produces<PortfolioResponse>(StatusCodes.Status200OK)
+                .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet(
+                    "Portfolios/GetAllPortfolios",
+                    async (ISender sender) =>
+                    {
+                        var result = await sender.Send(new GetPortfoliosQuery());
+                        return result.Value;
+                    }
+                )
+                .WithName("GetAllPortfolios")
+                .WithSummary("Obtiene todos los portafolios")
+                .WithDescription("""
+                                 **Ejemplo de llamada:**
+
+                                 ```http
+                                 GET /FVP/products/portfolios/GetAllPortfolios
+                                 ```
+                                 """)
+                .Produces<IReadOnlyCollection<PortfolioResponse>>(StatusCodes.Status200OK)
+                .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
-    
+
+
+
     private static StatusType MapStatus(string? raw) =>
         string.IsNullOrWhiteSpace(raw)
             ? StatusType.Missing
@@ -134,6 +186,6 @@ public sealed class ObjectivesEndpoints
                 "A" => StatusType.A,
                 "I" => StatusType.I,
                 "T" => StatusType.T,
-                _   => StatusType.Unknown
+                _ => StatusType.Unknown
             };
 }

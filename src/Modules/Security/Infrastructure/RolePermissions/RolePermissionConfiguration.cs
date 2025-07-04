@@ -9,15 +9,15 @@ internal sealed class RolePermissionConfiguration : IEntityTypeConfiguration<Rol
 {
     public void Configure(EntityTypeBuilder<RolePermission> builder)
     {
-        builder.ToTable("role_permissions", "security");
+        builder.ToTable("permisos_roles");
 
         builder.HasKey(rp => rp.Id);
         builder.Property(rp => rp.Id).HasColumnName("id");
-        builder.Property(rp => rp.RolesId).HasColumnName("roles_id");
-        builder.Property(rp => rp.ScopePermission).HasColumnName("scope_permission");
+        builder.Property(rp => rp.RolesId).HasColumnName("rol_id");
+        builder.Property(rp => rp.ScopePermission).HasColumnName("permiso_ambito");
 
         builder.HasMany(rp => rp.UserRoles)
                .WithOne(ur => ur.RolePermission)
                .HasForeignKey(ur => ur.RolePermissionsId);
-    }
+    }   
 }
