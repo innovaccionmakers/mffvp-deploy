@@ -1,4 +1,4 @@
-﻿    using Common.SharedKernel.Application.Messaging;
+﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Customers.Domain.People;
 using Customers.Integrations.People;
@@ -6,12 +6,11 @@ using Customers.Integrations.People.GetPersons;
 
 namespace Customers.Application.People.GetPersons;
 
-internal sealed class GetPersonsByFilterQueryHandler(IPersonRepository repository) : IQueryHandler<GetPersonsByFilterQuery, IReadOnlyCollection<PersonResponse>>
+internal sealed class GetPersonsByDocumentsQueryHandler(IPersonRepository repository) : IQueryHandler<GetPersonsByDocumentsQuery, IReadOnlyCollection<PersonResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<PersonResponse>>> Handle(GetPersonsByFilterQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<PersonResponse>>> Handle(GetPersonsByDocumentsQuery request, CancellationToken cancellationToken)
     {
-        var persons = await repository.GetActivePersonsByFilterAsync(request.IdentificationType, request.SearchBy, request.Text, cancellationToken);
-
+        var persons = await repository.GetPersonsByDocumentsAsync(request.Documents, cancellationToken);
         var response = persons
             .Select(e => new PersonResponse(
                 e.PersonId,
@@ -37,7 +36,6 @@ internal sealed class GetPersonsByFilterQueryHandler(IPersonRepository repositor
                 e.InvestorTypeId,
                 e.RiskProfileId))
             .ToList();
-
         return Result.Success<IReadOnlyCollection<PersonResponse>>(response);
     }
-}
+} 

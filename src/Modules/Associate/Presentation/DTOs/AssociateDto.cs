@@ -2,7 +2,8 @@
 
 public record AssociateDto(
     string Identification,
-    string IdentificationType,
+    string DocumentType,
+    Guid DocumentTypeUuid,
     int Id,
     bool Pensioner,
     DateTime ActivateDate
