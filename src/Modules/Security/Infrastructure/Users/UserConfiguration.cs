@@ -9,16 +9,16 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable("user", "security");
+        builder.ToTable("usuarios");
 
         builder.HasKey(u => u.Id);
         builder.Property(u => u.Id).HasColumnName("id");
-        builder.Property(u => u.UserName).HasColumnName("user_name");
-        builder.Property(u => u.Name).HasColumnName("name");
-        builder.Property(u => u.MiddleName).HasColumnName("middle_name");
-        builder.Property(u => u.Identification).HasColumnName("identification");
-        builder.Property(u => u.Email).HasColumnName("email");
-        builder.Property(u => u.DisplayName).HasColumnName("display_name");
+        builder.Property(u => u.UserName).HasColumnName("nombre_usuario");
+        builder.Property(u => u.Name).HasColumnName("nombre");
+        builder.Property(u => u.MiddleName).HasColumnName("segundo_nombre");
+        builder.Property(u => u.Identification).HasColumnName("identificacion");
+        builder.Property(u => u.Email).HasColumnName("correo");
+        builder.Property(u => u.DisplayName).HasColumnName("nombre_mostrar");
 
         builder.HasMany(u => u.UserRoles)
                .WithOne(ur => ur.User)

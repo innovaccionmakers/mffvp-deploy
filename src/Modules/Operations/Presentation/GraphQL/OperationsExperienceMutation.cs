@@ -1,5 +1,13 @@
-﻿using HotChocolate;
+﻿using Common.SharedKernel.Presentation.Filters;
+
+using FluentValidation;
+
+using HotChocolate;
 using MediatR;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL.Inputs;
@@ -12,11 +20,28 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
 
     public async Task<ContributionMutationResult> RegisterContributionAsync(
         CreateContributionInput input,
+        IValidator<CreateContributionInput> validator,
         CancellationToken cancellationToken = default
     )
     {
         try
         {
+
+            var validationResult = await RequestValidator.Validate<CreateContributionInput>(input, validator);
+
+            if (validationResult is not null)
+            {
+                var errorDetails = validationResult.Error != null
+                    ? $"Código: {validationResult.Error.Code}, Descripción: {validationResult.Error.Description}, Tipo: {validationResult.Error.Type}"
+                    : "Error desconocido";
+                return new ContributionMutationResult
+                (
+                    false,
+                    $"Error al registrar aporte: {errorDetails}",
+                    null
+                );
+            }
+
             var command = new CreateContributionCommand(
                 input.TypeId,
                 input.Identification,

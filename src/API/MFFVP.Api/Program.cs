@@ -122,6 +122,12 @@ if (closingModuleAssembly != null)
     builder.Services.AddModulesFromAssembly(closingModuleAssembly, builder.Configuration);
 }
 
+var securityModuleAssembly = Assembly.GetAssembly(typeof(Security.Infrastructure.SecurityModule));
+if (securityModuleAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(securityModuleAssembly, builder.Configuration);
+}
+
 var bffAssembly = Assembly.GetAssembly(typeof(MFFVP.BFF.ModuleConfiguration));
 if (bffAssembly != null)
 {

@@ -9,12 +9,12 @@ internal sealed class UserPermissionConfiguration : IEntityTypeConfiguration<Use
 {
     public void Configure(EntityTypeBuilder<UserPermission> builder)
     {
-        builder.ToTable("user_permissions", "security");
+        builder.ToTable("permisos_usuarios");
 
         builder.HasKey(up => up.Id);
         builder.Property(up => up.Id).HasColumnName("id");
-        builder.Property(up => up.UserId).HasColumnName("user_id");
-        builder.Property(up => up.PermitToken).HasColumnName("permit_token");
-        builder.Property(up => up.Granted).HasColumnName("granted");
+        builder.Property(up => up.UserId).HasColumnName("usuario_id");
+        builder.Property(up => up.PermitToken).HasColumnName("token_permiso");
+        builder.Property(up => up.Granted).HasColumnName("concedido");
     }
 }
