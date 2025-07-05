@@ -4,9 +4,9 @@ namespace Products.Presentation.DTOs;
 
 public record AlternativeDto(
     [property: GraphQLName("alternativaId")] int Id,
-    [property: GraphQLName("TipoAlternativaId")] int AlternativeTypeId,
+    [property: GraphQLName("tipoAlternativaId")] int AlternativeTypeId,
     [property: GraphQLName("nombre")] string Name,
     [property: GraphQLName("descripcion")] string Description,
-    [property: GraphQLName("estado")] int State,
+    [property: GraphQLName("estado")] string State,
     [property: GraphQLName("codigoHomologado")] string HomologationCode
 );

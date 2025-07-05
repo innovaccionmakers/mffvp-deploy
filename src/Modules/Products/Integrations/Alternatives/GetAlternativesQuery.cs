@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Common.SharedKernel.Application.Messaging;
+using Products.Domain.Alternatives;
 
-namespace Products.Integrations.Alternatives
-{
-    internal class GetAlternativesQuery
-    {
-    }
-}
+namespace Products.Integrations.Alternatives;
+
+public sealed record class GetAlternativesQuery : IQuery<IReadOnlyCollection<Alternative>>;
