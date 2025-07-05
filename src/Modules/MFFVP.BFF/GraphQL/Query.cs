@@ -40,6 +40,13 @@ public class Query
         return await productsExperienceQueries.GetGoalsAsync(typeId, identification, status, cancellationToken);
     }
 
+    [GraphQLName("tipoObjetivo")]
+    public async Task<IReadOnlyCollection<GoalTypeDto>> GetGoalTypesAsync([Service] IProductsExperienceQueries productsQueries,
+                                                                          CancellationToken cancellationToken = default)
+    {
+        return await productsQueries.GetGoalTypesAsync(cancellationToken);
+    }
+
     //Operations Queries
     [GraphQLName("tipoTransaccion")]
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypes([Service] IOperationsExperienceQueries operationsQueries,
