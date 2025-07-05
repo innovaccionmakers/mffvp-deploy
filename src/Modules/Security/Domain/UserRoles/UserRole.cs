@@ -1,4 +1,6 @@
-﻿using Security.Domain.RolePermissions;
+﻿using Common.SharedKernel.Domain;
+
+using Security.Domain.RolePermissions;
 using Security.Domain.Users;
 
 namespace Security.Domain.UserRoles;
@@ -14,9 +16,29 @@ public sealed class UserRole
 
     private UserRole() { }
 
-    public UserRole(int rolePermissionsId, int userId)
+    public static Result<UserRole> Create(int rolePermissionsId, int userId)
     {
-        RolePermissionsId = rolePermissionsId;
-        UserId = userId;
+        if (rolePermissionsId <= 0)
+        {
+            return Result.Failure<UserRole>(Error.Validation(
+                "UserRole.InvalidRolePermissionId",
+                "The RolePermissionsId must be greater than zero."));
+        }
+
+        if (userId <= 0)
+        {
+            return Result.Failure<UserRole>(Error.Validation(
+                "UserRole.InvalidUserId",
+                "The UserId must be greater than zero."));
+        }
+
+        var userRole = new UserRole
+        {
+            Id = default,
+            RolePermissionsId = rolePermissionsId,
+            UserId = userId
+        };
+
+        return Result.Success(userRole);
     }
 }

@@ -12,7 +12,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.ToTable("usuarios");
 
         builder.HasKey(u => u.Id);
-        builder.Property(u => u.Id).HasColumnName("id");
+        builder.Property(u => u.Id).HasColumnName("id").ValueGeneratedNever();
         builder.Property(u => u.UserName).HasColumnName("nombre_usuario");
         builder.Property(u => u.Name).HasColumnName("nombre");
         builder.Property(u => u.MiddleName).HasColumnName("segundo_nombre");

@@ -13,8 +13,8 @@ internal sealed class RolePermissionConfiguration : IEntityTypeConfiguration<Rol
 
         builder.HasKey(rp => rp.Id);
         builder.Property(rp => rp.Id).HasColumnName("id");
-        builder.Property(rp => rp.RolesId).HasColumnName("rol_id");
-        builder.Property(rp => rp.ScopePermission).HasColumnName("permiso_ambito");
+        builder.Property(rp => rp.RoleId).HasColumnName("rol_id");
+        builder.Property(rp => rp.ScopePermission).HasColumnName("permiso");
 
         builder.HasMany(rp => rp.UserRoles)
                .WithOne(ur => ur.RolePermission)
