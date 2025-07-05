@@ -1,8 +1,10 @@
-﻿using Security.Domain.RolePermissions;
+﻿using Common.SharedKernel.Domain;
+
+using Security.Domain.RolePermissions;
 
 namespace Security.Domain.Roles;
 
-public sealed class Role
+public sealed class Role : Entity
 {
     public int Id { get; private set; }
     public string Name { get; private set; } = string.Empty;
@@ -12,9 +14,20 @@ public sealed class Role
 
     private Role() { }
 
-    public Role(int id, string name, string objective)
+    public static Result<Role> Create(int id, string name, string objective)
     {
-        Id = id;
+        var role = new Role
+        {
+            Id = id,
+            Name = name,
+            Objective = objective
+        };
+
+        return Result.Success(role);
+    }
+
+    public void Update(string name, string objective)
+    {
         Name = name;
         Objective = objective;
     }

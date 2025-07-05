@@ -1,9 +1,11 @@
-﻿using Security.Domain.UserPermissions;
+﻿using Common.SharedKernel.Domain;
+
+using Security.Domain.UserPermissions;
 using Security.Domain.UserRoles;
 
 namespace Security.Domain.Users;
 
-public sealed class User
+public sealed class User : Entity
 {
     public int Id { get; private set; }
     public string UserName { get; private set; } = string.Empty;

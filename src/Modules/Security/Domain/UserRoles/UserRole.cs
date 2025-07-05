@@ -5,7 +5,7 @@ using Security.Domain.Users;
 
 namespace Security.Domain.UserRoles;
 
-public sealed class UserRole
+public sealed class UserRole : Entity
 {
     public int Id { get; private set; }
     public int RolePermissionsId { get; private set; }
@@ -18,20 +18,6 @@ public sealed class UserRole
 
     public static Result<UserRole> Create(int rolePermissionsId, int userId)
     {
-        if (rolePermissionsId <= 0)
-        {
-            return Result.Failure<UserRole>(Error.Validation(
-                "UserRole.InvalidRolePermissionId",
-                "The RolePermissionsId must be greater than zero."));
-        }
-
-        if (userId <= 0)
-        {
-            return Result.Failure<UserRole>(Error.Validation(
-                "UserRole.InvalidUserId",
-                "The UserId must be greater than zero."));
-        }
-
         var userRole = new UserRole
         {
             Id = default,

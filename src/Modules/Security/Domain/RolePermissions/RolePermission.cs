@@ -5,7 +5,7 @@ using Security.Domain.UserRoles;
 
 namespace Security.Domain.RolePermissions;
 
-public sealed class RolePermission
+public sealed class RolePermission : Entity
 {
     public int Id { get; private set; }
     public int RoleId { get; private set; }

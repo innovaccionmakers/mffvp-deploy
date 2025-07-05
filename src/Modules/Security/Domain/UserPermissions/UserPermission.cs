@@ -1,8 +1,10 @@
-﻿using Security.Domain.Users;
+﻿using Common.SharedKernel.Domain;
+
+using Security.Domain.Users;
 
 namespace Security.Domain.UserPermissions;
 
-public sealed class UserPermission
+public sealed class UserPermission : Entity
 {
     public int Id { get; private set; }
     public int UserId { get; private set; }
