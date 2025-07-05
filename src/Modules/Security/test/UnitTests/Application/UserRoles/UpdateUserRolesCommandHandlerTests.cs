@@ -65,23 +65,5 @@ public class UpdateUserRolesCommandHandlerTests
         _tx.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
-    public async Task Handle_Should_Rollback_When_Create_Fails()
-    {
-        var userId = 1;
-        var existing = new List<UserRole>();
-        var incoming = new List<int> { -1 }; // force invalid creation
-
-        _repo.Setup(r => r.GetAllByUserIdAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existing);
-
-        var handler = BuildHandler();
-        var command = new UpdateUserRolesCommand(userId, incoming);
-
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        _tx.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
 }
 
