@@ -12,7 +12,7 @@ public class GetAlternativesQueryHandler(
         GetAlternativesQuery request,
         CancellationToken cancellationToken)
     {
-        var result = await repository.GetAllAsync(cancellationToken);
+        var result = await repository.GetAllActiveAsync(cancellationToken);
 
         return Result.Success(result);
     }
