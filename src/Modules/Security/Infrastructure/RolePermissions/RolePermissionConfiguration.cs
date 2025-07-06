@@ -9,7 +9,7 @@ internal sealed class RolePermissionConfiguration : IEntityTypeConfiguration<Rol
 {
     public void Configure(EntityTypeBuilder<RolePermission> builder)
     {
-        builder.ToTable("permisos_roles");
+        builder.ToTable("roles_permisos");
 
         builder.HasKey(rp => rp.Id);
         builder.Property(rp => rp.Id).HasColumnName("id");

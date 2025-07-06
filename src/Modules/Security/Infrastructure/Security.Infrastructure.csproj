@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Presentation\Security.Presentation.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Database\Migrations\" />
+  </ItemGroup>
+
 </Project>
