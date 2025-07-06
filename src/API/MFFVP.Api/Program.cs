@@ -73,6 +73,7 @@ Assembly[] moduleApplicationAssemblies =
     Customers.Application.AssemblyReference.Assembly,
     Operations.Application.AssemblyReference.Assembly,
     Closing.Application.AssemblyReference.Assembly,
+    Security.Application.AssemblyReference.Assembly
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);

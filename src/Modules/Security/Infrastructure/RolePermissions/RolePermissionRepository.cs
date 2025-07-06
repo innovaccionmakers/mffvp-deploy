@@ -26,4 +26,12 @@ internal sealed class RolePermissionRepository(SecurityDbContext context) : IRol
         return await context.RolePermissions
             .AnyAsync(rp => rp.RoleId == roleId && rp.ScopePermission == scopePermission, cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<string>> GetPermissionsByRoleIdAsync(int roleId, CancellationToken cancellationToken = default)
+    {
+        return await context.RolePermissions
+            .Where(rp => rp.RoleId == roleId)
+            .Select(rp => rp.ScopePermission)
+            .ToListAsync(cancellationToken);
+    }
 }

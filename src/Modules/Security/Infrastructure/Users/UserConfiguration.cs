@@ -15,7 +15,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Id).HasColumnName("id").ValueGeneratedNever();
         builder.Property(u => u.UserName).HasColumnName("nombre_usuario");
         builder.Property(u => u.Name).HasColumnName("nombre");
-        builder.Property(u => u.MiddleName).HasColumnName("segundo_nombre");
+        builder.Property(u => u.MiddleName).HasColumnName("apellido");
         builder.Property(u => u.Identification).HasColumnName("identificacion");
         builder.Property(u => u.Email).HasColumnName("correo");
         builder.Property(u => u.DisplayName).HasColumnName("nombre_mostrar");

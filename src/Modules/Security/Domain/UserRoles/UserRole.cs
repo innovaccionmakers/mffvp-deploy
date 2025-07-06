@@ -20,7 +20,6 @@ public sealed class UserRole : Entity
     {
         var userRole = new UserRole
         {
-            Id = default,
             RolePermissionsId = rolePermissionsId,
             UserId = userId
         };

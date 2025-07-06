@@ -8,4 +8,5 @@ public interface IRolePermissionRepository
     void Update(RolePermission rolePermission);
     void Delete(RolePermission rolePermission);
     Task<bool> ExistsAsync(int roleId, string scopePermission, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<string>> GetPermissionsByRoleIdAsync(int roleId, CancellationToken cancellationToken = default);
 }

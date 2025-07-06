@@ -20,7 +20,6 @@ public sealed class RolePermission : Entity
     {
         var rolePermission = new RolePermission
         {
-            Id = default,
             RoleId = roleId,
             ScopePermission = scopePermission
         };

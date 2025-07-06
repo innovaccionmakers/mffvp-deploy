@@ -31,6 +31,30 @@ public static class SecurityBusinessApi
             .WithName("Permissions")
             .WithSummary("Retorna una lista de permisos");
 
+        group.MapGet(
+            "GetRolePermissions/{roleId:int}",
+            async (
+                [FromRoute] int roleId,
+                ISender sender
+            ) =>
+            {
+                var result = await sender.Send(new GetPermissionsByRoleIdQuery(roleId));
+                return result.Value;
+            }
+            )
+            .WithName("GetPermissionsByRoleId")
+            .WithSummary("Obtener los permisos asignados a un rol")
+            .WithDescription("""
+                             Devuelve una lista de permisos asociados rol proporcionado.
+                     
+                             **Ejemplo de ruta:**
+                             `GET /api/v1/FVP/Security/GetRolePermissions/1`
+                             """)
+            .Produces<IReadOnlyCollection<string>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+
         group.MapPost(
                 "CreateRolePermission",
                 async (
