@@ -13,6 +13,9 @@ public interface IProductsExperienceQueries
 
     Task<IReadOnlyCollection<AlternativeDto>> GetAlternativesAsync(
         CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<GoalTypeDto>> GetGoalTypesAsync(
+        CancellationToken cancellationToken = default
+    );
 
     Task<IReadOnlyCollection<GoalDto>> GetGoalsAsync(
         string typeId, string identification, StatusType status,

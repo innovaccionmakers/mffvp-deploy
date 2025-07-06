@@ -6,10 +6,10 @@ using Security.Domain.UserPermissions;
 
 namespace Security.Application.Users;
 
-public sealed class AssignPermissionsCommandHandler(IUserPermissionRepository repository)
-    : ICommandHandler<AssignPermissionsCommand>
+public sealed class CreatePermissionsCommandHandler(IUserPermissionRepository repository)
+    : ICommandHandler<CreatePermissionsCommand>
 {
-    public async Task<Result> Handle(AssignPermissionsCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CreatePermissionsCommand request, CancellationToken cancellationToken)
     {
         foreach (var (token, granted) in request.Permissions)
         {

@@ -20,4 +20,18 @@ internal sealed class RolePermissionRepository(SecurityDbContext context) : IRol
     public void Insert(RolePermission rolePermission) => context.RolePermissions.Add(rolePermission);
     public void Update(RolePermission rolePermission) => context.RolePermissions.Update(rolePermission);
     public void Delete(RolePermission rolePermission) => context.RolePermissions.Remove(rolePermission);
+
+    public async Task<bool> ExistsAsync(int roleId, string scopePermission, CancellationToken cancellationToken = default)
+    {
+        return await context.RolePermissions
+            .AnyAsync(rp => rp.RoleId == roleId && rp.ScopePermission == scopePermission, cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<string>> GetPermissionsByRoleIdAsync(int roleId, CancellationToken cancellationToken = default)
+    {
+        return await context.RolePermissions
+            .Where(rp => rp.RoleId == roleId)
+            .Select(rp => rp.ScopePermission)
+            .ToListAsync(cancellationToken);
+    }
 }

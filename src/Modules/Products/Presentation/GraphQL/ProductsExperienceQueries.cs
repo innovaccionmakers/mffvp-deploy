@@ -4,6 +4,7 @@ using HotChocolate;
 using MediatR;
 using Products.Integrations.Alternatives;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
+using Products.Integrations.ConfigurationParameters.GoalTypes;
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
@@ -53,6 +54,28 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.HomologatedCode
         )).ToList();
     }
+
+    public async Task<IReadOnlyCollection<GoalTypeDto>> GetGoalTypesAsync(
+        CancellationToken cancellationToken = default
+    )
+    {
+        var result = await mediator.Send(new GetGoalTypesQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve goal types.");
+        }
+
+        var goalTypes = result.Value;
+
+        return goalTypes.Select(x => new GoalTypeDto(
+            x.Uuid,
+            x.Name,
+            x.Status,
+            x.HomologationCode
+        )).ToList();
+    }
+
 
     public async Task<IReadOnlyCollection<GoalDto>> GetGoalsAsync(string typeId, string identification, StatusType status, CancellationToken cancellationToken = default)
     {

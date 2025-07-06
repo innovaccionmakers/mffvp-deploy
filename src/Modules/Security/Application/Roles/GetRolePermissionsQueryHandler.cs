@@ -12,7 +12,7 @@ public sealed class GetRolePermissionsQueryHandler(IRolePermissionRepository rep
     public async Task<Result<IReadOnlyCollection<RolePermission>>> Handle(GetRolePermissionsQuery request, CancellationToken cancellationToken)
     {
         var all = await repository.GetAllAsync(cancellationToken);
-        var filtered = all.Where(p => p.RolesId == request.RoleId).ToList();
+        var filtered = all.Where(p => p.RoleId == request.RoleId).ToList();
 
         return Result.Success<IReadOnlyCollection<RolePermission>>(filtered);
     }

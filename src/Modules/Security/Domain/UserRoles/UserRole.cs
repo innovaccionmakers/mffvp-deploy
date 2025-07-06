@@ -1,9 +1,11 @@
-﻿using Security.Domain.RolePermissions;
+﻿using Common.SharedKernel.Domain;
+
+using Security.Domain.RolePermissions;
 using Security.Domain.Users;
 
 namespace Security.Domain.UserRoles;
 
-public sealed class UserRole
+public sealed class UserRole : Entity
 {
     public int Id { get; private set; }
     public int RolePermissionsId { get; private set; }
@@ -14,9 +16,14 @@ public sealed class UserRole
 
     private UserRole() { }
 
-    public UserRole(int rolePermissionsId, int userId)
+    public static Result<UserRole> Create(int rolePermissionsId, int userId)
     {
-        RolePermissionsId = rolePermissionsId;
-        UserId = userId;
+        var userRole = new UserRole
+        {
+            RolePermissionsId = rolePermissionsId,
+            UserId = userId
+        };
+
+        return Result.Success(userRole);
     }
 }

@@ -9,11 +9,11 @@ internal sealed class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 {
     public void Configure(EntityTypeBuilder<UserRole> builder)
     {
-        builder.ToTable("user_roles");
+        builder.ToTable("usuarios_roles");
 
         builder.HasKey(ur => ur.Id);
         builder.Property(ur => ur.Id).HasColumnName("id");
-        builder.Property(ur => ur.RolePermissionsId).HasColumnName("permiso_rol_id");
+        builder.Property(ur => ur.RolePermissionsId).HasColumnName("rol_permiso_id");
         builder.Property(ur => ur.UserId).HasColumnName("usuario_id");
     }
 }

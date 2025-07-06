@@ -2,7 +2,8 @@
 
 namespace Security.Application.Contracts.Roles;
 
-public sealed record class AssignRolePermissionCommand(
-    int RoleId,
-    List<string> ScopePermissions
+public sealed record class CreateRoleCommand(
+    int Id,
+    string Name,
+    string Objective
 ) : ICommand;
