@@ -3,13 +3,20 @@ using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Database;
 using Common.SharedKernel.Domain;
 
-namespace Associate.Infrastructure;
+namespace Associate.Infrastructure.PensionRequirements;
 
 internal sealed class PensionRequirementRepository(AssociateDbContext context) : IPensionRequirementRepository
 {
     public async Task<IReadOnlyCollection<PensionRequirement>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await context.PensionRequirements.ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<PensionRequirement>> GetAllByAssociateAsync(int associateId, CancellationToken cancellationToken = default)
+    {
+        return await context.PensionRequirements
+            .Where(r => r.ActivateId == associateId && r.Status == Status.Active)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<PensionRequirement?> GetAsync(int PensionRequirementId, CancellationToken cancellationToken = default)

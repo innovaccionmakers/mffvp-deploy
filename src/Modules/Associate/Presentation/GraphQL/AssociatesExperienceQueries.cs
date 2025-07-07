@@ -1,5 +1,6 @@
 ﻿using Associate.Integrations.Activates.GetActivate;
 using Associate.Integrations.Activates.GetActivates;
+using Associate.Integrations.PensionRequirements.GetPensionRequirements;
 using Associate.Presentation.DTOs;
 using MediatR;
 
@@ -10,10 +11,8 @@ public class AssociatesExperienceQueries(IMediator mediator) : IAssociatesExperi
     public async Task<IReadOnlyCollection<AssociateDto>> GetAllAssociatesAsync(CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetActivatesQuery(), cancellationToken);
-        if (!result.IsSuccess || result.Value == null)
-        {
-            throw new InvalidOperationException("Failed to retrieve associates information.");
-        }
+        if (!result.IsSuccess || result.Value == null) return [];
+
         var associates = result.Value;
 
         return associates.Select(x => new AssociateDto(
@@ -42,5 +41,21 @@ public class AssociatesExperienceQueries(IMediator mediator) : IAssociatesExperi
             associate.Pensioner,
             associate.ActivateDate  
         );
+    }
+
+    public async Task<IReadOnlyCollection<PensionRequirementDto>> GetPensionRequirementsByAssociateAsync(int associateId, CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetPensionRequirementsByAssociateQuery(associateId), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null) return [];
+
+        var pensionRequirements = result.Value;
+
+        return pensionRequirements.Select(pr => new PensionRequirementDto(
+            pr.PensionRequirementId,
+            pr.StartDate,
+            pr.ExpirationDate,
+            pr.Status
+        )).ToList();
     }
 }
