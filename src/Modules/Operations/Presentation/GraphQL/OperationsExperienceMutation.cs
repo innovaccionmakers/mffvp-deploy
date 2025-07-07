@@ -1,13 +1,7 @@
 ﻿using Common.SharedKernel.Presentation.Filters;
-
+using Common.SharedKernel.Presentation.Results;
 using FluentValidation;
-
-using HotChocolate;
 using MediatR;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL.Inputs;
@@ -18,84 +12,87 @@ namespace Operations.Presentation.GraphQL;
 public class OperationsExperienceMutation(IMediator mediator) : IOperationsExperienceMutation
 {
 
-    public async Task<ContributionMutationResult> RegisterContributionAsync(
+    public async Task<GraphqlMutationResult<ContributionMutationResult>> RegisterContributionAsync(
         CreateContributionInput input,
         IValidator<CreateContributionInput> validator,
         CancellationToken cancellationToken = default
     )
     {
+        var result = new GraphqlMutationResult<ContributionMutationResult>();
         try
         {
-
-            var validationResult = await RequestValidator.Validate<CreateContributionInput>(input, validator);
+            var validationResult = await RequestValidator.Validate(input, validator);
 
             if (validationResult is not null)
             {
-                var errorDetails = validationResult.Error != null
-                    ? $"Código: {validationResult.Error.Code}, Descripción: {validationResult.Error.Description}, Tipo: {validationResult.Error.Type}"
-                    : "Error desconocido";
-                return new ContributionMutationResult
-                (
-                    false,
-                    $"Error al registrar aporte: {errorDetails}",
-                    null
-                );
+                result.AddError("Error al registrar aporte", GetErrorDetails(validationResult.Error));
+                return result;
             }
 
-            var command = new CreateContributionCommand(
-                input.TypeId,
-                input.Identification,
-                input.ObjectiveId,
-                input.PortfolioId,
-                input.Amount,
-                input.Origin,
-                input.OriginModality,
-                input.CollectionMethod,
-                input.PaymentMethod,
-                JsonDocument.Parse(JsonSerializer.Serialize(input.PaymentMethodDetail)),
-                input.CollectionBank,
-                input.CollectionAccount,
-                input.CertifiedContribution,
-                input.ContingentWithholding,
-                input.DepositDate,
-                input.ExecutionDate,
-                input.SalesUser,
-                JsonDocument.Parse(JsonSerializer.Serialize(input.VerifiableMedium)),
-                input.Subtype,
-                input.Channel,
-                input.User
-            );
-            var result = await mediator.Send(command, cancellationToken);
+            var command = CreateContributionCommand(input);
+            var commandResult = await mediator.Send(command, cancellationToken);
 
-            if (!result.IsSuccess)
+            if (!commandResult.IsSuccess)
             {
-                var errorDetails = result.Error != null
-                    ? $"Código: {result.Error.Code}, Descripción: {result.Error.Description}, Tipo: {result.Error.Type}"
-                    : "Error desconocido";
-
-                return new ContributionMutationResult(
-                    false,
-                    $"Error al registrar aporte: {errorDetails}",
-                    null
-                );
+                result.AddError("Error al registrar aporte", GetErrorDetails(commandResult.Error));
+                return result;
             }
 
-            return new ContributionMutationResult
-            (
-                true,
-                "Aporte registrado exitosamente.",
-                result.Value
+            var detalle = new
+            {
+                condicion_tributaria = commandResult.Value.TaxCondition
+            };
+
+            var detalleJson = JsonDocument.Parse(JsonSerializer.Serialize(detalle));
+
+            var response = new ContributionMutationResult(
+                commandResult.Value.OperationId ?? 0,
+                "Comprobante",
+                detalleJson.RootElement
             );
+
+            result.SetSuccess(response, "Genial!, Se ha procesado la transacción de Aporte");
+            return result;
         }
         catch (Exception ex)
         {
-            return new ContributionMutationResult
-            (
-                false,
-                $"Error al registrar aporte: {ex.Message}",
-                null
-            );
+            result.AddError("Error al registrar aporte", ex.Message);
+            return result;
         }
+    }
+
+    private static CreateContributionCommand CreateContributionCommand(CreateContributionInput input)
+    {
+        return new CreateContributionCommand(
+            input.TypeId,
+            input.Identification,
+            input.ObjectiveId,
+            input.PortfolioId,
+            input.Amount,
+            input.Origin,
+            input.OriginModality,
+            input.CollectionMethod,
+            input.PaymentMethod,
+            JsonDocument.Parse(JsonSerializer.Serialize(input.PaymentMethodDetail)),
+            input.CollectionBank,
+            input.CollectionAccount,
+            input.CertifiedContribution,
+            input.ContingentWithholding,
+            input.DepositDate,
+            input.ExecutionDate,
+            input.SalesUser,
+            JsonDocument.Parse(JsonSerializer.Serialize(input.VerifiableMedium)),
+            input.Subtype,
+            input.Channel,
+            input.User
+        );
+    }
+
+    private static string GetErrorDetails(Common.SharedKernel.Domain.Error? error)
+    {
+        return error != null
+            ? $"Código: {error.Code}, Descripción: {error.Description}, Tipo: {error.Type}"
+            : "Error desconocido";
     }
 
 }
