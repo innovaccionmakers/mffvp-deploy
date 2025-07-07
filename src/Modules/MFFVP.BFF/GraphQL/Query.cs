@@ -1,4 +1,6 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Associate.Presentation.DTOs;
+using Associate.Presentation.GraphQL;
+using Common.SharedKernel.Domain;
 using Customers.Presentation.DTOs;
 using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
@@ -135,6 +137,16 @@ public class Query
     {
         return await operationsQueries.GetWithholdingContingencyAsync(cancellationToken);
     }
+
+    //Associates Queries
+    [GraphQLName("requisitosPension")]
+    public async Task<IReadOnlyCollection<PensionRequirementDto>> GetPensionRequirementsByAssociate(int associateId,
+                                                                                                    [Service] IAssociatesExperienceQueries associatesExperienceQueries,
+                                                                                                    CancellationToken cancellationToken)
+    {
+        return await associatesExperienceQueries.GetPensionRequirementsByAssociateAsync(associateId, cancellationToken);
+    }
+
 
     //Customers Queries
     [GraphQLName("persona")]
