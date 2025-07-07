@@ -8,4 +8,5 @@ public interface IUserRoleRepository
     void Insert(UserRole userRole);
     void Update(UserRole userRole);
     void Delete(UserRole userRole);
+    Task<List<int>> GetRoleIdsByUserIdAsync(int userId);
 }

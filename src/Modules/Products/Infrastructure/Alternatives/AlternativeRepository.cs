@@ -1,3 +1,4 @@
+using Common.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
 using Products.Domain.Alternatives;
 using Products.Infrastructure.Database;
@@ -9,6 +10,12 @@ internal sealed class AlternativeRepository(ProductsDbContext context) : IAltern
     public async Task<IReadOnlyCollection<Alternative>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await context.Alternatives.ToListAsync(cancellationToken);
+    }
+    public async Task<IReadOnlyCollection<Alternative>> GetAllActiveAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.Alternatives
+            .Where(x => x.Status == Status.Active)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<Alternative?> GetAsync(int alternativeId, CancellationToken cancellationToken = default)

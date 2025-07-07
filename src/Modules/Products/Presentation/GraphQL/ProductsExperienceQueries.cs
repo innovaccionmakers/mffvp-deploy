@@ -3,6 +3,7 @@
 using HotChocolate;
 using MediatR;
 using Products.Integrations.Commercials;
+using Products.Integrations.Alternatives;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
 using Products.Integrations.ConfigurationParameters.GoalTypes;
 using Products.Integrations.Objectives.GetObjectives;
@@ -130,5 +131,29 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.Status.ToString(),
             x.HomologatedCode
         )).ToList();
+
+    }
+    public async Task<IReadOnlyCollection<AlternativeDto>> GetAlternativesAsync(
+        CancellationToken cancellationToken = default)
+    {
+
+        var result = await mediator.Send(new GetAlternativesQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve alternatives.");
+        }
+
+        var alternatives = result.Value;
+
+        return alternatives.Select(x => new AlternativeDto(
+            x.AlternativeId,
+            x.AlternativeTypeId,
+            x.Name,
+            x.Description,
+            x.Status.ToString(),
+            x.HomologatedCode
+        )).ToList();
+
     }
 }

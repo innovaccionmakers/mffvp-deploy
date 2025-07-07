@@ -1,6 +1,8 @@
 ﻿using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Infrastructure.Auth.Policy;
 using Common.SharedKernel.Infrastructure.Configuration;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +11,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Security.Application.Abstractions.Data;
+using Security.Application.Auth;
+using Security.Application.Contracts.Auth;
 using Security.Domain.RolePermissions;
 using Security.Domain.Roles;
 using Security.Domain.UserPermissions;
 using Security.Domain.UserRoles;
 using Security.Domain.Users;
+using Security.Infrastructure.Auth;
 using Security.Infrastructure.Database;
 using Security.Infrastructure.RolePermissions;
 using Security.Infrastructure.Roles;
@@ -57,7 +62,13 @@ public class SecurityModule: IModuleConfiguration
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
 
+        services.AddScoped<IUserPermissionService, UserPermissionService>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SecurityDbContext>());
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+        services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
+
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
