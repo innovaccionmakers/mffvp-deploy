@@ -6,4 +6,6 @@ public interface ICommercialRepository
         GetByHomologatedCodeAsync(
             string code,
             CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Commercial>> GetAllActiveAsync(CancellationToken cancellationToken = default);
 }

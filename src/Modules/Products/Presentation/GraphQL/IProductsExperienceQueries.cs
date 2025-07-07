@@ -22,4 +22,7 @@ public interface IProductsExperienceQueries
         CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<OfficeDto>> GetOfficesAsync(
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<CommercialDto>> GetCommercialsAsync(
+        CancellationToken cancellationToken = default);
 }

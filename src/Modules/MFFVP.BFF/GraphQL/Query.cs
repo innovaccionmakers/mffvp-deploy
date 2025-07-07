@@ -60,6 +60,13 @@ public class Query
     {
         return await productsQueries.GetOfficesAsync(cancellationToken);
     }
+    
+    [GraphQLName("comercial")]
+    public async Task<IReadOnlyCollection<CommercialDto>> GetCommercials([Service] IProductsExperienceQueries productsQueries,
+                                                                          CancellationToken cancellationToken = default)
+    {
+        return await productsQueries.GetCommercialsAsync(cancellationToken);
+    }
 
     //Operations Queries
     [GraphQLName("tipoTransaccion")]
