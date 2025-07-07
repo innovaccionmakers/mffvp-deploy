@@ -6,7 +6,6 @@ namespace Closing.Domain.YieldDetails;
 public sealed class YieldDetail : Entity
 {
     public long YieldDetailId { get; private set; }
-    public long YieldId { get; private set; }
     public int PortfolioId { get; private set; }
     public DateTime ClosingDate { get; private set; }
     public string Source { get; private set; } = null!;
@@ -17,15 +16,11 @@ public sealed class YieldDetail : Entity
     public DateTime ProcessDate { get; private set; }
     public bool IsClosed { get; private set; }
 
-    // Navigation properties
-    public Yields.Yield? Yield { get; private set; }
-
     private YieldDetail()
     {
     }
 
     public static Result<YieldDetail> Create(
-        long yieldId,
         int portfolioId,
         DateTime closingDate,
         string source,
@@ -39,7 +34,6 @@ public sealed class YieldDetail : Entity
         var yieldDetail = new YieldDetail
         {
             YieldDetailId = default,
-            YieldId = yieldId,
             PortfolioId = portfolioId,
             ClosingDate = closingDate,
             Source = source,
@@ -55,7 +49,6 @@ public sealed class YieldDetail : Entity
     }
 
     public void UpdateDetails(
-        long yieldId,
         int portfolioId,
         DateTime closingDate,
         string source,
@@ -66,7 +59,6 @@ public sealed class YieldDetail : Entity
         DateTime processDate,
         bool isClosed)
     {
-        YieldId = yieldId;
         PortfolioId = portfolioId;
         ClosingDate = closingDate;
         Source = source;
