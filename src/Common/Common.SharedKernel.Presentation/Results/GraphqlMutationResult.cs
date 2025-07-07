@@ -23,9 +23,3 @@ public class GraphqlMutationResult<T>
         Errors.Clear();
     }
 }
-
-public class ErrorMutationResult
-{
-    public string ErrorMessage { get; set; } = string.Empty;
-    public string ErrorDetail { get; set; } = string.Empty;
-}
