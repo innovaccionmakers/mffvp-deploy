@@ -5,6 +5,7 @@ using MediatR;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
 using Products.Integrations.ConfigurationParameters.GoalTypes;
 using Products.Integrations.Objectives.GetObjectives;
+using Products.Integrations.Offices;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
 
@@ -104,6 +105,31 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.Objective.ObjectiveId,
              x.Objective.ObjectiveName,
              x.Objective.Status
+        )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<OfficeDto>> GetOfficesAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetOfficesQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new GraphQLException(
+                ErrorBuilder.New()
+                    .SetMessage("Failed to retrieve Offices")
+                    .Build()
+            );
+        }
+
+        var commercials = result.Value;
+
+        return commercials.Select(x => new OfficeDto(
+            x.OfficeId,
+            x.Name,
+            x.Prefix,
+            x.CityId.ToString(),
+            x.Status.ToString(),
+            x.HomologatedCode
         )).ToList();
     }
 }

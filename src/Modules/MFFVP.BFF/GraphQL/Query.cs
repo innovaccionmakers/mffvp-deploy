@@ -47,6 +47,13 @@ public class Query
         return await productsQueries.GetGoalTypesAsync(cancellationToken);
     }
 
+    [GraphQLName("oficina")]
+    public async Task<IReadOnlyCollection<OfficeDto>> GetOffices([Service] IProductsExperienceQueries productsQueries,
+                                                                          CancellationToken cancellationToken = default)
+    {
+        return await productsQueries.GetOfficesAsync(cancellationToken);
+    }
+
     //Operations Queries
     [GraphQLName("tipoTransaccion")]
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypes([Service] IOperationsExperienceQueries operationsQueries,

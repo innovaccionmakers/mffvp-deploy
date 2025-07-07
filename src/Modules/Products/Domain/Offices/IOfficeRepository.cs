@@ -6,4 +6,6 @@ public interface IOfficeRepository
         GetByHomologatedCodesAsync(
             IEnumerable<string> codes,
             CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Office>> GetAllActiveAsync(CancellationToken cancellationToken = default);
 }

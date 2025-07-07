@@ -18,4 +18,6 @@ public interface IProductsExperienceQueries
     Task<IReadOnlyCollection<GoalDto>> GetGoalsAsync(
         string typeId, string identification, StatusType status,
         CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<OfficeDto>> GetOfficesAsync(
+        CancellationToken cancellationToken = default);
 }
