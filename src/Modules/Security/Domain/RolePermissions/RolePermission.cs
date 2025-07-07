@@ -26,4 +26,16 @@ public sealed class RolePermission : Entity
 
         return Result.Success(rolePermission);
     }
+
+    public static RolePermission Create(int id, int roleId, string scopePermission)
+    {
+        var rolePermission = new RolePermission
+        {
+            Id = id,
+            RoleId = roleId,
+            ScopePermission = scopePermission
+        };
+
+        return rolePermission;
+    }
 }

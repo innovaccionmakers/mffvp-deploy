@@ -10,14 +10,14 @@ using System.Data.Common;
 namespace Security.Application.RolePermissions;
 
 public sealed record CreateRolePermissionCommandHandler(
-        IRolePermissionRepository repository,
-        IUnitOfWork unitOfWork)
-    : ICommandHandler<CreateRolePermissionCommand>
+    IRolePermissionRepository repository,
+    IUnitOfWork unitOfWork)
+    : ICommandHandler<CreateRolePermissionCommand, int>
 {
-    public async Task<Result> Handle(CreateRolePermissionCommand request, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(CreateRolePermissionCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request.ScopePermission))
-            return Result.Failure(Error.Conflict(
+            return Result.Failure<int>(Error.Conflict(
                 "Permission.Required",
                 "The permission is required."));
 
@@ -25,7 +25,7 @@ public sealed record CreateRolePermissionCommandHandler(
 
         if (exists)
         {
-            return Result.Failure(Error.Conflict(
+            return Result.Failure<int>(Error.Conflict(
                 "RolePermission.Exists",
                 "The permission is already assigned to the specified role."));
         }
@@ -33,6 +33,8 @@ public sealed record CreateRolePermissionCommandHandler(
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var result = RolePermission.Create(request.RoleId, request.ScopePermission);
+        if (result.IsFailure)
+            return Result.Failure<int>(result.Error);
 
         var permission = result.Value;
 
@@ -41,7 +43,6 @@ public sealed record CreateRolePermissionCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return Result.Success();
+        return Result.Success(permission.Id);
     }
 }
-

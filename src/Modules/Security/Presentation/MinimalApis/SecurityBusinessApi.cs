@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Security.Application.Contracts.RolePermissions;
 using Security.Application.Contracts.UserRoles;
+using Security.Presentation.DTOs;
 
 namespace Security.Presentation.MinimalApis;
 
@@ -39,7 +40,17 @@ public static class SecurityBusinessApi
             ) =>
             {
                 var result = await sender.Send(new GetPermissionsByRoleIdQuery(roleId));
-                return result.Value;
+
+                var rolePermissionDtoList = result.Value
+                    .Select(rp => new RolePermissionDto
+                    {
+                        Id = rp.Id,
+                        RoleId = rp.RoleId,
+                        ScopePermission = rp.ScopePermission
+                    })
+                    .ToList();
+
+                return rolePermissionDtoList;
             }
             )
             .WithName("GetPermissionsByRoleId")
@@ -50,7 +61,7 @@ public static class SecurityBusinessApi
                              **Ejemplo de ruta:**
                              `GET /api/v1/FVP/Security/GetRolePermissions/1`
                              """)
-            .Produces<IReadOnlyCollection<string>>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyCollection<RolePermissionDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -63,7 +74,7 @@ public static class SecurityBusinessApi
                 ) =>
                 {
                     var result = await sender.Send(request);
-                    return result.ToApiResult();
+                    return result.Value;
                 }
             )
             .WithName("CreateRolePermission")
@@ -78,7 +89,7 @@ public static class SecurityBusinessApi
                              ```
                              """)
             .Accepts<CreateRolePermissionCommand>("application/json")
-            .Produces(StatusCodes.Status200OK)
+            .Produces<int>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapDelete(
