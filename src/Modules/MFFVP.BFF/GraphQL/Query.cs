@@ -9,6 +9,7 @@ using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
+using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;

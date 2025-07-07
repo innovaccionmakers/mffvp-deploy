@@ -11,6 +11,7 @@ using Products.Integrations.Offices;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
 using Products.Integrations.PlanFunds.GetPlanFund;
+using Products.Presentation.DTOs.PlanFund;
 
 public class ProductsExperienceQueries(IMediator mediator) : IProductsExperienceQueries
 {
@@ -196,12 +197,14 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
         var planFundInformation = result.Value;
 
         return new PlanFundDto(
-            planFundInformation.PlanId,
-            planFundInformation.PlanName,
-            planFundInformation.HomologatedCodePlan,
-            planFundInformation.FundId,
-            planFundInformation.FundName,
-            planFundInformation.HomologatedCodeFund
+            new PlanDto(
+                planFundInformation.PlanId,
+                planFundInformation.PlanName,
+                planFundInformation.HomologatedCodePlan),
+            new FundDto(
+                planFundInformation.FundId,
+                planFundInformation.FundName,
+                planFundInformation.HomologatedCodeFund)
         );
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
+using Products.Presentation.DTOs.PlanFund;
 
 namespace Products.Presentation.GraphQL;
 
