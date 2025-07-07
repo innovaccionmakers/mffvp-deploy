@@ -22,6 +22,7 @@ using Products.Domain.Commercials;
 using Products.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
+using Products.Domain.PlanFunds;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
 using Products.Infrastructure.Alternatives;
@@ -31,6 +32,7 @@ using Products.Infrastructure.Database;
 using Products.Infrastructure.External.Affiliates;
 using Products.Infrastructure.Objectives;
 using Products.Infrastructure.Offices;
+using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
 using Products.IntegrationEvents.ContributionValidation;
@@ -80,6 +82,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<ICommercialRepository, CommercialRepository>();
         services.AddScoped<IOfficeRepository, OfficeRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IPlanFundRepository, PlanFundRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<ProductsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<ProductsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<ProductsModuleMarker>, ErrorCatalog<ProductsModuleMarker>>();

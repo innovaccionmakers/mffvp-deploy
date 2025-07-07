@@ -25,4 +25,7 @@ public interface IProductsExperienceQueries
 
     Task<IReadOnlyCollection<CommercialDto>> GetCommercialsAsync(
         CancellationToken cancellationToken = default);
+
+    Task<PlanFundDto> GetPlanFundAsync(string alternativeId,
+        CancellationToken cancellationToken);
 }

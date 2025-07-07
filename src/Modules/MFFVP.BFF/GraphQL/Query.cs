@@ -70,6 +70,14 @@ public class Query
         return await productsQueries.GetCommercialsAsync(cancellationToken);
     }
 
+    [GraphQLName("obtenerPlanFondo")]
+    public async Task<PlanFundDto> GetPlanFund([GraphQLName("idAlternativa")] string alternativeId,
+                                                 [Service] IProductsExperienceQueries productsQueries,
+                                                 CancellationToken cancellationToken)
+    {
+        return await productsQueries.GetPlanFundAsync(alternativeId, cancellationToken);
+    }
+
     //Operations Queries
     [GraphQLName("tipoTransaccion")]
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypes([Service] IOperationsExperienceQueries operationsQueries,
