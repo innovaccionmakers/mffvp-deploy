@@ -9,6 +9,7 @@ using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
+using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;
@@ -68,6 +69,14 @@ public class Query
                                                                           CancellationToken cancellationToken = default)
     {
         return await productsQueries.GetCommercialsAsync(cancellationToken);
+    }
+
+    [GraphQLName("obtenerPlanFondo")]
+    public async Task<PlanFundDto> GetPlanFund([GraphQLName("idAlternativa")] string alternativeId,
+                                                 [Service] IProductsExperienceQueries productsQueries,
+                                                 CancellationToken cancellationToken)
+    {
+        return await productsQueries.GetPlanFundAsync(alternativeId, cancellationToken);
     }
 
     //Operations Queries
