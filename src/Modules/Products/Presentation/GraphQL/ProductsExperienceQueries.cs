@@ -7,6 +7,7 @@ using Products.Integrations.Alternatives;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
 using Products.Integrations.ConfigurationParameters.GoalTypes;
 using Products.Integrations.Objectives.GetObjectives;
+using Products.Integrations.Offices;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
 
@@ -109,6 +110,31 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
         )).ToList();
     }
 
+    public async Task<IReadOnlyCollection<OfficeDto>> GetOfficesAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetOfficesQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new GraphQLException(
+                ErrorBuilder.New()
+                    .SetMessage("Failed to retrieve Offices")
+                    .Build()
+            );
+        }
+
+        var offices = result.Value;
+
+        return offices.Select(x => new OfficeDto(
+            x.OfficeId,
+            x.Name,
+            x.Prefix,
+            x.CityId.ToString(),
+            x.Status.ToString(),
+            x.HomologatedCode
+        )).ToList();
+    }
+
     public async Task<IReadOnlyCollection<CommercialDto>> GetCommercialsAsync(CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetCommercialsQuery(), cancellationToken);
@@ -131,8 +157,8 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.Status.ToString(),
             x.HomologatedCode
         )).ToList();
-
     }
+
     public async Task<IReadOnlyCollection<AlternativeDto>> GetAlternativesAsync(
         CancellationToken cancellationToken = default)
     {
