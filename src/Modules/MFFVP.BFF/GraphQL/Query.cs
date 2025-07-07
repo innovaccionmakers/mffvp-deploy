@@ -140,7 +140,7 @@ public class Query
 
     //Associates Queries
     [GraphQLName("requisitosPension")]
-    public async Task<IReadOnlyCollection<PensionRequirementDto>> GetPensionRequirementsByAssociate(int associateId,
+    public async Task<IReadOnlyCollection<PensionRequirementDto>> GetPensionRequirementsByAssociate([GraphQLName("idAfiliado")] int associateId,
                                                                                                     [Service] IAssociatesExperienceQueries associatesExperienceQueries,
                                                                                                     CancellationToken cancellationToken)
     {
