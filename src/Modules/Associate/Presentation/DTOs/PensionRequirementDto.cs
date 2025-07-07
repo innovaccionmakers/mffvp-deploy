@@ -4,8 +4,8 @@ using HotChocolate;
 namespace Associate.Presentation.DTOs;
 
 public record PensionRequirementDto(
-    [property: GraphQLName("IdRequisitoPension")] int PensionRequirementId,
-    [property: GraphQLName("FechaInicio")] DateTime StartDate,
-    [property: GraphQLName("FechaVencimiento")] DateTime ExpirationDate,
-    [property: GraphQLName("Estado")] Status Status
+    [property: GraphQLName("idRequisitoPension")] int PensionRequirementId,
+    [property: GraphQLName("fechaInicio")] DateTime StartDate,
+    [property: GraphQLName("fechaVencimiento")] DateTime ExpirationDate,
+    [property: GraphQLName("estado")] Status Status
 );
