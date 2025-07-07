@@ -15,7 +15,6 @@ public sealed class Yield : Entity
     public DateTime ProcessDate { get; private set; }
     public bool IsClosed { get; private set; }
 
-    public ICollection<YieldDetails.YieldDetail> YieldDetails { get; private set; } = [];
 
     private Yield()
     {

@@ -23,7 +23,7 @@ internal sealed class CommissionConfiguration : IEntityTypeConfiguration<Commiss
         builder.Property(x => x.CalculationBase).HasColumnName("base_calculo").HasMaxLength(200);
         builder.Property(x => x.CalculationRule).HasColumnName("regla_calculo").HasMaxLength(2000);
         builder.Property(x => x.Status)
-            .HasColumnName("activo")
+            .HasColumnName("estado")
             .HasConversion(new EnumMemberValueConverter<Status>());
 
         builder.HasMany(c => c.AccumulatedCommissions)

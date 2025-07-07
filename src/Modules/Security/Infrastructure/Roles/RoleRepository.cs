@@ -20,4 +20,11 @@ internal sealed class RoleRepository(SecurityDbContext context) : IRoleRepositor
     public void Insert(Role role) => context.Roles.Add(role);
     public void Update(Role role) => context.Roles.Update(role);
     public void Delete(Role role) => context.Roles.Remove(role);
+
+    public async Task<bool> ExistsAsync(int roleId, CancellationToken cancellationToken)
+    {
+        return await context.Roles
+            .AsNoTracking()
+            .AnyAsync(r => r.Id == roleId, cancellationToken);
+    }
 }

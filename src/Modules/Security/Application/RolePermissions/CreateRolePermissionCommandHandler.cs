@@ -4,13 +4,15 @@ using Common.SharedKernel.Domain;
 using Security.Application.Abstractions.Data;
 using Security.Application.Contracts.RolePermissions;
 using Security.Domain.RolePermissions;
+using Security.Domain.Roles;
 
 using System.Data.Common;
 
 namespace Security.Application.RolePermissions;
 
 public sealed record CreateRolePermissionCommandHandler(
-    IRolePermissionRepository repository,
+    IRolePermissionRepository rolePermissionRepository,
+    IRoleRepository roleRepository,
     IUnitOfWork unitOfWork)
     : ICommandHandler<CreateRolePermissionCommand, int>
 {
@@ -21,8 +23,15 @@ public sealed record CreateRolePermissionCommandHandler(
                 "Permission.Required",
                 "The permission is required."));
 
-        var exists = await repository.ExistsAsync(request.RoleId, request.ScopePermission, cancellationToken);
+        var roleExists = await roleRepository.ExistsAsync(request.RoleId, cancellationToken);
+        if (!roleExists)
+        {
+            return Result.Failure<int>(Error.NotFound(
+                "Role.NotFound",
+                "The specified role does not exist."));
+        }
 
+        var exists = await rolePermissionRepository.ExistsAsync(request.RoleId, request.ScopePermission, cancellationToken);
         if (exists)
         {
             return Result.Failure<int>(Error.Conflict(
@@ -38,7 +47,7 @@ public sealed record CreateRolePermissionCommandHandler(
 
         var permission = result.Value;
 
-        repository.Insert(permission);
+        rolePermissionRepository.Insert(permission);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

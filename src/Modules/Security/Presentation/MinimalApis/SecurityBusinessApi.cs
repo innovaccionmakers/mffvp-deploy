@@ -41,6 +41,19 @@ public static class SecurityBusinessApi
             {
                 var result = await sender.Send(new GetPermissionsByRoleIdQuery(roleId));
 
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                        title: result.Error.Code,
+                        detail: result.Error.Description,
+                        statusCode: result.Error.Code switch
+                        {
+                            "Role.NotFound" => StatusCodes.Status404NotFound,
+                            _ => StatusCodes.Status500InternalServerError
+                        }
+                    );
+                }
+
                 var rolePermissionDtoList = result.Value
                     .Select(rp => new RolePermissionDto
                     {
@@ -50,7 +63,7 @@ public static class SecurityBusinessApi
                     })
                     .ToList();
 
-                return rolePermissionDtoList;
+                return Results.Ok(rolePermissionDtoList);
             }
             )
             .WithName("GetPermissionsByRoleId")
@@ -74,7 +87,23 @@ public static class SecurityBusinessApi
                 ) =>
                 {
                     var result = await sender.Send(request);
-                    return result.Value;
+
+                    if (result.IsFailure)
+                    {
+                        return Results.Problem(
+                            title: result.Error.Code,
+                            detail: result.Error.Description,
+                            statusCode: result.Error.Code switch
+                            {
+                                "Role.NotFound" => StatusCodes.Status404NotFound,
+                                "RolePermission.Exists" => StatusCodes.Status409Conflict,
+                                "Permission.Required" => StatusCodes.Status400BadRequest,
+                                _ => StatusCodes.Status500InternalServerError
+                            }
+                        );
+                    }
+
+                    return Results.Ok(result.Value);
                 }
             )
             .WithName("CreateRolePermission")

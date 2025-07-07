@@ -4,17 +4,28 @@ using Common.SharedKernel.Domain.Auth.Permissions;
 
 using Security.Application.Contracts.RolePermissions;
 using Security.Domain.RolePermissions;
+using Security.Domain.Roles;
 
 namespace Security.Application.RolePermissions;
 
 public sealed class GetPermissionsByRoleIdQueryHandler(
-    IRolePermissionRepository repository)
+    IRolePermissionRepository repository,
+    IRoleRepository roleRepository)
     : IQueryHandler<GetPermissionsByRoleIdQuery, IReadOnlyCollection<RolePermission>>
 {
     public async Task<Result<IReadOnlyCollection<RolePermission>>> Handle(
         GetPermissionsByRoleIdQuery request,
         CancellationToken cancellationToken)
     {
+
+        var roleExists = await roleRepository.ExistsAsync(request.RoleId, cancellationToken);
+        if (!roleExists)
+        {
+            return Result.Failure<IReadOnlyCollection<RolePermission>>(Error.NotFound(
+                "Role.NotFound",
+                "The specified role does not exist."));
+        }
+
         var permissions = await repository.GetPermissionsByRoleIdAsync(request.RoleId, cancellationToken);
 
         var allPermissions = MakersPermissionsOperationsAuxiliaryInformations.All

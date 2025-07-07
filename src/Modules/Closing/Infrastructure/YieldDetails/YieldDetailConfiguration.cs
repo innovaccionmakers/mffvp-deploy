@@ -11,7 +11,6 @@ internal sealed class YieldDetailConfiguration : IEntityTypeConfiguration<YieldD
         builder.ToTable("detalle_rendimientos");
         builder.HasKey(x => x.YieldDetailId);
         builder.Property(x => x.YieldDetailId).HasColumnName("id");
-        builder.Property(x => x.YieldId).HasColumnName("rendimiento_id");
         builder.Property(x => x.PortfolioId).HasColumnName("portafolio_id");
         builder.Property(x => x.ClosingDate).HasColumnName("fecha_cierre");
         builder.Property(x => x.Source).HasColumnName("fuente").HasMaxLength(50);
