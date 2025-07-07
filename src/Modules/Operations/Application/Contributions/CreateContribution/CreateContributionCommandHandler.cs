@@ -15,6 +15,7 @@ using Operations.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.EventBus;
 using Trusts.IntegrationEvents.CreateTrustRequested;
+using Closing.IntegrationEvents.CreateClientOperationRequested;
 
 namespace Operations.Application.Contributions.CreateContribution;
 
@@ -241,6 +242,19 @@ internal sealed class CreateContributionCommandHandler(
 
         await eventBus.PublishAsync(createTrustEvent, cancellationToken);
 
+        var createClosingEvent = new CreateClientOperationRequestedIntegrationEvent(
+            operation.ClientOperationId,
+            operation.RegistrationDate,
+            operation.AffiliateId,
+            operation.ObjectiveId,
+            operation.PortfolioId,
+            operation.Amount,
+            operation.ProcessDate,
+            operation.SubtransactionTypeId,
+            operation.ApplicationDate);
+
+        await eventBus.PublishAsync(createClosingEvent, cancellationToken);
+
         await transaction.CommitAsync(cancellationToken);
 
         var resp = new ContributionResponse(
@@ -252,6 +266,4 @@ internal sealed class CreateContributionCommandHandler(
 
         return Result.Success(resp, "Transacción causada Exitosamente");
     }
-
-
 }
