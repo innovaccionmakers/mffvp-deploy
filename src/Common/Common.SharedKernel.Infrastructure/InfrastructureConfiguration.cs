@@ -1,5 +1,4 @@
-﻿using Common.SharedKernel.Application.Auth;
-using Common.SharedKernel.Application.EventBus;
+﻿using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Infrastructure.Auth.Policy;
 using Common.SharedKernel.Infrastructure.Configuration;
@@ -13,8 +12,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 using Npgsql;
+
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+
 using Savorboard.CAP.InMemoryMessageQueue;
 
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -33,8 +34,6 @@ public static class InfrastructureConfiguration
         string databaseConnectionStringSQL
     )
     {
-
-        services.AddHttpContextAccessor();
         services.AddAuthentication("JwtBearer")
             .AddJwtBearer("JwtBearer", options =>
             {
@@ -63,9 +62,6 @@ public static class InfrastructureConfiguration
             });
 
         services.AddAuthorization();
-        services.AddSingleton<IUserPermissionService, UserPermissionService>();
-        services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
-        services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
 
         services.AddCap(x =>
         {

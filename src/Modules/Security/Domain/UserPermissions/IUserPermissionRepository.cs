@@ -7,4 +7,5 @@ public interface IUserPermissionRepository
     void Insert(UserPermission userPermission);
     void Update(UserPermission userPermission);
     void Delete(UserPermission userPermission);
+    //Task<List<string>> GetGrantedPermissionsByUserIdAsync(int userId);
 }

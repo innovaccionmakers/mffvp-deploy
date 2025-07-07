@@ -27,4 +27,13 @@ internal sealed class UserRoleRepository(SecurityDbContext context) : IUserRoleR
     public void Insert(UserRole userRole) => context.UserRoles.Add(userRole);
     public void Update(UserRole userRole) => context.UserRoles.Update(userRole);
     public void Delete(UserRole userRole) => context.UserRoles.Remove(userRole);
+
+    public async Task<List<int>> GetRoleIdsByUserIdAsync(int userId)
+    {
+        return await context.UserRoles
+            .Where(ur => ur.UserId == userId)
+            .Select(ur => ur.RolePermissionsId)
+            .Distinct()
+            .ToListAsync();
+    }
 }

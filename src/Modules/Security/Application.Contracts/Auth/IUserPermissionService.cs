@@ -1,4 +1,4 @@
-﻿namespace Common.SharedKernel.Application.Auth;
+﻿namespace Security.Application.Contracts.Auth;
 
 public interface IUserPermissionService
 {

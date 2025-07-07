@@ -11,4 +11,8 @@
     <ProjectReference Include="..\Domain\Security.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UserPermissions\" />
+  </ItemGroup>
+
 </Project>
