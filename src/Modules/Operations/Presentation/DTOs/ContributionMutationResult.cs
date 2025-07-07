@@ -1,8 +1,10 @@
-﻿using Operations.Integrations.Contributions;
+﻿using HotChocolate;
+using System.Text.Json;
 
 namespace Operations.Presentation.DTOs;
 
 public record ContributionMutationResult(
-    bool Success,
-    string? Message = null,
-    ContributionResponse? Contribution = null);
+    [property: GraphQLName("id")] long Id,
+    [property: GraphQLName("etiquetaId")]  string LabelId,
+    [property: GraphQLName("detalle")] JsonElement? Detail
+);
