@@ -2,6 +2,7 @@
 
 using HotChocolate;
 using MediatR;
+using Products.Integrations.Commercials;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
 using Products.Integrations.ConfigurationParameters.GoalTypes;
 using Products.Integrations.Objectives.GetObjectives;
@@ -104,6 +105,30 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.Objective.ObjectiveId,
              x.Objective.ObjectiveName,
              x.Objective.Status
+        )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<CommercialDto>> GetCommercialsAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetCommercialsQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new GraphQLException(
+                ErrorBuilder.New()
+                    .SetMessage("Failed to retrieve Commercials")
+                    .Build()
+            );
+        }
+
+        var commercials = result.Value;
+
+        return commercials.Select(x => new CommercialDto(
+            x.CommercialId,
+            x.Name,
+            x.Prefix,
+            x.Status.ToString(),
+            x.HomologatedCode
         )).ToList();
     }
 }
