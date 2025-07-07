@@ -58,7 +58,7 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
                 input.CertifiedContribution,
                 input.ContingentWithholding,
                 input.DepositDate,
-                input.ExecutionDate,
+                input.ExecutionDate ?? default, // Fix: Provide a default value for nullable DateTime
                 input.SalesUser,
                 JsonDocument.Parse(JsonSerializer.Serialize(input.VerifiableMedium)),
                 input.Subtype,

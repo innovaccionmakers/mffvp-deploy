@@ -1,3 +1,5 @@
+using MFFVP.BFF.Middlewares;
+
 namespace MFFVP.BFF.GraphQL;
 
 public static class SchemaStitchingConfiguration
@@ -11,6 +13,7 @@ public static class SchemaStitchingConfiguration
             .AddGraphQLServer("BFFGateway")
             .AddQueryType<Query>()
             .AddMutationType<Mutation>()
+            .UseField<CompleteRequestCreateContributionMiddleware>()
             .ModifyOptions(options =>
             {
                 options.RemoveUnreachableTypes = true;

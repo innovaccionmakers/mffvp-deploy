@@ -51,10 +51,10 @@ public record CreateContributionInput
     public required DateTime DepositDate { get; set; }
     
     [GraphQLName("fechaEjecucion")]
-    public required DateTime ExecutionDate { get; set; }
+    public DateTime? ExecutionDate { get; set; }
     
     [GraphQLName("usuarioComercial")]
-    public required string SalesUser { get; set; }
+    public string? SalesUser { get; set; }
 
     [GraphQLName("medioVerificable")]
     public VerifiableMedium? VerifiableMedium { get; set; }
@@ -63,7 +63,7 @@ public record CreateContributionInput
     public string? Subtype { get; set; }
     
     [GraphQLName("canal")]
-    public required string Channel { get; set; }
+    public string? Channel { get; set; }
     
     [GraphQLName("usuario")]
     public required string User { get; set; }
