@@ -20,4 +20,13 @@ internal sealed class UserPermissionRepository(SecurityDbContext context) : IUse
     public void Insert(UserPermission userPermission) => context.UserPermissions.Add(userPermission);
     public void Update(UserPermission userPermission) => context.UserPermissions.Update(userPermission);
     public void Delete(UserPermission userPermission) => context.UserPermissions.Remove(userPermission);
+
+    //public async Task<List<string>> GetGrantedPermissionsByUserIdAsync(int userId)
+    //{
+    //    return await context.UserPermissions
+    //        .Where(up => up.UserId == userId && up.Granted)
+    //        .Select(up => up.)
+    //        .Distinct()
+    //        .ToListAsync();
+    //}
 }

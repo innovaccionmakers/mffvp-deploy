@@ -9,4 +9,5 @@ public interface IRolePermissionRepository
     void Delete(RolePermission rolePermission);
     Task<bool> ExistsAsync(int roleId, string scopePermission, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<string>> GetPermissionsByRoleIdAsync(int roleId, CancellationToken cancellationToken = default);
+    Task<List<string>> GetPermissionsByRoleIdsAsync(IEnumerable<int> roleIds);
 }

@@ -34,4 +34,13 @@ internal sealed class RolePermissionRepository(SecurityDbContext context) : IRol
             .Select(rp => rp.ScopePermission)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<List<string>> GetPermissionsByRoleIdsAsync(IEnumerable<int> roleIds)
+    {
+        return await context.RolePermissions
+            .Where(rp => roleIds.Contains(rp.RoleId))
+            .Select(rp => rp.ScopePermission)
+            .Distinct()
+            .ToListAsync();
+    }
 }
