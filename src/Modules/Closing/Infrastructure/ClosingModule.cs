@@ -25,6 +25,7 @@ using Closing.Presentation.MinimalApis;
 using Closing.Domain.ClientOperations;
 using Closing.Infrastructure.ClientOperations;
 using Closing.IntegrationEvents.CreateClientOperationRequested;
+using Closing.Infrastructure.Configuration;
 
 namespace Closing.Infrastructure;
 
@@ -75,6 +76,9 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<CreateClientOperationRequestedConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
+        // Llama a la extensión para PreClosing
+        services.AddPreClosingInfrastructure();
+
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

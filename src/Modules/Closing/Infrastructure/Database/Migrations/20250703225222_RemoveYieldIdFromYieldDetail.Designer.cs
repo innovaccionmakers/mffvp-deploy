@@ -4,6 +4,7 @@ using System.Text.Json;
 using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Closing.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(ClosingDbContext))]
-    partial class ClosingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250703225222_RemoveYieldIdFromYieldDetail")]
+    partial class RemoveYieldIdFromYieldDetail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,8 +30,11 @@ namespace Closing.Infrastructure.Database.Migrations
             modelBuilder.Entity("Closing.Domain.ClientOperations.ClientOperation", b =>
                 {
                     b.Property<long>("ClientOperationId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ClientOperationId"));
 
                     b.Property<int>("AffiliateId")
                         .HasColumnType("integer")
