@@ -10,7 +10,9 @@ internal sealed class ClientOperationConfiguration : IEntityTypeConfiguration<Cl
     {
         builder.ToTable("operaciones_cliente");
         builder.HasKey(x => x.ClientOperationId);
-        builder.Property(x => x.ClientOperationId).HasColumnName("id");
+        builder.Property(x => x.ClientOperationId)
+            .HasColumnName("id")
+            .ValueGeneratedNever();
         builder.Property(x => x.FilingDate).HasColumnName("fecha_radicacion");
         builder.Property(x => x.AffiliateId).HasColumnName("afiliado_id");
         builder.Property(x => x.ObjectiveId).HasColumnName("objetivo_id");

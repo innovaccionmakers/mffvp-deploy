@@ -19,6 +19,7 @@ public sealed class ClientOperation : Entity
     }
 
     public static Result<ClientOperation> Create(
+        long clientOperationId,
         DateTime filingDate,
         int affiliateId,
         int objectiveId,
@@ -30,7 +31,7 @@ public sealed class ClientOperation : Entity
     {
         var clientOperation = new ClientOperation
         {
-            ClientOperationId = default,
+            ClientOperationId = clientOperationId,
             FilingDate = filingDate,
             AffiliateId = affiliateId,
             ObjectiveId = objectiveId,
