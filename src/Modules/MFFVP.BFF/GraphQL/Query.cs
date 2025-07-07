@@ -40,6 +40,13 @@ public class Query
         return await productsExperienceQueries.GetGoalsAsync(typeId, identification, status, cancellationToken);
     }
 
+    [GraphQLName("alternativa")]
+    public async Task<IReadOnlyCollection<AlternativeDto>> GetAlternatives([Service] IProductsExperienceQueries productsQueries,
+                                                                           CancellationToken cancellationToken)
+    {
+        return await productsQueries.GetAlternativesAsync(cancellationToken);
+    }
+
     [GraphQLName("tipoObjetivo")]
     public async Task<IReadOnlyCollection<GoalTypeDto>> GetGoalTypesAsync([Service] IProductsExperienceQueries productsQueries,
                                                                           CancellationToken cancellationToken = default)
