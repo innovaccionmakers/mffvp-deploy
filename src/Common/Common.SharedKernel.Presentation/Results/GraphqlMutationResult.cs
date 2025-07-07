@@ -1,17 +1,19 @@
-﻿namespace Common.SharedKernel.Presentation.Results;
+﻿using Common.SharedKernel.Domain;
+
+namespace Common.SharedKernel.Presentation.Results;
 
 public class GraphqlMutationResult<T>
 {
     public bool Success => Errors.Count == 0;
     public string? Message { get; set; }
     public T? Data { get; set; }
-    public List<ErrorMutationResult> Errors { get; set; } = [];
+    public List<Error> Errors { get; set; } = [];
 
     public GraphqlMutationResult() { }
 
-    public void AddError(string error, string errorDetail)
+    public void AddError(Error error)
     {
-        Errors.Add(new ErrorMutationResult { ErrorMessage = error, ErrorDetail = errorDetail });
+        Errors.Add(error);
     }
 
     public void SetSuccess(T data, string? message = null)

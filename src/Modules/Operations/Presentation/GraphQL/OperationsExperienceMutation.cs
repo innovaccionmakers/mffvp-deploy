@@ -1,4 +1,5 @@
-﻿using Common.SharedKernel.Presentation.Filters;
+﻿using Common.SharedKernel.Domain;
+using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 using FluentValidation;
 using MediatR;
@@ -25,7 +26,7 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
 
             if (validationResult is not null)
             {
-                result.AddError("Error al registrar aporte", GetErrorDetails(validationResult.Error));
+                result.AddError(validationResult.Error);
                 return result;
             }
 
@@ -34,13 +35,13 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
 
             if (!commandResult.IsSuccess)
             {
-                result.AddError("Error al registrar aporte", GetErrorDetails(commandResult.Error));
+                result.AddError(commandResult.Error);
                 return result;
             }
 
             var detalle = new
             {
-                condicion_tributaria = commandResult.Value.TaxCondition
+                condicion_tributaria = input.CertifiedContribution?.ToLower().Trim() == "no" ? "Sin Retención Contingente" : string.Empty
             };
 
             var detalleJson = JsonDocument.Parse(JsonSerializer.Serialize(detalle));
@@ -56,7 +57,7 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
         }
         catch (Exception ex)
         {
-            result.AddError("Error al registrar aporte", ex.Message);
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
             return result;
         }
     }
@@ -87,12 +88,4 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
             input.User
         );
     }
-
-    private static string GetErrorDetails(Common.SharedKernel.Domain.Error? error)
-    {
-        return error != null
-            ? $"Código: {error.Code}, Descripción: {error.Description}, Tipo: {error.Type}"
-            : "Error desconocido";
-    }
-
 }
