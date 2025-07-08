@@ -1,5 +1,6 @@
 using HotChocolate;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace Operations.Presentation.GraphQL.Inputs;
 
@@ -33,7 +34,7 @@ public record CreateContributionInput
     public required string PaymentMethod { get; set; }
 
     [GraphQLName("detalleFormaPago")]
-    public PaymentMethodDetail? PaymentMethodDetail { get; set; }
+    public JsonElement? PaymentMethodDetail { get; set; }
     
     [GraphQLName("bancoRecaudo")]
     public required string CollectionBank { get; set; }
@@ -57,7 +58,7 @@ public record CreateContributionInput
     public string? SalesUser { get; set; }
 
     [GraphQLName("medioVerificable")]
-    public VerifiableMedium? VerifiableMedium { get; set; }
+    public JsonElement? VerifiableMedium { get; set; }
 
     [GraphQLName("subtipo")]
     public string? Subtype { get; set; }
