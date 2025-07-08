@@ -1,6 +1,6 @@
 ﻿using Common.SharedKernel.Application.Messaging;
 
-namespace Closing.Integrations.PreClosingSimulation.RunSimulation;
+namespace Closing.Integrations.PreClosing.RunSimulation;
     public sealed record RunSimulationCommand(
         int PortfolioId,
         DateTime ClosingDate,

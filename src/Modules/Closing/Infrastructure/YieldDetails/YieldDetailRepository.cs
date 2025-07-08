@@ -20,10 +20,11 @@ namespace Closing.Infrastructure.YieldDetails
         {
             context.YieldDetails.Add(yieldDetail);
         }
-        public void InsertAsync(YieldDetail yieldDetail)
+        public async Task InsertAsync(YieldDetail yieldDetail, CancellationToken ct = default)
         {
-            context.YieldDetails.AddAsync(yieldDetail);
+            await context.YieldDetails.AddAsync(yieldDetail, ct);
         }
+
         public void Update(YieldDetail yieldDetail)
         {
             context.YieldDetails.Update(yieldDetail);
