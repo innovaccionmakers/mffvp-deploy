@@ -29,6 +29,15 @@ public class Mutation
         return await associatesMutations.RegisterActivateAsync(activation, validator, cancellationToken);
     }
 
+    [GraphQLName("actualizarActivacion")]
+    public async Task<GraphqlMutationResult> UpdateActivation([GraphQLName("activacion")] UpdateActivateInput activation,
+                                                                        IValidator<UpdateActivateInput> validator,
+                                                                       [Service] IAssociatesExperienceMutations associatesMutations,
+                                                                       CancellationToken cancellationToken)
+    {
+        return await associatesMutations.UpdateActivateAsync(activation, validator, cancellationToken);
+    }
+
     [GraphQLName("actualizarRequisitosPension")]
     public async Task<GraphqlMutationResult> UpdatePensionRequirements([GraphQLName("requisitoPension")] UpdatePensionRequirementInput pensionRequirement,
                                                                         IValidator<UpdatePensionRequirementInput> validator,
@@ -37,4 +46,5 @@ public class Mutation
     {
         return await associatesMutations.UpdatePensionRequirementsAsync(pensionRequirement, validator, cancellationToken);
     }
+
 }

@@ -16,4 +16,9 @@ public interface IAssociatesExperienceMutations
         IValidator<UpdatePensionRequirementInput> validator,
         CancellationToken cancellationToken
     );
+    public Task<GraphqlMutationResult> UpdateActivateAsync(
+        UpdateActivateInput input,
+        IValidator<UpdateActivateInput> validator,
+        CancellationToken cancellationToken
+    );
 }
