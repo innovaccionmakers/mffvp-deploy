@@ -5,12 +5,16 @@ using FluentValidation;
 using MediatR;
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Presentation.DTOs;
+using Operations.Domain.Services;
 using Operations.Presentation.GraphQL.Inputs;
 using System.Text.Json;
 
 namespace Operations.Presentation.GraphQL;
 
-public class OperationsExperienceMutation(IMediator mediator) : IOperationsExperienceMutation
+public class OperationsExperienceMutation(
+    IMediator mediator,
+    IBuildMissingFieldsContributionService buildMissingFieldsContributionService
+) : IOperationsExperienceMutation
 {
 
     public async Task<GraphqlMutationResult<ContributionMutationResult>> RegisterContributionAsync(
@@ -30,7 +34,11 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
                 return result;
             }
 
-            var command = CreateContributionCommand(input);
+            var contributionData = await buildMissingFieldsContributionService.BuildAsync(
+            input.PortfolioId ?? "1", // Manejo básico cuando PortfolioId es null
+            cancellationToken);
+
+            var command = CreateContributionCommand(input, contributionData);
             var commandResult = await mediator.Send(command, cancellationToken);
 
             if (!commandResult.IsSuccess)
@@ -62,30 +70,36 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
         }
     }
 
-    private static CreateContributionCommand CreateContributionCommand(CreateContributionInput input)
+    private static CreateContributionCommand CreateContributionCommand(
+        CreateContributionInput input,
+        (DateTime ExecuteDate, string Channel, string SalesUser) contributionData
+    )
     {
         return new CreateContributionCommand(
-            input.TypeId,
-            input.Identification,
-            input.ObjectiveId,
-            input.PortfolioId,
-            input.Amount,
-            input.Origin,
-            input.OriginModality,
-            input.CollectionMethod,
-            input.PaymentMethod,
-            JsonDocument.Parse(JsonSerializer.Serialize(input.PaymentMethodDetail)),
-            input.CollectionBank,
-            input.CollectionAccount,
-            input.CertifiedContribution,
-            input.ContingentWithholding,
-            input.DepositDate,
-            input.ExecutionDate,
-            input.SalesUser,
-            JsonDocument.Parse(JsonSerializer.Serialize(input.VerifiableMedium)),
-            input.Subtype,
-            input.Channel,
-            input.User
-        );
+                input.TypeId,
+                input.Identification,
+                input.ObjectiveId,
+                input.PortfolioId,
+                input.Amount,
+                input.Origin,
+                input.OriginModality,
+                input.CollectionMethod,
+                input.PaymentMethod,
+                JsonDocument.Parse(JsonSerializer.Serialize(input.PaymentMethodDetail)),
+                input.CollectionBank,
+                input.CollectionAccount,
+                input.CertifiedContribution,
+                input.ContingentWithholding,
+                input.DepositDate,
+                //input.ExecutionDate ?? default, // Fix: Provide a default value for nullable DateTime
+                ExecutionDate: contributionData.ExecuteDate,
+                //input.SalesUser,
+                SalesUser: contributionData.SalesUser,
+                JsonDocument.Parse(JsonSerializer.Serialize(input.VerifiableMedium)),
+                input.Subtype,
+                //input.Channel,
+                Channel: contributionData.Channel,
+                input.User
+            );
     }
 }

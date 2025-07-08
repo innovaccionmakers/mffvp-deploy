@@ -1,3 +1,5 @@
+using MFFVP.BFF.Middlewares;
+
 namespace MFFVP.BFF.GraphQL;
 
 public static class SchemaStitchingConfiguration
