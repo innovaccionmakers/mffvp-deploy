@@ -11,9 +11,9 @@ namespace Security.Application.RolePermissions;
 public sealed class GetPermissionsByRoleIdQueryHandler(
     IRolePermissionRepository repository,
     IRoleRepository roleRepository)
-    : IQueryHandler<GetPermissionsByRoleIdQuery, IReadOnlyCollection<RolePermission>>
+    : IQueryHandler<GetPermissionsByRoleIdQuery, IReadOnlyCollection<RolePermissionDto>>
 {
-    public async Task<Result<IReadOnlyCollection<RolePermission>>> Handle(
+    public async Task<Result<IReadOnlyCollection<RolePermissionDto>>> Handle(
         GetPermissionsByRoleIdQuery request,
         CancellationToken cancellationToken)
     {
@@ -21,30 +21,43 @@ public sealed class GetPermissionsByRoleIdQueryHandler(
         var roleExists = await roleRepository.ExistsAsync(request.RoleId, cancellationToken);
         if (!roleExists)
         {
-            return Result.Failure<IReadOnlyCollection<RolePermission>>(Error.NotFound(
+            return Result.Failure<IReadOnlyCollection<RolePermissionDto>>(Error.NotFound(
                 "Role.NotFound",
                 "The specified role does not exist."));
         }
 
-        var permissions = await repository.GetPermissionsByRoleIdAsync(request.RoleId, cancellationToken);
+        var existingPermissions = await repository.GetPermissionsByRoleIdAsync(request.RoleId, cancellationToken);
 
-        var allPermissions = MakersPermissionsOperationsAuxiliaryInformations.All
+        var allDefinedPermissions = MakersPermissionsOperationsAuxiliaryInformations.All
             .Concat(MakersPermissionsOperationsClientOperations.All)
-            .Select(p => p.Key)
-            .Distinct()
             .ToList();
 
-        var mergedPermissions = allPermissions
-            .Select(permission =>
-            {
-                var existing = permissions.FirstOrDefault(rp => rp.ScopePermission == permission);
-                if (existing is not null)
-                    return existing;
+        var existingMap = existingPermissions.ToDictionary(p => p.ScopePermission, p => p);
 
-                return RolePermission.Create(0, request.RoleId, permission);
+        var permissionsMerged = allDefinedPermissions
+            .Select(defined =>
+            {
+                if (existingMap.TryGetValue(defined.ScopePermission, out var existing))
+                {
+                    return new RolePermissionDto
+                    {
+                        Id = existing.Id,
+                        RoleId = existing.RoleId,
+                        ScopePermission = existing.ScopePermission,
+                        DisplayName = defined.DisplayName
+                    };
+                }
+
+                return new RolePermissionDto
+                {
+                    Id = 0,
+                    RoleId = request.RoleId,
+                    ScopePermission = defined.ScopePermission,
+                    DisplayName = defined.DisplayName
+                };
             })
             .ToList();
 
-        return Result.Success<IReadOnlyCollection<RolePermission>>(mergedPermissions);
+        return Result.Success<IReadOnlyCollection<RolePermissionDto>>(permissionsMerged);
     }
 }

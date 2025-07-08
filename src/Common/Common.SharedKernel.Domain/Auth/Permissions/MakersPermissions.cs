@@ -74,39 +74,89 @@ public static class MakersPermissionsAssociateConfigurationParameters
 
 public static class MakersPermissionsOperationsAuxiliaryInformations
 {
-    public static readonly string View = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.auxiliaryInformations, MakersActions.view);
-    public static readonly string Search = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.auxiliaryInformations, MakersActions.search);
-    public static readonly string Create = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.auxiliaryInformations, MakersActions.create);
-    public static readonly string Update = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.auxiliaryInformations, MakersActions.update);
-    public static readonly string Delete = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.auxiliaryInformations, MakersActions.delete);
+    private const string Module = MakersModules.fvp;
+    private const string Domain = MakersDomains.operations;
+    private const string Resource = MakersResources.auxiliaryInformations;
 
-    public static readonly Dictionary<string, string> All = new()
+    public static readonly MakersPermission View = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.view,
+        "Permite ver informaciones auxiliares (operaciones).",
+        "FVP", "Operaciones", "Información Auxiliar", "Ver"
+    );
+
+    public static readonly MakersPermission Search = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.search,
+        "Permite buscar informaciones auxiliares (operaciones).",
+        "FVP", "Operaciones", "Información Auxiliar", "Buscar"
+    );
+
+    public static readonly MakersPermission Create = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.create,
+        "Permite crear informaciones auxiliares (operaciones).",
+        "FVP", "Operaciones", "Información Auxiliar", "Crear"
+    );
+
+    public static readonly MakersPermission Update = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.update,
+        "Permite actualizar informaciones auxiliares (operaciones).",
+        "FVP", "Operaciones", "Información Auxiliar", "Actualizar"
+    );
+
+    public static readonly MakersPermission Delete = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.delete,
+        "Permite eliminar informaciones auxiliares (operaciones).",
+        "FVP", "Operaciones", "Información Auxiliar", "Eliminar"
+    );
+
+    public static readonly List<MakersPermission> All = new()
     {
-        { View, "Permite ver informaciones auxiliares (operaciones)." },
-        { Search, "Permite buscar informaciones auxiliares (operaciones)." },
-        { Create, "Permite crear informaciones auxiliares (operaciones)." },
-        { Update, "Permite actualizar informaciones auxiliares (operaciones)." },
-        { Delete, "Permite eliminar informaciones auxiliares (operaciones)." }
+        View, Search, Create, Update, Delete
     };
 }
+
 
 public static class MakersPermissionsOperationsClientOperations
 {
-    public static readonly string View = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.clientOperations, MakersActions.view);
-    public static readonly string Search = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.clientOperations, MakersActions.search);
-    public static readonly string Create = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.clientOperations, MakersActions.create);
-    public static readonly string Update = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.clientOperations, MakersActions.update);
-    public static readonly string Delete = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.clientOperations, MakersActions.delete);
+    private const string Module = MakersModules.fvp;
+    private const string Domain = MakersDomains.operations;
+    private const string Resource = MakersResources.clientOperations;
 
-    public static readonly Dictionary<string, string> All = new()
+    public static readonly MakersPermission View = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.view,
+        "Permite ver operaciones de cliente.",
+        "FVP", "Operaciones", "Operaciones de Cliente", "Ver"
+    );
+
+    public static readonly MakersPermission Search = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.search,
+        "Permite buscar operaciones de cliente.",
+        "FVP", "Operaciones", "Operaciones de Cliente", "Buscar"
+    );
+
+    public static readonly MakersPermission Create = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.create,
+        "Permite crear operaciones de cliente.",
+        "FVP", "Operaciones", "Operaciones de Cliente", "Crear"
+    );
+
+    public static readonly MakersPermission Update = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.update,
+        "Permite actualizar operaciones de cliente.",
+        "FVP", "Operaciones", "Operaciones de Cliente", "Actualizar"
+    );
+
+    public static readonly MakersPermission Delete = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.delete,
+        "Permite eliminar operaciones de cliente.",
+        "FVP", "Operaciones", "Operaciones de Cliente", "Eliminar"
+    );
+
+    public static readonly List<MakersPermission> All = new()
     {
-        { View, "Permite ver operaciones de cliente." },
-        { Search, "Permite buscar operaciones de cliente." },
-        { Create, "Permite crear operaciones de cliente." },
-        { Update, "Permite actualizar operaciones de cliente." },
-        { Delete, "Permite eliminar operaciones de cliente." }
+        View, Search, Create, Update, Delete
     };
 }
+
 
 public static class MakersPermissionsOperationsConfigurationParameters
 {

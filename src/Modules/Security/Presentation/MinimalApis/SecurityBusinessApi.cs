@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Security.Application.Contracts.RolePermissions;
 using Security.Application.Contracts.UserRoles;
-using Security.Presentation.DTOs;
+using Security.Domain.RolePermissions;
 
 namespace Security.Presentation.MinimalApis;
 
@@ -23,11 +23,9 @@ public static class SecurityBusinessApi
 
         group.MapGet("Permissions", () =>
             {
-                Dictionary<string, string> All = MakersPermissionsOperationsAuxiliaryInformations.All
-                    .Concat(MakersPermissionsOperationsClientOperations.All)
-                    .ToDictionary(p => p.Key, p => p.Value);
-
-                return Results.Ok(All);
+                var permissions = MakersPermissionsOperationsAuxiliaryInformations.All
+                    .Concat(MakersPermissionsOperationsClientOperations.All);
+                return Results.Ok(permissions);
             })
             .WithName("Permissions")
             .WithSummary("Retorna una lista de permisos");
@@ -54,16 +52,7 @@ public static class SecurityBusinessApi
                     );
                 }
 
-                var rolePermissionDtoList = result.Value
-                    .Select(rp => new RolePermissionDto
-                    {
-                        Id = rp.Id,
-                        RoleId = rp.RoleId,
-                        ScopePermission = rp.ScopePermission
-                    })
-                    .ToList();
-
-                return Results.Ok(rolePermissionDtoList);
+                return Results.Ok(result.Value);
             }
             )
             .WithName("GetPermissionsByRoleId")
