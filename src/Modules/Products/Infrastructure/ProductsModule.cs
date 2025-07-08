@@ -87,6 +87,7 @@ public class ProductsModule: IModuleConfiguration
             (IConfigurationParameterLookupRepository<ProductsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<ProductsModuleMarker>, ErrorCatalog<ProductsModuleMarker>>();
         services.AddScoped<IProductsExperienceQueries, ProductsExperienceQueries>();
+        services.AddScoped<IProductsExperienceMutations, ProductsExperienceMutations>();
 
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
         services.AddScoped<IObjectiveReader, ObjectiveReader>();

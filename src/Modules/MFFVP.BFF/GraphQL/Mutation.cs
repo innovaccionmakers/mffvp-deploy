@@ -5,6 +5,9 @@ using FluentValidation;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
 using Operations.Presentation.GraphQL.Inputs;
+using Products.Presentation.DTOs;
+using Products.Presentation.GraphQL;
+using Products.Presentation.GraphQL.Input;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -54,6 +57,16 @@ public class Mutation
                                                                        CancellationToken cancellationToken)
     {
         return await associatesMutations.UpdatePensionRequirementsAsync(pensionRequirement, validator, cancellationToken);
+    }
+
+    //product mutations
+    [GraphQLName("crearObjetivo")]
+    public async Task<GraphqlMutationResult<GoalMutationResult>> RegisterGoal([GraphQLName("objetivo")] CreateGoalInput goal,
+                                                        IValidator<CreateGoalInput> validator,
+                                                        [Service] IProductsExperienceMutations productsMutations,
+                                                        CancellationToken cancellationToken)
+    {
+        return await productsMutations.RegisterGoalAsync(goal, validator, cancellationToken);
     }
 
 }
