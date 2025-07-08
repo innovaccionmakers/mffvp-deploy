@@ -16,7 +16,6 @@ public class OperationsExperienceMutation(
     IBuildMissingFieldsContributionService buildMissingFieldsContributionService
 ) : IOperationsExperienceMutation
 {
-
     public async Task<GraphqlMutationResult<ContributionMutationResult>> RegisterContributionAsync(
         CreateContributionInput input,
         IValidator<CreateContributionInput> validator,
