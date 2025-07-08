@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Application.Contracts\Security.Application.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\" />
+  </ItemGroup>
+
 </Project>

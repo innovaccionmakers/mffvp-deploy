@@ -17,6 +17,8 @@ using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
 using MFFVP.Api.OpenTelemetry;
 
+using Microsoft.AspNetCore.Authorization;
+
 using Serilog;
 
 using System.Reflection;
@@ -216,7 +218,7 @@ app.MapGet("/",
 //});
 
 //// Allowed: Editor role (Cristof, CristianVillalobos)
-//app.MapGet("/api/secured/pension-requirements/update", [Authorize(Policy = "FVP.Associate.PensionRequirements.Update")] () =>
+//app.MapGet("/api/secured/pension-requirements/update", [Authorize(Policy = "FVP.Operations.Contribution.Crear")] () =>
 //{
 //    return Results.Ok("Access granted for PensionRequirements.Update");
 //});
