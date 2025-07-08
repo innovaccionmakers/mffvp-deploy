@@ -1,5 +1,6 @@
 ﻿using Associate.Integrations.Activates.CreateActivate;
 using Associate.Integrations.Activates.UpdateActivate;
+using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 using Associate.Presentation.GraphQL.Inputs;
 using Common.SharedKernel.Domain;
@@ -49,6 +50,44 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
         {
            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
            return result;
+        }
+    }
+
+    public async Task<GraphqlMutationResult> RegisterPensionRequirementsAsync(CreatePensionRequirementInput input, IValidator<CreatePensionRequirementInput> validator, CancellationToken cancellationToken)
+    {
+        var result = new GraphqlMutationResult();
+        try
+        {
+            var validationResult = await RequestValidator.Validate(input, validator);
+
+            if (validationResult is not null)
+            {
+                result.AddError(validationResult.Error);
+                return result;
+            }
+
+            var command = new CreatePensionRequirementCommand(
+                input.DocumentType,
+                input.Identification,
+                input.StartDateReqPen,
+                input.EndDateReqPen
+            );
+
+            var commandResult = await mediator.Send(command, cancellationToken);
+
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+
+            result.SetSuccess("Genial!, Se ha creado el Certificado de Requisitos de Pensión");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
         }
     }
 
