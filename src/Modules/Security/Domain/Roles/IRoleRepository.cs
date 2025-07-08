@@ -7,4 +7,5 @@ public interface IRoleRepository
     void Insert(Role role);
     void Update(Role role);
     void Delete(Role role);
+    Task<bool> ExistsAsync(int roleId, CancellationToken cancellationToken);
 }

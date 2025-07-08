@@ -10,7 +10,8 @@ using Products.Integrations.Objectives.GetObjectives;
 using Products.Integrations.Offices;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
-
+using Products.Integrations.PlanFunds.GetPlanFund;
+using Products.Presentation.DTOs.PlanFund;
 
 public class ProductsExperienceQueries(IMediator mediator) : IProductsExperienceQueries
 {
@@ -181,5 +182,29 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.HomologatedCode
         )).ToList();
 
+    }
+
+    public async Task<PlanFundDto> GetPlanFundAsync(string alternativeId,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetPlanFundByAlternativeIdQuery(alternativeId), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve plan and fund information.");
+        }
+
+        var planFundInformation = result.Value;
+
+        return new PlanFundDto(
+            new PlanDto(
+                planFundInformation.PlanId,
+                planFundInformation.PlanName,
+                planFundInformation.HomologatedCodePlan),
+            new FundDto(
+                planFundInformation.FundId,
+                planFundInformation.FundName,
+                planFundInformation.HomologatedCodeFund)
+        );
     }
 }

@@ -7,6 +7,7 @@ using Associate.Domain.Activates;
 using Associate.Domain.ConfigurationParameters;
 using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Database;
+using Associate.Infrastructure.PensionRequirements;
 using Associate.IntegrationEvents.ActivateValidation;
 using Associate.Presentation.GraphQL;
 using Associate.Presentation.MinimalApis;

@@ -22,6 +22,10 @@ using Common.SharedKernel.Application.Abstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Closing.Presentation.MinimalApis;
+using Closing.Domain.ClientOperations;
+using Closing.Infrastructure.ClientOperations;
+using Closing.IntegrationEvents.CreateClientOperationRequested;
+using Closing.Infrastructure.Configuration;
 
 namespace Closing.Infrastructure;
 
@@ -60,6 +64,7 @@ public class ClosingModule : IModuleConfiguration
 
         services.AddScoped<IProfitLossConceptRepository, ProfitLossConceptRepository>();
         services.AddScoped<IProfitLossRepository, ProfitLossRepository>();
+        services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
         services.AddScoped<IErrorCatalog<ClosingModuleMarker>, ErrorCatalog<ClosingModuleMarker>>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<ClosingModuleMarker>>(sp =>
@@ -68,7 +73,12 @@ public class ClosingModule : IModuleConfiguration
 
         services.AddScoped<IPortfolioValidator, PortfolioValidator>();
 
+        services.AddScoped<CreateClientOperationRequestedConsumer>();
+
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
+        // Llama a la extensión para PreClosing
+        services.AddPreClosingInfrastructure();
+
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Security.Application.Contracts.RolePermissions;
 using Security.Application.Contracts.UserRoles;
+using Security.Presentation.DTOs;
 
 namespace Security.Presentation.MinimalApis;
 
@@ -39,7 +40,30 @@ public static class SecurityBusinessApi
             ) =>
             {
                 var result = await sender.Send(new GetPermissionsByRoleIdQuery(roleId));
-                return result.Value;
+
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                        title: result.Error.Code,
+                        detail: result.Error.Description,
+                        statusCode: result.Error.Code switch
+                        {
+                            "Role.NotFound" => StatusCodes.Status404NotFound,
+                            _ => StatusCodes.Status500InternalServerError
+                        }
+                    );
+                }
+
+                var rolePermissionDtoList = result.Value
+                    .Select(rp => new RolePermissionDto
+                    {
+                        Id = rp.Id,
+                        RoleId = rp.RoleId,
+                        ScopePermission = rp.ScopePermission
+                    })
+                    .ToList();
+
+                return Results.Ok(rolePermissionDtoList);
             }
             )
             .WithName("GetPermissionsByRoleId")
@@ -50,7 +74,7 @@ public static class SecurityBusinessApi
                              **Ejemplo de ruta:**
                              `GET /api/v1/FVP/Security/GetRolePermissions/1`
                              """)
-            .Produces<IReadOnlyCollection<string>>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyCollection<RolePermissionDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -63,7 +87,23 @@ public static class SecurityBusinessApi
                 ) =>
                 {
                     var result = await sender.Send(request);
-                    return result.ToApiResult();
+
+                    if (result.IsFailure)
+                    {
+                        return Results.Problem(
+                            title: result.Error.Code,
+                            detail: result.Error.Description,
+                            statusCode: result.Error.Code switch
+                            {
+                                "Role.NotFound" => StatusCodes.Status404NotFound,
+                                "RolePermission.Exists" => StatusCodes.Status409Conflict,
+                                "Permission.Required" => StatusCodes.Status400BadRequest,
+                                _ => StatusCodes.Status500InternalServerError
+                            }
+                        );
+                    }
+
+                    return Results.Ok(result.Value);
                 }
             )
             .WithName("CreateRolePermission")
@@ -78,7 +118,7 @@ public static class SecurityBusinessApi
                              ```
                              """)
             .Accepts<CreateRolePermissionCommand>("application/json")
-            .Produces(StatusCodes.Status200OK)
+            .Produces<int>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapDelete(

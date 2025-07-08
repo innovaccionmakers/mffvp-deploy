@@ -27,11 +27,8 @@ namespace Closing.Infrastructure.Database.Migrations
             modelBuilder.Entity("Closing.Domain.ClientOperations.ClientOperation", b =>
                 {
                     b.Property<long>("ClientOperationId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ClientOperationId"));
 
                     b.Property<int>("AffiliateId")
                         .HasColumnType("integer")
@@ -327,13 +324,7 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("fuente");
 
-                    b.Property<long>("YieldId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("rendimiento_id");
-
                     b.HasKey("YieldDetailId");
-
-                    b.HasIndex("YieldId");
 
                     b.ToTable("detalle_rendimientos", "cierre");
                 });
@@ -470,17 +461,6 @@ namespace Closing.Infrastructure.Database.Migrations
                     b.Navigation("ProfitLossConcept");
                 });
 
-            modelBuilder.Entity("Closing.Domain.YieldDetails.YieldDetail", b =>
-                {
-                    b.HasOne("Closing.Domain.Yields.Yield", "Yield")
-                        .WithMany("YieldDetails")
-                        .HasForeignKey("YieldId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Yield");
-                });
-
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.HasOne("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", "Parent")
@@ -494,11 +474,6 @@ namespace Closing.Infrastructure.Database.Migrations
             modelBuilder.Entity("Closing.Domain.ProfitLossConcepts.ProfitLossConcept", b =>
                 {
                     b.Navigation("ProfitLosses");
-                });
-
-            modelBuilder.Entity("Closing.Domain.Yields.Yield", b =>
-                {
-                    b.Navigation("YieldDetails");
                 });
 
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>

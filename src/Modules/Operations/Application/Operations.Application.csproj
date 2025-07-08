@@ -8,6 +8,7 @@
         <ProjectReference Include="..\..\Customers\IntegrationEvents\Customers.IntegrationEvents\Customers.IntegrationEvents.csproj" />
         <ProjectReference Include="..\..\Products\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj" />
         <ProjectReference Include="..\..\Trusts\IntegrationEvents\Trusts.IntegrationEvents\Trusts.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Domain\Operations.Domain.csproj" />
         <ProjectReference Include="..\Integrations\Operations.Integrations.csproj" />
     </ItemGroup>

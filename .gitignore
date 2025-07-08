@@ -60,4 +60,6 @@ nunit-*.xml
 
 # Rider / JetBrains
 .idea/
-MFFVP.sln.DotSettings.user
+MFFVP.sln.DotSettings.user.DS_Store
+*.DotSettings.user
+*.DotSettings

@@ -1,4 +1,6 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Associate.Presentation.DTOs;
+using Associate.Presentation.GraphQL;
+using Common.SharedKernel.Domain;
 using Customers.Presentation.DTOs;
 using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
@@ -7,6 +9,7 @@ using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
+using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;
@@ -66,6 +69,14 @@ public class Query
                                                                           CancellationToken cancellationToken = default)
     {
         return await productsQueries.GetCommercialsAsync(cancellationToken);
+    }
+
+    [GraphQLName("obtenerPlanFondo")]
+    public async Task<PlanFundDto> GetPlanFund([GraphQLName("idAlternativa")] string alternativeId,
+                                                 [Service] IProductsExperienceQueries productsQueries,
+                                                 CancellationToken cancellationToken)
+    {
+        return await productsQueries.GetPlanFundAsync(alternativeId, cancellationToken);
     }
 
     //Operations Queries
@@ -135,6 +146,16 @@ public class Query
     {
         return await operationsQueries.GetWithholdingContingencyAsync(cancellationToken);
     }
+
+    //Associates Queries
+    [GraphQLName("requisitosPension")]
+    public async Task<IReadOnlyCollection<PensionRequirementDto>> GetPensionRequirementsByAssociate([GraphQLName("idAfiliado")] int associateId,
+                                                                                                    [Service] IAssociatesExperienceQueries associatesExperienceQueries,
+                                                                                                    CancellationToken cancellationToken)
+    {
+        return await associatesExperienceQueries.GetPensionRequirementsByAssociateAsync(associateId, cancellationToken);
+    }
+
 
     //Customers Queries
     [GraphQLName("persona")]

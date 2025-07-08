@@ -313,7 +313,7 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("activo");
+                        .HasColumnName("estado");
 
                     b.HasKey("CommissionId");
 

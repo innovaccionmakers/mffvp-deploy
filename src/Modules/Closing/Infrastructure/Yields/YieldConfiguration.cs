@@ -21,9 +21,5 @@ internal sealed class YieldConfiguration : IEntityTypeConfiguration<Yield>
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
         builder.Property(x => x.IsClosed).HasColumnName("cerrado");
 
-        builder.HasMany(x => x.YieldDetails)
-            .WithOne(x => x.Yield)
-            .HasForeignKey(x => x.YieldId)
-            .HasPrincipalKey(x => x.YieldId);
     }
 }
