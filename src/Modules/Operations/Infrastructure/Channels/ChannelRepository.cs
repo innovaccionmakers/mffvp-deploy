@@ -14,4 +14,10 @@ internal sealed class ChannelRepository(OperationsDbContext context) : IChannelR
             .AsNoTracking()
             .SingleOrDefaultAsync(c => c.HomologatedCode == homologatedCode, cancellationToken);
     }
+
+    public async Task<Channel?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        return await context.Channels
+            .FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
+    }
 }

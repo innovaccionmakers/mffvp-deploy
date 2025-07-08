@@ -10,12 +10,16 @@ using Microsoft.Extensions.Logging;
 
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Presentation.DTOs;
+using Operations.Domain.Services;
 using Operations.Presentation.GraphQL.Inputs;
 using System.Text.Json;
 
 namespace Operations.Presentation.GraphQL;
 
-public class OperationsExperienceMutation(IMediator mediator) : IOperationsExperienceMutation
+public class OperationsExperienceMutation(
+    IMediator mediator,
+    IBuildMissingFieldsContributionService buildMissingFieldsContributionService
+) : IOperationsExperienceMutation
 {
 
     public async Task<ContributionMutationResult> RegisterContributionAsync(
@@ -42,6 +46,10 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
                 );
             }
 
+            var contributionData = await buildMissingFieldsContributionService.BuildAsync(
+            input.PortfolioId ?? "1", // Manejo básico cuando PortfolioId es null
+            cancellationToken);
+
             var command = new CreateContributionCommand(
                 input.TypeId,
                 input.Identification,
@@ -58,11 +66,14 @@ public class OperationsExperienceMutation(IMediator mediator) : IOperationsExper
                 input.CertifiedContribution,
                 input.ContingentWithholding,
                 input.DepositDate,
-                input.ExecutionDate ?? default, // Fix: Provide a default value for nullable DateTime
-                input.SalesUser,
+                //input.ExecutionDate ?? default, // Fix: Provide a default value for nullable DateTime
+                ExecutionDate: contributionData.ExecuteDate,
+                //input.SalesUser,
+                SalesUser: contributionData.SalesUser,
                 JsonDocument.Parse(JsonSerializer.Serialize(input.VerifiableMedium)),
                 input.Subtype,
-                input.Channel,
+                //input.Channel,
+                Channel: contributionData.Channel,
                 input.User
             );
             var result = await mediator.Send(command, cancellationToken);

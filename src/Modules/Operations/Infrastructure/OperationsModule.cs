@@ -22,6 +22,7 @@ using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
+using Operations.Domain.Services;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Infrastructure.AuxiliaryInformations;
 using Operations.Infrastructure.Banks;
@@ -33,6 +34,7 @@ using Operations.Infrastructure.External.Activate;
 using Operations.Infrastructure.External.ContributionValidation;
 using Operations.Infrastructure.External.Customers;
 using Operations.Infrastructure.Origins;
+using Operations.Infrastructure.Services;
 using Operations.Infrastructure.SubtransactionTypes;
 using Operations.Presentation.GraphQL;
 using Operations.Presentation.MinimalApis;
@@ -94,6 +96,11 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IErrorCatalog<OperationsModuleMarker>, ErrorCatalog<OperationsModuleMarker>>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<OperationsDbContext>());
+
+        services.AddScoped<ISalesUserService, SalesUserService>();
+        services.AddScoped<IChannelService, ChannelService>();
+        services.AddScoped<IPortfolioService, PortfolioService>();
+        services.AddScoped<IBuildMissingFieldsContributionService, BuildMissingFieldsContributionService>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -13,7 +13,6 @@ public static class SchemaStitchingConfiguration
             .AddGraphQLServer("BFFGateway")
             .AddQueryType<Query>()
             .AddMutationType<Mutation>()
-            .UseField<CompleteRequestCreateContributionMiddleware>()
             .ModifyOptions(options =>
             {
                 options.RemoveUnreachableTypes = true;
