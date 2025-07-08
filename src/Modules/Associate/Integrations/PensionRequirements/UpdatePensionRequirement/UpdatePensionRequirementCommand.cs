@@ -1,7 +1,6 @@
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
