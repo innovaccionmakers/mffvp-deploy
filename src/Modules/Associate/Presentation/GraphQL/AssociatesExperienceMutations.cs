@@ -1,4 +1,5 @@
 ﻿using Associate.Integrations.Activates.CreateActivate;
+using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 using Associate.Presentation.GraphQL.Inputs;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Presentation.Filters;
@@ -47,6 +48,40 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
         {
            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
            return result;
+        }
+    }
+
+    public async Task<GraphqlMutationResult> UpdatePensionRequirementsAsync(UpdatePensionRequirementInput input, IValidator<UpdatePensionRequirementInput> validator, CancellationToken cancellationToken)
+    {
+        var result = new GraphqlMutationResult();
+
+        try
+        {
+            var validationResult = RequestValidator.Validate(input, validator).GetAwaiter().GetResult();
+            if (validationResult is not null)
+            {
+                result.AddError(validationResult.Error);
+                return result;
+            }
+            var command = new UpdatePensionRequirementCommand(
+                input.DocumentType,
+                input.Identification,
+                input.PensionRequirementId,
+                input.Status
+            );
+            var commandResult = await mediator.Send(command, cancellationToken);
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+            result.SetSuccess("Genial!, Se ha Inactivado el Certificado de Requisitos de Pensión");
+            return result;
+
+        } catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
         }
     }
 }
