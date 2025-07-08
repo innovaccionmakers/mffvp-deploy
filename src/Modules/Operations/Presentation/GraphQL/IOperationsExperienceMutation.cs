@@ -11,6 +11,5 @@ public interface IOperationsExperienceMutation
         CreateContributionInput input,
         IValidator<CreateContributionInput> validator,
         CancellationToken cancellationToken = default
-
-);
+    );
 }

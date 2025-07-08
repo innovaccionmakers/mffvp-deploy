@@ -12,7 +12,7 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(        
         CancellationToken cancellationToken = default)
     {
-            var result = await mediator.Send(new GetTransactionTypesQuery(), cancellationToken);
+        var result = await mediator.Send(new GetTransactionTypesQuery(), cancellationToken);
 
         if (!result.IsSuccess || result.Value == null)
         {

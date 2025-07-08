@@ -12,7 +12,6 @@ namespace Operations.Presentation.GraphQL;
 
 public class OperationsExperienceMutation(IMediator mediator) : IOperationsExperienceMutation
 {
-
     public async Task<GraphqlMutationResult<ContributionMutationResult>> RegisterContributionAsync(
         CreateContributionInput input,
         IValidator<CreateContributionInput> validator,

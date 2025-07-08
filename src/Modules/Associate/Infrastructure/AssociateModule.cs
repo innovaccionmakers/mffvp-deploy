@@ -66,6 +66,7 @@ public class ActivatesModule: IModuleConfiguration
         services.AddScoped<IPensionRequirementRepository, PensionRequirementRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IAssociatesExperienceQueries, AssociatesExperienceQueries>();
+        services.AddScoped<IAssociatesExperienceMutations, AssociatesExperienceMutations>();
         services.AddScoped<IConfigurationParameterLookupRepository<AssociateModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<AssociateModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<AssociateModuleMarker>, ErrorCatalog<AssociateModuleMarker>>();

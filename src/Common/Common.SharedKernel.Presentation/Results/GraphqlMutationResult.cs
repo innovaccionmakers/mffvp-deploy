@@ -2,11 +2,11 @@
 
 namespace Common.SharedKernel.Presentation.Results;
 
-public class GraphqlMutationResult<T>
+
+public class GraphqlMutationResult
 {
     public bool Success => Errors.Count == 0;
     public string? Message { get; set; }
-    public T? Data { get; set; }
     public List<Error> Errors { get; set; } = [];
 
     public GraphqlMutationResult() { }
@@ -15,6 +15,19 @@ public class GraphqlMutationResult<T>
     {
         Errors.Add(error);
     }
+
+    public void SetSuccess(string? message = null)
+    {
+        Message = message;
+        Errors.Clear();
+    }
+}
+
+public class GraphqlMutationResult<T> : GraphqlMutationResult
+{
+    public T? Data { get; set; }
+
+    public GraphqlMutationResult() { }
 
     public void SetSuccess(T data, string? message = null)
     {
