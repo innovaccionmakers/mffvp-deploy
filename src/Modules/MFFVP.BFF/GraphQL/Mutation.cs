@@ -38,6 +38,15 @@ public class Mutation
         return await associatesMutations.UpdateActivateAsync(activation, validator, cancellationToken);
     }
 
+    [GraphQLName("crearRequisitosPension")]
+    public async Task<GraphqlMutationResult> RegisterPensionRequirements([GraphQLName("requisitoPension")] CreatePensionRequirementInput pensionRequirement,
+                                                                        IValidator<CreatePensionRequirementInput> validator,
+                                                                       [Service] IAssociatesExperienceMutations associatesMutations,
+                                                                       CancellationToken cancellationToken)
+    {
+        return await associatesMutations.RegisterPensionRequirementsAsync(pensionRequirement, validator, cancellationToken);
+    }
+
     [GraphQLName("actualizarRequisitosPension")]
     public async Task<GraphqlMutationResult> UpdatePensionRequirements([GraphQLName("requisitoPension")] UpdatePensionRequirementInput pensionRequirement,
                                                                         IValidator<UpdatePensionRequirementInput> validator,
