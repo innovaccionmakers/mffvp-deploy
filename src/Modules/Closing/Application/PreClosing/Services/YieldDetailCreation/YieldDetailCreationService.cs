@@ -1,6 +1,6 @@
 ﻿using Closing.Domain.ProfitLosses;
 using Closing.Domain.YieldDetails;
-using Closing.Integrations.PreClosingSimulation.RunSimulation;
+using Closing.Integrations.PreClosing.RunSimulation;
 
 namespace Closing.Application.PreClosing.Services.YieldDetailCreation
 {
@@ -13,15 +13,16 @@ namespace Closing.Application.PreClosing.Services.YieldDetailCreation
         {
             _yieldDetailRepository = yieldDetailRepository;
         }
-        public void CreateYieldDetailsAsync(
-            IEnumerable<YieldDetail> yieldDetails,
-            CancellationToken cancellationToken = default)
+        public async Task CreateYieldDetailsAsync(
+        IEnumerable<YieldDetail> yieldDetails,
+        CancellationToken cancellationToken = default)
         {
-            foreach (var yieldDetail in yieldDetails)
-            {
-                 _yieldDetailRepository.InsertAsync(yieldDetail);
-            }
+            var tasks = yieldDetails
+                .Select(detail => _yieldDetailRepository.InsertAsync(detail, cancellationToken));
+
+            await Task.WhenAll(tasks);
         }
+
 
         public YieldDetail PandLConceptToYieldDetail(ProfitLossConceptSummary conceptSummary, RunSimulationCommand parameters)
         {

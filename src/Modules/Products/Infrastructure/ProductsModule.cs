@@ -19,6 +19,7 @@ using Products.Application.Abstractions.Services.Rules;
 using Products.Application.Objectives.Services;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
+using Products.Domain.Commissions;
 using Products.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
@@ -27,6 +28,7 @@ using Products.Domain.Plans;
 using Products.Domain.Portfolios;
 using Products.Infrastructure.Alternatives;
 using Products.Infrastructure.Commercials;
+using Products.Infrastructure.Commissions;
 using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Database;
 using Products.Infrastructure.External.Affiliates;
@@ -35,6 +37,7 @@ using Products.Infrastructure.Offices;
 using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
+using Products.IntegrationEvents.Commission.GetCommissionsByPortfolio;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.PortfolioValidation;
 using Products.Presentation.GraphQL;
@@ -95,6 +98,8 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<ContributionValidationConsumer>();
         services.AddTransient<PortfolioValidationConsumer>();
 
+        services.AddScoped<ICommissionRepository, CommissionRepository>();
+        services.AddTransient<CommissionsByPortfolioConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }

@@ -1,21 +1,21 @@
 ﻿
 using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.Data;
-using Closing.Application.Abstractions.External;
 using Closing.Application.PreClosing.Services.Orchestation;
-using Closing.Domain.ProfitLossConcepts;
-using Closing.Domain.ProfitLosses;
-using Closing.Integrations.PreClosingSimulation.RunSimulation;
+using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace Closing.Application.PreClosing.RunSimulation
 {
     internal sealed class RunSimulationCommandHandler(
     ISimulationOrchestrator _simulationOrchestrator,
     IInternalRuleEvaluator<ClosingModuleMarker> ruleEvaluator,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ILogger<RunSimulationCommandHandler> logger)
     : ICommandHandler<RunSimulationCommand, bool>
     {
         private const string WorkflowName = "Closing.PreClosingSimulation.RunSimulation";
@@ -25,17 +25,22 @@ namespace Closing.Application.PreClosing.RunSimulation
             var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
+                var sw = Stopwatch.StartNew();
                 await _simulationOrchestrator.RunSimulationAsync(command, cancellationToken);
+                sw.Stop();
+                logger?.LogInformation("Simulación ejecutada en {ElapsedMilliseconds} ms para Portafolio {PortfolioId}",
+                    sw.ElapsedMilliseconds, command.PortfolioId);
+
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
+                logger?.LogError(ex, "Error en RunSimulationCommand para Portafolio {PortfolioId} - Fecha {Date}",
+                    command.PortfolioId, command.ClosingDate);
                 throw;
             }
-
-         
 
             return Result.Success(true, "La operación se realizó exitosamente.");
         }

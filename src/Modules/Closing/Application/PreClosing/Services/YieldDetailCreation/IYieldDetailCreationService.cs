@@ -1,14 +1,12 @@
-﻿
-
-using Closing.Domain.ProfitLosses;
+﻿using Closing.Domain.ProfitLosses;
 using Closing.Domain.YieldDetails;
-using Closing.Integrations.PreClosingSimulation.RunSimulation;
+using Closing.Integrations.PreClosing.RunSimulation;
 
 namespace Closing.Application.PreClosing.Services.YieldDetailCreation
 {
     public interface IYieldDetailCreationService
     {
-        public void CreateYieldDetailsAsync(
+        public Task CreateYieldDetailsAsync(
             IEnumerable<YieldDetail> yieldDetails,
             CancellationToken cancellationToken = default);
 

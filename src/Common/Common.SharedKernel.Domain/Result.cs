@@ -85,4 +85,11 @@ public class Result<TValue> : Result
     {
         return new Result<TValue>(default, false, error);
     }
+
+
+    /// ✅ Método `Match<TResult>` sin dependencia de ASP.NET
+    public TResult Match<TResult>(Func<TValue, TResult> onSuccess, Func<Error, TResult> onFailure)
+    {
+        return IsSuccess ? onSuccess(Value) : onFailure(Error);
+    }
 }

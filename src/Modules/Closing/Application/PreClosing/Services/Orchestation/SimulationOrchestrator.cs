@@ -1,8 +1,8 @@
 ﻿using Closing.Application.Abstractions.Data;
+using Closing.Application.PreClosing.Services.CommissionCalculation;
 using Closing.Application.PreClosing.Services.ProfitAndLossConsolidation;
 using Closing.Application.PreClosing.Services.YieldDetailCreation;
-using Closing.Integrations.PreClosingSimulation.RunSimulation;
-using System;
+using Closing.Integrations.PreClosing.RunSimulation;
 
 namespace Closing.Application.PreClosing.Services.Orchestation
 {
@@ -11,43 +11,49 @@ namespace Closing.Application.PreClosing.Services.Orchestation
         IUnitOfWork unitOfWork;
         private readonly IProfitAndLossConsolidationService _profitAndLossConsolidationService;
         private readonly IYieldDetailCreationService _yieldDetailCreationService;
+        private readonly ICommissionCalculationService _commissionCalculationService;
         public SimulationOrchestrator(
             IUnitOfWork unitOfWork,
             IProfitAndLossConsolidationService profitAndLossConsolidationService, 
-            IYieldDetailCreationService yieldDetailCreationService)
+            IYieldDetailCreationService yieldDetailCreationService,
+            ICommissionCalculationService commissionCalculationService)
         {
             this.unitOfWork = unitOfWork;
             _profitAndLossConsolidationService = profitAndLossConsolidationService;
             _yieldDetailCreationService = yieldDetailCreationService;
+            _commissionCalculationService = commissionCalculationService;
         }
         //public Task<SimulationResultDto> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
 
-        //•Si ocurre un error en cualquier paso, lanza una excepción(throw o deja que la excepción natural ocurra).
-        //•No atrapes excepciones dentro de RunSimulationAsync a menos que quieras manejarlas específicamente.Si las atrapas y no las relanzas, el handler no sabrá que hubo un error y la transacción podría cometerse incorrectamente.
-
-        public async Task<bool> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
+       public async Task<bool> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
         {
-                //1.- Validar los parametros de entrada
-                //TODO VALIDACIONES previas DE SIMULACION 
 
-                //2.- Consolidacion PyG
-                var pAndlSummary = await _profitAndLossConsolidationService.GetProfitAndLossSummaryAsync(
-                    parameters.PortfolioId,
-                    parameters.ClosingDate
-                );
+            // Validaciones pendientes...
 
-                var pAndlYieldDetails = _yieldDetailCreationService.PandLConceptSummaryToYieldDetails(pAndlSummary, parameters);
+            // 🧩 1. Tareas en paralelo
+            // Consolidacion PyG
+            var profitAndLossTask = Task.Run(async () =>
+            {
+                var summary = await _profitAndLossConsolidationService
+                    .GetProfitAndLossSummaryAsync(parameters.PortfolioId, parameters.ClosingDate);
 
-                _yieldDetailCreationService.CreateYieldDetailsAsync(pAndlYieldDetails,cancellationToken);
+                var yieldDetails = _yieldDetailCreationService
+                    .PandLConceptSummaryToYieldDetails(summary, parameters);
+                
+                await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, cancellationToken);
+            });
+            //Cálculo de Comisiones y Tesorería (comentado por falta de implementación)
+            var feeTask = _commissionCalculationService.CalculateAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
+            //var treasuryTask = _treasuryConceptService.ExecuteAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
 
-                //3.- Cálculo de Comisiones
+            // Esperar a que las 3 tareas terminen
+            // await Task.WhenAll(pygTask, feeTask, treasuryTask);
+            await Task.WhenAll(profitAndLossTask, feeTask);
 
-                //4.- Conceptos Tesorería
+            // 🧩 2. Consolidación rendimientos final
+            // await _yieldConsolidationService.ExecuteAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
 
-                //5.- Consolidación Rendimientos
-          
-            return true;
-          
+            return true;          
         }
     }
 }
