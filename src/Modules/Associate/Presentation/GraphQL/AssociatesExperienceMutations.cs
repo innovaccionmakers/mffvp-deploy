@@ -1,4 +1,5 @@
 ﻿using Associate.Integrations.Activates.CreateActivate;
+using Associate.Integrations.Activates.UpdateActivate;
 using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 using Associate.Presentation.GraphQL.Inputs;
 using Common.SharedKernel.Domain;
@@ -49,6 +50,43 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
            return result;
         }
+    }
+
+    public async Task<GraphqlMutationResult> UpdateActivateAsync(UpdateActivateInput input, IValidator<UpdateActivateInput> validator, CancellationToken cancellationToken)
+    {
+        var result = new GraphqlMutationResult();
+
+        try
+        {
+            var validationResult = await RequestValidator.Validate(input, validator);
+            if (validationResult is not null)
+            {
+                result.AddError(validationResult.Error);
+                return result;
+            }
+
+            var command = new UpdateActivateCommand(
+                input.DocumentType,
+                input.Identification,
+                input.Pensioner
+            );
+
+            var commandResult = await mediator.Send(command, cancellationToken);
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+            result.SetSuccess("Genial!, Se ha inactivado el Afiliado");
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
+
     }
 
     public async Task<GraphqlMutationResult> UpdatePensionRequirementsAsync(UpdatePensionRequirementInput input, IValidator<UpdatePensionRequirementInput> validator, CancellationToken cancellationToken)
