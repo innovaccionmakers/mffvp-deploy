@@ -72,7 +72,7 @@ public class OperationsExperienceMutation(
 
     private static CreateContributionCommand CreateContributionCommand(
         CreateContributionInput input,
-        dynamic contributionData
+        (DateTime ExecuteDate, string Channel, string SalesUser) contributionData
     )
     {
         return new CreateContributionCommand(

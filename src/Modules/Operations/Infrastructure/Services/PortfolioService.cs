@@ -23,10 +23,8 @@ public class PortfolioService : IPortfolioService
 
     public async Task<DateTime> GetNextDateFromCurrentDateAsync(string portfolioId, CancellationToken cancellationToken = default)
     {
-        var portfolio = await _portfolioRepository.GetAsync(int.Parse(portfolioId), cancellationToken);
-        if (portfolio == null)
-            throw new InvalidOperationException("Portfolio not found.");
+        var currentDate = await GetCurrentDateAsync(portfolioId, cancellationToken);
 
-        return portfolio.CurrentDate.AddDays(1);
+        return currentDate.AddDays(1);
     }
 }
