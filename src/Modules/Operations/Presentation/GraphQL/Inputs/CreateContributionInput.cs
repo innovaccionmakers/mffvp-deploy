@@ -6,7 +6,7 @@ namespace Operations.Presentation.GraphQL.Inputs;
 
 public record CreateContributionInput
 {
-    [GraphQLName("idTipo")]
+    [GraphQLName("idTipoIdentificacion")]
     public required string TypeId { get; set; }
 
     [GraphQLName("identificacion")]
