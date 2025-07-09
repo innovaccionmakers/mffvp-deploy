@@ -1,0 +1,11 @@
+{
+  "AWS": {
+    "SecretsManager": {
+      "SecretName": "rds-db-credentials/dev/db-makers-fund-fvp-adm2-aurora-dev/userdbfondos",
+      "Region": "us-east-2"
+    }
+  },
+  "ConnectionStrings": {
+    "AssociateDatabase": ""
+  }
+}
