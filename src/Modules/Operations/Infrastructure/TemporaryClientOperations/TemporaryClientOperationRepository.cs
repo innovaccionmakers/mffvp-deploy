@@ -20,8 +20,16 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
     public async Task<IReadOnlyCollection<TemporaryClientOperation>> GetByPortfolioAsync(int portfolioId, CancellationToken cancellationToken = default)
     {
         return await context.TemporaryClientOperations
+            .AsNoTracking()
             .Where(x => x.PortfolioId == portfolioId)
             .OrderBy(x => x.RegistrationDate)
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<IReadOnlyCollection<TemporaryClientOperation>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default)
+    {
+        return await context.TemporaryClientOperations
+            .Where(x => ids.Contains(x.TemporaryClientOperationId))
             .ToListAsync(cancellationToken);
     }
 
@@ -38,5 +46,10 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
     public void Delete(TemporaryClientOperation temporaryClientOperation)
     {
         context.TemporaryClientOperations.Remove(temporaryClientOperation);
+    }
+    
+    public void DeleteRange(IEnumerable<TemporaryClientOperation> operations)
+    {
+        context.TemporaryClientOperations.RemoveRange(operations);
     }
 }

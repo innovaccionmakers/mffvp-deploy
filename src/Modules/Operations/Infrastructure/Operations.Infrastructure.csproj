@@ -16,6 +16,10 @@
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="EFCore.BulkExtensions" Version="9.0.1" />
+    </ItemGroup>
+
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>

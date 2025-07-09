@@ -7,4 +7,6 @@ public interface ITemporaryAuxiliaryInformationRepository
     void Insert(TemporaryAuxiliaryInformation temporaryAuxiliaryInformation);
     void Update(TemporaryAuxiliaryInformation temporaryAuxiliaryInformation);
     void Delete(TemporaryAuxiliaryInformation temporaryAuxiliaryInformation);
+    void DeleteRange(IEnumerable<TemporaryAuxiliaryInformation> infos);
+    Task<IReadOnlyCollection<TemporaryAuxiliaryInformation>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default);
 }
