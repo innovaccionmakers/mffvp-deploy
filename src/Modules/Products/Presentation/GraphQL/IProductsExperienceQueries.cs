@@ -29,4 +29,8 @@ public interface IProductsExperienceQueries
 
     Task<PlanFundDto> GetPlanFundAsync(string alternativeId,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<AffiliateGoalDto>> GetAffiliateObjectivesAsync(
+        int affiliateId,
+        CancellationToken cancellationToken = default);
 }

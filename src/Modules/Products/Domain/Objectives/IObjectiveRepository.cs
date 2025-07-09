@@ -1,4 +1,5 @@
 using Common.SharedKernel.Domain;
+using Products.Integrations.Objectives.GetObjectivesByAffiliate;
 
 namespace Products.Domain.Objectives;
 
@@ -21,5 +22,9 @@ public interface IObjectiveRepository
         Status? status,
         CancellationToken ct = default);
     
-    IQueryable<Objective> Query();  
+    IQueryable<Objective> Query();
+
+    Task<IReadOnlyCollection<AffiliateObjectiveQueryResponse>> GetAffiliateObjectivesByAffiliateIdAsync(
+        int affiliateId,
+        CancellationToken cancellationToken = default);
 }
