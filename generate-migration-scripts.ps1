@@ -9,7 +9,8 @@ $modules = @(
     @{ DbContext = "CustomersDbContext"; Project = "src/Modules/Customers/Infrastructure/Customers.Infrastructure"; Folder = "Customers" },
     @{ DbContext = "OperationsDbContext"; Project = "src/Modules/Operations/Infrastructure/Operations.Infrastructure"; Folder = "Operations" },
     @{ DbContext = "ClosingDbContext"; Project = "src/Modules/Closing/Infrastructure/Closing.Infrastructure"; Folder = "Closing" },
-    @{ DbContext = "AssociateDbContext"; Project = "src/Modules/Associate/Infrastructure/Associate.Infrastructure"; Folder = "Associate" }
+    @{ DbContext = "AssociateDbContext"; Project = "src/Modules/Associate/Infrastructure/Associate.Infrastructure"; Folder = "Associate" },
+    @{ DbContext = "TreasuryDbContext"; Project = "src/Modules/Treasury/Infrastructure/Treasury.Infrastructure"; Folder = "Treasury" }
 )
 
 foreach ($module in $modules) {
