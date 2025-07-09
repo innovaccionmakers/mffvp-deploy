@@ -16,6 +16,21 @@ public class OperationsExperienceMutation(
     IBuildMissingFieldsContributionService buildMissingFieldsContributionService
 ) : IOperationsExperienceMutation
 {
+    private static class Constants
+    {
+        public static class CertifiedContribution
+        {
+            public const string No = "no";
+            public const string Si = "si";
+        }
+
+        public static class TaxCondition
+        {
+            public const string SinRetencionContingente = "Sin Retención Contingente";
+            public const string ConRetencionContingente = "Con Retención Contingente";
+        }
+    }
+
     public async Task<GraphqlMutationResult<ContributionMutationResult>> RegisterContributionAsync(
         CreateContributionInput input,
         IValidator<CreateContributionInput> validator,
@@ -46,9 +61,10 @@ public class OperationsExperienceMutation(
                 return result;
             }
 
+            var condicionTributaria = GetTaxCondition(input.CertifiedContribution);
             var detalle = new
             {
-                condicion_tributaria = input.CertifiedContribution?.ToLower().Trim() == "no" ? "Sin Retención Contingente" : string.Empty
+                condicion_tributaria = condicionTributaria
             };
 
             var detalleJson = JsonDocument.Parse(JsonSerializer.Serialize(detalle));
@@ -100,5 +116,20 @@ public class OperationsExperienceMutation(
                 Channel: contributionData.Channel,
                 input.User
             );
+    }
+
+    private static string GetTaxCondition(string? certifiedContribution)
+    {
+        if (string.IsNullOrWhiteSpace(certifiedContribution))
+            return string.Empty;
+
+        var normalizedValue = certifiedContribution.ToLower().Trim();
+
+        return normalizedValue switch
+        {
+            Constants.CertifiedContribution.No => Constants.TaxCondition.SinRetencionContingente,
+            Constants.CertifiedContribution.Si => Constants.TaxCondition.ConRetencionContingente,
+            _ => string.Empty
+        };
     }
 }

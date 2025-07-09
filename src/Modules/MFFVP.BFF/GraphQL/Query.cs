@@ -34,7 +34,7 @@ public class Query
     }
 
     [GraphQLName("objetivo")]
-    public async Task<IReadOnlyCollection<GoalDto>> GetGoals([GraphQLName("idTipo")] string typeId,
+    public async Task<IReadOnlyCollection<GoalDto>> GetGoals([GraphQLName("idTipoIdentificacion")] string typeId,
                                                          [GraphQLName("identificacion")] string identification,
                                                          [GraphQLName("estado")] StatusType status,
                                                          [Service] IProductsExperienceQueries productsExperienceQueries,
