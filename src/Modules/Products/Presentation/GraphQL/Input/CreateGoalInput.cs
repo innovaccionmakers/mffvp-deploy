@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Products.Presentation.GraphQL.Input;
 
 public record CreateGoalInput(
-    [property: GraphQLName("tipoId")]
+    [property: GraphQLName("idTipoIdentificacion")]
     string IdType,
 
     [property: GraphQLName("identificacion")]

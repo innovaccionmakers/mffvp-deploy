@@ -5,8 +5,8 @@ namespace Products.Presentation.DTOs;
 public record AffiliateGoalDto(
     [property: GraphQLName("id")] int Id,
     [property: GraphQLName("nombre")] string Name,
-    [property: GraphQLName("tipoId")] string IdType,
-    [property: GraphQLName("tipo")] string Type,
+    [property: GraphQLName("tipoObjetivoId")] string IdType,
+    [property: GraphQLName("tipoObjetivo")] string Type,
     [property: GraphQLName("planId")] string IdPlan,
     [property: GraphQLName("plan")] string Plan,
     [property: GraphQLName("fondoId")] string IdFund,
