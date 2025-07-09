@@ -15,7 +15,7 @@ internal sealed class PensionRequirementRepository(AssociateDbContext context) :
     public async Task<IReadOnlyCollection<PensionRequirement>> GetAllByAssociateAsync(int associateId, CancellationToken cancellationToken = default)
     {
         return await context.PensionRequirements
-            .Where(r => r.ActivateId == associateId && r.Status == Status.Active)
+            .Where(r => r.ActivateId == associateId)
             .ToListAsync(cancellationToken);
     }
 
