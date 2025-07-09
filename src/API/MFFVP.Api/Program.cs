@@ -7,6 +7,7 @@ using Common.SharedKernel.Infrastructure;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Extensions;
 using Common.SharedKernel.Infrastructure.Validation;
+using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Filters;
 
@@ -90,6 +91,8 @@ builder.Services.AddInfrastructure(
     databaseConnectionString,
     capDbConnectionString,
     databaseConnectionStringSQL);
+
+builder.Services.AddRedisCache(builder.Configuration);
 
 builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing"], env);
 
