@@ -2,15 +2,16 @@
 
 using HotChocolate;
 using MediatR;
-using Products.Integrations.Commercials;
 using Products.Integrations.Alternatives;
+using Products.Integrations.Commercials;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
 using Products.Integrations.ConfigurationParameters.GoalTypes;
 using Products.Integrations.Objectives.GetObjectives;
+using Products.Integrations.Objectives.GetObjectivesByAffiliate;
 using Products.Integrations.Offices;
+using Products.Integrations.PlanFunds.GetPlanFund;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
-using Products.Integrations.PlanFunds.GetPlanFund;
 using Products.Presentation.DTOs.PlanFund;
 
 public class ProductsExperienceQueries(IMediator mediator) : IProductsExperienceQueries
@@ -206,5 +207,38 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
                 planFundInformation.FundName,
                 planFundInformation.HomologatedCodeFund)
         );
+    }
+
+    public async Task<IReadOnlyCollection<AffiliateGoalDto>> GetAffiliateObjectivesAsync(
+        int affiliateId,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(
+            new GetObjectivesByAffiliateQuery(affiliateId),
+            cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+            return Array.Empty<AffiliateGoalDto>();
+
+        return result.Value
+            .Select(o => new AffiliateGoalDto(
+                Id: o.Id,
+                Name: o.Name,
+                IdType: o.IdType.ToString(),
+                Type: o.Type,
+                IdPlan: o.IdPlan,
+                Plan: o.Plan,
+                IdFund: o.IdFund,
+                Fund: o.Fund,
+                IdAlternative: o.IdAlternative,
+                Alternative: o.Alternative,
+                IdCommercial: o.IdCommercial,
+                Commercial: o.Commercial,
+                IdOpeningOffice: o.IdOpeningOffice,
+                OpeningOffice: o.OpeningOffice,
+                IdCurrentOffice: o.IdCurrentOffice,
+                CurrentOffice: o.CurrentOffice,
+                Status: o.Status
+            )).ToList();
     }
 }

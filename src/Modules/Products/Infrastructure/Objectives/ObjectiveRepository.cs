@@ -1,7 +1,10 @@
+using Common.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
 using Products.Domain.Objectives;
+using Products.Domain.Plans;
 using Products.Infrastructure.Database;
-using Common.SharedKernel.Domain;
+using Products.Integrations.Objectives.GetObjectivesByAffiliate;
+using System;
 
 namespace Products.Infrastructure.Objectives;
 
@@ -71,4 +74,41 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
         return await query.ToListAsync(ct);
     }
     public IQueryable<Objective> Query() => context.Objectives;
+
+    public async Task<IReadOnlyCollection<AffiliateObjectiveQueryResponse>> GetAffiliateObjectivesByAffiliateIdAsync(
+        int affiliateId,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await(from o in context.Objectives
+                           join alt in context.Alternatives on o.AlternativeId equals alt.AlternativeId
+                           join pf in context.PlanFunds on alt.PlanFundId equals pf.PlanFundId
+                           join plan in context.Plans on pf.PlanId equals plan.PlanId
+                           join fund in context.PensionFunds on pf.PensionFundId equals fund.PensionFundId
+                           join com in context.Commercials on o.CommercialId equals com.CommercialId
+                           join openOffice in context.Offices on o.OpeningOfficeId equals openOffice.OfficeId
+                           join currOffice in context.Offices on o.CurrentOfficeId equals currOffice.OfficeId
+                           join type in context.ConfigurationParameters on o.ObjectiveTypeId equals type.ConfigurationParameterId
+                           where o.AffiliateId == affiliateId
+                           select AffiliateObjectiveQueryResponse.Create(
+                                o.ObjectiveId,
+                                o.Name,
+                                o.ObjectiveTypeId.ToString(),
+                                type.Name,
+                                plan.PlanId.ToString(),
+                                plan.Name,
+                                fund.PensionFundId.ToString(),
+                                fund.ShortName,
+                                alt.AlternativeId.ToString(),
+                                alt.Name,
+                                com.CommercialId.ToString(),
+                                com.Name,
+                                openOffice.OfficeId.ToString(),
+                                openOffice.Name,
+                                currOffice.OfficeId.ToString(),
+                                currOffice.Name,
+                                o.Status.ToString()
+                            )
+                        ).ToListAsync(cancellationToken);
+        return result;
+    }
 }

@@ -79,6 +79,15 @@ public class Query
         return await productsQueries.GetPlanFundAsync(alternativeId, cancellationToken);
     }
 
+    [GraphQLName("objetivosAfiliado")]
+    public Task<IReadOnlyCollection<AffiliateGoalDto>> GetAffiliateObjectivesAsync(
+        [GraphQLName("idAfiliado")] int affiliateId,
+        [Service] IProductsExperienceQueries productsQueries,
+        CancellationToken cancellationToken = default)
+    {
+        return productsQueries.GetAffiliateObjectivesAsync(affiliateId, cancellationToken);
+    }
+
     //Operations Queries
     [GraphQLName("tipoTransaccion")]
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypes([Service] IOperationsExperienceQueries operationsQueries,
