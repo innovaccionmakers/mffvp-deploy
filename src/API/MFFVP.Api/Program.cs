@@ -76,7 +76,8 @@ Assembly[] moduleApplicationAssemblies =
     Customers.Application.AssemblyReference.Assembly,
     Operations.Application.AssemblyReference.Assembly,
     Closing.Application.AssemblyReference.Assembly,
-    Security.Application.AssemblyReference.Assembly
+    Security.Application.AssemblyReference.Assembly,
+    Treasury.Application.AssemblyReference.Assembly
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
@@ -94,10 +95,10 @@ builder.Services.AddInfrastructure(
 
 builder.Services.AddRedisCache(builder.Configuration);
 
-builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing"], env);
+builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing", "treasury"], env);
 
 builder.Services.AddTrustsModule(builder.Configuration);
-       
+
 var activatesModuleAssembly = Assembly.GetAssembly(typeof(Associate.Infrastructure.ActivatesModule));
 if (activatesModuleAssembly != null)
 {
@@ -132,6 +133,12 @@ var securityModuleAssembly = Assembly.GetAssembly(typeof(Security.Infrastructure
 if (securityModuleAssembly != null)
 {
     builder.Services.AddModulesFromAssembly(securityModuleAssembly, builder.Configuration);
+}
+
+var treasuryModuleAssembly = Assembly.GetAssembly(typeof(Treasury.Infrastructure.TreasuryModule));
+if (treasuryModuleAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(treasuryModuleAssembly, builder.Configuration);
 }
 
 var bffAssembly = Assembly.GetAssembly(typeof(MFFVP.BFF.ModuleConfiguration));
