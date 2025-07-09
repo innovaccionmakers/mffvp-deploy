@@ -3,10 +3,12 @@ using Closing.IntegrationEvents.CreateClientOperationRequested;
 using Common.SharedKernel.Application.EventBus;
 using DotNetCore.CAP;
 using Operations.Application.Abstractions.Data;
+using Operations.Application.Abstractions.Services.Cleanup;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.TemporaryClientOperations;
 using Operations.Domain.TemporaryAuxiliaryInformations;
+using Operations.Infrastructure.Database;
 using Trusts.IntegrationEvents.CreateTrustRequested;
 
 
@@ -18,23 +20,23 @@ public sealed class PendingContributionProcessor(
     IClientOperationRepository clientOpRepo,
     IAuxiliaryInformationRepository auxRepo,
     IEventBus eventBus,
-    IUnitOfWork unitOfWork) : ICapSubscribe
+    IUnitOfWork unitOfWork,
+    ITempClientOperationsCleanupService cleanupService) : ICapSubscribe
 {
     [CapSubscribe(nameof(ProcessPendingContributionsRequestedIntegrationEvent))]
     public async Task HandleAsync(ProcessPendingContributionsRequestedIntegrationEvent message, CancellationToken cancellationToken)
     {
-        var temps = await tempOpRepo.GetAllAsync(cancellationToken);
-        var byPortfolio = temps.Where(t => t.PortfolioId == message.PortfolioId)
-            .OrderBy(t => t.RegistrationDate)
-            .ToList();
+        var byPortfolio = await tempOpRepo.GetByPortfolioAsync(message.PortfolioId, cancellationToken);
+        var ops = new List<ClientOperation>();
+        var infos = new List<AuxiliaryInformation>();
+        var tempOpIds = new List<long>();
+        var tempAuxIds = new List<long>();
 
         foreach (var temp in byPortfolio)
         {
             var aux = await tempAuxRepo.GetAsync(temp.TemporaryClientOperationId, cancellationToken);
             if (aux is null) continue;
-
-            await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
-
+            
             var op = ClientOperation.Create(
                 temp.RegistrationDate,
                 temp.AffiliateId,
@@ -44,8 +46,7 @@ public sealed class PendingContributionProcessor(
                 temp.ProcessDate,
                 temp.SubtransactionTypeId,
                 temp.ApplicationDate).Value;
-            clientOpRepo.Insert(op);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            ops.Add(op);
 
             var info = AuxiliaryInformation.Create(
                 op.ClientOperationId,
@@ -65,8 +66,7 @@ public sealed class PendingContributionProcessor(
                 aux.CityId,
                 aux.ChannelId,
                 aux.UserId).Value;
-            auxRepo.Insert(info);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            infos.Add(info);
 
             var evt = new CreateClientOperationRequestedIntegrationEvent(
                 op.ClientOperationId,
@@ -98,11 +98,22 @@ public sealed class PendingContributionProcessor(
                 true);
             await eventBus.PublishAsync(trustEvent, cancellationToken);
 
-            tempAuxRepo.Delete(aux);
-            tempOpRepo.Delete(temp);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-
-            await tx.CommitAsync(cancellationToken);
+            tempOpIds.Add(temp.TemporaryClientOperationId);
+            tempAuxIds.Add(aux.TemporaryAuxiliaryInformationId);
         }
+        
+        if (ops.Count == 0) return;
+
+        await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        var context = (OperationsDbContext)unitOfWork;
+        await context.AddRangeAsync(ops, cancellationToken);
+        await context.AddRangeAsync(infos, cancellationToken);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+
+        await cleanupService.ScheduleCleanupAsync(tempOpIds, tempAuxIds, cancellationToken);
+
+        await tx.CommitAsync(cancellationToken);
     }
 }

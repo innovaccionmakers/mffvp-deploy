@@ -14,6 +14,7 @@ internal sealed class TemporaryAuxiliaryInformationRepository(OperationsDbContex
     public async Task<TemporaryAuxiliaryInformation?> GetAsync(long temporaryAuxiliaryInformationId, CancellationToken cancellationToken = default)
     {
         return await context.TemporaryAuxiliaryInformations
+            .AsNoTracking()
             .SingleOrDefaultAsync(x => x.TemporaryAuxiliaryInformationId == temporaryAuxiliaryInformationId, cancellationToken);
     }
 
@@ -30,5 +31,16 @@ internal sealed class TemporaryAuxiliaryInformationRepository(OperationsDbContex
     public void Delete(TemporaryAuxiliaryInformation temporaryAuxiliaryInformation)
     {
         context.TemporaryAuxiliaryInformations.Remove(temporaryAuxiliaryInformation);
+    }
+    public void DeleteRange(IEnumerable<TemporaryAuxiliaryInformation> infos)
+    {
+        context.TemporaryAuxiliaryInformations.RemoveRange(infos);
+    }
+
+    public async Task<IReadOnlyCollection<TemporaryAuxiliaryInformation>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default)
+    {
+        return await context.TemporaryAuxiliaryInformations
+            .Where(x => ids.Contains(x.TemporaryAuxiliaryInformationId))
+            .ToListAsync(cancellationToken);
     }
 }

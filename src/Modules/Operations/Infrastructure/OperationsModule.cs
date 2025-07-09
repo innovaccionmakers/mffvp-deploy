@@ -15,11 +15,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.External;
+using Operations.Application.Abstractions.Services.Cleanup;
 using Operations.Application.Abstractions.Services.Prevalidation;
 using Operations.Application.Abstractions.Services.TransactionControl;
 using Operations.Application.Abstractions.Services.TrustCreation;
 using Operations.Application.Contributions.Prevalidation;
 using Operations.Application.Contributions.Services;
+using Operations.Application.Contributions.Services.Cleanup;
 using Operations.Application.Contributions.Services.TrustCreation;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.Banks;
@@ -110,6 +112,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IContributionTransactionControl, ContributionTransactionControl>();
         services.AddScoped<IContributionTrustCreator, ContributionTrustCreator>();
         services.AddScoped<PendingContributionProcessor>();
+        services.AddSingleton<ITempClientOperationsCleanupService, TempClientOpsCleanupService>();
 
         services.AddScoped<IErrorCatalog<OperationsModuleMarker>, ErrorCatalog<OperationsModuleMarker>>();
 
