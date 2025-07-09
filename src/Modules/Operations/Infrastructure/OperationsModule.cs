@@ -25,6 +25,8 @@ using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.Banks;
 using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
+using Operations.Domain.TemporaryClientOperations;
+using Operations.Domain.TemporaryAuxiliaryInformations;
 using Operations.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Domain.Services;
@@ -33,6 +35,9 @@ using Operations.Infrastructure.AuxiliaryInformations;
 using Operations.Infrastructure.Banks;
 using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ClientOperations;
+using Operations.Infrastructure.TemporaryClientOperations;
+using Operations.Infrastructure.TemporaryAuxiliaryInformations;
+using Operations.IntegrationEvents.PendingContributionProcessor;
 using Operations.Infrastructure.ConfigurationParameters;
 using Operations.Infrastructure.Database;
 using Operations.Infrastructure.External.Activate;
@@ -82,6 +87,8 @@ public class OperationsModule: IModuleConfiguration
 
         services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
         services.AddScoped<IAuxiliaryInformationRepository, AuxiliaryInformationRepository>();
+        services.AddScoped<ITemporaryClientOperationRepository, TemporaryClientOperationRepository>();
+        services.AddScoped<ITemporaryAuxiliaryInformationRepository, TemporaryAuxiliaryInformationRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<OperationsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<OperationsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
@@ -102,6 +109,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IContributionPrevalidator, ContributionPrevalidator>();
         services.AddScoped<IContributionTransactionControl, ContributionTransactionControl>();
         services.AddScoped<IContributionTrustCreator, ContributionTrustCreator>();
+        services.AddScoped<PendingContributionProcessor>();
 
         services.AddScoped<IErrorCatalog<OperationsModuleMarker>, ErrorCatalog<OperationsModuleMarker>>();
 

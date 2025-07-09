@@ -17,6 +17,8 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 using Savorboard.CAP.InMemoryMessageQueue;
+using Common.SharedKernel.Application.Closing;
+using Common.SharedKernel.Infrastructure.Caching;
 
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -93,6 +95,7 @@ public static class InfrastructureConfiguration
         services.AddSingleton<ICapRpcClient, CapRpcClient>();
         services.AddSingleton<CapCallbackSubscriber>();
         services.AddScoped<IEventBus, Common.SharedKernel.Infrastructure.EventBus.EventBus>();
+        services.AddScoped<IClosingExecutionStore, RedisClosingExecutionStore>();
 
         return services;
     }

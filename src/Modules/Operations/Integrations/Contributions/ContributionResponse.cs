@@ -12,5 +12,6 @@ public sealed record ContributionResponse(
     [property: JsonPropertyName("CondicionTributaria")]
     string? TaxCondition,
     [property: JsonPropertyName("ValorRetencionContingente")]
-    decimal? ContingentWithholdingValue
-);
+    decimal? ContingentWithholdingValue,
+    [property: JsonPropertyName("EnCola")]
+    bool InQueue = false);

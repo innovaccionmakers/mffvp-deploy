@@ -420,6 +420,140 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.ToTable("subtipo_transacciones", "operaciones");
                 });
 
+            modelBuilder.Entity("Operations.Domain.TemporaryAuxiliaryInformations.TemporaryAuxiliaryInformation", b =>
+                {
+                    b.Property<long>("TemporaryAuxiliaryInformationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TemporaryAuxiliaryInformationId"));
+
+                    b.Property<int>("CertificationStatusId")
+                        .HasColumnType("integer")
+                        .HasColumnName("estado_certificacion_id");
+
+                    b.Property<int>("ChannelId")
+                        .HasColumnType("integer")
+                        .HasColumnName("canal_id");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ciudad_id");
+
+                    b.Property<int>("CollectionAccount")
+                        .HasColumnType("integer")
+                        .HasColumnName("cuenta_recaudo");
+
+                    b.Property<int>("CollectionBankId")
+                        .HasColumnType("integer")
+                        .HasColumnName("banco_recaudo");
+
+                    b.Property<int>("CollectionMethodId")
+                        .HasColumnType("integer")
+                        .HasColumnName("metodo_recaudo_id");
+
+                    b.Property<int>("ContingentWithholding")
+                        .HasColumnType("integer")
+                        .HasColumnName("retencion_contingente");
+
+                    b.Property<DateTime>("DepositDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_consignacion");
+
+                    b.Property<int>("OriginId")
+                        .HasColumnType("integer")
+                        .HasColumnName("origen_id");
+
+                    b.Property<int>("OriginModalityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("modalidad_origen_id");
+
+                    b.Property<JsonDocument>("PaymentMethodDetail")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("detalle_forma_pago");
+
+                    b.Property<int>("PaymentMethodId")
+                        .HasColumnType("integer")
+                        .HasColumnName("forma_pago_id");
+
+                    b.Property<string>("SalesUser")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("usuario_comercial");
+
+                    b.Property<int>("TaxConditionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("condicion_tributaria_id");
+
+                    b.Property<long>("TemporaryClientOperationId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("operacion_cliente_temporal_id");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("usuario_id");
+
+                    b.Property<JsonDocument>("VerifiableMedium")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("medio_verificable");
+
+                    b.HasKey("TemporaryAuxiliaryInformationId");
+
+                    b.HasIndex("TemporaryClientOperationId")
+                        .IsUnique();
+
+                    b.ToTable("informacion_auxiliar_temporal", "operaciones");
+                });
+
+            modelBuilder.Entity("Operations.Domain.TemporaryClientOperations.TemporaryClientOperation", b =>
+                {
+                    b.Property<long>("TemporaryClientOperationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TemporaryClientOperationId"));
+
+                    b.Property<int>("AffiliateId")
+                        .HasColumnType("integer")
+                        .HasColumnName("afiliado_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("valor");
+
+                    b.Property<DateTime>("ApplicationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_aplicacion");
+
+                    b.Property<int>("ObjectiveId")
+                        .HasColumnType("integer")
+                        .HasColumnName("objetivo_id");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portafolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<DateTime>("RegistrationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_radicacion");
+
+                    b.Property<long>("SubtransactionTypeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("subtipo_transaccion_id");
+
+                    b.HasKey("TemporaryClientOperationId");
+
+                    b.ToTable("operaciones_clientes_temporal", "operaciones");
+                });
+
             modelBuilder.Entity("Operations.Domain.TrustOperations.TrustOperation", b =>
                 {
                     b.Property<long>("TrustOperationId")
@@ -535,6 +669,17 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Navigation("Origin");
                 });
 
+            modelBuilder.Entity("Operations.Domain.TemporaryAuxiliaryInformations.TemporaryAuxiliaryInformation", b =>
+                {
+                    b.HasOne("Operations.Domain.TemporaryClientOperations.TemporaryClientOperation", "TemporaryClientOperation")
+                        .WithOne("TemporaryAuxiliaryInformation")
+                        .HasForeignKey("Operations.Domain.TemporaryAuxiliaryInformations.TemporaryAuxiliaryInformation", "TemporaryClientOperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TemporaryClientOperation");
+                });
+
             modelBuilder.Entity("Operations.Domain.TrustOperations.TrustOperation", b =>
                 {
                     b.HasOne("Operations.Domain.ClientOperations.ClientOperation", "ClientOperation")
@@ -579,6 +724,12 @@ namespace Operations.Infrastructure.Database.Migrations
             modelBuilder.Entity("Operations.Domain.SubtransactionTypes.SubtransactionType", b =>
                 {
                     b.Navigation("ClientOperations");
+                });
+
+            modelBuilder.Entity("Operations.Domain.TemporaryClientOperations.TemporaryClientOperation", b =>
+                {
+                    b.Navigation("TemporaryAuxiliaryInformation")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

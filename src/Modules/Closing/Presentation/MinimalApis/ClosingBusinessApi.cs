@@ -1,6 +1,7 @@
 ﻿using Closing.Integrations.ProfitLosses.GetProfitandLoss;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
 using Closing.Presentation.MinimalApis.PreClosing;
+using Closing.Presentation.MinimalApis.ClosingWorkflow;
 using Common.SharedKernel.Presentation.Results;
 
 using MediatR;
@@ -113,5 +114,6 @@ public static class ClosingBusinessApi
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         PreClosingEndpoints.MapPreclosingEndpoints(app);
+        ClosingWorkflowEndpoints.MapClosingWorkflowEndpoints(app);
     }
 }
