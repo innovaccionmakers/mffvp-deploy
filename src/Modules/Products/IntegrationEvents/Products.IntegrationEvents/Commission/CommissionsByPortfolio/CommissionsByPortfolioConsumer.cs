@@ -25,7 +25,6 @@ namespace Products.IntegrationEvents.Commission.GetCommissionsByPortfolio
            new GetCommissionsByPortfolioIdQuery(request.PortfolioId),
            cancellationToken);
 
-            //return new CommissionsByPortfolioResponse(true, null, null,commissionsResult.Value);
             return commissionsResult.Match(
       val => new CommissionsByPortfolioResponse(
           true,

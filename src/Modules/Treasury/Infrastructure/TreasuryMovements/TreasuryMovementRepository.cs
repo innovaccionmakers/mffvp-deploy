@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Common.SharedKernel.Domain.Utils;
 using Treasury.Domain.TreasuryMovements;
 using Treasury.Infrastructure.Database;
 
@@ -19,5 +20,27 @@ public class TreasuryMovementRepository(TreasuryDbContext context) : ITreasuryMo
     public void Add(TreasuryMovement treasuryMovement)
     {
         context.TreasuryMovements.Add(treasuryMovement);
+    }
+
+    public async Task<IReadOnlyCollection<TreasuryMovementConceptSummary>> GetTreasuryMovementsByPortfolioAsync(int portfolioId, DateTime date, CancellationToken cancellationToken = default)
+    {
+
+        var dateUtc = DateTimeConverter.ToUtcDateTime(date);
+
+        return await context.TreasuryMovements
+            .AsNoTracking()
+            .Where(pl => pl.PortfolioId == portfolioId && pl.ClosingDate == dateUtc)
+            .Join(context.TreasuryConcepts,
+                pl => pl.TreasuryConceptId,
+                c => c.Id,
+                (pl, c) => new { c.Id, c.Concept, c.Nature, c.AllowsExpense, pl.Value })
+            .GroupBy(x => new { x.Id, x.Concept, x.Nature, x.AllowsExpense })
+            .Select(g => new TreasuryMovementConceptSummary(
+                g.Key.Id,
+                g.Key.Concept,
+                g.Key.Nature,
+                g.Key.AllowsExpense,
+                g.Sum(e => e.Value)))
+            .ToListAsync(cancellationToken);
     }
 }
