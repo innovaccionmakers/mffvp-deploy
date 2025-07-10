@@ -75,6 +75,7 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
         var goalTypes = result.Value;
 
         return goalTypes.Select(x => new GoalTypeDto(
+            x.ConfigurationParameterId,
             x.Uuid,
             x.Name,
             x.Status,
