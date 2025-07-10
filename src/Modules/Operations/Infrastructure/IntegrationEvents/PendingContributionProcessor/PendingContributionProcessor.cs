@@ -1,14 +1,12 @@
 using Closing.IntegrationEvents.ProcessPendingContributionsRequested;
-using Closing.IntegrationEvents.CreateClientOperationRequested;
 using Common.SharedKernel.Application.EventBus;
 using DotNetCore.CAP;
-using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.Cleanup;
+using Operations.Application.Abstractions.Services.TransactionControl;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.TemporaryClientOperations;
 using Operations.Domain.TemporaryAuxiliaryInformations;
-using Operations.Infrastructure.Database;
 using Trusts.IntegrationEvents.CreateTrustRequested;
 
 
@@ -17,18 +15,14 @@ namespace Operations.IntegrationEvents.PendingContributionProcessor;
 public sealed class PendingContributionProcessor(
     ITemporaryClientOperationRepository tempOpRepo,
     ITemporaryAuxiliaryInformationRepository tempAuxRepo,
-    IClientOperationRepository clientOpRepo,
-    IAuxiliaryInformationRepository auxRepo,
+    ITransactionControl transactionControl,
     IEventBus eventBus,
-    IUnitOfWork unitOfWork,
     ITempClientOperationsCleanupService cleanupService) : ICapSubscribe
 {
     [CapSubscribe(nameof(ProcessPendingContributionsRequestedIntegrationEvent))]
     public async Task HandleAsync(ProcessPendingContributionsRequestedIntegrationEvent message, CancellationToken cancellationToken)
     {
         var byPortfolio = await tempOpRepo.GetByPortfolioAsync(message.PortfolioId, cancellationToken);
-        var ops = new List<ClientOperation>();
-        var infos = new List<AuxiliaryInformation>();
         var tempOpIds = new List<long>();
         var tempAuxIds = new List<long>();
 
@@ -36,7 +30,7 @@ public sealed class PendingContributionProcessor(
         {
             var aux = await tempAuxRepo.GetAsync(temp.TemporaryClientOperationId, cancellationToken);
             if (aux is null) continue;
-            
+
             var op = ClientOperation.Create(
                 temp.RegistrationDate,
                 temp.AffiliateId,
@@ -46,7 +40,6 @@ public sealed class PendingContributionProcessor(
                 temp.ProcessDate,
                 temp.SubtransactionTypeId,
                 temp.ApplicationDate).Value;
-            ops.Add(op);
 
             var info = AuxiliaryInformation.Create(
                 op.ClientOperationId,
@@ -66,20 +59,9 @@ public sealed class PendingContributionProcessor(
                 aux.CityId,
                 aux.ChannelId,
                 aux.UserId).Value;
-            infos.Add(info);
 
-            var evt = new CreateClientOperationRequestedIntegrationEvent(
-                op.ClientOperationId,
-                op.RegistrationDate,
-                op.AffiliateId,
-                op.ObjectiveId,
-                op.PortfolioId,
-                op.Amount,
-                op.ProcessDate,
-                op.SubtransactionTypeId,
-                op.ApplicationDate);
-            await eventBus.PublishAsync(evt, cancellationToken);
-            
+            await transactionControl.ExecuteAsync(op, info, cancellationToken);
+
             var trustEvent = new CreateTrustRequestedIntegrationEvent(
                 op.AffiliateId,
                 op.ClientOperationId,
@@ -101,19 +83,9 @@ public sealed class PendingContributionProcessor(
             tempOpIds.Add(temp.TemporaryClientOperationId);
             tempAuxIds.Add(aux.TemporaryAuxiliaryInformationId);
         }
-        
-        if (ops.Count == 0) return;
 
-        await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        var context = (OperationsDbContext)unitOfWork;
-        await context.AddRangeAsync(ops, cancellationToken);
-        await context.AddRangeAsync(infos, cancellationToken);
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        if (tempOpIds.Count == 0) return;
 
         await cleanupService.ScheduleCleanupAsync(tempOpIds, tempAuxIds, cancellationToken);
-
-        await tx.CommitAsync(cancellationToken);
     }
 }

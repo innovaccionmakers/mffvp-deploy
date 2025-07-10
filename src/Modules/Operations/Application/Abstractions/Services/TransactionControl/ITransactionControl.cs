@@ -1,6 +1,7 @@
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.Prevalidation;
 using Operations.Application.Contributions.Prevalidation;
+using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
 using Operations.Integrations.Contributions.CreateContribution;
 
@@ -12,4 +13,9 @@ public interface ITransactionControl
         CreateContributionCommand command,
         PrevalidationResult prevalidationResult,
         CancellationToken cancellationToken);
-} 
+
+    Task ExecuteAsync(
+        ClientOperation operation,
+        AuxiliaryInformation auxiliaryInformation,
+        CancellationToken cancellationToken);
+}
