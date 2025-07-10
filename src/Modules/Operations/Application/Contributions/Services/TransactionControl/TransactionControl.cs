@@ -76,4 +76,41 @@ public sealed class TransactionControl(
 
         return (operation, tax);
     }
+    
+    public async Task ExecuteAsync(
+        ClientOperation operation,
+        AuxiliaryInformation auxiliaryInformation,
+        CancellationToken cancellationToken)
+    {
+        await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        clientOperationRepository.Insert(operation);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var info = AuxiliaryInformation.Create(
+            operation.ClientOperationId,
+            auxiliaryInformation.OriginId,
+            auxiliaryInformation.CollectionMethodId,
+            auxiliaryInformation.PaymentMethodId,
+            auxiliaryInformation.CollectionAccount,
+            auxiliaryInformation.PaymentMethodDetail,
+            auxiliaryInformation.CertificationStatusId,
+            auxiliaryInformation.TaxConditionId,
+            auxiliaryInformation.ContingentWithholding,
+            auxiliaryInformation.VerifiableMedium,
+            auxiliaryInformation.CollectionBankId,
+            auxiliaryInformation.DepositDate,
+            auxiliaryInformation.SalesUser,
+            auxiliaryInformation.OriginModalityId,
+            auxiliaryInformation.CityId,
+            auxiliaryInformation.ChannelId,
+            auxiliaryInformation.UserId).Value;
+
+        auxiliaryInformationRepository.Insert(info);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await operationCompleted.ExecuteAsync(operation, cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
+    }
 } 

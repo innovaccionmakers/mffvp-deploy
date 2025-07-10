@@ -20,11 +20,15 @@ using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Application.Abstractions.Services.Prevalidation;
 using Operations.Application.Abstractions.Services.TransactionControl;
 using Operations.Application.Abstractions.Services.TrustCreation;
+using Operations.Application.Abstractions.Services.Closing;
+using Operations.Application.Abstractions.Services.QueueTransactions;
 using Operations.Application.Contributions.Prevalidation;
 using Operations.Application.Contributions.Services;
+using Operations.Application.Contributions.Services.ClosingValidator;
 using Operations.Application.Contributions.Services.Cleanup;
 using Operations.Application.Contributions.Services.OperationCompleted;
 using Operations.Application.Contributions.Services.TrustCreation;
+using Operations.Application.Contributions.Services.QueueTransactions;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.Banks;
 using Operations.Domain.Channels;
@@ -109,6 +113,9 @@ public class OperationsModule: IModuleConfiguration
 
         services.AddScoped<IContributionCatalogResolver, ContributionCatalogResolver>();
         services.AddScoped<ITaxCalculator, TaxCalculator>();
+
+        services.AddScoped<IQueueTransactions, QueueTransactions>();
+        services.AddScoped<IClosingValidator, ClosingValidator>();
 
         services.AddScoped<IPrevalidate, Prevalidate>();
         services.AddScoped<ITransactionControl, TransactionControl>();
