@@ -14,9 +14,9 @@ using Operations.Integrations.Contributions.CreateContribution;
 namespace Operations.Application.Contributions.CreateContribution;
 
 internal sealed class CreateContributionCommandHandler(
-    IContributionPrevalidator prevalidator,
-    IContributionTransactionControl transactionControl,
-    IContributionTrustCreator trustCreator,
+    IPrevalidate prevalidator,
+    ITransactionControl transactionControl,
+    ITrustCreation trustCreation,
     IClosingExecutionStore closingStore,
     ITemporaryClientOperationRepository tempClientOpRepository,
     ITemporaryAuxiliaryInformationRepository tempAuxRepository,
@@ -93,7 +93,7 @@ internal sealed class CreateContributionCommandHandler(
 
         var (operation, taxResult) = await transactionControl.ExecuteAsync(command, prevalidationResult.Value, cancellationToken);
 
-        await trustCreator.ExecuteAsync(command, operation, taxResult, cancellationToken);
+        await trustCreation.ExecuteAsync(command, operation, taxResult, cancellationToken);
 
         var resp = new ContributionResponse(
             operation.ClientOperationId,
