@@ -1,4 +1,5 @@
-﻿using Closing.Domain.ProfitLossConcepts;
+﻿using Closing.Domain.PreClosing;
+using Closing.Domain.ProfitLossConcepts;
 using System.Text.Json;
 
 namespace Closing.Domain.ProfitLosses;
@@ -11,17 +12,13 @@ public sealed record ProfitLossConceptSummary(
     decimal TotalAmount
  );
 
-public sealed record StringEntityDto(string Entity, string EntityId, string EntityValue);
+
 public static class ProfitLossConceptSummaryExtensions
 {
     public static JsonDocument ToJsonSummary(this ProfitLossConceptSummary summary)
     {
-        var entities = new[]
-        {
-            new StringEntityDto("pyg", summary.ConceptId.ToString(),summary.ConceptName)
-        };
 
-        var json = JsonSerializer.Serialize(entities);
+        var json = JsonSerializer.Serialize(new StringEntityDto(summary.ConceptId.ToString(), summary.ConceptName));
         return JsonDocument.Parse(json);
     }
 }
