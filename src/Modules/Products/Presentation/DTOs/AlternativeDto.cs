@@ -7,6 +7,6 @@ public record AlternativeDto(
     [property: GraphQLName("tipoAlternativaId")] int AlternativeTypeId,
     [property: GraphQLName("nombre")] string Name,
     [property: GraphQLName("descripcion")] string Description,
-    [property: GraphQLName("estado")] string State,
+    [property: GraphQLName("estado")] bool State,
     [property: GraphQLName("codigoHomologado")] string HomologationCode
 );
