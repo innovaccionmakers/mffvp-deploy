@@ -1,5 +1,6 @@
 ﻿namespace Products.Presentation.GraphQL;
 
+using Common.SharedKernel.Domain;
 using HotChocolate;
 using MediatR;
 using Products.Integrations.Alternatives;
@@ -13,6 +14,7 @@ using Products.Integrations.PlanFunds.GetPlanFund;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
+using System.Linq;
 
 public class ProductsExperienceQueries(IMediator mediator) : IProductsExperienceQueries
 {
@@ -132,7 +134,7 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.Name,
             x.Prefix,
             x.CityId.ToString(),
-            x.Status.ToString(),
+            x.Status == Status.Active,
             x.HomologatedCode
         )).ToList();
     }
@@ -156,7 +158,7 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.CommercialId,
             x.Name,
             x.Prefix,
-            x.Status.ToString(),
+            x.Status == Status.Active,
             x.HomologatedCode
         )).ToList();
     }
@@ -179,7 +181,7 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.AlternativeTypeId,
             x.Name,
             x.Description,
-            x.Status.ToString(),
+            x.Status == Status.Active,
             x.HomologatedCode
         )).ToList();
 
