@@ -2,6 +2,7 @@ using System.Text.Json;
 using Closing.IntegrationEvents.CreateClientOperationRequested;
 using Common.SharedKernel.Application.EventBus;
 using Operations.Application.Abstractions.Data;
+using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Application.Abstractions.Services.Prevalidation;
 using Operations.Application.Abstractions.Services.TransactionControl;
 using Operations.Domain.AuxiliaryInformations;
@@ -10,13 +11,13 @@ using Operations.Integrations.Contributions.CreateContribution;
 
 namespace Operations.Application.Contributions.TransactionControl;
 
-public sealed class ContributionTransactionControl(
+public sealed class TransactionControl(
     IClientOperationRepository clientOperationRepository,
     IAuxiliaryInformationRepository auxiliaryInformationRepository,
-    IEventBus eventBus,
+    IOperationCompleted operationCompleted,
     IUnitOfWork unitOfWork,
     ITaxCalculator taxCalculator)
-    : IContributionTransactionControl
+    : ITransactionControl
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
@@ -69,18 +70,7 @@ public sealed class ContributionTransactionControl(
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var createClosingEvent = new CreateClientOperationRequestedIntegrationEvent(
-            operation.ClientOperationId,
-            operation.RegistrationDate,
-            operation.AffiliateId,
-            operation.ObjectiveId,
-            operation.PortfolioId,
-            operation.Amount,
-            operation.ProcessDate,
-            operation.SubtransactionTypeId,
-            operation.ApplicationDate);
-
-        await eventBus.PublishAsync(createClosingEvent, cancellationToken);
+        await operationCompleted.ExecuteAsync(operation, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
 

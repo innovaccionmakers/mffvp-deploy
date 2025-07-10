@@ -12,7 +12,7 @@ using Operations.Integrations.Contributions.CreateContribution;
 
 namespace Operations.Application.Contributions.Prevalidation;
 
-public sealed class ContributionPrevalidator(
+public sealed class Prevalidate(
     IContributionCatalogResolver catalogResolver,
     IActivateLocator activateLocator,
     IContributionRemoteValidator remoteValidator,
@@ -21,7 +21,7 @@ public sealed class ContributionPrevalidator(
     IBankRepository bankRepository,
     IConfigurationParameterRepository configurationParameterRepository,
     IRuleEvaluator<OperationsModuleMarker> ruleEvaluator)
-    : IContributionPrevalidator
+    : IPrevalidate
 {
     private const string Flow = "Operations.Contribution.Validation";
     private const string RequiredFieldsFlow = "Operations.Contribution.RequiredFields";

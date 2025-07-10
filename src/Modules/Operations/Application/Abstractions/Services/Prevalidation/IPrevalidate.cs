@@ -16,7 +16,7 @@ public record PrevalidationResult(
     bool AffiliateFound
 );
 
-public interface IContributionPrevalidator
+public interface IPrevalidate
 {
     Task<Result<PrevalidationResult>> ValidateAsync(
         CreateContributionCommand command,

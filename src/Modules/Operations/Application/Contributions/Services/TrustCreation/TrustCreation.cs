@@ -7,7 +7,7 @@ using Trusts.IntegrationEvents.CreateTrustRequested;
 
 namespace Operations.Application.Contributions.Services.TrustCreation;
 
-public sealed class ContributionTrustCreator(IEventBus eventBus) : IContributionTrustCreator
+public sealed class TrustCreation(IEventBus eventBus) : ITrustCreation
 {
     public async Task ExecuteAsync(
         CreateContributionCommand command,

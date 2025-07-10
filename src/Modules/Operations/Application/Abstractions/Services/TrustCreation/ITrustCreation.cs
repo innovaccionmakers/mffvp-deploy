@@ -4,7 +4,7 @@ using Operations.Integrations.Contributions.CreateContribution;
 
 namespace Operations.Application.Abstractions.Services.TrustCreation;
 
-public interface IContributionTrustCreator
+public interface ITrustCreation
 {
     Task ExecuteAsync(
         CreateContributionCommand command,

@@ -6,7 +6,7 @@ using Operations.Integrations.Contributions.CreateContribution;
 
 namespace Operations.Application.Abstractions.Services.TransactionControl;
 
-public interface IContributionTransactionControl
+public interface ITransactionControl
 {
     Task<(ClientOperation Operation, TaxResult Tax)> ExecuteAsync(
         CreateContributionCommand command,
