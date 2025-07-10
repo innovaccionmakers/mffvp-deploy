@@ -1,4 +1,4 @@
-namespace Closing.Domain.Routes
+namespace Closing.Domain.Rules
 {
 
     public struct WorkflowNames
