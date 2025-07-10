@@ -18,7 +18,6 @@ namespace Closing.Application.PreClosing.RunSimulation
     ILogger<RunSimulationCommandHandler> logger)
     : ICommandHandler<RunSimulationCommand, bool>
     {
-        private const string WorkflowName = "Closing.PreClosingSimulation.RunSimulation";
         public async Task<Result<bool>> Handle(RunSimulationCommand command, CancellationToken cancellationToken)
         {
 

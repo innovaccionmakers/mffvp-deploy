@@ -1,7 +1,6 @@
 ﻿using Common.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
 using Products.Domain.Commissions;
-using Products.Domain.Portfolios;
 using Products.Infrastructure.Database;
 
 namespace Products.Infrastructure.Commissions

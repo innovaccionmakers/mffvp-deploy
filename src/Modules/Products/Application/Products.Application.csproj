@@ -16,6 +16,10 @@
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Commissions\Command\" />
+    </ItemGroup>
+
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>

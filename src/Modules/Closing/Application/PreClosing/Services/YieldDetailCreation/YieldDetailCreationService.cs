@@ -12,7 +12,7 @@ namespace Closing.Application.PreClosing.Services.YieldDetailCreation
 
         private IYieldDetailRepository _yieldDetailRepository;
         public YieldDetailCreationService(
-            Domain.YieldDetails.IYieldDetailRepository yieldDetailRepository)
+            IYieldDetailRepository yieldDetailRepository)
         {
             _yieldDetailRepository = yieldDetailRepository;
         }
