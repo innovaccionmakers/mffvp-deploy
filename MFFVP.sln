@@ -235,6 +235,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{6592340D-46FB-4984-BCC1-7FDB6769C959}"
 	ProjectSection(SolutionItems) = preProject
 		src\Modules\Closing\Rules\closing.rules.json = src\Modules\Closing\Rules\closing.rules.json
+		preclosing.rules.json = preclosing.rules.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{40B1E451-37BE-4789-84C3-0604C9CF2EB4}"

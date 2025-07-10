@@ -1,13 +1,16 @@
-﻿using Closing.Domain.ProfitLosses;
+﻿using Closing.Domain.Commission;
+using Closing.Domain.Constants;
+using Closing.Domain.ProfitLosses;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.PreClosing.RunSimulation;
+using Common.SharedKernel.Domain.Utils;
 
 namespace Closing.Application.PreClosing.Services.YieldDetailCreation
 {
     public class YieldDetailCreationService : IYieldDetailCreationService
     {
 
-        private Domain.YieldDetails.IYieldDetailRepository _yieldDetailRepository;
+        private IYieldDetailRepository _yieldDetailRepository;
         public YieldDetailCreationService(
             Domain.YieldDetails.IYieldDetailRepository yieldDetailRepository)
         {
@@ -21,16 +24,19 @@ namespace Closing.Application.PreClosing.Services.YieldDetailCreation
                 .Select(detail => _yieldDetailRepository.InsertAsync(detail, cancellationToken));
 
             await Task.WhenAll(tasks);
+            //foreach (var item in yieldDetails)
+            //{
+            //    await _yieldDetailRepository.InsertAsync(item, cancellationToken);
+            //}
         }
 
 
         public YieldDetail PandLConceptToYieldDetail(ProfitLossConceptSummary conceptSummary, RunSimulationCommand parameters)
         {
+            var closingDateUtc = DateTimeConverter.ToUtcDateTime(parameters.ClosingDate);
             var detail =  YieldDetail.Create(
                 parameters.PortfolioId,
-                parameters.ClosingDate.Kind == DateTimeKind.Unspecified
-                ? DateTime.SpecifyKind(parameters.ClosingDate, DateTimeKind.Utc)
-                : parameters.ClosingDate.ToUniversalTime(),
+                closingDateUtc,
                 conceptSummary.Source,
                 ProfitLossConceptSummaryExtensions.ToJsonSummary(conceptSummary),
                 conceptSummary.Nature == Domain.ProfitLossConcepts.ProfitLossNature.Income ? conceptSummary.TotalAmount : 0,
@@ -49,6 +55,33 @@ namespace Closing.Application.PreClosing.Services.YieldDetailCreation
             foreach (var yieldDetail in conceptSummary)
             {
                 details.Add(this.PandLConceptToYieldDetail(yieldDetail, parameters));
+            }
+            return details;
+        }
+
+        public YieldDetail CommissionConceptToYieldDetail(CommissionConceptSummary commisionConceptSummary, RunSimulationCommand parameters)
+        {
+            var closingDateUtc = DateTimeConverter.ToUtcDateTime(parameters.ClosingDate);
+            var detail = YieldDetail.Create(
+                parameters.PortfolioId,
+                closingDateUtc,
+                YieldsSources.Commission,
+                CommissionConceptSummaryExtensions.ToJsonSummary(commisionConceptSummary),
+                0,
+                0,
+                commisionConceptSummary.TotalAmount,
+                DateTime.UtcNow,
+                parameters.IsClosing
+                );
+
+            return detail.Value;
+        }
+        public IReadOnlyList<YieldDetail> CommissionConceptSummaryToYieldDetails(IReadOnlyList<CommissionConceptSummary> commissionsSummary, RunSimulationCommand parameters)
+        {
+            var details = new List<YieldDetail>();
+            foreach (var yieldDetail in commissionsSummary)
+            {
+                details.Add(this.CommissionConceptToYieldDetail(yieldDetail, parameters));
             }
             return details;
         }

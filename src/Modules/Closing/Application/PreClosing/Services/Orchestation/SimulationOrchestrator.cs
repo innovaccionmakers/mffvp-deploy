@@ -34,21 +34,35 @@ namespace Closing.Application.PreClosing.Services.Orchestation
             // Consolidacion PyG
             var profitAndLossTask = Task.Run(async () =>
             {
-                var summary = await _profitAndLossConsolidationService
+                var profitAndLossSummary = await _profitAndLossConsolidationService
                     .GetProfitAndLossSummaryAsync(parameters.PortfolioId, parameters.ClosingDate);
-
-                var yieldDetails = _yieldDetailCreationService
-                    .PandLConceptSummaryToYieldDetails(summary, parameters);
+                if (profitAndLossSummary.Any())
+                {
+                     var yieldDetailsFromPandL = _yieldDetailCreationService
+                    .PandLConceptSummaryToYieldDetails(profitAndLossSummary, parameters);
                 
-                await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, cancellationToken);
+                     await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetailsFromPandL, cancellationToken);
+                }
             });
             //Cálculo de Comisiones y Tesorería (comentado por falta de implementación)
-            var feeTask = _commissionCalculationService.CalculateAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
+            var commissionsTask = Task.Run(async () =>
+            {
+                var commissionsSummary = await _commissionCalculationService
+                                    .CalculateAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
+
+            if (commissionsSummary.Any())
+            {
+                var yieldDetailsFromCommissions = _yieldDetailCreationService
+                   .CommissionConceptSummaryToYieldDetails(commissionsSummary, parameters);
+
+                await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetailsFromCommissions, cancellationToken);
+            }
+
+            });
             //var treasuryTask = _treasuryConceptService.ExecuteAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
 
             // Esperar a que las 3 tareas terminen
-            // await Task.WhenAll(pygTask, feeTask, treasuryTask);
-            await Task.WhenAll(profitAndLossTask, feeTask);
+            await Task.WhenAll(profitAndLossTask, commissionsTask);
 
             // 🧩 2. Consolidación rendimientos final
             // await _yieldConsolidationService.ExecuteAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
