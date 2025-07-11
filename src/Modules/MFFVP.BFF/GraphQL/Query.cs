@@ -88,6 +88,13 @@ public class Query
         return productsQueries.GetAffiliateObjectivesAsync(affiliateId, cancellationToken);
     }
 
+    [GraphQLName("obtenerPortafolios")]
+    public async Task<IReadOnlyCollection<PortfolioInformationDto>> GetAllPortfolios([Service] IProductsExperienceQueries productsQueries,
+                                                 CancellationToken cancellationToken)
+    {
+        return await productsQueries.GetAllPortfoliosAsync(cancellationToken);
+    }
+
     //Operations Queries
     [GraphQLName("tipoTransaccion")]
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypes([Service] IOperationsExperienceQueries operationsQueries,
