@@ -1,8 +1,6 @@
 ﻿using Closing.Application.Abstractions.External.Commissions;
 using Closing.Domain.Commission;
 using Closing.Domain.Constants;
-using Closing.Domain.ProfitLosses;
-using Common.SharedKernel.Domain;
 using System.Globalization;
 
 namespace Closing.Application.PreClosing.Services.CommissionCalculation;
@@ -18,35 +16,54 @@ public class CommissionCalculationService : ICommissionCalculationService
         _commissionAdminCalculationService = commissionAdminCalculationService;
     }
 
-    public async Task<IReadOnlyList<CommissionConceptSummary>> CalculateAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
+    public async Task<IReadOnlyList<CommissionConceptSummary>> CalculateAsync(
+        int portfolioId,
+        DateTime closingDate,
+        CancellationToken ct)
     {
         var commissionsResult = await _commissionLocator.GetActiveCommissionsAsync(portfolioId, ct);
         var commissions = commissionsResult.Value;
-        var commissionSummary = new List<CommissionConceptSummary>();
+
+        var summaries = new List<CommissionConceptSummary>();
+
         foreach (var commission in commissions)
         {
-            if (commission.Concept.Equals(CommissionConcepts.Administrative))
-            {
-                decimal commissionPercentage;
-                if (!decimal.TryParse(commission.CalculationRule, NumberStyles.Any, CultureInfo.InvariantCulture, out commissionPercentage))
-                {
-                    // Manejar error de conversión
-                    throw new InvalidOperationException($"No se pudo convertir '{commission.CalculationRule}' a decimal.");
-                }
+            if (!IsAdministrative(commission))
+                continue;
 
-                var commissionAmountResult = await _commissionAdminCalculationService
-                                            .CalculateAsync(portfolioId, closingDate, commissionPercentage, ct);
+            var percentage = ParseCommissionPercentage(commission.CalculationRule);
+            var amount = await CalculateCommissionAmountAsync(portfolioId, closingDate, percentage, ct);
 
-                decimal commissionAmount = commissionAmountResult.IsSuccess
-                    ? commissionAmountResult.Value
-                    : 0m;
-
-                commissionSummary.Add(new CommissionConceptSummary(
+            summaries.Add(new CommissionConceptSummary(
                 commission.CommissionId,
                 commission.Concept,
-                commissionAmount));
-                        }
+                amount));
         }
-        return commissionSummary;
+
+        return summaries;
     }
+
+    private static bool IsAdministrative(GetCommissionsByPortfolioIdResponse commission) =>
+    commission.Concept.Equals(CommissionConcepts.Administrative, StringComparison.OrdinalIgnoreCase);
+
+    private static decimal ParseCommissionPercentage(string rule)
+    {
+        if (!decimal.TryParse(rule, NumberStyles.Any, CultureInfo.InvariantCulture, out var percentage))
+            throw new InvalidOperationException($"No se pudo convertir '{rule}' a decimal.");
+
+        return percentage;
+    }
+
+    private async Task<decimal> CalculateCommissionAmountAsync(
+        int portfolioId,
+        DateTime closingDate,
+        decimal percentage,
+        CancellationToken ct)
+    {
+        var result = await _commissionAdminCalculationService.CalculateAsync(
+            portfolioId, closingDate, percentage, ct);
+
+        return result.IsSuccess ? result.Value : 0m;
+    }
+
 }

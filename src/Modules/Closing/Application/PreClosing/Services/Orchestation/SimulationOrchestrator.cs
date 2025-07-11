@@ -1,6 +1,7 @@
 ﻿using Closing.Application.Abstractions.Data;
 using Closing.Application.PreClosing.Services.CommissionCalculation;
 using Closing.Application.PreClosing.Services.ProfitAndLossConsolidation;
+using Closing.Application.PreClosing.Services.TreasuryConcepts;
 using Closing.Application.PreClosing.Services.YieldDetailCreation;
 using Closing.Integrations.PreClosing.RunSimulation;
 
@@ -12,62 +13,74 @@ namespace Closing.Application.PreClosing.Services.Orchestation
         private readonly IProfitAndLossConsolidationService _profitAndLossConsolidationService;
         private readonly IYieldDetailCreationService _yieldDetailCreationService;
         private readonly ICommissionCalculationService _commissionCalculationService;
+        private readonly IMovementsConsolidationService _movementsConsolidationService;
         public SimulationOrchestrator(
             IUnitOfWork unitOfWork,
             IProfitAndLossConsolidationService profitAndLossConsolidationService, 
             IYieldDetailCreationService yieldDetailCreationService,
-            ICommissionCalculationService commissionCalculationService)
+            ICommissionCalculationService commissionCalculationService,
+            IMovementsConsolidationService movementsConsolidationService)
         {
             this.unitOfWork = unitOfWork;
             _profitAndLossConsolidationService = profitAndLossConsolidationService;
             _yieldDetailCreationService = yieldDetailCreationService;
             _commissionCalculationService = commissionCalculationService;
+            _movementsConsolidationService = movementsConsolidationService;
         }
-        //public Task<SimulationResultDto> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
 
-       public async Task<bool> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
+        public async Task<bool> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken ct)
         {
+            // TODO: Validaciones de entrada
 
-            // Validaciones pendientes...
+            var profitAndLossTask = ExecuteProfitAndLossSimulationAsync(parameters, ct);
+            var commissionsTask = ExecuteCommissionSimulationAsync(parameters, ct);
+            var treasuryTask = ExecuteTreasurySimulationAsync(parameters, ct);
 
-            // 🧩 1. Tareas en paralelo
-            // Consolidacion PyG
-            var profitAndLossTask = Task.Run(async () =>
-            {
-                var profitAndLossSummary = await _profitAndLossConsolidationService
-                    .GetProfitAndLossSummaryAsync(parameters.PortfolioId, parameters.ClosingDate);
-                if (profitAndLossSummary.Any())
-                {
-                     var yieldDetailsFromPandL = _yieldDetailCreationService
-                    .PandLConceptSummaryToYieldDetails(profitAndLossSummary, parameters);
-                
-                     await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetailsFromPandL, cancellationToken);
-                }
-            });
-            //Cálculo de Comisiones y Tesorería (comentado por falta de implementación)
-            var commissionsTask = Task.Run(async () =>
-            {
-                var commissionsSummary = await _commissionCalculationService
-                                    .CalculateAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
+            await Task.WhenAll(profitAndLossTask, commissionsTask, treasuryTask);
 
-            if (commissionsSummary.Any())
-            {
-                var yieldDetailsFromCommissions = _yieldDetailCreationService
-                   .CommissionConceptSummaryToYieldDetails(commissionsSummary, parameters);
+            // TODO: Consolidación de rendimientos final
+            // await _yieldConsolidationService.ExecuteAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
 
-                await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetailsFromCommissions, cancellationToken);
-            }
-
-            });
-            //var treasuryTask = _treasuryConceptService.ExecuteAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
-
-            // Esperar a que las 3 tareas terminen
-            await Task.WhenAll(profitAndLossTask, commissionsTask);
-
-            // 🧩 2. Consolidación rendimientos final
-            // await _yieldConsolidationService.ExecuteAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
-
-            return true;          
+            return true;
         }
+        private async Task ExecuteProfitAndLossSimulationAsync(RunSimulationCommand parameters, CancellationToken ct)
+        {
+            var summary = await _profitAndLossConsolidationService
+                .GetProfitAndLossSummaryAsync(parameters.PortfolioId, parameters.ClosingDate);
+
+            if (!summary.Any()) return;
+
+            var yieldDetails = _yieldDetailCreationService
+                .PandLConceptSummaryToYieldDetails(summary, parameters);
+
+            await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, ct);
+        }
+
+        private async Task ExecuteCommissionSimulationAsync(RunSimulationCommand parameters, CancellationToken ct)
+        {
+            var summary = await _commissionCalculationService
+                .CalculateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
+
+            if (!summary.Any()) return;
+
+            var yieldDetails = _yieldDetailCreationService
+                .CommissionConceptSummaryToYieldDetails(summary, parameters);
+
+            await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, ct);
+        }
+
+        private async Task ExecuteTreasurySimulationAsync(RunSimulationCommand parameters, CancellationToken ct)
+        {
+            var summary = await _movementsConsolidationService
+                .GetMovementsSummaryAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
+
+            if (!summary.Any()) return;
+
+            var yieldDetails = _yieldDetailCreationService
+                .TreasuryConceptSummaryToYieldDetails(summary, parameters); // 💡 Corrige aquí tu llamado faltante
+
+            await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, ct);
+        }
+
     }
 }
