@@ -2,8 +2,6 @@
 using Closing.Application.Abstractions.External.Commissions;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-//using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
-//using Products.Integrations.Commissions.Response;
 
 namespace Closing.Infrastructure.External.Commissions;
 internal sealed class CommissionLocator(ICapRpcClient capRpcClient) : ICommissionLocator

@@ -16,6 +16,7 @@ using Treasury.Infrastructure.Database;
 using Treasury.Infrastructure.Issuers;
 using Treasury.Infrastructure.TreasuryConcepts;
 using Treasury.Infrastructure.TreasuryMovements;
+using Treasury.IntegrationEvents.TreasuryMovements.TreasuryMovementsByPortfolio;
 
 namespace Treasury.Infrastructure;
 
@@ -42,7 +43,9 @@ public class TreasuryModule : IModuleConfiguration
         services.AddScoped<IBankAccountRepository, BankAccountRepository>();
         services.AddScoped<ITreasuryConceptRepository, TreasuryConceptRepository>();
         services.AddScoped<ITreasuryMovementRepository, TreasuryMovementRepository>();
+        services.AddScoped<TreasuryMovementsByPortfolioConsumer>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TreasuryDbContext>());
+
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

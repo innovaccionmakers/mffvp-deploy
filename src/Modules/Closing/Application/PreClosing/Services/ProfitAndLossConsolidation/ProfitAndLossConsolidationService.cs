@@ -12,12 +12,16 @@ namespace Closing.Application.PreClosing.Services.ProfitAndLossConsolidation
             _profitLossRepository = profitLossRepository;
         }
 
-        public async Task<IReadOnlyList<ProfitLossConceptSummary>> GetProfitAndLossSummaryAsync(int portfolioId, DateTime closingDate, bool isClosing = false)
+        public async Task<IReadOnlyList<ProfitLossConceptSummary>> GetProfitAndLossSummaryAsync(
+             int portfolioId,
+             DateTime closingDate)
         {
-            var conceptSummaries = await _profitLossRepository
+            var summaries = await _profitLossRepository
                 .GetConceptSummaryAsync(portfolioId, closingDate);
-            return conceptSummaries;
+
+            return summaries;
         }
+
 
     }
 }

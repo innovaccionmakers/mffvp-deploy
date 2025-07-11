@@ -9,6 +9,9 @@ using Closing.Infrastructure.External.Commissions;
 using Closing.Application.PreClosing.Services.CommissionCalculation;
 using Closing.Domain.PortfolioValuations;
 using Closing.Infrastructure.PortfolioValuations;
+using Closing.Application.PreClosing.Services.TreasuryConcepts;
+using Closing.Application.Abstractions.External.TreasuryMovements;
+using Closing.Infrastructure.External.TreasuryMovements;
 
 namespace Closing.Infrastructure.Configuration
 {
@@ -24,6 +27,8 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<ICommissionLocator, CommissionLocator>();
             services.AddScoped<ICommissionAdminCalculationService, CommissionAdminCalculationService>();
             services.AddScoped<ICommissionCalculationService, CommissionCalculationService>();
+            services.AddScoped<IMovementsConsolidationService, MovementsConsolidationService>();
+            services.AddScoped<ITreasuryMovementsLocator, TreasuryMovementsLocator>();
             return services;
         }
     }
