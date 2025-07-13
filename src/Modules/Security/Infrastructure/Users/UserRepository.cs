@@ -17,6 +17,11 @@ internal sealed class UserRepository(SecurityDbContext context) : IUserRepositor
         return await context.Users.SingleOrDefaultAsync(x => x.Id == userId, cancellationToken);
     }
 
+    public Task<bool> ExistsAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return context.Set<User>().AnyAsync(u => u.Id == userId, cancellationToken);
+    }
+
     public void Insert(User user) => context.Users.Add(user);
     public void Update(User user) => context.Users.Update(user);
     public void Delete(User user) => context.Users.Remove(user);

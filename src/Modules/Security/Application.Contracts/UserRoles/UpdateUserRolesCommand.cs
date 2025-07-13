@@ -4,5 +4,5 @@ namespace Security.Application.Contracts.UserRoles;
 
 public sealed record class UpdateUserRolesCommand(
     int UserId,
-    List<int> RolePermissionsIds
+    List<int> RoleIds
 ) : ICommand;

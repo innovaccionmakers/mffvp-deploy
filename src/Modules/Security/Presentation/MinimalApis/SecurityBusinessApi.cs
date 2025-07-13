@@ -164,7 +164,7 @@ public static class SecurityBusinessApi
                              ```json
                              {
                                "userId": 1,
-                               "rolePermissionsIds": [2, 4, 7]
+                               "roleIds": [2, 4, 7]
                              }
                              ```
                              """)
