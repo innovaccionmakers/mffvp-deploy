@@ -33,4 +33,7 @@ public interface IProductsExperienceQueries
     Task<IReadOnlyCollection<AffiliateGoalDto>> GetAffiliateObjectivesAsync(
         int affiliateId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<PortfolioInformationDto>> GetAllPortfoliosAsync(
+        CancellationToken cancellationToken = default);
 }
