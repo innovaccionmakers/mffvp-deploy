@@ -54,23 +54,7 @@ public static class MakersPermissionsAssociatePensionRequirements
     };
 }
 
-public static class MakersPermissionsAssociateConfigurationParameters
-{
-    public static readonly string View = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.associate, MakersResources.configurationParameters, MakersActions.view);
-    public static readonly string Search = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.associate, MakersResources.configurationParameters, MakersActions.search);
-    public static readonly string Create = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.associate, MakersResources.configurationParameters, MakersActions.create);
-    public static readonly string Update = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.associate, MakersResources.configurationParameters, MakersActions.update);
-    public static readonly string Delete = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.associate, MakersResources.configurationParameters, MakersActions.delete);
 
-    public static readonly Dictionary<string, string> All = new()
-    {
-        { View, "Permite ver parámetros de configuración (asociado)." },
-        { Search, "Permite buscar parámetros de configuración (asociado)." },
-        { Create, "Permite crear parámetros de configuración (asociado)." },
-        { Update, "Permite actualizar parámetros de configuración (asociado)." },
-        { Delete, "Permite eliminar parámetros de configuración (asociado)." }
-    };
-}
 
 public static class MakersPermissionsOperationsAuxiliaryInformations
 {
@@ -158,20 +142,20 @@ public static class MakersPermissionsOperationsClientOperations
 }
 
 
-public static class MakersPermissionsOperationsConfigurationParameters
+public static class MakersPermissionsOperationsContributionTx
 {
-    public static readonly string View = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.configurationParameters, MakersActions.view);
-    public static readonly string Search = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.configurationParameters, MakersActions.search);
-    public static readonly string Create = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.configurationParameters, MakersActions.create);
-    public static readonly string Update = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.configurationParameters, MakersActions.update);
-    public static readonly string Delete = MakersPermission.NameFor(MakersModules.fvp, MakersDomains.operations, MakersResources.configurationParameters, MakersActions.delete);
+    private const string Module = MakersModules.fvp;
+    private const string Domain = MakersDomains.operations;
+    private const string Resource = MakersResources.contributiontx;
 
-    public static readonly Dictionary<string, string> All = new()
+    public static readonly MakersPermission Create = MakersPermissionFactory.Create(
+        Module, Domain, Resource, MakersActions.create,
+        "Permite registrar un aporte.",
+        "FVP", "Operaciones", "ContributionTx", "Crear"
+    );
+
+    public static readonly List<MakersPermission> All = new()
     {
-        { View, "Permite ver parámetros de configuración (operaciones)." },
-        { Search, "Permite buscar parámetros de configuración (operaciones)." },
-        { Create, "Permite crear parámetros de configuración (operaciones)." },
-        { Update, "Permite actualizar parámetros de configuración (operaciones)." },
-        { Delete, "Permite eliminar parámetros de configuración (operaciones)." }
+        Create
     };
 }

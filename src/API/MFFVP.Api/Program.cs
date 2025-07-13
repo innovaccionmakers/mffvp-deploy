@@ -209,7 +209,7 @@ app.MapGet("/",
 //    return Results.Ok($"Welcome {userName} (ID: {userId}), this is protected data.");
 //});
 
-//// Allowed: Cristof (direct permission)
+// Allowed: Cristof (direct permission)
 //app.MapGet("/api/secured/users/delete", [Authorize(Policy = "FVP.Users.Users.Delete")] () =>
 //{
 //    return Results.Ok("Access granted for Users.Delete");

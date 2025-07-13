@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using Security.Application.Contracts.Permissions;
 using Security.Application.Contracts.RolePermissions;
 using Security.Application.Contracts.UserRoles;
 using Security.Domain.RolePermissions;
@@ -19,13 +20,26 @@ public static class SecurityBusinessApi
     {
         var group = app.MapGroup("api/v1/FVP/Security")
             .WithTags("Security")
-            .WithOpenApi();
+            .WithOpenApi(); 
 
-        group.MapGet("Permissions", () =>
-            {
-                var permissions = MakersPermissionsOperationsAuxiliaryInformations.All
-                    .Concat(MakersPermissionsOperationsClientOperations.All);
-                return Results.Ok(permissions);
+        group.MapGet("Permissions", async (
+        ISender sender
+        ) =>
+        {
+                var result = await sender.Send(new GetAllPermissionsQuery());
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                        title: result.Error.Code,
+                        detail: result.Error.Description,
+                        statusCode: result.Error.Code switch
+                        {
+                            "Permissions.NotFound" => StatusCodes.Status404NotFound,
+                            _ => StatusCodes.Status500InternalServerError
+                        }
+                    );
+                }
+                return Results.Ok(result.Value);
             })
             .WithName("Permissions")
             .WithSummary("Retorna una lista de permisos");

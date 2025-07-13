@@ -60,8 +60,8 @@ public class UpdateUserRolesCommandHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Description.Should().Be("User roles successfully synchronized.");
 
-        _repo.Verify(r => r.Insert(It.Is<UserRole>(u => u.RolePermissionsId == 300)), Times.Once);
-        _repo.Verify(r => r.Delete(It.Is<UserRole>(u => u.RolePermissionsId == 100)), Times.Once);
+        _repo.Verify(r => r.Insert(It.Is<UserRole>(u => u.RoleId == 300)), Times.Once);
+        _repo.Verify(r => r.Delete(It.Is<UserRole>(u => u.RoleId == 100)), Times.Once);
         _tx.Verify(t => t.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

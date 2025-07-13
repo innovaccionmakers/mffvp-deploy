@@ -32,7 +32,7 @@ internal sealed class UserRoleRepository(SecurityDbContext context) : IUserRoleR
     {
         return await context.UserRoles
             .Where(ur => ur.UserId == userId)
-            .Select(ur => ur.RolePermissionsId)
+            .Select(ur => ur.RoleId)
             .Distinct()
             .ToListAsync();
     }

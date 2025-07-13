@@ -13,7 +13,15 @@ internal sealed class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 
         builder.HasKey(ur => ur.Id);
         builder.Property(ur => ur.Id).HasColumnName("id");
-        builder.Property(ur => ur.RolePermissionsId).HasColumnName("rol_permiso_id");
+        builder.Property(ur => ur.RoleId).HasColumnName("rol_id");
         builder.Property(ur => ur.UserId).HasColumnName("usuario_id");
+
+        builder.HasOne(ur => ur.Role)
+               .WithMany(r => r.UserRoles)
+               .HasForeignKey(ur => ur.RoleId);
+
+        builder.HasOne(ur => ur.User)
+               .WithMany(u => u.UserRoles)
+               .HasForeignKey(ur => ur.UserId);
     }
 }

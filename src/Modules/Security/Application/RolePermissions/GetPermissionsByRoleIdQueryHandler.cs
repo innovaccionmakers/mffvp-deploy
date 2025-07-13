@@ -2,6 +2,9 @@
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.Auth.Permissions;
 
+using MediatR;
+
+using Security.Application.Contracts.Permissions;
 using Security.Application.Contracts.RolePermissions;
 using Security.Domain.RolePermissions;
 using Security.Domain.Roles;
@@ -10,7 +13,8 @@ namespace Security.Application.RolePermissions;
 
 public sealed class GetPermissionsByRoleIdQueryHandler(
     IRolePermissionRepository repository,
-    IRoleRepository roleRepository)
+    IRoleRepository roleRepository,
+    ISender sender)
     : IQueryHandler<GetPermissionsByRoleIdQuery, IReadOnlyCollection<RolePermissionDto>>
 {
     public async Task<Result<IReadOnlyCollection<RolePermissionDto>>> Handle(
@@ -28,9 +32,11 @@ public sealed class GetPermissionsByRoleIdQueryHandler(
 
         var existingPermissions = await repository.GetPermissionsByRoleIdAsync(request.RoleId, cancellationToken);
 
-        var allDefinedPermissions = MakersPermissionsOperationsAuxiliaryInformations.All
-            .Concat(MakersPermissionsOperationsClientOperations.All)
-            .ToList();
+        var allPermissionsResult = await sender.Send(new GetAllPermissionsQuery(), cancellationToken);
+        if (allPermissionsResult.IsFailure)
+            return Result.Failure<IReadOnlyCollection<RolePermissionDto>>(allPermissionsResult.Error);
+
+        var allDefinedPermissions = allPermissionsResult.Value;
 
         var existingMap = existingPermissions.ToDictionary(p => p.ScopePermission, p => p);
 

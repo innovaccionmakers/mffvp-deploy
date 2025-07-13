@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 
 using Security.Application.Contracts.Auth;
 
+using System.Security.Claims;
+
 namespace Security.Infrastructure.Auth;
 
 public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
@@ -21,7 +23,7 @@ public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
         var httpContext = _accessor.HttpContext;
-        var userIdClaim = httpContext?.User?.FindFirst("sub")?.Value;
+        var userIdClaim = httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (int.TryParse(userIdClaim, out var userId))
         {

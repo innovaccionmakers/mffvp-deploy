@@ -26,7 +26,7 @@ public sealed record UpdateUserRolesCommandHandler(
         await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var currentUserRoles = await repository.GetAllByUserIdAsync(request.UserId, cancellationToken);
-        var currentRoleIds = currentUserRoles.Select(x => x.RolePermissionsId).ToHashSet();
+        var currentRoleIds = currentUserRoles.Select(x => x.RoleId).ToHashSet();
         var incomingRoleIds = request.RolePermissionsIds.ToHashSet();
 
         var rolesToAdd = incomingRoleIds.Except(currentRoleIds);
@@ -42,7 +42,7 @@ public sealed record UpdateUserRolesCommandHandler(
             repository.Insert(result.Value);
         }
 
-        var toRemove = currentUserRoles.Where(x => !incomingRoleIds.Contains(x.RolePermissionsId)).ToList();
+        var toRemove = currentUserRoles.Where(x => !incomingRoleIds.Contains(x.RoleId)).ToList();
         foreach (var obsolete in toRemove)
         {
             repository.Delete(obsolete);
