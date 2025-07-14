@@ -1,5 +1,6 @@
-﻿using Closing.Domain.ProfitLossConcepts;
+using Closing.Domain.ProfitLossConcepts;
+using Common.SharedKernel.Domain;
 
 namespace Closing.Domain.ProfitLosses;
 
-public sealed record ProfitLossSummary(string Concept, ProfitLossNature Nature, decimal TotalAmount);
+public sealed record ProfitLossSummary(string Concept, IncomeExpenseNature Nature, decimal TotalAmount);

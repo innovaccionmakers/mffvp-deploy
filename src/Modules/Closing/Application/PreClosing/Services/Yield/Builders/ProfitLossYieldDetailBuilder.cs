@@ -4,6 +4,7 @@ using Closing.Domain.ProfitLosses;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Domain.Utils;
+using Common.SharedKernel.Domain;
 
 namespace Closing.Application.PreClosing.Services.Yield.Builders;
 
@@ -16,8 +17,8 @@ public class ProfitLossYieldDetailBuilder : IYieldDetailBuilder
         var summary = (ProfitLossConceptSummary)concept;
         var closingDateUtc = DateTimeConverter.ToUtcDateTime(parameters.ClosingDate);
 
-        var income = summary.Nature == ProfitLossNature.Income ? summary.TotalAmount : 0;
-        var expense = summary.Nature == ProfitLossNature.Expense ? summary.TotalAmount : 0;
+        var income = summary.Nature == IncomeExpenseNature.Income ? summary.TotalAmount : 0;
+        var expense = summary.Nature == IncomeExpenseNature.Expense ? summary.TotalAmount : 0;
 
         return YieldDetail.Create(
             parameters.PortfolioId,

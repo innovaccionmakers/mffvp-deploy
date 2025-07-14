@@ -40,8 +40,8 @@
 //            closingDateUtc,
 //            conceptSummary.Source,
 //            ProfitLossConceptSummaryExtensions.ToJsonSummary(conceptSummary),
-//            conceptSummary.Nature == Domain.ProfitLossConcepts.ProfitLossNature.Income ? conceptSummary.TotalAmount : 0,
-//            conceptSummary.Nature == Domain.ProfitLossConcepts.ProfitLossNature.Expense ? conceptSummary.TotalAmount : 0,
+//            conceptSummary.Nature == Domain.ProfitLossConcepts.IncomeExpenseNature.Income ? conceptSummary.TotalAmount : 0,
+//            conceptSummary.Nature == Domain.ProfitLossConcepts.IncomeExpenseNature.Expense ? conceptSummary.TotalAmount : 0,
 //            0,
 //            DateTime.UtcNow,
 //            parameters.IsClosing
@@ -89,8 +89,8 @@
 
 //    public YieldDetail TreasuryConceptToYieldDetail(TreasuryMovementSummary treasuryConceptSummary, RunSimulationCommand parameters)
 //    {
-//        var isIncome = treasuryConceptSummary.NatureEnum == TreasuryConceptNature.Income;
-//        var isExpense = treasuryConceptSummary.NatureEnum == TreasuryConceptNature.Expense;
+//        var isIncome = treasuryConceptSummary.NatureEnum == IncomeExpenseNature.Income;
+//        var isExpense = treasuryConceptSummary.NatureEnum == IncomeExpenseNature.Expense;
 //        var allowsExpense = treasuryConceptSummary.AllowsExpense;
 
 //        var incomeAmount = isIncome && !allowsExpense

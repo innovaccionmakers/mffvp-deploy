@@ -1,8 +1,10 @@
-﻿namespace Treasury.Integrations.TreasuryMovements.Response;
+﻿using Common.SharedKernel.Domain;
+
+namespace Treasury.Integrations.TreasuryMovements.Response;
 public sealed record GetMovementsByPortfolioIdResponse(
     long ConceptId,
     string ConceptName,
-    string Nature,
+    IncomeExpenseNature Nature,
     bool AllowsExpense,
     decimal TotalAmount
     );
