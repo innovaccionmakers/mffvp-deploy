@@ -8,6 +8,8 @@ using Operations.Presentation.GraphQL.Inputs;
 using Products.Presentation.DTOs;
 using Products.Presentation.GraphQL;
 using Products.Presentation.GraphQL.Input;
+using Treasury.Presentation.GraphQL;
+using Treasury.Presentation.GraphQL.Input;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -69,4 +71,13 @@ public class Mutation
         return await productsMutations.RegisterGoalAsync(goal, validator, cancellationToken);
     }
 
+    //Treasury mutations
+    [GraphQLName("crearCuentaBancaria")]
+    public async Task<GraphqlMutationResult> AccountHandler([GraphQLName("cuentaBancaria")] CreateAccountInput bankAccount,
+                                                                        IValidator<CreateAccountInput> validator,
+                                                                       [Service] ITreasuryExperienceMutations treasuryMutations,
+                                                                       CancellationToken cancellationToken)
+    {
+        return await treasuryMutations.AccountHandlerAsync(bankAccount, validator, cancellationToken);
+    }
 }

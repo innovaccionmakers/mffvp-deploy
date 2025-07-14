@@ -1,0 +1,14 @@
+﻿using Common.SharedKernel.Presentation.Results;
+using FluentValidation;
+using Treasury.Presentation.GraphQL.Input;
+
+namespace Treasury.Presentation.GraphQL;
+
+public interface ITreasuryExperienceMutations
+{
+    Task<GraphqlMutationResult> AccountHandlerAsync(
+        CreateAccountInput input,
+        IValidator<CreateAccountInput> validator,
+        CancellationToken cancellationToken = default
+    );
+}

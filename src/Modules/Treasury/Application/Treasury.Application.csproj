@@ -7,10 +7,12 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\Domain\Treasury.Domain.csproj" />
+        <ProjectReference Include="..\Integrations\Treasury.Integrations.csproj" />
     </ItemGroup>
 
 
     <ItemGroup>
+      <Folder Include="BankAccounts\Queries\" />
       <Folder Include="TreasuryMovements\Command\" />
     </ItemGroup>
 

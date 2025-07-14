@@ -1,11 +1,13 @@
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Infrastructure.Configuration;
+using Common.SharedKernel.Infrastructure.RulesEngine;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Treasury.Application.Abstractions;
 using Treasury.Application.Abstractions.Data;
 using Treasury.Domain.BankAccounts;
 using Treasury.Domain.Issuers;
@@ -16,6 +18,7 @@ using Treasury.Infrastructure.Database;
 using Treasury.Infrastructure.Issuers;
 using Treasury.Infrastructure.TreasuryConcepts;
 using Treasury.Infrastructure.TreasuryMovements;
+using Treasury.Presentation.GraphQL;
 
 namespace Treasury.Infrastructure;
 
@@ -38,10 +41,17 @@ public class TreasuryModule : IModuleConfiguration
                 );
         });
 
+        //services.AddRulesEngine<TreasuryModuleMaker>(typeof(TreasuryModule).Assembly, opt =>
+        //{
+        //    opt.CacheSizeLimitMb = 64;
+        //    opt.EmbeddedResourceSearchPatterns = [".rules.json"];
+        //});
+
         services.AddScoped<IIssuerRepository, IssuerRepository>();
         services.AddScoped<IBankAccountRepository, BankAccountRepository>();
         services.AddScoped<ITreasuryConceptRepository, TreasuryConceptRepository>();
         services.AddScoped<ITreasuryMovementRepository, TreasuryMovementRepository>();
+        services.AddScoped<ITreasuryExperienceMutations , TreasuryExperienceMutations>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TreasuryDbContext>());
     }
 
