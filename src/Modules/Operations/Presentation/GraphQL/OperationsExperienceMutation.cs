@@ -127,8 +127,8 @@ public class OperationsExperienceMutation(
 
         return normalizedValue switch
         {
-            Constants.CertifiedContribution.No => Constants.TaxCondition.SinRetencionContingente,
-            Constants.CertifiedContribution.Si => Constants.TaxCondition.ConRetencionContingente,
+            Constants.CertifiedContribution.No => Constants.TaxCondition.ConRetencionContingente,
+            Constants.CertifiedContribution.Si => Constants.TaxCondition.SinRetencionContingente,
             _ => string.Empty
         };
     }

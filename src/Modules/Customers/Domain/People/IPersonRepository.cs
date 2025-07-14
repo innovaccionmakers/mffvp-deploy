@@ -18,7 +18,7 @@ public interface IPersonRepository
         CancellationToken cancellationToken = default);
 
     Task<bool?> GetExistingHomologatedCode(string homologatedCode, CancellationToken cancellationToken = default);
-    Task<IReadOnlyCollection<Person>> GetActivePersonsByFilterAsync(string identificationType,
+    Task<IReadOnlyCollection<PersonInformation>> GetActivePersonsByFilterAsync(string? identificationType,
                                                        SearchByType? searchBy = null,
                                                        string? text = null,
                                                        CancellationToken cancellationToken = default);

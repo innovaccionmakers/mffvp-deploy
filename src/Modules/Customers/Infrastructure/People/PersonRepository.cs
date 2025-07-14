@@ -57,14 +57,15 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
         return await context.Customers.AnyAsync(x => x.HomologatedCode == homologatedCode, cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<Person>> GetActivePersonsByFilterAsync(string identificationType,
+    public async Task<IReadOnlyCollection<PersonInformation>> GetActivePersonsByFilterAsync(string? identificationType,
                                                               SearchByType? searchBy = null,
                                                               string? text = null,
                                                               CancellationToken cancellationToken = default)
     {
         var query = context.Customers.AsQueryable();
 
-        query = query.Where(x => x.DocumentType.ToString() == identificationType && x.Status == Status.Active);
+        if (!string.IsNullOrWhiteSpace(identificationType))
+            query = query.Where(x => x.DocumentType.ToString() == identificationType);
 
         if (!string.IsNullOrWhiteSpace(text))
         {
@@ -81,12 +82,19 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
             }
         }
 
-        if (searchBy == null && string.IsNullOrWhiteSpace(text))
-        {
-            query = query.Take(20);
-        }
-
-        return await query.ToListAsync(cancellationToken);
+        return await (
+            from person in query
+            join config in context.ConfigurationParameters
+                on person.DocumentType equals config.Uuid
+            where person.Status == Status.Active
+            select new PersonInformation(
+                person.PersonId,
+                person.DocumentType,
+                config.HomologationCode,
+                person.Identification,
+                person.FullName,
+                person.Status            )
+        ).ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyCollection<Person>> GetPersonsByDocumentsAsync(IReadOnlyCollection<PersonDocumentKey> documents, CancellationToken cancellationToken = default)
