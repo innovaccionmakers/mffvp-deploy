@@ -34,7 +34,7 @@ namespace Closing.Application.PreClosing.Services.Validator
                 PortfolioCurrentDate = portfolioData.CurrentDate,
             };
             var (isValid, _, validationErrors) = await ruleEvaluator
-                .EvaluateAsync(Closing.Domain.Rules.WorkflowNames.PreclosingValidationsBefore, ruleContext, cancellationToken);
+                .EvaluateAsync(Domain.Rules.WorkflowNames.PreclosingValidationsBefore, ruleContext, cancellationToken);
             if (!isValid)
             {
                 var firstError = validationErrors.First();

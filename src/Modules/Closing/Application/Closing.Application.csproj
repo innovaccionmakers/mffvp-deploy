@@ -30,7 +30,6 @@
       <Folder Include="PostClosing\Services\PendingTransactionHandler\" />
       <Folder Include="PostClosing\Services\TrustReturnsEvent\" />
       <Folder Include="PostClosing\Services\PortfolioValuationEvent\" />
-      <Folder Include="PreClosing\Services\PortfolioValuation\" />
     </ItemGroup>
 
     <PropertyGroup>

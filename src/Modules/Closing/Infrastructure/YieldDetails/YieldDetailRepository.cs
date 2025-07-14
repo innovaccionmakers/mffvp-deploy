@@ -1,5 +1,6 @@
 ﻿using Closing.Domain.YieldDetails;
 using Closing.Infrastructure.Database;
+using Common.SharedKernel.Domain.Utils;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -35,5 +36,31 @@ namespace Closing.Infrastructure.YieldDetails
             context.YieldDetails.Remove(yieldDetail);
 
         }
+
+        public async Task DeleteByPortfolioAndDateAsync(
+        int portfolioId,
+        DateTime closingDateUtc,
+        CancellationToken cancellationToken = default)
+        {
+
+
+            var deletedCount = await context.YieldDetails
+                .Where(yield => yield.PortfolioId == portfolioId
+                             && yield.ClosingDate == closingDateUtc
+                             && !yield.IsClosed) //Solo se pueden borrar los que no son Cerrados
+                .ExecuteDeleteAsync(cancellationToken);
+
+        }
+
+        public async Task<IReadOnlyCollection<YieldDetail>> GetByPortfolioAndDateAsync(
+        int portfolioId,
+        DateTime closingDateUtc,
+        CancellationToken ct = default)
+        {
+            return await context.YieldDetails
+                .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc)
+                .ToListAsync(ct);
+        }
+
     }
 }
