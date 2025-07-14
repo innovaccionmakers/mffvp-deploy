@@ -26,10 +26,10 @@ internal sealed class GetProfitandLossQueryHandler(
 
         var values = summaries.ToDictionary(x => x.Concept, x => x.TotalAmount);
         var incomes = summaries
-            .Where(x => x.Nature == ProfitLossNature.Income)
+            .Where(x => x.Nature == IncomeExpenseNature.Income)
             .Sum(x => x.TotalAmount);
         var expenses = summaries
-            .Where(x => x.Nature == ProfitLossNature.Expense)
+            .Where(x => x.Nature == IncomeExpenseNature.Expense)
             .Sum(x => x.TotalAmount);
         decimal netReturn = incomes - expenses;
 

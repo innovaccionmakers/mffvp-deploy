@@ -175,7 +175,7 @@ public class Query
 
     //Customers Queries
     [GraphQLName("persona")]
-    public async Task<IReadOnlyCollection<PersonDto>> GetPersonsByFilter([GraphQLName("tipoIdentificacion")] string identificationType,
+    public async Task<IReadOnlyCollection<PersonDto>> GetPersonsByFilter([GraphQLName("tipoIdentificacion")] string? identificationType,
                                                                          [GraphQLName("buscarPor")] SearchByType? searchBy,
                                                                          [GraphQLName("texto")] string? text,
                                                                          [Service] ICustomersExperienceQueries customersQueries,
@@ -187,7 +187,7 @@ public class Query
     //Orchestrator Queries
 
     [GraphQLName("obtenerAfiliadosConFiltros")]
-    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesByFilter([GraphQLName("tipoIdentificacion")] string identificationType,
+    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesByFilter([GraphQLName("tipoIdentificacion")] string? identificationType,
                                                                    [GraphQLName("buscarPor")] SearchByType? searchBy,
                                                                    [GraphQLName("texto")] string? text,
                                                                    [Service] ExperienceOrchestrator experienceOrchestrator,

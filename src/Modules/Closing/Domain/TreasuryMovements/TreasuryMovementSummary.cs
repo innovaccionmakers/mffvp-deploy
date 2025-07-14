@@ -1,6 +1,7 @@
 ﻿
 using Closing.Domain.PreClosing;
 using Common.SharedKernel.Domain.Utils;
+using Common.SharedKernel.Domain;
 using System.Text.Json;
 
 namespace Closing.Domain.TreasuryMovements;
@@ -13,7 +14,7 @@ public sealed record TreasuryMovementSummary(
     decimal TotalAmount
     )
 {
-    public TreasuryConceptNature? NatureEnum => EnumExtensions.ParseEnumMemberValue<TreasuryConceptNature>(Nature);
+    public IncomeExpenseNature? NatureEnum => EnumExtensions.ParseEnumMemberValue<IncomeExpenseNature>(Nature);
 }
 public static class TreasuryMovementSummaryExtensions
 {

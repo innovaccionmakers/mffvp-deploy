@@ -7,7 +7,7 @@ namespace Customers.Presentation.GraphQL;
 public interface ICustomersExperienceQueries
 {
     Task<IReadOnlyCollection<PersonDto>> GetPersonsByFilter(
-        string identificationType,
+        string? identificationType,
         SearchByType? searchBy, 
         string? text, CancellationToken cancellationToken);
 

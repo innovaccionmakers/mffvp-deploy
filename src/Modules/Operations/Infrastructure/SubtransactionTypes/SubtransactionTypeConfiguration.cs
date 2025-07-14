@@ -1,4 +1,5 @@
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.SubtransactionTypes;
 using Common.SharedKernel.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -15,7 +16,9 @@ internal sealed class SubtransactionTypeConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.SubtransactionTypeId).HasColumnName("id");
         builder.Property(x => x.Name).HasColumnName("nombre");
         builder.Property(x => x.Category).HasColumnName("categoria");
-        builder.Property(x => x.Nature).HasColumnName("naturaleza");
+        builder.Property(x => x.Nature)
+            .HasColumnName("naturaleza")
+            .HasConversion(new EnumMemberValueConverter<IncomeEgressNature>());
         builder.Property(x => x.Status)
             .HasColumnName("estado")
             .HasConversion(new EnumMemberValueConverter<Status>());

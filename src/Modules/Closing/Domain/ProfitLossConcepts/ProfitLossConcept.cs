@@ -6,7 +6,7 @@ public sealed class ProfitLossConcept : Entity
 {
     public long ProfitLossConceptId { get; private set; }
     public string Concept { get; private set; } = null!;
-    public ProfitLossNature Nature { get; private set; }
+    public IncomeExpenseNature Nature { get; private set; }
     public bool AllowNegative { get; private set; }
     
     public ICollection<ProfitLosses.ProfitLoss> ProfitLosses { get; private set; } = [];
@@ -15,7 +15,7 @@ public sealed class ProfitLossConcept : Entity
     {
     }
 
-    public static Result<ProfitLossConcept> Create(string concept, ProfitLossNature nature, bool allowNegative)
+    public static Result<ProfitLossConcept> Create(string concept, IncomeExpenseNature nature, bool allowNegative)
     {
         var entity = new ProfitLossConcept
         {
@@ -28,7 +28,7 @@ public sealed class ProfitLossConcept : Entity
         return Result.Success(entity);
     }
 
-    public void UpdateDetails(string concept, ProfitLossNature nature, bool allowNegative)
+    public void UpdateDetails(string concept, IncomeExpenseNature nature, bool allowNegative)
     {
         Concept = concept;
         Nature = nature;

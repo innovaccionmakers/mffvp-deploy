@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Closing.Domain.ProfitLossConcepts;
+using Common.SharedKernel.Domain;
 using FluentAssertions;
 using Moq;
 using System.Reflection;
@@ -49,7 +50,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 1L,
                     Concept = "Rendimientos Brutos",
-                    Nature = ProfitLossNature.Income,
+                    Nature = IncomeExpenseNature.Income,
                     AllowNegative = true,
                     Amount = 100m,
                     IsIncome = true,
@@ -59,7 +60,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 2L,
                     Concept = "Gastos",
-                    Nature = ProfitLossNature.Expense,
+                    Nature = IncomeExpenseNature.Expense,
                     AllowNegative = false,
                     Amount = 50m,
                     IsIncome = false,
@@ -99,7 +100,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 1L,
                     Concept = "Rendimientos Brutos",
-                    Nature = ProfitLossNature.Income,
+                    Nature = IncomeExpenseNature.Income,
                     AllowNegative = true,
                     Amount = 100m,
                     IsIncome = true,
@@ -109,7 +110,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 2L,
                     Concept = "Gastos",
-                    Nature = ProfitLossNature.Expense,
+                    Nature = IncomeExpenseNature.Expense,
                     AllowNegative = false,
                     Amount = -50m,
                     IsIncome = false,
@@ -149,7 +150,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 1L,
                     Concept = "Concepto Válido",
-                    Nature = ProfitLossNature.Income,
+                    Nature = IncomeExpenseNature.Income,
                     AllowNegative = true,
                     Amount = 100m,
                     IsIncome = true,
@@ -189,7 +190,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 1L,
                     Concept = "Gastos Administrativos",
-                    Nature = ProfitLossNature.Expense,
+                    Nature = IncomeExpenseNature.Expense,
                     AllowNegative = false,
                     Amount = 100m,
                     IsIncome = false,
@@ -199,7 +200,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 2L,
                     Concept = "Otros Gastos",
-                    Nature = ProfitLossNature.Expense,
+                    Nature = IncomeExpenseNature.Expense,
                     AllowNegative = false,
                     Amount = 50m,
                     IsIncome = false,
@@ -241,7 +242,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 1L,
                     Concept = "Rendimientos Brutos",
-                    Nature = ProfitLossNature.Income,
+                    Nature = IncomeExpenseNature.Income,
                     AllowNegative = true,
                     Amount = 100m,
                     IsIncome = true,
@@ -251,7 +252,7 @@ public class InternalRuleEvaluatorIntegrationTests
                 {
                     ProfitLossConceptId = 2L,
                     Concept = "Gastos",
-                    Nature = ProfitLossNature.Expense,
+                    Nature = IncomeExpenseNature.Expense,
                     AllowNegative = false,
                     Amount = 50m,
                     IsIncome = false,

@@ -1,4 +1,5 @@
-﻿using Common.SharedKernel.Presentation.Filters;
+﻿using Common.SharedKernel.Domain;
+using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 
 using MediatR;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 using Operations.Integrations.Contributions.CreateContribution;
+using Operations.Integrations.SubTransactionTypes;
 
 namespace Operations.Presentation.MinimalApis;
 
@@ -64,5 +66,25 @@ public static class OperationsBusinessApi
             .Accepts<CreateContributionCommand>("application/json")
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
+        
+        group.MapGet(
+                "OperationTypes",
+                async (ISender sender) =>
+                {
+                    var result = await sender.Send(new GetAllOperationTypesQuery());
+                    return result.Match(
+                        Results.Ok,
+                        r => r.Error.Type == ErrorType.Validation
+                            ? ApiResults.Failure(r)
+                            : ApiResults.Problem(r)
+                    );
+                }
+            )
+            .WithName("GetAllOperationTypes")
+            .WithSummary("Obtiene la lista completa de tipos de operación")
+            .Produces<IReadOnlyCollection<SubtransactionTypeResponse>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+        
     }
 }
