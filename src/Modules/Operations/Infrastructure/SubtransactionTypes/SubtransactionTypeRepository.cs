@@ -32,4 +32,12 @@ internal sealed class SubtransactionTypeRepository(OperationsDbContext context) 
             .Where(s => s.Category == categoryId && s.Status == Status.Active)
             .ToListAsync(ct);
     }
+    
+    public async Task<IReadOnlyCollection<SubtransactionType>> GetAllAsync(CancellationToken ct = default)
+    {
+        return await context.SubtransactionTypes
+            .AsNoTracking()
+            .Where(s => s.Status == Status.Active)
+            .ToListAsync(ct);
+    }
 }
