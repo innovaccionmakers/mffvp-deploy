@@ -1,9 +1,11 @@
-﻿namespace Treasury.Domain.TreasuryMovements;
+﻿using Common.SharedKernel.Domain;
+
+namespace Treasury.Domain.TreasuryMovements;
 
 public sealed record TreasuryMovementConceptSummary(
     long ConceptId,
     string ConceptName,
-    string Nature,
+    IncomeExpenseNature Nature,
     bool AllowsExpense,
     decimal TotalAmount
  );

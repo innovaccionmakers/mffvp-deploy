@@ -3,6 +3,7 @@ using Closing.Domain.TreasuryMovements;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Domain.Utils;
+using Common.SharedKernel.Domain;
 
 namespace Closing.Application.PreClosing.Services.Yield.Builders;
 
@@ -15,8 +16,8 @@ public class TreasuryYieldDetailBuilder : IYieldDetailBuilder
         var summary = (TreasuryMovementSummary)concept;
         var closingDateUtc = DateTimeConverter.ToUtcDateTime(parameters.ClosingDate);
 
-        var isIncome = summary.NatureEnum == TreasuryConceptNature.Income;
-        var isExpense = summary.NatureEnum == TreasuryConceptNature.Expense;
+        var isIncome = summary.NatureEnum == IncomeExpenseNature.Income;
+        var isExpense = summary.NatureEnum == IncomeExpenseNature.Expense;
         var allowsExpense = summary.AllowsExpense;
 
         var incomeAmount = isIncome && !allowsExpense

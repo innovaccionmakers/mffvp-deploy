@@ -35,7 +35,7 @@ public class ProfitandLossLoadCommandHandlerTests
             _uow.Object);
     }
 
-    private static ProfitLossConcept Concept(long id, string name, ProfitLossNature nature, bool allowNegative)
+    private static ProfitLossConcept Concept(long id, string name, IncomeExpenseNature nature, bool allowNegative)
     {
         var concept = ProfitLossConcept.Create(name, nature, allowNegative).Value;
         typeof(ProfitLossConcept)
@@ -46,7 +46,7 @@ public class ProfitandLossLoadCommandHandlerTests
 
     private static ProfitLossConcept Concept(long id, bool allowNegative)
     {
-        var concept = ProfitLossConcept.Create($"c{id}", ProfitLossNature.Income, allowNegative).Value;
+        var concept = ProfitLossConcept.Create($"c{id}", IncomeExpenseNature.Income, allowNegative).Value;
         typeof(ProfitLossConcept)
             .GetProperty(nameof(ProfitLossConcept.ProfitLossConceptId))!
             .SetValue(concept, id);
@@ -65,8 +65,8 @@ public class ProfitandLossLoadCommandHandlerTests
 
         var concepts = new List<ProfitLossConcept>
         {
-            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true),
-            Concept(2, "Gastos", ProfitLossNature.Expense, false)
+            Concept(1, "Rendimientos Brutos", IncomeExpenseNature.Income, true),
+            Concept(2, "Gastos", IncomeExpenseNature.Expense, false)
         };
 
         var portfolioData = new PortfolioData(10, DateTime.Today.AddDays(-1));
@@ -100,7 +100,7 @@ public class ProfitandLossLoadCommandHandlerTests
 
         var concepts = new List<ProfitLossConcept>
         {
-            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true)
+            Concept(1, "Rendimientos Brutos", IncomeExpenseNature.Income, true)
         };
 
         var portfolioData = new PortfolioData(10, DateTime.Today.AddDays(-1));
@@ -191,8 +191,8 @@ public class ProfitandLossLoadCommandHandlerTests
 
         var concepts = new List<ProfitLossConcept>
         {
-            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true),
-            Concept(2, "Gastos", ProfitLossNature.Expense, false)
+            Concept(1, "Rendimientos Brutos", IncomeExpenseNature.Income, true),
+            Concept(2, "Gastos", IncomeExpenseNature.Expense, false)
         };
 
         var portfolioCurrentDate = new DateTime(2025, 7, 1);
@@ -231,7 +231,7 @@ public class ProfitandLossLoadCommandHandlerTests
 
         var concepts = new List<ProfitLossConcept>
         {
-            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true)
+            Concept(1, "Rendimientos Brutos", IncomeExpenseNature.Income, true)
         };
 
         var portfolioData = new PortfolioData(10, DateTime.Today.AddDays(-1));
@@ -268,8 +268,8 @@ public class ProfitandLossLoadCommandHandlerTests
 
         var concepts = new List<ProfitLossConcept>
         {
-            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true),
-            Concept(2, "Gastos", ProfitLossNature.Expense, false)
+            Concept(1, "Rendimientos Brutos", IncomeExpenseNature.Income, true),
+            Concept(2, "Gastos", IncomeExpenseNature.Expense, false)
         };
 
         var portfolioData = new PortfolioData(10, DateTime.Today.AddDays(-1));
@@ -305,8 +305,8 @@ public class ProfitandLossLoadCommandHandlerTests
 
         var concepts = new List<ProfitLossConcept>
         {
-            Concept(1, "Rendimientos Brutos", ProfitLossNature.Income, true),
-            Concept(2, "Gastos", ProfitLossNature.Expense, false)
+            Concept(1, "Rendimientos Brutos", IncomeExpenseNature.Income, true),
+            Concept(2, "Gastos", IncomeExpenseNature.Expense, false)
         };
 
         var portfolioData = new PortfolioData(10, portfolioCurrentDate);
@@ -373,8 +373,8 @@ public class ProfitandLossLoadCommandHandlerTests
             var isExpense = (bool)isExpenseProperty.GetValue(concept)!;
 
             var expectedConcept = expectedConcepts.First(c => c.Concept == conceptName);
-            var expectedIsIncome = expectedConcept.Nature == ProfitLossNature.Income;
-            var expectedIsExpense = expectedConcept.Nature == ProfitLossNature.Expense;
+            var expectedIsIncome = expectedConcept.Nature == IncomeExpenseNature.Income;
+            var expectedIsExpense = expectedConcept.Nature == IncomeExpenseNature.Expense;
 
             if (!expectedAmounts.ContainsKey(conceptName) ||
                 expectedAmounts[conceptName] != amount ||
@@ -427,8 +427,8 @@ public class ProfitandLossLoadCommandHandlerTests
             var isExpense = (bool)isExpenseProperty.GetValue(concept)!;
 
             var expectedConcept = expectedConcepts.First(c => c.Concept == conceptName);
-            var expectedIsIncome = expectedConcept.Nature == ProfitLossNature.Income;
-            var expectedIsExpense = expectedConcept.Nature == ProfitLossNature.Expense;
+            var expectedIsIncome = expectedConcept.Nature == IncomeExpenseNature.Income;
+            var expectedIsExpense = expectedConcept.Nature == IncomeExpenseNature.Expense;
 
             if (!expectedAmounts.ContainsKey(conceptName) ||
                 expectedAmounts[conceptName] != amount ||

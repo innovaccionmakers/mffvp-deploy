@@ -47,8 +47,8 @@ internal sealed class ProfitandLossLoadCommandHandler(
                 c.Nature,
                 c.AllowNegative,
                 Amount = command.ConceptAmounts[c.Concept],
-                IsIncome = c.Nature == ProfitLossNature.Income,
-                IsExpense = c.Nature == ProfitLossNature.Expense
+                IsIncome = c.Nature == IncomeExpenseNature.Income,
+                IsExpense = c.Nature == IncomeExpenseNature.Expense
             }).ToArray()
         };
 
