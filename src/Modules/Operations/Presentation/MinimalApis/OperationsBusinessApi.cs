@@ -21,7 +21,6 @@ public static class OperationsBusinessApi
 
         group.MapPost(
                 "ContributionTx",
-                [Authorize(Policy = "FVP.Operations.ContributionTx.Create")]
                 async (
                     [Microsoft.AspNetCore.Mvc.FromBody] CreateContributionCommand request,
                     ISender sender

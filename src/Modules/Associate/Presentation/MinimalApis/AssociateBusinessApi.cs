@@ -13,6 +13,7 @@ using Common.SharedKernel.Presentation.Results;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,9 @@ public static class AssociateBusinessApi
             .WithTags("Associate")
             .WithOpenApi();
 
-        group.MapGet("GetAssociates", async (ISender sender) =>
+        group.MapGet("GetAssociates",
+            [Authorize(Policy = "fvp:associate:activates:view")]
+            async (ISender sender) =>
         {
             var result = await sender.Send(new GetActivatesQuery());
             return result.Value;
@@ -37,7 +40,8 @@ public static class AssociateBusinessApi
             .Produces<IReadOnlyCollection<ActivateResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("Activate", async ([Microsoft.AspNetCore.Mvc.FromBody] CreateActivateCommand request, ISender sender) =>
+        group.MapPost("Activate",
+            async ([Microsoft.AspNetCore.Mvc.FromBody] CreateActivateCommand request, ISender sender) =>
         {
             var result = await sender.Send(request);
             return result.ToApiResult(result.Description);
