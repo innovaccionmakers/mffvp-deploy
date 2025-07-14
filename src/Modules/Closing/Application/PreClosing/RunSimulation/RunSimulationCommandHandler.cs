@@ -26,7 +26,7 @@ namespace Closing.Application.PreClosing.RunSimulation
                 //var sw = Stopwatch.StartNew();
                 await _simulationOrchestrator.RunSimulationAsync(command, cancellationToken);
                 //sw.Stop();
-                logger?.LogInformation("Simulación ejecutada en {ElapsedMilliseconds} ms para Portafolio {PortfolioId}");
+                //logger?.LogInformation("Simulación ejecutada en {ElapsedMilliseconds} ms para Portafolio {PortfolioId}");
                 //sw.ElapsedMilliseconds, command.PortfolioId);
 
                 await unitOfWork.SaveChangesAsync(cancellationToken);

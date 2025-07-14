@@ -13,7 +13,7 @@ namespace Closing.Domain.Routes
 
                                  {
                                    "portfolioId": 1,
-                                   "closingDate": "2025-01-07",
+                                   "closingDate": "2025-05-30",
                                    "isClosing": false
                                  }
                                  ```

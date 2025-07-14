@@ -8,5 +8,7 @@
         Task InsertAsync(YieldDetail yieldDetail, CancellationToken ct = default);
         void Update(YieldDetail yieldDetail);
         void Delete(YieldDetail yieldDetail);
+        Task<IReadOnlyCollection<YieldDetail>> GetByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken ct = default);
+
     }
 }

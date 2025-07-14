@@ -8,9 +8,9 @@ namespace Closing.Application.PreClosing.Services.CommissionCalculation;
 public class CommissionCalculationService : ICommissionCalculationService
 {
     private readonly ICommissionLocator _commissionLocator;
-    private readonly ICommissionAdminCalculationService _commissionAdminCalculationService;
+    private readonly ICommissionAdminCalculation _commissionAdminCalculationService;
 
-    public CommissionCalculationService(ICommissionLocator commissionLocator, ICommissionAdminCalculationService commissionAdminCalculationService)
+    public CommissionCalculationService(ICommissionLocator commissionLocator, ICommissionAdminCalculation commissionAdminCalculationService)
     {
         _commissionLocator = commissionLocator;
         _commissionAdminCalculationService = commissionAdminCalculationService;

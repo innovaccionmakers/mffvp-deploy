@@ -4,10 +4,10 @@ using Common.SharedKernel.Domain;
 
 namespace Closing.Application.PreClosing.Services.CommissionCalculation
 {
-    public class CommissionAdminCalculationService: ICommissionAdminCalculationService
+    public class CommissionAdminCalculation: ICommissionAdminCalculation
     {
         private readonly IPortfolioValuationRepository _portfolioValuationRepository;
-        public CommissionAdminCalculationService(IPortfolioValuationRepository portfolioValuationRepository)
+        public CommissionAdminCalculation(IPortfolioValuationRepository portfolioValuationRepository)
         {
             _portfolioValuationRepository = portfolioValuationRepository;
         }
