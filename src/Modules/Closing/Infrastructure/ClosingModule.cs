@@ -27,6 +27,7 @@ using Closing.Infrastructure.ClientOperations;
 using Closing.IntegrationEvents.CreateClientOperationRequested;
 using Closing.Infrastructure.Configuration;
 using Closing.Application.ClosingWorkflow;
+using Closing.Presentation.GraphQL;
 
 namespace Closing.Infrastructure;
 
@@ -68,6 +69,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
         services.AddScoped<IErrorCatalog<ClosingModuleMarker>, ErrorCatalog<ClosingModuleMarker>>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IClosingExperienceMutations, ClosingExperienceMutations>();
         services.AddScoped<IConfigurationParameterLookupRepository<ClosingModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<ClosingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
 
