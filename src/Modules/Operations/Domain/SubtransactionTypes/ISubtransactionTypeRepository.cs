@@ -13,4 +13,7 @@ public interface ISubtransactionTypeRepository
     Task<IReadOnlyCollection<SubtransactionType>> GetCategoryIdAsync(
         Guid categoryId,
         CancellationToken cancellationToken = default);
+    
+    Task<IReadOnlyCollection<SubtransactionType>> GetAllAsync(
+        CancellationToken cancellationToken = default);
 }
