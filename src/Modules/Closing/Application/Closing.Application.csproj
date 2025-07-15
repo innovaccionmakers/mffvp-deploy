@@ -5,6 +5,9 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\..\Operations\IntegrationEvents\Operations.IntegrationEvents\Operations.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Products\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Treasury\IntegrationEvents\Treasury.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Domain\Closing.Domain.csproj" />
         <ProjectReference Include="..\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Integrations\Closing.Integrations.csproj" />

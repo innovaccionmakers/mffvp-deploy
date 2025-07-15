@@ -1,4 +1,4 @@
-﻿namespace Common.SharedKernel.Domain.Finance;
+﻿namespace Common.SharedKernel.Application.Helpers.Finance;
 
 /// <summary>
 /// Contiene funciones financieras comunes para rentabilidad, tasas y valorizaciones.

@@ -1,4 +1,4 @@
-﻿using Closing.Application.Abstractions.External.TreasuryMovements;
+﻿using Closing.Application.Abstractions.External.Treasury.TreasuryMovements;
 using Closing.Domain.TreasuryMovements;
 
 namespace Closing.Application.PreClosing.Services.TreasuryConcepts

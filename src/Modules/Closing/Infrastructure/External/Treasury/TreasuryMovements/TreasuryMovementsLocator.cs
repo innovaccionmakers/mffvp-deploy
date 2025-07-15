@@ -1,12 +1,13 @@
-﻿using Closing.Application.Abstractions.External.TreasuryMovements;
+﻿using Closing.Application.Abstractions.External.Treasury.TreasuryMovements;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using Treasury.IntegrationEvents.TreasuryMovements.TreasuryMovementsByPortfolio;
 
-namespace Closing.Infrastructure.External.TreasuryMovements;
+namespace Closing.Infrastructure.External.Treasury.TreasuryMovements;
 
 internal sealed class TreasuryMovementsLocator(ICapRpcClient capRpcClient) : ITreasuryMovementsLocator
 {
-    public async Task<Result<IReadOnlyCollection<GetMovementsByPortfolioIdResponse>>> GetMovementsByPortfolioAsync(
+    public async Task<Result<IReadOnlyCollection<MovementsByPortfolioRemoteResponse>>> GetMovementsByPortfolioAsync(
        int portfolioId,
        DateTime closingDate,
        CancellationToken cancellationToken)
@@ -22,9 +23,15 @@ internal sealed class TreasuryMovementsLocator(ICapRpcClient capRpcClient) : ITr
             cancellationToken
         );
 
+        IReadOnlyCollection<MovementsByPortfolioRemoteResponse>? movements = response.movements?.Select(c => new MovementsByPortfolioRemoteResponse(
+          c.ConceptId,
+          c.ConceptName,
+          c.Nature.ToString(),
+          c.AllowsExpense,
+          c.TotalAmount)).ToList();
         return response.Succeeded
-            ? Result.Success(response.movements!)
-            : Result.Failure<IReadOnlyCollection<GetMovementsByPortfolioIdResponse>>(
+            ? Result.Success(movements!)
+            : Result.Failure<IReadOnlyCollection<MovementsByPortfolioRemoteResponse>>(
                 Error.Validation(response.Code!, response.Message!));
     }
 }

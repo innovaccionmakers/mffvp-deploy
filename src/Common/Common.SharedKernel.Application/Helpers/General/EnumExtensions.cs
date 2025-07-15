@@ -2,8 +2,7 @@
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace Common.SharedKernel.Domain.Utils;
-
+namespace Common.SharedKernel.Application.Helpers.General;
 public static class EnumExtensions
 {
     public static TEnum? ParseEnumMemberValue<TEnum>(string? value) where TEnum : struct, Enum
