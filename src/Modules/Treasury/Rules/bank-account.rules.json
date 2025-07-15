@@ -5,13 +5,13 @@
       {
         "RuleName": "PortfolioIdRequired",
         "ErrorMessage": "El Portafolio es obligatorio",
-        "Expression": "string.IsNullOrWhiteSpace(input.PortfolioId) == false",
+        "Expression": "input.PortfolioId > 0",
         "Properties": { "errorCode": "6ceb3022-c9cd-479d-aaf1-20062b215de7" }
       },
       {
         "RuleName": "IssuerIdRequired",
         "ErrorMessage": "El Id del Emisor es obligatorio",
-        "Expression": "string.IsNullOrWhiteSpace(input.IssuerId) == false",
+        "Expression": "input.IssuerId > 0",
         "Properties": { "errorCode": "a8872e38-15a0-49c3-98ef-db482741a5fd" }
       },
       {
