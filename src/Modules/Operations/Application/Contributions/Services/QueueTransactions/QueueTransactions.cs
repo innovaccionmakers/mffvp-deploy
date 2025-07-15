@@ -23,7 +23,7 @@ public sealed class QueueTransactions(
     {
         var isCertified = command.CertifiedContribution?.Trim().ToUpperInvariant() == "SI";
         var tax = await taxCalculator.ComputeAsync(
-            prevalidationResult.AffiliateFound,
+            prevalidationResult.AffiliateActivation.Item3,
             isCertified,
             command.Amount,
             cancellationToken);
