@@ -27,5 +27,16 @@
         "Properties": { "errorCode": "606be42e-cdb8-4638-baed-cf3e9e670eb3" }
       }
     ]
+  },
+  {
+    "WorkflowName": "Treasury.CreateBankAccount.Validation",
+    "Rules": [
+      {
+        "RuleName": "BankAccountExist",
+        "ErrorMessage": "Ya existe una cuenta bancaria con el mismo número de cuenta y tipo de cuenta para el emisor seleccionado",
+        "Expression": "input.BankAccountExists == false",
+        "Properties": { "errorCode": "b1c3f8d2-4e5f-4c0a-9b6d-7f8c1e2d3e4f" }
+      }
+    ]
   }
 ]
