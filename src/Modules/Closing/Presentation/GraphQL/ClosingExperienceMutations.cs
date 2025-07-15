@@ -31,7 +31,7 @@ public class ClosingExperienceMutations(IMediator mediator) : IClosingExperience
             var command = new ProfitandLossLoadCommand(
                 input.PortfolioId,
                 input.EffectiveDate,
-                input.ConceptAmounts.ToDecimalDictionary()
+                input.ConceptAmounts
             );
 
             var commandResult = await mediator.Send(command, cancellationToken);

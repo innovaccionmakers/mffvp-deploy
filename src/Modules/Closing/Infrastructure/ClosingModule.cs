@@ -69,6 +69,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
         services.AddScoped<IErrorCatalog<ClosingModuleMarker>, ErrorCatalog<ClosingModuleMarker>>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IClosingExperienceQueries, ClosingExperienceQueries>();
         services.AddScoped<IClosingExperienceMutations, ClosingExperienceMutations>();
         services.AddScoped<IConfigurationParameterLookupRepository<ClosingModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<ClosingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());

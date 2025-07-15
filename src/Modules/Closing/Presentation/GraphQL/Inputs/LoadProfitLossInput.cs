@@ -4,16 +4,10 @@ using System.Text.Json;
 
 namespace Closing.Presentation.GraphQL.Inputs;
 
-public class LoadProfitLossInput
-{
-    [GraphQLName("portafolioId")]
-    [Required]
-    public int PortfolioId { get; set; }
+public record LoadProfitLossInput(
+    [property: GraphQLName("idPortafolio")] int PortfolioId,
 
-    [GraphQLName("fechaEfectiva")]
-    [Required]
-    public DateTime EffectiveDate { get; set; }
+    [property: GraphQLName("fechaEfectiva")] DateTime EffectiveDate,
 
-    [GraphQLName("montosConceptos")]
-    public JsonElement ConceptAmounts { get; set; } = new();
-}
+    [property: GraphQLName("montosConceptos")] Dictionary<string, decimal> ConceptAmounts
+);
