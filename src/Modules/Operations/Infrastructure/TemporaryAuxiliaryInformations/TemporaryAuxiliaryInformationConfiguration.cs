@@ -19,7 +19,9 @@ internal sealed class TemporaryAuxiliaryInformationConfiguration : IEntityTypeCo
         builder.Property(x => x.PaymentMethodDetail).HasColumnName("detalle_forma_pago");
         builder.Property(x => x.CertificationStatusId).HasColumnName("estado_certificacion_id");
         builder.Property(x => x.TaxConditionId).HasColumnName("condicion_tributaria_id");
-        builder.Property(x => x.ContingentWithholding).HasColumnName("retencion_contingente");
+        builder.Property(x => x.ContingentWithholding)
+            .HasColumnName("retencion_contingente")
+            .HasColumnType("decimal(19, 2)");
         builder.Property(x => x.VerifiableMedium).HasColumnName("medio_verificable");
         builder.Property(x => x.CollectionBankId).HasColumnName("banco_recaudo");
         builder.Property(x => x.DepositDate).HasColumnName("fecha_consignacion");

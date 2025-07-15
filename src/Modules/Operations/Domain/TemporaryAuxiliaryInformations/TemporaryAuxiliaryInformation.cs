@@ -18,7 +18,7 @@ public sealed class TemporaryAuxiliaryInformation : Entity
     public JsonDocument PaymentMethodDetail { get; private set; } = null!;
     public int CertificationStatusId { get; private set; }
     public int TaxConditionId { get; private set; }
-    public int ContingentWithholding { get; private set; }
+    public decimal ContingentWithholding { get; private set; }
     public JsonDocument VerifiableMedium { get; private set; } = null!;
     public int CollectionBankId { get; private set; }
     public DateTime DepositDate { get; private set; }
@@ -46,7 +46,7 @@ public sealed class TemporaryAuxiliaryInformation : Entity
         JsonDocument paymentMethodDetail,
         int certificationStatusId,
         int taxConditionId,
-        int contingentWithholding,
+        decimal contingentWithholding,
         JsonDocument verifiableMedium,
         int collectionBank,
         DateTime depositDate,
@@ -93,7 +93,7 @@ public sealed class TemporaryAuxiliaryInformation : Entity
         JsonDocument newPaymentMethodDetail,
         int newCertificationStatusId,
         int newTaxConditionId,
-        int newContingentWithholding,
+        decimal newContingentWithholding,
         JsonDocument newVerifiableMedium,
         int newCollectionBank,
         DateTime newDepositDate,

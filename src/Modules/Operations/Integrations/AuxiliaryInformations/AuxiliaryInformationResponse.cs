@@ -12,7 +12,7 @@ public sealed record AuxiliaryInformationResponse(
     JsonDocument PaymentMethodDetail,
     int CertificationStatusId,
     int TaxConditionId,
-    int ContingentWithholding,
+    decimal ContingentWithholding,
     JsonDocument VerifiableMedium,
     string CollectionBank,
     DateTime DepositDate,
