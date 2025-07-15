@@ -88,6 +88,13 @@ public class Query
         return productsQueries.GetAffiliateObjectivesAsync(affiliateId, cancellationToken);
     }
 
+    [GraphQLName("obtenerPortafolios")]
+    public async Task<IReadOnlyCollection<PortfolioInformationDto>> GetAllPortfolios([Service] IProductsExperienceQueries productsQueries,
+                                                 CancellationToken cancellationToken)
+    {
+        return await productsQueries.GetAllPortfoliosAsync(cancellationToken);
+    }
+
     //Operations Queries
     [GraphQLName("tipoTransaccion")]
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypes([Service] IOperationsExperienceQueries operationsQueries,
@@ -168,7 +175,7 @@ public class Query
 
     //Customers Queries
     [GraphQLName("persona")]
-    public async Task<IReadOnlyCollection<PersonDto>> GetPersonsByFilter([GraphQLName("tipoIdentificacion")] string identificationType,
+    public async Task<IReadOnlyCollection<PersonDto>> GetPersonsByFilter([GraphQLName("tipoIdentificacion")] string? identificationType,
                                                                          [GraphQLName("buscarPor")] SearchByType? searchBy,
                                                                          [GraphQLName("texto")] string? text,
                                                                          [Service] ICustomersExperienceQueries customersQueries,
@@ -180,7 +187,7 @@ public class Query
     //Orchestrator Queries
 
     [GraphQLName("obtenerAfiliadosConFiltros")]
-    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesByFilter([GraphQLName("tipoIdentificacion")] string identificationType,
+    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesByFilter([GraphQLName("tipoIdentificacion")] string? identificationType,
                                                                    [GraphQLName("buscarPor")] SearchByType? searchBy,
                                                                    [GraphQLName("texto")] string? text,
                                                                    [Service] ExperienceOrchestrator experienceOrchestrator,

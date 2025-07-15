@@ -5,7 +5,6 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
-        <ProjectReference Include="..\..\Products\Integrations\Products.Integrations.csproj" />
         <ProjectReference Include="..\Domain\Closing.Domain.csproj" />
         <ProjectReference Include="..\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Integrations\Closing.Integrations.csproj" />
@@ -31,8 +30,6 @@
       <Folder Include="PostClosing\Services\PendingTransactionHandler\" />
       <Folder Include="PostClosing\Services\TrustReturnsEvent\" />
       <Folder Include="PostClosing\Services\PortfolioValuationEvent\" />
-      <Folder Include="PreClosing\Services\PortfolioValuation\" />
-      <Folder Include="PreClosing\Services\TreasuryConcepts\" />
     </ItemGroup>
 
     <PropertyGroup>

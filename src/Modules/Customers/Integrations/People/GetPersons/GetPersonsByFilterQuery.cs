@@ -5,6 +5,6 @@ using Common.SharedKernel.Domain;
 namespace Customers.Integrations.People.GetPersons;
 
 public sealed record class GetPersonsByFilterQuery(
-    string IdentificationType,
+    string? IdentificationType,
     SearchByType? SearchBy = null,
-    string? Text = null) : IQuery<IReadOnlyCollection<PersonResponse>>;    
+    string? Text = null) : IQuery<IReadOnlyCollection<PersonInformationResponse>>;    

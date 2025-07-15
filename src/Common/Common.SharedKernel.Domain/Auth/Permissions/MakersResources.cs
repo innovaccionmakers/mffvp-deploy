@@ -11,4 +11,6 @@ public static class MakersResources
 
     public const string auxiliaryInformations = nameof(auxiliaryInformations);
     public const string clientOperations = nameof(clientOperations);
+    public const string contributiontx = nameof(contributiontx);
+
 }

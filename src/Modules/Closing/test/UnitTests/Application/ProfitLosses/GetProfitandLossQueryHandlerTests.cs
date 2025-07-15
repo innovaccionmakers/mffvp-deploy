@@ -28,8 +28,8 @@ public class GetProfitandLossQueryHandlerTests
         var date = DateTime.Today;
         var summaries = new[]
         {
-            new ProfitLossSummary("Ingreso", ProfitLossNature.Income, 100m),
-            new ProfitLossSummary("Gasto", ProfitLossNature.Expense, 40m)
+            new ProfitLossSummary("Ingreso", IncomeExpenseNature.Income, 100m),
+            new ProfitLossSummary("Gasto", IncomeExpenseNature.Expense, 40m)
         };
         _profitLossRepo.Setup(r => r.GetSummaryAsync(1, date, It.IsAny<CancellationToken>()))
             .ReturnsAsync(summaries);
@@ -80,10 +80,10 @@ public class GetProfitandLossQueryHandlerTests
         var date = DateTime.Today;
         var summaries = new[]
         {
-            new ProfitLossSummary("Rendimientos Brutos", ProfitLossNature.Income, 1000m),
-            new ProfitLossSummary("Dividendos", ProfitLossNature.Income, 500m),
-            new ProfitLossSummary("Gastos Administrativos", ProfitLossNature.Expense, 200m),
-            new ProfitLossSummary("Comisiones", ProfitLossNature.Expense, 150m)
+            new ProfitLossSummary("Rendimientos Brutos", IncomeExpenseNature.Income, 1000m),
+            new ProfitLossSummary("Dividendos", IncomeExpenseNature.Income, 500m),
+            new ProfitLossSummary("Gastos Administrativos", IncomeExpenseNature.Expense, 200m),
+            new ProfitLossSummary("Comisiones", IncomeExpenseNature.Expense, 150m)
         };
         _profitLossRepo.Setup(r => r.GetSummaryAsync(1, date, It.IsAny<CancellationToken>()))
             .ReturnsAsync(summaries);
@@ -139,8 +139,8 @@ public class GetProfitandLossQueryHandlerTests
         var date = DateTime.Today;
         var summaries = new[]
         {
-            new ProfitLossSummary("Rendimientos Brutos", ProfitLossNature.Income, 300m),
-            new ProfitLossSummary("Gastos Administrativos", ProfitLossNature.Expense, 500m)
+            new ProfitLossSummary("Rendimientos Brutos", IncomeExpenseNature.Income, 300m),
+            new ProfitLossSummary("Gastos Administrativos", IncomeExpenseNature.Expense, 500m)
         };
         _profitLossRepo.Setup(r => r.GetSummaryAsync(1, date, It.IsAny<CancellationToken>()))
             .ReturnsAsync(summaries);

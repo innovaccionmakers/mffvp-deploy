@@ -17,7 +17,11 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.Property(r => r.Objective).HasColumnName("objetivo");
 
         builder.HasMany(r => r.RolePermissions)
-               .WithOne(rp => rp.Role)
-               .HasForeignKey(rp => rp.RoleId);
+              .WithOne(rp => rp.Role)
+              .HasForeignKey(rp => rp.RoleId);
+
+        builder.HasMany(r => r.UserRoles)
+               .WithOne(ur => ur.Role)
+               .HasForeignKey(ur => ur.RoleId);
     }
 }

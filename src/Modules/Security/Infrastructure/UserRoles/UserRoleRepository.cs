@@ -20,6 +20,7 @@ internal sealed class UserRoleRepository(SecurityDbContext context) : IUserRoleR
     public async Task<IReadOnlyCollection<UserRole>> GetAllByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         return await context.UserRoles
+            .Include(ur => ur.Role)
             .Where(ur => ur.UserId == userId)
             .ToListAsync(cancellationToken);
     }
@@ -32,7 +33,7 @@ internal sealed class UserRoleRepository(SecurityDbContext context) : IUserRoleR
     {
         return await context.UserRoles
             .Where(ur => ur.UserId == userId)
-            .Select(ur => ur.RolePermissionsId)
+            .Select(ur => ur.RoleId)
             .Distinct()
             .ToListAsync();
     }

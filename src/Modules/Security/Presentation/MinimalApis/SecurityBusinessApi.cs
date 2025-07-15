@@ -1,5 +1,4 @@
-﻿using Common.SharedKernel.Domain.Auth.Permissions;
-using Common.SharedKernel.Presentation.Results;
+﻿using Common.SharedKernel.Presentation.Results;
 
 using MediatR;
 
@@ -7,9 +6,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using Security.Application.Contracts.Permissions;
 using Security.Application.Contracts.RolePermissions;
 using Security.Application.Contracts.UserRoles;
 using Security.Domain.RolePermissions;
+using Security.Domain.UserRoles;
 
 namespace Security.Presentation.MinimalApis;
 
@@ -21,14 +22,54 @@ public static class SecurityBusinessApi
             .WithTags("Security")
             .WithOpenApi();
 
-        group.MapGet("Permissions", () =>
-            {
-                var permissions = MakersPermissionsOperationsAuxiliaryInformations.All
-                    .Concat(MakersPermissionsOperationsClientOperations.All);
-                return Results.Ok(permissions);
-            })
+        group.MapGet("Permissions", async (
+            ISender sender
+            ) =>
+                {
+                    var result = await sender.Send(new GetAllPermissionsQuery());
+                    if (result.IsFailure)
+                    {
+                        return Results.Problem(
+                            title: result.Error.Code,
+                            detail: result.Error.Description,
+                            statusCode: result.Error.Code switch
+                            {
+                                "Permissions.NotFound" => StatusCodes.Status404NotFound,
+                                _ => StatusCodes.Status500InternalServerError
+                            }
+                        );
+                    }
+
+                    var simplified = result.Value
+                        .Select(p => new PermissionDto
+                        {
+                            ScopePermission = p.ScopePermission,
+                            DisplayName = p.DisplayName,
+                            Description = p.Description
+                        })
+                        .ToList();
+
+                    return Results.Ok(simplified);
+                })
             .WithName("Permissions")
-            .WithSummary("Retorna una lista de permisos");
+            .WithSummary("Retorna una lista de permisos")
+            .WithDescription("""
+                             Retorna solo los permisos disponibles con sus identificadores y descripciones.
+                 
+                             **Ejemplo de respuesta (application/json):**
+                             ```json
+                             [
+                               {
+                                 "scopePermission": "fvp:associate:activates:view",
+                                 "displayName": "FVP:Asociados:Activaciones:Ver",
+                                 "description": "Permite ver activaciones de asociados."
+                               }
+                             ]
+                             ```
+                             """)
+            .Produces<List<PermissionDto>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet(
             "GetRolePermissions/{roleId:int}",
@@ -130,6 +171,55 @@ public static class SecurityBusinessApi
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
+        group.MapGet(
+                "GetUserRoles/{userId:int}",
+                async (
+                    [FromRoute] int userId,
+                    ISender sender
+                ) =>
+                {
+                    var result = await sender.Send(new GetUserRolesQuery(userId));
+
+                    if (result.IsFailure)
+                    {
+                        return Results.Problem(
+                            title: result.Error.Code,
+                            detail: result.Error.Description,
+                            statusCode: result.Error.Code switch
+                            {
+                                "User.NotFound" => StatusCodes.Status404NotFound,
+                                _ => StatusCodes.Status500InternalServerError
+                            }
+                        );
+                    }
+
+                    return Results.Ok(result.Value);
+                }
+            )
+            .WithName("GetUserRoles")
+            .WithSummary("Obtener los roles asignados a un usuario")
+            .WithDescription("""
+                             Devuelve la lista de roles asignados a un usuario incluyendo el nombre del rol.
+                             
+                             **Ejemplo de respuesta (application/json):**
+                             ```json
+                             [
+                               {
+                                 "roleId": 2,
+                                 "roleName": "Administrador"
+                               },
+                               {
+                                 "roleId": 4,
+                                 "roleName": "Auditor"
+                               }
+                             ]
+                             ```
+                             """)
+            .Produces<IReadOnlyCollection<UserRoleDto>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
         group.MapPost(
                 "UpdateUserRoles",
                 async (
@@ -150,7 +240,7 @@ public static class SecurityBusinessApi
                              ```json
                              {
                                "userId": 1,
-                               "rolePermissionsIds": [2, 4, 7]
+                               "roleIds": [2, 4, 7]
                              }
                              ```
                              """)

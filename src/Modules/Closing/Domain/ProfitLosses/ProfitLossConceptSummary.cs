@@ -1,13 +1,14 @@
 ﻿using Closing.Domain.PreClosing;
 using Closing.Domain.ProfitLossConcepts;
 using System.Text.Json;
+using Common.SharedKernel.Domain;
 
 namespace Closing.Domain.ProfitLosses;
 
 public sealed record ProfitLossConceptSummary(
     long ConceptId, 
     string ConceptName, 
-    ProfitLossNature Nature, 
+    IncomeExpenseNature Nature,
     string Source, 
     decimal TotalAmount
  );

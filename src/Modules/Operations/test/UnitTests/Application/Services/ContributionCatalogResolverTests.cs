@@ -7,6 +7,7 @@ using Operations.Application.Contributions.Services;
 using Operations.Domain.Channels;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.SubtransactionTypes;
 using Operations.Domain.Origins;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Integrations.Contributions.CreateContribution;
@@ -22,7 +23,7 @@ public class ContributionCatalogResolverTests
 
     private static Origin BuildOrigin() => Origin.Create("o", false, false, false, Status.Active, "SRC").Value;
     private static ConfigurationParameter Cfg(string name, string code) => ConfigurationParameter.Create(name, code);
-    private static SubtransactionType Subtype() => SubtransactionType.Create("s", Guid.NewGuid(), "N", Status.Active, "EXT", "SUB").Value;
+    private static SubtransactionType Subtype() => SubtransactionType.Create("s", Guid.NewGuid(), IncomeEgressNature.Income, Status.Active, "EXT", "SUB").Value;
     private static Channel BuildChannel() => Channel.Create("c", "CH", false, Status.Active).Value;
 
     private static CreateContributionCommand Cmd(string? subtype = "SUB")

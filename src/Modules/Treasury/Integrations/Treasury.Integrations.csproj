@@ -9,6 +9,7 @@
   <ItemGroup>
     <Folder Include="BankAccounts\Queries\" />
     <Folder Include="TreasuryMovements\Queries\" />
+    <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

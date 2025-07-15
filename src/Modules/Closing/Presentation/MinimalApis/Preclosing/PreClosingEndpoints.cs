@@ -5,6 +5,7 @@ using Closing.Integrations.PreClosing.RunSimulation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Closing.Domain.Routes;
+using Common.SharedKernel.Presentation.Filters;
 
 namespace Closing.Presentation.MinimalApis.PreClosing
 {
@@ -36,6 +37,7 @@ namespace Closing.Presentation.MinimalApis.PreClosing
                     operation.RequestBody.Description = RequestBodyDescription.RunPreclosing;
                     return operation;
                 })
+                .AddEndpointFilter<TechnicalValidationFilter<RunSimulationCommand>>()
                 .Produces<bool>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);

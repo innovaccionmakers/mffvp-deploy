@@ -105,9 +105,12 @@ namespace Security.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("RolePermissionsId")
+                    b.Property<int>("RoleId")
                         .HasColumnType("integer")
-                        .HasColumnName("rol_permiso_id");
+                        .HasColumnName("rol_id");
+
+                    b.Property<int?>("RolePermissionId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
@@ -115,7 +118,9 @@ namespace Security.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RolePermissionsId");
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("RolePermissionId");
 
                     b.HasIndex("UserId");
 
@@ -187,11 +192,15 @@ namespace Security.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Security.Domain.UserRoles.UserRole", b =>
                 {
-                    b.HasOne("Security.Domain.RolePermissions.RolePermission", "RolePermission")
+                    b.HasOne("Security.Domain.Roles.Role", "Role")
                         .WithMany("UserRoles")
-                        .HasForeignKey("RolePermissionsId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Security.Domain.RolePermissions.RolePermission", null)
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RolePermissionId");
 
                     b.HasOne("Security.Domain.Users.User", "User")
                         .WithMany("UserRoles")
@@ -199,7 +208,7 @@ namespace Security.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("RolePermission");
+                    b.Navigation("Role");
 
                     b.Navigation("User");
                 });
@@ -212,6 +221,8 @@ namespace Security.Infrastructure.Database.Migrations
             modelBuilder.Entity("Security.Domain.Roles.Role", b =>
                 {
                     b.Navigation("RolePermissions");
+
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Security.Domain.Users.User", b =>

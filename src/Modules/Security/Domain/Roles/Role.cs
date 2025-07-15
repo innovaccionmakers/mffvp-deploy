@@ -1,6 +1,7 @@
 ﻿using Common.SharedKernel.Domain;
 
 using Security.Domain.RolePermissions;
+using Security.Domain.UserRoles;
 
 namespace Security.Domain.Roles;
 
@@ -11,6 +12,7 @@ public sealed class Role : Entity
     public string Objective { get; private set; } = string.Empty;
 
     public ICollection<RolePermission> RolePermissions { get; private set; } = new List<RolePermission>();
+    public ICollection<UserRole> UserRoles { get; private set; } = new List<UserRole>();
 
     private Role() { }
 

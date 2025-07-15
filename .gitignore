@@ -63,3 +63,7 @@ nunit-*.xml
 MFFVP.sln.DotSettings.user.DS_Store
 *.DotSettings.user
 *.DotSettings
+
+# Archivos y carpetas de macOS
+.DS_Store
+**/.DS_Store

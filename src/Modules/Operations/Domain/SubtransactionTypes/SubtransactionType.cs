@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.SubtransactionTypes;
 using Operations.Domain.ClientOperations;
 
 namespace Operations.Domain.SubtransactionTypes;
@@ -9,7 +10,7 @@ public sealed class SubtransactionType : Entity
     public long SubtransactionTypeId { get; private set; }
     public string Name { get; private set; }
     public Guid Category { get; private set; }
-    public string Nature { get; private set; }
+    public IncomeEgressNature Nature { get; private set; }
     public Status Status { get; private set; }
     public string External { get; private set; }
     public string HomologatedCode { get; private set; }
@@ -24,7 +25,7 @@ public sealed class SubtransactionType : Entity
     public static Result<SubtransactionType> Create(
         string name,
         Guid category,
-        string nature,
+        IncomeEgressNature nature,
         Status status,
         string external,
         string homologatedCode
@@ -47,7 +48,7 @@ public sealed class SubtransactionType : Entity
     public void UpdateDetails(
         string newName,
         Guid newCategory,
-        string newNature,
+        IncomeEgressNature newNature,
         Status newStatus,
         string newExternal,
         string newHomologatedCode

@@ -10,6 +10,11 @@ public interface ICommissionLocator
          int portfolioId,
          CancellationToken cancellationToken);
 }
+
+public sealed record CommissionsByPortfolioRequest
+(int PortfolioId
+);
+
 public sealed record CommissionsByPortfolioResponse
 (bool Succeeded,
     string? Code,
@@ -26,6 +31,3 @@ public sealed record GetCommissionsByPortfolioIdResponse(
     string CalculationBase,
     string CalculationRule
     );
-public sealed record CommissionsByPortfolioRequest
-(int PortfolioId
-);

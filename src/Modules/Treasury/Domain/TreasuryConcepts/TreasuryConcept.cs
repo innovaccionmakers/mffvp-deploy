@@ -11,7 +11,7 @@ public sealed class TreasuryConcept : Entity
 
     public long Id { get; private set; }
     public string Concept { get; private set; }
-    public string Nature { get; private set; }
+    public IncomeExpenseNature Nature { get; private set; }
     public bool AllowsNegative { get; private set; }
     public bool AllowsExpense { get; private set; }
     public bool RequiresBankAccount { get; private set; }
@@ -23,7 +23,7 @@ public sealed class TreasuryConcept : Entity
 
     public static Result<TreasuryConcept> Create(
         string concept,
-        string nature,
+        IncomeExpenseNature nature,
         bool allowsNegative,
         bool allowsExpense,
         bool requiresBankAccount,

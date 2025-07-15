@@ -26,3 +26,12 @@ public sealed record PersonResponse(
     int InvestorTypeId,
     int RiskProfileId
 );
+
+public sealed record PersonInformationResponse(
+    long PersonId,
+    Guid DocumentType,
+    string DocumentTypeHomologatedCode,
+    string Identification,
+    string FullName,
+    Status Status
+);

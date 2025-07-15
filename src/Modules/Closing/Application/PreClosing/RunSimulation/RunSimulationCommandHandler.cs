@@ -7,7 +7,6 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace Closing.Application.PreClosing.RunSimulation
 {
@@ -24,11 +23,11 @@ namespace Closing.Application.PreClosing.RunSimulation
             var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
-                var sw = Stopwatch.StartNew();
+                //var sw = Stopwatch.StartNew();
                 await _simulationOrchestrator.RunSimulationAsync(command, cancellationToken);
-                sw.Stop();
-                logger?.LogInformation("Simulación ejecutada en {ElapsedMilliseconds} ms para Portafolio {PortfolioId}",
-                    sw.ElapsedMilliseconds, command.PortfolioId);
+                //sw.Stop();
+                //logger?.LogInformation("Simulación ejecutada en {ElapsedMilliseconds} ms para Portafolio {PortfolioId}");
+                //sw.ElapsedMilliseconds, command.PortfolioId);
 
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);

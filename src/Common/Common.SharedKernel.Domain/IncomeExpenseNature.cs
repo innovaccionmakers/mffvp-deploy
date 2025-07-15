@@ -1,10 +1,10 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace Treasury.Domain.TreasuryConcepts;
+namespace Common.SharedKernel.Domain;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum TreasuryConceptNature
+public enum IncomeExpenseNature
 {
     [EnumMember(Value = "Ingreso")]
     Income,

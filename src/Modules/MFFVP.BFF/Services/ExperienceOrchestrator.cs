@@ -45,7 +45,7 @@ public class ExperienceOrchestrator(IAssociatesExperienceQueries associatesQueri
 
         return result;
     }
-    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesByFilterAsync(string identificationType, SearchByType? searchBy, string? text, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesByFilterAsync(string? identificationType, SearchByType? searchBy, string? text, CancellationToken cancellationToken = default)
     {
         var persons = await customersQueries.GetPersonsByFilter(identificationType, searchBy, text, cancellationToken);
         var associates = await associatesQueries.GetAllAssociatesAsync(cancellationToken);
