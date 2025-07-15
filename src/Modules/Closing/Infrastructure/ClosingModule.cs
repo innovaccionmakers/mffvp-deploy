@@ -10,6 +10,9 @@ using Closing.Infrastructure.ProfitLossConcepts;
 using Closing.Infrastructure.Database;
 using Closing.Infrastructure.External.Portfolios;
 using Closing.Infrastructure.ProfitLosses;
+using Closing.Domain.TrustYields;
+using Closing.Infrastructure.TrustYields;
+using Closing.IntegrationEvents.TrustSync;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
@@ -66,6 +69,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IProfitLossConceptRepository, ProfitLossConceptRepository>();
         services.AddScoped<IProfitLossRepository, ProfitLossRepository>();
         services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
+        services.AddScoped<ITrustYieldRepository, TrustYieldRepository>();
         services.AddScoped<IErrorCatalog<ClosingModuleMarker>, ErrorCatalog<ClosingModuleMarker>>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<ClosingModuleMarker>>(sp =>
@@ -77,6 +81,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IClosingWorkflowService, ClosingWorkflowService>();
 
         services.AddScoped<CreateClientOperationRequestedConsumer>();
+        services.AddScoped<TrustSyncConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
         // Llama a la extension para PreClosing
