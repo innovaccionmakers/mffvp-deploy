@@ -70,11 +70,9 @@ internal sealed class ProfitLossRepository(ClosingDbContext context) : IProfitLo
     }
 
     public async Task<IReadOnlyList<ProfitLossConceptSummary>> GetConceptSummaryAsync(int portfolioId, 
-                                                                                    DateTime effectiveDate,
+                                                                                    DateTime effectiveDateUtc,
                                                                                    CancellationToken cancellationToken = default)
     {
-        var effectiveDateUtc = EnsureUtcDateTime(effectiveDate);
-
         return await context.ProfitLosses
             .AsNoTracking()
             .Where(pl => pl.PortfolioId == portfolioId && pl.EffectiveDate == effectiveDateUtc)
@@ -90,5 +88,14 @@ internal sealed class ProfitLossRepository(ClosingDbContext context) : IProfitLo
                 g.Key.Source,
                 g.Sum(e => e.Amount)))
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> PandLExistsAsync(int portfolioId, DateTime effectiveDateUtc, CancellationToken cancellationToken = default)
+    {
+
+        return await context.ProfitLosses.AsNoTracking()
+            .AnyAsync(x => x.PortfolioId == portfolioId &&
+                           x.EffectiveDate == effectiveDateUtc,
+                      cancellationToken);
     }
 }

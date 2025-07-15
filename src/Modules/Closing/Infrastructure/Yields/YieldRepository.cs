@@ -1,7 +1,6 @@
 ﻿
 using Closing.Domain.Yields;
 using Closing.Infrastructure.Database;
-using Common.SharedKernel.Domain.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace Closing.Infrastructure.Yields;
@@ -14,18 +13,15 @@ internal sealed class YieldRepository(ClosingDbContext context) : IYieldReposito
 
     public async Task DeleteByPortfolioAndDateAsync(
     int portfolioId,
-    DateTime closingDateLocal,
+    DateTime closingDateUtc,
     CancellationToken cancellationToken = default)
     {
-        var closingDateUtc = DateTimeConverter.ToUtcDateTime(closingDateLocal);
-
         var deletedCount = await context.Yields
             .Where(yield => yield.PortfolioId == portfolioId
                          && yield.ClosingDate == closingDateUtc
                          && !yield.IsClosed)
             .ExecuteDeleteAsync(cancellationToken);
     }
-
 
     public async Task<bool> ExistsClosedYieldAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
     {
