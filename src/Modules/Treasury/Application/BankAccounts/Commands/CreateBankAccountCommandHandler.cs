@@ -33,6 +33,12 @@ internal class CreateBankAccountCommandHandler(IBankAccountRepository repository
                 Error.Validation(first.Code, first.Message));
         }
 
+        if (await repository.ExistsAsync(request.IssuerId, request.AccountNumber, request.AccountType, cancellationToken))
+        {
+            return Result.Failure<BankAccountResponse>(
+                Error.Validation("BankAccount.Duplicate", "Ya existe una cuenta bancaria con el mismo emisor, número y tipo de cuenta."));
+        }
+
         var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var bankAccount = BankAccount.Create(
             request.PortfolioId,

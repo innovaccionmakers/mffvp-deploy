@@ -1,0 +1,37 @@
+[
+  {
+    "WorkflowName": "Treasury.CreateBankAccount.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "PortfolioIdRequired",
+        "ErrorMessage": "El Portafolio es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.PortfolioId) == false",
+        "Properties": { "errorCode": "b1a1e1a0-0001-4000-8000-000000000001" }
+      },
+      {
+        "RuleName": "IssuerIdRequired",
+        "ErrorMessage": "El Id del Emisor es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.IssuerId) == false",
+        "Properties": { "errorCode": "b1a1e1a0-0002-4000-8000-000000000002" }
+      },
+      {
+        "RuleName": "IssuerRequired",
+        "ErrorMessage": "El Emisor es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.Issuer) == false",
+        "Properties": { "errorCode": "b1a1e1a0-0003-4000-8000-000000000003" }
+      },
+      {
+        "RuleName": "AccountNumberRequired",
+        "ErrorMessage": "El Número de Cuenta es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.AccountNumber) == false",
+        "Properties": { "errorCode": "b1a1e1a0-0004-4000-8000-000000000004" }
+      },
+      {
+        "RuleName": "AccountTypeRequired",
+        "ErrorMessage": "El Tipo de Cuenta es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.AccountType) == false",
+        "Properties": { "errorCode": "b1a1e1a0-0005-4000-8000-000000000005" }
+      }
+    ]
+  }
+]
