@@ -42,11 +42,11 @@ public class TreasuryModule : IModuleConfiguration
                 );
         });
 
-        //services.AddRulesEngine<TreasuryModuleMaker>(typeof(TreasuryModule).Assembly, opt =>
-        //{
-        //    opt.CacheSizeLimitMb = 64;
-        //    opt.EmbeddedResourceSearchPatterns = [".rules.json"];
-        //});
+        services.AddRulesEngine<TreasuryModuleMaker>(typeof(TreasuryModule).Assembly, opt =>
+        {
+            opt.CacheSizeLimitMb = 64;
+            opt.EmbeddedResourceSearchPatterns = [".rules.json"];
+        });
 
         services.AddScoped<IIssuerRepository, IssuerRepository>();
         services.AddScoped<IBankAccountRepository, BankAccountRepository>();

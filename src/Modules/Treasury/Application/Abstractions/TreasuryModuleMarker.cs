@@ -1,5 +1,5 @@
 ﻿namespace Treasury.Application.Abstractions;
 
-public class TreasuryModuleMaker
+public class TreasuryModuleMarker
 {
 }
