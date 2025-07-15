@@ -6,31 +6,25 @@
         "RuleName": "PortfolioIdRequired",
         "ErrorMessage": "El Portafolio es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.PortfolioId) == false",
-        "Properties": { "errorCode": "b1a1e1a0-0001-4000-8000-000000000001" }
+        "Properties": { "errorCode": "6ceb3022-c9cd-479d-aaf1-20062b215de7" }
       },
       {
         "RuleName": "IssuerIdRequired",
         "ErrorMessage": "El Id del Emisor es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.IssuerId) == false",
-        "Properties": { "errorCode": "b1a1e1a0-0002-4000-8000-000000000002" }
-      },
-      {
-        "RuleName": "IssuerRequired",
-        "ErrorMessage": "El Emisor es obligatorio",
-        "Expression": "string.IsNullOrWhiteSpace(input.Issuer) == false",
-        "Properties": { "errorCode": "b1a1e1a0-0003-4000-8000-000000000003" }
+        "Properties": { "errorCode": "a8872e38-15a0-49c3-98ef-db482741a5fd" }
       },
       {
         "RuleName": "AccountNumberRequired",
         "ErrorMessage": "El Número de Cuenta es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.AccountNumber) == false",
-        "Properties": { "errorCode": "b1a1e1a0-0004-4000-8000-000000000004" }
+        "Properties": { "errorCode": "1725a3ac-a055-4ed5-a299-17e6d852f459" }
       },
       {
         "RuleName": "AccountTypeRequired",
         "ErrorMessage": "El Tipo de Cuenta es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.AccountType) == false",
-        "Properties": { "errorCode": "b1a1e1a0-0005-4000-8000-000000000005" }
+        "Properties": { "errorCode": "606be42e-cdb8-4638-baed-cf3e9e670eb3" }
       }
     ]
   }
