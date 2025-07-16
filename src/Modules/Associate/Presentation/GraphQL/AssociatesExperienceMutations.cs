@@ -116,7 +116,7 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
                 result.AddError(commandResult.Error);
                 return result;
             }
-            result.SetSuccess("Genial!, Se ha inactivado el Afiliado");
+            result.SetSuccess("Genial!, Se ha actualizado la Condición de Pensión del Afiliado");
 
             return result;
         }
@@ -152,7 +152,7 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
                 result.AddError(commandResult.Error);
                 return result;
             }
-            result.SetSuccess("Genial!, Se ha Inactivado el Certificado de Requisitos de Pensión");
+            result.SetSuccess("Genial!, Se ha actualizado la Condición de Pensión del Afiliado");
             return result;
 
         } catch (Exception ex)
