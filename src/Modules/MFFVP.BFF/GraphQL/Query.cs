@@ -213,7 +213,7 @@ public class Query
         return await experienceOrchestrator.GetAssociateByIdAsync(affiliateId, cancellationToken);
     }
 
-    //Issuers Queries
+    //treasury Queries
 
     [GraphQLName("emisores")]
     public async Task<IReadOnlyCollection<IssuerDto>> GetIssuers([Service] ITreasuryExperienceQueries treasuryQueries,
@@ -228,5 +228,12 @@ public class Query
                                                     CancellationToken cancellationToken)
     {
         return await experienceOrchestrator.GetBankAccountsByPortfolioAsync(portfolioId, cancellationToken);
+    }
+
+    [GraphQLName("conceptosTesoreria")]
+    public async Task<IReadOnlyCollection<TreasuryConceptDto>> GetTreasuryConcepts([Service] ITreasuryExperienceQueries treasuryQueries,
+                                                                                   CancellationToken cancellationToken)
+    {
+        return await treasuryQueries.GetTreasuryConceptsAsync(cancellationToken);
     }
 }

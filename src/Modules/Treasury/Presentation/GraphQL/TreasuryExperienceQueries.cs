@@ -1,7 +1,9 @@
 using HotChocolate;
 using MediatR;
+using System.Linq;
 using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolio;
 using Treasury.Integrations.Issuers.GetIssuers;
+using Treasury.Integrations.TreasuryConcepts.GetTreasuryConcepts;
 using Treasury.Presentation.DTOs;
 
 namespace Treasury.Presentation.GraphQL;
@@ -60,6 +62,36 @@ public class TreasuryExperienceQueries(IMediator mediator) : ITreasuryExperience
             x.AccountType == "C" ? "Corriente" : "Ahorros",
             x.Observations,
             x.ProcessDate
+        )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<TreasuryConceptDto>> GetTreasuryConceptsAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetTreasuryConceptsQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new GraphQLException(
+                ErrorBuilder.New()
+                    .SetMessage("Failed to retrieve Treasury Concepts")
+                    .Build()
+            );
+        }
+
+        var concepts = result.Value;
+
+        string BoolToSiNo(bool value) => value ? "SI" : "NO";
+
+        return concepts.Select(x => new TreasuryConceptDto(
+            x.Id,
+            x.Concept,
+            x.Nature.ToString(),
+            BoolToSiNo(x.AllowsNegative),
+            BoolToSiNo(x.AllowsExpense),
+            BoolToSiNo(x.RequiresBankAccount),
+            BoolToSiNo(x.RequiresCounterparty),
+            x.ProcessDate,
+            x.Observations
         )).ToList();
     }
 }
