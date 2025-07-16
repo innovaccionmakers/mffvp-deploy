@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
     <ProjectReference Include="..\Associate\Presentation\Associate.Presentation.csproj" />
+    <ProjectReference Include="..\Closing\Presentation\Closing.Presentation.csproj" />
     <ProjectReference Include="..\Customers\Presentation\Customers.Presentation.csproj" />
     <ProjectReference Include="..\Operations\Presentation\Operations.Presentation.csproj" />
     <ProjectReference Include="..\Products\Presentation\Products.Presentation.csproj" />
