@@ -57,7 +57,7 @@ public sealed class TransactionControl(
             command.PaymentMethodDetail ?? JsonDocument.Parse("{}"),
             tax.CertificationStatusId,
             tax.TaxConditionId,
-            tax.WithheldAmountoperations-add-contribution-field,
+            tax.WithheldAmount,
             command.VerifiableMedium ?? JsonDocument.Parse("{}"),
             prevalidationResult.Bank?.BankId ?? 0,
             DateTime.SpecifyKind(command.DepositDate, DateTimeKind.Utc),
