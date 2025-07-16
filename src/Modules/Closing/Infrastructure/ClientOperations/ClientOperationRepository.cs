@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Closing.Domain.ClientOperations;
 using Closing.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Closing.Infrastructure.ClientOperations;
 
@@ -10,4 +10,10 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
     {
         context.ClientOperations.Add(clientOperation);
     }
-} 
+
+    public async Task<bool> ClientOperationsExistsAsync(int portfolioId, DateTime closingDateUtc, long transactionSubtypeId, CancellationToken cancellationToken = default)
+    {
+        return await context.ClientOperations
+            .AnyAsync(co => co.PortfolioId == portfolioId && co.ProcessDate == closingDateUtc && co.TransactionSubtypeId == transactionSubtypeId, cancellationToken);
+    }
+}

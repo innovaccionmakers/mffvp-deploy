@@ -11,7 +11,7 @@ public class ProfitLossYieldDetailBuilder : IYieldDetailBuilder
 {
     public bool CanHandle(Type type) => type == typeof(ProfitLossConceptSummary);
 
-    public YieldDetail Build(object concept, RunSimulationCommand parameters)
+    public YieldDetail Build(object concept, RunSimulationParameters parameters)
     {
         var summary = (ProfitLossConceptSummary)concept;
         var closingDateUtc = DateTimeConverter.ToUtcDateTime(parameters.ClosingDate);

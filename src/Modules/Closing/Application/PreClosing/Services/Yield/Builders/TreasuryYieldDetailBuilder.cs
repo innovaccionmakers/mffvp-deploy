@@ -11,7 +11,7 @@ public class TreasuryYieldDetailBuilder : IYieldDetailBuilder
 {
     public bool CanHandle(Type type) => type == typeof(TreasuryMovementSummary);
 
-    public YieldDetail Build(object concept, RunSimulationCommand parameters)
+    public YieldDetail Build(object concept, RunSimulationParameters parameters)
     {
         var summary = (TreasuryMovementSummary)concept;
         var closingDateUtc = DateTimeConverter.ToUtcDateTime(parameters.ClosingDate);

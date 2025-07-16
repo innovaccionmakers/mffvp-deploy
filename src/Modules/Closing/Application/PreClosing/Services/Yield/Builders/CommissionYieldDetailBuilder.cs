@@ -10,7 +10,7 @@ public class CommissionYieldDetailBuilder : IYieldDetailBuilder
 {
     public bool CanHandle(Type type) => type == typeof(CommissionConceptSummary);
 
-    public YieldDetail Build(object concept, RunSimulationCommand parameters)
+    public YieldDetail Build(object concept, RunSimulationParameters parameters)
     {
         var summary = (CommissionConceptSummary)concept;
         var closingDateUtc = DateTimeConverter.ToUtcDateTime(parameters.ClosingDate);

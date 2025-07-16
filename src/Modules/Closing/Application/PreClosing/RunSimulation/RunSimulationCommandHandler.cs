@@ -15,29 +15,27 @@ namespace Closing.Application.PreClosing.RunSimulation
     IUnitOfWork unitOfWork,
     ILogger<RunSimulationCommandHandler> logger,
     IBusinessValidator<RunSimulationCommand> businessValidator)
-    : ICommandHandler<RunSimulationCommand, bool>
+    : ICommandHandler<RunSimulationCommand, SimulatedYieldResult>
     {
-        public async Task<Result<bool>> Handle(RunSimulationCommand command, CancellationToken cancellationToken)
+        public async Task<Result<SimulatedYieldResult>> Handle(RunSimulationCommand command, CancellationToken cancellationToken)
         {
 
             var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
-                command = command with
-                {
-                    ClosingDate = DateTimeConverter.ToUtcDateTime(command.ClosingDate)
-                };
-                var validation = await businessValidator.ValidateAsync(command, cancellationToken);
-                if (validation.IsFailure)
-                    return Result.Failure<bool>(validation.Error!);
+             
+
+                //logger?.LogInformation("Iniciando simulación para Portafolio {PortfolioId} - Fecha {Date}",
                 //var sw = Stopwatch.StartNew();
-                await _simulationOrchestrator.RunSimulationAsync(command, cancellationToken);
+                var result = await _simulationOrchestrator.RunSimulationAsync(command, cancellationToken);
                 //sw.Stop();
                 //logger?.LogInformation("Simulación ejecutada en {ElapsedMilliseconds} ms para Portafolio {PortfolioId}");
                 //sw.ElapsedMilliseconds, command.PortfolioId);
 
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+                return result;
+
             }
             catch (Exception ex)
             {
@@ -47,7 +45,6 @@ namespace Closing.Application.PreClosing.RunSimulation
                 throw;
             }
 
-            return Result.Success(true, "La operación se realizó exitosamente.");
         }
     }
 }

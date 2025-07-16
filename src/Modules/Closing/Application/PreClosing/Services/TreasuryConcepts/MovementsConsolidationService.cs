@@ -36,5 +36,19 @@ namespace Closing.Application.PreClosing.Services.TreasuryConcepts
             return summaries;
         }
 
+        public async Task<bool> HasTreasuryMovementsAsync(
+            int portfolioId,
+            DateTime closingDate,
+            CancellationToken cancellationToken)
+        {
+            var result = await _movementsLocator
+                .GetMovementsByPortfolioAsync(portfolioId, closingDate, cancellationToken);
+            if (!result.IsSuccess)
+            {
+                throw new InvalidOperationException($"Error al verificar movimientos: {result.Error?.Description}");
+            }
+            return result.Value.Any();
+        }
+
     }
 }
