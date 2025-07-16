@@ -53,6 +53,7 @@ internal class CreateTreasuryConceptCommandHandler(ITreasuryConceptRepository re
         }
 
         await repository.AddAsync(treasuryConcept.Value, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         await tx.CommitAsync(cancellationToken);
 
         var response = new TreasuryConceptResponse(

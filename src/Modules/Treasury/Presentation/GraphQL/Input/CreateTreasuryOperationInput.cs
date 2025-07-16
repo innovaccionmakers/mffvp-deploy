@@ -8,8 +8,8 @@ public record CreateTreasuryOperationInput(
     [property: GraphQLName("naturaleza")] IncomeExpenseNature Nature,
     [property: GraphQLName("admiteNegativo")] bool AllowsNegative,
     [property: GraphQLName("permiteGasto")] bool AllowsExpense,
-    [property: GraphQLName("RequiereCuentaBancaria")] bool RequiresBankAccount,
-    [property: GraphQLName("RequiereContraparte")] bool RequiresCounterparty,
+    [property: GraphQLName("requiereCuentaBancaria")] bool RequiresBankAccount,
+    [property: GraphQLName("requiereContraparte")] bool RequiresCounterparty,
     [property: GraphQLName("fechaProceso")] DateTime ProcessDate,
     [property: GraphQLName("observaciones")] string? Observations
 );

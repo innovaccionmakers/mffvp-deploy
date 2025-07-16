@@ -45,7 +45,7 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
         {
             result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
             return result;
-        }        
+        }
     }
 
     public async Task<GraphqlMutationResult> TreasuryConfigHandlerAsync(CreateTreasuryOperationInput input, IValidator<CreateTreasuryOperationInput> validator, CancellationToken cancellationToken = default)
@@ -77,7 +77,7 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
                 result.AddError(commandResult.Error);
                 return result;
             }
-            result.SetSuccess("Treasury concept registered successfully.");
+            result.SetSuccess("Genial!, Se ha creado el concepto de tesorería");
             return result;
         }
         catch (Exception ex)
