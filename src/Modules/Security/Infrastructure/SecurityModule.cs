@@ -68,7 +68,6 @@ public class SecurityModule: IModuleConfiguration
         services.AddHttpContextAccessor();
         services.AddScoped<IAuthorizationHandler, PermissionHandler>();
         services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
-
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

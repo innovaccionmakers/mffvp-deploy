@@ -32,20 +32,20 @@ public static class AssociateBusinessApi
         group.MapGet("GetAssociates",
             [Authorize(Policy = "fvp:associate:activates:view")]
             async (ISender sender) =>
-        {
-            var result = await sender.Send(new GetActivatesQuery());
-            return result.Value;
-        })
+            {
+                var result = await sender.Send(new GetActivatesQuery());
+                return result.Value;
+            })
             .WithSummary("Retorna una lista de activaciones")
             .Produces<IReadOnlyCollection<ActivateResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost("Activate",
             async ([Microsoft.AspNetCore.Mvc.FromBody] CreateActivateCommand request, ISender sender) =>
-        {
-            var result = await sender.Send(request);
-            return result.ToApiResult(result.Description);
-        })
+            {
+                var result = await sender.Send(request);
+                return result.ToApiResult(result.Description);
+            })
            .WithSummary("Crea una activación")
            .WithDescription("""
                              **Ejemplo de petición (application/json):**
