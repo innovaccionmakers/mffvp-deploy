@@ -11,7 +11,6 @@ namespace Products.Application.Portfolios.GetPortfolio;
 
 internal sealed class GetPortfolioQueryHandler(
     IPortfolioRepository portfolioRepository,
-    ICapRpcClient rpc,
     IRuleEvaluator<ProductsModuleMarker> ruleEvaluator)
     : IQueryHandler<GetPortfolioQuery, PortfolioResponse>
 {

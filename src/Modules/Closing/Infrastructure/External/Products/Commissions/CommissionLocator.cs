@@ -1,10 +1,10 @@
 ﻿using Closing.Application.Abstractions.External.Products.Commissions;
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 
 namespace Closing.Infrastructure.External.Products.Commissions;
-internal sealed class CommissionLocator(ICapRpcClient capRpcClient) : ICommissionLocator
+internal sealed class CommissionLocator(IRpcClient rpcClient) : ICommissionLocator
 {
     public async Task<Result<IReadOnlyCollection<CommissionsByPortfolioRemoteResponse>>> GetActiveCommissionsAsync(
         int portfolioId,
@@ -12,12 +12,10 @@ internal sealed class CommissionLocator(ICapRpcClient capRpcClient) : ICommissio
     {
         var request = new CommissionsByPortfolioRequest(portfolioId);
 
-        var response = await capRpcClient.CallAsync<
+        var response = await rpcClient.CallAsync<
             CommissionsByPortfolioRequest,
             CommissionsByPortfolioResponse>(
-            nameof(CommissionsByPortfolioRequest),
             request,
-            timeout: TimeSpan.FromSeconds(5),
             cancellationToken
         );
 

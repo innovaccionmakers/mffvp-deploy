@@ -1,12 +1,11 @@
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Presentation.Results;
-using DotNetCore.CAP;
 using MediatR;
 using Customers.Integrations.People.GetPerson;
 
 namespace Customers.IntegrationEvents.ClientValidation;
 
-public sealed class ClientValidationConsumer : ICapSubscribe
+public sealed class ClientValidationConsumer : IRpcHandler<ValidatePersonByIdentificationRequest, ValidatePersonByIdentificationResponse>
 {
     private readonly ISender _mediator;
 
@@ -15,15 +14,10 @@ public sealed class ClientValidationConsumer : ICapSubscribe
         _mediator = mediator;
     }
 
-    [CapSubscribe(nameof(ValidatePersonByIdentificationRequest))]
-    public async Task<ValidatePersonByIdentificationResponse> ValidateAsync(
+    public async Task<ValidatePersonByIdentificationResponse> HandleAsync(
         ValidatePersonByIdentificationRequest message,
-        [FromCap] CapHeader header,
         CancellationToken cancellationToken)
     {
-        var corr = header[CapRpcClient.Headers.CorrelationId];
-        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
-
         var result =
             await _mediator.Send(
                 new ValidatePersonQuery(message.DocumentTypeHomologatedCode, message.IdentificationNumber),

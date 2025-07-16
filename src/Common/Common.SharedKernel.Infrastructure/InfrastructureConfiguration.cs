@@ -1,6 +1,7 @@
 ﻿using Common.SharedKernel.Application.Closing;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
@@ -97,8 +98,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<IDatabaseConnectionStrategy, SqlServerConnectionStrategy>();
         services.AddScoped<IDatabaseConnectionStrategy, YugaByteConnectionStrategy>();
         services.AddScoped<DatabaseConnectionContext>();
-        services.AddSingleton<ICapRpcClient, CapRpcClient>();
-        services.AddSingleton<CapCallbackSubscriber>();
+        services.AddInMemoryRpc();
         services.AddScoped<IEventBus, Common.SharedKernel.Infrastructure.EventBus.EventBus>();
         services.AddScoped<IClosingExecutionStore, RedisClosingExecutionStore>();
 

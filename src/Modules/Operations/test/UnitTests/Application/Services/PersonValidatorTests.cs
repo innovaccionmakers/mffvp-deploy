@@ -1,4 +1,4 @@
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using FluentAssertions;
 using Moq;
@@ -9,16 +9,14 @@ namespace Operations.test.UnitTests.Application.Services;
 
 public class PersonValidatorTests
 {
-    private readonly Mock<ICapRpcClient> _rpc = new();
+    private readonly Mock<IRpcClient> _rpc = new();
 
     [Fact]
     public async Task ValidateAsync_Should_Return_Failure_When_Rpc_Fails()
     {
         var rsp = new ValidatePersonByIdentificationResponse(false, "E", "bad");
         _rpc.Setup(r => r.CallAsync<ValidatePersonByIdentificationRequest, ValidatePersonByIdentificationResponse>(
-                nameof(ValidatePersonByIdentificationRequest),
                 It.IsAny<ValidatePersonByIdentificationRequest>(),
-                It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(rsp);
         var validator = new PersonValidator(_rpc.Object);
@@ -35,11 +33,9 @@ public class PersonValidatorTests
         var rsp = new ValidatePersonByIdentificationResponse(true, null, null);
         ValidatePersonByIdentificationRequest? captured = null;
         _rpc.Setup(r => r.CallAsync<ValidatePersonByIdentificationRequest, ValidatePersonByIdentificationResponse>(
-                nameof(ValidatePersonByIdentificationRequest),
                 It.IsAny<ValidatePersonByIdentificationRequest>(),
-                It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<string, ValidatePersonByIdentificationRequest, TimeSpan, CancellationToken>((_, req, _, _) => captured = req)
+            .Callback<ValidatePersonByIdentificationRequest, CancellationToken>((req, _) => captured = req)
             .ReturnsAsync(rsp);
         var validator = new PersonValidator(_rpc.Object);
 
