@@ -1,11 +1,11 @@
 using Closing.IntegrationEvents.TrustSync;
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Trusts.Application.Abstractions.External;
 
 namespace Trusts.Infrastructure.External.Closing;
 
-internal sealed class TrustYieldSyncService(ICapRpcClient rpc) : ITrustYieldSyncService
+internal sealed class TrustYieldSyncService(IRpcClient rpc) : ITrustYieldSyncService
 {
     public async Task<Result> SyncAsync(
         int trustId,
@@ -17,9 +17,7 @@ internal sealed class TrustYieldSyncService(ICapRpcClient rpc) : ITrustYieldSync
         CancellationToken ct)
     {
         var rsp = await rpc.CallAsync<TrustSyncRequest, TrustSyncResponse>(
-            nameof(TrustSyncRequest),
             new TrustSyncRequest(trustId, portfolioId, closingDate, preClosingBalance, capital, contingentWithholding),
-            TimeSpan.FromSeconds(5),
             ct);
 
         return rsp.Succeeded

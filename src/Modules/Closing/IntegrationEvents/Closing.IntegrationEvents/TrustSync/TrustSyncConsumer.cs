@@ -1,23 +1,16 @@
 using MediatR;
-using DotNetCore.CAP;
-using Microsoft.AspNetCore.Mvc;
 using Closing.Integrations.TrustSync;
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 
 namespace Closing.IntegrationEvents.TrustSync;
 
 public sealed class TrustSyncConsumer(
-    ISender mediator) : ICapSubscribe
+    ISender mediator) : IRpcHandler<TrustSyncRequest, TrustSyncResponse>
 {
-    [CapSubscribe(nameof(TrustSyncRequest))]
     public async Task<TrustSyncResponse> HandleAsync(
         TrustSyncRequest message,
-        [FromCap] CapHeader header,
         CancellationToken cancellationToken)
     {
-        var corr = header[CapRpcClient.Headers.CorrelationId];
-        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
-
         var result = await mediator.Send(
             new TrustSyncCommand(
                 message.TrustId,

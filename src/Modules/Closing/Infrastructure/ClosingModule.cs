@@ -30,6 +30,7 @@ using Closing.Infrastructure.ClientOperations;
 using Closing.IntegrationEvents.CreateClientOperationRequested;
 using Closing.Infrastructure.Configuration;
 using Closing.Application.ClosingWorkflow;
+using Common.SharedKernel.Application.Rpc;
 using Closing.Presentation.GraphQL;
 
 namespace Closing.Infrastructure;
@@ -84,7 +85,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IClosingWorkflowService, ClosingWorkflowService>();
 
         services.AddScoped<CreateClientOperationRequestedConsumer>();
-        services.AddScoped<TrustSyncConsumer>();
+        services.AddScoped<IRpcHandler<TrustSyncRequest, TrustSyncResponse>, TrustSyncConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
         // Llama a la extension para PreClosing

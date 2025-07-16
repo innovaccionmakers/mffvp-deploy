@@ -1,11 +1,11 @@
 ﻿using Closing.Application.Abstractions.External.Treasury.TreasuryMovements;
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Treasury.IntegrationEvents.TreasuryMovements.TreasuryMovementsByPortfolio;
 
 namespace Closing.Infrastructure.External.Treasury.TreasuryMovements;
 
-internal sealed class TreasuryMovementsLocator(ICapRpcClient capRpcClient) : ITreasuryMovementsLocator
+internal sealed class TreasuryMovementsLocator(IRpcClient rpcClient) : ITreasuryMovementsLocator
 {
     public async Task<Result<IReadOnlyCollection<MovementsByPortfolioRemoteResponse>>> GetMovementsByPortfolioAsync(
        int portfolioId,
@@ -14,12 +14,10 @@ internal sealed class TreasuryMovementsLocator(ICapRpcClient capRpcClient) : ITr
     {
         var request = new TreasuryMovementsByPortfolioRequest(portfolioId, closingDate);
 
-        var response = await capRpcClient.CallAsync<
+        var response = await rpcClient.CallAsync<
             TreasuryMovementsByPortfolioRequest,
             TreasuryMovementsByPortfolioResponse>(
-            nameof(TreasuryMovementsByPortfolioRequest),
             request,
-            timeout: TimeSpan.FromSeconds(5),
             cancellationToken
         );
 

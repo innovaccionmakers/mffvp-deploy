@@ -1,11 +1,11 @@
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions.External;
 using Products.IntegrationEvents.ContributionValidation;
 
 namespace Operations.Infrastructure.External.ContributionValidation;
 
-internal sealed class ContributionRemoteValidator(ICapRpcClient rpc) : IContributionRemoteValidator
+internal sealed class ContributionRemoteValidator(IRpcClient rpc) : IContributionRemoteValidator
 {
     public async Task<Result<ContributionRemoteData>> ValidateAsync(
         int activateId,
@@ -19,9 +19,7 @@ internal sealed class ContributionRemoteValidator(ICapRpcClient rpc) : IContribu
         var rsp = await rpc.CallAsync<
             ContributionValidationRequest,
             ContributionValidationResponse>(
-            nameof(ContributionValidationRequest),
             new ContributionValidationRequest(activateId, objectiveId, portfolioId, deposit, exec, amount),
-            TimeSpan.FromSeconds(5),
             ct);
 
         return rsp.IsValid
