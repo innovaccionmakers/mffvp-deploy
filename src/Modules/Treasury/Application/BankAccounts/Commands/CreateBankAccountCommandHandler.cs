@@ -10,7 +10,7 @@ using Treasury.Integrations.BankAccounts.Commands;
 namespace Treasury.Application.BankAccounts.Commands;
 
 internal class CreateBankAccountCommandHandler(IBankAccountRepository repository,
-                                               IUnitOfWork unitOfWork, IRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateBankAccountCommand, BankAccountResponse>
+                                               IUnitOfWork unitOfWork, IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateBankAccountCommand, BankAccountResponse>
 {
     private const string RequiredFieldsWorkflow = "Treasury.CreateBankAccount.RequiredFields";
     private const string BankAccountCreationValidationWorkflow = "Treasury.CreateBankAccount.Validation";
