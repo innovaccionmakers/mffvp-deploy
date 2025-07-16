@@ -59,7 +59,7 @@ public static class InfrastructureConfiguration
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettingsSecret)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettingsSecret)),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateLifetime = true,

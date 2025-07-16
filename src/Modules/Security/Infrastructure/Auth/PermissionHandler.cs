@@ -23,11 +23,11 @@ public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
         var httpContext = _accessor.HttpContext;
-        var userIdClaim = httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userName = httpContext?.User?.Identity?.Name;
 
-        if (int.TryParse(userIdClaim, out var userId))
+        if (!string.IsNullOrWhiteSpace(userName))
         {
-            var permissions = await _permissionService.GetPermissionsAsync(userId);
+            var permissions = await _permissionService.GetPermissionsByUserNameAsync(userName);
             if (permissions.Contains(requirement.Token))
                 context.Succeed(requirement);
         }
