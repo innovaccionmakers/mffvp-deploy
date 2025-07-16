@@ -1,12 +1,13 @@
-﻿using Common.SharedKernel.Application.Messaging;
+﻿using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Presentation.Results;
-using DotNetCore.CAP;
 using MediatR;
 using Products.Integrations.Portfolios.GetPortfolio;
 
 namespace Products.IntegrationEvents.PortfolioValidation;
 
-public sealed class PortfolioValidationConsumer : ICapSubscribe
+public sealed class PortfolioValidationConsumer :
+    IRpcHandler<ValidatePortfolioRequest, ValidatePortfolioResponse>,
+    IRpcHandler<GetPortfolioDataRequest, GetPortfolioDataResponse>
 {
     private readonly ISender _mediator;
 
@@ -15,15 +16,10 @@ public sealed class PortfolioValidationConsumer : ICapSubscribe
         _mediator = mediator;
     }
 
-    [CapSubscribe(nameof(ValidatePortfolioRequest))]
-    public async Task<ValidatePortfolioResponse> ValidateAsync(
+    public async Task<ValidatePortfolioResponse> HandleAsync(
         ValidatePortfolioRequest message,
-        [FromCap] CapHeader header,
         CancellationToken cancellationToken)
     {
-        var corr = header[CapRpcClient.Headers.CorrelationId];
-        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
-
         var result = await _mediator.Send(new GetPortfolioQuery(message.PortfolioId), cancellationToken);
 
         return result.Match(
@@ -31,15 +27,10 @@ public sealed class PortfolioValidationConsumer : ICapSubscribe
             err => new ValidatePortfolioResponse(false, err.Error.Code, err.Error.Description));
     }
 
-    [CapSubscribe(nameof(GetPortfolioDataRequest))]
-    public async Task<GetPortfolioDataResponse> GetPortfolioDataAsync(
+    public async Task<GetPortfolioDataResponse> HandleAsync(
         GetPortfolioDataRequest message,
-        [FromCap] CapHeader header,
         CancellationToken cancellationToken)
     {
-        var corr = header[CapRpcClient.Headers.CorrelationId];
-        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
-
         var result = await _mediator.Send(new GetPortfolioQuery(message.PortfolioId), cancellationToken);
 
         return result.Match(

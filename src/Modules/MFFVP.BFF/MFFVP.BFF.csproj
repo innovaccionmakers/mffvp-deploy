@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.6" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="15.1.5" />
     <PackageReference Include="HotChocolate.Data" Version="15.1.6" />
     <PackageReference Include="HotChocolate.Types" Version="15.1.6" />
   </ItemGroup>
@@ -22,6 +23,7 @@
     <ProjectReference Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
     <ProjectReference Include="..\Associate\Presentation\Associate.Presentation.csproj" />
+    <ProjectReference Include="..\Closing\Presentation\Closing.Presentation.csproj" />
     <ProjectReference Include="..\Customers\Presentation\Customers.Presentation.csproj" />
     <ProjectReference Include="..\Operations\Presentation\Operations.Presentation.csproj" />
     <ProjectReference Include="..\Products\Presentation\Products.Presentation.csproj" />

@@ -1,12 +1,13 @@
-﻿using Common.SharedKernel.Application.EventBus;
+﻿using Common.SharedKernel.Application.Closing;
+using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Infrastructure.Auth.Policy;
+using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
 using Common.SharedKernel.Infrastructure.EventBus;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -17,8 +18,6 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 using Savorboard.CAP.InMemoryMessageQueue;
-using Common.SharedKernel.Application.Closing;
-using Common.SharedKernel.Infrastructure.Caching;
 
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -33,11 +32,16 @@ public static class InfrastructureConfiguration
         string serviceName,
         string databaseConnectionString,
         string capDbConnectionString,
-        string databaseConnectionStringSQL
+        string databaseConnectionStringSQL,
+        string appSettingsSecret
     )
     {
-        services.AddAuthentication("JwtBearer")
-            .AddJwtBearer("JwtBearer", options =>
+        services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
             {
                 options.Events = new JwtBearerEvents
                 {
@@ -51,15 +55,17 @@ public static class InfrastructureConfiguration
                         return Task.CompletedTask;
                     }
                 };
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = "MakersFunsAuthPOC",
-                    ValidAudience = "MakersFunsAuthPOC",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("my_super_secret_key_1234567890_ABCDEF"))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettingsSecret)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    LifetimeValidator = CustomLifetimeValidator,
+                    RequireExpirationTime = true
                 };
             });
 
@@ -92,8 +98,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<IDatabaseConnectionStrategy, SqlServerConnectionStrategy>();
         services.AddScoped<IDatabaseConnectionStrategy, YugaByteConnectionStrategy>();
         services.AddScoped<DatabaseConnectionContext>();
-        services.AddSingleton<ICapRpcClient, CapRpcClient>();
-        services.AddSingleton<CapCallbackSubscriber>();
+        services.AddInMemoryRpc();
         services.AddScoped<IEventBus, Common.SharedKernel.Infrastructure.EventBus.EventBus>();
         services.AddScoped<IClosingExecutionStore, RedisClosingExecutionStore>();
 
@@ -122,5 +127,14 @@ public static class InfrastructureConfiguration
         app.UseCors("AllowSwaggerUI");
 
         return app;
+    }
+
+    private static bool CustomLifetimeValidator(DateTime? notBefore, DateTime? expires, SecurityToken tokenToValidate, TokenValidationParameters @param)
+    {
+        if (expires != null)
+        {
+            return expires > DateTime.UtcNow;
+        }
+        return false;
     }
 }

@@ -10,6 +10,9 @@ using Products.Presentation.GraphQL;
 using Products.Presentation.GraphQL.Input;
 using Treasury.Presentation.GraphQL;
 using Treasury.Presentation.GraphQL.Input;
+using Closing.Presentation.GraphQL;
+using Closing.Presentation.GraphQL.Inputs;
+using Closing.Presentation.GraphQL.DTOs;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -71,6 +74,15 @@ public class Mutation
         return await productsMutations.RegisterGoalAsync(goal, validator, cancellationToken);
     }
 
+    //closing mutations
+    [GraphQLName("cargarPerdidasGanancias")]
+    public async Task<GraphqlMutationResult<LoadProfitLossResult>> LoadProfitLoss([GraphQLName("perdidaganancia")] LoadProfitLossInput input,
+                                                        IValidator<LoadProfitLossInput> validator,
+                                                        [Service] IClosingExperienceMutations closingMutations,
+                                                        CancellationToken cancellationToken)
+    {
+        return await closingMutations.LoadProfitLossAsync(input, validator, cancellationToken);
+    }
     //Treasury mutations
     [GraphQLName("crearCuentaBancaria")]
     public async Task<GraphqlMutationResult> AccountHandler([GraphQLName("cuentaBancaria")] CreateAccountInput bankAccount,

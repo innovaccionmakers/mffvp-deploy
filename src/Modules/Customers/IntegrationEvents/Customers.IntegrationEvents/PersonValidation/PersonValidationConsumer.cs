@@ -1,6 +1,5 @@
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Presentation.Results;
-using DotNetCore.CAP;
 using Customers.Integrations.People.GetPerson;
 using MediatR;
 using Customers.Domain.People;
@@ -8,7 +7,7 @@ using Customers.Integrations.People.GetPerson;
 
 namespace Customers.IntegrationEvents.PersonValidation;
 
-public sealed class PersonValidationConsumer : ICapSubscribe
+public sealed class PersonValidationConsumer : IRpcHandler<PersonDataRequestEvent, GetPersonValidationResponse>
 {
     private readonly ISender _mediator;
     private readonly IPersonRepository _personRepository;
@@ -19,13 +18,9 @@ public sealed class PersonValidationConsumer : ICapSubscribe
         _personRepository = personRepository;
     }
 
-    [CapSubscribe(nameof(PersonDataRequestEvent))]
-    public async Task<GetPersonValidationResponse> HandleRequest(PersonDataRequestEvent request,
-        [FromCap] CapHeader header, CancellationToken cancellationToken)
+    public async Task<GetPersonValidationResponse> HandleAsync(PersonDataRequestEvent request,
+        CancellationToken cancellationToken)
     {
-        var corr = header[CapRpcClient.Headers.CorrelationId];
-        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
-
         var result =
             await _mediator.Send(new GetPersonForIdentificationQuery(request.DocumentType, request.Identification),
                 cancellationToken);

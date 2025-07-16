@@ -1,6 +1,6 @@
 using Associate.IntegrationEvents.ActivateValidation;
 using Associate.Integrations.Activates;
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using FluentAssertions;
 using Moq;
@@ -10,16 +10,14 @@ namespace Operations.test.UnitTests.Application.Services;
 
 public class ActivateLocatorTests
 {
-    private readonly Mock<ICapRpcClient> _rpc = new();
+    private readonly Mock<IRpcClient> _rpc = new();
 
     [Fact]
     public async Task FindAsync_Should_Return_Failure_When_Rpc_Fails()
     {
         var rsp = new GetActivateIdByIdentificationResponse(false, null, "E", "bad");
         _rpc.Setup(r => r.CallAsync<GetActivateIdByIdentificationRequest, GetActivateIdByIdentificationResponse>(
-                nameof(GetActivateIdByIdentificationRequest),
                 It.IsAny<GetActivateIdByIdentificationRequest>(),
-                It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(rsp);
         var locator = new ActivateLocator(_rpc.Object);
@@ -37,11 +35,9 @@ public class ActivateLocatorTests
         var rsp = new GetActivateIdByIdentificationResponse(true, activate, null, null);
         GetActivateIdByIdentificationRequest? captured = null;
         _rpc.Setup(r => r.CallAsync<GetActivateIdByIdentificationRequest, GetActivateIdByIdentificationResponse>(
-                nameof(GetActivateIdByIdentificationRequest),
                 It.IsAny<GetActivateIdByIdentificationRequest>(),
-                It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<string, GetActivateIdByIdentificationRequest, TimeSpan, CancellationToken>((_, req, _, _) => captured = req)
+            .Callback<GetActivateIdByIdentificationRequest, CancellationToken>((req, _) => captured = req)
             .ReturnsAsync(rsp);
         var locator = new ActivateLocator(_rpc.Object);
 

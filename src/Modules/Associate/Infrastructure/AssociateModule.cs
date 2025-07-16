@@ -11,6 +11,7 @@ using Associate.Infrastructure.PensionRequirements;
 using Associate.IntegrationEvents.ActivateValidation;
 using Associate.Presentation.GraphQL;
 using Associate.Presentation.MinimalApis;
+using Common.SharedKernel.Application.Rpc;
 
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Rules;
@@ -71,7 +72,7 @@ public class ActivatesModule: IModuleConfiguration
             (IConfigurationParameterLookupRepository<AssociateModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<AssociateModuleMarker>, ErrorCatalog<AssociateModuleMarker>>();
         services.AddScoped<PensionRequirementCommandHandlerValidation>();
-        services.AddScoped<ActivateValidationConsumer>();
+        services.AddScoped<IRpcHandler<GetActivateIdByIdentificationRequest, GetActivateIdByIdentificationResponse>, ActivateValidationConsumer>();
         services.AddScoped<ActivatesCommandHandlerValidation>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());
     }

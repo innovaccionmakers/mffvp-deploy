@@ -3,7 +3,7 @@ using Closing.Domain.PreClosing;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
-using Common.SharedKernel.Domain.Utils;
+using Common.SharedKernel.Application.Helpers.General;
 
 namespace Closing.Application.PreClosing.Services.Yield;
 

@@ -1,4 +1,4 @@
-﻿using Common.SharedKernel.Domain.Finance;
+﻿using Common.SharedKernel.Application.Helpers.Finance;
 
 namespace Closing.Domain.PreClosing;
 
