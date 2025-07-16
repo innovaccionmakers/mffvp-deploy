@@ -1,10 +1,11 @@
-﻿using Common.SharedKernel.Presentation.Filters;
+﻿using Common.SharedKernel.Domain;
+using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 using FluentValidation;
-using Treasury.Presentation.GraphQL.Input;
-using Common.SharedKernel.Domain;
-using Treasury.Integrations.BankAccounts.Commands;
 using MediatR;
+using Treasury.Integrations.BankAccounts.Commands;
+using Treasury.Integrations.TreasuryConcepts.Commands;
+using Treasury.Presentation.GraphQL.Input;
 
 namespace Treasury.Presentation.GraphQL;
 
@@ -44,6 +45,45 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
         {
             result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
             return result;
-        }        
+        }
+    }
+
+    public async Task<GraphqlMutationResult> TreasuryConfigHandlerAsync(CreateTreasuryOperationInput input, IValidator<CreateTreasuryOperationInput> validator, CancellationToken cancellationToken = default)
+    {
+        var result = new GraphqlMutationResult();
+        try
+        {
+            var validationResult = await RequestValidator.Validate(input, validator);
+            if (validationResult is not null)
+            {
+                result.AddError(validationResult.Error);
+                return result;
+            }
+
+            var command = new CreateTreasuryConceptCommand(
+                input.Concept,
+                input.Nature,
+                input.AllowsNegative,
+                input.AllowsExpense,
+                input.RequiresBankAccount,
+                input.RequiresCounterparty,
+                input.ProcessDate,
+                input.Observations
+            );
+
+            var commandResult = await mediator.Send(command, cancellationToken);
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+            result.SetSuccess("Genial!, Se ha creado el concepto de tesorería");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
     }
 }

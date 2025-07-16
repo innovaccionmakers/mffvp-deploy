@@ -16,8 +16,8 @@ public class TreasuryConceptRepository(TreasuryDbContext context) : ITreasuryCon
         return await context.TreasuryConcepts.ToListAsync(cancellationToken);
     }
 
-    public void Add(TreasuryConcept treasuryConcept)
+    public async Task AddAsync(TreasuryConcept treasuryConcept, CancellationToken cancellationToken = default)
     {
-        context.TreasuryConcepts.Add(treasuryConcept);
+        await context.TreasuryConcepts.AddAsync(treasuryConcept, cancellationToken);
     }
 }
