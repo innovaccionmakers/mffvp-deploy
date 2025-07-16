@@ -95,11 +95,20 @@ public class Mutation
     }
 
     [GraphQLName("crearConceptosTesoreria")]
-    public async Task<GraphqlMutationResult> TreasuryConfigHandler([GraphQLName("movimientoTesoreria")] CreateTreasuryOperationInput treasuryMovement,
+    public async Task<GraphqlMutationResult> TreasuryConfigHandler([GraphQLName("conceptoTesoreria")] CreateTreasuryOperationInput treasuryMovement,
                                                                         IValidator<CreateTreasuryOperationInput> validator,
                                                                        [Service] ITreasuryExperienceMutations treasuryMutations,
                                                                        CancellationToken cancellationToken)
     {
         return await treasuryMutations.TreasuryConfigHandlerAsync(treasuryMovement, validator, cancellationToken);
+    }
+
+    [GraphQLName("crearMovimientoTesoreria")]
+    public async Task<GraphqlMutationResult> TreasuryOperationHandler([GraphQLName("movimientoTesoreria")] CreateTreasuryMovementInput treasuryMovement,
+                                                                        IValidator<CreateTreasuryMovementInput> validator,
+                                                                       [Service] ITreasuryExperienceMutations treasuryMutations,
+                                                                       CancellationToken cancellationToken)
+    {
+        return await treasuryMutations.TreasuryOperationHandlerAsync(treasuryMovement, validator, cancellationToken);
     }
 }

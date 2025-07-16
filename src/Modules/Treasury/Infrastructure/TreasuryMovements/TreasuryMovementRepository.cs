@@ -12,14 +12,14 @@ public class TreasuryMovementRepository(TreasuryDbContext context) : ITreasuryMo
         return await context.TreasuryMovements.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public async Task AddAsync(TreasuryMovement treasuryMovement, CancellationToken cancellationToken = default)
+    {
+        await context.TreasuryMovements.AddAsync(treasuryMovement, cancellationToken);
+    }
+
     public async Task<IReadOnlyCollection<TreasuryMovement>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await context.TreasuryMovements.ToListAsync(cancellationToken);
-    }
-
-    public void Add(TreasuryMovement treasuryMovement)
-    {
-        context.TreasuryMovements.Add(treasuryMovement);
     }
 
     public async Task<IReadOnlyCollection<TreasuryMovementConceptSummary>> GetTreasuryMovementsByPortfolioAsync(int portfolioId, DateTime date, CancellationToken cancellationToken = default)

@@ -5,6 +5,7 @@ using FluentValidation;
 using MediatR;
 using Treasury.Integrations.BankAccounts.Commands;
 using Treasury.Integrations.TreasuryConcepts.Commands;
+using Treasury.Integrations.TreasuryMovements.Commands;
 using Treasury.Presentation.GraphQL.Input;
 
 namespace Treasury.Presentation.GraphQL;
@@ -78,6 +79,43 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
                 return result;
             }
             result.SetSuccess("Genial!, Se ha creado el concepto de tesorería");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
+    }
+
+    public async Task<GraphqlMutationResult> TreasuryOperationHandlerAsync(CreateTreasuryMovementInput input, IValidator<CreateTreasuryMovementInput> validator, CancellationToken cancellationToken = default)
+    {
+       var result = new GraphqlMutationResult();
+        try 
+        {
+            var validationResult = RequestValidator.Validate(input, validator).GetAwaiter().GetResult();
+            if (validationResult is not null)
+            {
+                result.AddError(validationResult.Error);
+                return result;
+            }
+            var command = new CreateTreasuryMovementCommand(
+               input.PortfolioId,
+                input.ClosingDate,
+                input.TreasuryConceptId,
+                input.Value,
+                input.ProcessDate,
+                input.BankAccountId,
+                input.EntityId,
+                input.CounterpartyId
+            );
+            var commandResult = await mediator.Send(command, cancellationToken);
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+            result.SetSuccess("Genial!, Se ha creado el movimiento de tesorería");
             return result;
         }
         catch (Exception ex)
