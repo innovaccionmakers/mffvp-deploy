@@ -6,5 +6,5 @@ namespace Closing.Application.PreClosing.Services.Yield.Builders;
 public interface IYieldDetailBuilder
 {
     bool CanHandle(Type type);
-    YieldDetail Build(object concept, RunSimulationCommand parameters);
+    YieldDetail Build(object concept, RunSimulationParameters parameters);
 }

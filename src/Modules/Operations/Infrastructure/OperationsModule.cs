@@ -1,51 +1,49 @@
+using Closing.IntegrationEvents.TrustSync;
 using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.External;
 using Operations.Application.Abstractions.Services.Cleanup;
+using Operations.Application.Abstractions.Services.Closing;
 using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Application.Abstractions.Services.Prevalidation;
+using Operations.Application.Abstractions.Services.QueueTransactions;
 using Operations.Application.Abstractions.Services.TransactionControl;
 using Operations.Application.Abstractions.Services.TrustCreation;
-using Operations.Application.Abstractions.Services.Closing;
-using Operations.Application.Abstractions.Services.QueueTransactions;
 using Operations.Application.Contributions.Prevalidation;
 using Operations.Application.Contributions.Services;
-using Operations.Application.Contributions.Services.ClosingValidator;
 using Operations.Application.Contributions.Services.Cleanup;
+using Operations.Application.Contributions.Services.ClosingValidator;
 using Operations.Application.Contributions.Services.OperationCompleted;
-using Operations.Application.Contributions.Services.TrustCreation;
 using Operations.Application.Contributions.Services.QueueTransactions;
+using Operations.Application.Contributions.Services.TrustCreation;
+using Operations.Application.Contributions.TransactionControl;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.Banks;
 using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
-using Operations.Domain.TemporaryClientOperations;
-using Operations.Domain.TemporaryAuxiliaryInformations;
 using Operations.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
 using Operations.Domain.Services;
 using Operations.Domain.SubtransactionTypes;
+using Operations.Domain.TemporaryAuxiliaryInformations;
+using Operations.Domain.TemporaryClientOperations;
 using Operations.Infrastructure.AuxiliaryInformations;
 using Operations.Infrastructure.Banks;
 using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ClientOperations;
-using Operations.Infrastructure.TemporaryClientOperations;
-using Operations.Infrastructure.TemporaryAuxiliaryInformations;
-using Operations.IntegrationEvents.PendingContributionProcessor;
 using Operations.Infrastructure.ConfigurationParameters;
 using Operations.Infrastructure.Database;
 using Operations.Infrastructure.External.Activate;
@@ -54,9 +52,12 @@ using Operations.Infrastructure.External.Customers;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.Services;
 using Operations.Infrastructure.SubtransactionTypes;
+using Operations.Infrastructure.TemporaryAuxiliaryInformations;
+using Operations.Infrastructure.TemporaryClientOperations;
+using Operations.IntegrationEvents.PendingContributionProcessor;
+using Operations.IntegrationEvents.SubTransactionTypes;
 using Operations.Presentation.GraphQL;
 using Operations.Presentation.MinimalApis;
-using Operations.Application.Contributions.TransactionControl;
 
 namespace Operations.Infrastructure;
 
@@ -132,6 +133,8 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IChannelService, ChannelService>();
         services.AddScoped<IPortfolioService, PortfolioService>();
         services.AddScoped<IBuildMissingFieldsContributionService, BuildMissingFieldsContributionService>();
+
+        services.AddScoped<IRpcHandler<GetAllOperationTypesRequest, GetAllOperationTypesResponse>, GetAllOperationTypesConsumer>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

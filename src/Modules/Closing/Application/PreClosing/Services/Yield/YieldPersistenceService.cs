@@ -1,101 +1,108 @@
-﻿using Closing.Domain.PortfolioValuations;
+﻿using Closing.Domain.ConfigurationParameters;
+using Closing.Domain.PortfolioValuations;
 using Closing.Domain.PreClosing;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
+using Common.SharedKernel.Application.Exceptions;
 using Common.SharedKernel.Application.Helpers.General;
 
 namespace Closing.Application.PreClosing.Services.Yield;
-
 public sealed class YieldPersistenceService : IYieldPersistenceService
 {
     private readonly IYieldDetailRepository _yieldDetailRepository;
     private readonly IYieldRepository _yieldRepository;
     private readonly IPortfolioValuationRepository _portfolioValuationRepository;
+    private readonly IConfigurationParameterRepository _configurationParameterRepository;
 
     public YieldPersistenceService(
         IYieldDetailRepository yieldDetailRepository,
         IYieldRepository yieldRepository,
-        IPortfolioValuationRepository portfolioValuationRepository)
+        IPortfolioValuationRepository portfolioValuationRepository,
+        IConfigurationParameterRepository configurationParameterRepository)
     {
         _yieldDetailRepository = yieldDetailRepository;
         _yieldRepository = yieldRepository;
         _portfolioValuationRepository = portfolioValuationRepository;
+        _configurationParameterRepository = configurationParameterRepository;
     }
 
     public async Task<SimulatedYieldResult> ConsolidateAsync(
-        int portfolioId,
-        DateTime closingDateLocal,
-        bool isClosed,
+        RunSimulationParameters parameters,
         CancellationToken ct = default)
     {
-        var closingDateUtc = DateTimeConverter.ToUtcDateTime(closingDateLocal);
-
-        // Obtener detalles
         var yieldDetails = await _yieldDetailRepository
-            .GetByPortfolioAndDateAsync(portfolioId, closingDateUtc, ct);
+            .GetByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
 
         if (!yieldDetails.Any())
-        {
-           // throw new BusinessRuleValidationException("No hay detalles de rendimiento para consolidar.");
-        }
+            throw new BusinessRuleValidationException("No hay detalles de rendimiento para consolidar.");
 
-        // Calcular sumatorias
-        var income = yieldDetails.Sum(x => x.Income);
-        var expenses = yieldDetails.Sum(x => x.Expenses);
-        var commissions = yieldDetails.Sum(x => x.Commissions);
-        var costs = expenses + commissions;
-        var yieldToCredit = income - costs;
+        var summary = CalculateYieldSummary(yieldDetails);
         var processDate = DateTime.UtcNow;
 
-        // Crear entidad de dominio Yield
         var yieldResult = Domain.Yields.Yield.Create(
-            portfolioId,
-            income,
-            expenses,
-            commissions,
-            costs,
-            yieldToCredit,
-            closingDateUtc,
+            parameters.PortfolioId,
+            summary.Income,
+            summary.Expenses,
+            summary.Commissions,
+            summary.Costs,
+            summary.YieldToCredit,
+            parameters.ClosingDate,
             processDate,
-            isClosed);
+            parameters.IsClosing);
 
         if (yieldResult.IsFailure)
-        {
-            //throw new BusinessRuleValidationException(yieldResult.Error);
-        }
+            throw new BusinessRuleValidationException(yieldResult.Error.ToString());
 
-        // Persistir
         await _yieldRepository.InsertAsync(yieldResult.Value, ct);
 
-        // Calcular valores de simulación solo si NO está cerrado y NO es primer cierre
-        SimulationValues simulationValues = new(null, null);
-
-        var isFirstClosing = false;// !await _yieldRepository.ExistsClosedYieldAsync(portfolioId, closingDate, ct);
-
-        if (!isClosed && !isFirstClosing)
-        {
-            var previousPortfolioValuation = await _portfolioValuationRepository.GetValuationAsync(portfolioId, closingDateUtc.AddDays(-1), ct);
-            var previousPortfolioValue = previousPortfolioValuation?.Amount ?? 0;
-            var previousUnitValue = previousPortfolioValuation?.UnitValue ?? 0;
-            var previousUnits = previousPortfolioValuation?.Units ?? 0;
-
-            simulationValues = SimulationYieldCalculator.Calculate(
-                yieldToCredit,
-                previousPortfolioValue,
-                previousUnitValue,
-                previousUnits);
-        }
+        var simulationValues = await CalculateSimulationValuesAsync(parameters, summary.YieldToCredit, ct);
 
         return new SimulatedYieldResult
         {
-            Income = income,
-            Expenses = expenses,
-            Commissions = commissions,
-            Costs = costs,
-            YieldToCredit = yieldToCredit,
+            Income = summary.Income,
+            Expenses = summary.Expenses,
+            Commissions = summary.Commissions,
+            Costs = summary.Costs,
+            YieldToCredit = summary.YieldToCredit,
             UnitValue = simulationValues.UnitValue,
             DailyProfitability = simulationValues.DailyProfitability
         };
+    }
+
+    private static YieldSummary CalculateYieldSummary(IEnumerable<YieldDetail> details)
+    {
+        var income = details.Sum(x => x.Income);
+        var expenses = details.Sum(x => x.Expenses);
+        var commissions = details.Sum(x => x.Commissions);
+
+        return new YieldSummary(income, expenses, commissions);
+    }
+
+    private async Task<SimulationValues> CalculateSimulationValuesAsync(
+        RunSimulationParameters parameters,
+        decimal yieldToCredit,
+        CancellationToken ct)
+    {
+        if (parameters.IsClosing)
+            return new SimulationValues(null, null);
+
+        if (parameters.IsFirstClosingDay)
+        {
+            var param = await _configurationParameterRepository
+                .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, ct);
+
+            var initialFundUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "Valor");
+            return new SimulationValues(initialFundUnitValue, null);
+        }
+
+        var previousValuation = await _portfolioValuationRepository
+            .GetValuationAsync(parameters.PortfolioId, parameters.ClosingDate.AddDays(-1), ct);
+
+        return SimulationYieldCalculator.Calculate(
+            yieldToCredit,
+            previousValuation?.Amount ?? 0,
+            previousValuation?.UnitValue ?? 0,
+            previousValuation?.Units ?? 0);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Closing.Application.Abstractions.External.Products.Commissions;
+﻿using Closing.Application.Abstractions.External.Operations.SubtransactionTypes;
+using Closing.Application.Abstractions.External.Products.Commissions;
 using Closing.Application.Abstractions.External.Treasury.TreasuryMovements;
 using Closing.Application.PreClosing.Services.CommissionCalculation;
 using Closing.Application.PreClosing.Services.Orchestation;
@@ -10,6 +11,7 @@ using Closing.Application.PreClosing.Services.Yield.Builders;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
+using Closing.Infrastructure.External.Operations.SubtransactionTypes;
 using Closing.Infrastructure.External.Products.Commissions;
 using Closing.Infrastructure.External.Treasury.TreasuryMovements;
 using Closing.Infrastructure.PortfolioValuations;
@@ -37,7 +39,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IMovementsConsolidationService, MovementsConsolidationService>();
             services.AddScoped<ITreasuryMovementsLocator, TreasuryMovementsLocator>();
             services.AddScoped<IBusinessValidator<RunSimulationCommand>, RunSimulationBusinessValidator>();
-
+            services.AddScoped<ISubtransactionTypesLocator, SubtransactionTypesLocator>();
 
             //TODO: Consultar si puedo agregar Scrutor a este proyecto para poder usar Scan
             //services.Scan(scan => scan

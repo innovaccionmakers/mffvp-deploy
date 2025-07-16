@@ -13,7 +13,7 @@ public class YieldDetailBuilderService
         _builders = builders;
     }
 
-    public IReadOnlyList<YieldDetail> Build<T>(IEnumerable<T> concepts, RunSimulationCommand parameters)
+    public IReadOnlyList<YieldDetail> Build<T>(IEnumerable<T> concepts, RunSimulationParameters parameters)
     {
         var builder = _builders.FirstOrDefault(b => b.CanHandle(typeof(T)))
             ?? throw new InvalidOperationException($"No builder found for concept type: {typeof(T).Name}");
