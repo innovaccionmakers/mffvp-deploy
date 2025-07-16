@@ -11,6 +11,7 @@ using Products.Integrations.Objectives.GetObjectives;
 using Products.Integrations.Objectives.GetObjectivesByAffiliate;
 using Products.Integrations.Offices;
 using Products.Integrations.PlanFunds.GetPlanFund;
+using Products.Integrations.Portfolios.GetPortfolio;
 using Products.Integrations.Portfolios.GetPortfolios;
 using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.DTOs;
@@ -271,5 +272,30 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
                 x.CurrentDate.AddDays(1)
             )).ToList();
 
+    }
+
+    public async Task<PortfolioInformationDto?> GetPortfolioByIdAsync(long portfolioId, CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetPortfolioQuery((int)portfolioId), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new GraphQLException(
+                ErrorBuilder.New()
+                    .SetMessage("Failed to retrieve Portfolios")
+                    .Build()
+            );
+        }
+
+        return new PortfolioInformationDto
+        (
+            result.Value.PortfolioId,
+            result.Value.HomologatedCode,
+            result.Value.Name,
+            result.Value.ShortName,
+            result.Value.ModalityId,
+            result.Value.InitialMinimumAmount,
+            result.Value.CurrentDate
+        );
     }
 }

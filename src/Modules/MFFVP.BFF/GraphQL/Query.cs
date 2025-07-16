@@ -221,4 +221,12 @@ public class Query
     {
         return await treasuryQueries.GetIssuersAsync(cancellationToken);
     }
+
+    [GraphQLName("cuentasBancariasPorPortafolio")]
+    public async Task<IReadOnlyCollection<BankAccountByPortfolioDto>> GetBankAccountsByPortfolio([GraphQLName("idPortafolio")] long portfolioId,
+                                                    [Service] ExperienceOrchestrator experienceOrchestrator,
+                                                    CancellationToken cancellationToken)
+    {
+        return await experienceOrchestrator.GetBankAccountsByPortfolioAsync(portfolioId, cancellationToken);
+    }
 }
