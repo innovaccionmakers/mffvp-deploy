@@ -1,7 +1,7 @@
 using Associate.Application.Activates.CreateActivate;
 using Associate.Domain.Activates;
 using Associate.Integrations.Activates.CreateActivate;
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Moq;
 using Customers.IntegrationEvents.PersonValidation;
 
@@ -10,7 +10,7 @@ namespace UnitTests.Application.Activates
     public class CreateActivateCommandHandlerTests
     {
         private readonly Mock<IActivateRepository> _repositoryMock = new();
-        private readonly Mock<ICapRpcClient> _rpcMock = new();
+        private readonly Mock<IRpcClient> _rpcMock = new();
 
         [Fact]
         public void RuleEvaluator_ShouldValidateContextCorrectly()
@@ -27,7 +27,7 @@ namespace UnitTests.Application.Activates
                             .ReturnsAsync(existingActivate);
 
             _rpcMock.Setup(x => x.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-                    It.IsAny<string>(), It.IsAny<PersonDataRequestEvent>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<PersonDataRequestEvent>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(personData);
 
             // Act
@@ -88,12 +88,12 @@ namespace UnitTests.Application.Activates
             var requestEvent = new PersonDataRequestEvent("T123", "123");
 
             _rpcMock.Setup(x => x.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-                    It.IsAny<string>(), It.IsAny<PersonDataRequestEvent>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<PersonDataRequestEvent>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedPerson);
 
             // Act
             var result = await _rpcMock.Object.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-                "endpoint", requestEvent, TimeSpan.FromSeconds(30), CancellationToken.None);
+                requestEvent, CancellationToken.None);
 
             // Assert
             Assert.Equal(expectedPerson, result);

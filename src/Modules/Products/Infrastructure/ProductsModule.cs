@@ -42,6 +42,8 @@ using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.PortfolioValidation;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
+using Common.SharedKernel.Application.Rpc;
+using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 
 namespace Products.Infrastructure;
 
@@ -95,11 +97,12 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
         services.AddScoped<IObjectiveReader, ObjectiveReader>();
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();
-        services.AddScoped<ContributionValidationConsumer>();
-        services.AddTransient<PortfolioValidationConsumer>();
+        services.AddScoped<IRpcHandler<ContributionValidationRequest, ContributionValidationResponse>, ContributionValidationConsumer>();
+        services.AddTransient<IRpcHandler<ValidatePortfolioRequest, ValidatePortfolioResponse>, PortfolioValidationConsumer>();
+        services.AddTransient<IRpcHandler<GetPortfolioDataRequest, GetPortfolioDataResponse>, PortfolioValidationConsumer>();
 
         services.AddScoped<ICommissionRepository, CommissionRepository>();
-        services.AddTransient<CommissionsByPortfolioConsumer>();
+        services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }

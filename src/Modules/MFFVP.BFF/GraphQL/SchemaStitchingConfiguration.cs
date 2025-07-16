@@ -11,6 +11,7 @@ public static class SchemaStitchingConfiguration
     {
         services
             .AddGraphQLServer("BFFGateway")
+            //.AddAuthorization()
             .AddQueryType<Query>()
             .AddMutationType<Mutation>()
             .ModifyOptions(options =>
@@ -39,6 +40,7 @@ public static class SchemaStitchingConfiguration
         if (configuration.GetValue("Development:EnablePlayground", true))
         {
             services.AddGraphQLServer("BFFGateway")
+                //.AddAuthorization()
                 .ModifyRequestOptions(options =>
                 {
                     options.IncludeExceptionDetails = true;
@@ -53,6 +55,7 @@ public static class SchemaStitchingConfiguration
         IConfiguration configuration)
     {
         services.AddGraphQLServer("BFFGateway")
+            //.AddAuthorization()
             .ModifyRequestOptions(options =>
             {
                 options.IncludeExceptionDetails = false;

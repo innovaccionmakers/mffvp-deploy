@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Common.SharedKernel.Domain.Utils;
-using Common.SharedKernel.Domain;
-using Common.SharedKernel.Infrastructure.ValueConverters;
+using Common.SharedKernel.Application.Helpers.General;
 using Treasury.Domain.TreasuryMovements;
 using Treasury.Infrastructure.Database;
 

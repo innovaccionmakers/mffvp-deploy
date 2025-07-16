@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Security.Application.Contracts.Permissions;
 using Security.Application.Contracts.RolePermissions;
 using Security.Application.Contracts.UserRoles;
+using Security.Application.Contracts.Users;
 using Security.Domain.RolePermissions;
 using Security.Domain.UserRoles;
 
@@ -248,5 +249,81 @@ public static class SecurityBusinessApi
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet(
+            "UserExists/{userId:int}",
+                async (
+                    [FromRoute] int userId,
+                    ISender sender
+                ) =>
+                {
+                    var result = await sender.Send(new UserExistsQuery(userId));
+                    return result.IsSuccess
+                        ? Results.Ok(result.Value)
+                        : Results.Problem(result.Error.Description);
+                }
+            )
+            .WithName("UserExists")
+            .WithSummary("Verifica si un usuario existe")
+            .WithDescription("""
+                             Devuelve `true` o `false` si el usuario con ID especificado existe o no.
+                     
+                             **Ejemplo de respuesta:**
+                             ```json
+                             true
+                             ```
+                             """)
+            .Produces<bool>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPost(
+            "CreateUser",
+                async (
+                    [FromBody] CreateUserCommand request,
+                    ISender sender
+                ) =>
+                {
+                    var result = await sender.Send(request);
+
+                    if (result.IsFailure)
+                    {
+                        return Results.Problem(
+                            title: result.Error.Code,
+                            detail: result.Error.Description,
+                            statusCode: result.Error.Code switch
+                            {
+                                "User.UserName.Required" => StatusCodes.Status400BadRequest,
+                                _ => StatusCodes.Status500InternalServerError
+                            }
+                        );
+                    }
+
+                    return Results.Ok(result.Value);
+                }
+            )
+            .WithName("CreateUser")
+            .WithSummary("Crear nuevo usuario")
+            .WithDescription("""
+                             Crea un nuevo usuario con toda la información requerida.
+
+                             **Ejemplo de petición (application/json):**
+                             ```json
+                             {
+                               "id": 42,
+                               "userName": "jperez",
+                               "name": "Juan",
+                               "middleName": "Carlos",
+                               "identification": "123456789",
+                               "email": "jperez@email.com",
+                               "displayName": "Juan Pérez"
+                             }
+                             ```
+                             """)
+            .Accepts<CreateUserCommand>("application/json")
+            .Produces<int>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+
     }
 }

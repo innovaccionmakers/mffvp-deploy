@@ -5,6 +5,7 @@ using Associate.Integrations.Activates.CreateActivate;
 using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 using Customers.IntegrationEvents.PersonValidation;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Associate.Application.Abstractions;
 using MediatR;
@@ -16,7 +17,7 @@ internal sealed class CreateActivateCommandHandler(
     IActivateRepository activateRepository,
     IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork,
-    ICapRpcClient rpc,
+    IRpcClient rpc,
     ISender sender,
     ActivatesCommandHandlerValidation validator)
     : ICommandHandler<CreateActivateCommand>
@@ -42,12 +43,8 @@ internal sealed class CreateActivateCommandHandler(
                 Error.Validation(first.Code, first.Message));
         }
 
-        var personData = await rpc.CallAsync<
-            PersonDataRequestEvent,
-            GetPersonValidationResponse>(
-            nameof(PersonDataRequestEvent),
+        var personData = await rpc.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
             new PersonDataRequestEvent(request.DocumentType, request.Identification),
-            TimeSpan.FromSeconds(30),
             cancellationToken);
 
         if (!personData.IsValid)

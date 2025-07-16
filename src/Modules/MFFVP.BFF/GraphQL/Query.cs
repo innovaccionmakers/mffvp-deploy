@@ -11,6 +11,8 @@ using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
+using Closing.Presentation.GraphQL;
+using Closing.Presentation.GraphQL.DTOs;
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
 
@@ -211,6 +213,16 @@ public class Query
                                                      CancellationToken cancellationToken)
     {
         return await experienceOrchestrator.GetAssociateByIdAsync(affiliateId, cancellationToken);
+    }
+
+    //Closing Queries
+    [GraphQLName("obtenerPerdidasGanancias")]
+    public async Task<ProfitAndLossDto?> GetProfitAndLoss([GraphQLName("idPortafolio")] int portfolioId,
+                                                    [GraphQLName("fechaEfectiva")] DateTime effectiveDate,
+                                                    [Service] IClosingExperienceQueries closingQueries,
+                                                    CancellationToken cancellationToken)
+    {
+        return await closingQueries.GetProfitAndLossAsync(portfolioId, effectiveDate, cancellationToken);
     }
 
     //treasury Queries

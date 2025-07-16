@@ -1,11 +1,10 @@
-using Common.SharedKernel.Application.Messaging;
-using DotNetCore.CAP;
+using Common.SharedKernel.Application.Rpc;
 using MediatR;
 using Operations.Integrations.SubTransactionTypes;
 
 namespace Operations.IntegrationEvents.SubTransactionTypes;
 
-public sealed class GetAllOperationTypesConsumer : ICapSubscribe
+public sealed class GetAllOperationTypesConsumer : IRpcHandler<GetAllOperationTypesRequest, GetAllOperationTypesResponse>
 {
     private readonly ISender _mediator;
 
@@ -14,15 +13,10 @@ public sealed class GetAllOperationTypesConsumer : ICapSubscribe
         _mediator = mediator;
     }
 
-    [CapSubscribe(nameof(GetAllOperationTypesRequest))]
     public async Task<GetAllOperationTypesResponse> HandleAsync(
         GetAllOperationTypesRequest message,
-        [FromCap] CapHeader header,
         CancellationToken cancellationToken)
     {
-        var corr = header[CapRpcClient.Headers.CorrelationId];
-        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
-
         var result = await _mediator.Send(new GetAllOperationTypesQuery(), cancellationToken);
 
         return result.Match(

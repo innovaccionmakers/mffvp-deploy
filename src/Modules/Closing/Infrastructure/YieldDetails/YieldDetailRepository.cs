@@ -1,6 +1,5 @@
 ﻿using Closing.Domain.YieldDetails;
 using Closing.Infrastructure.Database;
-using Common.SharedKernel.Domain.Utils;
 using Microsoft.EntityFrameworkCore;
 
 

@@ -1,27 +1,21 @@
 using Associate.Integrations.Activates.GetActivate;
 using Associate.Integrations.Activates.GetActivateId;
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Presentation.Results;
-using DotNetCore.CAP;
 using MediatR;
 
 namespace Associate.IntegrationEvents.ActivateValidation;
 
-public sealed class ActivateValidationConsumer : ICapSubscribe
+public sealed class ActivateValidationConsumer : IRpcHandler<GetActivateIdByIdentificationRequest, GetActivateIdByIdentificationResponse>
 {
     private readonly ISender _mediator;
 
     public ActivateValidationConsumer(ISender mediator) => _mediator = mediator;
 
-    [CapSubscribe(nameof(GetActivateIdByIdentificationRequest))]
-    public async Task<GetActivateIdByIdentificationResponse> GetActivateIdAsync(
+    public async Task<GetActivateIdByIdentificationResponse> HandleAsync(
         GetActivateIdByIdentificationRequest message,
-        [FromCap] CapHeader header,
         CancellationToken cancellationToken)
     {
-        var corr = header[CapRpcClient.Headers.CorrelationId];
-        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
-
         var idResult  = await _mediator.Send(
             new GetActivateIdQuery(message.DocumentType, message.Identification),
             cancellationToken);

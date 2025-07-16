@@ -1,12 +1,11 @@
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Presentation.Results;
-using DotNetCore.CAP;
 using MediatR;
 using Products.Integrations.ContributionValidation;
 
 namespace Products.IntegrationEvents.ContributionValidation;
 
-public sealed class ContributionValidationConsumer : ICapSubscribe
+public sealed class ContributionValidationConsumer : IRpcHandler<ContributionValidationRequest, ContributionValidationResponse>
 {
     private readonly ISender _mediator;
 
@@ -15,15 +14,10 @@ public sealed class ContributionValidationConsumer : ICapSubscribe
         _mediator = mediator;
     }
 
-    [CapSubscribe(nameof(ContributionValidationRequest))]
-    public async Task<ContributionValidationResponse> ValidateAsync(
+    public async Task<ContributionValidationResponse> HandleAsync(
         ContributionValidationRequest message,
-        [FromCap] CapHeader header,
         CancellationToken cancellationToken)
     {
-        var corr = header[CapRpcClient.Headers.CorrelationId];
-        header.AddResponseHeader(CapRpcClient.Headers.CorrelationId, corr);
-
         var result =
             await _mediator.Send(
                 new ContributionValidationQuery(message.ActivateId, message.ObjectiveId,

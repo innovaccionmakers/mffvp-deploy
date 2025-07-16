@@ -1,10 +1,10 @@
 ﻿
-using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.Data;
 using Closing.Application.PreClosing.Services.Orchestation;
+using Closing.Application.PreClosing.Services.Validation;
 using Closing.Integrations.PreClosing.RunSimulation;
+using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
@@ -12,9 +12,9 @@ namespace Closing.Application.PreClosing.RunSimulation
 {
     internal sealed class RunSimulationCommandHandler(
     ISimulationOrchestrator _simulationOrchestrator,
-    IInternalRuleEvaluator<ClosingModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork,
-    ILogger<RunSimulationCommandHandler> logger)
+    ILogger<RunSimulationCommandHandler> logger,
+    IBusinessValidator<RunSimulationCommand> businessValidator)
     : ICommandHandler<RunSimulationCommand, bool>
     {
         public async Task<Result<bool>> Handle(RunSimulationCommand command, CancellationToken cancellationToken)
@@ -23,6 +23,13 @@ namespace Closing.Application.PreClosing.RunSimulation
             var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
+                command = command with
+                {
+                    ClosingDate = DateTimeConverter.ToUtcDateTime(command.ClosingDate)
+                };
+                var validation = await businessValidator.ValidateAsync(command, cancellationToken);
+                if (validation.IsFailure)
+                    return Result.Failure<bool>(validation.Error!);
                 //var sw = Stopwatch.StartNew();
                 await _simulationOrchestrator.RunSimulationAsync(command, cancellationToken);
                 //sw.Stop();

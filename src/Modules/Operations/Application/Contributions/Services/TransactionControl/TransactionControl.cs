@@ -28,7 +28,7 @@ public sealed class TransactionControl(
     {
         var isCertified = command.CertifiedContribution?.Trim().ToUpperInvariant() == "SI";
         var tax = await taxCalculator.ComputeAsync(
-            prevalidationResult.AffiliateFound,
+            prevalidationResult.AffiliateActivation.Item3,
             isCertified,
             command.Amount,
             cancellationToken);
@@ -57,7 +57,7 @@ public sealed class TransactionControl(
             command.PaymentMethodDetail ?? JsonDocument.Parse("{}"),
             tax.CertificationStatusId,
             tax.TaxConditionId,
-            0,
+            tax.WithheldAmount,
             command.VerifiableMedium ?? JsonDocument.Parse("{}"),
             prevalidationResult.Bank?.BankId ?? 0,
             DateTime.SpecifyKind(command.DepositDate, DateTimeKind.Utc),

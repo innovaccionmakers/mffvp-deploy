@@ -1,11 +1,11 @@
 using Associate.IntegrationEvents.ActivateValidation;
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Products.Application.Abstractions.Services.External;
 
 namespace Products.Infrastructure.External.Affiliates;
 
-internal sealed class AffiliateLocator(ICapRpcClient rpc) : IAffiliateLocator
+internal sealed class AffiliateLocator(IRpcClient rpc) : IAffiliateLocator
 {
     public async Task<Result<int?>> FindAsync(
         string docTypeCode,
@@ -15,9 +15,7 @@ internal sealed class AffiliateLocator(ICapRpcClient rpc) : IAffiliateLocator
         var rsp = await rpc.CallAsync<
             GetActivateIdByIdentificationRequest,
             GetActivateIdByIdentificationResponse>(
-            nameof(GetActivateIdByIdentificationRequest),
             new GetActivateIdByIdentificationRequest(docTypeCode, identification),
-            TimeSpan.FromSeconds(5),
             ct);
 
         if (!rsp.Succeeded)

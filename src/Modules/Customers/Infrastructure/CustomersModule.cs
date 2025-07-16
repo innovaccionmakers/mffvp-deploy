@@ -25,6 +25,7 @@ using Customers.IntegrationEvents.ClientValidation;
 using Customers.IntegrationEvents.PersonValidation;
 using Customers.Presentation.GraphQL;
 using Customers.Presentation.MinimalApis;
+using Common.SharedKernel.Application.Rpc;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -79,8 +80,8 @@ public class CustomersModule : IModuleConfiguration
         services.AddScoped<IConfigurationParameterLookupRepository<CustomersModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<CustomersModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<CustomersModuleMarker>, ErrorCatalog<CustomersModuleMarker>>();
-        services.AddTransient<PersonValidationConsumer>();
-        services.AddTransient<ClientValidationConsumer>();
+        services.AddTransient<IRpcHandler<PersonDataRequestEvent, GetPersonValidationResponse>, PersonValidationConsumer>();
+        services.AddTransient<IRpcHandler<ValidatePersonByIdentificationRequest, ValidatePersonByIdentificationResponse>, ClientValidationConsumer>();
         services.AddTransient<PersonCommandHandlerValidation>();
         services.AddTransient<GetPersonQueryHandlerValidation>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CustomersDbContext>());

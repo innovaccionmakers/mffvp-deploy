@@ -132,8 +132,8 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("metodo_recaudo_id");
 
-                    b.Property<int>("ContingentWithholding")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("ContingentWithholding")
+                        .HasColumnType("decimal(19, 2)")
                         .HasColumnName("retencion_contingente");
 
                     b.Property<DateTime>("DepositDate")
@@ -453,8 +453,8 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("metodo_recaudo_id");
 
-                    b.Property<int>("ContingentWithholding")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("ContingentWithholding")
+                        .HasColumnType("decimal(19, 2)")
                         .HasColumnName("retencion_contingente");
 
                     b.Property<DateTime>("DepositDate")

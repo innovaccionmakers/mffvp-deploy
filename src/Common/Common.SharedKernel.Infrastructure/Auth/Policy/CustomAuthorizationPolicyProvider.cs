@@ -9,7 +9,7 @@ public class CustomAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvi
 
     public override Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
     {
-        var policy = new AuthorizationPolicyBuilder("JwtBearer")
+        var policy = new AuthorizationPolicyBuilder()
             .AddRequirements(new PermissionRequirement(policyName))
             .Build();
 

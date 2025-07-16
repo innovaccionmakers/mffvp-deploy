@@ -1,6 +1,6 @@
 ﻿
 using Closing.Domain.PreClosing;
-using Common.SharedKernel.Domain.Utils;
+using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
 using System.Text.Json;
 

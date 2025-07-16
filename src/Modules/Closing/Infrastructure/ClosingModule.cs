@@ -10,6 +10,9 @@ using Closing.Infrastructure.ProfitLossConcepts;
 using Closing.Infrastructure.Database;
 using Closing.Infrastructure.External.Portfolios;
 using Closing.Infrastructure.ProfitLosses;
+using Closing.Domain.TrustYields;
+using Closing.Infrastructure.TrustYields;
+using Closing.IntegrationEvents.TrustSync;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
@@ -27,6 +30,8 @@ using Closing.Infrastructure.ClientOperations;
 using Closing.IntegrationEvents.CreateClientOperationRequested;
 using Closing.Infrastructure.Configuration;
 using Closing.Application.ClosingWorkflow;
+using Common.SharedKernel.Application.Rpc;
+using Closing.Presentation.GraphQL;
 
 namespace Closing.Infrastructure;
 
@@ -66,8 +71,11 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IProfitLossConceptRepository, ProfitLossConceptRepository>();
         services.AddScoped<IProfitLossRepository, ProfitLossRepository>();
         services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
+        services.AddScoped<ITrustYieldRepository, TrustYieldRepository>();
         services.AddScoped<IErrorCatalog<ClosingModuleMarker>, ErrorCatalog<ClosingModuleMarker>>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
+        services.AddScoped<IClosingExperienceQueries, ClosingExperienceQueries>();
+        services.AddScoped<IClosingExperienceMutations, ClosingExperienceMutations>();
         services.AddScoped<IConfigurationParameterLookupRepository<ClosingModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<ClosingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
 
@@ -77,6 +85,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IClosingWorkflowService, ClosingWorkflowService>();
 
         services.AddScoped<CreateClientOperationRequestedConsumer>();
+        services.AddScoped<IRpcHandler<TrustSyncRequest, TrustSyncResponse>, TrustSyncConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
         // Llama a la extension para PreClosing

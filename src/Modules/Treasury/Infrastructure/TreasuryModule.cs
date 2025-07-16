@@ -24,6 +24,7 @@ using Treasury.Infrastructure.Issuers;
 using Treasury.Infrastructure.TreasuryConcepts;
 using Treasury.Infrastructure.TreasuryMovements;
 using Treasury.IntegrationEvents.TreasuryMovements.TreasuryMovementsByPortfolio;
+using Common.SharedKernel.Application.Rpc;
 using Treasury.Presentation.GraphQL;
 
 namespace Treasury.Infrastructure;
@@ -63,6 +64,7 @@ public class TreasuryModule : IModuleConfiguration
         services.AddScoped<IErrorCatalog<TreasuryModuleMarker>, ErrorCatalog<TreasuryModuleMarker>>();
         services.AddScoped<TreasuryMovementsByPortfolioConsumer>();
         services.AddScoped<ITreasuryExperienceMutations , TreasuryExperienceMutations>();
+        services.AddScoped<IRpcHandler<TreasuryMovementsByPortfolioRequest, TreasuryMovementsByPortfolioResponse>, TreasuryMovementsByPortfolioConsumer>();
         services.AddScoped<ITreasuryExperienceQueries, TreasuryExperienceQueries>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TreasuryDbContext>());
 

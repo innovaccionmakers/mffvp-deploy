@@ -10,9 +10,10 @@ using Treasury.Integrations.BankAccounts.Commands;
 namespace Treasury.Application.BankAccounts.Commands;
 
 internal class CreateBankAccountCommandHandler(IBankAccountRepository repository,
-                                               IUnitOfWork unitOfWork, IRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateBankAccountCommand, BankAccountResponse>
+                                               IUnitOfWork unitOfWork, IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateBankAccountCommand, BankAccountResponse>
 {
     private const string RequiredFieldsWorkflow = "Treasury.CreateBankAccount.RequiredFields";
+    private const string BankAccountCreationValidationWorkflow = "Treasury.CreateBankAccount.Validation";
     public async Task<Result<BankAccountResponse>> Handle(CreateBankAccountCommand request, CancellationToken cancellationToken)
     {
         var requiredContext = new
@@ -33,11 +34,26 @@ internal class CreateBankAccountCommandHandler(IBankAccountRepository repository
                 Error.Validation(first.Code, first.Message));
         }
 
-        if (await repository.ExistsAsync(request.IssuerId, request.AccountNumber, request.AccountType, cancellationToken))
+        var existBankAccount = await repository.ExistsAsync(request.IssuerId, request.AccountNumber, request.AccountType, cancellationToken);
+
+
+        var validationContext = new
         {
+            BankAccountExists = existBankAccount,
+        };
+
+        var (rulesOk, _, ruleErrors) = await ruleEvaluator
+            .EvaluateAsync(BankAccountCreationValidationWorkflow,
+                validationContext,
+                cancellationToken);
+
+        if (!rulesOk)
+        {
+            var first = ruleErrors.First();
             return Result.Failure<BankAccountResponse>(
-                Error.Validation("BankAccount.Duplicate", "Ya existe una cuenta bancaria con el mismo emisor, número y tipo de cuenta."));
+                Error.Validation(first.Code, first.Message));
         }
+
 
         var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var bankAccount = BankAccount.Create(

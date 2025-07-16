@@ -1,11 +1,11 @@
 using Associate.IntegrationEvents.ActivateValidation;
-using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions.External;
 
 namespace Operations.Infrastructure.External.Activate;
 
-internal sealed class ActivateLocator(ICapRpcClient rpc) : IActivateLocator
+internal sealed class ActivateLocator(IRpcClient rpc) : IActivateLocator
 {
     public async Task<Result<(bool Found, int ActivateId, bool IsPensioner)>> FindAsync(
         string idType,
@@ -15,9 +15,7 @@ internal sealed class ActivateLocator(ICapRpcClient rpc) : IActivateLocator
         var rsp = await rpc.CallAsync<
             GetActivateIdByIdentificationRequest,
             GetActivateIdByIdentificationResponse>(
-            nameof(GetActivateIdByIdentificationRequest),
             new GetActivateIdByIdentificationRequest(idType, identification),
-            TimeSpan.FromSeconds(5),
             ct);
 
         return rsp.Succeeded
