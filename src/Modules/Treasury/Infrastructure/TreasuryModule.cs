@@ -63,6 +63,7 @@ public class TreasuryModule : IModuleConfiguration
         services.AddScoped<IErrorCatalog<TreasuryModuleMarker>, ErrorCatalog<TreasuryModuleMarker>>();
         services.AddScoped<TreasuryMovementsByPortfolioConsumer>();
         services.AddScoped<ITreasuryExperienceMutations , TreasuryExperienceMutations>();
+        services.AddScoped<ITreasuryExperienceQueries, TreasuryExperienceQueries>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TreasuryDbContext>());
 
     }

@@ -11,6 +11,8 @@ using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
+using Treasury.Presentation.DTOs;
+using Treasury.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -209,5 +211,14 @@ public class Query
                                                      CancellationToken cancellationToken)
     {
         return await experienceOrchestrator.GetAssociateByIdAsync(affiliateId, cancellationToken);
+    }
+
+    //Issuers Queries
+
+    [GraphQLName("emisores")]
+    public async Task<IReadOnlyCollection<IssuerDto>> GetIssuers([Service] ITreasuryExperienceQueries treasuryQueries,
+                                                    CancellationToken cancellationToken)
+    {
+        return await treasuryQueries.GetIssuersAsync(cancellationToken);
     }
 }
