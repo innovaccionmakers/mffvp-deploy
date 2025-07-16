@@ -16,8 +16,17 @@ public class BankAccountRepository(TreasuryDbContext context) : IBankAccountRepo
         return await context.BankAccounts.ToListAsync(cancellationToken);
     }
 
-    public void Add(BankAccount bankAccount)
+    public async Task AddAsync(BankAccount bankAccount, CancellationToken cancellationToken = default)
     {
-        context.BankAccounts.Add(bankAccount);
+        await context.BankAccounts.AddAsync(bankAccount, cancellationToken);
+    }
+
+    public async Task<bool> ExistsAsync(long issuerId, string accountNumber, string accountType, CancellationToken cancellationToken = default)
+    {
+        return await context.BankAccounts.AnyAsync(
+        x => x.IssuerId == issuerId &&
+             x.AccountNumber == accountNumber &&
+             x.AccountType == accountType,
+        cancellationToken);
     }
 }

@@ -13,7 +13,8 @@
         <ProjectReference Include="..\Domain\Treasury.Domain.csproj" />
         <ProjectReference Include="..\IntegrationEvents\Treasury.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Presentation\Treasury.Presentation.csproj" />
-    </ItemGroup>
+		<EmbeddedResource Include="..\Rules\**\*.json" />
+	</ItemGroup>
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>

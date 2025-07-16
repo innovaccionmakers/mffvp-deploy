@@ -1,0 +1,48 @@
+[
+  {
+    "WorkflowName": "Treasury.CreateBankAccount.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "PortfolioIdRequired",
+        "ErrorMessage": "El Portafolio es obligatorio",
+        "Expression": "input.PortfolioId > 0",
+        "Properties": { "errorCode": "6ceb3022-c9cd-479d-aaf1-20062b215de7" }
+      },
+      {
+        "RuleName": "IssuerIdRequired",
+        "ErrorMessage": "El Id del Emisor es obligatorio",
+        "Expression": "input.IssuerId > 0",
+        "Properties": { "errorCode": "a8872e38-15a0-49c3-98ef-db482741a5fd" }
+      },
+      {
+        "RuleName": "AccountNumberRequired",
+        "ErrorMessage": "El Número de Cuenta es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.AccountNumber) == false",
+        "Properties": { "errorCode": "1725a3ac-a055-4ed5-a299-17e6d852f459" }
+      },
+      {
+        "RuleName": "AccountTypeRequired",
+        "ErrorMessage": "El Tipo de Cuenta es obligatorio",
+        "Expression": "string.IsNullOrWhiteSpace(input.AccountType) == false",
+        "Properties": { "errorCode": "606be42e-cdb8-4638-baed-cf3e9e670eb3" }
+      },
+      {
+        "RuleName": "AccountTypeValid",
+        "ErrorMessage": "El tipo de cuenta solo puede ser 'C' (Corriente) o 'A' (Ahorros)",
+        "Expression": "input.AccountType == 'C' || input.AccountType == 'A'",
+        "Properties": { "errorCode": "c1a2b3c4-d5e6-7890-abcd-ef1234567890" }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Treasury.CreateBankAccount.Validation",
+    "Rules": [
+      {
+        "RuleName": "BankAccountExist",
+        "ErrorMessage": "Ya existe una cuenta bancaria con el mismo número de cuenta y tipo de cuenta para el emisor seleccionado",
+        "Expression": "input.BankAccountExists == false",
+        "Properties": { "errorCode": "b1c3f8d2-4e5f-4c0a-9b6d-7f8c1e2d3e4f" }
+      }
+    ]
+  }
+]

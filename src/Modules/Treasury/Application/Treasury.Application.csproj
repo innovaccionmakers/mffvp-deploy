@@ -12,6 +12,7 @@
 
 
     <ItemGroup>
+      <Folder Include="BankAccounts\Queries\" />
       <Folder Include="TreasuryMovements\Command\" />
     </ItemGroup>
 
