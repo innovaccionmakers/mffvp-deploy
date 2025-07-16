@@ -11,4 +11,9 @@ public interface ITreasuryExperienceMutations
         IValidator<CreateAccountInput> validator,
         CancellationToken cancellationToken = default
     );
+    Task<GraphqlMutationResult> TreasuryConfigHandlerAsync(
+        CreateTreasuryOperationInput input,
+        IValidator<CreateTreasuryOperationInput> validator,
+        CancellationToken cancellationToken = default
+    );
 }

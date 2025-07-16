@@ -83,6 +83,7 @@ public class Mutation
     {
         return await closingMutations.LoadProfitLossAsync(input, validator, cancellationToken);
     }
+
     //Treasury mutations
     [GraphQLName("crearCuentaBancaria")]
     public async Task<GraphqlMutationResult> AccountHandler([GraphQLName("cuentaBancaria")] CreateAccountInput bankAccount,
@@ -91,5 +92,14 @@ public class Mutation
                                                                        CancellationToken cancellationToken)
     {
         return await treasuryMutations.AccountHandlerAsync(bankAccount, validator, cancellationToken);
+    }
+
+    [GraphQLName("crearConceptosTesoreria")]
+    public async Task<GraphqlMutationResult> TreasuryConfigHandler([GraphQLName("movimientoTesoreria")] CreateTreasuryOperationInput treasuryMovement,
+                                                                        IValidator<CreateTreasuryOperationInput> validator,
+                                                                       [Service] ITreasuryExperienceMutations treasuryMutations,
+                                                                       CancellationToken cancellationToken)
+    {
+        return await treasuryMutations.TreasuryConfigHandlerAsync(treasuryMovement, validator, cancellationToken);
     }
 }

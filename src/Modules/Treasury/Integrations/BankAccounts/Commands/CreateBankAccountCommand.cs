@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Application.Messaging;
+using Treasury.Integrations.BankAccounts.Response;
 
 namespace Treasury.Integrations.BankAccounts.Commands;
 

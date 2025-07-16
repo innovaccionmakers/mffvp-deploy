@@ -4,8 +4,8 @@ using Common.SharedKernel.Domain;
 using Treasury.Application.Abstractions;
 using Treasury.Application.Abstractions.Data;
 using Treasury.Domain.BankAccounts;
-using Treasury.Integrations.BankAccounts;
 using Treasury.Integrations.BankAccounts.Commands;
+using Treasury.Integrations.BankAccounts.Response;
 
 namespace Treasury.Application.BankAccounts.Commands;
 
