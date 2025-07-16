@@ -8,6 +8,7 @@ public interface IProfitLossRepository
     Task<IReadOnlyList<ProfitLossSummary>> GetSummaryAsync(int portfolioId, DateTime effectiveDate, CancellationToken cancellationToken = default);
     void InsertRange(IEnumerable<ProfitLoss> profitLosses);
     Task<IReadOnlyList<ProfitLossConceptSummary>> GetConceptSummaryAsync(int portfolioId,
-                                                                      DateTime effectiveDate,
+                                                                      DateTime effectiveDateUtc,
                                                                       CancellationToken cancellationToken = default);
+    Task<bool> PandLExistsAsync(int portfolioId, DateTime effectiveDateUtc, CancellationToken cancellationToken = default);
 }

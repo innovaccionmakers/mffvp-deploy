@@ -1,9 +1,8 @@
-﻿using Closing.Domain.Constants;
-using Closing.Domain.ProfitLossConcepts;
+﻿
 using Closing.Domain.ProfitLosses;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.PreClosing.RunSimulation;
-using Common.SharedKernel.Domain.Utils;
+using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
 
 namespace Closing.Application.PreClosing.Services.Yield.Builders;

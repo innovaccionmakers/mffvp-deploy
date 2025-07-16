@@ -1,4 +1,4 @@
-﻿using Closing.Application.Abstractions.External.Commissions;
+﻿using Closing.Application.Abstractions.External.Products.Commissions;
 using Closing.Domain.Commission;
 using Closing.Domain.Constants;
 using System.Globalization;
@@ -43,7 +43,7 @@ public class CommissionCalculationService : ICommissionCalculationService
         return summaries;
     }
 
-    private static bool IsAdministrative(GetCommissionsByPortfolioIdResponse commission) =>
+    private static bool IsAdministrative(CommissionsByPortfolioRemoteResponse commission) =>
     commission.Concept.Equals(CommissionConcepts.Administrative, StringComparison.OrdinalIgnoreCase);
 
     private static decimal ParseCommissionPercentage(string rule)

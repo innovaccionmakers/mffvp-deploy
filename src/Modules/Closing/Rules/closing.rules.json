@@ -48,5 +48,18 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "Closing.Preclosing.SimulationValidation",
+    "Rules": [
+      {
+        "RuleName": "ClosingDate_OneDayAfterCurrentDate",
+        "ErrorMessage": "La fecha de cierre debe ser un día después de la fecha actual del portafolio",
+        "Expression": "input.ClosingDate.Date == input.CurrentDate.Date.AddDays(1)",
+        "Properties": {
+          "errorCode": ""
+        }
+      }
+    ]
   }
 ]

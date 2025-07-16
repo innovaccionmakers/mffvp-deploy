@@ -15,6 +15,8 @@ using Trusts.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Trusts.Infrastructure.Trusts;
 using Trusts.IntegrationEvents.CreateTrustRequested;
+using Trusts.Application.Abstractions.External;
+using Trusts.Infrastructure.External.Closing;
 
 namespace Trusts.Infrastructure;
 
@@ -55,6 +57,7 @@ public static class TrustsModule
         });
 
         services.AddScoped<ITrustRepository, TrustRepository>();
+        services.AddScoped<ITrustYieldSyncService, TrustYieldSyncService>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<TrustsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<TrustsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
