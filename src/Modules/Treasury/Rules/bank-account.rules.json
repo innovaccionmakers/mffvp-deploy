@@ -25,6 +25,12 @@
         "ErrorMessage": "El Tipo de Cuenta es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.AccountType) == false",
         "Properties": { "errorCode": "606be42e-cdb8-4638-baed-cf3e9e670eb3" }
+      },
+      {
+        "RuleName": "AccountTypeValid",
+        "ErrorMessage": "El tipo de cuenta solo puede ser 'C' (Corriente) o 'A' (Ahorros)",
+        "Expression": "input.AccountType == 'C' || input.AccountType == 'A'",
+        "Properties": { "errorCode": "c1a2b3c4-d5e6-7890-abcd-ef1234567890" }
       }
     ]
   },
