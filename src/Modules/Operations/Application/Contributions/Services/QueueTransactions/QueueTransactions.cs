@@ -52,7 +52,7 @@ public sealed class QueueTransactions(
             command.PaymentMethodDetail ?? JsonDocument.Parse("{}"),
             tax.CertificationStatusId,
             tax.TaxConditionId,
-            0m,
+            tax.WithheldAmount,
             command.VerifiableMedium ?? JsonDocument.Parse("{}"),
             prevalidationResult.Bank?.BankId ?? 0,
             DateTime.SpecifyKind(command.DepositDate, DateTimeKind.Utc),
