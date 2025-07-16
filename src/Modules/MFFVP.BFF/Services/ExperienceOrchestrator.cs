@@ -3,10 +3,15 @@ using Common.SharedKernel.Domain;
 using Customers.Domain.People;
 using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
+using Products.Presentation.GraphQL;
+using Treasury.Presentation.DTOs;
+using Treasury.Presentation.GraphQL;
 
 namespace MFFVP.BFF.Services;
 
-public class ExperienceOrchestrator(IAssociatesExperienceQueries associatesQueries, ICustomersExperienceQueries customersQueries)
+public class ExperienceOrchestrator(
+    IAssociatesExperienceQueries associatesQueries, ICustomersExperienceQueries customersQueries,
+    ITreasuryExperienceQueries treasuryQueries, IProductsExperienceQueries productsQueries)
 {
     public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesAsync(CancellationToken cancellationToken = default)
     {
@@ -93,5 +98,29 @@ public class ExperienceOrchestrator(IAssociatesExperienceQueries associatesQueri
             associate.Pensioner,
             associate.ActivateDate
         );
+    }
+
+    public async Task<IReadOnlyCollection<BankAccountByPortfolioDto>> GetBankAccountsByPortfolioAsync(
+        long portfolioId,
+        CancellationToken cancellationToken = default)
+    {
+        var accounts = await treasuryQueries.GetBankAccountsByPortfolioAsync(portfolioId, cancellationToken);
+        if (accounts == null || accounts.Count == 0)
+            return [];
+
+        var portfolio = await productsQueries.GetPortfolioByIdAsync(portfolioId, cancellationToken);
+        var portfolioShortName = portfolio?.ShorName ?? string.Empty;
+
+        return accounts.Select(x => new BankAccountByPortfolioDto(
+            x.Id,
+            x.PortfolioId,
+            portfolioShortName,
+            x.IssuerId,
+            x.IssuerName,
+            x.AccountNumber,
+            x.AccountType,
+            x.Observations,
+            x.ProcessDate
+        )).ToList();
     }
 }

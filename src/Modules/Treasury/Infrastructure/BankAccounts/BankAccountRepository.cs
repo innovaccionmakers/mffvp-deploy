@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Treasury.Domain.BankAccounts;
 using Treasury.Infrastructure.Database;
+using Treasury.Presentation.DTOs;
 
 namespace Treasury.Infrastructure.BankAccounts;
 
@@ -28,5 +29,13 @@ public class BankAccountRepository(TreasuryDbContext context) : IBankAccountRepo
              x.AccountNumber == accountNumber &&
              x.AccountType == accountType,
         cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<BankAccount>> GetByPortfolioIdAsync(long portfolioId, CancellationToken cancellationToken = default)
+    {
+        return await context.BankAccounts
+            .Include(x => x.Issuer)
+            .Where(x => x.PortfolioId == portfolioId)
+            .ToListAsync(cancellationToken);
     }
 }
