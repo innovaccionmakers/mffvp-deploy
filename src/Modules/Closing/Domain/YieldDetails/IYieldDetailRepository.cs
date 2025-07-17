@@ -1,4 +1,6 @@
-﻿namespace Closing.Domain.YieldDetails
+﻿using System.Threading.Tasks;
+
+namespace Closing.Domain.YieldDetails
 {
     public interface IYieldDetailRepository
     {
@@ -8,7 +10,21 @@
         Task InsertAsync(YieldDetail yieldDetail, CancellationToken ct = default);
         void Update(YieldDetail yieldDetail);
         void Delete(YieldDetail yieldDetail);
-        Task<IReadOnlyCollection<YieldDetail>> GetByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken ct = default);
+        Task<IReadOnlyCollection<YieldDetail>> GetByPortfolioAndDateAsync(
+          int portfolioId,
+          DateTime closingDateUtc,
+          bool isClosed = false,
+          CancellationToken ct = default);
+        Task<bool> ExistsByPortfolioAndDateAsync(
+           int portfolioId,
+           DateTime closingDateUtc,
+           bool isClosed = false,
+           CancellationToken ct = default);
+
+        Task DeleteByPortfolioAndDateAsync(
+           int portfolioId,
+           DateTime closingDateUtc,
+           CancellationToken cancellationToken = default);
 
     }
 }

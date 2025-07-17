@@ -1,4 +1,5 @@
 ﻿
+using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.ProfitLosses;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.PreClosing.RunSimulation;

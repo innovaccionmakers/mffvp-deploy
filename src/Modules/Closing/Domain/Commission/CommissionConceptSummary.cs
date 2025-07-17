@@ -15,7 +15,6 @@ public class CommissionConceptSummary
 
     public int CommissionId { get; private set; }
     public string Concept { get; private set; }
-    public decimal TotalAmount { get; private set; }
     public decimal Value { get; }
 }
 

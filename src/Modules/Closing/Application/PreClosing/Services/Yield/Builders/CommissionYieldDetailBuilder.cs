@@ -1,4 +1,5 @@
-﻿using Closing.Domain.Commission;
+﻿using Closing.Application.PreClosing.Services.Yield.Interfaces;
+using Closing.Domain.Commission;
 using Closing.Domain.Constants;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.PreClosing.RunSimulation;
@@ -22,7 +23,7 @@ public class CommissionYieldDetailBuilder : IYieldDetailBuilder
             CommissionConceptSummaryExtensions.ToJsonSummary(summary),
             0,
             0,
-            summary.TotalAmount,
+            summary.Value,
             DateTime.UtcNow,
             parameters.IsClosing
         ).Value;

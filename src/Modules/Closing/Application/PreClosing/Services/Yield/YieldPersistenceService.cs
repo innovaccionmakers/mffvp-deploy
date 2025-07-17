@@ -1,4 +1,5 @@
-﻿using Closing.Domain.ConfigurationParameters;
+﻿using Closing.Application.PreClosing.Services.Yield.Interfaces;
+using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.PreClosing;
 using Closing.Domain.YieldDetails;
@@ -32,7 +33,7 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
         CancellationToken ct = default)
     {
         var yieldDetails = await _yieldDetailRepository
-            .GetByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
+            .GetByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, parameters.IsClosing, ct);
 
         if (!yieldDetails.Any())
             throw new BusinessRuleValidationException("No hay detalles de rendimiento para consolidar.");
