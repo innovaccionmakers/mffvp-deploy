@@ -4,13 +4,14 @@ using Common.SharedKernel.Domain;
 using Treasury.Application.Abstractions;
 using Treasury.Application.Abstractions.Data;
 using Treasury.Domain.TreasuryConcepts;
-using Treasury.Integrations.BankAccounts.Response;
 using Treasury.Integrations.TreasuryConcepts.Commands;
 using Treasury.Integrations.TreasuryConcepts.Response;
 
 namespace Treasury.Application.TreasuryConcepts.Commands;
 
-internal class CreateTreasuryConceptCommandHandler(ITreasuryConceptRepository repository, IUnitOfWork unitOfWork, IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateTreasuryConceptCommand, TreasuryConceptResponse>
+internal class CreateTreasuryConceptCommandHandler(ITreasuryConceptRepository repository,
+                                                   IUnitOfWork unitOfWork,
+                                                   IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateTreasuryConceptCommand, TreasuryConceptResponse>
 {   
     private const string RequiredFieldsWorkflow = "Treasury.CreateTreasuryConcept.RequiredFields";
     public async Task<Result<TreasuryConceptResponse>> Handle(CreateTreasuryConceptCommand request, CancellationToken cancellationToken)

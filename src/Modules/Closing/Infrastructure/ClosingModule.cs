@@ -1,37 +1,38 @@
 using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
+using Closing.Application.ClosingWorkflow;
+using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.ProfitLossConcepts;
 using Closing.Domain.ProfitLosses;
-using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Closing.Domain.TrustYields;
+using Closing.Infrastructure.ClientOperations;
+using Closing.Infrastructure.Configuration;
 using Closing.Infrastructure.ConfigurationParameters;
-using Closing.Infrastructure.ProfitLossConcepts;
 using Closing.Infrastructure.Database;
 using Closing.Infrastructure.External.Portfolios;
+using Closing.Infrastructure.ProfitLossConcepts;
 using Closing.Infrastructure.ProfitLosses;
-using Closing.Domain.TrustYields;
 using Closing.Infrastructure.TrustYields;
+using Closing.IntegrationEvents.CreateClientOperationRequested;
+using Closing.IntegrationEvents.PortfolioValuation;
 using Closing.IntegrationEvents.TrustSync;
+using Closing.Presentation.GraphQL;
+using Closing.Presentation.MinimalApis;
+using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Common.SharedKernel.Application.Abstractions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Closing.Presentation.MinimalApis;
-using Closing.Domain.ClientOperations;
-using Closing.Infrastructure.ClientOperations;
-using Closing.IntegrationEvents.CreateClientOperationRequested;
-using Closing.Infrastructure.Configuration;
-using Closing.Application.ClosingWorkflow;
-using Common.SharedKernel.Application.Rpc;
-using Closing.Presentation.GraphQL;
 
 namespace Closing.Infrastructure;
 
@@ -86,6 +87,7 @@ public class ClosingModule : IModuleConfiguration
 
         services.AddScoped<CreateClientOperationRequestedConsumer>();
         services.AddScoped<IRpcHandler<TrustSyncRequest, TrustSyncResponse>, TrustSyncConsumer>();
+        services.AddScoped<IRpcHandler<CheckPortfolioValuationExistsRequest, CheckPortfolioValuationExistsResponse>, CheckPortfolioValuationExistsConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
         // Llama a la extension para PreClosing
