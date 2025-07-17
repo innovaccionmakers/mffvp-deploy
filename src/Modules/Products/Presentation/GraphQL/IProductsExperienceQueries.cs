@@ -36,4 +36,6 @@ public interface IProductsExperienceQueries
 
     Task<IReadOnlyCollection<PortfolioInformationDto>> GetAllPortfoliosAsync(
         CancellationToken cancellationToken = default);
+
+    Task<PortfolioInformationDto?> GetPortfolioByIdAsync(long portfolioId, CancellationToken cancellationToken = default);
 }

@@ -13,6 +13,8 @@ using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
+using Treasury.Presentation.DTOs;
+using Treasury.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -221,5 +223,29 @@ public class Query
                                                     CancellationToken cancellationToken)
     {
         return await closingQueries.GetProfitAndLossAsync(portfolioId, effectiveDate, cancellationToken);
+    }
+
+    //treasury Queries
+
+    [GraphQLName("emisores")]
+    public async Task<IReadOnlyCollection<IssuerDto>> GetIssuers([Service] ITreasuryExperienceQueries treasuryQueries,
+                                                    CancellationToken cancellationToken)
+    {
+        return await treasuryQueries.GetIssuersAsync(cancellationToken);
+    }
+
+    [GraphQLName("cuentasBancariasPorPortafolio")]
+    public async Task<IReadOnlyCollection<BankAccountByPortfolioDto>> GetBankAccountsByPortfolio([GraphQLName("idPortafolio")] long portfolioId,
+                                                    [Service] ExperienceOrchestrator experienceOrchestrator,
+                                                    CancellationToken cancellationToken)
+    {
+        return await experienceOrchestrator.GetBankAccountsByPortfolioAsync(portfolioId, cancellationToken);
+    }
+
+    [GraphQLName("conceptosTesoreria")]
+    public async Task<IReadOnlyCollection<TreasuryConceptDto>> GetTreasuryConcepts([Service] ITreasuryExperienceQueries treasuryQueries,
+                                                                                   CancellationToken cancellationToken)
+    {
+        return await treasuryQueries.GetTreasuryConceptsAsync(cancellationToken);
     }
 }

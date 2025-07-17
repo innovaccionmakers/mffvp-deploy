@@ -4,9 +4,5 @@ namespace Closing.Application.PreClosing.Services.Yield;
 
 public interface IYieldPersistenceService
 {
-    Task<SimulatedYieldResult> ConsolidateAsync(
-        int portfolioId,
-        DateTime closingDateLocal,
-        bool isClosed,
-        CancellationToken ct = default);
+    Task<SimulatedYieldResult> ConsolidateAsync(RunSimulationParameters parameters, CancellationToken ct = default);
 }

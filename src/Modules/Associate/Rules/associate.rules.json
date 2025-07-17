@@ -330,4 +330,39 @@
       }
     ]
   }
+  ,{
+    "WorkflowName": "Associate.BalancesById.Validation",
+    "Rules": [
+      {
+        "RuleName": "IdTypeRequired",
+        "Expression": "input.DocumentTypeProvided",
+        "Properties": { "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3" }
+      },
+      {
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.DocumentTypeExists",
+        "Properties": { "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4" }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "Expression": "input.IdentificationProvided",
+        "Properties": { "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711" }
+      },
+      {
+        "RuleName": "ClientActivates",
+        "Expression": "input.ActivateExists",
+        "Properties": { "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7" }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Associate.BalancesById.ContributionValidation",
+    "Rules": [
+      {
+        "RuleName": "AffiliateHasContributions",
+        "Expression": "input.AffiliateHasContributions == true",
+        "Properties": { "errorCode": "8955cc97-4d77-4314-9ee5-4c850721817b" }
+      }
+    ]
+  }
 ]

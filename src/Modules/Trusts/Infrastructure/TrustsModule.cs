@@ -15,8 +15,10 @@ using Trusts.Infrastructure.Database;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Trusts.Infrastructure.Trusts;
 using Trusts.IntegrationEvents.CreateTrustRequested;
+using Trusts.IntegrationEvents.GetBalances;
 using Trusts.Application.Abstractions.External;
 using Trusts.Infrastructure.External.Closing;
+using Common.SharedKernel.Application.Rpc;
 
 namespace Trusts.Infrastructure;
 
@@ -63,6 +65,7 @@ public static class TrustsModule
             (IConfigurationParameterLookupRepository<TrustsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<TrustsModuleMarker>, ErrorCatalog<TrustsModuleMarker>>();
         services.AddScoped<CreateTrustRequestedConsumer>();
+        services.AddTransient<IRpcHandler<GetBalancesRequest, GetBalancesResponse>, GetBalancesConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());
     }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Trusts.Domain.Trusts;
+using Trusts.Domain.Trusts.Balances;
 using Trusts.Infrastructure.Database;
 
 namespace Trusts.Infrastructure.Trusts;
@@ -30,5 +31,21 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
     public void Delete(Trust trust)
     {
         context.Trusts.Remove(trust);
+    }
+
+    public async Task<IReadOnlyCollection<AffiliateBalance>> GetBalancesAsync(
+        int affiliateId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.Trusts
+            .AsNoTracking()
+            .Where(t => t.AffiliateId == affiliateId)
+            .GroupBy(t => new { t.ObjectiveId, t.PortfolioId })
+            .Select(g => AffiliateBalance.Create(
+                g.Key.ObjectiveId,
+                g.Key.PortfolioId,
+                g.Sum(x => x.TotalBalance),
+                g.Sum(x => x.AvailableAmount)))
+            .ToListAsync(cancellationToken);
     }
 }

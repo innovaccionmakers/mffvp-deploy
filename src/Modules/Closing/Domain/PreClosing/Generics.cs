@@ -1,4 +1,4 @@
 ﻿
 namespace Closing.Domain.PreClosing;
 
-public sealed record StringEntityDto(/*string Entity, */string EntityId, string EntityValue);
+public sealed record StringEntityDto(string EntityId, string EntityValue);

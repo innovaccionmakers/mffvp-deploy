@@ -9,6 +9,8 @@
         <ProjectReference Include="..\..\Customers\IntegrationEvents\Customers.IntegrationEvents\Customers.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Domain\Associate.Domain.csproj" />
         <ProjectReference Include="..\Integrations\Associate.Integrations.csproj" />
+        <ProjectReference Include="..\..\Trusts\IntegrationEvents\Trusts.IntegrationEvents\Trusts.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Products\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj" />
     </ItemGroup>
 
     <PropertyGroup>

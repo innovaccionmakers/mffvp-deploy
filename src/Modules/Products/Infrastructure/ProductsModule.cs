@@ -18,6 +18,8 @@ using Products.Application.Abstractions.Services.External;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Abstractions.Services.Rules;
 using Products.Application.Objectives.Services;
+using Products.Application.Abstractions.Services.AdditionalInformation;
+using Products.Infrastructure.AdditionalInformation;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
 using Products.Domain.Commissions;
@@ -45,6 +47,9 @@ using Products.IntegrationEvents.Portfolio;
 using Products.IntegrationEvents.PortfolioValidation;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
+using Common.SharedKernel.Application.Rpc;
+using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
+using Products.IntegrationEvents.AdditionalInformation;
 
 namespace Products.Infrastructure;
 
@@ -97,6 +102,7 @@ public class ProductsModule: IModuleConfiguration
 
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
         services.AddScoped<IObjectiveReader, ObjectiveReader>();
+        services.AddScoped<IAdditionalInformationService, AdditionalInformationService>();
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();
         services.AddScoped<IRpcHandler<ContributionValidationRequest, ContributionValidationResponse>, ContributionValidationConsumer>();
         services.AddScoped<IRpcHandler<GetPortfolioByIdRequest, GetPortfolioByIdResponse>, GetPortfolioByIdConsumer>();
@@ -105,6 +111,7 @@ public class ProductsModule: IModuleConfiguration
 
         services.AddScoped<ICommissionRepository, CommissionRepository>();
         services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();
+        services.AddTransient<IRpcHandler<GetAdditionalInformationRequest, GetAdditionalInformationResponse>, GetAdditionalInformationConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }

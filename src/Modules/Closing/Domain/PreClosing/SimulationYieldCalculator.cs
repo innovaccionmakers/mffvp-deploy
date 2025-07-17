@@ -24,4 +24,6 @@ public static class SimulationYieldCalculator
 
         return new SimulationValues(unitValue, dailyProfitability);
     }
+
+
 }

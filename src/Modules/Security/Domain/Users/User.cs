@@ -30,4 +30,31 @@ public sealed class User : Entity
         Email = email;
         DisplayName = displayName;
     }
+
+    public static Result<User> Create(
+        int id,
+        string userName,
+        string name,
+        string middleName,
+        string identification,
+        string email,
+        string displayName)
+    {
+        if (string.IsNullOrWhiteSpace(userName))
+            return Result.Failure<User>(Error.Validation("User.UserName.Required", "Username is required."));
+
+        var user = new User
+        {
+            Id = id,
+            UserName = userName,
+            Name = name,
+            MiddleName = middleName,
+            Identification = identification,
+            Email = email,
+            DisplayName = displayName
+        };
+
+        return Result.Success(user);
+    }
+
 }
