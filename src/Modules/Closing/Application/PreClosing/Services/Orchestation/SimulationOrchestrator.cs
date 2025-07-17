@@ -6,7 +6,10 @@ using Closing.Application.PreClosing.Services.ProfitAndLossConsolidation;
 using Closing.Application.PreClosing.Services.TreasuryConcepts;
 using Closing.Application.PreClosing.Services.Validation;
 using Closing.Application.PreClosing.Services.Yield;
+using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.PortfolioValuations;
+using Closing.Domain.YieldDetails;
+using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
@@ -28,6 +31,9 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private readonly IConfigurationParameterRepository _configurationParameterRepository;
     private readonly IPortfolioValuationRepository _portfolioValuationRepository;   
     IBusinessValidator<RunSimulationCommand> _businessValidator;
+    private readonly IYieldDetailRepository _yieldDetailRepository;
+    private readonly IYieldRepository _yieldRepository;
+    private readonly IPortfolioValidator _portfolioValidator;
 
     public SimulationOrchestrator(
         IUnitOfWork unitOfWork,
@@ -39,7 +45,10 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         IYieldPersistenceService yieldPersistenceService,
         IConfigurationParameterRepository configurationParameterRepository,
         IPortfolioValuationRepository portfolioValuationRepository,
-        IBusinessValidator<RunSimulationCommand> businessValidator)
+        IBusinessValidator<RunSimulationCommand> businessValidator, 
+        IYieldDetailRepository yieldDetailRepository,
+        IYieldRepository yieldRepository,
+        IPortfolioValidator portfolioValidator)
     {
         _unitOfWork = unitOfWork;
         _profitAndLossConsolidationService = profitAndLossConsolidationService;
@@ -51,6 +60,10 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         _configurationParameterRepository = configurationParameterRepository;
         _portfolioValuationRepository = portfolioValuationRepository;
         _businessValidator = businessValidator;
+        _yieldDetailRepository = yieldDetailRepository;
+        _yieldRepository = yieldRepository;
+        _portfolioValidator = portfolioValidator;
+
 
     }
 
@@ -62,11 +75,18 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         if (validationResult.IsFailure)
             return Result.Failure<SimulatedYieldResult>(validationResult.Error!);
 
-        var isFirstClosingDay = await IsFirstClosingDayAsync(normalizedParams, ct);
+        var isFirstClosingDay = false;
+
+        var firstDayResult = await IsFirstClosingDayAsync(normalizedParams, ct);
+        if (firstDayResult.IsFailure)
+            return Result.Failure<SimulatedYieldResult>(firstDayResult.Error!);
+
+       isFirstClosingDay = firstDayResult.Value;
 
         var localParameters = new RunSimulationParameters(
             normalizedParams.PortfolioId,
             normalizedParams.ClosingDate,
+            normalizedParams.IsClosing,
             isFirstClosingDay);
 
         var simulationResult = await ExecuteSimulationsAsync(localParameters, ct);
@@ -93,14 +113,39 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         return validation.IsFailure ? Result.Failure<Unit>(validation.Error!) : Result.Success(Unit.Value);
     }
 
-    private async Task<bool> IsFirstClosingDayAsync(RunSimulationCommand parameters, CancellationToken ct)
+    private async Task<Result<bool>> IsFirstClosingDayAsync(
+        RunSimulationCommand parameters,
+        CancellationToken ct)
     {
-        return !await _portfolioValuationRepository
-            .ValuationExistsAsync(parameters.PortfolioId, parameters.ClosingDate.Date, ct);
+        var portfolioDataResult = await _portfolioValidator.GetPortfolioDataAsync(parameters.PortfolioId, ct);
+        if (portfolioDataResult.IsFailure)
+            return Result.Failure<bool>(portfolioDataResult.Error!);
+
+        var portfolioData = portfolioDataResult.Value;
+
+        var exists = await _portfolioValuationRepository
+            .ValuationExistsAsync(parameters.PortfolioId, portfolioData.CurrentDate, ct);
+
+        return Result.Success(!exists);
     }
 
     private async Task<Result<Unit>> ExecuteSimulationsAsync(RunSimulationParameters parameters, CancellationToken ct)
     {
+        if (!parameters.IsClosing)
+        {
+            var existsYieldDetails = await _yieldDetailRepository.ExistsByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, parameters.IsClosing, ct);
+
+            if (existsYieldDetails)
+            {
+                await _yieldDetailRepository.DeleteByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
+            }
+
+            var existsYield = await _yieldRepository.ExistsYieldAsync(parameters.PortfolioId, parameters.ClosingDate, parameters.IsClosing, ct);
+            if (existsYield)
+            {
+                await _yieldRepository.DeleteByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
+            }
+        }
         var profitAndLossTask = ExecuteProfitAndLossSimulationAsync(parameters, ct);
         var commissionsTask = ExecuteCommissionSimulationAsync(parameters, ct);
         var treasuryTask = ExecuteTreasurySimulationAsync(parameters, ct);

@@ -41,8 +41,6 @@ namespace Closing.Infrastructure.YieldDetails
         DateTime closingDateUtc,
         CancellationToken cancellationToken = default)
         {
-
-
             var deletedCount = await context.YieldDetails
                 .Where(yield => yield.PortfolioId == portfolioId
                              && yield.ClosingDate == closingDateUtc
@@ -54,12 +52,26 @@ namespace Closing.Infrastructure.YieldDetails
         public async Task<IReadOnlyCollection<YieldDetail>> GetByPortfolioAndDateAsync(
         int portfolioId,
         DateTime closingDateUtc,
+        bool isClosed = false,
         CancellationToken ct = default)
         {
             return await context.YieldDetails
-                .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc)
+                .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc && y.IsClosed == isClosed)
                 .ToListAsync(ct);
         }
+
+        public async Task<bool> ExistsByPortfolioAndDateAsync(
+            int portfolioId,
+            DateTime closingDateUtc,
+            bool isClosed = false,
+            CancellationToken ct = default)
+        {
+            return await context.YieldDetails
+                .AnyAsync(y => y.PortfolioId == portfolioId &&
+                               y.ClosingDate == closingDateUtc &&
+                               y.IsClosed == isClosed, ct);
+        }
+
 
     }
 }

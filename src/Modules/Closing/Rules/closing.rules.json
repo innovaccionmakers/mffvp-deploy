@@ -55,47 +55,24 @@
       {
         "RuleName": "ClosingDate_OneDayAfterCurrentDate",
         "ErrorMessage": "La fecha de cierre debe ser un día después de la fecha actual del portafolio",
-        "Expression": "input.ClosingDate.Date == input.CurrentDate.Date.AddDays(1)",
+        "Expression": "input.ClosingDate == input.CurrentDate.AddDays(1)",
         "Properties": {
           "errorCode": ""
         }
       },
       {
-        "RuleName": "FirstDay_NoPandL",
-        "ErrorMessage": "No debe existir PYG en el primer día de cierre.",
-        "Expression": "input.IsFirstClosingDay == true && input.ProfitAndLossExists == false",
+        "RuleName": "ClosingAlreadyGenerated",
+        "ErrorMessage": "Ya se ha generado una valoración para esta fecha de cierre.",
+        "Expression": "!input.ExistsClosingGenerated",
         "Properties": {
           "errorCode": ""
         }
       },
-      {
-        "RuleName": "FirstDay_NoTreasuryMovements",
-        "ErrorMessage": "No debe existir movimientos de tesorería en el primer día de cierre.",
-        "Expression": "input.IsFirstClosingDay == true && input.TreasuryMovementsExists == false",
-        "Properties": {
-          "errorCode": ""
-        }
-      },
-      {
-        "RuleName": "FirstDay_MustHaveIncomeOperations",
-        "ErrorMessage": "Deben existir operaciones de entrada en el primer día de cierre.",
-        "Expression": "input.IsFirstClosingDay == true && HasClientOperations == true",
-        "Properties": {
-          "errorCode": ""
-        }
-      },
+     
       {
         "RuleName": "Closing_MustHaveAdminCommission",
         "ErrorMessage": "Debe existir definida la Comisión Administrativa para el cierre.",
-        "Expression": "input.AdminCommissionCount == 0",
-        "Properties": {
-          "errorCode": ""
-        }
-      },
-      {
-        "RuleName": "Closing_MustHaveOneAdminCommission",
-        "ErrorMessage": "Debe existir definida sólo una Comisión Administrativa por Portafolio.",
-        "Expression": "input.AdminCommissionCount > 1",
+        "Expression": "input.AdminCommissionCount == 1",
         "Properties": {
           "errorCode": ""
         }
@@ -103,7 +80,7 @@
       {
         "RuleName": "AdminCommission_MustBeNumber",
         "ErrorMessage": "El valor de la Comisión Administrativa debe ser un número.",
-        "Expression": "input.AdminCommissionIsNumber == false",
+        "Expression": "input.AdminCommissionIsNumber",
         "Properties": {
           "errorCode": ""
         }
@@ -111,7 +88,7 @@
       {
         "RuleName": "AdminCommission_MustBe0And100",
         "ErrorMessage": "El valor de la Comisión Administrativa debe estar entre 0 y 100.",
-        "Expression": "input.AdminCommissionBetween0And100 == false",
+        "Expression": "input.AdminCommissionBetween0And100",
         "Properties": {
           "errorCode": ""
         }

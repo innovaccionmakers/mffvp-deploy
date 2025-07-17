@@ -8,6 +8,7 @@ using Closing.Application.PreClosing.Services.TreasuryConcepts;
 using Closing.Application.PreClosing.Services.Validation;
 using Closing.Application.PreClosing.Services.Yield;
 using Closing.Application.PreClosing.Services.Yield.Builders;
+using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;

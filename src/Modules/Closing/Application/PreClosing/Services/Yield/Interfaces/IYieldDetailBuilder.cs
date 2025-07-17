@@ -1,7 +1,7 @@
 ﻿using Closing.Domain.YieldDetails;
 using Closing.Integrations.PreClosing.RunSimulation;
 
-namespace Closing.Application.PreClosing.Services.Yield.Builders;
+namespace Closing.Application.PreClosing.Services.Yield.Interfaces;
 
 public interface IYieldDetailBuilder
 {
