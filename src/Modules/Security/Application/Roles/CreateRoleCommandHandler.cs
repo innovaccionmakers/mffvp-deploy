@@ -5,54 +5,55 @@ using Security.Application.Abstractions.Data;
 using Security.Application.Contracts.Roles;
 using Security.Domain.Roles;
 
-using System.Data.Common;
-
 namespace Security.Application.Roles;
 
 public sealed class CreateRoleCommandHandler(
-    IRoleRepository repository,
+    IRoleRepository roleRepository,
     IUnitOfWork unitOfWork)
-    : ICommandHandler<CreateRoleCommand>
+    : ICommandHandler<CreateRoleCommand, int>
 {
-    public async Task<Result> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
         if (request.Id <= 0)
         {
-            return Result.Failure(Error.Validation(
+            return Result.Failure<int>(Error.Validation(
                 "Role.Id.Invalid",
                 "The role ID must be greater than zero."));
         }
 
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Failure(Error.Validation(
+            return Result.Failure<int>(Error.Validation(
                 "Role.Name.Required",
                 "The role name is required."));
         }
 
         if (string.IsNullOrWhiteSpace(request.Objective))
         {
-            return Result.Failure(Error.Validation(
+            return Result.Failure<int>(Error.Validation(
                 "Role.Objective.Required",
                 "The role objective is required."));
         }
 
-        var exists = await repository.GetAsync(request.Id, cancellationToken);
+        var exists = await roleRepository.GetAsync(request.Id, cancellationToken);
         if (exists is not null)
         {
-            return Result.Failure(Error.Conflict(
+            return Result.Failure<int>(Error.Conflict(
                 "Role.Exists",
                 "A role with the specified ID already exists."));
         }
 
-        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        var result = Role.Create(request.Id, request.Name, request.Objective);
 
-        var role = Role.Create(request.Id, request.Name, request.Objective);
+        if (result.IsFailure)
+            return Result.Failure<int>(result.Error);
 
-        repository.Insert(role.Value);
+        var role = result.Value;
+
+        roleRepository.Insert(role);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
 
-        return Result.Success();
+        return Result.Success(role.Id);
     }
+
 }

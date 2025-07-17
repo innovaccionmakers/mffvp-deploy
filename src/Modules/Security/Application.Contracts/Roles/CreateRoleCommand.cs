@@ -2,8 +2,8 @@
 
 namespace Security.Application.Contracts.Roles;
 
-public sealed record class CreateRoleCommand(
+public sealed record CreateRoleCommand(
     int Id,
     string Name,
     string Objective
-) : ICommand;
+) : ICommand<int>;

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Security.Application.Contracts.Permissions;
 using Security.Application.Contracts.RolePermissions;
+using Security.Application.Contracts.Roles;
+using Security.Application.Contracts.UserPermissions;
 using Security.Application.Contracts.UserRoles;
 using Security.Application.Contracts.Users;
 using Security.Domain.RolePermissions;
@@ -69,6 +71,71 @@ public static class SecurityBusinessApi
                              ```
                              """)
             .Produces<List<PermissionDto>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet(
+            "GetUserPermissions",
+            async (
+                IHttpContextAccessor accessor,
+                ISender sender
+            ) =>
+            {
+                var httpContext = accessor.HttpContext;
+                var userName = httpContext?.User?.Identity?.Name;
+
+                if (string.IsNullOrWhiteSpace(userName))
+                {
+                    return Results.Problem(
+                                title: "Unauthorized",
+                                detail: "The user identity is not present in the token.",
+                                statusCode: StatusCodes.Status401Unauthorized
+                            );
+                }
+
+                var result = await sender.Send(new GetPermissionsByUserNameQuery(userName));
+
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                                title: result.Error.Code,
+                                detail: result.Error.Description,
+                                statusCode: result.Error.Code switch
+                            {
+                                "User.UserName.Required" => StatusCodes.Status400BadRequest,
+                                "User.NotFound" => StatusCodes.Status404NotFound,
+                                _ => StatusCodes.Status500InternalServerError
+                            }
+                            );
+                }
+
+                return Results.Ok(result.Value);
+            }
+            )
+            .WithName("GetUserPermissions")
+            .WithSummary("Obtener permisos del usuario autenticado")
+            .WithDescription("""
+                                        Devuelve la lista de permisos del usuario autenticado, obteniendo el UserName desde el token JWT.
+
+                                        **Ejemplo de respuesta (application/json):**
+                                        ```json
+                                        [
+                                        {
+                                            "scopePermission": "fvp:people:people:view",
+                                            "displayName": "Ver personas",
+                                            "description": "Permite ver la lista de personas"
+                                        },
+                                        {
+                                            "scopePermission": "fvp:people:people:edit",
+                                            "displayName": "Editar personas",
+                                            "description": "Permite editar registros de personas"
+                                        }
+                                        ]
+                                        ```
+                                        """)
+            .Produces<IReadOnlyCollection<PermissionDto>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -266,13 +333,13 @@ public static class SecurityBusinessApi
             .WithName("UserExists")
             .WithSummary("Verifica si un usuario existe")
             .WithDescription("""
-                             Devuelve `true` o `false` si el usuario con ID especificado existe o no.
+                                     Devuelve `true` o `false` si el usuario con ID especificado existe o no.
                      
-                             **Ejemplo de respuesta:**
-                             ```json
-                             true
-                             ```
-                             """)
+                                     **Ejemplo de respuesta:**
+                                     ```json
+                                     true
+                                     ```
+                                     """)
             .Produces<bool>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -320,6 +387,76 @@ public static class SecurityBusinessApi
                              ```
                              """)
             .Accepts<CreateUserCommand>("application/json")
+            .Produces<int>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet(
+                "RoleExists/{roleId:int}",
+                async (
+                    [FromRoute] int roleId,
+                    ISender sender
+                ) =>
+                {
+                    var result = await sender.Send(new RoleExistsQuery(roleId));
+                    return result.IsSuccess
+                        ? Results.Ok(result.Value)
+                        : Results.Problem(result.Error.Description);
+                }
+            )
+            .WithName("RoleExists")
+            .WithSummary("Verifica si un rol existe")
+            .WithDescription("""
+                             Devuelve `true` o `false` si el rol con ID especificado existe o no.
+
+                             **Ejemplo de respuesta:**
+                             ```json
+                             true
+                             ```
+                             """)
+            .Produces<bool>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPost(
+            "CreateRole",
+                async (
+                    [FromBody] CreateRoleCommand request,
+                    ISender sender
+                ) =>
+                {
+                    var result = await sender.Send(request);
+
+                    if (result.IsFailure)
+                    {
+                        return Results.Problem(
+                            title: result.Error.Code,
+                            detail: result.Error.Description,
+                            statusCode: result.Error.Code switch
+                            {
+                                "Role.Name.Required" => StatusCodes.Status400BadRequest,
+                                _ => StatusCodes.Status500InternalServerError
+                            }
+                        );
+                    }
+
+                    return Results.Ok(result.Value);
+                }
+            )
+            .WithName("CreateRole")
+            .WithSummary("Crear nuevo rol")
+            .WithDescription("""
+                        Crea un nuevo rol con el nombre y objetivo especificados.
+
+                        **Ejemplo de petición (application/json):**
+                        ```json
+                        {
+                        "id": 1,
+                        "name": "Administrador",
+                        "objective": "Gestión total del sistema"
+                        }
+                        ```
+                        """)
+            .Accepts<CreateRoleCommand>("application/json")
             .Produces<int>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
