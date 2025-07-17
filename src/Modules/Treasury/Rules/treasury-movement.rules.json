@@ -1,0 +1,72 @@
+[
+  {
+    "WorkflowName": "Treasury.CreateTreasuryMovement.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "PortfolioIdRequired",
+        "ErrorMessage": "El portafolio es obligatorio",
+        "Expression": "input.PortfolioId > 0",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000001" }
+      },
+      {
+        "RuleName": "ClosingDateRequired",
+        "ErrorMessage": "La fecha de cierre es obligatoria",
+        "Expression": "input.ClosingDate != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000002" }
+      },
+      {
+        "RuleName": "TreasuryConceptIdRequired",
+        "ErrorMessage": "El concepto de tesorer�a es obligatorio",
+        "Expression": "input.TreasuryConceptId > 0",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000003" }
+      },
+      {
+        "RuleName": "ValueRequired",
+        "ErrorMessage": "El valor es obligatorio",
+        "Expression": "input.Value != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000004" }
+      },
+      {
+        "RuleName": "ProcessDateRequired",
+        "ErrorMessage": "La fecha de proceso es obligatoria",
+        "Expression": "input.ProcessDate != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000005" }
+      },
+      {
+        "RuleName": "BankAccountIdRequired",
+        "ErrorMessage": "La cuenta bancaria es obligatoria",
+        "Expression": "input.BankAccountId > 0",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000006" }
+      },
+      {
+        "RuleName": "EntityIdRequired",
+        "ErrorMessage": "La entidad es obligatoria",
+        "Expression": "input.EntityId > 0",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000007" }
+      },
+      {
+        "RuleName": "CounterpartyIdRequired",
+        "ErrorMessage": "La contraparte es obligatoria",
+        "Expression": "input.CounterpartyId > 0",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000008" }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Treasury.CreateTreasuryMovement.Validation",
+    "Rules": [
+      {
+        "RuleName": "TreasuryConceptMustExist",
+        "ErrorMessage": "El concepto de tesorería no existe",
+        "Expression": "input.TreasuryConceptExists != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000010" }
+      },
+      {
+        "RuleName": "NegativeValueNotAllowed",
+        "ErrorMessage": "El concepto de tesorería no permite valores negativos",
+        "Expression": "input.AllowsNegative == true || input.Value >= 0",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000009" }
+      }
+    ]
+  }
+]

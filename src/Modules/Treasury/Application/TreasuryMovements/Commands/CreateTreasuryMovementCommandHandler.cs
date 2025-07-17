@@ -6,15 +6,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Treasury.Application.Abstractions;
 using Treasury.Application.Abstractions.Data;
+using Treasury.Domain.TreasuryConcepts;
 using Treasury.Domain.TreasuryMovements;
+using Treasury.Integrations.BankAccounts.Response;
 using Treasury.Integrations.TreasuryConcepts.Response;
 using Treasury.Integrations.TreasuryMovements.Commands;
 
 internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository repository,
+                                                    ITreasuryConceptRepository treasuryConceptRepository,
                                                     IUnitOfWork unitOfWork,
                                                     IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateTreasuryMovementCommand, TreasuryMovementResponse>
 {
     private const string RequiredFieldsWorkflow = "Treasury.CreateTreasuryMovement.RequiredFields";
+    private const string TreasuryMovementValidationWorkflow = "Treasury.CreateTreasuryMovement.Validation";
     public async Task<Result<TreasuryMovementResponse>> Handle(CreateTreasuryMovementCommand request, CancellationToken cancellationToken)
     {
         var requiredContext = new
@@ -26,7 +30,7 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
             request.ProcessDate,
             request.BankAccountId,
             request.EntityId,
-            request.CounterpartyId,            
+            request.CounterpartyId,
         };
 
         var (requiredOk, _, requiredErrors) = await ruleEvaluator.EvaluateAsync(RequiredFieldsWorkflow, requiredContext, cancellationToken);
@@ -36,6 +40,28 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
             return Result.Failure<TreasuryMovementResponse>(
                 Error.Validation(first.Code, first.Message));
         }
+
+        var treasuryConcept = await treasuryConceptRepository.GetByIdAsync(request.TreasuryConceptId, cancellationToken);
+
+        var validationContext = new
+        {
+            TreasuryConceptExists = treasuryConcept,
+            AllowsNegative = treasuryConcept?.AllowsNegative ?? false,
+            request.Value
+        };
+
+        var (rulesOk, _, ruleErrors) = await ruleEvaluator
+            .EvaluateAsync(TreasuryMovementValidationWorkflow,
+                validationContext,
+                cancellationToken);
+
+        if (!rulesOk)
+        {
+            var first = ruleErrors.First();
+            return Result.Failure<TreasuryMovementResponse>(
+                Error.Validation(first.Code, first.Message));
+        }
+
         var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var treasuryMovement = TreasuryMovement.Create(
             request.PortfolioId,
@@ -59,7 +85,7 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         await tx.CommitAsync(cancellationToken);
 
         var response = new TreasuryMovementResponse(
-            treasuryMovement.Value.Id            
+            treasuryMovement.Value.Id
         );
 
         return Result.Success(response);
