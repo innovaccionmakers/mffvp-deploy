@@ -14,7 +14,7 @@ namespace Closing.Infrastructure.PortfolioValuations
             //que hace parte de un ejercicio de simulación el cual no debe considerarse como real.
             return await context.PortfolioValuations.Where(x => x.PortfolioId == portfolioId &&
                                                 x.ClosingDate == closingDateUtc &&
-                                                x.IsClosed == true) 
+                                                x.IsClosed == true)
                 .SingleOrDefaultAsync(cancellationToken);
         }
         /// <summary>
@@ -36,7 +36,5 @@ namespace Closing.Infrastructure.PortfolioValuations
                                x.IsClosed == true,
                           cancellationToken);
         }
-
-
     }
 }

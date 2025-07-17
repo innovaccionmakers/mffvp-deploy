@@ -1,4 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+    <ItemGroup>
+      <Compile Remove="TreasuryMovements\Command\**" />
+      <EmbeddedResource Remove="TreasuryMovements\Command\**" />
+      <None Remove="TreasuryMovements\Command\**" />
+    </ItemGroup>
 
 
     <ItemGroup>
@@ -6,6 +13,8 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\..\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Products\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Domain\Treasury.Domain.csproj" />
         <ProjectReference Include="..\Integrations\Treasury.Integrations.csproj" />
     </ItemGroup>
@@ -14,7 +23,6 @@
     <ItemGroup>
       <Folder Include="BankAccounts\Queries\" />
       <Folder Include="TreasuryConcepts\Queries\" />
-      <Folder Include="TreasuryMovements\Command\" />
     </ItemGroup>
 
     <PropertyGroup>
