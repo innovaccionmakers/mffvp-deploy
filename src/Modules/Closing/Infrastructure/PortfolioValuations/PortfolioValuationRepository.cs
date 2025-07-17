@@ -36,5 +36,12 @@ namespace Closing.Infrastructure.PortfolioValuations
                                x.IsClosed == true,
                           cancellationToken);
         }
+
+        public async Task<bool> ExistsByClosingDateAsync(DateTime closingDateUtc, CancellationToken cancellationToken = default)
+        {
+            return await context.PortfolioValuations
+                .AnyAsync(x => x.ClosingDate == closingDateUtc,
+                          cancellationToken);
+        }
     }
 }
