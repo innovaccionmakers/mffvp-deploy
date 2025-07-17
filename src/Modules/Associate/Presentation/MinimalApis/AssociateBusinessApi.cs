@@ -7,7 +7,8 @@ using Associate.Integrations.PensionRequirements;
 using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 using Associate.Integrations.PensionRequirements.GetPensionRequirements;
 using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
-
+using Associate.Integrations.Balances.AssociateBalancesById;
+using Common.SharedKernel.Domain;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 
@@ -180,5 +181,27 @@ public static class AssociateBusinessApi
         .Produces<PensionRequirementResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet(
+                "BalancesById",
+                async (
+                    [FromQuery(Name = "tipoId")] string documentType,
+                    [FromQuery(Name = "identificacion")] string identification,
+                    ISender sender
+                ) =>
+                {
+                    var result = await sender.Send(new AssociateBalancesByIdQuery(documentType, identification));
+                    return result.Match(
+                        Results.Ok,
+                        r => r.Error.Type == ErrorType.Validation
+                            ? ApiResults.Failure(r)
+                            : ApiResults.Problem(r)
+                    );
+                }
+            )
+            .WithSummary("Obtiene los saldos consolidados de un afiliado")
+            .Produces<IReadOnlyCollection<AssociateBalanceWrapper>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }
