@@ -1,11 +1,12 @@
+using Associate.IntegrationEvents.ActivateValidation;
 using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Microsoft.AspNetCore.Builder;
-
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -37,13 +38,13 @@ using Products.Infrastructure.Offices;
 using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
+using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 using Products.IntegrationEvents.Commission.GetCommissionsByPortfolio;
 using Products.IntegrationEvents.ContributionValidation;
+using Products.IntegrationEvents.Portfolio;
 using Products.IntegrationEvents.PortfolioValidation;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
-using Common.SharedKernel.Application.Rpc;
-using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 
 namespace Products.Infrastructure;
 
@@ -98,6 +99,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IObjectiveReader, ObjectiveReader>();
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();
         services.AddScoped<IRpcHandler<ContributionValidationRequest, ContributionValidationResponse>, ContributionValidationConsumer>();
+        services.AddScoped<IRpcHandler<GetPortfolioByIdRequest, GetPortfolioByIdResponse>, GetPortfolioByIdConsumer>();
         services.AddTransient<IRpcHandler<ValidatePortfolioRequest, ValidatePortfolioResponse>, PortfolioValidationConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioDataRequest, GetPortfolioDataResponse>, PortfolioValidationConsumer>();
 

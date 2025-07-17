@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Treasury.Application.Abstractions;
 using Treasury.Application.Abstractions.Data;
+using Treasury.Application.Abstractions.External;
 using Treasury.Domain.TreasuryConcepts;
 using Treasury.Domain.TreasuryMovements;
 using Treasury.Integrations.BankAccounts.Response;
@@ -15,6 +16,8 @@ using Treasury.Integrations.TreasuryMovements.Commands;
 internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository repository,
                                                     ITreasuryConceptRepository treasuryConceptRepository,
                                                     IUnitOfWork unitOfWork,
+                                                    IPortfolioLocator portfolioLocator,
+                                                    IPortfolioValuationLocator portfolioValuationLocator,
                                                     IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateTreasuryMovementCommand, TreasuryMovementResponse>
 {
     private const string RequiredFieldsWorkflow = "Treasury.CreateTreasuryMovement.RequiredFields";
@@ -43,11 +46,16 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
 
         var treasuryConcept = await treasuryConceptRepository.GetByIdAsync(request.TreasuryConceptId, cancellationToken);
 
+        var portfolioRes = await portfolioLocator.FindByPortfolioIdAsync(request.PortfolioId, cancellationToken);
+        var existPortfolioValuation = await portfolioValuationLocator.CheckPortfolioValuationExists(portfolioRes.Value.CurrentDate, cancellationToken);
+
         var validationContext = new
         {
             TreasuryConceptExists = treasuryConcept,
+            PortfolioExists = portfolioRes,
             AllowsNegative = treasuryConcept?.AllowsNegative ?? false,
-            request.Value
+            request.Value,
+            PortfolioValuationExists = existPortfolioValuation.Value
         };
 
         var (rulesOk, _, ruleErrors) = await ruleEvaluator

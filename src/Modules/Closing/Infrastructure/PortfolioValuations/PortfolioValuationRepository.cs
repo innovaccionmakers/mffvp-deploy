@@ -14,7 +14,7 @@ namespace Closing.Infrastructure.PortfolioValuations
             //que hace parte de un ejercicio de simulación el cual no debe considerarse como real.
             return await context.PortfolioValuations.Where(x => x.PortfolioId == portfolioId &&
                                                 x.ClosingDate == closingDateUtc &&
-                                                x.IsClosed == true) 
+                                                x.IsClosed == true)
                 .SingleOrDefaultAsync(cancellationToken);
         }
 
@@ -28,5 +28,11 @@ namespace Closing.Infrastructure.PortfolioValuations
                           cancellationToken);
         }
 
+        public async Task<bool> ExistsByClosingDateAsync(DateTime closingDateUtc, CancellationToken cancellationToken = default)
+        {
+            return await context.PortfolioValuations
+                .AnyAsync(x => x.ClosingDate == closingDateUtc,
+                          cancellationToken);
+        }
     }
 }

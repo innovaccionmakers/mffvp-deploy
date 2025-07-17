@@ -62,10 +62,22 @@
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000010" }
       },
       {
+        "RuleName": "PortfolioMustExist",
+        "ErrorMessage": "El portafolio no existe",
+        "Expression": "input.PortfolioExists != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000011" }
+      },
+      {
         "RuleName": "NegativeValueNotAllowed",
         "ErrorMessage": "El concepto de tesorería no permite valores negativos",
         "Expression": "input.AllowsNegative == true || input.Value >= 0",
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000009" }
+      },
+      {
+        "RuleName": "PortfolioValuationMustExist",
+        "ErrorMessage": "No es posible realizar la carga de conceptos, teniendo presente que es el primer día de operación del Portafolio",
+        "Expression": "input.PortfolioValuationExists == true",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000012" }
       }
     ]
   }
