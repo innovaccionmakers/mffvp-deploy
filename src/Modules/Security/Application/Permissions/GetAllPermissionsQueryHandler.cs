@@ -16,6 +16,12 @@ public sealed class GetAllPermissionsQueryHandler
         var allPermissions = MakersPermissionsAssociateActivates.All
             .Concat(MakersPermissionsAssociatePensionRequirements.All)
             .Concat(MakersPermissionsOperationsContributionTx.All)
+            .Concat(MakersPermissionsAccounting.All)
+            .Concat(MakersPermissionsAffiliates.All)
+            .Concat(MakersPermissionsClosing.All)
+            .Concat(MakersPermissionsOperations.All)
+            .Concat(MakersPermissionsReports.All)
+            .Concat(MakersPermissionsTreasury.All)
             .ToList();
 
         return Task.FromResult(Result.Success<IReadOnlyCollection<MakersPermission>>(allPermissions));
