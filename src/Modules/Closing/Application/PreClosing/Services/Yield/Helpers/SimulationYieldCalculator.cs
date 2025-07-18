@@ -1,7 +1,7 @@
-﻿using Common.SharedKernel.Application.Helpers.Finance;
+﻿using Closing.Application.PreClosing.Services.Yield.Dto;
+using Common.SharedKernel.Application.Helpers.Finance;
 
-namespace Closing.Domain.PreClosing;
-
+namespace  Closing.Application.PreClosing.Services.Yield.Helpers;
 public static class SimulationYieldCalculator
 {
     public static SimulationValues Calculate(

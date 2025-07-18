@@ -1,9 +1,13 @@
 ﻿using Common.SharedKernel.Application.Messaging;
+using System.Text.Json.Serialization;
 
 namespace Closing.Integrations.PreClosing.RunSimulation;
 public sealed record RunSimulationCommand(
+    [property: JsonPropertyName("IdPortafolio")]
     int PortfolioId,
+    [property: JsonPropertyName("FechaCierre")]
     DateTime ClosingDate,
+    [property: JsonPropertyName("EsCierre")]
     bool IsClosing = false
 ) : ICommand<SimulatedYieldResult>;
 

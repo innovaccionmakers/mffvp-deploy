@@ -1,9 +1,10 @@
 ﻿using Closing.Application.Abstractions.External.Operations.SubtransactionTypes;
 using Closing.Application.Abstractions.External.Products.Commissions;
 using Closing.Application.Abstractions.External.Treasury.TreasuryMovements;
-using Closing.Application.PreClosing.Services.CommissionCalculation;
+using Closing.Application.PreClosing.Services.Commission;
+using Closing.Application.PreClosing.Services.Commission.Interfaces;
 using Closing.Application.PreClosing.Services.Orchestation;
-using Closing.Application.PreClosing.Services.ProfitAndLossConsolidation;
+using Closing.Application.PreClosing.Services.ProfitAndLoss;
 using Closing.Application.PreClosing.Services.TreasuryConcepts;
 using Closing.Application.PreClosing.Services.Validation;
 using Closing.Application.PreClosing.Services.Yield;

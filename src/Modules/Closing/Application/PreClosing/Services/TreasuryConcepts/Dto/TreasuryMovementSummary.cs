@@ -1,10 +1,10 @@
 ﻿
-using Closing.Domain.PreClosing;
+using Closing.Application.PreClosing.Services.Yield.Dto;
 using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
 using System.Text.Json;
 
-namespace Closing.Domain.TreasuryMovements;
+namespace Closing.Application.PreClosing.Services.TreasuryConcepts.Dto;
 
 public sealed record TreasuryMovementSummary(
     long ConceptId,

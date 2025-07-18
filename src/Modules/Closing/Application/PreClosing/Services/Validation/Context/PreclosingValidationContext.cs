@@ -1,4 +1,4 @@
-﻿namespace Closing.Application.PreClosing.Services.Validation;
+﻿namespace Closing.Application.PreClosing.Services.Validation.Context;
 
 public sealed class PreclosingValidationContext
 {

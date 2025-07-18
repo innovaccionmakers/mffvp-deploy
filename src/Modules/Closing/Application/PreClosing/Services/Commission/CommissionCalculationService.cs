@@ -1,9 +1,10 @@
 ﻿using Closing.Application.Abstractions.External.Products.Commissions;
-using Closing.Domain.Commission;
-using Closing.Domain.Constants;
+using Closing.Application.PreClosing.Services.Commission.Constants;
+using Closing.Application.PreClosing.Services.Commission.Dto;
+using Closing.Application.PreClosing.Services.Commission.Interfaces;
 using System.Globalization;
 
-namespace Closing.Application.PreClosing.Services.CommissionCalculation;
+namespace Closing.Application.PreClosing.Services.Commission;
 
 public class CommissionCalculationService : ICommissionCalculationService
 {

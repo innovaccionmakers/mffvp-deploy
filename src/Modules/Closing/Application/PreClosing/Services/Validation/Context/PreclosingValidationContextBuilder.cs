@@ -1,4 +1,6 @@
-﻿namespace Closing.Application.PreClosing.Services.Validation;
+﻿using Closing.Application.PreClosing.Services.Validation.Dto;
+
+namespace Closing.Application.PreClosing.Services.Validation.Context;
 
 public sealed class PreclosingValidationContextBuilder
 {

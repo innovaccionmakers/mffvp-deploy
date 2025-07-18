@@ -1,5 +1,5 @@
 ﻿using Closing.Application.Abstractions.External.Treasury.TreasuryMovements;
-using Closing.Domain.TreasuryMovements;
+using Closing.Application.PreClosing.Services.TreasuryConcepts.Dto;
 
 namespace Closing.Application.PreClosing.Services.TreasuryConcepts
 {

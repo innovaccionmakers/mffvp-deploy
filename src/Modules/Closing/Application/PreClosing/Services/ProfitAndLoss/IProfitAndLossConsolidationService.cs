@@ -1,7 +1,7 @@
-﻿
+﻿using Closing.Application.PreClosing.Services.ProfitAndLoss.Dto;
 using Closing.Domain.ProfitLosses;
 
-namespace Closing.Application.PreClosing.Services.ProfitAndLossConsolidation
+namespace Closing.Application.PreClosing.Services.ProfitAndLoss
 {
     public interface IProfitAndLossConsolidationService
     {

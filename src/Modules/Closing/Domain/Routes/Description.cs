@@ -12,15 +12,15 @@ namespace Closing.Domain.Routes
                                  Content-Type: application/json
 
                                  {
-                                   "portfolioId": 1,
-                                   "closingDate": "2025-05-30",
-                                   "isClosing": false
+                                   "IdPortafolio": 1,
+                                   "FechaCierre": "2025-07-01",
+                                   "EsCierre": false
                                  }
                                  ```
 
-                                 - `portfolioId`: Identificador del portafolio
-                                 - `closingDate`: Fecha en que se va a ejecutar el cierre del portafolio
-                                 - `isClosing`: Identificador de que los valores aún pueden ser recalculados (false) y cuando no (true)
+                                 - `IdPortafolio`: Identificador del portafolio
+                                 - `FechaCierre`: Fecha en que se va a ejecutar el cierre del portafolio
+                                 - `EsCierre`: Identificador de que los valores aún pueden ser recalculados (false) y cuando no (true)
                                  """
              ;
     }

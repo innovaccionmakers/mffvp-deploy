@@ -1,6 +1,6 @@
-﻿using Closing.Application.PreClosing.Services.Yield.Interfaces;
-using Closing.Domain.Commission;
-using Closing.Domain.Constants;
+﻿using Closing.Application.PreClosing.Services.Commission.Dto;
+using Closing.Application.PreClosing.Services.Yield.Constants;
+using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Helpers.General;

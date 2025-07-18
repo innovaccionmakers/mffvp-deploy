@@ -1,4 +1,4 @@
-﻿using Closing.Domain.TreasuryMovements;
+﻿using Closing.Application.PreClosing.Services.TreasuryConcepts.Dto;
 
 namespace Closing.Application.PreClosing.Services.TreasuryConcepts;
 
