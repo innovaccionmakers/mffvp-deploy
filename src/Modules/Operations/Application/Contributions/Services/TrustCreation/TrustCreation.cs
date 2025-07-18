@@ -28,7 +28,7 @@ public sealed class TrustCreation(IEventBus eventBus) : ITrustCreation
             taxResult.TaxConditionId,
             taxResult.WithheldAmount,
             0m,
-            command.Amount,
+            0m,
             0m,
             true);
 
