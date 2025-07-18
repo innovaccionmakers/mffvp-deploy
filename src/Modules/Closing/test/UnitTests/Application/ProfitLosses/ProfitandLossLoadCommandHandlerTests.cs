@@ -3,6 +3,7 @@ using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
 using Closing.Application.ProfitLosses.ProfitandLossLoad;
+using Closing.Domain.PortfolioValuations;
 using Closing.Domain.ProfitLossConcepts;
 using Closing.Domain.ProfitLosses;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
@@ -19,6 +20,7 @@ public class ProfitandLossLoadCommandHandlerTests
     private readonly Mock<IProfitLossConceptRepository> _conceptRepo = new();
     private readonly Mock<IProfitLossRepository> _profitLossRepo = new();
     private readonly Mock<IPortfolioValidator> _portfolioValidator = new();
+    private readonly Mock<IPortfolioValuationRepository> _portfolioValuationRepo = new();
     private readonly Mock<IInternalRuleEvaluator<ClosingModuleMarker>> _ruleEvaluator = new();
     private readonly Mock<IUnitOfWork> _uow = new();
     private readonly Mock<DbTransaction> _tx = new();
@@ -31,6 +33,7 @@ public class ProfitandLossLoadCommandHandlerTests
             _conceptRepo.Object,
             _profitLossRepo.Object,
             _portfolioValidator.Object,
+            _portfolioValuationRepo.Object,
             _ruleEvaluator.Object,
             _uow.Object);
     }
@@ -75,6 +78,8 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
+        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         var handler = BuildHandler();
@@ -110,6 +115,8 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
+        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
         var handler = BuildHandler();
@@ -165,6 +172,8 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(new List<ProfitLossConcept>()); // No se encuentran conceptos
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
+        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
         var handler = BuildHandler();
@@ -204,6 +213,8 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
+        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
         var handler = BuildHandler();
@@ -218,6 +229,43 @@ public class ProfitandLossLoadCommandHandlerTests
         result.Error.Description.Should().Be("La fecha efectiva debe ser exactamente un día después de la fecha actual del portafolio");
         _profitLossRepo.Verify(r => r.DeleteByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
         _profitLossRepo.Verify(r => r.InsertRange(It.IsAny<IEnumerable<ProfitLoss>>()), Times.Never);
+    }
+    
+    [Fact]
+    public async Task Handle_Should_Return_Failure_When_Portfolio_Valuation_Does_Not_Exist()
+    {
+        // arrange
+        var conceptAmounts = new Dictionary<string, decimal>
+        {
+            ["Rendimientos Brutos"] = 100m
+        };
+
+        var concepts = new List<ProfitLossConcept>
+        {
+            Concept(1, "Rendimientos Brutos", IncomeExpenseNature.Income, true)
+        };
+
+        var portfolioData = new PortfolioData(10, DateTime.Today.AddDays(-1));
+        var validationError = new RuleValidationError("CLOSING_004", "Debe existir una valoración para la fecha actual del portafolio");
+
+        _conceptRepo.Setup(r => r.FindByNamesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(concepts);
+        _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(portfolioData));
+        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
+        var handler = BuildHandler();
+        var cmd = new ProfitandLossLoadCommand(10, DateTime.Today, conceptAmounts);
+
+        // act
+        var result = await handler.Handle(cmd, CancellationToken.None);
+
+        // assert
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be("CLOSING_004");
+        result.Error.Description.Should().Be("Debe existir una valoración para la fecha actual del portafolio");
     }
 
     [Fact]
@@ -240,6 +288,8 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
+        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         var handler = BuildHandler();
@@ -278,6 +328,8 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
+        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         var handler = BuildHandler();
@@ -315,6 +367,8 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
+        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
         var handler = BuildHandler();
@@ -335,18 +389,20 @@ public class ProfitandLossLoadCommandHandlerTests
         var contextType = context.GetType();
         var effectiveDateProperty = contextType.GetProperty("EffectiveDate");
         var portfolioCurrentDateProperty = contextType.GetProperty("PortfolioCurrentDate");
+        var portfolioValuationExistsProperty = contextType.GetProperty("PortfolioValuationExists");
         var conceptsProperty = contextType.GetProperty("Concepts");
         var requestedConceptNamesProperty = contextType.GetProperty("RequestedConceptNames");
 
-        if (effectiveDateProperty == null || portfolioCurrentDateProperty == null || conceptsProperty == null || requestedConceptNamesProperty == null)
+        if (effectiveDateProperty == null || portfolioCurrentDateProperty == null || portfolioValuationExistsProperty == null || conceptsProperty == null || requestedConceptNamesProperty == null)
             return false;
 
         var effectiveDate = (DateTime)effectiveDateProperty.GetValue(context)!;
         var portfolioCurrentDate = (DateTime)portfolioCurrentDateProperty.GetValue(context)!;
+        var valuationExists = (bool)portfolioValuationExistsProperty.GetValue(context)!;
         var concepts = conceptsProperty.GetValue(context) as Array;
         var requestedConceptNames = requestedConceptNamesProperty.GetValue(context) as Array;
-
-        if (effectiveDate != expectedEffectiveDate || portfolioCurrentDate != expectedPortfolioCurrentDate || concepts == null || requestedConceptNames == null)
+        
+        if (effectiveDate != expectedEffectiveDate || portfolioCurrentDate != expectedPortfolioCurrentDate || !valuationExists || concepts == null || requestedConceptNames == null)
             return false;
 
         if (concepts.Length != expectedConcepts.Count)

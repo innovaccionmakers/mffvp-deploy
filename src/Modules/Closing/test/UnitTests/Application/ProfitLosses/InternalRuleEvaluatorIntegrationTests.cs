@@ -43,6 +43,7 @@ public class InternalRuleEvaluatorIntegrationTests
         {
             EffectiveDate = DateTime.UtcNow.AddDays(1),
             PortfolioCurrentDate = DateTime.UtcNow.Date,
+            PortfolioValuationExists = true,
             RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
@@ -93,6 +94,7 @@ public class InternalRuleEvaluatorIntegrationTests
         {
             EffectiveDate = DateTime.UtcNow.Date,
             PortfolioCurrentDate = DateTime.UtcNow.Date.AddDays(-1),
+            PortfolioValuationExists = true,
             RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
@@ -143,6 +145,7 @@ public class InternalRuleEvaluatorIntegrationTests
         {
             EffectiveDate = DateTime.UtcNow.Date,
             PortfolioCurrentDate = DateTime.UtcNow.Date.AddDays(-1),
+            PortfolioValuationExists = true,
             RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
@@ -183,6 +186,7 @@ public class InternalRuleEvaluatorIntegrationTests
         {
             EffectiveDate = DateTime.UtcNow.Date,
             PortfolioCurrentDate = DateTime.UtcNow.Date.AddDays(-2),
+            PortfolioValuationExists = true,
             RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
@@ -235,6 +239,7 @@ public class InternalRuleEvaluatorIntegrationTests
         {
             EffectiveDate = effectiveDate,
             PortfolioCurrentDate = portfolioCurrentDate,
+            PortfolioValuationExists = true,
             RequestedConceptNames = conceptNames,
             Concepts = new[]
             {
