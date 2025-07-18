@@ -8,6 +8,6 @@ namespace Closing.Domain.PortfolioValuations
 
         Task<bool> ValuationExistsAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
 
-        Task<bool> ExistsByClosingDateAsync(DateTime closingDateUtc, CancellationToken cancellationToken = default);
+        Task<bool> ExistsByPortfolioIdAsync(long portfolioId, CancellationToken cancellationToken = default);
     }
 }

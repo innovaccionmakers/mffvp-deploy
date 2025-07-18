@@ -8,7 +8,6 @@ public sealed record CreateTreasuryMovementCommand(
     DateTime ClosingDate,
     long TreasuryConceptId,
     decimal Value,
-    DateTime ProcessDate,
     long BankAccountId,
     long EntityId,
     long CounterpartyId

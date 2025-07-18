@@ -6,12 +6,12 @@ namespace Treasury.Infrastructure.External.PortfolioValuation;
 
 internal sealed class PortfolioValuationLocator(IRpcClient rpc) : IPortfolioValuationLocator
 {
-    public async Task<Result<bool>> CheckPortfolioValuationExists(DateTime closingDate, CancellationToken ct)
+    public async Task<Result<bool>> CheckPortfolioValuationExists(long portfolioId, CancellationToken ct)
     {
         var rc = await rpc.CallAsync<
             CheckPortfolioValuationExistsRequest,
             CheckPortfolioValuationExistsResponse>(
-            new CheckPortfolioValuationExistsRequest(closingDate),
+            new CheckPortfolioValuationExistsRequest(portfolioId),
             ct);
         return rc.Succeeded
             ? Result.Success(rc.Exists)

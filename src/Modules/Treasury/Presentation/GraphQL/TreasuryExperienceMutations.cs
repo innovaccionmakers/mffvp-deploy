@@ -104,7 +104,6 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
                 input.ClosingDate,
                 input.TreasuryConceptId,
                 input.Value,
-                input.ProcessDate,
                 input.BankAccountId,
                 input.EntityId,
                 input.CounterpartyId
