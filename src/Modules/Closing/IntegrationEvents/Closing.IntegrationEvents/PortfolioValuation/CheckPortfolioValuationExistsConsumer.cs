@@ -8,7 +8,7 @@ public class CheckPortfolioValuationExistsConsumer(ISender sender) : IRpcHandler
 {
     public async  Task<CheckPortfolioValuationExistsResponse> HandleAsync(CheckPortfolioValuationExistsRequest request, CancellationToken ct)
     {
-        var result = await sender.Send(new CheckValuationExistsQuery(request.ClosingDate), ct);
+        var result = await sender.Send(new CheckValuationExistsQuery(request.PortfolioId), ct);
 
         if (!result.IsSuccess)
             return new CheckPortfolioValuationExistsResponse(false, false, result.Error.Code, result.Error.Description);

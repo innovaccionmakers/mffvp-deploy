@@ -134,7 +134,7 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
 
         try
         {
-            var validationResult = RequestValidator.Validate(input, validator).GetAwaiter().GetResult();
+            var validationResult = await RequestValidator.Validate(input, validator);
             if (validationResult is not null)
             {
                 result.AddError(validationResult.Error);

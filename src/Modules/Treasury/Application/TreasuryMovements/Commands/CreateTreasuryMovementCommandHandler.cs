@@ -9,7 +9,6 @@ using Treasury.Application.Abstractions.Data;
 using Treasury.Application.Abstractions.External;
 using Treasury.Domain.TreasuryConcepts;
 using Treasury.Domain.TreasuryMovements;
-using Treasury.Integrations.BankAccounts.Response;
 using Treasury.Integrations.TreasuryConcepts.Response;
 using Treasury.Integrations.TreasuryMovements.Commands;
 
@@ -30,7 +29,6 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
             request.ClosingDate,
             request.TreasuryConceptId,
             request.Value,
-            request.ProcessDate,
             request.BankAccountId,
             request.EntityId,
             request.CounterpartyId,
@@ -47,7 +45,14 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         var treasuryConcept = await treasuryConceptRepository.GetByIdAsync(request.TreasuryConceptId, cancellationToken);
 
         var portfolioRes = await portfolioLocator.FindByPortfolioIdAsync(request.PortfolioId, cancellationToken);
-        var existPortfolioValuation = await portfolioValuationLocator.CheckPortfolioValuationExists(portfolioRes.Value.CurrentDate, cancellationToken);
+        if (portfolioRes.IsFailure)
+        {
+            return Result.Failure<TreasuryMovementResponse>(
+                portfolioRes.Error);
+        }
+        var existPortfolioValuation = await portfolioValuationLocator.CheckPortfolioValuationExists(portfolioRes.Value.PortfolioId, cancellationToken);
+
+        var isClosingDateValid = request.ClosingDate == portfolioRes.Value.CurrentDate.AddDays(1);
 
         var validationContext = new
         {
@@ -55,7 +60,8 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
             PortfolioExists = portfolioRes,
             AllowsNegative = treasuryConcept?.AllowsNegative ?? false,
             request.Value,
-            PortfolioValuationExists = existPortfolioValuation.Value
+            PortfolioValuationExists = existPortfolioValuation.Value,
+            ClosingDateIsValid = isClosingDateValid
         };
 
         var (rulesOk, _, ruleErrors) = await ruleEvaluator
@@ -74,7 +80,7 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         var treasuryMovement = TreasuryMovement.Create(
             request.PortfolioId,
             request.ClosingDate,
-            request.ProcessDate,
+            DateTime.UtcNow,
             request.TreasuryConceptId,
             request.Value,
             request.BankAccountId,

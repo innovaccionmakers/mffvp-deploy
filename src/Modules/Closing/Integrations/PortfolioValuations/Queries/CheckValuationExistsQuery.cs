@@ -4,5 +4,5 @@ using Common.SharedKernel.Application.Messaging;
 namespace Closing.Integrations.PortfolioValuations.Queries;
 
 public sealed record CheckValuationExistsQuery(
-    DateTime ClosingDate
+    long PortfolioId
 ) : IQuery<CheckValuationExistsResponse>;

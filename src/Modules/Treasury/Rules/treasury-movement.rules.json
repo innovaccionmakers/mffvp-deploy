@@ -27,12 +27,6 @@
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000004" }
       },
       {
-        "RuleName": "ProcessDateRequired",
-        "ErrorMessage": "La fecha de proceso es obligatoria",
-        "Expression": "input.ProcessDate != null",
-        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000005" }
-      },
-      {
         "RuleName": "BankAccountIdRequired",
         "ErrorMessage": "La cuenta bancaria es obligatoria",
         "Expression": "input.BankAccountId > 0",
@@ -78,6 +72,12 @@
         "ErrorMessage": "No es posible realizar la carga de conceptos, teniendo presente que es el primer día de operación del Portafolio",
         "Expression": "input.PortfolioValuationExists == true",
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000012" }
+      },
+      {
+        "RuleName": "ClosingDateMustBeNextDay",
+        "ErrorMessage": "El portafolio no se encuentra en esa fecha de proceso",
+        "Expression": "input.ClosingDateIsValid == true",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000013" }
       }
     ]
   }

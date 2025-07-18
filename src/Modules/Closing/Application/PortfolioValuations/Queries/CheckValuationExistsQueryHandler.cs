@@ -15,7 +15,7 @@ internal sealed class CheckValuationExistsQueryHandler(
         CancellationToken cancellationToken)
     {
         var exists = await portfolioValuationRepository
-            .ExistsByClosingDateAsync(request.ClosingDate, cancellationToken);
+            .ExistsByPortfolioIdAsync(request.PortfolioId, cancellationToken);
 
         var response = new CheckValuationExistsResponse(exists);
         return Result.Success(response, "Consulta realizada correctamente");

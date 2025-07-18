@@ -37,10 +37,10 @@ namespace Closing.Infrastructure.PortfolioValuations
                           cancellationToken);
         }
 
-        public async Task<bool> ExistsByClosingDateAsync(DateTime closingDateUtc, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsByPortfolioIdAsync(long portfolioId, CancellationToken cancellationToken = default)
         {
             return await context.PortfolioValuations
-                .AnyAsync(x => x.ClosingDate == closingDateUtc,
+                .AnyAsync(x => x.PortfolioId == portfolioId,
                           cancellationToken);
         }
     }
