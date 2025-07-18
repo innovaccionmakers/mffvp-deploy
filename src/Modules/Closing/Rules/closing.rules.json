@@ -50,14 +50,13 @@
     ]
   },
   {
-    "WorkflowName": "Closing.Preclosing.Simulation.BlockingValidations",
+    "WorkflowName": "Closing.Preclosing.Simulation.GeneralBlockingValidations",
     "Rules": [
       {
         "RuleName": "ClosingDate_OneDayAfterCurrentDate",
-        "ErrorMessage": "La fecha de cierre debe ser un día después de la fecha actual del portafolio",
         "Expression": "input.ClosingDate == input.CurrentDate.AddDays(1)",
         "Properties": {
-          "errorCode": ""
+          "errorCode": "a11fbf35-4cc2-421e-bfa7-866ad58e7216"
         }
       },
       {
@@ -65,16 +64,15 @@
         "ErrorMessage": "Ya se ha generado una valoración para esta fecha de cierre.",
         "Expression": "!input.ExistsClosingGenerated",
         "Properties": {
-          "errorCode": ""
+          "errorCode": "bdf3a783-af1a-4102-bbc7-f5c66d9fc549"
         }
       },
-     
       {
         "RuleName": "Closing_MustHaveAdminCommission",
         "ErrorMessage": "Debe existir definida la Comisión Administrativa para el cierre.",
         "Expression": "input.AdminCommissionCount == 1",
         "Properties": {
-          "errorCode": ""
+          "errorCode": "7b45ac55-630b-4b3b-864c-d769e476861b"
         }
       },
       {
@@ -82,7 +80,7 @@
         "ErrorMessage": "El valor de la Comisión Administrativa debe ser un número.",
         "Expression": "input.AdminCommissionIsNumber",
         "Properties": {
-          "errorCode": ""
+          "errorCode": "7b45ac55-630b-4b3b-864c-d769e476861b"
         }
       },
       {
@@ -90,7 +88,52 @@
         "ErrorMessage": "El valor de la Comisión Administrativa debe estar entre 0 y 100.",
         "Expression": "input.AdminCommissionBetween0And100",
         "Properties": {
-          "errorCode": ""
+          "errorCode": "7b45ac55-630b-4b3b-864c-d769e476861b"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Closing.Preclosing.Simulation.FirstDayBlockingValidations",
+    "Rules": [
+      {
+        "RuleName": "FirstDay_NoPandL",
+        "ErrorMessage": "No debe existir PYG en el primer día de cierre.",
+        "Expression": "input.IsFirstClosingDay && !input.ProfitAndLossExists",
+        "Properties": {
+          "errorCode": "17d6d2a1-deef-4cd4-832c-b52ac24da967"
+        }
+      },
+      {
+        "RuleName": "FirstDay_NoTreasuryMovements",
+        "ErrorMessage": "No debe existir movimientos de tesorería en el primer día de cierre.",
+        "Expression": "input.IsFirstClosingDay && !input.TreasuryMovementsExists",
+        "Properties": {
+          "errorCode": "4ac307fc-b4b3-496d-b9a8-4ee40323e176"
+        }
+      },
+      {
+        "RuleName": "FirstDay_MustHaveIncomeOperations",
+        "ErrorMessage": "Deben existir operaciones de entrada en el primer día de cierre.",
+        "Expression": "input.IsFirstClosingDay && HasClientOperations",
+        "Properties": {
+          "errorCode": "d445306f-4d42-4bbf-8bfa-e68b28787079"
+        }
+      },
+      {
+        "RuleName": "FirstDay_MustHaveInitialFundUnitValue",
+        "ErrorMessage": "Debe existir el parámetro InitialFundUnitValue para el primer día de cierre.",
+        "Expression": "input.IsFirstClosingDay && input.HasInitialFundUnitValue",
+        "Properties": {
+          "errorCode": "e4433fe9-e957-4d44-b488-53bfa0fa425f"
+        }
+      },
+      {
+        "RuleName": "FirstDay_InitialFundUnitValueMustBePositive",
+        "ErrorMessage": "El parámetro InitialFundUnitValue debe ser numérico y mayor a 0.",
+        "Expression": "input.IsFirstClosingDay && input.HasInitialFundUnitValue && input.InitialFundUnitValueIsValid",
+        "Properties": {
+          "errorCode": "e4433fe9-e957-4d44-b488-53bfa0fa425f"
         }
       }
     ]

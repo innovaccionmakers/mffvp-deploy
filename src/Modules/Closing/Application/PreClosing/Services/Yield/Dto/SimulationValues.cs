@@ -1,4 +1,4 @@
-﻿namespace Closing.Domain.PreClosing;
+﻿namespace Closing.Application.PreClosing.Services.Yield.Dto;
 
 /// <summary>
 /// Resultado del cálculo simulado de rendimientos financieros.

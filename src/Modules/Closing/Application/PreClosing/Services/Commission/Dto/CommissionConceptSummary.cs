@@ -1,8 +1,8 @@
 ﻿
-using Closing.Domain.PreClosing;
+using Closing.Application.PreClosing.Services.Yield.Dto;
 using System.Text.Json;
 
-namespace Closing.Domain.Commission;
+namespace Closing.Application.PreClosing.Services.Commission.Dto;
 
 public class CommissionConceptSummary
 {

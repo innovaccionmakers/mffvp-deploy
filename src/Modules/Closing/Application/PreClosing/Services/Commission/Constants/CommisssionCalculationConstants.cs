@@ -1,4 +1,4 @@
-﻿namespace Closing.Domain.Constants;
+﻿namespace Closing.Application.PreClosing.Services.Commission.Constants;
 
 public struct CommissionRateBase
 {

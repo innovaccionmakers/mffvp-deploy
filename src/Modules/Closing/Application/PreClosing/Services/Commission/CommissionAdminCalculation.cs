@@ -1,8 +1,9 @@
-﻿using Closing.Domain.Constants;
+﻿using Closing.Application.PreClosing.Services.Commission.Constants;
+using Closing.Application.PreClosing.Services.Commission.Interfaces;
 using Closing.Domain.PortfolioValuations;
 using Common.SharedKernel.Domain;
 
-namespace Closing.Application.PreClosing.Services.CommissionCalculation
+namespace Closing.Application.PreClosing.Services.Commission
 {
     public class CommissionAdminCalculation: ICommissionAdminCalculation
     {

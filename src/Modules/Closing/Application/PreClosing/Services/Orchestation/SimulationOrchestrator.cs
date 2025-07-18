@@ -1,8 +1,8 @@
 ﻿using Associate.Domain.ConfigurationParameters;
 using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
-using Closing.Application.PreClosing.Services.CommissionCalculation;
-using Closing.Application.PreClosing.Services.ProfitAndLossConsolidation;
+using Closing.Application.PreClosing.Services.Commission.Interfaces;
+using Closing.Application.PreClosing.Services.ProfitAndLoss;
 using Closing.Application.PreClosing.Services.TreasuryConcepts;
 using Closing.Application.PreClosing.Services.Validation;
 using Closing.Application.PreClosing.Services.Yield;
@@ -14,8 +14,6 @@ using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
 using MediatR;
-using System.Threading;
-
 
 namespace Closing.Application.PreClosing.Services.Orchestation;
 

@@ -1,7 +1,6 @@
-﻿
-using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Domain;
 
-namespace Closing.Application.PreClosing.Services.Validation;
+namespace Closing.Application.PreClosing.Services.Validation.Dto;
 
 public sealed record FirstDayStateResult(
     bool IsFirstDay,

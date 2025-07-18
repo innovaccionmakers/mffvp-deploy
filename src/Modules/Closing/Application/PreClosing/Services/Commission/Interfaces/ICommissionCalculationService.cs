@@ -1,7 +1,6 @@
-﻿using Closing.Domain.Commission;
-using Common.SharedKernel.Domain;
+﻿using Closing.Application.PreClosing.Services.Commission.Dto;
 
-namespace Closing.Application.PreClosing.Services.CommissionCalculation;
+namespace Closing.Application.PreClosing.Services.Commission.Interfaces;
 
 public interface ICommissionCalculationService
 {

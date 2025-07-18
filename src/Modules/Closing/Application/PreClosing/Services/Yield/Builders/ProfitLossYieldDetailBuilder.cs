@@ -1,4 +1,4 @@
-﻿
+﻿using Closing.Application.PreClosing.Services.ProfitAndLoss.Dto;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.ProfitLosses;
 using Closing.Domain.YieldDetails;

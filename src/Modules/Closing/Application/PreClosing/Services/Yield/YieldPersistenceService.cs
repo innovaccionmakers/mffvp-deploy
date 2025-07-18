@@ -1,7 +1,8 @@
-﻿using Closing.Application.PreClosing.Services.Yield.Interfaces;
+﻿using Closing.Application.PreClosing.Services.Yield.Dto;
+using Closing.Application.PreClosing.Services.Yield.Helpers;
+using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
-using Closing.Domain.PreClosing;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
@@ -61,14 +62,19 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
 
         return new SimulatedYieldResult
         {
-            Income = summary.Income,
-            Expenses = summary.Expenses,
-            Commissions = summary.Commissions,
-            Costs = summary.Costs,
-            YieldToCredit = summary.YieldToCredit,
-            UnitValue = simulationValues.UnitValue,
-            DailyProfitability = simulationValues.DailyProfitability
+            Income = Math.Round(summary.Income,2),
+            Expenses = Math.Round(summary.Expenses,2),
+            Commissions = Math.Round(summary.Commissions,2),
+            Costs = Math.Round(summary.Costs,2),
+            YieldToCredit = Math.Round(summary.YieldToCredit,2),
+            UnitValue = simulationValues.UnitValue != null
+           ? Math.Round(simulationValues.UnitValue.Value, 2)
+           : (decimal?)null,
+            DailyProfitability = simulationValues.DailyProfitability != null
+           ? Math.Round(simulationValues.DailyProfitability.Value * 100, 6)
+           : (decimal?)null
         };
+
     }
 
     private static YieldSummary CalculateYieldSummary(IEnumerable<YieldDetail> details)

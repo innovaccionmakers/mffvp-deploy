@@ -1,8 +1,4 @@
-﻿
-
-namespace Closing.Domain.Constants;
-
-
+﻿namespace Closing.Application.PreClosing.Services.Yield.Constants;
 public struct YieldsSources
 {
     public const string
