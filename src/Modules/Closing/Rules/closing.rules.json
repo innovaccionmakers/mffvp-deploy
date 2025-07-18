@@ -7,7 +7,6 @@
         "ErrorMessage": "No existen algunos de los conceptos solicitados",
         "Expression": "input.RequestedConceptNames.Length == input.Concepts.Length",
         "Properties": {
-          "errorCode": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
           "internalCode": "CLOSING_000"
         }
       },
@@ -16,7 +15,6 @@
         "ErrorMessage": "La fecha de proceso no puede ser mayor a la fecha actual",
         "Expression": "input.EffectiveDate <= DateTime.UtcNow.Date",
         "Properties": {
-          "errorCode": "5063eccb-3107-47a0-8eef-a9775c5c33a6",
           "internalCode": "CLOSING_001"
         }
       },
@@ -25,7 +23,6 @@
         "ErrorMessage": "Existen montos negativos en conceptos que no lo permiten",
         "Expression": "input.Concepts.All(c => c.AllowNegative == true || c.Amount >= 0)",
         "Properties": {
-          "errorCode": "d14d6a61-3fe6-4c07-9f04-35c50a6481d3",
           "internalCode": "CLOSING_002"
         }
       },
@@ -34,8 +31,15 @@
         "ErrorMessage": "Debe existir al menos un concepto",
         "Expression": "input.Concepts.Any()",
         "Properties": {
-          "errorCode": "07075653-c27f-484a-8c93-efb1438e4b6b",
           "internalCode": "CLOSING_003"
+        }
+      },
+      {
+        "RuleName": "PortfolioValuationExists",
+        "ErrorMessage": "No es posible realizar la carga de PyG, teniendo presente que es el primer día de operación del Portafolio",
+        "Expression": "input.PortfolioValuationExists",
+        "Properties": {
+          "internalCode": "CLOSING_004"
         }
       },
       {
@@ -43,7 +47,6 @@
         "ErrorMessage": "La fecha efectiva debe ser exactamente un día después de la fecha actual del portafolio",
         "Expression": "input.EffectiveDate.Date == input.PortfolioCurrentDate.Date.AddDays(1)",
         "Properties": {
-          "errorCode": "2b8c9e1f-4a7d-6b3e-8c5f-9d2e7a4b8c6f",
           "internalCode": "CLOSING_005"
         }
       }

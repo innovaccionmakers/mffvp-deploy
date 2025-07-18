@@ -81,7 +81,7 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         if (firstDayResult.IsFailure)
             return Result.Failure<SimulatedYieldResult>(firstDayResult.Error!);
 
-       isFirstClosingDay = firstDayResult.Value;
+        isFirstClosingDay = firstDayResult.Value;
 
         var localParameters = new RunSimulationParameters(
             normalizedParams.PortfolioId,

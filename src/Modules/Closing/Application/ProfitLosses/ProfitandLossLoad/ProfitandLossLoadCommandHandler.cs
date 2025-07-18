@@ -3,6 +3,7 @@ using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
 using Closing.Domain.ProfitLossConcepts;
 using Closing.Domain.ProfitLosses;
+using Closing.Domain.PortfolioValuations;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
@@ -14,6 +15,7 @@ internal sealed class ProfitandLossLoadCommandHandler(
     IProfitLossConceptRepository conceptRepository,
     IProfitLossRepository profitLossRepository,
     IPortfolioValidator portfolioValidator,
+    IPortfolioValuationRepository portfolioValuationRepository,
     IInternalRuleEvaluator<ClosingModuleMarker> ruleEvaluator,
     IUnitOfWork unitOfWork)
     : ICommandHandler<ProfitandLossLoadCommand, bool>
@@ -30,6 +32,12 @@ internal sealed class ProfitandLossLoadCommandHandler(
             return Result.Failure<bool>(portfolioDataResult.Error!);
 
         var portfolioData = portfolioDataResult.Value;
+        
+        var valuationExists = await portfolioValuationRepository
+            .ValuationExistsAsync(
+                command.PortfolioId,
+                portfolioData.CurrentDate.Date,
+                cancellationToken);
 
         var conceptNames = command.ConceptAmounts.Keys.ToArray();
         var profitLossConcepts = await conceptRepository
@@ -39,6 +47,7 @@ internal sealed class ProfitandLossLoadCommandHandler(
         {
             command.EffectiveDate,
             PortfolioCurrentDate = portfolioData.CurrentDate,
+            PortfolioValuationExists = valuationExists,
             RequestedConceptNames = conceptNames,
             Concepts = profitLossConcepts.Select(c => new
             {
