@@ -19,7 +19,8 @@ public static class CustomersBusinessApi
     {
         var group = app.MapGroup("api/v1/FVP/Customer")
             .WithTags("Customers")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
         group.MapGet("GetCustomer", async (ISender sender) =>
         {

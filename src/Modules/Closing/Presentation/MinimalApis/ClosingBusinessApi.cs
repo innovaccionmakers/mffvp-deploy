@@ -18,7 +18,8 @@ public static class ClosingBusinessApi
     {
         var group = app.MapGroup("api/v1/FVP/closing/profit-losses")
                 .WithTags("Profit & Loss")
-                .WithOpenApi();
+                .WithOpenApi()
+                .RequireAuthorization();
 
         group.MapPost(
                     "LoadProfitLoss",

@@ -24,7 +24,8 @@ public static class ProductsBusinessApi
     {
         var group = app.MapGroup("api/v1/FVP/Product")
                 .WithTags("Product")
-                .WithOpenApi();
+                .WithOpenApi()
+                .RequireAuthorization();
 
         group.MapGet(
                 "GetGoals",

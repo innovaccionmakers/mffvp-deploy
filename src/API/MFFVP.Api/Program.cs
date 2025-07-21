@@ -12,6 +12,9 @@ using Common.SharedKernel.Presentation.Filters;
 
 using FluentValidation;
 
+using Makers.Adp.Telemetry.Models;
+using Makers.Adp.Telemetry.ServiceExtensions;
+
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
@@ -31,10 +34,19 @@ builder.Configuration
     .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
-
 if (env != "Development")
 {
+    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.MinimumLevel.Information().WriteTo.Console());
+    var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
+    builder.Services.AddObservabilityServiceExtension(options =>
+    {
+        options.ServiceName = observabilityOptions.ServiceName;
+        options.MeterNames = observabilityOptions.MeterNames;
+        options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
+        options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
+        options.DefaultAttributes = observabilityOptions.DefaultAttributes;
+    });
+
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
     var region = builder.Configuration["AWS:SecretsManager:Region"];
     var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
@@ -56,6 +68,10 @@ if (env != "Development")
 
     builder.Configuration["ConnectionStrings:Database"] = response;
     builder.Configuration["ConnectionStrings:CapDatabase"] = response;
+}
+else
+{
+    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 }
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -185,6 +201,11 @@ foreach (var module in moduleConfigurations)
 }
 
 app.UsePathBase("/fiduciaria/fvp");
+
+if (env != "Development")
+{
+    app.UseOtelMiddleware();
+}
 
 app.UseInfrastructure();
 

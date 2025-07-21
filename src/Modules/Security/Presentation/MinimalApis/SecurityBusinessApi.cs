@@ -23,7 +23,8 @@ public static class SecurityBusinessApi
     {
         var group = app.MapGroup("api/v1/FVP/Security")
             .WithTags("Security")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
         group.MapGet("Permissions", async (
             ISender sender

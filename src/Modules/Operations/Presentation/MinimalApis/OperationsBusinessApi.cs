@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 
@@ -19,11 +20,12 @@ public static class OperationsBusinessApi
     {
         var group = app.MapGroup("api/v1/FVP/Operations")
             .WithTags("Operations")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
         group.MapPost(
                 "ContributionTx",
-                [Authorize(Policy = "fvp:operations:contributiontx:create")]
+                [Authorize(Policy = MakersPermissionsOperations.PolicyExecuteIndividualOperations)]
                 async (
                     [Microsoft.AspNetCore.Mvc.FromBody] CreateContributionCommand request,
                     ISender sender
