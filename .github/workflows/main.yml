@@ -18,12 +18,20 @@ jobs:
         with:
           dotnet-version: '8.0.x'
           
-      - name: Add Azure Artifacts NuGet feed (anonymous access)
+      - name: Create nuget.config for public Azure DevOps + nuget.org
         run: |
-          dotnet nuget add source "https://pkgs.dev.azure.com/makersfunds/_packaging/Core/nuget/v3/index.json" --name "azure-core"
+          cat <<EOF > nuget.config
+            <?xml version="1.0" encoding="utf-8"?>
+            <configuration>
+              <packageSources>
+                <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+                <add key="azure-core" value="https://pkgs.dev.azure.com/makersfunds/_packaging/Core/nuget/v3/index.json" />
+              </packageSources>
+            </configuration>
+            EOF
 
       - name: Restore dependencies
-        run: dotnet restore MFFVP.sln
+        run: dotnet restore MFFVP.sln --configfile nuget.config
 
       - name: Build
         run: dotnet build MFFVP.sln --no-restore --configuration Release
