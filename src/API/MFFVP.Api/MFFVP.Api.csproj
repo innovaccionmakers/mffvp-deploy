@@ -12,6 +12,7 @@
         <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.3.3" />
         <PackageReference Include="FluentValidation" Version="12.0.0" />
         <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="15.1.6" />
+        <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3" />
         <PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="8.2.1" />
