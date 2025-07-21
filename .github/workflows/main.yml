@@ -18,9 +18,15 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Ensure Azure DevOps NuGet source
+      - name: Ensure NuGet source for Azure DevOps feed
         run: |
-          dotnet nuget remove source "Makers" || true
+          # Detect and remove existing source pointing to Azure DevOps URL (regardless of name)
+          existing_source_name=$(dotnet nuget list source | grep "https://pkgs.dev.azure.com/makersfunds/_packaging/Core/nuget/v3/index.json" | awk -F ': ' '{print $1}')
+          if [ -n "$existing_source_name" ]; then
+            dotnet nuget remove source "$existing_source_name"
+          fi
+      
+          # Add fresh source with name "Makers"
           dotnet nuget add source "https://pkgs.dev.azure.com/makersfunds/_packaging/Core/nuget/v3/index.json" \
             --name "Makers" \
             --username "any" \
