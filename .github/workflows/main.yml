@@ -100,7 +100,7 @@ jobs:
   
       - name: Show Secrets in Safe Mode
         run: |
-          echo "Token length: ${#FREE_TOKEN}"
+          echo "Token length: ${{ secrets.FREE_TOKEN }}"
           echo "Sanitized: ${{ secrets.FREE_TOKEN }}" | sed 's/./*/g'
   
       - name: Add GitHub Free remote
