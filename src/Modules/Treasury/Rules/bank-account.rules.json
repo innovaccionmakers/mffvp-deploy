@@ -29,7 +29,7 @@
       {
         "RuleName": "AccountTypeValid",
         "ErrorMessage": "El tipo de cuenta solo puede ser 'C' (Corriente) o 'A' (Ahorros)",
-        "Expression": "input.AccountType == 'C' || input.AccountType == 'A'",
+        "Expression": "(input.AccountType ?? \"\").Trim().ToUpper() == \"C\" || (input.AccountType ?? \"\").Trim().ToUpper() == \"A\"",
         "Properties": { "errorCode": "c1a2b3c4-d5e6-7890-abcd-ef1234567890" }
       }
     ]
