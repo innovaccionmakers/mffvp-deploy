@@ -17,7 +17,13 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-
+          
+      - name: Add Azure Artifacts NuGet feed (anonymous access)
+        run: |
+          dotnet nuget add source "https://pkgs.dev.azure.com/makersfunds/_packaging/Core/nuget/v3/index.json" \
+            --name "azure-core" \
+            --configfile nuget.config
+            
       - name: Restore dependencies
         run: dotnet restore MFFVP.sln
 
