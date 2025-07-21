@@ -17,26 +17,47 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-          
-      - name: Restore dependencies with auth token
-        run: dotnet restore MFFVP.sln --configfile nuget.config
+
+      - name: Install Azure Artifacts Credential Provider
+        run: |
+          wget https://github.com/microsoft/artifacts-credprovider/releases/latest/download/Microsoft.NuGet.CredentialProvider.tar.gz
+          mkdir -p ~/.nuget/plugins/netcore
+          tar -xvzf Microsoft.NuGet.CredentialProvider.tar.gz -C ~/.nuget/plugins/netcore
+
+      - name: Export PAT for Azure DevOps NuGet feed
+        run: |
+          echo '{ 
+            "endpointCredentials": [ 
+              { 
+                "endpoint": "https://pkgs.dev.azure.com/makersfunds", 
+                "username": "any", 
+                "password": "'"${{ secrets.AZURE_DEVOPS_PAT }}"'" 
+              } 
+            ] 
+          }' > ~/.nuget/NuGet.Config
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.AZURE_DEVOPS_PAT }}
+          VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: |
+            {
+              "endpointCredentials": [
+                {
+                  "endpoint": "https://pkgs.dev.azure.com/makersfunds",
+                  "username": "any",
+                  "password": "${{ secrets.AZURE_DEVOPS_PAT }}"
+                }
+              ]
+            }
+
+      - name: Restore dependencies
+        run: dotnet restore MFFVP.sln --configfile nuget.config
 
       - name: Build
         run: dotnet build MFFVP.sln --no-restore --configuration Release --configfile nuget.config
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.AZURE_DEVOPS_PAT }}
-      
+
       - name: Test
         run: dotnet test MFFVP.sln --no-build --configuration Release --configfile nuget.config
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.AZURE_DEVOPS_PAT }}
-      
+
       - name: Publish
         run: dotnet publish src/API/MFFVP.Api/MFFVP.Api.csproj -c Release -o publish --no-build --configfile nuget.config
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.AZURE_DEVOPS_PAT }}
 
       - name: Copy startup files to publish folder
         run: |
@@ -85,8 +106,6 @@ jobs:
           git config --global user.email "actions@github.com"
 
       - name: Add Azure DevOps remote
-        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
         run: |
           git remote add azure "https://username:${{ secrets.AZURE_PAT }}@${{ secrets.AZURE_REPO_URL }}"
           git push azure HEAD:refs/heads/main --force
-          
