@@ -12,9 +12,6 @@ using Common.SharedKernel.Presentation.Filters;
 
 using FluentValidation;
 
-using Makers.Adp.Telemetry.Models;
-using Makers.Adp.Telemetry.ServiceExtensions;
-
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
@@ -34,18 +31,20 @@ builder.Configuration
     .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
+
 if (env != "Development")
 {
-    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.MinimumLevel.Information().WriteTo.Console());
-    var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
-    builder.Services.AddObservabilityServiceExtension(options =>
-    {
-        options.ServiceName = observabilityOptions.ServiceName;
-        options.MeterNames = observabilityOptions.MeterNames;
-        options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
-        options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
-        options.DefaultAttributes = observabilityOptions.DefaultAttributes;
-    });
+    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+    //builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.MinimumLevel.Information().WriteTo.Console());
+    //var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
+    //builder.Services.AddObservabilityServiceExtension(options =>
+    //{
+    //    options.ServiceName = observabilityOptions.ServiceName;
+    //    options.MeterNames = observabilityOptions.MeterNames;
+    //    options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
+    //    options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
+    //    options.DefaultAttributes = observabilityOptions.DefaultAttributes;
+    //});
 
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
     var region = builder.Configuration["AWS:SecretsManager:Region"];
@@ -73,6 +72,7 @@ else
 {
     builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 }
+
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
@@ -202,10 +202,10 @@ foreach (var module in moduleConfigurations)
 
 app.UsePathBase("/fiduciaria/fvp");
 
-if (env != "Development")
-{
-    app.UseOtelMiddleware();
-}
+//if (env != "Development")
+//{
+//    app.UseOtelMiddleware();
+//}
 
 app.UseInfrastructure();
 
