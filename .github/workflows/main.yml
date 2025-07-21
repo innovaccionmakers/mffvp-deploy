@@ -20,10 +20,8 @@ jobs:
           
       - name: Add Azure Artifacts NuGet feed (anonymous access)
         run: |
-          dotnet nuget add source "https://pkgs.dev.azure.com/makersfunds/_packaging/Core/nuget/v3/index.json" \
-            --name "azure-core" \
-            --configfile nuget.config
-            
+          dotnet nuget add source "https://pkgs.dev.azure.com/makersfunds/_packaging/Core/nuget/v3/index.json" --name "azure-core"
+
       - name: Restore dependencies
         run: dotnet restore MFFVP.sln
 
