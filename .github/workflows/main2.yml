@@ -1,0 +1,62 @@
+name: Build & Deploy to Railway (.NET 8 Self-Contained)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+jobs:
+
+  build-and-test:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repo
+          uses: actions/checkout@v3
+  
+        - name: Setup .NET 8
+          uses: actions/setup-dotnet@v3
+          with:
+            dotnet-version: '8.0.x'
+  
+        - name: Restore dependencies
+          run: dotnet restore MFFVP.sln
+  
+        - name: Build
+          run: dotnet build MFFVP.sln --no-restore --configuration Release
+  
+        - name: Test
+          run: dotnet test MFFVP.sln --no-build --configuration Release
+  
+        - name: Publish self-contained app
+          run: dotnet publish src/API/MFFVP.Api/MFFVP.Api.csproj -c Release -o publish
+        
+        - name: Copy startup files to publish folder
+          run: |
+            cp src/API/MFFVP.Api/Dockerfile publish/
+  
+        - name: Upload artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: app
+            path: publish
+          
+  deploy-to-railway:
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app
+          path: publish
+
+      - name: Deploy to Railway
+        run: railway up --ci --service=${{ env.RAILWAY_SERVICE_ID }} --path-as-root publish
