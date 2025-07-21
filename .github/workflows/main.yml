@@ -100,7 +100,7 @@ jobs:
 
       - name: Add GitHub Free remote
         run: |
-          git remote add githubfree "https://x-access-token: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@github.com/innovaccionmakers/mffvp-deploy"
+          git remote add githubfree "https://x-access-token:${{ secrets.FREE_TOKEN }}@github.com/innovaccionmakers/mffvp-deploy"
           git push githubfree HEAD:refs/heads/main --force
 
 
