@@ -18,34 +18,8 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Install Azure Artifacts Credential Provider
-        run: |
-          wget https://github.com/microsoft/artifacts-credprovider/releases/latest/download/Microsoft.NuGet.CredentialProvider.tar.gz
-          mkdir -p ~/.nuget/plugins/netcore
-          tar -xvzf Microsoft.NuGet.CredentialProvider.tar.gz -C ~/.nuget/plugins/netcore
-
-      - name: Export PAT for Azure DevOps NuGet feed
-        run: |
-          echo '{ 
-            "endpointCredentials": [ 
-              { 
-                "endpoint": "https://pkgs.dev.azure.com/makersfunds", 
-                "username": "any", 
-                "password": "'"${{ secrets.AZURE_DEVOPS_PAT }}"'" 
-              } 
-            ] 
-          }' > ~/.nuget/NuGet.Config
-        env:
-          VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: |
-            {
-              "endpointCredentials": [
-                {
-                  "endpoint": "https://pkgs.dev.azure.com/makersfunds",
-                  "username": "any",
-                  "password": "${{ secrets.AZURE_DEVOPS_PAT }}"
-                }
-              ]
-            }
+      - name: Add Azure DevOps NuGet source with credentials
+        run: dotnet nuget add source "https://pkgs.dev.azure.com/makersfunds/_packaging/Core/nuget/v3/index.json" --name "Makers" --username "any" --password "${{ secrets.AZURE_DEVOPS_PAT }}" --store-password-in-clear-text
 
       - name: Restore dependencies
         run: dotnet restore MFFVP.sln --configfile nuget.config
