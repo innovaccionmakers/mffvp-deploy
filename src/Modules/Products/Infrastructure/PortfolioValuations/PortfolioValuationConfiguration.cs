@@ -16,7 +16,7 @@ internal sealed class PortfolioValuationConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.CloseDate).HasColumnName("fecha_cierre");
         builder.Property(x => x.Value).HasColumnName("valor").HasPrecision(19, 2);
         builder.Property(x => x.Units).HasColumnName("unidades").HasPrecision(38, 16);
-        builder.Property(x => x.UnitValue).HasColumnName("valor_unidad").HasPrecision(19, 2);
+        builder.Property(x => x.UnitValue).HasColumnName("valor_unidad").HasPrecision(38, 16);
         builder.Property(x => x.GrossYieldUnits).HasColumnName("rendimiento_bruto_unidad").HasPrecision(38, 16);
         builder.Property(x => x.UnitCost).HasColumnName("costo_unidad").HasPrecision(38, 16);
         builder.Property(x => x.DailyYield).HasColumnName("rentabilidad_diaria").HasPrecision(38, 16);
