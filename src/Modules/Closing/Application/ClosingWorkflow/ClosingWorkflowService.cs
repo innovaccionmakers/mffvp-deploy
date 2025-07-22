@@ -1,7 +1,8 @@
 using Common.SharedKernel.Application.EventBus;
-using Common.SharedKernel.Application.Closing;
 using Closing.IntegrationEvents.ClosingStep;
 using Closing.IntegrationEvents.ProcessPendingContributionsRequested;
+using Common.SharedKernel.Application.Caching.Closing;
+using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 
 namespace Closing.Application.ClosingWorkflow;
 
@@ -18,7 +19,7 @@ public sealed class ClosingWorkflowService(
 
     public async Task AdvanceAsync(int portfolioId, ClosingProcess process, CancellationToken ct = default)
     {
-        await store.UpdateProcessAsync(portfolioId, process, ct);
+        await store.UpdateProcessAsync(portfolioId, process.ToString(), ct);
         var evt = new ClosingStepIntegrationEvent(portfolioId, DateTime.UtcNow, DateTime.UtcNow, process.ToString());
         await eventBus.PublishAsync(evt, ct);
     }

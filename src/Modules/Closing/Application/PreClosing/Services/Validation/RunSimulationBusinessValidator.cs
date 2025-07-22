@@ -159,9 +159,8 @@ public class RunSimulationBusinessValidator(
 
             var incomeSubtypes = stResult.Value.Where(st => st.Nature == IncomeEgressNature.Income).ToList();
 
-            // NOTA: Que no haya incomeSubtypes es una condición funcional; lo modelamos vía hasClientOps=false
-            // y que tu RulesEngine tenga una regla "Debe existir al menos un tipo de ingreso".
-            // Si prefieres tratarlo como error técnico, cambia aquí.
+            // Que no haya incomeSubtypes es una condición funcional; se modela vía hasClientOps=false
+            // y que  RulesEngine tenga una regla "Debe existir al menos un tipo de ingreso".
             if (incomeSubtypes.Count > 0)
             {
                 foreach (var item in incomeSubtypes)

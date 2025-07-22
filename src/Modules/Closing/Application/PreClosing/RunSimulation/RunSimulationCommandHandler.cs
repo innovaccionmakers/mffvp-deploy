@@ -1,9 +1,7 @@
 ﻿
 using Closing.Application.Abstractions.Data;
 using Closing.Application.PreClosing.Services.Orchestation;
-using Closing.Application.PreClosing.Services.Validation;
 using Closing.Integrations.PreClosing.RunSimulation;
-using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
@@ -13,8 +11,7 @@ namespace Closing.Application.PreClosing.RunSimulation
     internal sealed class RunSimulationCommandHandler(
     ISimulationOrchestrator _simulationOrchestrator,
     IUnitOfWork unitOfWork,
-    ILogger<RunSimulationCommandHandler> logger,
-    IBusinessValidator<RunSimulationCommand> businessValidator)
+    ILogger<RunSimulationCommandHandler> logger)
     : ICommandHandler<RunSimulationCommand, SimulatedYieldResult>
     {
         public async Task<Result<SimulatedYieldResult>> Handle(RunSimulationCommand command, CancellationToken cancellationToken)

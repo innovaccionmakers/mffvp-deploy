@@ -1,14 +1,16 @@
-﻿using Common.SharedKernel.Application.Closing;
+﻿using Common.SharedKernel.Application.Caching.Closing;
+using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rpc;
-using Common.SharedKernel.Infrastructure.Caching;
+using Common.SharedKernel.Infrastructure.Caching.Closing;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
 using Common.SharedKernel.Infrastructure.EventBus;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
@@ -100,7 +102,14 @@ public static class InfrastructureConfiguration
         services.AddScoped<DatabaseConnectionContext>();
         services.AddInMemoryRpc();
         services.AddScoped<IEventBus, Common.SharedKernel.Infrastructure.EventBus.EventBus>();
-        services.AddScoped<IClosingExecutionStore, RedisClosingExecutionStore>();
+
+        services.AddSingleton<IClosingExecutionSerializer, JsonClosingExecutionSerializer>();
+        services.AddScoped<IClosingExecutionStore>(sp =>
+        {
+            var cache = sp.GetRequiredService<IDistributedCache>();
+            var serializer = sp.GetRequiredService<IClosingExecutionSerializer>();
+            return new DistributedClosingExecutionStore(cache, serializer);
+        });
 
         return services;
     }

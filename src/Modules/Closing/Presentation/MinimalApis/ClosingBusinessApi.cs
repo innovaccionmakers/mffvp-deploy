@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Closing.Presentation.MinimalApis.Closing;
 
 namespace Closing.Presentation.MinimalApis;
 
@@ -115,6 +116,7 @@ public static class ClosingBusinessApi
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         PreClosingEndpoints.MapPreclosingEndpoints(app);
+        ClosingEndpoints.MapClosingEndpoints(app);
         ClosingWorkflowEndpoints.MapClosingWorkflowEndpoints(app);
     }
 }

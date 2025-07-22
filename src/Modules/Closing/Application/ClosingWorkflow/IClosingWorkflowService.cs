@@ -1,7 +1,7 @@
 using Common.SharedKernel.Application.EventBus;
 using Closing.IntegrationEvents.ClosingStep;
 using Closing.IntegrationEvents.ProcessPendingContributionsRequested;
-using Common.SharedKernel.Application.Closing;
+using Common.SharedKernel.Application.Caching.Closing;
 
 namespace Closing.Application.ClosingWorkflow;
 

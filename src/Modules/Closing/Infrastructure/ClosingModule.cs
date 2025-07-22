@@ -92,6 +92,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
         // Llama a la extension para PreClosing
         services.AddPreClosingInfrastructure();
+        services.AddClosingInfrastructure();
 
     }
 
