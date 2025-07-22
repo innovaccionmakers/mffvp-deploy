@@ -1,5 +1,5 @@
-﻿
-using Closing.Application.Closing.Services.Orchestation;
+﻿using Closing.Application.Closing.Services.Orchestation.Interfaces;
+using Closing.Application.Closing.Services.PortfolioValuation;
 using Closing.Application.Closing.Services.TimeControl;
 using Closing.Application.PreClosing.Services.Orchestation;
 using Closing.Integrations.Closing.RunClosing;
@@ -9,17 +9,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Closing.Application.Closing.Services.Orchestration;
 
-public class ClosingOrchestrator(
+public class PrepareClosingOrchestrator(
     ITimeControlService timeControl,
     ISimulationOrchestrator simulationOrchestrator,
+    IPortfolioValuationService portfolioValuationService,
     //IDataSyncService dataSyncService,
-    //IYieldDistributionService yieldDistributionService,
-    //IYieldValidationService yieldValidationService,
-    //ITransactionApplierService transactionApplier,
-    ILogger<ClosingOrchestrator> logger)
-    : IClosingOrchestrator
+    ILogger<PrepareClosingOrchestrator> logger)
+    : IPrepareClosingOrchestrator
 {
-    public async Task<Result<ClosedResult>> RunClosingAsync(RunClosingCommand command, CancellationToken cancellationToken)
+    public async Task<Result<ClosedResult>> PrepareAsync(RunClosingCommand command, CancellationToken cancellationToken)
     {
         var portfolioId = command.PortfolioId;
         var closingDate = command.ClosingDate;
@@ -48,25 +46,10 @@ public class ClosingOrchestrator(
             //if (syncTask.Result.IsFailure)
             //    return Result.Failure<ClosedResult>(syncTask.Result.Error);
 
-            // Paso 3: Confirmación del usuario (asumida como afirmativa)
-
-            // Paso 4: Distribución de rendimientos
-            //var distributionResult = await yieldDistributionService.ExecuteAsync(portfolioId, closingDate, cancellationToken);
-            //if (distributionResult.IsFailure)
-            //    return Result.Failure<ClosedResult>(distributionResult.Error);
-
-            // Paso 5: Validación de rendimientos
-            //var validationResult = await yieldValidationService.ExecuteAsync(portfolioId, closingDate, cancellationToken);
-            //if (validationResult.IsFailure)
-            //    return Result.Failure<ClosedResult>(validationResult.Error);
-
-            // Paso 6: Aplicación de transacciones pendientes
-            //var applyResult = await transactionApplier.ExecuteAsync(portfolioId, closingDate, cancellationToken);
-            //if (applyResult.IsFailure)
-            //    return Result.Failure<ClosedResult>(applyResult.Error);
-
-            // Paso 7: Reactivar flujo transaccional
-            //await timeControl.EndAsync(portfolioId, cancellationToken);
+            // Paso 4: Valoración del Portafolio
+            var valuationResult = await portfolioValuationService.CalculateAndPersistValuationAsync(portfolioId, closingDate, cancellationToken);
+            if (valuationResult.IsFailure)
+                return Result.Failure<ClosedResult>(valuationResult.Error);
 
             logger.LogInformation("Cierre finalizado exitosamente para portafolio {PortfolioId}", portfolioId);
 

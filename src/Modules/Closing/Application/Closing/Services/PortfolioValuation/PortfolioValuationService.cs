@@ -3,28 +3,27 @@ using Closing.Application.Closing.Services.SubtransactionTypes;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.Yields;
-using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.SubtransactionTypes;
 using Microsoft.Extensions.Logging;
 
 namespace Closing.Application.Closing.Services.PortfolioValuation;
 
-internal sealed class PortfolioValuationService(
+public class PortfolioValuationService(
     IPortfolioValuationRepository valuationRepository,
     IClientOperationRepository clientOperationRepository,
     IYieldRepository yieldRepository,
-    CachedSubtransactionTypesService subtransactionTypes,
+    ISubtransactionTypesService subtransactionTypes,
     IUnitOfWork unitOfWork,
     ILogger<PortfolioValuationService> logger)
     : IPortfolioValuationService
 {
     private const decimal InitialUnitValue = 10000;
 
-    public async Task<Result> CalculateAndPersistValuationAsync(RunClosingCommand parameters, CancellationToken ct)
+    public async Task<Result> CalculateAndPersistValuationAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
     {
         // 1. Validar existencia previa de cierre para esa fecha
-        var exists = await valuationRepository.ValuationExistsAsync(parameters.PortfolioId, parameters.ClosingDate.Date, ct);
+        var exists = await valuationRepository.ValuationExistsAsync(portfolioId, closingDate.Date, ct);
         if (exists)
         {
             return Result.Failure(new Error("001", "Ya existe una valoración cerrada para este portafolio y fecha.", ErrorType.Validation));
@@ -32,8 +31,8 @@ internal sealed class PortfolioValuationService(
 
         // 2. Obtener valoración del día anterior
         var previousValuation = await valuationRepository.GetValuationAsync(
-            parameters.PortfolioId,
-            parameters.ClosingDate.AddDays(-1),
+            portfolioId,
+            closingDate.AddDays(-1),
             ct);
 
         decimal prevValue = previousValuation?.Amount ?? 0;
@@ -42,8 +41,8 @@ internal sealed class PortfolioValuationService(
 
         // 3. Obtener rendimientos del día
         var yield = await yieldRepository.GetByPortfolioAndDateAsync(
-            parameters.PortfolioId,
-            parameters.ClosingDate,
+            portfolioId,
+            closingDate,
             ct);
 
         decimal yieldIncome = yield?.Income ?? 0;
@@ -51,7 +50,7 @@ internal sealed class PortfolioValuationService(
         decimal yieldToCredit = yield?.YieldToCredit ?? 0;
 
         // 4. Obtener subtipos de transacción y clasificarlos
-        var subtypeResult = await subtransactionTypes.GetAllAsync(ct);
+       var subtypeResult = await subtransactionTypes.GetAllAsync(ct);
         if (!subtypeResult.IsSuccess)
             return Result.Failure(subtypeResult.Error!);
 
@@ -67,14 +66,14 @@ internal sealed class PortfolioValuationService(
 
         // 5. Sumar operaciones de entrada y salida
         var incoming = await clientOperationRepository.SumByPortfolioAndSubtypesAsync(
-            parameters.PortfolioId,
-            parameters.ClosingDate,
+            portfolioId,
+            closingDate,
             incomeSubtypes,
             ct);
 
         var outgoing = await clientOperationRepository.SumByPortfolioAndSubtypesAsync(
-            parameters.PortfolioId,
-            parameters.ClosingDate,
+            portfolioId,
+            closingDate,
             egressSubtypes,
             ct);
 
@@ -101,8 +100,8 @@ internal sealed class PortfolioValuationService(
 
         // 8. Crear entidad y guardar
         var result = Domain.PortfolioValuations.PortfolioValuation.Create(
-            parameters.PortfolioId,
-            parameters.ClosingDate,
+            portfolioId,
+            closingDate,
             Math.Round(newValue, 2),
             newUnits,
             newUnitValue,
@@ -120,7 +119,7 @@ internal sealed class PortfolioValuationService(
         await unitOfWork.SaveChangesAsync(ct);
 
         logger.LogInformation("[PortfolioValuation] Valoración realizada para Portafolio {PortfolioId} en {Date}",
-            parameters.PortfolioId, parameters.ClosingDate);
+            portfolioId, closingDate);
 
         return Result.Success();
     }

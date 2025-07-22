@@ -6,6 +6,6 @@ namespace Closing.Application.Closing.Services.PortfolioValuation;
 
 public interface IPortfolioValuationService
 {
-    Task<Result> CalculateAndPersistValuationAsync(RunClosingCommand parameters, CancellationToken ct);
+    Task<Result> CalculateAndPersistValuationAsync(int portfolioId, DateTime closingDate, CancellationToken ct);
 
 }

@@ -5,7 +5,9 @@ namespace Closing.Domain.Routes
         public const string
             RunPreclosing = "RunSimulation",
             RunClosing = "RunClosing",
-            RunPostclosing = "RunPostclosing"
+            RunPostclosing = "RunPostclosing",
+            ConfirmClosing = "ConfirmClosing",
+            CancelClosing = "CancelClosing"
             ;
     }
 }
