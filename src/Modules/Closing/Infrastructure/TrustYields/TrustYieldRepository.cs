@@ -21,5 +21,17 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
     {
         context.TrustYields.Update(trustYield);
     }
+
+    public async Task<IReadOnlyCollection<TrustYield>> GetByPortfolioAndDateAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
+    {
+        return await context.TrustYields
+            .Where(t => t.PortfolioId == portfolioId && t.ClosingDate.Date == closingDate.Date)
+            .ToListAsync(ct);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken ct)
+    {
+        await context.SaveChangesAsync(ct);
+    }
 }
 

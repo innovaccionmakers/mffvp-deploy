@@ -10,4 +10,8 @@
       <ProjectReference Include="..\..\Integrations\Trusts.Integrations.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="DataSync\TrustSync\" />
+    </ItemGroup>
+
 </Project>

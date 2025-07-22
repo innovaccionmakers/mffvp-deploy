@@ -1,17 +1,17 @@
 ﻿using Closing.Application.Abstractions.Data;
-using Closing.Application.Closing.Services.Orchestation;
+using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.PreClosing.Services.Validation;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
-namespace Closing.Application.Closing.RunClosing;
+namespace Closing.Application.Closing.Commands.RunClosing;
 
-internal sealed class RunClosingCommandHandler(
-        IClosingOrchestrator closingOrchestrator,
+internal sealed class PrepareClosingCommandHandler(
+        IPrepareClosingOrchestrator closingOrchestrator,
         IUnitOfWork unitOfWork,
-        ILogger<RunClosingCommandHandler> logger
+        ILogger<PrepareClosingCommandHandler> logger
        )
         : ICommandHandler<RunClosingCommand, ClosedResult>
 {
@@ -28,7 +28,7 @@ internal sealed class RunClosingCommandHandler(
             //    return Result.Failure<ClosedResult>(validationResult.Error);
             //}
 
-            var result = await closingOrchestrator.RunClosingAsync(command, cancellationToken);
+            var result = await closingOrchestrator.PrepareAsync(command, cancellationToken);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
