@@ -1,4 +1,4 @@
-using Common.SharedKernel.Application.Closing;
+using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Operations.Application.Abstractions.Services.Closing;
 
 namespace Operations.Application.Contributions.Services.ClosingValidator;

@@ -19,15 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Closing\RunClosing\" />
-      <Folder Include="Closing\Services\GetAllOperationTypes\" />
-      <Folder Include="Closing\Services\AbortClosing\" />
+      <Folder Include="Closing\Services\Abort\" />
       <Folder Include="Closing\Services\Allocation\" />
       <Folder Include="Closing\Services\AllocationCheck\" />
-      <Folder Include="Closing\Services\Orchestation\" />
-      <Folder Include="Closing\Services\PortfolioValuation\" />
       <Folder Include="Closing\Services\TrustSync\" />
-      <Folder Include="Closing\Services\TimeControl\" />
       <Folder Include="PostClosing\Services\Orchestation\" />
       <Folder Include="PostClosing\Services\PortfolioCommissionCollector\" />
       <Folder Include="PostClosing\Services\PendingTransactionHandler\" />

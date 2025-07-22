@@ -33,4 +33,11 @@ internal sealed class YieldRepository(ClosingDbContext context) : IYieldReposito
                       cancellationToken);
     }
 
+    public async Task<Yield?> GetByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+    {
+        return await context.Yields
+            .Where(y => y.PortfolioId == portfolioId && y.ClosingDate.Date == closingDateUtc.Date)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
 }

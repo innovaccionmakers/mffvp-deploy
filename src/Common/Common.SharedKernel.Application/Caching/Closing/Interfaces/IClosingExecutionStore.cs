@@ -1,4 +1,4 @@
-namespace Common.SharedKernel.Application.Closing;
+namespace Common.SharedKernel.Application.Caching.Closing.Interfaces;
 
 public interface IClosingExecutionStore
 {
@@ -6,7 +6,7 @@ public interface IClosingExecutionStore
 
     Task BeginAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken = default);
 
-    Task UpdateProcessAsync(int portfolioId, ClosingProcess process, CancellationToken cancellationToken = default);
+    Task UpdateProcessAsync(int portfolioId, string process, CancellationToken cancellationToken = default);
 
     Task EndAsync(int portfolioId, CancellationToken cancellationToken = default);
 }
