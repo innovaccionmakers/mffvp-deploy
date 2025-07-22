@@ -39,7 +39,15 @@ public class TreasuryModule : IModuleConfiguration
 
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("TreasuryDatabase");
+        
+        if (env != "Development")
+        {
+            var secretName = configuration["AWS:SecretsManager:SecretName"];
+            var region = configuration["AWS:SecretsManager:Region"];
+            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
+        }
 
         services.AddDbContext<TreasuryDbContext>((sp, options) =>
         {
