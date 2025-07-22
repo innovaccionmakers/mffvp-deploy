@@ -11,6 +11,5 @@ public sealed record CreateTreasuryConceptCommand(
     bool AllowsExpense,
     bool RequiresBankAccount,
     bool RequiresCounterparty,
-    DateTime ProcessDate,
     string? Observations = null
 ) : ICommand<TreasuryConceptResponse>;

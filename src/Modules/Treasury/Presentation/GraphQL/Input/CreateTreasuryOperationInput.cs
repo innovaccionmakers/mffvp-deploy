@@ -10,6 +10,5 @@ public record CreateTreasuryOperationInput(
     [property: GraphQLName("permiteGasto")] bool AllowsExpense,
     [property: GraphQLName("requiereCuentaBancaria")] bool RequiresBankAccount,
     [property: GraphQLName("requiereContraparte")] bool RequiresCounterparty,
-    [property: GraphQLName("fechaProceso")] DateTime ProcessDate,
     [property: GraphQLName("observaciones")] string? Observations
 );
