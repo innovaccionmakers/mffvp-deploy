@@ -462,6 +462,44 @@ public static class SecurityBusinessApi
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
+        group.MapGet(
+            "GetToken",
+            async (ISender sender) =>
+            {
+                var result = await sender.Send(new RefreshTokenQuery());
+
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                        title: result.Error.Code,
+                        detail: result.Error.Description,
+                        statusCode: result.Error.Code switch
+                        {
+                            "Auth.Token.Missing" or "Auth.Token.Invalid" or "Auth.User.Invalid" => StatusCodes.Status401Unauthorized,
+                            "Auth.User.NotFound" => StatusCodes.Status404NotFound,
+                            _ => StatusCodes.Status500InternalServerError
+                        });
+                }
+
+                return Results.Ok(result.Value);
+            })
+            .WithName("GetToken")
+            .WithSummary("Renueva el token JWT usando el token actual en la cookie")
+            .WithDescription("""
+                             Este endpoint verifica el token JWT actual enviado como cookie (`authToken`)
+                             y devuelve uno nuevo si es válido.
+
+                             **Requiere:** la cookie `authToken` enviada por el cliente.
+
+                             **Ejemplo de respuesta:**
+                             ```json
+                             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                             ```
+                             """)
+            .Produces<string>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
     }
 }
