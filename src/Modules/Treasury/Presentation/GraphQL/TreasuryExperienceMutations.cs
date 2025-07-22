@@ -68,7 +68,6 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
                 input.AllowsExpense,
                 input.RequiresBankAccount,
                 input.RequiresCounterparty,
-                input.ProcessDate,
                 input.Observations
             );
 
