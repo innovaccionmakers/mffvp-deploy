@@ -12,6 +12,7 @@
         <ProjectReference Include="..\..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
         <ProjectReference Include="..\..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\..\Integrations\Operations.Integrations.csproj" />
+        <ProjectReference Include="..\..\..\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
     </ItemGroup>
 
 </Project>
