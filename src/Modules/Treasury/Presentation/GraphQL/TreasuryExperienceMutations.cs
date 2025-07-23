@@ -100,7 +100,7 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
             }
             var command = new CreateTreasuryMovementCommand(
                input.PortfolioId,
-                input.ClosingDate,
+                input.ClosingDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime(),
                 input.TreasuryConceptId,
                 input.Value,
                 input.BankAccountId,
