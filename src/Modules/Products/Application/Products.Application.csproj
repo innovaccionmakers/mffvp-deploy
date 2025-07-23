@@ -7,6 +7,7 @@
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
         <ProjectReference Include="..\..\Associate\IntegrationEvents\Associate.IntegrationEvents\Associate.IntegrationEvents.csproj" />
         <ProjectReference Include="..\..\Customers\IntegrationEvents\Customers.IntegrationEvents\Customers.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Trusts\IntegrationEvents\Trusts.IntegrationEvents\Trusts.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Domain\Products.Domain.csproj" />
         <ProjectReference Include="..\Integrations\Products.Integrations.csproj" />
     </ItemGroup>

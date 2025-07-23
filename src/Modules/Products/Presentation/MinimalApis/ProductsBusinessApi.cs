@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 
 using Products.Integrations.Objectives.CreateObjective;
 using Products.Integrations.Objectives.GetObjectives;
+using Products.Integrations.Objectives.UpdateObjective;
 using Products.Integrations.Portfolios;
 using Products.Integrations.Portfolios.GetPortfolio;
 using Products.Integrations.Portfolios.GetPortfolios;
@@ -120,6 +121,39 @@ public static class ProductsBusinessApi
             .AddEndpointFilter<TechnicalValidationFilter<CreateObjectiveCommand>>()
             .Accepts<CreateObjectiveCommand>("application/json")
             .Produces<ObjectiveResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPut(
+                "Goals",
+                async (
+                    UpdateObjectiveCommand comando,
+                    ISender sender
+                ) =>
+                {
+                    var resultado = await sender.Send(comando);
+                    return resultado.ToApiResult();
+                }
+            )
+            .WithName("UpdateGoal")
+            .WithSummary("Actualiza la información de un objetivo de ahorro para un cliente")
+            .WithDescription("""
+                **Ejemplo de petición (application/json):**
+                ```json
+                {
+                  "IdObjetivo": 1,
+                  "TipoObjetivo": "I",
+                  "NombreObjetivo": "Viaje a Cartagena",
+                  "OficinaApertura": "1",
+                  "OficinaActual": "1",
+                  "Comercial": "1",
+                  "Estado": "I"
+                }
+                ```
+                """)
+            .AddEndpointFilter<TechnicalValidationFilter<UpdateObjectiveCommand>>()
+            .Accepts<CreateObjectiveCommand>("application/json")
+            .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 

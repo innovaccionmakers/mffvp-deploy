@@ -48,4 +48,12 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
                 g.Sum(x => x.AvailableAmount)))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<Trust>> GetByObjectiveIdAsync(int objectiveId, CancellationToken cancellationToken = default)
+    {
+        return await context.Trusts
+            .AsNoTracking()
+            .Where(t => t.ObjectiveId == objectiveId)
+            .ToListAsync(cancellationToken);
+    }
 }

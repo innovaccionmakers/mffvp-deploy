@@ -6,7 +6,7 @@
         "RuleName": "TypeIdRequired",
         "ErrorMessage": "El Tipo Id es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.TypeId) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "df221640-b4af-4d28-8e53-6ade541e5113"
         }
       },
@@ -14,7 +14,7 @@
         "RuleName": "IdentificationRequired",
         "ErrorMessage": "La Identificación es obligatoria",
         "Expression": "string.IsNullOrWhiteSpace(input.Identification) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "4e8736d8-8801-4c54-ae02-05b94f79ff9a"
         }
       },
@@ -35,7 +35,7 @@
         "RuleName": "IdTypeRequired",
         "ErrorMessage": "El TipoId es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.IdType) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "df221640-b4af-4d28-8e53-6ade541e5113"
         }
       },
@@ -43,7 +43,7 @@
         "RuleName": "IdentificationRequired",
         "ErrorMessage": "La Identificacion es obligatoria",
         "Expression": "string.IsNullOrWhiteSpace(input.Identification) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "4e8736d8-8801-4c54-ae02-05b94f79ff9a"
         }
       },
@@ -51,7 +51,7 @@
         "RuleName": "AlternativeIdRequired",
         "ErrorMessage": "El IdAlternativa es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.AlternativeId) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "aa9b60f3-f329-4920-b12f-16e4142e66ee"
         }
       },
@@ -59,7 +59,7 @@
         "RuleName": "ObjectiveTypeRequired",
         "ErrorMessage": "El TipoObjetivo es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.ObjectiveType) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "6729f994-b722-4798-a9b9-54109b027205"
         }
       },
@@ -67,7 +67,7 @@
         "RuleName": "ObjectiveNameRequired",
         "ErrorMessage": "El NombreObjetivo es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.ObjectiveName) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "81a0ab61-7930-40f1-87e5-89b2beb6803b"
         }
       },
@@ -75,7 +75,7 @@
         "RuleName": "OpeningOfficeRequired",
         "ErrorMessage": "La OficinaApertura es obligatoria",
         "Expression": "string.IsNullOrWhiteSpace(input.OpeningOffice) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "3ea951b6-ea4c-4e7e-9121-167f9c6aa245"
         }
       },
@@ -83,7 +83,7 @@
         "RuleName": "CurrentOfficeRequired",
         "ErrorMessage": "La OficinaActual es obligatoria",
         "Expression": "string.IsNullOrWhiteSpace(input.CurrentOffice) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "494e6787-24df-41ed-a16f-1f5b72395bb7"
         }
       },
@@ -91,7 +91,7 @@
         "RuleName": "CommercialRequired",
         "ErrorMessage": "El Comercial es obligatorio",
         "Expression": "string.IsNullOrWhiteSpace(input.Commercial) == false",
-        "Properties": { 
+        "Properties": {
           "errorCode": "905b6468-0d28-4353-9bba-9073d3ae5474"
         }
       }
@@ -219,6 +219,96 @@
         "ErrorMessage": "El Afiliado no tiene objetivos creados",
         "Expression": "input.AffiliateHasObjectives == true",
         "Properties": { "errorCode": "d8946440-0629-4284-9723-99bf7fd27067" }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Products.UpdateObjective.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "ObjectiveIdRequired",
+        "ErrorMessage": "El Id del objetivo es obligatorio",
+        "Expression": "input.ObjectiveId > 0",
+        "Properties": {
+          "errorCode": "f90f4a53-9695-4569-8bec-e0e3014e00fb"
+        }
+      },
+      {
+        "RuleName": "HasFieldsToUpdate",
+        "ErrorMessage": "No se envió ningún campo para actualizar",
+        "Expression": "HasFieldsToUpdate == true",
+        "Properties": {
+          "errorCode": "c1214140-869b-4ac6-aa55-5ec020358ca7"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Products.UpdateObjective.Validation",
+    "Rules": [
+      {
+        "RuleName": "ObjectiveMustExist",
+        "ErrorMessage": "El objetivo no existe",
+        "Expression": "input.ObjectiveExists == true",
+        "Properties": {
+          "errorCode": "498f0c0d-c174-4060-a059-ce93973fc81f"
+        }
+      },
+      {
+        "RuleName": "StatusMustBeValid",
+        "ErrorMessage": "El campo estado solo recibe A: Activo o I:Inactivo",
+        "Expression": "RequestedStatus == null || input.IsStatusValid == true",
+        "Properties": {
+          "errorCode": "da30a0f0-011e-4957-a6a0-c275909ed2c7"
+        }
+      },
+      {
+        "RuleName": "CannotChangeOpeningOfficeWithTrust",
+        "ErrorMessage": "La Oficina Apertura solo es posible su edición si no existe un Fideicomiso enlazado a este objetivo",
+        "Expression": "string.IsNullOrWhiteSpace(input.RequestedOpeningOffice) || !input.HasTrust || input.RequestedOpeningOffice == input.CurrentOpeningOffice",
+        "Properties": {
+          "errorCode": "81dad9b5-219d-46a0-8f2d-54691f8d498c"
+        }
+      },
+      {
+        "RuleName": "CannotInactivateWithTrustBalance",
+        "ErrorMessage": "No es posible Inactivar el Objetivo porque existen fideicomisos con saldo",
+        "Expression": "string.IsNullOrWhiteSpace(input.RequestedStatus) || input.RequestedStatus != \"I\" || !input.HasTrustWithBalance",
+        "Properties": {
+          "errorCode": "de15092b-e2a0-4dc6-a9a1-7cedc5767a9a"
+        }
+      },
+      {
+        "RuleName": "ObjectiveTypeExists",
+        "ErrorMessage": "El TipoObjetivo no se encuentra homologado",
+        "Expression": "string.IsNullOrWhiteSpace(input.RequestedObjectiveType) || input.ObjectiveTypeExists == true",
+        "Properties": {
+          "errorCode": "3e5ce7c3-6e47-4763-a032-3a9158f0814b"
+        }
+      },
+      {
+        "RuleName": "OpeningOfficeExists",
+        "ErrorMessage": "La OficinaApertura no se encuentra homologada",
+        "Expression": "string.IsNullOrWhiteSpace(input.RequestedOpeningOffice) || input.OpeningOfficeExists == true",
+        "Properties": {
+          "errorCode": "58e034a7-c65f-40dc-96e9-53feeeceff05"
+        }
+      },
+      {
+        "RuleName": "CurrentOfficeExists",
+        "ErrorMessage": "La OficinaActual no se encuentra homologada",
+        "Expression": "string.IsNullOrWhiteSpace(input.RequestedCurrentOffice) || input.CurrentOfficeExists == true",
+        "Properties": {
+          "errorCode": "a8652dab-f8c1-4134-9f6e-925bf49c7872"
+        }
+      },
+      {
+        "RuleName": "CommercialExists",
+        "ErrorMessage": "El Comercial no se encuentra homologado",
+        "Expression": "string.IsNullOrWhiteSpace(input.RequestedCommercial) || input.CommercialExists == true",
+        "Properties": {
+          "errorCode": "0a50d844-923d-4659-8178-85657334d5b5"
+        }
       }
     ]
   }
