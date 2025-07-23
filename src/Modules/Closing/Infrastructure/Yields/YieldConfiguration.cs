@@ -17,6 +17,7 @@ internal sealed class YieldConfiguration : IEntityTypeConfiguration<Yield>
         builder.Property(x => x.Commissions).HasColumnName("comisiones").HasColumnType("decimal(19, 2)");
         builder.Property(x => x.Costs).HasColumnName("costos").HasColumnType("decimal(19, 2)");
         builder.Property(x => x.YieldToCredit).HasColumnName("rendimientos_abonar").HasColumnType("decimal(19, 2)");
+        builder.Property(x => x.CreditedYields).HasColumnName("rendimientos_abonados").HasColumnType("decimal(19, 2)");
         builder.Property(x => x.ClosingDate).HasColumnName("fecha_cierre");
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
         builder.Property(x => x.IsClosed).HasColumnName("cerrado");
