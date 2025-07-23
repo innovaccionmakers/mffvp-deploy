@@ -76,6 +76,15 @@ public class Mutation
         return await productsMutations.RegisterGoalAsync(goal, validator, cancellationToken);
     }
 
+    [GraphQLName("actualizarObjetivo")]
+    public async Task<GraphqlMutationResult> UpdateGoal([GraphQLName("objetivo")] UpdateGoalInput goal,
+                                                        IValidator<UpdateGoalInput> validator,
+                                                        [Service] IProductsExperienceMutations productsMutations,
+                                                        CancellationToken cancellationToken)
+    {
+        return await productsMutations.UpdateGoalAsync(goal, validator, cancellationToken);
+    }
+
     //closing mutations
     [GraphQLName("cargarPerdidasGanancias")]
     public async Task<GraphqlMutationResult<LoadProfitLossResult>> LoadProfitLoss([GraphQLName("perdidaganancia")] LoadProfitLossInput input,
