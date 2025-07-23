@@ -19,25 +19,22 @@ using Trusts.IntegrationEvents.GetBalances;
 using Trusts.Application.Abstractions.External;
 using Trusts.Infrastructure.External.Closing;
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Infrastructure.Extensions;
+using Trusts.Presentation.MinimalApis;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Trusts.IntegrationEvents.ObjectiveTrustValidation;
 
 namespace Trusts.Infrastructure;
 
-public static class TrustsModule
+public class TrustsModule : IModuleConfiguration
 {
-    public static IServiceCollection AddTrustsModule(this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        services.AddInfrastructure(configuration);
-        services.AddRulesEngine<TrustsModuleMarker>(typeof(TrustsModule).Assembly, opt =>
-        {
-            opt.CacheSizeLimitMb = 64;
-            opt.EmbeddedResourceSearchPatterns = [".rules.json"];
-        });
-        return services;
-    }
+    public string ModuleName => "Trusts";
+    public string RoutePrefix => "api/trusts";
 
-    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("TrustsDatabase");
@@ -70,5 +67,21 @@ public static class TrustsModule
         services.AddTransient<IRpcHandler<GetBalancesRequest, GetBalancesResponse>, GetBalancesConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());
+
+        services.AddRulesEngine<TrustsModuleMarker>(typeof(TrustsModule).Assembly, opt =>
+        {
+            opt.CacheSizeLimitMb = 64;
+            opt.EmbeddedResourceSearchPatterns = [".rules.json"];
+        });
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseRouting();
+
+        if (app is WebApplication webApp)
+        {
+            webApp.MapTrustsBusinessEndpoints();
+        }
     }
 }

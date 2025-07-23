@@ -48,6 +48,13 @@ namespace Closing.Infrastructure.PortfolioValuations
         {
             await context.PortfolioValuations.AddAsync(valuation, cancellationToken);
         }
+        
+        public async Task DeleteClosedByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+        {
+            await context.PortfolioValuations
+                .Where(v => v.PortfolioId == portfolioId && v.ClosingDate == closingDateUtc && v.IsClosed)
+                .ExecuteDeleteAsync(cancellationToken);
+        }
 
     }
 }

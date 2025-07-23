@@ -117,6 +117,7 @@ public static class ClosingBusinessApi
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
 
        PreClosingEndpoints.MapPreclosingEndpoints(app);
+       AbortClosing.AbortClosingEndpoints.MapAbortClosingEndpoints(app);
 
        ClosingEndpoints.MapEndpoint(app);
        //ClosingWorkflowEndpoints.MapClosingWorkflowEndpoints(app);

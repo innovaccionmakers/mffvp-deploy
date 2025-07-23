@@ -112,7 +112,11 @@ builder.Services.AddRedisCache(builder.Configuration);
 
 builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing", "treasury"], env);
 
-builder.Services.AddTrustsModule(builder.Configuration);
+var trustsModuleAssembly = Assembly.GetAssembly(typeof(Trusts.Infrastructure.TrustsModule));
+if (trustsModuleAssembly != null)
+{
+    builder.Services.AddModulesFromAssembly(trustsModuleAssembly, builder.Configuration);
+}
 
 var activatesModuleAssembly = Assembly.GetAssembly(typeof(Associate.Infrastructure.ActivatesModule));
 if (activatesModuleAssembly != null)

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
+using Products.Domain.Routes;
 using Products.Integrations.Objectives.CreateObjective;
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Integrations.Objectives.UpdateObjective;
@@ -23,8 +24,8 @@ public static class ProductsBusinessApi
 {
     public static void MapProductsBusinessEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("api/v1/FVP/Product")
-                .WithTags("Product")
+        var group = app.MapGroup(Routes.Product)
+                .WithTags(TagName.TagProduct)
                 .WithOpenApi()
                 .RequireAuthorization();
 
@@ -47,19 +48,9 @@ public static class ProductsBusinessApi
                     );
                 }
             )
-            .WithName("GetGoals")
-            .WithSummary("Retorna la lista de objetivos de un usuario")
-            .WithDescription("""
-                             **Ejemplo de llamada (query):**
-
-                             ```http
-                             GET /FVP/Product/GetGoals?typeId=C&identification=123456789&status=A
-                             ```
-
-                             - `typeId`: C (Ciudadanía)  
-                             - `identification`: 27577533  
-                             - `status`: A (Activo)  
-                             """)
+            .WithName(NameEndpoints.GetGoals)
+            .WithSummary(Summary.GetGoals)
+            .WithDescription(Description.GetGoals)
             .WithOpenApi(operation =>
             {
                 var p0 = operation.Parameters.First(p => p.Name == "typeId");
@@ -102,23 +93,14 @@ public static class ProductsBusinessApi
                     return resultado.ToApiResult();
                 }
             )
-            .WithName("Goals")
-            .WithSummary("Crea un nuevo objetivo de ahorro para un cliente")
-            .WithDescription("""
-                **Ejemplo de petición (application/json):**
-                ```json
-                {
-                  "TipoId": "CC",
-                  "Identificacion": "123456789",
-                  "IdAlternativa": "ALT001",
-                  "TipoObjetivo": "Ahorro",
-                  "NombreObjetivo": "Viaje a Cartagena",
-                  "OficinaApertura": "001",
-                  "OficinaActual": "001",
-                  "Comercial": "COM123"
-                }
-                ```
-                """)
+            .WithName(NameEndpoints.Goals)
+            .WithSummary(Summary.Goals)
+            .WithDescription(Description.Goals)
+            .WithOpenApi(operation =>
+            {
+                operation.RequestBody.Description = RequestBodyDescription.Goals;
+                return operation;
+            })
             .AddEndpointFilter<TechnicalValidationFilter<CreateObjectiveCommand>>()
             .Accepts<CreateObjectiveCommand>("application/json")
             .Produces<ObjectiveResponse>(StatusCodes.Status200OK)
@@ -169,17 +151,9 @@ public static class ProductsBusinessApi
                         return result.ToApiResult();
                     }
                 )
-                .WithName("GetPortfolioById")
-                .WithSummary("Obtiene un portafolio por su identificador")
-                .WithDescription("""
-                                 **Ejemplo de llamada:**
-
-                                 ```http
-                                 GET /FVP/products/portfolios/GetById?portfolioId=123
-                                 ```
-
-                                 - `portfolioId`: Identificador del portafolio (e.g., 123)
-                                 """)
+                .WithName(NameEndpoints.GetPortfolioById)
+                .WithSummary(Summary.GetPortfolioById)
+                .WithDescription(Description.GetPortfolioById)
                 .WithOpenApi(operation =>
                 {
                     var p = operation.Parameters.First(p => p.Name == "portfolioId");
@@ -198,15 +172,9 @@ public static class ProductsBusinessApi
                         return result.Value;
                     }
                 )
-                .WithName("GetAllPortfolios")
-                .WithSummary("Obtiene todos los portafolios")
-                .WithDescription("""
-                                 **Ejemplo de llamada:**
-
-                                 ```http
-                                 GET /FVP/products/portfolios/GetAllPortfolios
-                                 ```
-                                 """)
+                .WithName(NameEndpoints.GetAllPortfolios)
+                .WithSummary(Summary.GetAllPortfolios)
+                .WithDescription(Description.GetAllPortfolios)
                 .Produces<IReadOnlyCollection<PortfolioResponse>>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
     }

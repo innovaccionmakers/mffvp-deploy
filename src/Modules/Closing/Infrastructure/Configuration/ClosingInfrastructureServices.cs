@@ -1,4 +1,5 @@
 ﻿using Closing.Application.Abstractions.External.Operations.SubtransactionTypes;
+using Closing.Application.Closing.Services.Abort;
 using Closing.Application.Closing.Services.Orchestation;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.Orchestration;
@@ -19,6 +20,7 @@ namespace Closing.Infrastructure.Configuration
         {
             services.AddScoped<IPrepareClosingOrchestrator, PrepareClosingOrchestrator>();
             services.AddScoped<ITimeControlService, TimeControlService>();
+            services.AddScoped<IAbortClosingService, AbortClosingService>();
             services.AddScoped<ISubtransactionTypesLocator, SubtransactionTypesLocator>();
            
             services.AddScoped<ISubtransactionTypesService>(sp =>

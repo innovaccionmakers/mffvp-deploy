@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Integrations.SubTransactionTypes;
+using Operations.Domain.Routes;
 
 namespace Operations.Presentation.MinimalApis;
 
@@ -18,13 +19,13 @@ public static class OperationsBusinessApi
 {
     public static void MapOperationsBusinessEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("api/v1/FVP/Operations")
-            .WithTags("Operations")
+        var group = app.MapGroup(Routes.Operation)
+            .WithTags(TagName.TagOperation)
             .WithOpenApi()
             .RequireAuthorization();
 
         group.MapPost(
-                "ContributionTx",
+                NameEndpoints.CreateContribution,
                 [Authorize(Policy = MakersPermissionsOperations.PolicyExecuteIndividualOperations)]
                 async (
                     [Microsoft.AspNetCore.Mvc.FromBody] CreateContributionCommand request,
@@ -35,43 +36,21 @@ public static class OperationsBusinessApi
                     return result.ToApiResult();
                 }
             )
-            .WithName("CreateContribution")
-            .WithSummary("Registrar un aporte")
-            .WithDescription("""
-                             **Ejemplo de petición (application/json):**
-                             ```json
-                             {
-                               "TipoId": "C",
-                               "Identificacion": "123456789",
-                               "IdObjetivo": 456,
-                               "IdPortafolio": "ALT123",
-                               "Valor": 1500.75,
-                               "Origen": "Sucursal",
-                               "ModalidadOrigen": "Efectivo",
-                               "MetodoRecaudo": "POS",
-                               "FormaPago": "Tarjeta",
-                               "DetalleFormaPago": { "cardNumber": "**** **** **** 1234", "expiry": "12/25" },
-                               "BancoRecaudo": "Banco X",
-                               "CuentaRecaudo": "000123456",
-                               "AporteCertificado": "CERT123",
-                               "RetencionContingente": 50.25,
-                               "FechaConsignacion": "2025-06-01T00:00:00Z",
-                               "FechaEjecucion": "2025-06-02T00:00:00Z",
-                               "UsuarioComercial": "user123",
-                               "MedioVerificable": { "url": "http://example.com/recibo.pdf" },
-                               "Subtipo": "Extra",
-                               "Canal": "Online",
-                               "Usuario": "system"
-                             }
-                             ```
-                             """)
+            .WithName(NameEndpoints.CreateContribution)
+            .WithSummary(Summary.CreateContribution)
+            .WithDescription(Description.CreateContribution)
+            .WithOpenApi(operation =>
+            {
+                operation.RequestBody.Description = RequestBodyDescription.CreateContribution;
+                return operation;
+            })
             .AddEndpointFilter<TechnicalValidationFilter<CreateContributionCommand>>()
             .Accepts<CreateContributionCommand>("application/json")
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
         
         group.MapGet(
-                "OperationTypes",
+                NameEndpoints.GetAllOperationTypes,
                 async (ISender sender) =>
                 {
                     var result = await sender.Send(new GetAllOperationTypesQuery());
@@ -83,8 +62,9 @@ public static class OperationsBusinessApi
                     );
                 }
             )
-            .WithName("GetAllOperationTypes")
-            .WithSummary("Obtiene la lista completa de tipos de operación")
+            .WithName(NameEndpoints.GetAllOperationTypes)
+            .WithSummary(Summary.GetAllOperationTypes)
+            .WithDescription(Description.GetAllOperationTypes)
             .Produces<IReadOnlyCollection<SubtransactionTypeResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
