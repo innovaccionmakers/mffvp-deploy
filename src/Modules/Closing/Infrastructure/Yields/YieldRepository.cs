@@ -22,6 +22,18 @@ internal sealed class YieldRepository(ClosingDbContext context) : IYieldReposito
                          && !yield.IsClosed)
             .ExecuteDeleteAsync(cancellationToken);
     }
+    
+    public async Task DeleteClosedByPortfolioAndDateAsync(
+        int portfolioId,
+        DateTime closingDateUtc,
+        CancellationToken cancellationToken = default)
+    {
+        await context.Yields
+            .Where(yield => yield.PortfolioId == portfolioId
+                            && yield.ClosingDate == closingDateUtc
+                            && yield.IsClosed)
+            .ExecuteDeleteAsync(cancellationToken);
+    }
 
     public async Task<bool> ExistsYieldAsync(int portfolioId, DateTime closingDateUtc, bool isClosed, CancellationToken cancellationToken = default)
     {

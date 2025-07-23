@@ -69,7 +69,9 @@ namespace Closing.Domain.Routes
                                  - `FechaCierre`: Fecha en que se va a cancelar el cierre del portafolio
                                  """
 
-             ;
+            ,
+            AbortClosing = ""
+            ;
     }
 
     public struct RequestBodyDescription
@@ -78,6 +80,7 @@ namespace Closing.Domain.Routes
             RunPreclosing = "", 
             RunClosing = "",
             ConfirmClosing = "",
-            CancelClosing = "";
+            CancelClosing = "",
+            AbortClosing = "";
     }
 }

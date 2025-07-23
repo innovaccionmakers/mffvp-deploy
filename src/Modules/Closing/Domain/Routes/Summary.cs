@@ -7,7 +7,8 @@ namespace Closing.Domain.Routes
             RunClosing = "Ejecuta el proceso diario de Cierre para un Portafolio",
             RunPostclosing = "Ejecuta el proceso diario de PostCierre para un Portafolio",
             ConfirmClosing = "Confirma el cierre de un Portafolio",
-            CancelClosing = "Cancela el cierre de un Portafolio"
+            CancelClosing = "Cancela el cierre de un Portafolio",
+            AbortClosing = "Cancela un proceso de cierre en curso"
             ;
     }
 }

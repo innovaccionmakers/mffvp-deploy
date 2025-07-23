@@ -7,7 +7,8 @@ namespace Closing.Domain.Routes
             RunClosing = "RunClosing",
             RunPostclosing = "RunPostclosing",
             ConfirmClosing = "ConfirmClosing",
-            CancelClosing = "CancelClosing"
+            CancelClosing = "CancelClosing",
+            AbortClosing = "AbortClosing"
             ;
     }
 }

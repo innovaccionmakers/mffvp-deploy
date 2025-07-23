@@ -25,6 +25,11 @@ namespace Closing.Domain.YieldDetails
            int portfolioId,
            DateTime closingDateUtc,
            CancellationToken cancellationToken = default);
+        
+        Task DeleteClosedByPortfolioAndDateAsync(
+            int portfolioId,
+            DateTime closingDateUtc,
+            CancellationToken cancellationToken = default);
 
     }
 }

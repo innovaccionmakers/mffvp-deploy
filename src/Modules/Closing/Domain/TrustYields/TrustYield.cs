@@ -5,7 +5,7 @@ namespace Closing.Domain.TrustYields;
 public sealed class TrustYield : Entity
 {
     public long TrustYieldId { get; private set; }
-    public int TrustId { get; private set; }
+    public long TrustId { get; private set; }
     public int PortfolioId { get; private set; }
     public DateTime ClosingDate { get; private set; }
     public decimal Participation { get; private set; }
@@ -27,7 +27,7 @@ public sealed class TrustYield : Entity
     }
 
     public static Result<TrustYield> Create(
-        int trustId,
+        long trustId,
         int portfolioId,
         DateTime closingDate,
         decimal participation,
@@ -69,7 +69,7 @@ public sealed class TrustYield : Entity
     }
 
     public void UpdateDetails(
-        int trustId,
+        long trustId,
         int portfolioId,
         DateTime closingDate,
         decimal participation,

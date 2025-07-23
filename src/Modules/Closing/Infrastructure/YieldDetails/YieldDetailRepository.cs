@@ -48,6 +48,19 @@ namespace Closing.Infrastructure.YieldDetails
                 .ExecuteDeleteAsync(cancellationToken);
 
         }
+        
+        public async Task DeleteClosedByPortfolioAndDateAsync(
+            int portfolioId,
+            DateTime closingDateUtc,
+            CancellationToken cancellationToken = default)
+        {
+            await context.YieldDetails
+                .Where(yield => yield.PortfolioId == portfolioId
+                                && yield.ClosingDate == closingDateUtc
+                                && yield.IsClosed)
+                .ExecuteDeleteAsync(cancellationToken);
+
+        }
 
         public async Task<IReadOnlyCollection<YieldDetail>> GetByPortfolioAndDateAsync(
         int portfolioId,
