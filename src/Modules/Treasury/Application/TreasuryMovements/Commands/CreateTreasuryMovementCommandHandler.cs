@@ -52,7 +52,7 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         }
         var existPortfolioValuation = await portfolioValuationLocator.CheckPortfolioValuationExists(portfolioRes.Value.PortfolioId, cancellationToken);
 
-        var isClosingDateValid = request.ClosingDate == portfolioRes.Value.CurrentDate.AddDays(1);
+        var isClosingDateValid = request.ClosingDate.Date == portfolioRes.Value.CurrentDate.Date.AddDays(1);
 
         var validationContext = new
         {

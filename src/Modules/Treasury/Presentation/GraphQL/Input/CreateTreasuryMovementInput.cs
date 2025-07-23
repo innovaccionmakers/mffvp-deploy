@@ -4,7 +4,7 @@ namespace Treasury.Presentation.GraphQL.Input;
 
 public sealed record CreateTreasuryMovementInput(
     [property: GraphQLName("idPortafolio")] int PortfolioId,
-    [property: GraphQLName("fechaCierre")] DateTime ClosingDate,
+    [property: GraphQLName("fechaCierre")] DateOnly ClosingDate,
     [property: GraphQLName("concepto")] long TreasuryConceptId,
     [property: GraphQLName("valor")] decimal Value,
     [property: GraphQLName("cuentaBancaria")] long BankAccountId,
