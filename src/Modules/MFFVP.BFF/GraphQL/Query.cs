@@ -15,9 +15,11 @@ using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
+using HotChocolate.Authorization;
 
 namespace MFFVP.BFF.GraphQL;
 
+[Authorize]
 public class Query
 {
     //Products Queries
@@ -189,7 +191,6 @@ public class Query
     }
 
     //Orchestrator Queries
-
     [GraphQLName("obtenerAfiliadosConFiltros")]
     public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociatesByFilter([GraphQLName("tipoIdentificacion")] string? identificationType,
                                                                    [GraphQLName("buscarPor")] SearchByType? searchBy,
@@ -200,6 +201,7 @@ public class Query
         return await experienceOrchestrator.GetAllAssociatesByFilterAsync(identificationType, searchBy, text, cancellationToken);
     }
 
+    [Authorize(Policy = "fvp:associate:activates:view")]
     [GraphQLName("obtenerAfiliados")]
     public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([Service] ExperienceOrchestrator experienceOrchestrator,
                                                                           CancellationToken cancellationToken)

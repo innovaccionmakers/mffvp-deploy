@@ -43,5 +43,11 @@ namespace Closing.Infrastructure.PortfolioValuations
                 .AnyAsync(x => x.PortfolioId == portfolioId,
                           cancellationToken);
         }
+
+        public async Task AddAsync(PortfolioValuation valuation, CancellationToken cancellationToken = default)
+        {
+            await context.PortfolioValuations.AddAsync(valuation, cancellationToken);
+        }
+
     }
 }

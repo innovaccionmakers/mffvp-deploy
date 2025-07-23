@@ -1,6 +1,6 @@
-namespace Common.SharedKernel.Application.Closing;
+namespace Common.SharedKernel.Application.Caching.Closing;
 
 public sealed record ClosingExecutionState(
     DateTime ClosingDatetime,
     DateTime ProcessDatetime,
-    ClosingProcess Process);
+    string Process);

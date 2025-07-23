@@ -16,4 +16,17 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
         return await context.ClientOperations
             .AnyAsync(co => co.PortfolioId == portfolioId && co.ProcessDate == closingDateUtc && co.TransactionSubtypeId == transactionSubtypeId, cancellationToken);
     }
+
+    public async Task<decimal> SumByPortfolioAndSubtypesAsync(
+       int portfolioId,
+       DateTime closingDateUtc,
+       IEnumerable<long> subtransactionTypeIds,
+       CancellationToken cancellationToken = default)
+    {
+        return await context.ClientOperations
+            .Where(op => op.PortfolioId == portfolioId
+                         && op.ProcessDate.Date == closingDateUtc.Date
+                         && subtransactionTypeIds.Contains(op.TransactionSubtypeId))
+            .SumAsync(op => (decimal?)op.Amount, cancellationToken) ?? 0m;
+    }
 }

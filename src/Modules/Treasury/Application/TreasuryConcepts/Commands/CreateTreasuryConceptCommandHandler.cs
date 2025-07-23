@@ -24,7 +24,6 @@ internal class CreateTreasuryConceptCommandHandler(ITreasuryConceptRepository re
             request.AllowsExpense,
             request.RequiresBankAccount,
             request.RequiresCounterparty,
-            request.ProcessDate
         };
 
         var (requiredOk, _, requiredErrors) = await ruleEvaluator.EvaluateAsync(RequiredFieldsWorkflow, requiredContext, cancellationToken);
@@ -43,7 +42,7 @@ internal class CreateTreasuryConceptCommandHandler(ITreasuryConceptRepository re
             request.AllowsExpense,
             request.RequiresBankAccount,
             request.RequiresCounterparty,
-            request.ProcessDate,
+            DateTime.UtcNow,
             request.Observations ?? string.Empty
         );
 

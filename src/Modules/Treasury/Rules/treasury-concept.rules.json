@@ -37,18 +37,6 @@
         "ErrorMessage": "El campo requiere contraparte es obligatorio",
         "Expression": "input.RequiresCounterparty != null",
         "Properties": { "errorCode": "g7h8i9j0-k1l2-3456-ghij-789012345678" }
-      },
-      {
-        "RuleName": "ProcessDateRequired",
-        "ErrorMessage": "La fecha de proceso es obligatoria",
-        "Expression": "input.ProcessDate != null",
-        "Properties": { "errorCode": "h8i9j0k1-l2m3-4567-hijk-890123456789" }
-      },
-      {
-        "RuleName": "ProcessDateValid",
-        "ErrorMessage": "La fecha de proceso no puede ser una fecha futura",
-        "Expression": "input.ProcessDate <= DateTime.UtcNow",
-        "Properties": { "errorCode": "i9j0k1l2-m3n4-5678-ijkl-901234567890" }
       }
     ]
   }

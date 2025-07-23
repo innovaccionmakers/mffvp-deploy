@@ -570,8 +570,8 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnName("costo_unidad");
 
                     b.Property<decimal>("UnitValue")
-                        .HasPrecision(19, 2)
-                        .HasColumnType("numeric(19,2)")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
                         .HasColumnName("valor_unidad");
 
                     b.Property<decimal>("Units")

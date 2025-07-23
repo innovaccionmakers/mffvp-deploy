@@ -77,7 +77,8 @@ namespace Closing.Infrastructure.Database.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("PortfolioValuationId"));
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(19, 2)")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
                         .HasColumnName("valor");
 
                     b.Property<DateTime>("ClosingDate")
@@ -85,19 +86,23 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnName("fecha_cierre");
 
                     b.Property<decimal>("CostPerUnit")
-                        .HasColumnType("decimal(38, 16)")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
                         .HasColumnName("costo_unidad");
 
                     b.Property<decimal>("DailyProfitability")
-                        .HasColumnType("decimal(38, 16)")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
                         .HasColumnName("rentabilidad_diaria");
 
                     b.Property<decimal>("GrossYieldPerUnit")
-                        .HasColumnType("decimal(38, 16)")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
                         .HasColumnName("rendimiento_bruto_unidad");
 
                     b.Property<decimal>("IncomingOperations")
-                        .HasColumnType("decimal(19, 2)")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
                         .HasColumnName("operaciones_entrada");
 
                     b.Property<bool>("IsClosed")
@@ -105,7 +110,8 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnName("cerrado");
 
                     b.Property<decimal>("OutgoingOperations")
-                        .HasColumnType("decimal(19, 2)")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
                         .HasColumnName("operaciones_salida");
 
                     b.Property<int>("PortfolioId")
@@ -117,11 +123,13 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnName("fecha_proceso");
 
                     b.Property<decimal>("UnitValue")
-                        .HasColumnType("decimal(19, 2)")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
                         .HasColumnName("valor_unidad");
 
                     b.Property<decimal>("Units")
-                        .HasColumnType("decimal(38, 16)")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
                         .HasColumnName("unidades");
 
                     b.HasKey("PortfolioValuationId");

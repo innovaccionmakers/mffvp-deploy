@@ -10,7 +10,7 @@ namespace Associate.Presentation.GraphQL;
 
 public class AssociatesExperienceQueries(IMediator mediator) : IAssociatesExperienceQueries
 {
-    //[HotChocolate.Authorization.Authorize(Policy = "fvp:associate:activates:view")]
+    
     public async Task<IReadOnlyCollection<AssociateDto>> GetAllAssociatesAsync(CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetActivatesQuery(), cancellationToken);

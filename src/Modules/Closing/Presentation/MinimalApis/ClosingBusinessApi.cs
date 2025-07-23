@@ -3,12 +3,14 @@ using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
 using Closing.Presentation.MinimalApis.PreClosing;
 using Closing.Presentation.MinimalApis.ClosingWorkflow;
 using Common.SharedKernel.Presentation.Results;
+using Common.SharedKernel.Presentation.Endpoints;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Closing.Presentation.MinimalApis.Closing;
 
 namespace Closing.Presentation.MinimalApis;
 
@@ -18,7 +20,8 @@ public static class ClosingBusinessApi
     {
         var group = app.MapGroup("api/v1/FVP/closing/profit-losses")
                 .WithTags("Profit & Loss")
-                .WithOpenApi();
+                .WithOpenApi()
+                .RequireAuthorization();
 
         group.MapPost(
                     "LoadProfitLoss",
@@ -113,7 +116,9 @@ public static class ClosingBusinessApi
                 .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        PreClosingEndpoints.MapPreclosingEndpoints(app);
-        ClosingWorkflowEndpoints.MapClosingWorkflowEndpoints(app);
+       PreClosingEndpoints.MapPreclosingEndpoints(app);
+
+       ClosingEndpoints.MapEndpoint(app);
+       //ClosingWorkflowEndpoints.MapClosingWorkflowEndpoints(app);
     }
 }

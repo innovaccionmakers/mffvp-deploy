@@ -26,7 +26,6 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private readonly IYieldDetailCreationService _yieldDetailCreationService;
     private readonly YieldDetailBuilderService _yieldDetailBuilderService;
     private readonly IYieldPersistenceService _yieldPersistenceService;
-    private readonly IConfigurationParameterRepository _configurationParameterRepository;
     private readonly IPortfolioValuationRepository _portfolioValuationRepository;   
     IBusinessValidator<RunSimulationCommand> _businessValidator;
     private readonly IYieldDetailRepository _yieldDetailRepository;
@@ -41,7 +40,6 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         IYieldDetailCreationService yieldDetailCreationService,
         YieldDetailBuilderService yieldDetailBuilderService,
         IYieldPersistenceService yieldPersistenceService,
-        IConfigurationParameterRepository configurationParameterRepository,
         IPortfolioValuationRepository portfolioValuationRepository,
         IBusinessValidator<RunSimulationCommand> businessValidator, 
         IYieldDetailRepository yieldDetailRepository,
@@ -55,7 +53,6 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         _yieldDetailCreationService = yieldDetailCreationService;
         _yieldDetailBuilderService = yieldDetailBuilderService;
         _yieldPersistenceService = yieldPersistenceService;
-        _configurationParameterRepository = configurationParameterRepository;
         _portfolioValuationRepository = portfolioValuationRepository;
         _businessValidator = businessValidator;
         _yieldDetailRepository = yieldDetailRepository;
@@ -162,7 +159,7 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private async Task ExecuteProfitAndLossSimulationAsync(RunSimulationParameters parameters, CancellationToken ct)
     {
         if (parameters.IsFirstClosingDay) return;
-        // If the first closing day, we do not calculate P&L
+
         var summary = await _profitAndLossConsolidationService
             .GetProfitAndLossSummaryAsync(parameters.PortfolioId, parameters.ClosingDate);
 
@@ -176,8 +173,6 @@ public class SimulationOrchestrator : ISimulationOrchestrator
 
     private async Task ExecuteCommissionSimulationAsync(RunSimulationParameters parameters, CancellationToken ct)
     {
-       // if (parameters.IsFirstClosingDay) return;
-        // If the first closing day, we do not calculate commissions
         var summary = await _commissionCalculationService
             .CalculateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
 
@@ -192,7 +187,7 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private async Task ExecuteTreasurySimulationAsync(RunSimulationParameters parameters, CancellationToken ct)
     {
         if (parameters.IsFirstClosingDay) return;
-        // If the first closing day, we do not calculate treasury movements
+
         var summary = await _movementsConsolidationService
             .GetMovementsSummaryAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
 

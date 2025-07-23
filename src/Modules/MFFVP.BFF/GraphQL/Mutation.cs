@@ -13,9 +13,11 @@ using Treasury.Presentation.GraphQL.Input;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.Inputs;
 using Closing.Presentation.GraphQL.DTOs;
+using HotChocolate.Authorization;
 
 namespace MFFVP.BFF.GraphQL;
 
+[Authorize]
 public class Mutation
 {
     [GraphQLName("crearAporte")]
