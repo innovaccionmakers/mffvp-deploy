@@ -8,4 +8,5 @@ public interface ITrustRepository
     void Insert(Trust trust);
     void Update(Trust trust);
     void Delete(Trust trust);
+    Task<IReadOnlyCollection<Trust>> GetByObjectiveIdAsync(int objectiveId, CancellationToken cancellationToken = default);
 }

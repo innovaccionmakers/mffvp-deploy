@@ -50,6 +50,7 @@ using Products.Presentation.MinimalApis;
 using Common.SharedKernel.Application.Rpc;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 using Products.IntegrationEvents.AdditionalInformation;
+using Products.Infrastructure.External.ObjectivesValidation;
 
 namespace Products.Infrastructure;
 
@@ -101,6 +102,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IProductsExperienceMutations, ProductsExperienceMutations>();
 
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
+        services.AddScoped<IObjectivesValidationTrusts, ObjectivesValidationTrusts>();
         services.AddScoped<IObjectiveReader, ObjectiveReader>();
         services.AddScoped<IAdditionalInformationService, AdditionalInformationService>();
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();
