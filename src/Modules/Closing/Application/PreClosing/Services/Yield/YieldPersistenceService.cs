@@ -49,6 +49,7 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
             summary.Commissions,
             summary.Costs,
             summary.YieldToCredit,
+            0m,
             parameters.ClosingDate,
             processDate,
             parameters.IsClosing);

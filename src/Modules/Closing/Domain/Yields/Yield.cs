@@ -11,6 +11,7 @@ public sealed class Yield : Entity
     public decimal Commissions { get; private set; }
     public decimal Costs { get; private set; }
     public decimal YieldToCredit { get; private set; }
+    public decimal CreditedYields { get; private set; }
     public DateTime ClosingDate { get; private set; }
     public DateTime ProcessDate { get; private set; }
     public bool IsClosed { get; private set; }
@@ -27,6 +28,7 @@ public sealed class Yield : Entity
         decimal commissions,
         decimal costs,
         decimal yieldToCredit,
+        decimal creditedYields,
         DateTime closingDate,
         DateTime processDate,
         bool isClosed)
@@ -40,6 +42,7 @@ public sealed class Yield : Entity
             Commissions = commissions,
             Costs = costs,
             YieldToCredit = yieldToCredit,
+            CreditedYields = creditedYields,
             ClosingDate = closingDate,
             ProcessDate = processDate,
             IsClosed = isClosed
@@ -55,6 +58,7 @@ public sealed class Yield : Entity
         decimal commissions,
         decimal costs,
         decimal yieldToCredit,
+        decimal creditedYields,
         DateTime closingDate,
         DateTime processDate,
         bool isClosed)
@@ -65,6 +69,7 @@ public sealed class Yield : Entity
         Commissions = commissions;
         Costs = costs;
         YieldToCredit = yieldToCredit;
+        CreditedYields = creditedYields;
         ClosingDate = closingDate;
         ProcessDate = processDate;
         IsClosed = isClosed;
