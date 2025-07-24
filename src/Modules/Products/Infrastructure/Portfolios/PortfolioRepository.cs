@@ -57,12 +57,16 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
                            join f in context.PensionFunds on pf.PensionFundId equals f.PensionFundId
                            join ap in context.AlternativePortfolios on a.AlternativeId equals ap.AlternativeId
                            join p in context.Portfolios on ap.PortfolioId equals p.PortfolioId
-                           where o.ObjectiveId.ToString() == objectiveId
+                           where o.ObjectiveId.ToString() == objectiveId && ap.IsCollector
                            select PortfolioInformation.Create(
                                 f.Name,
+                                f.PensionFundId,
                                 pl.Name,
+                                pl.PlanId,
                                 a.Name,
-                                p.Name
+                                a.AlternativeId,
+                                p.Name,
+                                p.PortfolioId
                                )).FirstOrDefaultAsync(cancellationToken);
 
         return result;
