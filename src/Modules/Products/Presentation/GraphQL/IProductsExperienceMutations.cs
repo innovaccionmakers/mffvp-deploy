@@ -12,4 +12,10 @@ public interface IProductsExperienceMutations
         IValidator<CreateGoalInput> validator,
         CancellationToken cancellationToken = default
     );
+
+    Task<GraphqlMutationResult> UpdateGoalAsync(
+        UpdateGoalInput input,
+        IValidator<UpdateGoalInput> validator,
+        CancellationToken cancellationToken = default
+    );
 }
