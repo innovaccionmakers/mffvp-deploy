@@ -7,5 +7,7 @@ public interface ITrustYieldRepository
     void Update(TrustYield trustYield);
     Task<IReadOnlyCollection<TrustYield>> GetByPortfolioAndDateAsync(int portfolioId, DateTime closingDate, CancellationToken ct);
     Task SaveChangesAsync(CancellationToken ct = default);
+
+    Task UpsertAsync(YieldTrustSnapshot snapshot, CancellationToken ct);
 }
 

@@ -52,4 +52,9 @@ internal sealed class YieldRepository(ClosingDbContext context) : IYieldReposito
             .SingleOrDefaultAsync(cancellationToken);
     }
 
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
 }

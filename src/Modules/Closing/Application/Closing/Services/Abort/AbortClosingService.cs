@@ -1,5 +1,6 @@
 using Closing.Application.Abstractions.Data;
-using Closing.Application.ClosingWorkflow;
+using Closing.Application.Closing.Services.Abort;
+using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
@@ -8,13 +9,12 @@ using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
 namespace Closing.Application.Closing.Services.Abort;
-
 public sealed class AbortClosingService(
     IClosingExecutionStore store,
     IYieldDetailRepository yieldDetailRepository,
     IYieldRepository yieldRepository,
     IPortfolioValuationRepository valuationRepository,
-    IClosingWorkflowService workflowService,
+    ITimeControlService timeControl,
     IUnitOfWork unitOfWork,
     ILogger<AbortClosingService> logger) : IAbortClosingService
 {
@@ -27,14 +27,23 @@ public sealed class AbortClosingService(
         }
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(ct);
+
         try
         {
+            logger.LogInformation("Eliminando datos del cierre simulado para el portafolio {PortfolioId}", portfolioId);
+
             await yieldDetailRepository.DeleteClosedByPortfolioAndDateAsync(portfolioId, closingDate, ct);
             await yieldRepository.DeleteClosedByPortfolioAndDateAsync(portfolioId, closingDate, ct);
             await valuationRepository.DeleteClosedByPortfolioAndDateAsync(portfolioId, closingDate, ct);
 
             await unitOfWork.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
+
+            logger.LogInformation("Datos eliminados correctamente. Reactivando flujo para el portafolio {PortfolioId}", portfolioId);
+
+            await timeControl.EndAsync(portfolioId, ct);
+
+            return Result.Success();
         }
         catch (Exception ex)
         {
@@ -42,8 +51,5 @@ public sealed class AbortClosingService(
             logger.LogError(ex, "Error abortando cierre para Portafolio {PortfolioId} - Fecha {Date}", portfolioId, closingDate);
             return Result.Failure(new Error("002", "Error al abortar el cierre.", ErrorType.Failure));
         }
-
-        await workflowService.EndAsync(portfolioId, ct);
-        return Result.Success();
     }
 }
