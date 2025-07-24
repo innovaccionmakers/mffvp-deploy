@@ -40,7 +40,7 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
             .Set<TrustYield>()
             .FirstOrDefaultAsync(y =>
                 y.TrustId == snapshot.TrustId &&
-                y.ClosingDate.Date == snapshot.ClosingDate.ToDateTime(TimeOnly.MinValue),
+                y.ClosingDate.Date == snapshot.ClosingDate,
                 ct);
 
         if (existing is null)
@@ -48,7 +48,7 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
             var result = TrustYield.Create(
                 trustId: snapshot.TrustId,
                 portfolioId: snapshot.PortfolioId,
-                closingDate: snapshot.ClosingDate.ToDateTime(TimeOnly.MinValue),
+                closingDate: snapshot.ClosingDate,
                 participation: 0m,
                 units: 0m,
                 yieldAmount: 0m,
