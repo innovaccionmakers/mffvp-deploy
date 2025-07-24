@@ -1,7 +1,7 @@
 using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
-using Closing.Application.ClosingWorkflow;
+using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.ProfitLossConcepts;
@@ -83,7 +83,7 @@ public class ClosingModule : IModuleConfiguration
 
         services.AddScoped<IPortfolioValidator, PortfolioValidator>();
 
-        services.AddScoped<IClosingWorkflowService, ClosingWorkflowService>();
+        services.AddScoped<IClosingStepEventPublisher, ClosingStepEventPublisher>();
 
         services.AddScoped<CreateClientOperationRequestedConsumer>();
         services.AddScoped<IRpcHandler<TrustSyncRequest, TrustSyncResponse>, TrustSyncConsumer>();

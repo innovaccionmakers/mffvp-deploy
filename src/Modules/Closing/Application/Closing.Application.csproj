@@ -1,6 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
+      <Compile Remove="Closing\Services\AllocationCheck\**" />
+      <EmbeddedResource Remove="Closing\Services\AllocationCheck\**" />
+      <None Remove="Closing\Services\AllocationCheck\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
@@ -19,7 +25,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Closing\Services\AllocationCheck\" />
       <Folder Include="PostClosing\Services\Orchestation\" />
       <Folder Include="PostClosing\Services\PortfolioCommissionCollector\" />
       <Folder Include="PostClosing\Services\PendingTransactionHandler\" />
@@ -32,5 +37,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+
+    <ItemGroup>
+      <EditorConfigFiles Remove="F:\Makers\Fuentes\MFFPV\MFFVP.Backend\src\Modules\Closing\Application\Closing\Services\TrustYieldsDistribution\.editorconfig" />
+    </ItemGroup>
 
 </Project>
