@@ -2,6 +2,7 @@ using HotChocolate;
 using MediatR;
 using System.Linq;
 using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolio;
+using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolioAndIssuer;
 using Treasury.Integrations.Issuers.GetIssuers;
 using Treasury.Integrations.TreasuryConcepts.GetTreasuryConcepts;
 using Treasury.Presentation.DTOs;
@@ -92,6 +93,36 @@ public class TreasuryExperienceQueries(IMediator mediator) : ITreasuryExperience
             BoolToSiNo(x.RequiresCounterparty),
             x.ProcessDate,
             x.Observations
+        )).ToList();
+    }
+    
+    public async Task<IReadOnlyCollection<BankAccountDto>> GetBankAccountsByPortfolioAndIssuerAsync(
+        long portfolioId,
+        long issuerId,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetBankAccountsByPortfolioAndIssuerQuery(portfolioId, issuerId), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new GraphQLException(
+                ErrorBuilder.New()
+                    .SetMessage("Failed to retrieve bank accounts")
+                    .Build()
+            );
+        }
+
+        var accounts = result.Value;
+
+        return accounts.Select(x => new BankAccountDto(
+            x.Id,
+            x.PortfolioId,
+            x.IssuerId,
+            x.Issuer?.IssuerCode ?? string.Empty,
+            x.AccountNumber,
+            x.AccountType,
+            x.Observations,
+            x.ProcessDate
         )).ToList();
     }
 }

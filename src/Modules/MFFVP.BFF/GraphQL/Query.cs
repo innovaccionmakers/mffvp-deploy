@@ -250,4 +250,13 @@ public class Query
     {
         return await treasuryQueries.GetTreasuryConceptsAsync(cancellationToken);
     }
+
+    [GraphQLName("cuentasBancariasPortafolioEmisor")]
+    public async Task<IReadOnlyCollection<BankAccountDto>> GetBankAccountsByPortfolioAndIssuer([GraphQLName("portfolioId")] long portfolioId,
+                                                                                [GraphQLName("emisorId")] long issuerId,
+                                                                                [Service] ITreasuryExperienceQueries treasuryQueries,
+                                                                                CancellationToken cancellationToken)
+    {
+        return await treasuryQueries.GetBankAccountsByPortfolioAndIssuerAsync(portfolioId, issuerId, cancellationToken);
+    }
 }
