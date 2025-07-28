@@ -57,4 +57,15 @@
         <ProjectReference Include="..\..\Modules\Trusts\Integrations\Trusts.Integrations.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="libs\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Makers.Adp.Telemetry">
+            <HintPath>libs\Makers.Adp.Telemetry.dll</HintPath>
+            <Private>true</Private>
+        </Reference>
+    </ItemGroup>
+
 </Project>
