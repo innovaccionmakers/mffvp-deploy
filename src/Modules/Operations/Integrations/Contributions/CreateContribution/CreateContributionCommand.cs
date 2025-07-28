@@ -5,6 +5,7 @@ using Common.SharedKernel.Application.Messaging;
 
 namespace Operations.Integrations.Contributions.CreateContribution;
 
+[AuditLog]
 public sealed record CreateContributionCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]

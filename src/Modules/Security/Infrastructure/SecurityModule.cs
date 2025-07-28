@@ -18,6 +18,11 @@ using Security.Domain.Roles;
 using Security.Domain.UserPermissions;
 using Security.Domain.UserRoles;
 using Security.Domain.Users;
+using Security.Domain.Logs;
+using MediatR;
+using Security.Application.Auditing;
+using Security.Application.Abstractions.Services.Auditing;
+using Security.Infrastructure.Auditing;
 using Security.Infrastructure.Auth;
 using Security.Infrastructure.Database;
 using Security.Infrastructure.RolePermissions;
@@ -25,6 +30,7 @@ using Security.Infrastructure.Roles;
 using Security.Infrastructure.UserPermissions;
 using Security.Infrastructure.UserRoles;
 using Security.Infrastructure.Users;
+using Security.Infrastructure.Logs;
 using Security.Presentation.MinimalApis;
 
 namespace Security.Infrastructure;
@@ -61,6 +67,9 @@ public class SecurityModule: IModuleConfiguration
         services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
+        services.AddScoped<ILogRepository, LogRepository>();
+        services.AddScoped<IClientInfoService, ClientInfoService>();
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditLogsBehavior<,>));
 
         services.AddScoped<IUserPermissionService, UserPermissionService>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SecurityDbContext>());
