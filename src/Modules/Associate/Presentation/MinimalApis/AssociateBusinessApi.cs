@@ -28,7 +28,8 @@ public static class AssociateBusinessApi
     {
         var group = app.MapGroup("api/v1/FVP/Associate")
             .WithTags("Associate")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
         group.MapGet("GetAssociates",
             async (ISender sender) =>
