@@ -21,8 +21,7 @@ public static class CustomersBusinessApi
     {
         var group = app.MapGroup(Routes.Customer)
             .WithTags(TagName.TagCustomer)
-            .WithOpenApi()
-            .RequireAuthorization();
+            .WithOpenApi();
 
         group.MapGet(
                 NameEndpoints.GetCustomer,
