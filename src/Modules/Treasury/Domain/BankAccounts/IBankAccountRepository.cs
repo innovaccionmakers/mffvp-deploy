@@ -9,4 +9,5 @@ public interface IBankAccountRepository
     Task AddAsync(BankAccount bankAccount, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(long issuerId, string accountNumber, string accountType, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<BankAccount>> GetByPortfolioIdAsync(long portfolioId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<BankAccount>> GetByPortfolioAndIssuerAsync(long portfolioId, long issuerId, CancellationToken cancellationToken = default);
 }

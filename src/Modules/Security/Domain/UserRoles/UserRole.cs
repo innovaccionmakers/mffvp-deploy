@@ -1,6 +1,5 @@
 ﻿using Common.SharedKernel.Domain;
 
-using Security.Domain.RolePermissions;
 using Security.Domain.Roles;
 using Security.Domain.Users;
 
