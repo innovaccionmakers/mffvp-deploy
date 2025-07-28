@@ -90,6 +90,10 @@ public sealed class ObjectiveReader(
                 o.Alternative.Name,
                 o.Alternative.Portfolios
                     .Where(p => p.IsCollector)
+                    .Select(p => p.Portfolio.HomologatedCode)
+                    .FirstOrDefault() ?? string.Empty,
+                o.Alternative.Portfolios
+                    .Where(p => p.IsCollector)
                     .Select(p => p.Portfolio.Name)
                     .FirstOrDefault() ?? string.Empty,
                 o.Status == Status.Active ? "Activo" : "Inactivo"
