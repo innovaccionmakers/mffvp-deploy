@@ -11,5 +11,18 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "Products.Portfolio.Required",
+    "Rules": [
+      {
+        "RuleName": "ValidatePortfolioCode",
+        "ErrorMessage": "El código de portafolio es obligatorio",
+        "Expression": "CodigoPortafolio != null && CodigoPortafolio.Length > 0",
+        "Properties": {
+          "errorCode": "CREAR_CODIGO"
+        }
+      }
+    ]
   }
 ]

@@ -25,6 +25,9 @@ public sealed record ObjectiveDto(
     [property: JsonPropertyName("Alternativa")]
     string AlternativeName,
 
+    [property: JsonPropertyName("CodHomPortafolioRecaudador")]
+    string HomologatedCollectorPortfolioCode,
+
     [property: JsonPropertyName("PortafolioRecaudador")]
     string CollectorPortfolioName,
 
