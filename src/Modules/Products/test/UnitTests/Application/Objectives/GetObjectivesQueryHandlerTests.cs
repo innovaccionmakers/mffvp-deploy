@@ -221,8 +221,8 @@ public class GetObjectivesQueryHandlerTests
 
         var objectives = new List<ObjectiveDto>
         {
-            new(1, "T1", "Name1", "F1", "Plan1", "ALT1", "AltName", "Port", "Activo"),
-            new(2, "T2", "Name2", "F2", "Plan2", "ALT2", "AltName2", "Port2", "Inactivo")
+            new(1, "T1", "Name1", "F1", "Plan1", "ALT1", "AltName", "PORT01", "Port", "Activo"),
+            new(2, "T2", "Name2", "F2", "Plan2", "ALT2", "AltName2", "PORT02", "Port2", "Inactivo")
         };
 
         _objectiveReader
