@@ -53,6 +53,7 @@ internal class CreateBankAccountCommandHandler(
         var validationContext = new
         {
             EntityExists = issuer,
+            PortfolioExists = portfolioRes,
             BankAccountExists = existBankAccount,
             IssuerCodeMatches = issuer?.IssuerCode == request.Issuer,
         };

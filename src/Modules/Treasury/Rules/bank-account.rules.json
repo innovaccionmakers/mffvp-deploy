@@ -50,6 +50,12 @@
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000014" }
       },
       {
+        "RuleName": "PortfolioMustExist",
+        "ErrorMessage": "El portafolio no existe",
+        "Expression": "input.PortfolioExists != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000011" }
+      },
+      {
         "RuleName": "IssuerCodeMustMatch",
         "ErrorMessage": "El código del emisor no coincide con el emisor seleccionado",
         "Expression": "input.IssuerCodeMatches == true",
