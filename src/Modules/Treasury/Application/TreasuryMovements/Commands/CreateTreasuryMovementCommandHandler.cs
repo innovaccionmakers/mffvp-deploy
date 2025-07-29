@@ -63,7 +63,7 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         var validationContext = new
         {
             TreasuryConceptExists = treasuryConcept,
-            IssuerExists = issuer,
+            EntityExists = issuer,
             BankAccountExists = bankAccount,
             PortfolioExists = portfolioRes,
             AllowsNegative = treasuryConcept?.AllowsNegative ?? false,
