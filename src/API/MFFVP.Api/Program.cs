@@ -207,10 +207,10 @@ foreach (var module in moduleConfigurations)
 
 app.UsePathBase("/fiduciaria/fvp");
 
-if (env != "Development")
-{
-    app.UseOtelMiddleware();
-}
+//if (env != "Development")
+//{
+//    app.UseOtelMiddleware();
+//}
 
 app.UseInfrastructure();
 
