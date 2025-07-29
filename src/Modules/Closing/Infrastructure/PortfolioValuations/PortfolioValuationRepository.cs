@@ -17,17 +17,7 @@ namespace Closing.Infrastructure.PortfolioValuations
                                                 x.IsClosed == true)
                 .SingleOrDefaultAsync(cancellationToken);
         }
-        /// <summary>
-        /// Checks whether a portfolio valuation exists for the specified portfolio and closing date,
-        /// and confirms that the valuation is already closed.
-        /// </summary>
-        /// <param name="portfolioId">The unique identifier of the portfolio.</param>
-        /// <param name="closingDateUtc">The closing date in UTC to check for the valuation.</param>
-        /// <param name="cancellationToken">Optional token to cancel the asynchronous operation.</param>
-        /// <returns>
-        /// A task that returns <c>true</c> if a closed portfolio valuation exists for the given
-        /// portfolio and closing date; otherwise, <c>false</c>.
-        /// </returns>
+
         public async Task<bool> ValuationExistsAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
         {
             return await context.PortfolioValuations

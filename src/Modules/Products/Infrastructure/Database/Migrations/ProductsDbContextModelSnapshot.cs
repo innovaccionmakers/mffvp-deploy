@@ -604,26 +604,59 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("aporte_minimo_adicional");
 
+                    b.Property<Guid>("AdviceClassification")
+                        .HasColumnType("uuid")
+                        .HasColumnName("clasificacion_asesoria");
+
+                    b.Property<int>("AgileWithdrawalPercentageProtectedBalance")
+                        .HasColumnType("integer")
+                        .HasColumnName("porc_retiro_agil_saldo_protegido");
+
+                    b.Property<string>("AllowsAgileWithdrawal")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("permite_retiro_agil");
+
                     b.Property<decimal>("CommissionPercentage")
                         .HasColumnType("numeric")
                         .HasColumnName("porcentaje_comision");
 
-                    b.Property<int>("CommissionRateTypeId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("CommissionRateTypeId")
+                        .HasColumnType("uuid")
                         .HasColumnName("tipo_tasa_comision");
 
                     b.Property<DateTime>("CurrentDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_actual");
 
+                    b.Property<Guid>("Custodian")
+                        .HasColumnType("uuid")
+                        .HasColumnName("custodio");
+
                     b.Property<string>("HomologatedCode")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("codigo_homologacion");
 
+                    b.Property<Guid>("IndustryClassification")
+                        .HasColumnType("uuid")
+                        .HasColumnName("clasificacion_industria");
+
                     b.Property<decimal>("InitialMinimumAmount")
                         .HasColumnType("numeric")
                         .HasColumnName("aporte_minimo_inicial");
+
+                    b.Property<DateTime>("LastRatingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_ultima_calificacion");
+
+                    b.Property<int>("MaxParticipationPercentage")
+                        .HasColumnType("integer")
+                        .HasColumnName("porc_max_participacion");
+
+                    b.Property<decimal>("MinimumVirPercentage")
+                        .HasColumnType("numeric")
+                        .HasColumnName("vir_retiro_minimo");
 
                     b.Property<int>("ModalityId")
                         .HasColumnType("integer")
@@ -634,6 +667,56 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nombre");
 
+                    b.Property<string>("NitApprovedPortfolio")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nit_portafolio_homologado");
+
+                    b.Property<DateTime>("OperationsStartDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_inicio_operaciones");
+
+                    b.Property<decimal>("PartialVirPercentage")
+                        .HasColumnType("numeric")
+                        .HasColumnName("vir_retiro_max_parcial");
+
+                    b.Property<int>("PenaltyPercentage")
+                        .HasColumnType("integer")
+                        .HasColumnName("porcentaje_penalizacion");
+
+                    b.Property<int>("PermanencePeriod")
+                        .HasColumnType("integer")
+                        .HasColumnName("plazo_permanencia");
+
+                    b.Property<DateTime>("PortfolioExpiryDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_vto_portafolio");
+
+                    b.Property<string>("PortfolioNIT")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nit_portafolio");
+
+                    b.Property<Guid>("Qualifier")
+                        .HasColumnType("uuid")
+                        .HasColumnName("calificadora");
+
+                    b.Property<Guid>("Rating")
+                        .HasColumnType("uuid")
+                        .HasColumnName("calificacion");
+
+                    b.Property<Guid>("RatingType")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tipo_calificacion");
+
+                    b.Property<Guid>("RiskProfile")
+                        .HasColumnType("uuid")
+                        .HasColumnName("perfil_riesgo");
+
+                    b.Property<int>("SFCBusinessCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("cod_Negocio_SFC");
+
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .HasColumnType("text")
@@ -643,6 +726,14 @@ namespace Products.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("estado");
+
+                    b.Property<int>("VerificationDigit")
+                        .HasColumnType("integer")
+                        .HasColumnName("digito_verificacion");
+
+                    b.Property<int>("WithdrawalPercentageProtectedBalance")
+                        .HasColumnType("integer")
+                        .HasColumnName("porc_retiro_saldo_protegido");
 
                     b.HasKey("PortfolioId");
 

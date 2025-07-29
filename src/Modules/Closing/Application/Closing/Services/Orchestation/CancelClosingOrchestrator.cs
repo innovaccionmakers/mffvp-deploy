@@ -1,6 +1,6 @@
-﻿
+﻿using Closing.Application.Closing.Services.Abort;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
-using Closing.Application.Closing.Services.TimeControl;
+using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
@@ -8,8 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Closing.Application.Closing.Services.Orchestation;
 
 public class CancelClosingOrchestrator(
-    //ITransactionApplierService transactionApplier,
-    ITimeControlService timeControl,
+    IAbortClosingService abortClosing,
     ILogger<CancelClosingOrchestrator> logger)
     : ICancelClosingOrchestrator
 {
@@ -17,11 +16,12 @@ public class CancelClosingOrchestrator(
     {
         logger.LogInformation("Cancelando cierre para portafolio {PortfolioId}", portfolioId);
 
-        //var applyResult = await transactionApplier.ExecuteAsync(portfolioId, closingDate, ct);
-        //if (applyResult.IsFailure)
-        //    return Result.Failure<ClosedResult>(applyResult.Error);
-
-        await timeControl.EndAsync(portfolioId, ct);
+        var abortResult = await abortClosing.AbortAsync(portfolioId, closingDate, ct);
+        if (abortResult.IsFailure)
+        {
+            logger.LogWarning("Falló el proceso de Cancelación para portafolio {PortfolioId}", portfolioId);
+            return Result.Failure<ClosedResult>(abortResult.Error);
+        }
 
         logger.LogInformation("Cierre cancelado correctamente para portafolio {PortfolioId}", portfolioId);
         return Result.Success(new ClosedResult(portfolioId, closingDate));

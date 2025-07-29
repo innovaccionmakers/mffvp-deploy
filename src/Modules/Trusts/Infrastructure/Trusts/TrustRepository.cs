@@ -56,4 +56,13 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
             .Where(t => t.ObjectiveId == objectiveId)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<Trust>> GetActiveTrustsByPortfolioAsync(int portfolioId, CancellationToken ct)
+    {
+        return await context
+            .Set<Trust>()
+            .AsNoTracking()
+            .Where(t => t.PortfolioId == portfolioId && t.Status)
+            .ToListAsync(ct);
+    }
 }

@@ -33,5 +33,63 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
     {
         await context.SaveChangesAsync(ct);
     }
+
+    public async Task UpsertAsync(YieldTrustSnapshot snapshot, CancellationToken ct)
+    {
+        var existing = await context
+            .Set<TrustYield>()
+            .FirstOrDefaultAsync(y =>
+                y.TrustId == snapshot.TrustId &&
+                y.ClosingDate.Date == snapshot.ClosingDate,
+                ct);
+
+        if (existing is null)
+        {
+            var result = TrustYield.Create(
+                trustId: snapshot.TrustId,
+                portfolioId: snapshot.PortfolioId,
+                closingDate: snapshot.ClosingDate,
+                participation: 0m,
+                units: 0m,
+                yieldAmount: 0m,
+                preClosingBalance: snapshot.PreClosingBalance,
+                closingBalance: 0m,
+                income: 0m,
+                expenses: 0m,
+                commissions: 0m,
+                cost: 0m,
+                capital: snapshot.Capital,
+                processDate: snapshot.ProcessDate,
+                contingentRetention: snapshot.ContingentRetention,
+                yieldRetention: 0m
+            );
+
+            if (result.IsSuccess)
+                await context.AddAsync(result.Value, ct);
+        }
+        else
+        {
+            existing.UpdateDetails(
+                trustId: existing.TrustId,
+                portfolioId: existing.PortfolioId,
+                closingDate: existing.ClosingDate,
+                participation: existing.Participation,
+                units: existing.Units,
+                yieldAmount: existing.YieldAmount,
+                preClosingBalance: snapshot.PreClosingBalance,
+                closingBalance: existing.ClosingBalance,
+                income: existing.Income,
+                expenses: existing.Expenses,
+                commissions: existing.Commissions,
+                cost: existing.Cost,
+                capital: snapshot.Capital,
+                processDate: snapshot.ProcessDate,
+                contingentRetention: snapshot.ContingentRetention,
+                yieldRetention: existing.YieldRetention
+            );
+        }
+
+        await context.SaveChangesAsync(ct);
+    }
 }
 

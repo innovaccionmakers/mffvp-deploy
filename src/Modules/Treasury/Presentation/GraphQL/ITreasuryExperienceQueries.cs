@@ -9,4 +9,8 @@ public interface ITreasuryExperienceQueries
         long portfolioId,
         CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<TreasuryConceptDto>> GetTreasuryConceptsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<BankAccountDto>> GetBankAccountsByPortfolioAndIssuerAsync(
+        long portfolioId,
+        long issuerId,
+        CancellationToken cancellationToken = default);
 }

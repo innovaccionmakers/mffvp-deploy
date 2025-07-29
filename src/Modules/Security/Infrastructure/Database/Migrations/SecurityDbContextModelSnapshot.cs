@@ -109,9 +109,6 @@ namespace Security.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("rol_id");
 
-                    b.Property<int?>("RolePermissionId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
                         .HasColumnName("usuario_id");
@@ -119,8 +116,6 @@ namespace Security.Infrastructure.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("RolePermissionId");
 
                     b.HasIndex("UserId");
 
@@ -198,10 +193,6 @@ namespace Security.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Security.Domain.RolePermissions.RolePermission", null)
-                        .WithMany("UserRoles")
-                        .HasForeignKey("RolePermissionId");
-
                     b.HasOne("Security.Domain.Users.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
@@ -211,11 +202,6 @@ namespace Security.Infrastructure.Database.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Security.Domain.RolePermissions.RolePermission", b =>
-                {
-                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Security.Domain.Roles.Role", b =>

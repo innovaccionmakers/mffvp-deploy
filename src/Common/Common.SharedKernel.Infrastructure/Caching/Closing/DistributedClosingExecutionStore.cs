@@ -49,6 +49,27 @@ internal sealed class DistributedClosingExecutionStore(
         await cache.RemoveAsync(GetKey(portfolioId), cancellationToken);
     }
 
+    public async Task<string?> GetCurrentProcessAsync(int portfolioId, CancellationToken ct = default)
+    {
+        var key = GetKey(portfolioId);
+        var json = await cache.GetStringAsync(key, ct);
+        if (json is null) return null;
+
+        var state = serializer.Deserialize(json);
+        return state?.Process;
+    }
+
+    public async Task<DateTime?> GetClosingDatetimeAsync(int portfolioId, CancellationToken ct = default)
+    {
+        var key = GetKey(portfolioId);
+        var json = await cache.GetStringAsync(key, ct);
+        if (json is null) return null;
+
+        var state = serializer.Deserialize(json);
+        return state?.ClosingDatetime;
+    }
+
+
     private DistributedCacheEntryOptions GetEntryOptions() =>
         new() { AbsoluteExpirationRelativeToNow = _expiration };
 }

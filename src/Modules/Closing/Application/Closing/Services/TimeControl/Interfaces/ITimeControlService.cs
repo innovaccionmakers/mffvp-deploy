@@ -1,7 +1,6 @@
-﻿
-using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Domain;
 
-namespace Closing.Application.Closing.Services.TimeControl;
+namespace Closing.Application.Closing.Services.TimeControl.Interrfaces;
 
 public interface ITimeControlService
 {

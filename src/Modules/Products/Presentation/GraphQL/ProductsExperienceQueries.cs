@@ -35,9 +35,13 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
 
             return new PortfolioDto(
                 portfolioInformation.Found,
+                portfolioInformation.FoundId,
                 portfolioInformation.Plan,
+                portfolioInformation.PlanId,
                 portfolioInformation.Alternative,
-                portfolioInformation.Portfolio
+                portfolioInformation.AlternativeId,
+                portfolioInformation.Portfolio,
+                portfolioInformation.PortfolioId
             );
     }
 

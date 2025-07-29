@@ -1,8 +1,6 @@
-﻿
+﻿using Common.SharedKernel.Domain;
 
-using Common.SharedKernel.Domain;
-
-namespace Closing.Application.Closing.Services.TrustYieldsDistribution;
+namespace Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
 
 public interface IDistributeTrustYieldsService
 {

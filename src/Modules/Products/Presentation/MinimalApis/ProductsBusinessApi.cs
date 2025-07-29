@@ -16,7 +16,9 @@ using Products.Integrations.Objectives.GetObjectives;
 using Products.Integrations.Objectives.UpdateObjective;
 using Products.Integrations.Portfolios;
 using Products.Integrations.Portfolios.GetPortfolio;
+using Products.Integrations.Portfolios.GetPortfolioById;
 using Products.Integrations.Portfolios.GetPortfolios;
+using Products.Integrations.Portfolios.Queries;
 
 namespace Products.Presentation.MinimalApis;
 
@@ -177,6 +179,40 @@ public static class ProductsBusinessApi
                 .WithDescription(Description.GetAllPortfolios)
                 .Produces<IReadOnlyCollection<PortfolioResponse>>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet(
+                "Portfolios/GetPortfolioById",
+                async (
+                    [FromQuery] string codigoPortafolio,
+                    ISender sender,
+                    CancellationToken cancellationToken
+                ) =>
+                {
+                    var query = new GetPortfolioByIdQuery(codigoPortafolio);
+                    var result = await sender.Send(query, cancellationToken);
+                    return result.ToApiResult();
+                }
+            )
+            .WithName("GetPortfolioByHomologatedCode")
+            .WithSummary("Obtiene un portafolio por su código homologado")
+            .WithDescription("""
+                **Ejemplo de llamada:**
+
+                ```http
+                GET /FVP/products/portfolios/GetPortfolioById?codigoPortafolio=PORT001
+                ```
+
+                - `codigoPortafolio`: Código homologado del portafolio (obligatorio)
+                """)
+            .WithOpenApi(operation =>
+            {
+                operation.Parameters[0].Description = "Código homologado del portafolio";
+                return operation;
+            })
+            .Produces<GetPortfolioByIdResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
 

@@ -1,45 +1,46 @@
-﻿using Closing.Domain.TrustYields;
+﻿using Closing.Application.Abstractions.External.Trusts.Trusts;
+using Closing.Domain.TrustYields;
 using Common.SharedKernel.Domain;
 
 namespace Closing.Application.Closing.Services.TrustSync;
 
 public sealed class TrustSyncService : IDataSyncService
 {
-    //private readonly ITrustYieldRepository repository;
+    private readonly ITrustLocator _trustLocator;
+    private readonly ITrustYieldRepository _yieldTrustRepository;
 
+    public TrustSyncService(
+        ITrustLocator trustLocator,
+        ITrustYieldRepository yieldTrustRepository
+        )
+    {
+        _trustLocator = trustLocator;
+        _yieldTrustRepository = yieldTrustRepository;
+    }
 
-    //public TrustSyncService(ITrustYieldRepository repository)
-    //{
-    //    this.repository = repository;
-    //}
+    public async Task<Result> ExecuteAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
+    {
+        var result = await _trustLocator.GetActiveTrustsAsync(portfolioId, cancellationToken);
 
-    //public async Task<Result> ExecuteAsync(int portfolioId, DateOnly closingDate, CancellationToken cancellationToken)
-    //{
-    //    try
-    //    {
-    //        var trusts = await repository.GetActiveTrustsByPortfolioAsync(portfolioId, cancellationToken);
+        if (result.IsFailure)
+            return Result.Failure(result.Error);
 
-    //        foreach (var trust in trusts)
-    //        {
-    //            var snapshot = new TrustSnapshotDto
-    //            {
-    //                FideicomisoId = trust.FideicomisoId,
-    //                PortfolioId = portfolioId,
-    //                FechaCierre = closingDate,
-    //                SaldoPreCierre = trust.SaldoTotal,
-    //                Capital = trust.Capital,
-    //                RetencionContingente = trust.RetencionContingente,
-    //                FechaProceso = _clock.Today()
-    //            };
+        foreach (var trust in result.Value)
+        {
+            var snapshot = new YieldTrustSnapshot
+            {
+                TrustId = trust.TrustId,
+                PortfolioId = trust.PortfolioId,
+                ClosingDate = closingDate,
+                PreClosingBalance = trust.TotalBalance,
+                Capital = trust.Principal,
+                ContingentRetention = trust.ContingentWithholding,
+                ProcessDate = DateTime.UtcNow,
+            };
 
-    //            await _repository.UpsertYieldTrustAsync(snapshot, cancellationToken);
-    //        }
+            await _yieldTrustRepository.UpsertAsync(snapshot, cancellationToken);
+        }
 
-    //        return Result.Success();
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        return Result.Failure(new Error("DATASYNC_ERROR", ex.Message));
-    //    }
-    //}
+        return Result.Success();
+    }
 }

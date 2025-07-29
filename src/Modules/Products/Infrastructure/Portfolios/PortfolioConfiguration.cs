@@ -36,5 +36,27 @@ internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfoli
         builder.HasMany(p => p.PortfolioValuations)
             .WithOne(pv => pv.Portfolio)
             .HasForeignKey(pv => pv.PortfolioId);
+        builder.Property(x => x.VerificationDigit).HasColumnName("digito_verificacion");
+        builder.Property(x => x.PortfolioNIT).HasColumnName("nit_portafolio");
+        builder.Property(x => x.NitApprovedPortfolio).HasColumnName("nit_portafolio_homologado");
+        builder.Property(x => x.RiskProfile).HasColumnName("perfil_riesgo");
+        builder.Property(x => x.SFCBusinessCode).HasColumnName("cod_Negocio_SFC");
+        builder.Property(x => x.Custodian).HasColumnName("custodio");
+        builder.Property(x => x.Qualifier).HasColumnName("calificadora");
+        builder.Property(x => x.Rating).HasColumnName("calificacion");
+        builder.Property(x => x.RatingType).HasColumnName("tipo_calificacion");
+        builder.Property(x => x.LastRatingDate).HasColumnName("fecha_ultima_calificacion");
+        builder.Property(x => x.AdviceClassification).HasColumnName("clasificacion_asesoria");
+        builder.Property(x => x.MaxParticipationPercentage).HasColumnName("porc_max_participacion");
+        builder.Property(x => x.MinimumVirPercentage).HasColumnName("vir_retiro_minimo");
+        builder.Property(x => x.PartialVirPercentage).HasColumnName("vir_retiro_max_parcial");
+        builder.Property(x => x.AgileWithdrawalPercentageProtectedBalance).HasColumnName("porc_retiro_agil_saldo_protegido");
+        builder.Property(x => x.WithdrawalPercentageProtectedBalance).HasColumnName("porc_retiro_saldo_protegido");
+        builder.Property(x => x.AllowsAgileWithdrawal).HasColumnName("permite_retiro_agil");
+        builder.Property(x => x.PermanencePeriod).HasColumnName("plazo_permanencia");
+        builder.Property(x => x.PenaltyPercentage).HasColumnName("porcentaje_penalizacion");
+        builder.Property(x => x.OperationsStartDate).HasColumnName("fecha_inicio_operaciones");
+        builder.Property(x => x.PortfolioExpiryDate).HasColumnName("fecha_vto_portafolio");
+        builder.Property(x => x.IndustryClassification).HasColumnName("clasificacion_industria");
     }
 }

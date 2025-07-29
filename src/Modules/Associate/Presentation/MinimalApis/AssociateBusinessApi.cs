@@ -32,7 +32,6 @@ public static class AssociateBusinessApi
             .RequireAuthorization();
 
         group.MapGet("GetAssociates",
-            [Authorize(Policy = "fvp:associate:activates:view")]
             async (ISender sender) =>
             {
                 var result = await sender.Send(new GetActivatesQuery());

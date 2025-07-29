@@ -1,6 +1,7 @@
 ﻿using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.PortfolioValuation;
-using Closing.Application.Closing.Services.TimeControl;
+using Closing.Application.Closing.Services.TimeControl.Interrfaces;
+using Closing.Application.Closing.Services.TrustSync;
 using Closing.Application.PreClosing.Services.Orchestation;
 using Closing.Integrations.Closing.RunClosing;
 using Closing.Integrations.PreClosing.RunSimulation;
@@ -13,7 +14,7 @@ public class PrepareClosingOrchestrator(
     ITimeControlService timeControl,
     ISimulationOrchestrator simulationOrchestrator,
     IPortfolioValuationService portfolioValuationService,
-    //IDataSyncService dataSyncService,
+    IDataSyncService dataSyncService,
     ILogger<PrepareClosingOrchestrator> logger)
     : IPrepareClosingOrchestrator
 {
@@ -37,16 +38,16 @@ public class PrepareClosingOrchestrator(
             var runSimulationCommand = new RunSimulationCommand(portfolioId, closingDate, true);
 
             var simulationTask = simulationOrchestrator.RunSimulationAsync(runSimulationCommand, cancellationToken);
-            //var syncTask = dataSyncService.ExecuteAsync(portfolioId, closingDate, cancellationToken);
+            var syncTask = dataSyncService.ExecuteAsync(portfolioId, closingDate.Date, cancellationToken);
 
-            await Task.WhenAll(simulationTask);//, syncTask);
+            await Task.WhenAll(simulationTask, syncTask);
 
             if (simulationTask.Result.IsFailure)
                 return Result.Failure<ClosedResult>(simulationTask.Result.Error);
-            //if (syncTask.Result.IsFailure)
-            //    return Result.Failure<ClosedResult>(syncTask.Result.Error);
+            if (syncTask.Result.IsFailure)
+                return Result.Failure<ClosedResult>(syncTask.Result.Error);
 
-            // Paso 4: Valoración del Portafolio
+            // Paso 3: Valoración del Portafolio
             var valuationResult = await portfolioValuationService.CalculateAndPersistValuationAsync(portfolioId, closingDate, cancellationToken);
             if (valuationResult.IsFailure)
                 return Result.Failure<ClosedResult>(valuationResult.Error);

@@ -103,9 +103,9 @@ internal sealed class UpdateObjectiveCommandHandler(
 
             RequestedObjectiveType = request.ObjectiveType,
             ObjectiveTypeExists = objectiveType is not null,
-            OpeningOfficeExists = offices == null ? false : offices.ContainsKey(request.OpeningOffice),
+            OpeningOfficeExists = string.IsNullOrWhiteSpace(request.OpeningOffice) ? true : (offices?.ContainsKey(request.OpeningOffice) ?? false),
             RequestedCurrentOffice = request.CurrentOffice,
-            CurrentOfficeExists = offices == null ? false : offices.ContainsKey(request.CurrentOffice),
+            CurrentOfficeExists = string.IsNullOrWhiteSpace(request.CurrentOffice) ? true : (offices?.ContainsKey(request.CurrentOffice) ?? false),
             RequestedCommercial = request.Commercial,
             CommercialExists = commercial is not null
         };
@@ -137,8 +137,8 @@ internal sealed class UpdateObjectiveCommandHandler(
             },
             objective.CreationDate,
             commercial?.CommercialId ?? objective.CommercialId,
-            offices?.GetValueOrDefault(request.OpeningOffice)?.OfficeId ?? objective.OpeningOfficeId,
-            offices?.GetValueOrDefault(request.CurrentOffice)?.OfficeId ?? objective.CurrentOfficeId,
+            !string.IsNullOrWhiteSpace(request.OpeningOffice) ? offices?.GetValueOrDefault(request.OpeningOffice)?.OfficeId ?? objective.OpeningOfficeId : objective.OpeningOfficeId,
+            !string.IsNullOrWhiteSpace(request.CurrentOffice) ? offices?.GetValueOrDefault(request.CurrentOffice)?.OfficeId ?? objective.CurrentOfficeId : objective.CurrentOfficeId,
             objective.Balance
         );
 

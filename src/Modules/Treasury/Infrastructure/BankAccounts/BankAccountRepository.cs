@@ -38,4 +38,13 @@ public class BankAccountRepository(TreasuryDbContext context) : IBankAccountRepo
             .Where(x => x.PortfolioId == portfolioId)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<BankAccount>> GetByPortfolioAndIssuerAsync(long portfolioId, long issuerId, CancellationToken cancellationToken = default)
+    {
+        return await context.BankAccounts
+            .Include(x => x.Issuer)
+            .Where(x => x.PortfolioId == portfolioId && x.IssuerId == issuerId)
+            .ToListAsync(cancellationToken);
+    }
+
 }
