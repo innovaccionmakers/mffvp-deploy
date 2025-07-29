@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Treasury.Application.Abstractions;
 using Treasury.Application.Abstractions.Data;
 using Treasury.Application.Abstractions.External;
+using Treasury.Domain.BankAccounts;
+using Treasury.Domain.Issuers;
 using Treasury.Domain.TreasuryConcepts;
 using Treasury.Domain.TreasuryMovements;
 using Treasury.Integrations.TreasuryConcepts.Response;
@@ -17,6 +19,8 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
                                                     IUnitOfWork unitOfWork,
                                                     IPortfolioLocator portfolioLocator,
                                                     IPortfolioValuationLocator portfolioValuationLocator,
+                                                    IBankAccountRepository bankAccountRepository,
+                                                    IIssuerRepository issuerRepository,
                                                     IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateTreasuryMovementCommand, TreasuryMovementResponse>
 {
     private const string RequiredFieldsWorkflow = "Treasury.CreateTreasuryMovement.RequiredFields";
@@ -43,6 +47,8 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         }
 
         var treasuryConcept = await treasuryConceptRepository.GetByIdAsync(request.TreasuryConceptId, cancellationToken);
+        var bankAccount = await bankAccountRepository.GetByIdAsync(request.BankAccountId, cancellationToken);
+        var issuer = await issuerRepository.GetByIdAsync(request.EntityId, cancellationToken); 
 
         var portfolioRes = await portfolioLocator.FindByPortfolioIdAsync(request.PortfolioId, cancellationToken);
         if (portfolioRes.IsFailure)
@@ -57,6 +63,8 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         var validationContext = new
         {
             TreasuryConceptExists = treasuryConcept,
+            EntityExists = issuer,
+            BankAccountExists = bankAccount,
             PortfolioExists = portfolioRes,
             AllowsNegative = treasuryConcept?.AllowsNegative ?? false,
             request.Value,

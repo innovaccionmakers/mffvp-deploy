@@ -56,6 +56,18 @@
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000010" }
       },
       {
+        "RuleName": "BankAccountMustExist",
+        "ErrorMessage": "La cuenta bancaria no existe",
+        "Expression": "input.BankAccountExists != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000005" }
+      },
+      {
+        "RuleName": "EntityMustExist",
+        "ErrorMessage": "La entidad no existe",
+        "Expression": "input.EntityExists != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000014" }
+      },
+      {
         "RuleName": "PortfolioMustExist",
         "ErrorMessage": "El portafolio no existe",
         "Expression": "input.PortfolioExists != null",

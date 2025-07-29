@@ -96,20 +96,7 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
 
         if (!result.IsSuccess || result.Value == null)
         {
-            var error = new GoalError(
-                result.Error.Code,
-                result.Error.Type.ToString(),
-                result.Error.Description
-            );
-
-            throw new GraphQLException(
-                ErrorBuilder.New()
-                    .SetMessage(error.Description)
-                    .SetCode(error.Code)
-                    .SetExtension("type", error.Type)
-                    .SetExtension("description", error.Description)
-                    .Build()
-            );
+            return [];
         }
 
         var goals = result.Value;
