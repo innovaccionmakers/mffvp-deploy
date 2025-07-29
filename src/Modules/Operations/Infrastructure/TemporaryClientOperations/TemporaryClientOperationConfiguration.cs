@@ -19,6 +19,7 @@ internal sealed class TemporaryClientOperationConfiguration : IEntityTypeConfigu
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
         builder.Property(x => x.SubtransactionTypeId).HasColumnName("subtipo_transaccion_id");
         builder.Property(x => x.ApplicationDate).HasColumnName("fecha_aplicacion");
+        builder.Property(x => x.Processed).HasColumnName("procesado");
 
         builder.Ignore(x => x.SubtransactionType);
     }

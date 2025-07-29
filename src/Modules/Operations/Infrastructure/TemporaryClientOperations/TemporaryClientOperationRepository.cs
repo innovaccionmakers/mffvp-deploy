@@ -21,7 +21,7 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
     {
         return await context.TemporaryClientOperations
             .AsNoTracking()
-            .Where(x => x.PortfolioId == portfolioId)
+            .Where(x => x.PortfolioId == portfolioId && !x.Processed)
             .OrderBy(x => x.RegistrationDate)
             .ToListAsync(cancellationToken);
     }
