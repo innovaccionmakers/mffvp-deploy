@@ -35,16 +35,17 @@ builder.Configuration
 
 if (env != "Development")
 {
-    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.MinimumLevel.Information().WriteTo.Console());
-    var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
-    builder.Services.AddObservabilityServiceExtension(options =>
-    {
-        options.ServiceName = observabilityOptions.ServiceName;
-        options.MeterNames = observabilityOptions.MeterNames;
-        options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
-        options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
-        options.DefaultAttributes = observabilityOptions.DefaultAttributes;
-    });
+    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+    //builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.MinimumLevel.Information().WriteTo.Console());
+    //var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
+    //builder.Services.AddObservabilityServiceExtension(options =>
+    //{
+    //    options.ServiceName = observabilityOptions.ServiceName;
+    //    options.MeterNames = observabilityOptions.MeterNames;
+    //    options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
+    //    options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
+    //    options.DefaultAttributes = observabilityOptions.DefaultAttributes;
+    //});
 
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
     var region = builder.Configuration["AWS:SecretsManager:Region"];
