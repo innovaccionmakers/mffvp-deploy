@@ -101,7 +101,10 @@ public class ContributionCatalogResolverTests
     public async Task ResolveAsync_Should_Use_Default_Subtype_When_Missing()
     {
         var sub = Subtype();
-        _subRepo.Setup(r => r.GetByNameAsync("Ninguno", It.IsAny<CancellationToken>()))
+        _subRepo.Setup(r => r.GetByNameAndCategoryAsync(
+                "Ninguno",
+                SubtransactionTypeCategoryUuids.Contribution,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(sub);
         _cfgRepo.Setup(r => r.GetByCodesAndTypesAsync(It.IsAny<IEnumerable<(string, string)>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<(string, string), ConfigurationParameter>());
@@ -116,7 +119,10 @@ public class ContributionCatalogResolverTests
     [Fact]
     public async Task ResolveAsync_Should_Handle_Null_Subtype()
     {
-        _subRepo.Setup(r => r.GetByNameAsync("Ninguno", It.IsAny<CancellationToken>()))
+        _subRepo.Setup(r => r.GetByNameAndCategoryAsync(
+                "Ninguno",
+                SubtransactionTypeCategoryUuids.Contribution,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((SubtransactionType?)null);
         _cfgRepo.Setup(r => r.GetByCodesAndTypesAsync(It.IsAny<IEnumerable<(string, string)>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<(string, string), ConfigurationParameter>());
