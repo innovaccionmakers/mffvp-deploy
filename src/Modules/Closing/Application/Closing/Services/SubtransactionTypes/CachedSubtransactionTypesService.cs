@@ -42,7 +42,7 @@ public class CachedSubtransactionTypesService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "[CachedSubtransactionTypesService] Error accediendo a cache o RPC");
+            logger.LogError(ex, "[CachedSubtransactionTypesService] Error accediendo a cache");
             return await locator.GetAllSubtransactionTypesAsync(cancellationToken);
         }
     }

@@ -1,6 +1,4 @@
 using System.Text.Json;
-using Closing.IntegrationEvents.CreateClientOperationRequested;
-using Common.SharedKernel.Application.EventBus;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Application.Abstractions.Services.Prevalidation;

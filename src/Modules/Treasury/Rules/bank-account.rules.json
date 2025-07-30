@@ -42,6 +42,24 @@
         "ErrorMessage": "Ya existe una cuenta bancaria con el mismo número de cuenta y tipo de cuenta para el emisor seleccionado",
         "Expression": "input.BankAccountExists == false",
         "Properties": { "errorCode": "b1c3f8d2-4e5f-4c0a-9b6d-7f8c1e2d3e4f" }
+      },
+      {
+        "RuleName": "EntityMustExist",
+        "ErrorMessage": "La entidad no existe",
+        "Expression": "input.EntityExists != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000014" }
+      },
+      {
+        "RuleName": "PortfolioMustExist",
+        "ErrorMessage": "El portafolio no existe",
+        "Expression": "input.PortfolioExists != null",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000011" }
+      },
+      {
+        "RuleName": "IssuerCodeMustMatch",
+        "ErrorMessage": "El código del emisor no coincide con el emisor seleccionado",
+        "Expression": "input.IssuerCodeMatches == true",
+        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000015" }
       }
     ]
   }

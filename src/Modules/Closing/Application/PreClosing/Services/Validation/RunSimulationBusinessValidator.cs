@@ -44,7 +44,7 @@ public class RunSimulationBusinessValidator(
 
         var portfolioData = portfolioDataResult.Value;
 
-        // 2. (Opcional) ¿Ya existe cierre generado para esta fecha? -> bool
+        // 2. ¿Ya existe cierre generado para esta fecha? -> bool
         var existsClosingGenerated = await portfolioValuationRepository
             .ValuationExistsAsync(command.PortfolioId, command.ClosingDate.Date, ct);
 
@@ -83,13 +83,13 @@ public class RunSimulationBusinessValidator(
         var wfResult = await _workflowValidator.EvaluateManyAsync(
             workflows,
             ctx,
-            ErrorSelection.First, // o ErrorSelection.All si quieres acumular
+            ErrorSelection.First, // o ErrorSelection.All si se quiere acumular
             WorkflowEvaluationMode.ShortCircuitOnFailure, // recomendado para bloqueantes
             ct);
 
         if (!wfResult.IsValid)
         {
-            // Mapear primer error surfaced (por config) a tu dominio Result
+            // Mapear primer error surfaced (por config) a Result
             var e = wfResult.Errors[0];
             return Result.Failure(Error.Validation(e.Code, e.Message));
         }
@@ -146,7 +146,7 @@ public class RunSimulationBusinessValidator(
                 }
             }
 
-            // --- Subtransaction types & client ops ---
+            // --- Subtipos de transacción ---
             var stResult = await subtransactionTypesLocator.GetAllSubtransactionTypesAsync(ct);
             if (!stResult.IsSuccess)
             {
@@ -159,7 +159,7 @@ public class RunSimulationBusinessValidator(
 
             var incomeSubtypes = stResult.Value.Where(st => st.Nature == IncomeEgressNature.Income).ToList();
 
-            // Que no haya incomeSubtypes es una condición funcional; se modela vía hasClientOps=false
+            // Que no haya operaciones de entrada es una condición funcional; se modela vía hasClientOps=false
             // y que  RulesEngine tenga una regla "Debe existir al menos un tipo de ingreso".
             if (incomeSubtypes.Count > 0)
             {

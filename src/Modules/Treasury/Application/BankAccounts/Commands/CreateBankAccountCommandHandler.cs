@@ -3,14 +3,21 @@ using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
 using Treasury.Application.Abstractions;
 using Treasury.Application.Abstractions.Data;
+using Treasury.Application.Abstractions.External;
 using Treasury.Domain.BankAccounts;
+using Treasury.Domain.Issuers;
 using Treasury.Integrations.BankAccounts.Commands;
 using Treasury.Integrations.BankAccounts.Response;
+using Treasury.Integrations.TreasuryConcepts.Response;
 
 namespace Treasury.Application.BankAccounts.Commands;
 
-internal class CreateBankAccountCommandHandler(IBankAccountRepository repository,
-                                               IUnitOfWork unitOfWork, IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateBankAccountCommand, BankAccountResponse>
+internal class CreateBankAccountCommandHandler(
+    IBankAccountRepository repository,
+    IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator,
+    IIssuerRepository issuerRepository,
+    IPortfolioLocator portfolioLocator,
+    IUnitOfWork unitOfWork) : ICommandHandler<CreateBankAccountCommand, BankAccountResponse>
 {
     private const string RequiredFieldsWorkflow = "Treasury.CreateBankAccount.RequiredFields";
     private const string BankAccountCreationValidationWorkflow = "Treasury.CreateBankAccount.Validation";
@@ -35,11 +42,20 @@ internal class CreateBankAccountCommandHandler(IBankAccountRepository repository
         }
 
         var existBankAccount = await repository.ExistsAsync(request.IssuerId, request.AccountNumber, request.AccountType, cancellationToken);
-
+        var issuer = await issuerRepository.GetByIdAsync(request.IssuerId, cancellationToken);
+        var portfolioRes = await portfolioLocator.FindByPortfolioIdAsync(request.PortfolioId, cancellationToken);
+        if (portfolioRes.IsFailure)
+        {
+            return Result.Failure<BankAccountResponse>(
+                portfolioRes.Error);
+        }
 
         var validationContext = new
         {
+            EntityExists = issuer,
+            PortfolioExists = portfolioRes,
             BankAccountExists = existBankAccount,
+            IssuerCodeMatches = issuer?.IssuerCode == request.Issuer,
         };
 
         var (rulesOk, _, ruleErrors) = await ruleEvaluator

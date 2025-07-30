@@ -3,6 +3,7 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions.Services.Cleanup;
 using Operations.Application.Abstractions.Services.TransactionControl;
+using Operations.Application.Abstractions.Data;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.TemporaryAuxiliaryInformations;
@@ -17,7 +18,8 @@ internal sealed class ProcessPendingContributionsCommandHandler(
     ITemporaryAuxiliaryInformationRepository tempAuxRepo,
     ITransactionControl transactionControl,
     IEventBus eventBus,
-    ITempClientOperationsCleanupService cleanupService)
+    ITempClientOperationsCleanupService cleanupService,
+    IUnitOfWork unitOfWork)
     : ICommandHandler<ProcessPendingContributionsCommand>
 {
     public async Task<Result> Handle(ProcessPendingContributionsCommand request, CancellationToken cancellationToken)
@@ -61,6 +63,10 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                 aux.UserId).Value;
 
             await transactionControl.ExecuteAsync(op, info, cancellationToken);
+            
+            temp.MarkAsProcessed();
+            tempOpRepo.Update(temp);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
             var trustEvent = new CreateTrustRequestedIntegrationEvent(
                 op.AffiliateId,

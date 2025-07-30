@@ -16,6 +16,8 @@ public sealed class ContributionCatalogResolver(
     IChannelRepository channelRepo)
     : IContributionCatalogResolver
 {
+    private const string DefaultSubtypeName = "Ninguno";
+
     public async Task<ContributionCatalogs> ResolveAsync(CreateContributionCommand cmd, CancellationToken ct)
     {
         var source = await originRepo.FindByHomologatedCodeAsync(cmd.Origin, ct);
@@ -33,7 +35,7 @@ public sealed class ContributionCatalogResolver(
         var payMethod = cfgs.GetValueOrDefault(scopes[2]);
 
         var subtype = string.IsNullOrWhiteSpace(cmd.Subtype)
-            ? await subtypeRepo.GetByNameAsync("Ninguno", ct)
+            ? await subtypeRepo.GetByNameAndCategoryAsync(DefaultSubtypeName, SubtransactionTypeCategoryUuids.Contribution, ct)
             : await subtypeRepo.GetByHomologatedCodeAsync(cmd.Subtype, ct);
 
         var subtypeCfg = subtype is null ? null : await cfgRepo.GetByUuidAsync(subtype.Category, ct);

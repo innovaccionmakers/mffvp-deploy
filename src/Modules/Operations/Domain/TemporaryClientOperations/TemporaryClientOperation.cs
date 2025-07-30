@@ -15,6 +15,7 @@ public sealed class TemporaryClientOperation : Entity
     public DateTime ProcessDate { get; private set; }
     public long SubtransactionTypeId { get; private set; }
     public DateTime ApplicationDate { get; private set; }
+    public bool Processed { get; private set; }
 
     public SubtransactionType SubtransactionType { get; private set; } = null!;
     public TemporaryAuxiliaryInformation TemporaryAuxiliaryInformation { get; private set; } = null!;
@@ -44,7 +45,8 @@ public sealed class TemporaryClientOperation : Entity
             Amount = amount,
             ProcessDate = processDate,
             SubtransactionTypeId = subtransactionTypeId,
-            ApplicationDate = applicationDate
+            ApplicationDate = applicationDate,
+            Processed = false
         };
 
         clientOperation.Raise(new TemporaryClientOperationCreatedDomainEvent(clientOperation.TemporaryClientOperationId));
@@ -70,5 +72,10 @@ public sealed class TemporaryClientOperation : Entity
         ProcessDate = newProcessDate;
         SubtransactionTypeId = newSubtransactionTypeId;
         ApplicationDate = newApplicationDate;
+    }
+    
+    public void MarkAsProcessed()
+    {
+        Processed = true;
     }
 }

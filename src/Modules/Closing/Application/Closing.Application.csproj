@@ -24,14 +24,6 @@
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="PostClosing\Services\Orchestation\" />
-      <Folder Include="PostClosing\Services\PortfolioCommissionCollector\" />
-      <Folder Include="PostClosing\Services\PendingTransactionHandler\" />
-      <Folder Include="PostClosing\Services\TrustReturnsEvent\" />
-      <Folder Include="PostClosing\Services\PortfolioValuationEvent\" />
-    </ItemGroup>
-
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>

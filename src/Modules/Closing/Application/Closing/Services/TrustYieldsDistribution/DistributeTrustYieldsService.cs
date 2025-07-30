@@ -1,8 +1,12 @@
-﻿using Closing.Application.Closing.Services.TimeControl.Interrfaces;
+﻿using Closing.Application.Closing.Services.Orchestation.Constants;
+using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
+using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.TrustYields;
 using Closing.Domain.Yields;
+using Common.SharedKernel.Application.Helpers.Finance;
+using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
@@ -12,11 +16,10 @@ public class DistributeTrustYieldsService(
     IYieldRepository yieldRepository,
     IPortfolioValuationRepository portfolioValuationRepository,
     ITimeControlService timeControlService,
+    IConfigurationParameterRepository configurationParameterRepository,
     ILogger<DistributeTrustYieldsService> logger)
     : IDistributeTrustYieldsService
 {
-    private const decimal YieldRetentionRate = 0.10m;
-
     public async Task<Result> RunAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
     {
         logger.LogInformation("Iniciando distribución de rendimientos para portafolio {PortfolioId}", portfolioId);
@@ -44,29 +47,49 @@ public class DistributeTrustYieldsService(
             return Result.Failure(new Error("003", "No existen registros en rendimientos_fideicomisos para esta fecha. Debe reprocesarse la réplica de datos.", ErrorType.Failure));
         }
 
+        var param = await configurationParameterRepository
+             .GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldRetentionPercentage, ct);
+
+        if (param is null)
+        {
+            return Result.Failure(new Error("004", "No se encuentra configurado el parametro de retención de rendimientos.", ErrorType.Failure));
+        }
+
+        var YieldRetentionRate = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "Valor",true);
+
+        if (YieldRetentionRate <= 0)
+        {
+            return Result.Failure(new Error("005", "El parametro de retención de rendimientos no es un valor mayor a 0", ErrorType.Failure));
+        }
+
+
         foreach (var trust in trustYields)
         {
-            if (trust.Participation == 0m)
-                continue;
-
-            var yieldAmount = yield.YieldToCredit * trust.Participation;
-            var income = yield.Income * trust.Participation;
-            var expenses = yield.Expenses * trust.Participation;
-            var commissions = yield.Commissions * trust.Participation;
-            var cost = yield.Costs * trust.Participation;
+            var participation = 0m;
+            var prevTrustYield = await trustYieldRepository.GetByTrustAndDateAsync(trust.TrustId, closingDate.AddDays(-1), ct);
+            var prevPortfolioValuation = await portfolioValuationRepository.GetValuationAsync(portfolioId, closingDate.AddDays(-1), ct);
+            if (prevTrustYield is not null && prevPortfolioValuation is not null)
+                 participation = TrustMath.CalculateTrustParticipation(prevTrustYield.ClosingBalance,prevPortfolioValuation.Amount, DecimalPrecision.SixteenDecimals);
+           
+            var yieldAmount = TrustMath.ApplyParticipation(yield.YieldToCredit, participation, DecimalPrecision.SixteenDecimals);
+            var income = TrustMath.ApplyParticipation(yield.Income, participation, DecimalPrecision.SixteenDecimals);
+            var expenses = TrustMath.ApplyParticipation(yield.Expenses, participation, DecimalPrecision.SixteenDecimals);
+            var commissions = TrustMath.ApplyParticipation(yield.Commissions, participation, DecimalPrecision.SixteenDecimals);
+            var cost = TrustMath.ApplyParticipation(yield.Costs, participation, DecimalPrecision.SixteenDecimals);
             var closingBalance = trust.PreClosingBalance + yieldAmount;
 
             decimal units = 0m;
             if (trust.PreClosingBalance != trust.ClosingBalance)
-                units = Math.Round(closingBalance / portfolioValuation.UnitValue, 16);
+                units = Math.Round(closingBalance / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
+            units = Math.Round(prevTrustYield.Units, DecimalPrecision.SixteenDecimals);
 
-            var yieldRetention = Math.Round(yieldAmount * YieldRetentionRate, 16);
+            var yieldRetention = TrustMath.CalculateYieldRetention(yieldAmount, YieldRetentionRate, DecimalPrecision.SixteenDecimals);
 
             trust.UpdateDetails(
                 trust.TrustId,
                 trust.PortfolioId,
                 trust.ClosingDate,
-                trust.Participation,
+                participation,
                 units,
                 yieldAmount,
                 trust.PreClosingBalance,

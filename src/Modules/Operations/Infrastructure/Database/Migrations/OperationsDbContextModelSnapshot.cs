@@ -541,6 +541,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_proceso");
 
+                    b.Property<bool>("Processed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("procesado");
+
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_radicacion");

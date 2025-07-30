@@ -11,9 +11,9 @@ internal sealed class ConfirmClosingCommandHandler(
     IConfirmClosingOrchestrator orchestrator,
     IUnitOfWork unitOfWork,
     ILogger<ConfirmClosingCommandHandler> logger)
-    : ICommandHandler<RunClosingCommand, ClosedResult>
+    : ICommandHandler<ConfirmClosingCommand, ClosedResult>
 {
-    public async Task<Result<ClosedResult>> Handle(RunClosingCommand command, CancellationToken ct)
+    public async Task<Result<ClosedResult>> Handle(ConfirmClosingCommand command, CancellationToken ct)
     {
         var transaction = await unitOfWork.BeginTransactionAsync(ct);
 

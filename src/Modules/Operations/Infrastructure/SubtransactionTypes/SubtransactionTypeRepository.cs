@@ -25,6 +25,16 @@ internal sealed class SubtransactionTypeRepository(OperationsDbContext context) 
             .SingleOrDefaultAsync(s => s.Name == name, ct);
     }
 
+    public Task<SubtransactionType?> GetByNameAndCategoryAsync(
+        string name,
+        Guid categoryId,
+        CancellationToken ct = default)
+    {
+        return context.SubtransactionTypes
+            .AsNoTracking()
+            .SingleOrDefaultAsync(s => s.Name == name && s.Category == categoryId, ct);
+    }
+
     public async Task<IReadOnlyCollection<SubtransactionType>> GetCategoryIdAsync(Guid categoryId, CancellationToken ct = default)
     {
         return await context.SubtransactionTypes

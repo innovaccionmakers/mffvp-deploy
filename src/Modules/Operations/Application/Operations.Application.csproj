@@ -10,6 +10,7 @@
         <ProjectReference Include="..\..\Trusts\IntegrationEvents\Trusts.IntegrationEvents\Trusts.IntegrationEvents.csproj" />
         <ProjectReference Include="..\..\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Domain\Operations.Domain.csproj" />
+        <ProjectReference Include="..\IntegrationEvents\Operations.IntegrationEvents\Operations.IntegrationEvents.csproj" />
         <ProjectReference Include="..\Integrations\Operations.Integrations.csproj" />
     </ItemGroup>
 

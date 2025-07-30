@@ -1,4 +1,4 @@
-﻿using Closing.IntegrationEvents.CreateClientOperationRequested;
+﻿using Closing.IntegrationEvents.DataSync.CreateClientOperationRequested;
 using Common.SharedKernel.Application.EventBus;
 using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Domain.ClientOperations;
