@@ -14,12 +14,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
+using Products.Application.Abstractions.Services.AdditionalInformation;
 using Products.Application.Abstractions.Services.External;
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Abstractions.Services.Rules;
 using Products.Application.Objectives.Services;
-using Products.Application.Abstractions.Services.AdditionalInformation;
-using Products.Infrastructure.AdditionalInformation;
+using Products.Domain.AccumulatedCommissions;
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
 using Products.Domain.Commissions;
@@ -29,28 +29,31 @@ using Products.Domain.Offices;
 using Products.Domain.PlanFunds;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
+using Products.Domain.PortfolioValuations;
+using Products.Infrastructure.AccumulatedCommissions;
+using Products.Infrastructure.AdditionalInformation;
 using Products.Infrastructure.Alternatives;
 using Products.Infrastructure.Commercials;
 using Products.Infrastructure.Commissions;
 using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Database;
 using Products.Infrastructure.External.Affiliates;
+using Products.Infrastructure.External.ObjectivesValidation;
 using Products.Infrastructure.Objectives;
 using Products.Infrastructure.Offices;
 using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
+using Products.Infrastructure.PortfolioValuations;
+using Products.IntegrationEvents.AccumulatedCommissions.CommissionProcessed;
+using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
-using Products.IntegrationEvents.Commission.GetCommissionsByPortfolio;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.Portfolio;
 using Products.IntegrationEvents.PortfolioValidation;
+using Products.IntegrationEvents.PortfolioValuation.PortfolioValuationUpdated;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
-using Common.SharedKernel.Application.Rpc;
-using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
-using Products.IntegrationEvents.AdditionalInformation;
-using Products.Infrastructure.External.ObjectivesValidation;
 
 namespace Products.Infrastructure;
 
@@ -114,6 +117,11 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<ICommissionRepository, CommissionRepository>();
         services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();
         services.AddTransient<IRpcHandler<GetAdditionalInformationRequest, GetAdditionalInformationResponse>, GetAdditionalInformationConsumer>();
+
+        services.AddScoped<PortfolioValuationUpdatedConsumer>();
+        services.AddScoped<IPortfolioValuationRepository, PortfolioValuationRepository>();
+        services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
+        services.AddScoped<CommissionProcessedConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }

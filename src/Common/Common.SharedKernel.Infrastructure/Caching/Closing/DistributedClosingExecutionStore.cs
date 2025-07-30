@@ -6,12 +6,10 @@ namespace Common.SharedKernel.Infrastructure.Caching.Closing;
 
 internal sealed class DistributedClosingExecutionStore(
     IDistributedCache cache,
-    IClosingExecutionSerializer serializer,
-    TimeSpan? expirationOverride = null) 
+    IClosingExecutionSerializer serializer) 
     : IClosingExecutionStore
 {
     private const string KeyPrefix = "closingExecution";
-    private readonly TimeSpan _expiration = expirationOverride ?? TimeSpan.FromHours(24);
 
     private string GetKey(int portfolioId) => $"{KeyPrefix}:{portfolioId}";
 
@@ -22,14 +20,13 @@ internal sealed class DistributedClosingExecutionStore(
         return value != null;
     }
 
-    public async Task BeginAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken = default)
+    public async Task BeginAsync(int portfolioId, DateTime closingBeginTime, CancellationToken cancellationToken = default)
     {
-        var state = new ClosingExecutionState(closingDate, DateTime.UtcNow, ClosingProcess.Begin);
-        var options = GetEntryOptions();
-        await cache.SetStringAsync(GetKey(portfolioId), serializer.Serialize(state), options, cancellationToken);
+        var state = new ClosingExecutionState(closingBeginTime, closingBeginTime, ClosingProcess.Begin);
+        await cache.SetStringAsync(GetKey(portfolioId), serializer.Serialize(state), cancellationToken);
     }
 
-    public async Task UpdateProcessAsync(int portfolioId, string process, CancellationToken cancellationToken = default)
+    public async Task UpdateProcessAsync(int portfolioId, string process, DateTime processDatetime, CancellationToken cancellationToken = default)
     {
         var key = GetKey(portfolioId);
         var json = await cache.GetStringAsync(key, cancellationToken);
@@ -38,10 +35,9 @@ internal sealed class DistributedClosingExecutionStore(
         var current = serializer.Deserialize(json);
         if (current is null) return;
 
-        var updated = current with { Process = process, ProcessDatetime = DateTime.UtcNow };
-        var options = GetEntryOptions();
+        var updated = current with { Process = process, ProcessDatetime = processDatetime };;
 
-        await cache.SetStringAsync(key, serializer.Serialize(updated), options, cancellationToken);
+        await cache.SetStringAsync(key, serializer.Serialize(updated), cancellationToken);
     }
 
     public async Task EndAsync(int portfolioId, CancellationToken cancellationToken = default)
@@ -68,8 +64,4 @@ internal sealed class DistributedClosingExecutionStore(
         var state = serializer.Deserialize(json);
         return state?.ClosingDatetime;
     }
-
-
-    private DistributedCacheEntryOptions GetEntryOptions() =>
-        new() { AbsoluteExpirationRelativeToNow = _expiration };
 }

@@ -1,4 +1,4 @@
-using Closing.IntegrationEvents.TrustSync;
+using Closing.IntegrationEvents.DataSync.TrustSync;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Trusts.Application.Abstractions.External;

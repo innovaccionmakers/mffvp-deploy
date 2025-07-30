@@ -6,7 +6,7 @@ namespace Closing.Infrastructure.TrustYields;
 
 internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYieldRepository
 {
-    public async Task<TrustYield?> GetByTrustAndDateAsync(int trustId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+    public async Task<TrustYield?> GetByTrustAndDateAsync(long trustId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
     {
         return await context.TrustYields
             .SingleOrDefaultAsync(x => x.TrustId == trustId && x.ClosingDate == closingDateUtc, cancellationToken);

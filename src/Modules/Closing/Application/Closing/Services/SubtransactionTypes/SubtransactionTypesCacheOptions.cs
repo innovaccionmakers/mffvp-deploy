@@ -3,6 +3,6 @@
 public sealed class SubtransactionTypesCacheOptions
 {
     public string Key { get; init; } = "operations:subtransactionTypes";
-    public TimeSpan Ttl { get; init; } = TimeSpan.FromHours(1);
+    public TimeSpan Ttl { get; init; } = TimeSpan.FromHours(24);
 }
 

@@ -9,7 +9,6 @@ using Common.SharedKernel.Presentation.Filters;
 
 namespace Closing.Presentation.MinimalApis.PreClosing
 {
-
     public static class PreClosingEndpoints
     {
         public static void MapPreclosingEndpoints(this WebApplication app)

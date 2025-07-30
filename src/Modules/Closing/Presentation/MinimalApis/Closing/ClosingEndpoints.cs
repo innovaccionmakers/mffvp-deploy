@@ -1,5 +1,4 @@
-﻿using Common.SharedKernel.Presentation.Endpoints;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
