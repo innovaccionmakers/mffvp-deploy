@@ -10,7 +10,7 @@ public class TimeControlService(
     IClosingStepEventPublisher stepEventPublisher)
     : ITimeControlService
 {
-    public async Task<Result> StartAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
+    public async Task<Result> StartAsync(int portfolioId, CancellationToken cancellationToken)
     {
         // Validación: ¿hay cierre activo?
         var isActive = await store.IsClosingActiveAsync(portfolioId, cancellationToken);
@@ -22,10 +22,10 @@ public class TimeControlService(
         var now = DateTime.UtcNow;
 
         // Guardar en caché: lo hace el servicio directamente solo en el inicio
-        await store.BeginAsync(portfolioId, closingDate, cancellationToken);
+        await store.BeginAsync(portfolioId, now, cancellationToken);
 
         // Publicar evento de inicio
-        await stepEventPublisher.PublishAsync(portfolioId, ClosingProcess.Begin.ToString(), closingDate, cancellationToken);
+        await stepEventPublisher.PublishAsync(portfolioId, ClosingProcess.Begin.ToString(), now, now, cancellationToken);
 
         return Result.Success();
     }
@@ -37,24 +37,25 @@ public class TimeControlService(
 
         if (closingDatetime is null)
         {
-            throw new InvalidOperationException("No se ha iniciado el proceso de cierre para este portafolio.");
+            throw new InvalidOperationException("No se ha iniciado el proceso de cierre para el portafolio.");
         }
 
+        await store.UpdateProcessAsync(portfolioId, process, processDatetime, cancellationToken);
         // Publicar evento de avance o fin de cierre
-        await stepEventPublisher.PublishAsync(portfolioId, process, closingDatetime.Value, cancellationToken);
+        await stepEventPublisher.PublishAsync(portfolioId, process, closingDatetime.Value, processDatetime, cancellationToken);
     }
 
     public async Task EndAsync(int portfolioId, CancellationToken cancellationToken)
     {
         // Recupera closingDatetime original
         var closingDatetime = await store.GetClosingDatetimeAsync(portfolioId, cancellationToken);
-
+        var now = DateTime.UtcNow;
         if (closingDatetime is null)
         {
-            throw new InvalidOperationException("No se ha iniciado el proceso de cierre para este portafolio.");
+            throw new InvalidOperationException("No se ha iniciado el proceso de cierre para el portafolio.");
         }
 
         // Publicar evento final: el consumer se encargará de borrar la caché
-        await stepEventPublisher.PublishAsync(portfolioId, ClosingProcess.End.ToString(), closingDatetime.Value, cancellationToken);
+        await stepEventPublisher.PublishAsync(portfolioId, ClosingProcess.End.ToString(), closingDatetime.Value, now, cancellationToken);
     }
 }

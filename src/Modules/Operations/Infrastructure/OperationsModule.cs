@@ -1,4 +1,3 @@
-using Closing.IntegrationEvents.TrustSync;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Application.Rules;
@@ -40,6 +39,7 @@ using Operations.Domain.Services;
 using Operations.Domain.SubtransactionTypes;
 using Operations.Domain.TemporaryAuxiliaryInformations;
 using Operations.Domain.TemporaryClientOperations;
+using Operations.Domain.TrustOperations;
 using Operations.Infrastructure.AuxiliaryInformations;
 using Operations.Infrastructure.Banks;
 using Operations.Infrastructure.Channels;
@@ -54,8 +54,10 @@ using Operations.Infrastructure.Services;
 using Operations.Infrastructure.SubtransactionTypes;
 using Operations.Infrastructure.TemporaryAuxiliaryInformations;
 using Operations.Infrastructure.TemporaryClientOperations;
+using Operations.Infrastructure.TrustOperations;
 using Operations.IntegrationEvents.PendingContributionProcessor;
 using Operations.IntegrationEvents.SubTransactionTypes;
+using Operations.IntegrationEvents.TrustOperations;
 using Operations.Presentation.GraphQL;
 using Operations.Presentation.MinimalApis;
 
@@ -135,6 +137,9 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IBuildMissingFieldsContributionService, BuildMissingFieldsContributionService>();
 
         services.AddScoped<IRpcHandler<GetAllOperationTypesRequest, GetAllOperationTypesResponse>, GetAllOperationTypesConsumer>();
+
+        services.AddScoped<ITrustOperationRepository, TrustOperationRepository>();
+        services.AddScoped<TrustYieldGeneratedConsumer>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

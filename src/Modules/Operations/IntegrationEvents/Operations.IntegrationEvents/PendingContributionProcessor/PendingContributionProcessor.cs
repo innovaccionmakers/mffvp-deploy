@@ -1,4 +1,4 @@
-using Closing.IntegrationEvents.ProcessPendingContributionsRequested;
+using Closing.IntegrationEvents.PostClosing.ProcessPendingContributionsRequested;
 using DotNetCore.CAP;
 using MediatR;
 using Operations.Integrations.Contributions.ProcessPendingContributions;

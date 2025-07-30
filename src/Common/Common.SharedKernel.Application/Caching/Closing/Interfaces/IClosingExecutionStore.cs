@@ -4,9 +4,9 @@ public interface IClosingExecutionStore
 {
     Task<bool> IsClosingActiveAsync(int portfolioId, CancellationToken cancellationToken = default);
 
-    Task BeginAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken = default);
+    Task BeginAsync(int portfolioId, DateTime closingBeginTime, CancellationToken cancellationToken = default);
 
-    Task UpdateProcessAsync(int portfolioId, string process, CancellationToken cancellationToken = default);
+    Task UpdateProcessAsync(int portfolioId, string process, DateTime processDatetime, CancellationToken cancellationToken = default);
 
     Task EndAsync(int portfolioId, CancellationToken cancellationToken = default);
 

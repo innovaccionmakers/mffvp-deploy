@@ -11,6 +11,11 @@ using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
 using Closing.Application.Closing.Services.TrustYieldsDistribution;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
+using Closing.Application.PostClosing.Services.Orchestation;
+using Closing.Application.PostClosing.Services.PendingTransactionHandler;
+using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
+using Closing.Application.PostClosing.Services.PortfolioValuationEvent;
+using Closing.Application.PostClosing.Services.TrustYieldEvent;
 using Closing.Infrastructure.External.Operations.SubtransactionTypes;
 using Closing.Infrastructure.External.Trusts.Trusts;
 using Microsoft.Extensions.Caching.Distributed;
@@ -25,6 +30,8 @@ namespace Closing.Infrastructure.Configuration
         {
             services.AddScoped<IPrepareClosingOrchestrator, PrepareClosingOrchestrator>();
             services.AddScoped<ITimeControlService, TimeControlService>();
+            services.AddScoped<IClosingStepEventPublisher, ClosingStepEventPublisher>();
+            services.AddTransient<ClosingStepEventSuscriber>();
             services.AddScoped<IAbortClosingService, AbortClosingService>();
             services.AddScoped<ISubtransactionTypesLocator, SubtransactionTypesLocator>();
            
@@ -37,7 +44,6 @@ namespace Closing.Infrastructure.Configuration
                 return new CachedSubtransactionTypesService(locator, cache, logger);
             });
             services.AddScoped<IPortfolioValuationService, PortfolioValuationService>();
-
             services.AddScoped<IDistributeTrustYieldsService, DistributeTrustYieldsService>();
             services.AddScoped<IConfirmClosingOrchestrator, ConfirmClosingOrchestrator>();
             services.AddScoped<ICancelClosingOrchestrator, CancelClosingOrchestrator>();
@@ -45,6 +51,12 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<ITrustLocator, TrustLocator>();
 
             services.AddScoped<IValidateTrustYieldsDistributionService, ValidateTrustYieldsDistributionService>();
+
+            services.AddScoped<IPostClosingEventsOrchestation, PostClosingEventsOrchestation>();
+            services.AddScoped<IPortfolioValuationPublisher, PortfolioValuationPublisher>();
+            services.AddScoped<ITrustYieldPublisher, TrustYieldPublisher>();
+            services.AddScoped<IPortfolioCommissionPublisher, PortfolioCommissionPublisher>();
+            services.AddScoped<IPendingTransactionHandler, PendingTransactionHandler>();
 
             return services;
         }

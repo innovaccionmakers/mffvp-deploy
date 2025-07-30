@@ -1,5 +1,4 @@
 using Closing.Application.Abstractions.Data;
-using Closing.Application.Closing.Services.Abort;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.YieldDetails;

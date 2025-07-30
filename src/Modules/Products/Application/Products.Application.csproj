@@ -1,6 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
+      <Compile Remove="Commissions\Command\**" />
+      <EmbeddedResource Remove="Commissions\Command\**" />
+      <None Remove="Commissions\Command\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
         <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
@@ -15,10 +21,6 @@
     <ItemGroup>
         <InternalsVisibleTo Include="Products.test.UnitTests" />
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Commissions\Command\" />
     </ItemGroup>
 
 

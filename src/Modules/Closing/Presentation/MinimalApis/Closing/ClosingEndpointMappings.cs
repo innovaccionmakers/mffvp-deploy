@@ -1,5 +1,4 @@
-﻿using Closing.Application.Closing.RunClosing;
-using Closing.Domain.Routes;
+﻿using Closing.Domain.Routes;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
@@ -13,6 +12,7 @@ namespace Closing.Presentation.MinimalApis.Closing;
 
 public static class ClosingEndpointMappings
 {
+    //TODO: Considerar usar otra forma de mapear los endpoints
     public static void MapRunClosingEndpoint(this RouteGroupBuilder group)
     {
         group.MapPost(

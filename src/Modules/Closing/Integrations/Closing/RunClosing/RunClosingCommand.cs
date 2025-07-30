@@ -1,5 +1,4 @@
 ﻿
-using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Messaging;
 using System.Text.Json.Serialization;
 
@@ -9,7 +8,5 @@ public sealed record RunClosingCommand(
     [property: JsonPropertyName("IdPortafolio")]
     int PortfolioId,
     [property: JsonPropertyName("FechaCierre")]
-    DateTime ClosingDate,
-    [property: JsonPropertyName("EsCierre")]
-    bool IsClosing = false
+    DateTime ClosingDate
 ) : ICommand<ClosedResult>;

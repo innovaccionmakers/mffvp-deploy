@@ -22,12 +22,11 @@ namespace Closing.Application.PreClosing.RunSimulation
             {
              
 
-                //logger?.LogInformation("Iniciando simulación para Portafolio {PortfolioId} - Fecha {Date}",
+                logger?.LogInformation("Iniciando simulación para Portafolio {PortfolioId} - Fecha {Date}",command.PortfolioId, command.ClosingDate);
                 //var sw = Stopwatch.StartNew();
                 var result = await _simulationOrchestrator.RunSimulationAsync(command, cancellationToken);
                 //sw.Stop();
-                //logger?.LogInformation("Simulación ejecutada en {ElapsedMilliseconds} ms para Portafolio {PortfolioId}");
-                //sw.ElapsedMilliseconds, command.PortfolioId);
+                logger?.LogInformation("Simulación ejecutada para Portafolio {PortfolioId} - Fecha {Date}", command.PortfolioId, command.ClosingDate);
 
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
