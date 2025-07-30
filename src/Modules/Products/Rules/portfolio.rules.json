@@ -24,5 +24,18 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "Products.PortfoliobyHomologatedCode.Validation",
+    "Rules": [
+      {
+        "RuleName": "PortfolioStandardCodeExists",
+        "ErrorMessage": "El código homologado del Portafolio no existe.",
+        "Expression": "input.ExistsByStandardCode != null",
+        "Properties": {
+          "errorCode": "3ac5cff3-bbea-4dd1-a16f-1ad1c9426958"
+        }
+      }
+    ]
   }
 ]
