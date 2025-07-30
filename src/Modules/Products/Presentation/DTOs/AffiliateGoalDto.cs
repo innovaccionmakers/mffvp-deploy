@@ -7,6 +7,7 @@ public record AffiliateGoalDto(
     [property: GraphQLName("nombre")] string Name,
     [property: GraphQLName("tipoObjetivoId")] string IdType,
     [property: GraphQLName("tipoObjetivo")] string Type,
+    [property: GraphQLName("codigoHomologadoTipoObjetivo")] string HomologatedCodeType,
     [property: GraphQLName("planId")] string IdPlan,
     [property: GraphQLName("plan")] string Plan,
     [property: GraphQLName("fondoId")] string IdFund,
