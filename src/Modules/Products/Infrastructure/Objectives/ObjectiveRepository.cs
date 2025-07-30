@@ -94,6 +94,7 @@ internal sealed class ObjectiveRepository(ProductsDbContext context) : IObjectiv
                                 o.Name,
                                 o.ObjectiveTypeId.ToString(),
                                 type.Name,
+                                type.HomologationCode,
                                 plan.PlanId.ToString(),
                                 plan.Name,
                                 fund.PensionFundId.ToString(),
