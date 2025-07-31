@@ -117,6 +117,7 @@ public class ExperienceOrchestrator(
             portfolioShortName,
             x.IssuerId,
             x.IssuerName,
+            x.IssuerDescription,
             x.AccountNumber,
             x.AccountType,
             x.Observations,
