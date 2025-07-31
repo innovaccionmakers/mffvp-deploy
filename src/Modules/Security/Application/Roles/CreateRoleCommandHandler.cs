@@ -28,13 +28,6 @@ public sealed class CreateRoleCommandHandler(
                 "The role name is required."));
         }
 
-        if (string.IsNullOrWhiteSpace(request.Objective))
-        {
-            return Result.Failure<int>(Error.Validation(
-                "Role.Objective.Required",
-                "The role objective is required."));
-        }
-
         var exists = await roleRepository.GetAsync(request.Id, cancellationToken);
         if (exists is not null)
         {
