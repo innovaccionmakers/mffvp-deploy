@@ -5,6 +5,7 @@ public record BankAccountDto(
     long PortfolioId,
     long IssuerId,
     string IssuerName,
+    string IssuerDescription,
     string AccountNumber,
     string AccountType, // "Corriente" o "Ahorros"
     string Observations,
