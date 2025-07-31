@@ -222,6 +222,7 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
                 Name: o.Name,
                 IdType: o.IdType.ToString(),
                 Type: o.Type,
+                HomologatedCodeType: o.HomologatedCodeType,
                 IdPlan: o.IdPlan,
                 Plan: o.Plan,
                 IdFund: o.IdFund,

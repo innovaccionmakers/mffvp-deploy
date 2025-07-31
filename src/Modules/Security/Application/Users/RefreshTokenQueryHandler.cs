@@ -18,16 +18,24 @@ public sealed class RefreshTokenQueryHandler(
     IHttpContextAccessor accessor,
     IUserRepository userRepository,
     IConfiguration configuration)
-    : IQueryHandler<RefreshTokenQuery, string>
+    : IQueryHandler<RefreshTokenQuery, UserForAuthenticationDto>
 {
-    public async Task<Result<string>> Handle(RefreshTokenQuery request, CancellationToken cancellationToken)
+    public async Task<Result<UserForAuthenticationDto>> Handle(RefreshTokenQuery request, CancellationToken cancellationToken)
     {
         var httpContext = accessor.HttpContext;
-        var tokenFromCookie = httpContext?.Request.Cookies[".authToken"];
+        var token = httpContext?.Request.Cookies[".authToken"];
 
-        if (string.IsNullOrWhiteSpace(tokenFromCookie))
+        if (string.IsNullOrWhiteSpace(token))
         {
-            return Result.Failure<string>(Error.Problem("Auth.Unauthorized", "The user is not authorized."));
+            var authHeader = httpContext?.Request.Headers["Authorization"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                token = authHeader["Bearer ".Length..].Trim();
+            }
+            else
+            {
+                return Result.Failure<UserForAuthenticationDto>(Error.Problem("Auth.Unauthorized", "The user is not authorized."));
+            }
         }
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -36,7 +44,7 @@ public sealed class RefreshTokenQueryHandler(
 
         try
         {
-            var principal = tokenHandler.ValidateToken(tokenFromCookie, new TokenValidationParameters
+            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
@@ -50,14 +58,14 @@ public sealed class RefreshTokenQueryHandler(
 
             if (string.IsNullOrWhiteSpace(userName))
             {
-                return Result.Failure<string>(Error.Problem("Auth.Unauthorized", "The user is not authorized.")
+                return Result.Failure<UserForAuthenticationDto>(Error.Problem("Auth.Unauthorized", "The user is not authorized.")
 );
             }
 
             var user = await userRepository.GetByUserNameAsync(userName);
             if (user is null)
             {
-                return Result.Failure<string>(Error.NotFound(
+                return Result.Failure<UserForAuthenticationDto>(Error.NotFound(
                     "Auth.User.NotFound",
                     "The user does not exist."));
             }
@@ -74,12 +82,23 @@ public sealed class RefreshTokenQueryHandler(
                     new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             });
 
-            return Result.Success<string>(tokenHandler.WriteToken(newToken));
+            var userForAuthenticationDto = new UserForAuthenticationDto()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Name = user.Name,
+                MiddleName = user.MiddleName,
+                Email = user.Email,
+                DisplayName = user.DisplayName,
+                Token = tokenHandler.WriteToken(newToken)
+            };
+
+            return Result.Success<UserForAuthenticationDto>(userForAuthenticationDto);
 
         }
         catch (SecurityTokenException)
         {
-            return Result.Failure<string>(Error.Problem("Auth.Unauthorized", "The user is not authorized.")
+            return Result.Failure<UserForAuthenticationDto>(Error.Problem("Auth.Unauthorized", "The user is not authorized.")
 );
         }
     }

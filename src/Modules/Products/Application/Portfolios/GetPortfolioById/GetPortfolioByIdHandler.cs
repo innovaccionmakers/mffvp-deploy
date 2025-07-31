@@ -36,7 +36,7 @@ internal sealed class GetPortfolioByIdHandler(
 
         var (isValid, _, errors) = await ruleEvaluator
             .EvaluateAsync(
-                "Products.Portfolio.Validation",
+                "Products.PortfoliobyHomologatedCode.Validation",
                 portfolio,
                 cancellationToken);
 

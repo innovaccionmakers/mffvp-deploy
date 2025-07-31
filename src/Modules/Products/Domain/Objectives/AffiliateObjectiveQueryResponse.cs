@@ -6,6 +6,7 @@ public sealed class AffiliateObjectiveQueryResponse
     public string Name { get; set; }
     public string IdType { get; set; }
     public string Type { get; set; }
+    public string HomologatedCodeType { get; set; }
     public string IdPlan { get; set; }
     public string Plan { get; set; }
     public string IdFund { get; set; }
@@ -27,6 +28,7 @@ public sealed class AffiliateObjectiveQueryResponse
         string name,
         string idType,
         string type,
+        string homologatedCodeType,
         string idPlan,
         string plan,
         string idFund,
@@ -47,6 +49,7 @@ public sealed class AffiliateObjectiveQueryResponse
             Name = name,
             IdType = idType,
             Type = type,
+            HomologatedCodeType = homologatedCodeType,
             IdPlan = idPlan,
             Plan = plan,
             IdFund = idFund,
