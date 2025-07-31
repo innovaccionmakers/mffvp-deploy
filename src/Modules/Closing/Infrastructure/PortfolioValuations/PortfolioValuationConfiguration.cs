@@ -54,7 +54,7 @@ internal sealed class PortfolioValuationConfiguration : IEntityTypeConfiguration
 
         builder.Property(x => x.ProcessDate)
                .HasColumnName("fecha_proceso")
-               .HasColumnType("date");
+               .HasColumnType("timestamp with time zone");
 
         builder.Property(x => x.IsClosed)
                .HasColumnName("cerrado");
