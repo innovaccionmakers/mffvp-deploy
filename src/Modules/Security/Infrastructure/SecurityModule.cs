@@ -69,6 +69,7 @@ public class SecurityModule: IModuleConfiguration
         services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
         services.AddScoped<ILogRepository, LogRepository>();
         services.AddScoped<IClientInfoService, ClientInfoService>();
+        services.AddSingleton<IPermissionDescriptionService, PermissionDescriptionService>();
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditLogsBehavior<,>));
 
         services.AddScoped<IUserPermissionService, UserPermissionService>();

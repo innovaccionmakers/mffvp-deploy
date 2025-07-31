@@ -1,7 +1,11 @@
 using System.Text.Json;
 using System.Linq;
+using System.Reflection;
 using Common.SharedKernel.Application.Attributes;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Security.Application.Abstractions.Data;
 using Security.Application.Abstractions.Services.Auditing;
@@ -16,17 +20,23 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
     private readonly ILogRepository _logRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<AuditLogsBehavior<TRequest, TResponse>> _logger;
+    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly IPermissionDescriptionService _permissionDescriptionService;
 
     public AuditLogsBehavior(
         IClientInfoService clientInfoService,
         ILogRepository logRepository,
         IUnitOfWork unitOfWork,
-        ILogger<AuditLogsBehavior<TRequest, TResponse>> logger)
+        ILogger<AuditLogsBehavior<TRequest, TResponse>> logger,
+        IHttpContextAccessor contextAccessor,
+        IPermissionDescriptionService permissionDescriptionService)
     {
         _clientInfoService = clientInfoService;
         _logRepository = logRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _contextAccessor = contextAccessor;
+        _permissionDescriptionService = permissionDescriptionService;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -40,14 +50,25 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
         var user = _clientInfoService.GetUserName();
         var ip = _clientInfoService.GetClientIpAddress();
         var machine = Environment.MachineName;
-        var action = request.GetType().Name;
+        var endpoint = _contextAccessor.HttpContext?.GetEndpoint();
+        var policy = endpoint?.Metadata.GetMetadata<AuthorizeAttribute>()?.Policy;
+        var endpointName = endpoint?.Metadata.GetMetadata<IEndpointNameMetadata>()?.EndpointName;
+        var httpMethod = _contextAccessor.HttpContext?.Request.Method ?? "";
+        var action = policy ?? request.GetType().Name;
         var date = DateTime.UtcNow;
-        var description = _clientInfoService.GetActionDescription();
+        string? description = null;
 
-        if (string.IsNullOrWhiteSpace(description))
+        if (!string.IsNullOrWhiteSpace(endpointName))
         {
-            description = attribute.Description;
+            description = _permissionDescriptionService.GetDescriptionByEndpoint(endpointName, httpMethod);
         }
+
+        if (string.IsNullOrWhiteSpace(description) && !string.IsNullOrWhiteSpace(policy))
+        {
+            description = _permissionDescriptionService.GetDescriptionByPolicy(policy);
+        }
+
+        description ??= "Undefined action";
 
         var objectData = JsonSerializer.SerializeToDocument(request);
 
