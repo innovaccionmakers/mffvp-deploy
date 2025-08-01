@@ -23,7 +23,15 @@ public class ContributionCatalogResolverTests
 
     private static Origin BuildOrigin() => Origin.Create("o", false, false, false, Status.Active, "SRC").Value;
     private static ConfigurationParameter Cfg(string name, string code) => ConfigurationParameter.Create(name, code);
-    private static SubtransactionType Subtype() => SubtransactionType.Create("s", Guid.NewGuid(), IncomeEgressNature.Income, Status.Active, "EXT", "SUB").Value;
+    private static SubtransactionType Subtype() => SubtransactionType.Create(
+        "s",
+        Guid.NewGuid(),
+        IncomeEgressNature.Income,
+        Status.Active,
+        "EXT",
+        true,
+        JsonDocument.Parse("{}"),
+        "SUB").Value;
     private static Channel BuildChannel() => Channel.Create("c", "CH", false, Status.Active).Value;
 
     private static CreateContributionCommand Cmd(string? subtype = "SUB")

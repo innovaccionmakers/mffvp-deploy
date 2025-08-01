@@ -23,6 +23,8 @@ internal sealed class SubtransactionTypeConfiguration : IEntityTypeConfiguration
             .HasColumnName("estado")
             .HasConversion(new EnumMemberValueConverter<Status>());
         builder.Property(x => x.External).HasColumnName("externo");
+        builder.Property(x => x.Visible).HasColumnName("visible");
+        builder.Property(x => x.AdditionalAttributes).HasColumnName("atributos_adicionales");
         builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
     }
 }
