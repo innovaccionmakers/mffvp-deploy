@@ -23,7 +23,15 @@ public class GetAllOperationTypesQueryHandlerTests
     private GetAllOperationTypesQueryHandler Build() => new(_repo.Object, _paramRepo.Object, _cache);
 
     private static SubtransactionType Type() =>
-        SubtransactionType.Create("T", Guid.NewGuid(), IncomeEgressNature.Income, Status.Active, "EXT", "H").Value;
+        SubtransactionType.Create(
+            "T",
+            Guid.NewGuid(),
+            IncomeEgressNature.Income,
+            Status.Active,
+            "EXT",
+            true,
+            JsonDocument.Parse("{}"),
+            "H").Value;
 
     [Fact]
     public async Task Handle_Should_Return_From_Cache_When_Available()
