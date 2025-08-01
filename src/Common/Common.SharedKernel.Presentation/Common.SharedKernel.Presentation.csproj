@@ -13,6 +13,8 @@
     <ItemGroup>
         <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
         <PackageReference Include="FluentValidation" Version="12.0.0" />
+        <PackageReference Include="HotChocolate.Language" Version="15.1.5" />
+        <PackageReference Include="HotChocolate.Types" Version="15.1.5" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
         <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3" />

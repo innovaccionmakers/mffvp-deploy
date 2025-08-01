@@ -42,7 +42,7 @@ public class ClosingExperienceMutations(IMediator mediator) : IClosingExperience
                 return result;
             }
 
-            result.SetSuccess(new LoadProfitLossResult(commandResult.Value), "Carga de Profit & Loss realizada correctamente");
+            result.SetSuccess(new LoadProfitLossResult(commandResult.Value), "Genial!, Se ha cargado el PyG del Portafolio");
             return result;
         }
         catch (Exception ex)

@@ -14,6 +14,7 @@ public static class SchemaStitchingConfiguration
             .AddAuthorization()
             .AddQueryType<Query>()
             .AddMutationType<Mutation>()
+            .BindRuntimeType <DateTime, Common.SharedKernel.Presentation.GraphQlBinding.DateTimeType>()//configura el manejo personalizado de DateTime
             .ModifyOptions(options =>
             {
                 options.RemoveUnreachableTypes = true;
