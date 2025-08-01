@@ -1,10 +1,13 @@
 ﻿using Closing.Application.Abstractions.Data;
 using Closing.Application.Closing.Services.Orchestation.Constants;
 using Closing.Application.Closing.Services.SubtransactionTypes;
+using Closing.Application.Closing.Services.TimeControl;
+using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.Yields;
+using Closing.Integrations.Closing.RunClosing;    
 using Common.SharedKernel.Application.Helpers.Finance;
 using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
@@ -19,30 +22,36 @@ public class PortfolioValuationService(
     IYieldRepository yieldRepository,
     ISubtransactionTypesService subtransactionTypes,
     IConfigurationParameterRepository configurationParameterRepository,
-    IUnitOfWork unitOfWork,
+    ITimeControlService timeControlService,
+    //IUnitOfWork unitOfWork,
     ILogger<PortfolioValuationService> logger)
     : IPortfolioValuationService
 {
-   
-
-    public async Task<Result> CalculateAndPersistValuationAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
+    public async Task<Result<ClosedResult>> CalculateAndPersistValuationAsync(
+        int portfolioId,
+        DateTime closingDate,
+        CancellationToken ct)
     {
+        logger.LogInformation("Iniciando valoración para portafolio {PortfolioId}", portfolioId);
+
+        var now = DateTime.UtcNow;
+
+        // ⬅️ Se actualiza el paso de cierre usando el flujo estándar
+        await timeControlService.UpdateStepAsync(portfolioId, "ClosingPortfolioValuation", now, ct);
         // 1. Validar existencia previa de cierre para esa fecha
-        var exists = await valuationRepository.ValuationExistsAsync(portfolioId, closingDate.Date, ct);
-        if (exists)
-        {
-            return Result.Failure(new Error("001", "Ya existe una valoración cerrada para este portafolio y fecha.", ErrorType.Validation));
-        }
+        if (await valuationRepository.ValuationExistsAsync(portfolioId, closingDate.Date, ct))
+            return Result.Failure<ClosedResult>(
+                new Error("001", "Ya existe una valoración cerrada para este portafolio y fecha.", ErrorType.Validation));
 
         // 2. Obtener valoración del día anterior
-        var previousValuation = await valuationRepository.GetValuationAsync(
+        var previous = await valuationRepository.GetValuationAsync(
             portfolioId,
             closingDate.AddDays(-1),
             ct);
 
-        decimal prevValue = previousValuation?.Amount ?? 0;
-        decimal prevUnits = previousValuation?.Units ?? 0;
-        decimal prevUnitValue = previousValuation?.UnitValue ?? 0;
+        decimal prevValue = previous?.Amount ?? 0m;
+        decimal prevUnits = previous?.Units ?? 0m;
+        decimal prevUnitValue = previous?.UnitValue ?? 0m;
 
         // 3. Obtener rendimientos del día
         var yield = await yieldRepository.GetByPortfolioAndDateAsync(
@@ -50,82 +59,108 @@ public class PortfolioValuationService(
             closingDate,
             ct);
 
-        decimal yieldIncome = yield?.Income ?? 0;
-        decimal yieldCosts = yield?.Costs ?? 0;
-        decimal yieldToCredit = yield?.YieldToCredit ?? 0;
+        decimal yieldIncome = yield?.Income ?? 0m;
+        decimal yieldExpenses = yield?.Expenses ?? 0m;   // para "Egresos"
+        decimal yieldCommissions = yield?.Commissions ?? 0m;   // para "Comision"
+        decimal yieldToCredit = yield?.YieldToCredit ?? 0m;   // para "RendimientosAbonar"
+        decimal yieldCosts = yield?.Costs ?? 0m;   // para "Costos"
 
-        // 4. Obtener subtipos de transacción y clasificarlos
-       var subtypeResult = await subtransactionTypes.GetAllAsync(ct);
+        // 4. Obtener y clasificar subtipos de transacción
+        var subtypeResult = await subtransactionTypes.GetAllAsync(ct);
         if (!subtypeResult.IsSuccess)
-            return Result.Failure(subtypeResult.Error!);
+            return Result.Failure<ClosedResult>(subtypeResult.Error!);
 
-        var incomeSubtypes = subtypeResult.Value
+        var incomeSubs = subtypeResult.Value
             .Where(s => s.Nature == IncomeEgressNature.Income)
             .Select(s => s.SubtransactionTypeId)
             .ToList();
-
-        var egressSubtypes = subtypeResult.Value
+        var egressSubs = subtypeResult.Value
             .Where(s => s.Nature == IncomeEgressNature.Egress)
             .Select(s => s.SubtransactionTypeId)
             .ToList();
 
-        // 5. Sumar operaciones de entrada y salida
-        var incoming = await clientOperationRepository.SumByPortfolioAndSubtypesAsync(
-            portfolioId,
-            closingDate,
-            incomeSubtypes,
-            ct);
+        // 5. Sumar operaciones de entrada y salida del día
+        var incoming = await clientOperationRepository
+            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, incomeSubs, ct);
+        var outgoing = await clientOperationRepository
+            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressSubs, ct);
 
-        var outgoing = await clientOperationRepository.SumByPortfolioAndSubtypesAsync(
-            portfolioId,
-            closingDate,
-            egressSubtypes,
-            ct);
-
-        // 6. Si es el primer día (no hay valoración previa)
-        if (previousValuation == null)
+        // 6. Si es el primer día de cierre, calcular units y unitValue iniciales
+        if (previous == null)
         {
             if (incoming == 0)
-                return Result.Failure(new Error("002", "No se puede calcular la valoración inicial sin operaciones de entrada.", ErrorType.Validation));
+                return Result.Failure<ClosedResult>(
+                    new Error("002", "No se puede calcular la valoración inicial sin operaciones de entrada.", ErrorType.Validation));
 
             var param = await configurationParameterRepository
                .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, ct);
 
-            var InitialUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "Valor");
+            var initialUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "Valor");
 
-            prevUnits = incoming / InitialUnitValue;
-            prevUnitValue = InitialUnitValue;
+            prevUnits = incoming / initialUnitValue;
+            prevUnitValue = initialUnitValue;
         }
-        // 7. Cálculos financieros
-        //nuevo valor del portafolio, dado por Valor del portafolio del día anterior +
-        //rendimientos a abonar tomados de la tabla rendimientos para la fecha +
-        //Valoración_portafolio.operaciones_entrada -
-        //Valoración_portafolio.operaciones_salida
-        decimal newValue = PortfolioMath.CalculateNewPortfolioValue(prevValue, yieldToCredit, incoming, outgoing);
-        //guarda el valor de la unidad para la fecha en cuestión,
-        //la cual está dada por el valor del portafolio del día anterior (Valoracion_portafolio.valor)
-        //+ rendimientos a abonar para el día (Rendimiento.rendimientos_abonar)
-        //dividido el número de unidades del día anterior (Valoracion_portafolio.unidades).
-        //Math.Round((prevValue + yieldToCredit) / prevUnits, DecimalPrecision.SixteenDecimals);
-        decimal newUnitValue = prevValue + yieldToCredit == 0 || prevUnits == 0
-            ? 0
-            : PortfolioMath.CalculateRoundedUnitValue(prevValue, yieldToCredit, prevUnits, DecimalPrecision.SixteenDecimals);
-        //almacena el número de unidades del portafolio,
-        //estas se calculan tomando el nuevo valor del fondo para el día (Valoracion_portafolio.valor)
-        //dividido por el nuevo valor de unidad (Valoracion_portafolio.valor_unidad).
-        decimal newUnits = newUnitValue == 0 ? 0 : PortfolioMath.CalculateNewUnits(newValue , newUnitValue, DecimalPrecision.SixteenDecimals);
 
-        // equivale al rendimiento bruto del día en cuestión (Rendimiento.ingresos)
-        // dividido el número de unidades del día anterior (Valoracion_portafolio.unidades).
-        decimal grossYieldPerUnit = prevUnits == 0 ? 0 : PortfolioMath.CalculateGrossYieldPerUnitFromIncome(yieldIncome, prevUnits, DecimalPrecision.SixteenDecimals);
-        //equivale al costo del día (Rendimiento.costos)
-        //dividido el número de unidades del día anterior (Valoracion_portafolio.unidades).
-        decimal costPerUnit = prevUnits == 0 ? 0 : PortfolioMath.CalculateCostPerUnit(yieldCosts, prevUnits, DecimalPrecision.SixteenDecimals);
-        // Calcula la rentabilidad diaria, que es el crecimiento del valor de la unidad
-        //fórmula (valor_unidad día/valor_unidad día anterior)^(365)-1. Considere el valor de unidad desde el campo Valoracion_portafolio.valor_unidad.
-        decimal dailyProfitability = prevUnitValue == 0 ? 0 : PortfolioMath.CalculateRoundedDailyProfitability( prevUnitValue, newUnitValue, DecimalPrecision.SixteenDecimals, 365);
-        // 8. Crear entidad y guardar
-        var result = Domain.PortfolioValuations.PortfolioValuation.Create(
+        // 7. CÁLCULOS FINANCIEROS
+
+        // 7.1. Nuevo valor del portafolio:
+        //     prevValue + rendimientosAbonar + operacionesEntrada - operacionesSalida
+        decimal newValue = PortfolioMath.CalculateNewPortfolioValue(
+            prevValue,
+            yieldToCredit,
+            incoming,
+            outgoing);
+
+        // 7.2. Nuevo valor de unidad:
+        //     Si no hay valoración previa, mantener prevUnitValue,
+        //     de lo contrario: (prevValue + yieldToCredit) / prevUnits, redondeado a 16 decimales
+        decimal newUnitValue = previous == null
+            ? prevUnitValue
+            : PortfolioMath.CalculateRoundedUnitValue(
+                prevValue,
+                yieldToCredit,
+                prevUnits,
+                DecimalPrecision.SixteenDecimals);
+
+        // 7.3. Nuevas unidades del portafolio:
+        //     newValue / newUnitValue, redondeado a 16 decimales
+        decimal newUnits = previous == null
+            ? prevUnits
+            : PortfolioMath.CalculateNewUnits(
+                newValue,
+                newUnitValue,
+                DecimalPrecision.SixteenDecimals);
+
+        // 7.4. Rendimiento bruto por unidad:
+        //     yieldIncome / prevUnits, redondeado a 16 decimales
+        decimal grossYieldPerUnit = previous == null
+            ? 0m
+            : PortfolioMath.CalculateGrossYieldPerUnitFromIncome(
+                yieldIncome,
+                prevUnits,
+                DecimalPrecision.SixteenDecimals);
+
+        // 7.5. Costo por unidad:
+        //     yieldCosts / prevUnits, redondeado a 16 decimales
+        decimal costPerUnit = previous == null
+            ? 0m
+            : PortfolioMath.CalculateCostPerUnit(
+                yieldCosts,
+                prevUnits,
+                DecimalPrecision.SixteenDecimals);
+
+        // 7.6. Rentabilidad diaria:
+        //     (newUnitValue / prevUnitValue)^(365) - 1, redondeado a 16 decimales
+        decimal dailyProfitability = previous == null
+            ? 0m
+            : PortfolioMath.CalculateRoundedDailyProfitability(
+                prevUnitValue,
+                newUnitValue,
+                DecimalPrecision.SixteenDecimals,
+                365);
+
+        // 8. Crear entidad de valoración y persistir
+        var createResult = Domain.PortfolioValuations.PortfolioValuation.Create(
             portfolioId,
             closingDate,
             Math.Round(newValue, 2),
@@ -136,17 +171,31 @@ public class PortfolioValuationService(
             dailyProfitability,
             incoming,
             outgoing,
-            DateTime.UtcNow,
+            now,
             true);
 
-        if (!result.IsSuccess)
-            return Result.Failure(result.Error!);
+        if (!createResult.IsSuccess)
+            return Result.Failure<ClosedResult>(createResult.Error!);
 
-        await unitOfWork.SaveChangesAsync(ct);
+        await valuationRepository.AddAsync(createResult.Value);
 
-        logger.LogInformation("Valoración realizada para Portafolio {PortfolioId} en {Date}",
-            portfolioId, closingDate);
+        logger.LogInformation(
+            "Valoración realizada para Portafolio {PortfolioId} en {Date}",
+            portfolioId,
+            closingDate);
 
-        return Result.Success();
+        // 9. Construir y devolver ClosedResult con todos los datos financieros
+        var closedResult = new ClosedResult(portfolioId, closingDate)
+        {
+            Income = yieldIncome,
+            Expenses = yieldExpenses,
+            Commissions = yieldCommissions,
+            Costs = yieldCosts,
+            YieldToCredit = yieldToCredit,
+            UnitValue = newUnitValue,
+            DailyProfitability = dailyProfitability
+        };
+
+        return Result.Success(closedResult);
     }
 }

@@ -22,6 +22,7 @@ internal sealed class TrustOperationConfiguration : IEntityTypeConfiguration<Tru
 
         builder.HasOne(x => x.ClientOperation)
             .WithMany(co => co.TrustOperations)
-            .HasForeignKey(x => x.ClientOperationId);
+            .HasForeignKey(x => x.ClientOperationId)
+            .IsRequired(false);
     }
 }

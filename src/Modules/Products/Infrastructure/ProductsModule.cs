@@ -118,7 +118,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();
         services.AddTransient<IRpcHandler<GetAdditionalInformationRequest, GetAdditionalInformationResponse>, GetAdditionalInformationConsumer>();
 
-        services.AddScoped<PortfolioValuationUpdatedConsumer>();
+        services.AddScoped<PortfolioValuationUpdatedSuscriber>();
         services.AddScoped<IPortfolioValuationRepository, PortfolioValuationRepository>();
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
         services.AddScoped<CommissionProcessedConsumer>();

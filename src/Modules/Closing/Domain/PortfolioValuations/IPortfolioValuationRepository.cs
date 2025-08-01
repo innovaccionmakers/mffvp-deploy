@@ -11,5 +11,7 @@ namespace Closing.Domain.PortfolioValuations
         Task<bool> ExistsByPortfolioIdAsync(long portfolioId, CancellationToken cancellationToken = default);
         
         Task DeleteClosedByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
+
+        Task AddAsync(PortfolioValuation valuation, CancellationToken cancellationToken = default);
     }
 }

@@ -6,7 +6,7 @@ namespace Operations.Domain.TrustOperations;
 public sealed class TrustOperation : Entity
 {
     public long TrustOperationId { get; private set; }
-    public long ClientOperationId { get; private set; }
+    public long? ClientOperationId { get; private set; }
     public long TrustId { get; private set; }
     public decimal Amount { get; private set; }
     public long SubtransactionTypeId { get; private set; }
@@ -22,7 +22,7 @@ public sealed class TrustOperation : Entity
     }
 
     public static Result<TrustOperation> Create(
-        long clientOperationId,
+        long? clientOperationId,
         long trustId,
         decimal amount,
         long subtransactionTypeId,
@@ -49,7 +49,7 @@ public sealed class TrustOperation : Entity
     }
 
     public void UpdateDetails(
-        long newClientOperationId,
+        long? newClientOperationId,
         long newTrustId,
         decimal newAmount,
         long newSubtransactionTypeId,

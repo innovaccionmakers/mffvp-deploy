@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Application.EventBus;
+using Confluent.Kafka;
 using MediatR;
 using Operations.Application.Abstractions.Data;
 using Operations.Domain.SubtransactionTypes;
@@ -17,20 +18,19 @@ internal sealed class CreateTrustOperationCommandHandler(
 {
     public async Task Handle(CreateTrustOperationCommand request, CancellationToken cancellationToken)
     {
-        // TODO: Reemplazar por consulta a tipo de transacción "Rendimientos".
-        const long yieldSubtypeId = 4;
+        long yieldSubtypeId = 4;
 
-                /*
-           var subtype = await subtransactionTypeRepository.GetByNameAsync("Rendimientos", cancellationToken);
+                
+           var subtype = await subtransactionTypeRepository.GetByNameAndCategoryAsync("Ninguno", SubtransactionTypeCategoryUuids.Yield, cancellationToken);
            if (subtype is null)
            {
-               throw new InvalidOperationException("Subtransaction type 'Rendimientos' not found.");
+               throw new InvalidOperationException("Tipo de Transaccion 'Rendimientos' no encontrada.");
            }
-           var rendimentoSubtypeId = subtype.SubtransactionTypeId;
-           */
+            yieldSubtypeId = subtype.SubtransactionTypeId;
+          
 
         var operation = TrustOperation.Create(
-            clientOperationId: 0, // No relacionada con cliente
+            clientOperationId: null, // No relacionada con cliente
             trustId: request.TrustId,
             amount: request.Amount,
             subtransactionTypeId: yieldSubtypeId,
