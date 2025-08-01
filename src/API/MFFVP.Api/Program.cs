@@ -12,8 +12,10 @@ using Common.SharedKernel.Presentation.Filters;
 
 using FluentValidation;
 
+#if !IS_CI
 using Makers.Adp.Telemetry.Models;
 using Makers.Adp.Telemetry.ServiceExtensions;
+#endif
 
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
@@ -34,7 +36,10 @@ builder.Configuration
 
 if (env != "Development")
 {
-    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.MinimumLevel.Information().WriteTo.Console());
+#if !IS_CI
+    builder.Host.UseSerilog((context, loggerConfig) =>
+        loggerConfig.MinimumLevel.Information().WriteTo.Console());
+
     var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
     builder.Services.AddObservabilityServiceExtension(options =>
     {
@@ -66,11 +71,14 @@ if (env != "Development")
 
     builder.Configuration["ConnectionStrings:Database"] = response;
     builder.Configuration["ConnectionStrings:CapDatabase"] = response;
+#endif
 }
 else
 {
-    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+    builder.Host.UseSerilog((context, loggerConfig) =>
+        loggerConfig.ReadFrom.Configuration(context.Configuration));
 }
+
 
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -207,7 +215,9 @@ app.UsePathBase("/fiduciaria/fvp");
 
 if (env != "Development")
 {
+#if !IS_CI
     app.UseOtelMiddleware();
+#endif
 }
 
 app.UseInfrastructure();

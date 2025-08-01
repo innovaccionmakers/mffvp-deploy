@@ -38,7 +38,6 @@
       <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.1" />
     </ItemGroup>
 
-
     <ItemGroup>
         <ProjectReference Include="..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
         <ProjectReference Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
