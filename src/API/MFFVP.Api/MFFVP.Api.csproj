@@ -30,6 +30,10 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     </ItemGroup>
 
+    <ItemGroup Condition="'$(ASPNETCORE_ENVIRONMENT)' != 'Development'">
+      <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.1" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
         <ProjectReference Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
@@ -64,10 +68,6 @@
         <ProjectReference Include="..\..\Modules\Treasury\Presentation\Treasury.Presentation.csproj" />
         <ProjectReference Include="..\..\Modules\Trusts\Infrastructure\Trusts.Infrastructure.csproj" />
         <ProjectReference Include="..\..\Modules\Trusts\Integrations\Trusts.Integrations.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="libs\" />
     </ItemGroup>
 
 </Project>
