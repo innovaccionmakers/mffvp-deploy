@@ -87,8 +87,8 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var treasuryMovement = TreasuryMovement.Create(
             request.PortfolioId,
-            request.ClosingDate,
             DateTime.UtcNow,
+            request.ClosingDate,
             request.TreasuryConceptId,
             request.Value,
             request.BankAccountId,

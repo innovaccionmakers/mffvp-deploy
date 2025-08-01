@@ -12,6 +12,11 @@ using Common.SharedKernel.Presentation.Filters;
 
 using FluentValidation;
 
+#if !IS_CI
+using Makers.Adp.Telemetry.Models;
+using Makers.Adp.Telemetry.ServiceExtensions;
+#endif
+
 using MFFVP.Api.Extensions;
 using MFFVP.Api.Extensions.Swagger;
 using MFFVP.Api.MiddlewareExtensions;
@@ -29,11 +34,21 @@ builder.Configuration
     .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-
 if (env != "Development")
 {
-    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+#if !IS_CI
+    builder.Host.UseSerilog((context, loggerConfig) =>
+        loggerConfig.MinimumLevel.Information().WriteTo.Console());
 
+    var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
+    builder.Services.AddObservabilityServiceExtension(options =>
+    {
+        options.ServiceName = observabilityOptions.ServiceName;
+        options.MeterNames = observabilityOptions.MeterNames;
+        options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
+        options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
+        options.DefaultAttributes = observabilityOptions.DefaultAttributes;
+    });
 
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
     var region = builder.Configuration["AWS:SecretsManager:Region"];
@@ -56,11 +71,14 @@ if (env != "Development")
 
     builder.Configuration["ConnectionStrings:Database"] = response;
     builder.Configuration["ConnectionStrings:CapDatabase"] = response;
+#endif
 }
 else
 {
-    builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+    builder.Host.UseSerilog((context, loggerConfig) =>
+        loggerConfig.ReadFrom.Configuration(context.Configuration));
 }
+
 
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -162,7 +180,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSwaggerUI", policy =>
     {
-        policy.WithOrigins("https://localhost:7203", "https://localhost:5173", "http://localhost:3000", "https://mffvp-frontend.pages.dev", "https://fvp.testsmakers.com", "https://fvp.calidad.makersfundsbc.com", "https://testsmakers.com")
+        policy.WithOrigins("https://localhost:7203", "https://localhost:5173", "http://localhost:3000", "https://mffvp-frontend.pages.dev", "https://fvp.testsmakers.com", "https://fvp.calidad.makersfundsbc.com", "https://testsmakers.com", "https://calidad.makersfundsbc.com")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -195,6 +213,12 @@ foreach (var module in moduleConfigurations)
 
 app.UsePathBase("/fiduciaria/fvp");
 
+if (env != "Development")
+{
+#if !IS_CI
+    app.UseOtelMiddleware();
+#endif
+}
 
 app.UseInfrastructure();
 
