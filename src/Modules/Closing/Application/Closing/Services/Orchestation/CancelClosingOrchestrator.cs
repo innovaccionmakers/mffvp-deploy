@@ -1,7 +1,7 @@
 ﻿using Closing.Application.Closing.Services.Abort;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
-using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Integrations.Closing.RunClosing;
+using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
@@ -14,6 +14,7 @@ public class CancelClosingOrchestrator(
 {
     public async Task<Result<ClosedResult>> CancelAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
     {
+        closingDate = DateTimeConverter.ToUtcDateTime(closingDate);
         logger.LogInformation("Cancelando cierre para portafolio {PortfolioId}", portfolioId);
 
         var abortResult = await abortClosing.AbortAsync(portfolioId, closingDate, ct);

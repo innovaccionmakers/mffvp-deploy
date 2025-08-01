@@ -5,7 +5,7 @@ using Products.Integrations.PortfolioValuation.Commands;
 
 namespace Products.IntegrationEvents.PortfolioValuation.PortfolioValuationUpdated;
 
-public sealed class PortfolioValuationUpdatedConsumer(ISender mediator) : ICapSubscribe
+public sealed class PortfolioValuationUpdatedSuscriber(ISender mediator) : ICapSubscribe
 {
     [CapSubscribe(nameof(PortfolioValuationUpdatedIntegrationEvent))]
     public async Task HandleAsync(PortfolioValuationUpdatedIntegrationEvent message, CancellationToken cancellationToken)

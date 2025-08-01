@@ -1,5 +1,5 @@
 using Closing.Application.Abstractions.Data;
-using Closing.Application.Closing.Services.TimeControl.Interrfaces;
+using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
@@ -13,12 +13,13 @@ public sealed class AbortClosingService(
     IYieldDetailRepository yieldDetailRepository,
     IYieldRepository yieldRepository,
     IPortfolioValuationRepository valuationRepository,
-    ITimeControlService timeControl,
+    IPendingTransactionHandler pendingTransactionHandler,
     IUnitOfWork unitOfWork,
     ILogger<AbortClosingService> logger) : IAbortClosingService
 {
     public async Task<Result> AbortAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
     {
+
         var isActive = await store.IsClosingActiveAsync(portfolioId, ct);
         if (!isActive)
         {
@@ -40,7 +41,7 @@ public sealed class AbortClosingService(
 
             logger.LogInformation("Datos eliminados correctamente. Reactivando flujo para el portafolio {PortfolioId}", portfolioId);
 
-            await timeControl.EndAsync(portfolioId, ct);
+            await pendingTransactionHandler.HandleAsync(portfolioId, closingDate, ct);
 
             return Result.Success();
         }

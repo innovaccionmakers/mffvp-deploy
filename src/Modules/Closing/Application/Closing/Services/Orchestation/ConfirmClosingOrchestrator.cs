@@ -3,6 +3,7 @@ using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
 using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Integrations.Closing.RunClosing;
+using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
@@ -17,6 +18,8 @@ public class ConfirmClosingOrchestrator(
 {
     public async Task<Result<ClosedResult>> ConfirmAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
     {
+        closingDate = DateTimeConverter.ToUtcDateTime(closingDate);
+
         logger.LogInformation("Confirmando cierre para portafolio {PortfolioId}", portfolioId);
 
         // Paso 1: Distribuir rendimientos

@@ -13,12 +13,14 @@ namespace Closing.Domain.Routes
 
                                  {
                                    "IdPortafolio": 1,
-                                   "FechaCierre": "2025-07-01"
+                                   "FechaCierre": "2025-07-01",
+                                   "EsCierre": false
                                  }
                                  ```
 
                                  - `IdPortafolio`: Identificador del portafolio
                                  - `FechaCierre`: Fecha en que se va a ejecutar el cierre del portafolio
+                                 - `EsCierre`: Indicador si la ejecución es en modo de cierre real o simulación
                                  """,
                   RunClosing = """
                                  **Ejemplo de llamada:**
@@ -50,7 +52,7 @@ namespace Closing.Domain.Routes
                                  ```
 
                                  - `IdPortafolio`: Identificador del portafolio
-                                 - `FechaCierre`: Fecha en que se va a confirmar el cierre del portafolio
+                                 - `FechaCierre`: Fecha de Cierre del portafolio
                                  """,
              CancelClosing = """
                                  **Ejemplo de llamada:**
@@ -66,7 +68,7 @@ namespace Closing.Domain.Routes
                                  ```
 
                                  - `IdPortafolio`: Identificador del portafolio
-                                 - `FechaCierre`: Fecha en que se va a cancelar el cierre del portafolio
+                                 - `FechaCierre`: Fecha de Cierre del portafolio
                                  """
 
             ,

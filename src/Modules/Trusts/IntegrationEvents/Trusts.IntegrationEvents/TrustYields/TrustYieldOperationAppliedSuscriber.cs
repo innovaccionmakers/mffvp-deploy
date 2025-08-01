@@ -5,7 +5,7 @@ using Trusts.Integrations.TrustYields.Commands;
 
 namespace Trusts.IntegrationEvents.TrustYields;
 
-public sealed class TrustYieldOperationAppliedConsumer(ISender mediator) : ICapSubscribe
+public sealed class TrustYieldOperationAppliedSuscriber(ISender mediator) : ICapSubscribe
 {
     [CapSubscribe(nameof(TrustYieldOperationAppliedIntegrationEvent))]
     public async Task HandleAsync(TrustYieldOperationAppliedIntegrationEvent message, CancellationToken cancellationToken)
