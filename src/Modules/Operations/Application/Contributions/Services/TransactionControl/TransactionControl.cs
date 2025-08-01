@@ -63,7 +63,7 @@ public sealed class TransactionControl(
             prevalidationResult.Catalogs.OriginModality!.ConfigurationParameterId,
             0,
             prevalidationResult.Catalogs.Channel?.ChannelId ?? 0,
-            int.TryParse(command.User, out var uid) ? uid : 0).Value;
+            command.User).Value;
         auxiliaryInformationRepository.Insert(aux);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

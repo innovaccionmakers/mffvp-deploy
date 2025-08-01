@@ -29,7 +29,8 @@ internal sealed class AuxiliaryInformationConfiguration : IEntityTypeConfigurati
         builder.Property(x => x.OriginModalityId).HasColumnName("modalidad_origen_id");
         builder.Property(x => x.CityId).HasColumnName("ciudad_id");
         builder.Property(x => x.ChannelId).HasColumnName("canal_id");
-        builder.Property(x => x.UserId).HasColumnName("usuario_id");
+        builder.Property(x => x.UserId).HasColumnName("usuario_id")
+            .HasMaxLength(50);
 
         builder.HasOne(x => x.ClientOperation)
             .WithOne(co => co.AuxiliaryInformation)

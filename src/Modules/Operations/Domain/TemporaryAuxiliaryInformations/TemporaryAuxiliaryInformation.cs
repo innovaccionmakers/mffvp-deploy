@@ -26,7 +26,7 @@ public sealed class TemporaryAuxiliaryInformation : Entity
     public int OriginModalityId { get; private set; }
     public int CityId { get; private set; }
     public int ChannelId { get; private set; }
-    public int UserId { get; private set; }
+    public string UserId { get; private set; }
 
     public TemporaryClientOperation TemporaryClientOperation { get; private set; } = null!;
     public Origin Origin { get; private set; } = null!;
@@ -54,7 +54,7 @@ public sealed class TemporaryAuxiliaryInformation : Entity
         int originModalityId,
         int cityId,
         int channelId,
-        int userId
+        string userId
     )
     {
         var auxiliaryInformation = new TemporaryAuxiliaryInformation
@@ -101,7 +101,7 @@ public sealed class TemporaryAuxiliaryInformation : Entity
         int newOriginModalityId,
         int newCityId,
         int newChannelId,
-        int newUserId
+        string newUserId
     )
     {
         TemporaryClientOperationId = newTemporaryClientOperationId;

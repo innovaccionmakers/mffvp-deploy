@@ -26,7 +26,7 @@ public sealed class AuxiliaryInformation : Entity
     public int OriginModalityId { get; private set; }
     public int CityId { get; private set; }
     public int ChannelId { get; private set; }
-    public int UserId { get; private set; }
+    public String UserId { get; private set; }
 
     public ClientOperation ClientOperation { get; private set; } = null!;
     public Origin Origin { get; private set; } = null!;
@@ -54,7 +54,7 @@ public sealed class AuxiliaryInformation : Entity
         int originModalityId,
         int cityId,
         int channelId,
-        int userId
+        string userId
     )
     {
         var auxiliaryInformation = new AuxiliaryInformation
@@ -101,7 +101,7 @@ public sealed class AuxiliaryInformation : Entity
         int newOriginModalityId,
         int newCityId,
         int newChannelId,
-        int newUserId
+        string newUserId
     )
     {
         ClientOperationId = newClientOperationId;

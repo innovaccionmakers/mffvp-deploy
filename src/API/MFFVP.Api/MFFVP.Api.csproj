@@ -66,8 +66,17 @@
         <ProjectReference Include="..\..\Modules\Trusts\Integrations\Trusts.Integrations.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="libs\" />
+    <PropertyGroup>
+      <IsCI Condition="'$(IsCI)' == ''">false</IsCI>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(IsCI)' == 'true'">
+      <DefineConstants>$(DefineConstants);IS_CI</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(IsCI)' != 'true'">
+      <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.1" />
     </ItemGroup>
+
 
 </Project>
