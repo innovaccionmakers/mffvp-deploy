@@ -43,7 +43,9 @@ steps:
   inputs:
     command: restore
     projects: '$(RestoreBuildProjects)'
+    vstsFeed: '88a8693b-dc63-4c6b-8ee4-35f6f1d2099f'
     verbosityRestore: Detailed
+    verbosityPack: Detailed
 
 # Build
 - task: DotNetCoreCLI@2
