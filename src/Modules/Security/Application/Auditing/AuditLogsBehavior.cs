@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Security.Application.Abstractions.Data;
 using Security.Application.Abstractions.Services.Auditing;
+using Common.SharedKernel.Application.Abstractions;
 using Security.Domain.Logs;
 
 namespace Security.Application.Auditing;
@@ -22,6 +23,7 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
     private readonly ILogger<AuditLogsBehavior<TRequest, TResponse>> _logger;
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IPermissionDescriptionService _permissionDescriptionService;
+    private readonly IPreviousStateProvider _previousStateProvider;
 
     public AuditLogsBehavior(
         IClientInfoService clientInfoService,
@@ -29,7 +31,8 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
         IUnitOfWork unitOfWork,
         ILogger<AuditLogsBehavior<TRequest, TResponse>> logger,
         IHttpContextAccessor contextAccessor,
-        IPermissionDescriptionService permissionDescriptionService)
+        IPermissionDescriptionService permissionDescriptionService,
+        IPreviousStateProvider previousStateProvider)
     {
         _clientInfoService = clientInfoService;
         _logRepository = logRepository;
@@ -37,6 +40,7 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
         _logger = logger;
         _contextAccessor = contextAccessor;
         _permissionDescriptionService = permissionDescriptionService;
+        _previousStateProvider = previousStateProvider;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -87,6 +91,8 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
         }
         finally
         {
+            var previousState = _previousStateProvider.GetSerializedStateAndClear();
+
             var logResult = Log.Create(
                 date,
                 action,
@@ -95,7 +101,7 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
                 machine,
                 description,
                 objectData,
-                JsonDocument.Parse("{}"),
+                previousState,
                 successful);
 
             if (logResult.IsSuccess)

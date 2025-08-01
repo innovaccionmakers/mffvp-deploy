@@ -1,7 +1,7 @@
 ﻿using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Infrastructure.Auth.Policy;
 using Common.SharedKernel.Infrastructure.Configuration;
-
+using Common.SharedKernel.Infrastructure.Database.Interceptors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -55,6 +55,7 @@ public class SecurityModule: IModuleConfiguration
         services.AddDbContext<SecurityDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
+                .AddInterceptors(sp.GetRequiredService<PreviousStateSaveChangesInterceptor>())
                 .UseNpgsql(
                     connectionString,
                     npgsqlOptions =>
@@ -69,6 +70,8 @@ public class SecurityModule: IModuleConfiguration
         services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
         services.AddScoped<ILogRepository, LogRepository>();
         services.AddScoped<IClientInfoService, ClientInfoService>();
+        services.AddScoped<IPreviousStateProvider, PreviousStateProvider>();
+        services.AddScoped<PreviousStateSaveChangesInterceptor>();
         services.AddSingleton<IPermissionDescriptionService, PermissionDescriptionService>();
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditLogsBehavior<,>));
 
