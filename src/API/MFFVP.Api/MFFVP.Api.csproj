@@ -30,9 +30,14 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(ASPNETCORE_ENVIRONMENT)' != 'Development'">
+    <PropertyGroup>
+      <IsCI Condition="'$(IsCI)' == ''">false</IsCI>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(IsCI)' != 'true'">
       <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.1" />
     </ItemGroup>
+
 
     <ItemGroup>
         <ProjectReference Include="..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
