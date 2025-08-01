@@ -19,17 +19,17 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore MFFVP.sln
-
-      - name: Build
-        run: dotnet build MFFVP.sln --no-restore --configuration Release
-
-      - name: Test
-        run: dotnet test MFFVP.sln --no-build --configuration Release
-
-      - name: Publish self-contained app
-        run: dotnet publish src/API/MFFVP.Api/MFFVP.Api.csproj -c Release -o publish
+        run: dotnet restore MFFVP.sln -p:IsCI=true
       
+      - name: Build
+        run: dotnet build MFFVP.sln --no-restore --configuration Release -p:IsCI=true
+      
+      - name: Test
+        run: dotnet test MFFVP.sln --no-build --configuration Release -p:IsCI=true
+      
+      - name: Publish self-contained app
+        run: dotnet publish src/API/MFFVP.Api/MFFVP.Api.csproj -c Release -o publish -p:IsCI=true
+
       - name: Copy startup files to publish folder
         run: |
           cp src/API/MFFVP.Api/Dockerfile publish/
