@@ -30,7 +30,7 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
     }
 
     public async Task<IReadOnlyCollection<SubTransactionTypeDto>> GetSubTransactionTypesAsync(
-        Guid categoryId,
+        Guid? categoryId,
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetSubTransactionTypesQuery(categoryId), cancellationToken);

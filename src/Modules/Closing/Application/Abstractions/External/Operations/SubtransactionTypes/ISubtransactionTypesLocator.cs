@@ -13,7 +13,7 @@ namespace Closing.Application.Abstractions.External.Operations.SubtransactionTyp
     public sealed record SubtransactionTypesRemoteResponse(
         long SubtransactionTypeId,
         string Name,
-        string Category,
+        string? Category,
         IncomeEgressNature Nature,
         Status Status
     );

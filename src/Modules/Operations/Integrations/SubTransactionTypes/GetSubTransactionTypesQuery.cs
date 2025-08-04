@@ -4,5 +4,5 @@ using Operations.Domain.SubtransactionTypes;
 namespace Operations.Integrations.SubTransactionTypes;
 
 public record class GetSubTransactionTypesQuery(
-    Guid categoryId
+    Guid? categoryId
 ) : IQuery<IReadOnlyCollection<SubtransactionType>>;

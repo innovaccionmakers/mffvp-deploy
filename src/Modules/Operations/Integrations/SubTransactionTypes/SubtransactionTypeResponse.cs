@@ -6,7 +6,7 @@ namespace Operations.Integrations.SubTransactionTypes;
 public sealed record SubtransactionTypeResponse(
     long SubtransactionTypeId,
     string Name,
-    string Category,
+    string? Category,
     IncomeEgressNature Nature,
     Status Status,
     string External,

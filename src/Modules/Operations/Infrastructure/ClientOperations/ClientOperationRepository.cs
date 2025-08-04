@@ -49,8 +49,9 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                 op => op.SubtransactionTypeId,
                 st => st.SubtransactionTypeId,
                 (op, st) => st)
+            .Where(st => st.Category != null)
             .Join(context.ConfigurationParameters,
-                st => st.Category,
+                st => st.Category!.Value,
                 cp => cp.Uuid,
                 (st, cp) => cp.Name)
             .AnyAsync(name => name == contributionLabel, ct);

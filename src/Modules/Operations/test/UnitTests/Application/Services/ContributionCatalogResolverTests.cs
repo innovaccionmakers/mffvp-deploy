@@ -87,7 +87,7 @@ public class ContributionCatalogResolverTests
             });
         _subRepo.Setup(r => r.GetByHomologatedCodeAsync("SUB", It.IsAny<CancellationToken>()))
             .ReturnsAsync(sub);
-        _cfgRepo.Setup(r => r.GetByUuidAsync(sub.Category, It.IsAny<CancellationToken>()))
+        _cfgRepo.Setup(r => r.GetByUuidAsync(sub.Category!.Value, It.IsAny<CancellationToken>()))
             .ReturnsAsync(subCfg);
         _chanRepo.Setup(r => r.FindByHomologatedCodeAsync("WEB", It.IsAny<CancellationToken>()))
             .ReturnsAsync(chan);
