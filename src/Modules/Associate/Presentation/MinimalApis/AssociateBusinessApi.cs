@@ -183,7 +183,7 @@ public static class AssociateBusinessApi
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet(
-                "BalancesById",
+                "AssociatebalancebyId",
                 async (
                     [FromQuery(Name = "tipoId")] string documentType,
                     [FromQuery(Name = "identificacion")] string identification,
@@ -200,7 +200,7 @@ public static class AssociateBusinessApi
                 }
             )
             .WithSummary("Obtiene los saldos consolidados de un afiliado")
-            .Produces<IReadOnlyCollection<AssociateBalanceWrapper>>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyCollection<AssociateBalanceItem>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }

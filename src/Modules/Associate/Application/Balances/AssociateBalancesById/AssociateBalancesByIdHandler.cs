@@ -18,12 +18,12 @@ internal sealed class AssociateBalancesByIdHandler(
     IConfigurationParameterRepository configurationParameterRepository,
     IRuleEvaluator<AssociateModuleMarker> ruleEvaluator,
     IRpcClient rpcClient)
-    : IQueryHandler<AssociateBalancesByIdQuery, IReadOnlyCollection<AssociateBalanceWrapper>>
+    : IQueryHandler<AssociateBalancesByIdQuery, IReadOnlyCollection<AssociateBalanceItem>>
 {
     private const string ValidationWorkflow = "Associate.BalancesById.Validation";
     private const string ContributionWorkflow = "Associate.BalancesById.ContributionValidation";
 
-    public async Task<Result<IReadOnlyCollection<AssociateBalanceWrapper>>> Handle(
+    public async Task<Result<IReadOnlyCollection<AssociateBalanceItem>>> Handle(
         AssociateBalancesByIdQuery request,
         CancellationToken cancellationToken)
     {
@@ -53,7 +53,7 @@ internal sealed class AssociateBalancesByIdHandler(
         if (!valid)
         {
             var first = errors.First();
-            return Result.Failure<IReadOnlyCollection<AssociateBalanceWrapper>>(
+            return Result.Failure<IReadOnlyCollection<AssociateBalanceItem>>(
                 Error.Validation(first.Code, first.Message));
         }
 
@@ -62,7 +62,7 @@ internal sealed class AssociateBalancesByIdHandler(
             cancellationToken);
 
         if (!personValidation.IsValid)
-            return Result.Failure<IReadOnlyCollection<AssociateBalanceWrapper>>(
+            return Result.Failure<IReadOnlyCollection<AssociateBalanceItem>>(
                 Error.Validation(personValidation.Code ?? string.Empty, personValidation.Message ?? string.Empty));
 
         var balancesRpc = await rpcClient.CallAsync<GetBalancesRequest, GetBalancesResponse>(
@@ -70,8 +70,8 @@ internal sealed class AssociateBalancesByIdHandler(
             cancellationToken);
 
         if (!balancesRpc.Succeeded)
-            return Result.Failure<IReadOnlyCollection<AssociateBalanceWrapper>>(Error.Validation(balancesRpc.Code ?? string.Empty, balancesRpc.Message ?? string.Empty));
-
+            return Result.Failure<IReadOnlyCollection<AssociateBalanceItem>>(Error.Validation(balancesRpc.Code ?? string.Empty, balancesRpc.Message ?? string.Empty));
+        
         var contributionContext = new { AffiliateHasContributions = balancesRpc.Balances.Any() };
         var (hasContributions, _, contributionErrors) = await ruleEvaluator
             .EvaluateAsync(ContributionWorkflow, contributionContext, cancellationToken);
@@ -79,7 +79,7 @@ internal sealed class AssociateBalancesByIdHandler(
         if (!hasContributions)
         {
             var first = contributionErrors.First();
-            return Result.Failure<IReadOnlyCollection<AssociateBalanceWrapper>>(Error.Validation(first.Code, first.Message));
+            return Result.Failure<IReadOnlyCollection<AssociateBalanceItem>>(Error.Validation(first.Code, first.Message));
         }
         
         var objectivePortfolioPairs = balancesRpc.Balances
@@ -91,14 +91,14 @@ internal sealed class AssociateBalancesByIdHandler(
             cancellationToken);
 
         if (!additionalInfoRpc.Succeeded)
-            return Result.Failure<IReadOnlyCollection<AssociateBalanceWrapper>>(Error.Validation(additionalInfoRpc.Code ?? string.Empty, additionalInfoRpc.Message ?? string.Empty));
+            return Result.Failure<IReadOnlyCollection<AssociateBalanceItem>>(Error.Validation(additionalInfoRpc.Code ?? string.Empty, additionalInfoRpc.Message ?? string.Empty));
 
         var additionalInfoLookup = additionalInfoRpc.Items.ToDictionary(i => (i.ObjectiveId, i.PortfolioId));
 
         var items = balancesRpc.Balances.Select(b =>
         {
             additionalInfoLookup.TryGetValue((b.ObjectiveId, b.PortfolioId), out var additionalInfo);
-            var item = new AssociateBalanceItem(
+            return new AssociateBalanceItem(
                 (additionalInfo?.PortfolioCode ?? b.PortfolioId.ToString()),
                 additionalInfo?.PortfolioName ?? string.Empty,
                 b.ObjectiveId,
@@ -107,11 +107,10 @@ internal sealed class AssociateBalancesByIdHandler(
                 additionalInfo?.AlternativeName ?? string.Empty,
                 additionalInfo?.FundCode ?? string.Empty,
                 additionalInfo?.FundName ?? string.Empty,
-                b.TotalBalance.ToString("F2"),
-                b.AvailableAmount.ToString("F2"));
-            return new AssociateBalanceWrapper(item);
+                Math.Round(b.TotalBalance, 2),
+                Math.Round(b.AvailableAmount, 2));
         }).ToList();
 
-        return Result.Success<IReadOnlyCollection<AssociateBalanceWrapper>>(items);
+        return Result.Success<IReadOnlyCollection<AssociateBalanceItem>>(items);
     }
 }

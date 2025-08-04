@@ -7,4 +7,4 @@ public sealed record AssociateBalancesByIdQuery(
     [property: HomologScope("TipoDocumento")]
     string DocumentType,
     string Identification
-    ) : IQuery<IReadOnlyCollection<AssociateBalanceWrapper>>;
+    ) : IQuery<IReadOnlyCollection<AssociateBalanceItem>>;

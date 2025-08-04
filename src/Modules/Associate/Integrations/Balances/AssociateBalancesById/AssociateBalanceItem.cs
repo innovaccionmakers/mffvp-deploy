@@ -11,5 +11,5 @@ public sealed record AssociateBalanceItem(
     [property: JsonPropertyName("NombreAlternativa")] string AlternativeName,
     [property: JsonPropertyName("IdFondo")] string FundId,
     [property: JsonPropertyName("NombreFondo")] string FundName,
-    [property: JsonPropertyName("SaldoTotal")] string TotalBalance,
-    [property: JsonPropertyName("SaldoDisponible")] string AvailableAmount);
+    [property: JsonPropertyName("SaldoTotal")] decimal TotalBalance,
+    [property: JsonPropertyName("SaldoDisponible")] decimal AvailableAmount);
