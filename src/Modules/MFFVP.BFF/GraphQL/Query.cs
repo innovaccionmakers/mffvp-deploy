@@ -110,7 +110,7 @@ public class Query
     }
 
     [GraphQLName("subtipoTransaccion")]
-    public async Task<IReadOnlyCollection<SubTransactionTypeDto>> GetSubTransactionTypes([GraphQLName("idCategoria")] Guid categoryId,
+    public async Task<IReadOnlyCollection<SubTransactionTypeDto>> GetSubTransactionTypes([GraphQLName("idCategoria")] Guid? categoryId,
                                                                                          [Service] IOperationsExperienceQueries operationsQueries,
                                                                                          CancellationToken cancellationToken)
     {

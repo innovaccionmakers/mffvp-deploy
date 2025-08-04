@@ -58,9 +58,9 @@ public class GetAllOperationTypesQueryHandlerTests
         var types = new[] { type };
         _repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(types);
         var param = ConfigurationParameter.Create("Cat", "C");
-        typeof(ConfigurationParameter).GetProperty("Uuid")!.SetValue(param, type.Category);
+        typeof(ConfigurationParameter).GetProperty("Uuid")!.SetValue(param, type.Category!.Value);
         _paramRepo.Setup(r => r.GetByUuidsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, ConfigurationParameter> { { type.Category, param } });
+            .ReturnsAsync(new Dictionary<Guid, ConfigurationParameter> { { type.Category!.Value, param } });
         var handler = Build();
 
         var result = await handler.Handle(new GetAllOperationTypesQuery(), CancellationToken.None);

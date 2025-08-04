@@ -12,11 +12,11 @@ public interface ISubtransactionTypeRepository
 
     Task<SubtransactionType?> GetByNameAndCategoryAsync(
         string name,
-        Guid categoryId,
+        Guid? categoryId,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<SubtransactionType>> GetCategoryIdAsync(
-        Guid categoryId,
+        Guid? categoryId,
         CancellationToken cancellationToken = default);
     
     Task<IReadOnlyCollection<SubtransactionType>> GetAllAsync(

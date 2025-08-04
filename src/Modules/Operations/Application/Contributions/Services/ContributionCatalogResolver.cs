@@ -38,7 +38,9 @@ public sealed class ContributionCatalogResolver(
             ? await subtypeRepo.GetByNameAndCategoryAsync(DefaultSubtypeName, SubtransactionTypeCategoryUuids.Contribution, ct)
             : await subtypeRepo.GetByHomologatedCodeAsync(cmd.Subtype, ct);
 
-        var subtypeCfg = subtype is null ? null : await cfgRepo.GetByUuidAsync(subtype.Category, ct);
+        var subtypeCfg = subtype?.Category is Guid category
+            ? await cfgRepo.GetByUuidAsync(category, ct)
+            : null;
 
         var channel = await channelRepo.FindByHomologatedCodeAsync(cmd.Channel, ct);
 

@@ -21,7 +21,7 @@ public class GetAllOperationTypesQueryHandler(
     private record CacheModel(
         long Id,
         string Name,
-        string Category,
+        string? Category,
         IncomeEgressNature Nature,
         Status Status,
         string External,
@@ -52,16 +52,28 @@ public class GetAllOperationTypesQueryHandler(
         }
 
         var list = await repository.GetAllAsync(cancellationToken);
-        var categories = await parameters.GetByUuidsAsync(list.Select(x => x.Category), cancellationToken);
+        var categoryIds = list
+            .Where(x => x.Category.HasValue)
+            .Select(x => x.Category!.Value);
+        var categories = await parameters.GetByUuidsAsync(categoryIds, cancellationToken);
 
-        var response = list.Select(s => new SubtransactionTypeResponse(
-            s.SubtransactionTypeId,
-            s.Name,
-            categories.TryGetValue(s.Category, out var cat) ? cat.Name : string.Empty,
-            s.Nature,
-            s.Status,
-            s.External,
-            s.HomologatedCode)).ToList();
+        var response = list.Select(s =>
+        {
+            string? categoryName = null;
+            if (s.Category.HasValue && categories.TryGetValue(s.Category.Value, out var cat))
+            {
+                categoryName = cat.Name;
+            }
+
+            return new SubtransactionTypeResponse(
+                s.SubtransactionTypeId,
+                s.Name,
+                categoryName,
+                s.Nature,
+                s.Status,
+                s.External,
+                s.HomologatedCode);
+        }).ToList();
 
         var options = new DistributedCacheEntryOptions
         {

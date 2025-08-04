@@ -8,7 +8,7 @@ public interface IOperationsExperienceQueries
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<SubTransactionTypeDto>> GetSubTransactionTypesAsync(
-        Guid categoryId,
+        Guid? categoryId,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<CertificationStatusDto>> GetCertificationStatusesAsync(
