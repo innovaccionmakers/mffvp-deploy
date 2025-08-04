@@ -99,13 +99,15 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
                 return result;
             }
             var command = new CreateTreasuryMovementCommand(
-               input.PortfolioId,
+                input.PortfolioId,
                 input.ClosingDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime(),
-                input.TreasuryConceptId,
-                input.Value,
-                input.BankAccountId,
-                input.EntityId,
-                input.CounterpartyId
+                input.Concepts.Select(c => new TreasuryMovementConcept(
+                    c.TreasuryConceptId,
+                    c.Value,
+                    c.BankAccountId,
+                    c.EntityId,
+                    c.CounterpartyId
+                )).ToList()
             );
             var commandResult = await mediator.Send(command, cancellationToken);
             if (!commandResult.IsSuccess)

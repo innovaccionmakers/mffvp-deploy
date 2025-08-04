@@ -31,7 +31,7 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         {
             request.PortfolioId,
             request.ClosingDate,
-            request.TreasuryConceptId,
+            request.Concepts,
             request.Value,
             request.BankAccountId,
             request.EntityId,
@@ -48,7 +48,7 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
 
         var treasuryConcept = await treasuryConceptRepository.GetByIdAsync(request.TreasuryConceptId, cancellationToken);
         var bankAccount = await bankAccountRepository.GetByIdAsync(request.BankAccountId, cancellationToken);
-        var issuer = await issuerRepository.GetByIdAsync(request.EntityId, cancellationToken); 
+        var issuer = await issuerRepository.GetByIdAsync(request.EntityId, cancellationToken);
 
         var portfolioRes = await portfolioLocator.FindByPortfolioIdAsync(request.PortfolioId, cancellationToken);
         if (portfolioRes.IsFailure)
@@ -83,33 +83,51 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
             return Result.Failure<TreasuryMovementResponse>(
                 Error.Validation(first.Code, first.Message));
         }
-
-        var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        var treasuryMovement = TreasuryMovement.Create(
-            request.PortfolioId,
-            DateTime.UtcNow,
-            request.ClosingDate,
-            request.TreasuryConceptId,
-            request.Value,
-            request.BankAccountId,
-            request.EntityId,
-            request.CounterpartyId
-        );
-
-        if (treasuryMovement.IsFailure)
+        var treasuryMovements = new List<TreasuryMovement>();
+        foreach (var concept in request.Concepts)
         {
-            return Result.Failure<TreasuryMovementResponse>(
-                treasuryMovement.Error);
+            var treasuryMovement = TreasuryMovement.Create(
+                request.PortfolioId,
+                DateTime.UtcNow,
+                request.ClosingDate,
+                concept.TreasuryConceptId,
+                concept.Value,
+                concept.BankAccountId,
+                concept.EntityId,
+                concept.CounterpartyId
+            );
+            if (treasuryMovement.IsFailure)
+            {
+                return Result.Failure<TreasuryMovementResponse>(
+                    treasuryMovement.Error);
+            }
+            treasuryMovements.Add(treasuryMovement.Value);
+
         }
-
-        await repository.AddAsync(treasuryMovement.Value, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        await tx.CommitAsync(cancellationToken);
-
-        var response = new TreasuryMovementResponse(
-            treasuryMovement.Value.Id
-        );
-
-        return Result.Success(response);
+        return await SaveMovements(treasuryMovements, cancellationToken);
     }
+
+    private async Task<Result<TreasuryMovementResponse>> SaveMovements(List<TreasuryMovement> treasuryMovements, CancellationToken cancellationToken)
+    {
+        var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            await repository.AddRangeAsync(treasuryMovements, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await tx.CommitAsync(cancellationToken);
+
+            var response = new TreasuryMovementResponse(
+                treasuryMovements.Select(m => m.Id).ToList()
+            );
+
+            return Result.Success(response);
+        }
+        catch
+        {
+            await tx.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
 }

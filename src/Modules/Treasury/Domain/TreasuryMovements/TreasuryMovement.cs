@@ -1,4 +1,5 @@
 using Common.SharedKernel.Domain;
+using System.Collections.ObjectModel;
 using Treasury.Domain.BankAccounts;
 using Treasury.Domain.Issuers;
 using Treasury.Domain.TreasuryConcepts;
@@ -7,6 +8,8 @@ namespace Treasury.Domain.TreasuryMovements;
 
 public sealed class TreasuryMovement : Entity
 {
+    private readonly List<TreasuryMovement> _movements = new();
+
     private TreasuryMovement()
     {
     }
@@ -25,6 +28,8 @@ public sealed class TreasuryMovement : Entity
     public BankAccount BankAccount { get; set; }
     public Issuer Entity { get; set; }
     public Issuer Counterparty { get; set; }
+
+    public IReadOnlyCollection<TreasuryMovement> Movements => _movements.AsReadOnly();
 
     public static Result<TreasuryMovement> Create(
         int portfolioId,
@@ -49,5 +54,34 @@ public sealed class TreasuryMovement : Entity
         };
 
         return Result.Success(treasuryMovement);
+    }
+
+    public void AddMovement(TreasuryMovement movement)
+    {
+        if (movement == null)
+            throw new ArgumentNullException(nameof(movement));
+
+        _movements.Add(movement);
+    }
+
+    public void AddMovements(IEnumerable<TreasuryMovement> movements)
+    {
+        if (movements == null)
+            throw new ArgumentNullException(nameof(movements));
+
+        _movements.AddRange(movements);
+    }
+
+    public void RemoveMovement(TreasuryMovement movement)
+    {
+        if (movement == null)
+            throw new ArgumentNullException(nameof(movement));
+
+        _movements.Remove(movement);
+    }
+
+    public void ClearMovements()
+    {
+        _movements.Clear();
     }
 }
