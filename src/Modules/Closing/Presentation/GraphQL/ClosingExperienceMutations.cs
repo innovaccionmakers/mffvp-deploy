@@ -1,9 +1,10 @@
+using Closing.Integrations.PreClosing.RunSimulation;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
 using Closing.Presentation.GraphQL.DTOs;
 using Closing.Presentation.GraphQL.Inputs;
+using Common.SharedKernel.Domain;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
-using Common.SharedKernel.Domain;
 using FluentValidation;
 using MediatR;
 
@@ -51,5 +52,42 @@ public class ClosingExperienceMutations(IMediator mediator) : IClosingExperience
             return result;
         }
 
+    }
+
+    public async Task<GraphqlMutationResult> RunSimulationAsync(RunSimulationInput input, IValidator<RunSimulationInput> validator, CancellationToken cancellationToken = default)
+    {
+        var result = new GraphqlMutationResult();
+        try
+        {
+            var validationResult = await RequestValidator.Validate(input, validator);
+
+            if (validationResult is not null)
+            {
+                result.AddError(validationResult.Error);
+                return result;
+            }
+
+            var command = new RunSimulationCommand(
+                input.PortfolioId,
+                input.ClosingDate,
+                input.IsClosing
+            );
+
+            var commandResult = await mediator.Send(command, cancellationToken);
+
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+
+            result.SetSuccess("Genial!, Se ha cargado el PyG del Portafolio");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
     }
 }
