@@ -139,7 +139,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IRpcHandler<GetAllOperationTypesRequest, GetAllOperationTypesResponse>, GetAllOperationTypesConsumer>();
 
         services.AddScoped<ITrustOperationRepository, TrustOperationRepository>();
-        services.AddScoped<TrustYieldGeneratedConsumer>();
+        services.AddScoped<TrustYieldGeneratedSuscriber>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

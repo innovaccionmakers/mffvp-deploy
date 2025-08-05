@@ -1,9 +1,10 @@
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using Microsoft.Extensions.Logging;
+using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.Cleanup;
 using Operations.Application.Abstractions.Services.TransactionControl;
-using Operations.Application.Abstractions.Data;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.TemporaryAuxiliaryInformations;
@@ -19,83 +20,97 @@ internal sealed class ProcessPendingContributionsCommandHandler(
     ITransactionControl transactionControl,
     IEventBus eventBus,
     ITempClientOperationsCleanupService cleanupService,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ILogger<ProcessPendingContributionsCommandHandler> logger)
     : ICommandHandler<ProcessPendingContributionsCommand>
 {
     public async Task<Result> Handle(ProcessPendingContributionsCommand request, CancellationToken cancellationToken)
     {
-        var operations = await tempOpRepo.GetByPortfolioAsync(request.PortfolioId, cancellationToken);
-        var tempOpIds = new List<long>();
-        var tempAuxIds = new List<long>();
-
-        foreach (var temp in operations)
+        try
         {
-            var aux = await tempAuxRepo.GetAsync(temp.TemporaryClientOperationId, cancellationToken);
-            if (aux is null) continue;
+            var operations = await tempOpRepo.GetByPortfolioAsync(request.PortfolioId, cancellationToken);
+            var tempOpIds = new List<long>();
+            var tempAuxIds = new List<long>();
 
-            var op = ClientOperation.Create(
-                temp.RegistrationDate,
-                temp.AffiliateId,
-                temp.ObjectiveId,
-                temp.PortfolioId,
-                temp.Amount,
-                temp.ProcessDate,
-                temp.SubtransactionTypeId,
-                temp.ApplicationDate).Value;
+            foreach (var temp in operations)
+            {
+                var aux = await tempAuxRepo.GetAsync(temp.TemporaryClientOperationId, cancellationToken);
+                if (aux is null) continue;
 
-            var info = AuxiliaryInformation.Create(
-                op.ClientOperationId,
-                aux.OriginId,
-                aux.CollectionMethodId,
-                aux.PaymentMethodId,
-                aux.CollectionAccount,
-                aux.PaymentMethodDetail,
-                aux.CertificationStatusId,
-                aux.TaxConditionId,
-                aux.ContingentWithholding,
-                aux.VerifiableMedium,
-                aux.CollectionBankId,
-                aux.DepositDate,
-                aux.SalesUser,
-                aux.OriginModalityId,
-                aux.CityId,
-                aux.ChannelId,
-                aux.UserId).Value;
+                var op = ClientOperation.Create(
+                    temp.RegistrationDate,
+                    temp.AffiliateId,
+                    temp.ObjectiveId,
+                    temp.PortfolioId,
+                    temp.Amount,
+                    temp.ProcessDate,
+                    temp.SubtransactionTypeId,
+                    temp.ApplicationDate).Value;
 
-            await transactionControl.ExecuteAsync(op, info, cancellationToken);
-            
-            temp.MarkAsProcessed();
-            tempOpRepo.Update(temp);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+                var info = AuxiliaryInformation.Create(
+                    op.ClientOperationId,
+                    aux.OriginId,
+                    aux.CollectionMethodId,
+                    aux.PaymentMethodId,
+                    aux.CollectionAccount,
+                    aux.PaymentMethodDetail,
+                    aux.CertificationStatusId,
+                    aux.TaxConditionId,
+                    aux.ContingentWithholding,
+                    aux.VerifiableMedium,
+                    aux.CollectionBankId,
+                    aux.DepositDate,
+                    aux.SalesUser,
+                    aux.OriginModalityId,
+                    aux.CityId,
+                    aux.ChannelId,
+                    aux.UserId).Value;
 
-            var trustEvent = new CreateTrustRequestedIntegrationEvent(
-                op.AffiliateId,
-                op.ClientOperationId,
-                DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
-                op.ObjectiveId,
-                op.PortfolioId,
-                op.Amount,
-                0,
-                op.Amount,
-                0m,
-                aux.TaxConditionId,
-                aux.ContingentWithholding,
-                0m,
-                op.Amount,
-                0m,
-                true);
+                await transactionControl.ExecuteAsync(op, info, cancellationToken);
+                logger.LogInformation("Operación Cliente procesada {ClientOperationId} para portafolio {PortfolioId}", op.ClientOperationId, op.PortfolioId);
+                temp.MarkAsProcessed();
+                tempOpRepo.Update(temp);
+                logger.LogInformation("Operación temporal {TemporaryClientOperationId} marcada como procesada", temp.TemporaryClientOperationId);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+                logger.LogInformation("Cambios guardados para la operación temporal {TemporaryClientOperationId}", temp.TemporaryClientOperationId);
+                var trustEvent = new CreateTrustRequestedIntegrationEvent(
+                    op.AffiliateId,
+                    op.ClientOperationId,
+                    DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
+                    op.ObjectiveId,
+                    op.PortfolioId,
+                    op.Amount,
+                    0,
+                    op.Amount,
+                    0m,
+                    aux.TaxConditionId,
+                    aux.ContingentWithholding,
+                    0m,
+                    op.Amount,
+                    0m,
+                    true);
+                logger.LogInformation("Publicando evento de creación de fideicomiso para la operación {ClientOperationId}", op.ClientOperationId);
+                await eventBus.PublishAsync(trustEvent, cancellationToken);
 
-            await eventBus.PublishAsync(trustEvent, cancellationToken);
+                tempOpIds.Add(temp.TemporaryClientOperationId);
+                tempAuxIds.Add(aux.TemporaryAuxiliaryInformationId);
+            }
 
-            tempOpIds.Add(temp.TemporaryClientOperationId);
-            tempAuxIds.Add(aux.TemporaryAuxiliaryInformationId);
+            if (tempOpIds.Count > 0)
+            {
+                await cleanupService.ScheduleCleanupAsync(tempOpIds, tempAuxIds, cancellationToken);
+                logger.LogInformation("Limpieza programada de operaciones temporales: {TemporaryClientOperationIds} y auxiliares temporales: {TemporaryAuxiliaryInformationIds}",
+                    string.Join(", ", tempOpIds), string.Join(", ", tempAuxIds));
+            }
+
+            return Result.Success();
         }
-
-        if (tempOpIds.Count > 0)
+        catch (Exception ex)
         {
-            await cleanupService.ScheduleCleanupAsync(tempOpIds, tempAuxIds, cancellationToken);
-        }
+            logger.LogError("Error procesando contribuciones pendientes para el portafolio {PortfolioId}: {Message}", request.PortfolioId, ex.Message);
+            return Result.Failure(new Error("ErrorProcesandoContribuciones", "Ocurrió un error al procesar las contribuciones pendientes.", ErrorType.Failure));
 
-        return Result.Success();
+        }
+   
     }
 }
