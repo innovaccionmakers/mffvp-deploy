@@ -69,8 +69,8 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
             var command = new CreatePensionRequirementCommand(
                 input.DocumentType,
                 input.Identification,
-                input.StartDateReqPen,
-                input.EndDateReqPen
+                input.StartDateReqPen?.ToDateTime(TimeOnly.MinValue).ToUniversalTime(),
+                input.EndDateReqPen?.ToDateTime(TimeOnly.MinValue).ToUniversalTime()
             );
 
             var commandResult = await mediator.Send(command, cancellationToken);
