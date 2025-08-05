@@ -6,17 +6,19 @@ using Operations.Integrations.TrustOperations.Commands;
 
 namespace Operations.IntegrationEvents.TrustOperations;
 
-public sealed class TrustYieldGeneratedConsumer(ISender mediator) : ICapSubscribe
+public sealed class TrustYieldGeneratedSuscriber(ISender mediator) : ICapSubscribe
 {
     [CapSubscribe(nameof(TrustYieldGeneratedIntegrationEvent))]
     public async Task HandleAsync(TrustYieldGeneratedIntegrationEvent message, CancellationToken cancellationToken)
     {
-        await mediator.Send(new CreateTrustOperationCommand(
+        await mediator.Send(new UpsertTrustOperationCommand(
             TrustId: message.TrustId,
             PortfolioId: message.PortfolioId,
             Amount: message.YieldAmount,
             ClosingDate: message.ClosingDate,
-            ProcessDate: message.ProcessDate
+            ProcessDate: message.ProcessDate,
+            YieldRetention: message.YieldRetention,
+            ClosingBalance: message.ClosingBalance
         ), cancellationToken);
     }
 }
