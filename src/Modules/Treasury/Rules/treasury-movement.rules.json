@@ -16,7 +16,7 @@
       },
       {
         "RuleName": "TreasuryConceptIdRequired",
-        "ErrorMessage": "El concepto de tesorer�a es obligatorio",
+        "ErrorMessage": "El concepto de tesorería es obligatorio",
         "Expression": "input.TreasuryConceptId > 0",
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000003" }
       },

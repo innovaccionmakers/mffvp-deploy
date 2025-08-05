@@ -43,4 +43,9 @@ public class TreasuryMovementRepository(TreasuryDbContext context) : ITreasuryMo
                 g.Sum(e => e.Value)))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task AddRangeAsync(IEnumerable<TreasuryMovement> treasuryMovements, CancellationToken cancellationToken = default)
+    {
+        await context.TreasuryMovements.AddRangeAsync(treasuryMovements, cancellationToken);
+    }
 }

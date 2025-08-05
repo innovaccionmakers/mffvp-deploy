@@ -50,4 +50,36 @@ public sealed class TreasuryMovement : Entity
 
         return Result.Success(treasuryMovement);
     }
+
+    public static Result<List<TreasuryMovement>> CreateMultiple(
+        int portfolioId,
+        DateTime processDate,
+        DateTime closingDate,
+        IReadOnlyCollection<TreasuryMovementConcept> concepts)
+    {
+        var treasuryMovements = new List<TreasuryMovement>();
+
+        foreach (var concept in concepts)
+        {
+            var treasuryMovement = Create(
+                portfolioId,
+                processDate,
+                closingDate,
+                concept.TreasuryConceptId,
+                concept.Value,
+                concept.BankAccountId,
+                concept.EntityId,
+                concept.CounterpartyId
+            );
+
+            if (treasuryMovement.IsFailure)
+            {
+                return Result.Failure<List<TreasuryMovement>>(treasuryMovement.Error);
+            }
+
+            treasuryMovements.Add(treasuryMovement.Value);
+        }
+
+        return Result.Success(treasuryMovements);
+    }
 }
