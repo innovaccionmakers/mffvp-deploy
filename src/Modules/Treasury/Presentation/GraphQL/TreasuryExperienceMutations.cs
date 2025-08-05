@@ -6,6 +6,7 @@ using MediatR;
 using Treasury.Integrations.BankAccounts.Commands;
 using Treasury.Integrations.TreasuryConcepts.Commands;
 using Treasury.Integrations.TreasuryMovements.Commands;
+using Treasury.Domain.TreasuryMovements;
 using Treasury.Presentation.GraphQL.Input;
 
 namespace Treasury.Presentation.GraphQL;
@@ -90,7 +91,7 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
     public async Task<GraphqlMutationResult> TreasuryOperationHandlerAsync(CreateTreasuryMovementInput input, IValidator<CreateTreasuryMovementInput> validator, CancellationToken cancellationToken = default)
     {
        var result = new GraphqlMutationResult();
-        try 
+        try
         {
             var validationResult = RequestValidator.Validate(input, validator).GetAwaiter().GetResult();
             if (validationResult is not null)
@@ -115,7 +116,12 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
                 result.AddError(commandResult.Error);
                 return result;
             }
-            result.SetSuccess("Genial!, Se ha creado el movimiento de tesorería");
+            var movementCount = commandResult.Value.TreasuryMovementIds.Count;
+            var message = movementCount == 1
+                ? "Genial!, Se ha creado el movimiento de tesorería"
+                : $"Genial!, Se han creado {movementCount} movimientos de tesorería";
+
+            result.SetSuccess(message);
             return result;
         }
         catch (Exception ex)

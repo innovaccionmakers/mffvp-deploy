@@ -1,5 +1,4 @@
 using Common.SharedKernel.Domain;
-using System.Collections.ObjectModel;
 using Treasury.Domain.BankAccounts;
 using Treasury.Domain.Issuers;
 using Treasury.Domain.TreasuryConcepts;
@@ -8,8 +7,6 @@ namespace Treasury.Domain.TreasuryMovements;
 
 public sealed class TreasuryMovement : Entity
 {
-    private readonly List<TreasuryMovement> _movements = new();
-
     private TreasuryMovement()
     {
     }
@@ -28,8 +25,6 @@ public sealed class TreasuryMovement : Entity
     public BankAccount BankAccount { get; set; }
     public Issuer Entity { get; set; }
     public Issuer Counterparty { get; set; }
-
-    public IReadOnlyCollection<TreasuryMovement> Movements => _movements.AsReadOnly();
 
     public static Result<TreasuryMovement> Create(
         int portfolioId,
@@ -56,32 +51,35 @@ public sealed class TreasuryMovement : Entity
         return Result.Success(treasuryMovement);
     }
 
-    public void AddMovement(TreasuryMovement movement)
+    public static Result<List<TreasuryMovement>> CreateMultiple(
+        int portfolioId,
+        DateTime processDate,
+        DateTime closingDate,
+        IReadOnlyCollection<TreasuryMovementConcept> concepts)
     {
-        if (movement == null)
-            throw new ArgumentNullException(nameof(movement));
+        var treasuryMovements = new List<TreasuryMovement>();
 
-        _movements.Add(movement);
-    }
+        foreach (var concept in concepts)
+        {
+            var treasuryMovement = Create(
+                portfolioId,
+                processDate,
+                closingDate,
+                concept.TreasuryConceptId,
+                concept.Value,
+                concept.BankAccountId,
+                concept.EntityId,
+                concept.CounterpartyId
+            );
 
-    public void AddMovements(IEnumerable<TreasuryMovement> movements)
-    {
-        if (movements == null)
-            throw new ArgumentNullException(nameof(movements));
+            if (treasuryMovement.IsFailure)
+            {
+                return Result.Failure<List<TreasuryMovement>>(treasuryMovement.Error);
+            }
 
-        _movements.AddRange(movements);
-    }
+            treasuryMovements.Add(treasuryMovement.Value);
+        }
 
-    public void RemoveMovement(TreasuryMovement movement)
-    {
-        if (movement == null)
-            throw new ArgumentNullException(nameof(movement));
-
-        _movements.Remove(movement);
-    }
-
-    public void ClearMovements()
-    {
-        _movements.Clear();
+        return Result.Success(treasuryMovements);
     }
 }

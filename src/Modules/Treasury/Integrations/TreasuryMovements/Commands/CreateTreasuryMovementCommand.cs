@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Application.Messaging;
+using Treasury.Domain.TreasuryMovements;
 using Treasury.Integrations.TreasuryConcepts.Response;
 
 namespace Treasury.Integrations.TreasuryMovements.Commands;
@@ -8,11 +9,3 @@ public sealed record CreateTreasuryMovementCommand(
     DateTime ClosingDate,
     IReadOnlyCollection<TreasuryMovementConcept> Concepts
 ) : ICommand<TreasuryMovementResponse>;
-
-public sealed record TreasuryMovementConcept(
-    long TreasuryConceptId,
-    decimal Value,
-    long BankAccountId,
-    long EntityId,
-    long CounterpartyId
-);
