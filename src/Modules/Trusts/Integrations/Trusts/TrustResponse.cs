@@ -8,13 +8,12 @@ public sealed record TrustResponse(
     int ObjectiveId,
     int PortfolioId,
     decimal TotalBalance,
-    int TotalUnits,
+    decimal TotalUnits,
     decimal Principal,
     decimal Earnings,
     int TaxCondition,
     decimal ContingentWithholding,
     decimal EarningsWithholding,
     decimal AvailableAmount,
-    decimal AccumulatedEarnings,
     bool Status
 );

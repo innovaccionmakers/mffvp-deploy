@@ -11,14 +11,13 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
         int objectiveId,
         int portfolioId,
         decimal totalBalance,
-        int totalUnits,
+        decimal totalUnits,
         decimal principal,
         decimal earnings,
         int taxCondition,
         decimal contingentWithholding,
         decimal earningsWithholding,
         decimal availableAmount,
-        decimal accumulatedEarnings,
         bool status)
         : base(Guid.NewGuid(), DateTime.UtcNow)
     {
@@ -35,7 +34,6 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
         ContingentWithholding = contingentWithholding;
         EarningsWithholding = earningsWithholding;
         AvailableAmount = availableAmount;
-        AccumulatedEarnings = accumulatedEarnings;
         Status = status;
     }
 
@@ -45,7 +43,7 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
     public int ObjectiveId { get; init; }
     public int PortfolioId { get; init; }
     public decimal TotalBalance { get; init; }
-    public int TotalUnits { get; init; }
+    public decimal TotalUnits { get; init; }
     public decimal Principal { get; init; }
     public decimal Earnings { get; init; }
     public int TaxCondition { get; init; }
