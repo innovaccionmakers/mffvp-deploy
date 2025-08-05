@@ -4,6 +4,8 @@ using Common.SharedKernel.Domain;
 using System.Text.Json.Serialization;
 
 namespace Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
+
+[AuditLog]
 public sealed record UpdatePensionRequirementCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]

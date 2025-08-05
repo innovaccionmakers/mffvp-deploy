@@ -3,6 +3,7 @@ using Common.SharedKernel.Application.Messaging;
 
 namespace Associate.Integrations.Balances.AssociateBalancesById;
 
+[AuditLog]
 public sealed record AssociateBalancesByIdQuery(
     [property: HomologScope("TipoDocumento")]
     string DocumentType,
