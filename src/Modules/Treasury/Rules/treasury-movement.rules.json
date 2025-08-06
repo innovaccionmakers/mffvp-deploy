@@ -33,12 +33,6 @@
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000006" }
       },
       {
-        "RuleName": "EntityIdRequired",
-        "ErrorMessage": "La entidad es obligatoria",
-        "Expression": "input.EntityId > 0",
-        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000007" }
-      },
-      {
         "RuleName": "CounterpartyIdRequired",
         "ErrorMessage": "La contraparte es obligatoria",
         "Expression": "input.CounterpartyId > 0",
@@ -62,9 +56,9 @@
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000005" }
       },
       {
-        "RuleName": "EntityMustExist",
-        "ErrorMessage": "La entidad no existe",
-        "Expression": "input.EntityExists != null",
+        "RuleName": "CounterpartyMustExist",
+        "ErrorMessage": "La contraparte no existe",
+        "Expression": "input.CounterpartyExists != null",
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000014" }
       },
       {
