@@ -16,6 +16,7 @@ public sealed class Issuer : Entity
     public float Nit { get; private set; }
     public int Digit { get; private set; }
     public string HomologatedCode { get; private set; }
+    public bool IsBank { get; private set; } = false;
 
     public ICollection<BankAccount> BankAccounts { get; set; }
     public ICollection<TreasuryMovement> TreasuryMovementsAsEntity { get; set; }
@@ -27,7 +28,8 @@ public sealed class Issuer : Entity
         string description,
         float nit,
         int digit,
-        string homologatedCode)
+        string homologatedCode,
+        bool isBank)
     {
         var issuer = new Issuer
         {
@@ -35,7 +37,9 @@ public sealed class Issuer : Entity
             Description = description,
             Nit = nit,
             Digit = digit,
-            HomologatedCode = homologatedCode
+            HomologatedCode = homologatedCode,
+            IsBank = isBank
+
         };
 
         return Result.Success(issuer);
