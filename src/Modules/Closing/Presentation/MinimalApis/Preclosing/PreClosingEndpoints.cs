@@ -37,7 +37,7 @@ namespace Closing.Presentation.MinimalApis.PreClosing
                     return operation;
                 })
                 .AddEndpointFilter<TechnicalValidationFilter<RunSimulationCommand>>()
-                .Produces<bool>(StatusCodes.Status200OK)
+                .Produces<SimulatedYieldResult>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
         }

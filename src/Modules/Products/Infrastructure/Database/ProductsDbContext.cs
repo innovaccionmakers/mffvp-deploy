@@ -26,10 +26,8 @@ using Products.Infrastructure.PensionFunds;
 using Products.Infrastructure.PlanFunds;
 using Products.Domain.Commissions;
 using Products.Domain.AccumulatedCommissions;
-using Products.Domain.PortfolioValuations;
 using Products.Infrastructure.Commissions;
 using Products.Infrastructure.AccumulatedCommissions;
-using Products.Infrastructure.PortfolioValuations;
 
 namespace Products.Infrastructure.Database;
 
@@ -48,7 +46,6 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
     internal DbSet<PensionFund> PensionFunds { get; set; }
     internal DbSet<Commission> Commissions { get; set; }
     internal DbSet<AccumulatedCommission> AccumulatedCommissions { get; set; }
-    internal DbSet<PortfolioValuation> PortfolioValuations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,7 +63,6 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
         modelBuilder.ApplyConfiguration(new PensionFundConfiguration());
         modelBuilder.ApplyConfiguration(new CommissionConfiguration());
         modelBuilder.ApplyConfiguration(new AccumulatedCommissionConfiguration());
-        modelBuilder.ApplyConfiguration(new PortfolioValuationConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

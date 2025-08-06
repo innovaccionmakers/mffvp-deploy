@@ -2,11 +2,11 @@
 using Closing.IntegrationEvents.PostClosing;
 using Common.SharedKernel.Application.EventBus;
 
-namespace Closing.Application.PostClosing.Services.PortfolioValuationEvent;
-public sealed class PortfolioValuationPublisher(
+namespace Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
+public sealed class PortfolioUpdatePublisher(
     IPortfolioValuationRepository repository,
     IEventBus eventBus)
-    : IPortfolioValuationPublisher
+    : IPortfolioUpdatePublisher
 {
     public async Task PublishAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
@@ -17,18 +17,9 @@ public sealed class PortfolioValuationPublisher(
             return; // TODO: Validar si es necesario lanzar una excepción o registrar un error.
         }
 
-        var @event = new PortfolioValuationUpdatedIntegrationEvent(
+        var @event = new PortfolioUpdatedIntegrationEvent(
             valuation.PortfolioId,
-            valuation.ClosingDate,
-            valuation.Amount,
-            valuation.Units,
-            valuation.UnitValue,
-            valuation.GrossYieldPerUnit,
-            valuation.CostPerUnit,
-            valuation.DailyProfitability,
-            valuation.IncomingOperations,
-            valuation.OutgoingOperations,
-            valuation.ProcessDate
+            valuation.ClosingDate
         );
 
         await eventBus.PublishAsync(@event, cancellationToken);

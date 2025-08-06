@@ -27,12 +27,14 @@ internal sealed class TrustOperationRepository(OperationsDbContext context)
     public async Task<TrustOperation?> GetByPortfolioAndTrustAsync(
       int portfolioId,
       long trustId,
+      DateTime closingDate,
       CancellationToken cancellationToken)
     {
         return await context.TrustOperations.AsNoTracking()
             .FirstOrDefaultAsync(
                 op => op.PortfolioId == portfolioId
-                   && op.TrustId == trustId,
+                   && op.TrustId == trustId
+                   && op.ProcessDate.Date == closingDate.Date,
                 cancellationToken);
     }
 

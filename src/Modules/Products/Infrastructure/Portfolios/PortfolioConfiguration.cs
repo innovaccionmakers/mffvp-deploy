@@ -33,9 +33,6 @@ internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfoli
     .WithOne(c => c.Portfolio)
     .HasForeignKey(c => c.PortfolioId);
 
-        builder.HasMany(p => p.PortfolioValuations)
-            .WithOne(pv => pv.Portfolio)
-            .HasForeignKey(pv => pv.PortfolioId);
         builder.Property(x => x.VerificationDigit).HasColumnName("digito_verificacion");
         builder.Property(x => x.PortfolioNIT).HasColumnName("nit_portafolio");
         builder.Property(x => x.NitApprovedPortfolio).HasColumnName("nit_portafolio_homologado");
