@@ -12,6 +12,8 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Common.SharedKernel.Domain.Auth.Permissions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Customers.Presentation.MinimalApis;
 
@@ -40,6 +42,7 @@ public static class CustomersBusinessApi
 
         group.MapPost(
                 NameEndpoints.PostCustomer,
+                [Authorize(Policy = MakersPermissionsCustomers.PolicyCreateCustomer)]
                 async ([FromBody] CreatePersonRequestCommand request, ISender sender) =>
                 {
                     var result = await sender.Send(request);

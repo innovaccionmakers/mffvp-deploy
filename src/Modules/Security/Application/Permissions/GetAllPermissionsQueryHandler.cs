@@ -13,13 +13,12 @@ public sealed class GetAllPermissionsQueryHandler
         GetAllPermissionsQuery request,
         CancellationToken cancellationToken)
     {
-        var allPermissions = MakersPermissionsAssociateActivates.All
-            .Concat(MakersPermissionsAssociatePensionRequirements.All)
-            .Concat(MakersPermissionsOperationsContributionTx.All)
-            .Concat(MakersPermissionsAccounting.All)
+        var allPermissions = MakersPermissionsAccounting.All
             .Concat(MakersPermissionsAffiliates.All)
             .Concat(MakersPermissionsClosing.All)
+            .Concat(MakersPermissionsCustomers.All)
             .Concat(MakersPermissionsOperations.All)
+            .Concat(MakersPermissionsProducts.All)
             .Concat(MakersPermissionsReports.All)
             .Concat(MakersPermissionsTreasury.All)
             .ToList();

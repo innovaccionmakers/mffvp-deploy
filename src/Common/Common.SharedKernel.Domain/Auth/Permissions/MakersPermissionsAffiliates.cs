@@ -10,12 +10,11 @@ public static class MakersPermissionsAffiliates
     public const string PolicyActivateAffiliateManagement = "fvp:affiliates:affiliatesManagement:activate";
     public const string PolicyPensionRequirementsAffiliateManagement = "fvp:affiliates:affiliatesManagement:pensionRequirements";
 
-    public const string PolicyViewAffiliateObjective = "fvp:affiliates:affiliatesObjective:view";
-    public const string PolicyUpdateAffiliateObjective = "fvp:affiliates:affiliatesObjective:update";
-    public const string PolicyCreateAffiliateObjective = "fvp:affiliates:affiliatesObjective:create";
+    public const string PolicyViewPensionRequirements = "fvp:affiliates:pensionRequirements:view";
+    public const string PolicyUpdatePensionRequirements = "fvp:affiliates:pensionRequirements:update";
+    public const string PolicyCreatePensionRequirements = "fvp:affiliates:pensionRequirements:create";
 
-
-    // Administración Afiliado
+    // Affiliate Management
     public static readonly MakersPermission ViewAffiliateManagement = MakersPermissionFactory.Create(
         Module, Domain, MakersResources.affiliatesManagement, MakersActions.view,
         "Permite consultar administración de afiliados.",
@@ -40,23 +39,23 @@ public static class MakersPermissionsAffiliates
         "FVP", "Afiliados", "Administración Afiliado", "Requisitos Pensión"
     );
 
-    // Objetivo
-    public static readonly MakersPermission ViewAffiliateObjective = MakersPermissionFactory.Create(
-        Module, Domain, MakersResources.affiliatesObjective, MakersActions.view,
-        "Permite consultar objetivos del afiliado.",
-        "FVP", "Afiliados", "Objetivo", "Consultar"
+    // Pension Requirements
+    public static readonly MakersPermission ViewPensionRequirements = MakersPermissionFactory.Create(
+        Module, Domain, MakersResources.pensionRequirements, MakersActions.view,
+        "Permite consultar requisitos de pensión del afiliado.",
+        "FVP", "Afiliados", "Requisitos de Pensión", "Consultar"
     );
 
-    public static readonly MakersPermission UpdateAffiliateObjective = MakersPermissionFactory.Create(
-        Module, Domain, MakersResources.affiliatesObjective, MakersActions.update,
-        "Permite modificar objetivos del afiliado.",
-        "FVP", "Afiliados", "Objetivo", "Modificar"
+    public static readonly MakersPermission UpdatePensionRequirements = MakersPermissionFactory.Create(
+        Module, Domain, MakersResources.pensionRequirements, MakersActions.update,
+        "Permite modificar requisitos de pensión del afiliado.",
+        "FVP", "Afiliados", "Requisitos de Pensión", "Modificar"
     );
 
-    public static readonly MakersPermission CreateAffiliateObjective = MakersPermissionFactory.Create(
-        Module, Domain, MakersResources.affiliatesObjective, MakersActions.create,
-        "Permite crear objetivos del afiliado.",
-        "FVP", "Afiliados", "Objetivo", "Crear"
+    public static readonly MakersPermission CreatePensionRequirements = MakersPermissionFactory.Create(
+        Module, Domain, MakersResources.pensionRequirements, MakersActions.create,
+        "Permite crear requisitos de pensión del afiliado.",
+        "FVP", "Afiliados", "Requisitos de Pensión", "Crear"
     );
 
     public static readonly List<MakersPermission> All = new()
@@ -65,9 +64,9 @@ public static class MakersPermissionsAffiliates
         UpdateAffiliateManagement,
         ActivateAffiliateManagement,
         PensionRequirementsAffiliateManagement,
-        ViewAffiliateObjective,
-        UpdateAffiliateObjective,
-        CreateAffiliateObjective
+        ViewPensionRequirements,
+        UpdatePensionRequirements,
+        CreatePensionRequirements
     };
 }
 

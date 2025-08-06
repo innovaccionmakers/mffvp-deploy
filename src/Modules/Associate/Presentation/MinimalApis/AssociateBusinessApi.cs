@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
+using Common.SharedKernel.Domain.Auth.Permissions;
 
 namespace Associate.Presentation.MinimalApis;
 
@@ -32,6 +33,7 @@ public static class AssociateBusinessApi
             .RequireAuthorization();
 
         group.MapGet("GetAssociates",
+            [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewAffiliateManagement)]
             async (ISender sender) =>
             {
                 var result = await sender.Send(new GetActivatesQuery());
@@ -42,6 +44,7 @@ public static class AssociateBusinessApi
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost("Activate",
+            [Authorize(Policy = MakersPermissionsAffiliates.PolicyActivateAffiliateManagement)]
             async ([Microsoft.AspNetCore.Mvc.FromBody] CreateActivateCommand request, ISender sender) =>
             {
                 var result = await sender.Send(request);
@@ -78,7 +81,8 @@ public static class AssociateBusinessApi
 
         group.MapGet(
                 "GetByIdAssociate",
-                async (
+                [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewAffiliateManagement)]
+                 async (
                     [FromQuery] long activateId,
                     ISender sender
                 ) =>
@@ -108,7 +112,9 @@ public static class AssociateBusinessApi
             .Produces<ActivateResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPut("PutAssociate", async ([FromBody] UpdateActivateCommand command, ISender sender) =>
+        group.MapPut("PutAssociate",
+            [Authorize(Policy = MakersPermissionsAffiliates.PolicyUpdateAffiliateManagement)]
+            async ([FromBody] UpdateActivateCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);
             return result.ToApiResult(result.Description);
@@ -129,7 +135,9 @@ public static class AssociateBusinessApi
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("GetPensionRequirements", async (ISender sender) =>
+        group.MapGet("GetPensionRequirements",
+            [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewPensionRequirements)]
+        async (ISender sender) =>
         {
             var result = await sender.Send(new GetPensionRequirementsQuery());
             return result;
@@ -138,7 +146,9 @@ public static class AssociateBusinessApi
             .Produces<IReadOnlyCollection<PensionRequirementResponse>>()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("PensionRequirements", async ([FromBody] CreatePensionRequirementCommand request, ISender sender) =>
+        group.MapPost("PensionRequirements",
+            [Authorize(Policy = MakersPermissionsAffiliates.PolicyCreatePensionRequirements)] 
+            async ([FromBody] CreatePensionRequirementCommand request, ISender sender) =>
         {
             var result = await sender.Send(request);
             return result.ToApiResult(result.Description);
@@ -160,7 +170,9 @@ public static class AssociateBusinessApi
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPut("PutPensionRequirements", async ([FromBody] UpdatePensionRequirementCommand command, ISender sender) =>
+        group.MapPut("PutPensionRequirements",
+            [Authorize(Policy = MakersPermissionsAffiliates.PolicyUpdatePensionRequirements)] 
+        async ([FromBody] UpdatePensionRequirementCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);
             return result.ToApiResult(result.Description);

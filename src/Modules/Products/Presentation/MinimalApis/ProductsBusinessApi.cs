@@ -1,9 +1,11 @@
 ﻿using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +35,7 @@ public static class ProductsBusinessApi
 
         group.MapGet(
                 "GetGoals",
+                [Authorize(Policy = MakersPermissionsProducts.PolicyViewGoal)]
                 async (
                     [FromQuery] string? typeId,
                     [FromQuery] string? identification,
@@ -86,6 +89,7 @@ public static class ProductsBusinessApi
 
         group.MapPost(
                 "Goals",
+                [Authorize(Policy = MakersPermissionsProducts.PolicyCreateGoal)]
                 async (
                     CreateObjectiveCommand comando,
                     ISender sender
@@ -111,6 +115,7 @@ public static class ProductsBusinessApi
 
         group.MapPut(
                 "Goals",
+                [Authorize(Policy = MakersPermissionsProducts.PolicyUpdateGoal)]
                 async (
                     UpdateObjectiveCommand comando,
                     ISender sender
@@ -143,42 +148,43 @@ public static class ProductsBusinessApi
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet(
-                    "Portfolios/GetById",
-                    async (
-                        [FromQuery] int portfolioId,
-                        ISender sender
-                    ) =>
-                    {
-                        var result = await sender.Send(new GetPortfolioQuery(portfolioId));
-                        return result.ToApiResult();
-                    }
-                )
-                .WithName(NameEndpoints.GetPortfolioById)
-                .WithSummary(Summary.GetPortfolioById)
-                .WithDescription(Description.GetPortfolioById)
-                .WithOpenApi(operation =>
+                "Portfolios/GetById",
+                [Authorize(Policy = MakersPermissionsProducts.PolicyViewGoal)]
+                async (
+                    [FromQuery] int portfolioId,
+                    ISender sender
+                ) =>
                 {
-                    var p = operation.Parameters.First(p => p.Name == "portfolioId");
-                    p.Description = "Identificador único del portafolio";
-                    p.Example = new OpenApiInteger(123);
-                    return operation;
-                })
-                .Produces<PortfolioResponse>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status500InternalServerError);
+                    var result = await sender.Send(new GetPortfolioQuery(portfolioId));
+                    return result.ToApiResult();
+                }
+            )
+            .WithName(NameEndpoints.GetPortfolioById)
+            .WithSummary(Summary.GetPortfolioById)
+            .WithDescription(Description.GetPortfolioById)
+            .WithOpenApi(operation =>
+            {
+                var p = operation.Parameters.First(p => p.Name == "portfolioId");
+                p.Description = "Identificador único del portafolio";
+                p.Example = new OpenApiInteger(123);
+                return operation;
+            })
+            .Produces<PortfolioResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet(
-                    "Portfolios/GetAllPortfolios",
-                    async (ISender sender) =>
-                    {
-                        var result = await sender.Send(new GetPortfoliosQuery());
-                        return result.Value;
-                    }
-                )
-                .WithName(NameEndpoints.GetAllPortfolios)
-                .WithSummary(Summary.GetAllPortfolios)
-                .WithDescription(Description.GetAllPortfolios)
-                .Produces<IReadOnlyCollection<PortfolioResponse>>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status500InternalServerError);
+                "Portfolios/GetAllPortfolios",
+                async (ISender sender) =>
+                {
+                    var result = await sender.Send(new GetPortfoliosQuery());
+                    return result.Value;
+                }
+            )
+            .WithName(NameEndpoints.GetAllPortfolios)
+            .WithSummary(Summary.GetAllPortfolios)
+            .WithDescription(Description.GetAllPortfolios)
+            .Produces<IReadOnlyCollection<PortfolioResponse>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet(
                 "Portfolios/GetPortfolioById",
