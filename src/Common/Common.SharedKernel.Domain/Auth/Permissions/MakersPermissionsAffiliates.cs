@@ -5,6 +5,16 @@ public static class MakersPermissionsAffiliates
     private const string Module = MakersModules.fvp;
     private const string Domain = MakersDomains.affiliates;
 
+    public const string PolicyViewAffiliateManagement = "fvp:affiliates:affiliatesManagement:view";
+    public const string PolicyUpdateAffiliateManagement = "fvp:affiliates:affiliatesManagement:update";
+    public const string PolicyActivateAffiliateManagement = "fvp:affiliates:affiliatesManagement:activate";
+    public const string PolicyPensionRequirementsAffiliateManagement = "fvp:affiliates:affiliatesManagement:pensionRequirements";
+
+    public const string PolicyViewAffiliateObjective = "fvp:affiliates:affiliatesObjective:view";
+    public const string PolicyUpdateAffiliateObjective = "fvp:affiliates:affiliatesObjective:update";
+    public const string PolicyCreateAffiliateObjective = "fvp:affiliates:affiliatesObjective:create";
+
+
     // Administración Afiliado
     public static readonly MakersPermission ViewAffiliateManagement = MakersPermissionFactory.Create(
         Module, Domain, MakersResources.affiliatesManagement, MakersActions.view,
