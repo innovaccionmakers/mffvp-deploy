@@ -7,6 +7,7 @@ using Closing.Domain.Yields;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using Closing.Application.PreClosing.Services.Yield.Dto; 
 
 namespace Closing.Application.Closing.Services.TrustYieldsDistribution;
 
@@ -66,10 +67,18 @@ public class ValidateTrustYieldsDistributionService(
             var nextClosingDate = closingDate.AddDays(1);
 
             var conceptText = difference > 0
-                ? "Ajuste Rendimiento Ingreso"
-                : "Ajuste Rendimiento Gasto";
+             ? "Ajuste Rendimiento Ingreso"
+             : "Ajuste Rendimiento Gasto";
 
-            var conceptJson = JsonDocument.Parse($"\"{conceptText}\"");
+            var conceptId = difference > 0
+            ? "1"
+            : "2";
+
+            var dto = new StringEntityDto(
+                EntityId: conceptId,
+                EntityValue: conceptText
+            );
+            using var conceptJson = JsonSerializer.SerializeToDocument(dto);
 
             var yieldDetailResult = YieldDetail.Create(
                 portfolioId: portfolioId,

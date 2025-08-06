@@ -18,7 +18,8 @@ public sealed class TrustYieldPublisher(
         {
             var shouldEmitEvent =
                 trustYield.YieldAmount != 0 ||
-                trustYield.PreClosingBalance != trustYield.ClosingBalance;
+                trustYield.PreClosingBalance != trustYield.ClosingBalance ||
+                trustYield.PreClosingBalance == trustYield.Capital;
 
             if (!shouldEmitEvent)
                 continue;
@@ -30,6 +31,7 @@ public sealed class TrustYieldPublisher(
                 trustYield.YieldAmount,
                 trustYield.ClosingBalance,
                 trustYield.YieldRetention,
+                trustYield.Units,
                 trustYield.ProcessDate
             );
 

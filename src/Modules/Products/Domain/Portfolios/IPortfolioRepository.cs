@@ -8,4 +8,5 @@ public interface IPortfolioRepository
     Task<bool> BelongsToAlternativeAsync(string homologatedCode, int alternativeId, CancellationToken ct);
     Task<string?> GetCollectorCodeAsync(int alternativeId, CancellationToken ct);
     Task<PortfolioInformation?> GetPortfolioInformationByObjectiveIdAsync(string objectiveId, CancellationToken cancellationToken);
+    Task UpdateAsync(Portfolio portfolio, CancellationToken ct);
 }

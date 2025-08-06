@@ -126,20 +126,17 @@ public class SimulationOrchestrator : ISimulationOrchestrator
 
     private async Task<Result<Unit>> ExecuteSimulationsAsync(RunSimulationParameters parameters, CancellationToken ct)
     {
-        if (!parameters.IsClosing)
+        var existsYieldDetails = await _yieldDetailRepository.ExistsByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, false, ct);
+
+        if (existsYieldDetails)
         {
-            var existsYieldDetails = await _yieldDetailRepository.ExistsByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, parameters.IsClosing, ct);
+            await _yieldDetailRepository.DeleteByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
+        }
 
-            if (existsYieldDetails)
-            {
-                await _yieldDetailRepository.DeleteByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
-            }
-
-            var existsYield = await _yieldRepository.ExistsYieldAsync(parameters.PortfolioId, parameters.ClosingDate, parameters.IsClosing, ct);
-            if (existsYield)
-            {
-                await _yieldRepository.DeleteByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
-            }
+        var existsYield = await _yieldRepository.ExistsYieldAsync(parameters.PortfolioId, parameters.ClosingDate, false, ct);
+        if (existsYield)
+        {
+            await _yieldRepository.DeleteByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
         }
         var profitAndLossTask = ExecuteProfitAndLossSimulationAsync(parameters, ct);
         var commissionsTask = ExecuteCommissionSimulationAsync(parameters, ct);

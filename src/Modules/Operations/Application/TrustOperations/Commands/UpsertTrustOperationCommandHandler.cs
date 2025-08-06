@@ -27,7 +27,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
 
         // 2. Intentar cargar una operación de fideicomiso existente para este portafolio y fecha de cierre
         var existing = await repository
-            .GetByPortfolioAndDateAsync(request.PortfolioId, request.ClosingDate, cancellationToken);
+            .GetByPortfolioAndTrustAsync(request.PortfolioId, request.TrustId, cancellationToken);
 
         if (existing is not null)
         {
@@ -77,7 +77,8 @@ internal sealed class UpsertTrustOperationCommandHandler(
             closingDate: request.ClosingDate,
             yieldAmount: request.Amount,
             yieldRetention: request.YieldRetention,
-            closingBalance: request.ClosingBalance
+            closingBalance: request.ClosingBalance,
+            units: request.Units
         );
 
         await eventBus.PublishAsync(integrationEvent, cancellationToken);
