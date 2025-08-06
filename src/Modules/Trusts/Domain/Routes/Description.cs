@@ -13,14 +13,13 @@ public struct Description
                                \"ObjectiveId\": 123,
                                \"PortfolioId\": 456,
                                \"TotalBalance\": 100.5,
-                               \"TotalUnits\": 10,
+                               \"TotalUnits\": 10.0,
                                \"Principal\": 100,
                                \"Earnings\": 0.5,
                                \"TaxCondition\": 1,
                                \"ContingentWithholding\": 0,
                                \"EarningsWithholding\": 0,
                                \"AvailableAmount\": 100,
-                               \"AccumulatedEarnings\": 0,
                                \"Status\": true
                              }
                              ```

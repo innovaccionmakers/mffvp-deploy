@@ -65,7 +65,6 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
             trust.ContingentWithholding,
             newEarningsWithholding,
             newAvailableAmount,
-            trust.AccumulatedEarnings,
             trust.Status
         );
 

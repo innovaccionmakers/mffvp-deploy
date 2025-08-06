@@ -19,7 +19,9 @@ internal sealed class TrustConfiguration : IEntityTypeConfiguration<Trust>
         builder.Property(x => x.TotalBalance)
             .HasColumnName("saldo_total")
             .HasColumnType("decimal(19, 2)");
-        builder.Property(x => x.TotalUnits).HasColumnName("unidades_totales");
+        builder.Property(x => x.TotalUnits)
+            .HasColumnName("unidades_totales")
+            .HasColumnType("decimal(38, 16)");
         builder.Property(x => x.Principal)
             .HasColumnName("capital")
             .HasColumnType("decimal(19, 2)");
@@ -35,9 +37,6 @@ internal sealed class TrustConfiguration : IEntityTypeConfiguration<Trust>
             .HasColumnType("decimal(19, 2)");
         builder.Property(x => x.AvailableAmount)
             .HasColumnName("disponible")
-            .HasColumnType("decimal(19, 2)");
-        builder.Property(x => x.AccumulatedEarnings)
-            .HasColumnName("rendimiento_acumulado")
             .HasColumnType("decimal(19, 2)");
         builder.Property(x => x.Status).HasColumnName("estado");
     }

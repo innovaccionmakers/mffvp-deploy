@@ -14,7 +14,7 @@ public sealed record TrustCreationDto(
     int ObjectiveId,
     int PortfolioId,
     decimal TotalBalance,
-    int TotalUnits,
+    decimal TotalUnits,
     decimal Principal,
     decimal Earnings,
     int TaxCondition,

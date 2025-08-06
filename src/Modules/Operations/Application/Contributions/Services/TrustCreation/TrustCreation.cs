@@ -22,12 +22,11 @@ public sealed class TrustCreation(IEventBus eventBus) : ITrustCreation
             clientOperation.ObjectiveId,
             clientOperation.PortfolioId,
             command.Amount,
-            0,
+            0m,
             command.Amount,
             0m,
             taxResult.TaxConditionId,
             taxResult.WithheldAmount,
-            0m,
             0m,
             0m,
             true);

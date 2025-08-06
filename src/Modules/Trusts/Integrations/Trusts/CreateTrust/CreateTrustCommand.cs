@@ -9,13 +9,12 @@ public sealed record CreateTrustCommand(
     int ObjectiveId,
     int PortfolioId,
     decimal TotalBalance,
-    int TotalUnits,
+    decimal TotalUnits,
     decimal Principal,
     decimal Earnings,
     int TaxCondition,
     decimal ContingentWithholding,
     decimal EarningsWithholding,
     decimal AvailableAmount,
-    decimal AccumulatedEarnings,
     bool Status
 ) : ICommand<TrustResponse>;
