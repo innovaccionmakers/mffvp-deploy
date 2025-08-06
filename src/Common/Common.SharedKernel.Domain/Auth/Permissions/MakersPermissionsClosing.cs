@@ -5,14 +5,24 @@ public static class MakersPermissionsClosing
     private const string Module = MakersModules.fvp;
     private const string Domain = MakersDomains.closing;
 
-    public static readonly MakersPermission ViewLoadPnL = MakersPermissionFactory.Create(
-        Module, Domain, MakersResources.closingLoadPnL, MakersActions.view,
+    // Policy constants
+    public const string PolicyViewLoadProfitAndLost = "fvp:closing:closingLoadProfitAndLost:view";
+    public const string PolicyCreateLoadProfitAndLost = "fvp:closing:closingLoadProfitAndLost:create";
+
+    public const string PolicyViewSimulation = "fvp:closing:closingSimulation:view";
+    public const string PolicyExecuteSimulation = "fvp:closing:closingSimulation:execute";
+
+    public const string PolicyViewClosure = "fvp:closing:closingExecution:view";
+    public const string PolicyExecuteClosure = "fvp:closing:closingExecution:execute";
+
+    public static readonly MakersPermission ViewLoadProfitAndLost = MakersPermissionFactory.Create(
+        Module, Domain, MakersResources.closingLoadProfitAndLost, MakersActions.view,
         "Permite consultar la carga de PyG.",
         "FVP", "Cierre", "Carga PyG", "Consultar"
     );
 
-    public static readonly MakersPermission CreateLoadPnL = MakersPermissionFactory.Create(
-        Module, Domain, MakersResources.closingLoadPnL, MakersActions.create,
+    public static readonly MakersPermission CreateLoadProfitAndLost = MakersPermissionFactory.Create(
+        Module, Domain, MakersResources.closingLoadProfitAndLost, MakersActions.create,
         "Permite crear registros en la carga de PyG.",
         "FVP", "Cierre", "Carga PyG", "Crear"
     );
@@ -43,7 +53,7 @@ public static class MakersPermissionsClosing
 
     public static readonly List<MakersPermission> All = new()
     {
-        ViewLoadPnL, CreateLoadPnL,
+        ViewLoadProfitAndLost, CreateLoadProfitAndLost,
         ViewSimulation, ExecuteSimulation,
         ViewClosure, ExecuteClosure
     };

@@ -26,7 +26,7 @@ public static class MakersResources
     public const string affiliatesObjective = nameof(affiliatesObjective);
 
     //Closing
-    public const string closingLoadPnL = nameof(closingLoadPnL);
+    public const string closingLoadProfitAndLost = nameof(closingLoadProfitAndLost);
     public const string closingSimulation = nameof(closingSimulation);
     public const string closingExecution = nameof(closingExecution);
 

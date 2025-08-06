@@ -1,8 +1,12 @@
 ﻿using Closing.Domain.Routes;
 using Closing.Integrations.Closing.RunClosing;
+
+using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +21,7 @@ public static class ClosingEndpointMappings
     {
         group.MapPost(
             NameEndpoints.RunClosing,
+            [Authorize(Policy = MakersPermissionsClosing.PolicyExecuteClosure)]
             async ([FromBody] RunClosingCommand request, ISender sender) =>
             {
                 var result = await sender.Send(request);

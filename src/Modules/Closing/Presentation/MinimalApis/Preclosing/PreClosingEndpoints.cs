@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Closing.Domain.Routes;
 using Common.SharedKernel.Presentation.Filters;
+using Common.SharedKernel.Domain.Auth.Permissions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Closing.Presentation.MinimalApis.PreClosing
 {
@@ -19,7 +21,8 @@ namespace Closing.Presentation.MinimalApis.PreClosing
 
             group.MapPost(
                    NameEndpoints.RunPreclosing,
-                    async (
+                   [Authorize(Policy = MakersPermissionsClosing.PolicyExecuteSimulation)]
+                     async (
                         [FromBody] RunSimulationCommand request,
                         ISender sender
                     ) =>
