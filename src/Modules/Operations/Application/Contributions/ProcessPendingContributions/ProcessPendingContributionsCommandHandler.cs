@@ -45,7 +45,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                     temp.Amount,
                     temp.ProcessDate,
                     temp.SubtransactionTypeId,
-                    temp.ApplicationDate).Value;
+                    DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)).Value;
 
                 var info = AuxiliaryInformation.Create(
                     op.ClientOperationId,
@@ -67,12 +67,12 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                     aux.UserId).Value;
 
                 await transactionControl.ExecuteAsync(op, info, cancellationToken);
-                logger.LogInformation("Operaci�n Cliente procesada {ClientOperationId} para portafolio {PortfolioId}", op.ClientOperationId, op.PortfolioId);
+                logger.LogInformation("Operación Cliente procesada {ClientOperationId} para portafolio {PortfolioId}", op.ClientOperationId, op.PortfolioId);
                 temp.MarkAsProcessed();
                 tempOpRepo.Update(temp);
-                logger.LogInformation("Operaci�n temporal {TemporaryClientOperationId} marcada como procesada", temp.TemporaryClientOperationId);
+                logger.LogInformation("Operación temporal {TemporaryClientOperationId} marcada como procesada", temp.TemporaryClientOperationId);
                 await unitOfWork.SaveChangesAsync(cancellationToken);
-                logger.LogInformation("Cambios guardados para la operaci�n temporal {TemporaryClientOperationId}", temp.TemporaryClientOperationId);
+                logger.LogInformation("Cambios guardados para la operación temporal {TemporaryClientOperationId}", temp.TemporaryClientOperationId);
                 var trustEvent = new CreateTrustRequestedIntegrationEvent(
                     op.AffiliateId,
                     op.ClientOperationId,
@@ -88,7 +88,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                     0m,
                     op.Amount,
                     true);
-                logger.LogInformation("Publicando evento de creaci�n de fideicomiso para la operaci�n {ClientOperationId}", op.ClientOperationId);
+                logger.LogInformation("Publicando evento de creación de fideicomiso para la operación {ClientOperationId}", op.ClientOperationId);
                 await eventBus.PublishAsync(trustEvent, cancellationToken);
 
                 tempOpIds.Add(temp.TemporaryClientOperationId);
@@ -107,7 +107,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
         catch (Exception ex)
         {
             logger.LogError("Error procesando contribuciones pendientes para el portafolio {PortfolioId}: {Message}", request.PortfolioId, ex.Message);
-            return Result.Failure(new Error("ErrorProcesandoContribuciones", "Ocurri� un error al procesar las contribuciones pendientes.", ErrorType.Failure));
+            return Result.Failure(new Error("ErrorProcesandoContribuciones", "Ocurrió un error al procesar las contribuciones pendientes.", ErrorType.Failure));
 
         }
    
