@@ -14,4 +14,10 @@ public interface IClosingExperienceMutations
         IValidator<LoadProfitLossInput> validator,
         CancellationToken cancellationToken = default
     );
+
+    Task<GraphqlMutationResult> RunSimulationAsync(
+        RunSimulationInput input,
+        IValidator<RunSimulationInput> validator,
+        CancellationToken cancellationToken = default
+    );
 }

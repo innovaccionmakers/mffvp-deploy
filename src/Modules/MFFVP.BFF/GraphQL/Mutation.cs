@@ -122,4 +122,13 @@ public class Mutation
     {
         return await treasuryMutations.TreasuryOperationHandlerAsync(treasuryMovement, validator, cancellationToken);
     }
+
+    [GraphQLName("simulacionEjecucion")]
+    public async Task<GraphqlMutationResult> RunSimulationAsync([GraphQLName("simulacion")] RunSimulationInput input,
+                                                        IValidator<RunSimulationInput> validator,
+                                                        [Service] IClosingExperienceMutations closingMutations,
+                                                        CancellationToken cancellationToken)
+    {
+        return await closingMutations.RunSimulationAsync(input, validator, cancellationToken);
+    }
 }
