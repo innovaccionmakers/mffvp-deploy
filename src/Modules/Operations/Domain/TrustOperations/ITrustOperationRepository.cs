@@ -10,4 +10,9 @@ public interface ITrustOperationRepository
       CancellationToken cancellationToken);
 
     void Update(TrustOperation operation);
+
+    Task<TrustOperation?> GetByPortfolioAndTrustAsync(
+      int portfolioId,
+      long trustId,
+      CancellationToken cancellationToken);
 }

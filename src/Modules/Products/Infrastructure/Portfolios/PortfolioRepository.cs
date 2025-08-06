@@ -71,4 +71,10 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
 
         return result;
     }
+
+    public async Task UpdateAsync(Portfolio portfolio, CancellationToken ct)
+    {
+        context.Portfolios.Update(portfolio);
+        await Task.CompletedTask;
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using Closing.IntegrationEvents.PostClosing;
 using DotNetCore.CAP;
 using MediatR;
+using Products.Integrations.Portfolios.Commands;
 using Products.Integrations.PortfolioValuation.Commands;
 
 namespace Products.IntegrationEvents.PortfolioValuation.PortfolioValuationUpdated;
@@ -22,6 +23,11 @@ public sealed class PortfolioValuationUpdatedSuscriber(ISender mediator) : ICapS
             message.IncomingOperations,
             message.OutgoingOperations,
             message.ProcessDate
+        ), cancellationToken);
+
+        await mediator.Send(new UpdatePortfolioFromClosingCommand(
+            message.PortfolioId,
+            message.ClosingDate
         ), cancellationToken);
     }
 }

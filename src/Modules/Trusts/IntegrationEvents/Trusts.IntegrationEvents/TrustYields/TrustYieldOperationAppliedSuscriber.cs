@@ -16,7 +16,8 @@ public sealed class TrustYieldOperationAppliedSuscriber(ISender mediator) : ICap
             ClosingDate: message.ClosingDate,
             YieldAmount: message.YieldAmount,
             YieldRetention: message.YieldRetention,
-            ClosingBalance: message.ClosingBalance
+            ClosingBalance: message.ClosingBalance,
+            Units: message.Units
         ), cancellationToken);
     }
 }

@@ -30,6 +30,8 @@ internal sealed class UpsertPortfolioValuationCommandHandler(
                 request.OutgoingOperations,
                 request.ProcessDate
             );
+
+            await repository.UpdateAsync(existing, cancellationToken);
         }
         else
         {

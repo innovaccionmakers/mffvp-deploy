@@ -16,4 +16,10 @@ internal sealed class PortfolioValuationRepository(ProductsDbContext context) : 
     {
         await context.PortfolioValuations.AddAsync(valuation, cancellationToken);
     }
+
+    public Task UpdateAsync(PortfolioValuation valuation, CancellationToken cancellationToken)
+    {
+        context.PortfolioValuations.Update(valuation);
+        return Task.CompletedTask;
+    }
 }

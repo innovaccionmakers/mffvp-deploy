@@ -24,6 +24,18 @@ internal sealed class TrustOperationRepository(OperationsDbContext context)
                 cancellationToken);
     }
 
+    public async Task<TrustOperation?> GetByPortfolioAndTrustAsync(
+      int portfolioId,
+      long trustId,
+      CancellationToken cancellationToken)
+    {
+        return await context.TrustOperations.AsNoTracking()
+            .FirstOrDefaultAsync(
+                op => op.PortfolioId == portfolioId
+                   && op.TrustId == trustId,
+                cancellationToken);
+    }
+
     public void Update(TrustOperation operation)
     {
         context.TrustOperations.Update(operation);

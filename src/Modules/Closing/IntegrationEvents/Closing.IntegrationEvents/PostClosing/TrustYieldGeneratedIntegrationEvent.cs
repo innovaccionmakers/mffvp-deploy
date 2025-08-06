@@ -11,6 +11,7 @@ public sealed class TrustYieldGeneratedIntegrationEvent : IntegrationEvent
         decimal yieldAmount,
         decimal closingBalance,
         decimal yieldRetention,
+        decimal units,
         DateTime processDate)
         : base(Guid.NewGuid(), DateTime.UtcNow)
     {
@@ -21,6 +22,7 @@ public sealed class TrustYieldGeneratedIntegrationEvent : IntegrationEvent
         ClosingBalance = closingBalance;
         YieldRetention = yieldRetention;
         ProcessDate = processDate;
+        Units = units;
     }
 
     public long TrustId { get; init; }
@@ -30,4 +32,5 @@ public sealed class TrustYieldGeneratedIntegrationEvent : IntegrationEvent
     public decimal ClosingBalance { get; init; }
     public decimal YieldRetention { get; init; }
     public DateTime ProcessDate { get; init; }
+    public decimal Units { get; init; }
 }
