@@ -35,22 +35,10 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
             return Result.Failure<TreasuryMovementResponse>(validationResult.Error);
         }
 
-        var businessValidationResult = await ValidateBusinessRulesAsync(request, cancellationToken);
-        if (businessValidationResult.IsFailure)
-        {
-            return Result.Failure<TreasuryMovementResponse>(businessValidationResult.Error);
-        }
-        var treasuryMovementsResult = TreasuryMovement.CreateMultiple(
-            request.PortfolioId,
-            DateTime.UtcNow,
-            request.ClosingDate,
-            request.Concepts
-        );
-
+        var treasuryMovementsResult = await ValidateBusinessRulesAndCreateMovementsAsync(request, cancellationToken);
         if (treasuryMovementsResult.IsFailure)
         {
-            return Result.Failure<TreasuryMovementResponse>(
-                treasuryMovementsResult.Error);
+            return Result.Failure<TreasuryMovementResponse>(treasuryMovementsResult.Error);
         }
 
         return await SaveMovements(treasuryMovementsResult.Value, cancellationToken);
@@ -69,11 +57,10 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
             {
                 request.PortfolioId,
                 request.ClosingDate,
-                TreasuryConceptId = concept.TreasuryConceptId,
-                Value = concept.Value,
-                BankAccountId = concept.BankAccountId,
-                EntityId = concept.EntityId,
-                CounterpartyId = concept.CounterpartyId,
+                concept.TreasuryConceptId,
+                concept.Value,
+                concept.BankAccountId,
+                concept.CounterpartyId,
             };
 
             var (requiredOk, _, requiredErrors) = await ruleEvaluator.EvaluateAsync(RequiredFieldsWorkflow, requiredContext, cancellationToken);
@@ -87,31 +74,33 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         return Result.Success();
     }
 
-    private async Task<Result> ValidateBusinessRulesAsync(CreateTreasuryMovementCommand request, CancellationToken cancellationToken)
+    private async Task<Result<List<TreasuryMovement>>> ValidateBusinessRulesAndCreateMovementsAsync(CreateTreasuryMovementCommand request, CancellationToken cancellationToken)
     {
         var portfolioRes = await portfolioLocator.FindByPortfolioIdAsync(request.PortfolioId, cancellationToken);
         if (portfolioRes.IsFailure)
         {
-            return Result.Failure(portfolioRes.Error);
+            return Result.Failure<List<TreasuryMovement>>(portfolioRes.Error);
         }
 
         var existPortfolioValuation = await portfolioValuationLocator.CheckPortfolioValuationExists(portfolioRes.Value.PortfolioId, cancellationToken);
         var isClosingDateValid = request.ClosingDate.Date == portfolioRes.Value.CurrentDate.Date.AddDays(1);
 
+        var treasuryMovements = new List<TreasuryMovement>();
+
         foreach (var concept in request.Concepts)
         {
             var treasuryConcept = await treasuryConceptRepository.GetByIdAsync(concept.TreasuryConceptId, cancellationToken);
             var bankAccount = await bankAccountRepository.GetByIdAsync(concept.BankAccountId, cancellationToken);
-            var issuer = await issuerRepository.GetByIdAsync(concept.EntityId, cancellationToken);
+            var counterparty = await issuerRepository.GetByIdAsync(concept.CounterpartyId, cancellationToken);
 
             var validationContext = new
             {
                 TreasuryConceptExists = treasuryConcept,
-                EntityExists = issuer,
+                CounterpartyExists = counterparty,
                 BankAccountExists = bankAccount,
                 PortfolioExists = portfolioRes,
                 AllowsNegative = treasuryConcept?.AllowsNegative ?? false,
-                Value = concept.Value,
+                concept.Value,
                 PortfolioValuationExists = existPortfolioValuation.Value,
                 ClosingDateIsValid = isClosingDateValid
             };
@@ -124,11 +113,29 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
             if (!rulesOk)
             {
                 var first = ruleErrors.First();
-                return Result.Failure(Error.Validation(first.Code, first.Message));
+                return Result.Failure<List<TreasuryMovement>>(Error.Validation(first.Code, first.Message));
             }
+           
+            var treasuryMovement = TreasuryMovement.Create(
+                request.PortfolioId,
+                DateTime.UtcNow,
+                request.ClosingDate,
+                concept.TreasuryConceptId,
+                concept.Value,
+                concept.BankAccountId,
+                bankAccount?.IssuerId ?? 0,
+                concept.CounterpartyId
+            );
+
+            if (treasuryMovement.IsFailure)
+            {
+                return Result.Failure<List<TreasuryMovement>>(treasuryMovement.Error);
+            }
+
+            treasuryMovements.Add(treasuryMovement.Value);
         }
 
-        return Result.Success();
+        return Result.Success(treasuryMovements);
     }
 
 

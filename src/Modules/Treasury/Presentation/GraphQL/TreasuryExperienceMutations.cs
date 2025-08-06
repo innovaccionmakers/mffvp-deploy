@@ -106,7 +106,6 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
                     c.TreasuryConceptId,
                     c.Value,
                     c.BankAccountId,
-                    c.EntityId,
                     c.CounterpartyId
                 )).ToList()
             );
