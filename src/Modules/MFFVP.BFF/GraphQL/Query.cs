@@ -217,6 +217,14 @@ public class Query
         return await experienceOrchestrator.GetAssociateByIdAsync(affiliateId, cancellationToken);
     }
 
+    [GraphQLName("movimientosDeTesoreriaPorPortafolios")]
+    public async Task<IReadOnlyCollection<TreasuryMovementByPortfoliosDto>> GetTreasuryMovementsByPortfolioIds([GraphQLName("portfolioIds")] IEnumerable<long> portfolioIds,
+                                                                                                 [Service] ExperienceOrchestrator experienceOrchestrator,
+                                                                                                 CancellationToken cancellationToken)
+    {
+        return await experienceOrchestrator.GetTreasuryMovementByPortfoliosAsync(portfolioIds, cancellationToken);
+    }
+            
     //Closing Queries
     [GraphQLName("obtenerPerdidasGanancias")]
     public async Task<ProfitAndLossDto?> GetProfitAndLoss([GraphQLName("idPortafolio")] int portfolioId,
@@ -258,5 +266,5 @@ public class Query
                                                                                 CancellationToken cancellationToken)
     {
         return await treasuryQueries.GetBankAccountsByPortfolioAndIssuerAsync(portfolioId, issuerId, cancellationToken);
-    }
+    }  
 }

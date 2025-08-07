@@ -9,4 +9,5 @@ public interface IPortfolioRepository
     Task<string?> GetCollectorCodeAsync(int alternativeId, CancellationToken ct);
     Task<PortfolioInformation?> GetPortfolioInformationByObjectiveIdAsync(string objectiveId, CancellationToken cancellationToken);
     Task UpdateAsync(Portfolio portfolio, CancellationToken ct);
+    Task<IReadOnlyCollection<Portfolio>> GetPortfoliosByIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default);
 }

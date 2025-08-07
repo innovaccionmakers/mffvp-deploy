@@ -77,4 +77,12 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
         context.Portfolios.Update(portfolio);
         await Task.CompletedTask;
     }
+
+    public async Task<IReadOnlyCollection<Portfolio>> GetPortfoliosByIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default)
+    {
+        return await context.Portfolios
+            .AsNoTracking()
+            .Where(p => portfolioIds.Contains(p.PortfolioId))
+            .ToListAsync(cancellationToken);
+    }
 }

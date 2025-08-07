@@ -290,4 +290,24 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             result.Value.CurrentDate
         );
     }
+
+    public async Task<IReadOnlyCollection<PortfolioInformationDto>> GetPortfoliosByIdsAsync(IEnumerable<long> portfolioIds,
+                                                                                      CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetPortfoliosByIdsQuery(portfolioIds), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+            return [];
+
+        return result.Value
+            .Select(x => new PortfolioInformationDto(
+                x.PortfolioId,
+                x.HomologatedCode,
+                x.Name,
+                x.ShortName,
+                x.ModalityId,
+                x.InitialMinimumAmount,
+                x.CurrentDate
+            )).ToList();
+    }
 }

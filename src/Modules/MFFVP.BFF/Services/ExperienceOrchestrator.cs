@@ -3,6 +3,7 @@ using Common.SharedKernel.Domain;
 using Customers.Domain.People;
 using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
+using Products.Domain.Portfolios;
 using Products.Presentation.GraphQL;
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
@@ -81,7 +82,7 @@ public class ExperienceOrchestrator(
     }
     public async Task<AffiliateDto?> GetAssociateByIdAsync(long affiliateId, CancellationToken cancellationToken = default)
     {
-       var associate = await associatesQueries.GetAssociateByIdAsync(affiliateId, cancellationToken);
+        var associate = await associatesQueries.GetAssociateByIdAsync(affiliateId, cancellationToken);
 
         if (associate == null) return null;
 
@@ -122,6 +123,30 @@ public class ExperienceOrchestrator(
             x.AccountType,
             x.Observations,
             x.ProcessDate
+        )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<TreasuryMovementByPortfoliosDto>> GetTreasuryMovementByPortfoliosAsync(IEnumerable<long> portfolioIds,
+                                                                                                                 CancellationToken cancellationToken = default)
+    {
+        var treasuryMovements = await treasuryQueries.GetTreasuryMovementsByPortfolioIdsAsync(portfolioIds, cancellationToken);
+        if (treasuryMovements == null || treasuryMovements.Count == 0)
+            return [];
+
+        var uniquePortfolioIds = treasuryMovements
+            .Select(x => x.PortfolioId)
+            .Distinct()
+            .ToList();
+
+        var portfolios = await productsQueries.GetPortfoliosByIdsAsync(uniquePortfolioIds, cancellationToken);
+        var portfolioMap = portfolios.ToDictionary(p => p.Id, p => $"{p.HomologationCode} - {p.ShorName}");
+
+        return treasuryMovements.Select(x => new TreasuryMovementByPortfoliosDto(
+            portfolioMap.GetValueOrDefault(x.PortfolioId, "Portafolio Desconocido"),
+            x.ClosingDate,
+            x.Concept,
+            x.Distribution,
+            x.Value
         )).ToList();
     }
 }

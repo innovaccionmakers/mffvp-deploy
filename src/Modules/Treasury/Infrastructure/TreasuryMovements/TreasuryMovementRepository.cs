@@ -48,4 +48,13 @@ public class TreasuryMovementRepository(TreasuryDbContext context) : ITreasuryMo
     {
         await context.TreasuryMovements.AddRangeAsync(treasuryMovements, cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<TreasuryMovement>> GetTreasuryMovementsByPortfolioIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default)
+    {
+        return await context.TreasuryMovements
+            .AsNoTracking()
+            .Where(tm => portfolioIds.Contains(tm.PortfolioId))
+            .Include(tm => tm.TreasuryConcept)
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -13,4 +13,8 @@ public interface ITreasuryExperienceQueries
         long portfolioId,
         long issuerId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<TreasuryMovementDto>> GetTreasuryMovementsByPortfolioIdsAsync(
+        IEnumerable<long> portfolioIds,
+        CancellationToken cancellationToken = default);
 }
