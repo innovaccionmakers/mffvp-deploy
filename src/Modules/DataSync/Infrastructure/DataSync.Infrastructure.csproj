@@ -6,4 +6,20 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference
+      Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
+    <ProjectReference
+      Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
+    <ProjectReference
+      Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
+    <ProjectReference Include="..\Application\DataSync.Application.csproj" />
+    <ProjectReference
+      Include="..\IntegrationEvents\DataSync.IntegrationEvents\DataSync.IntegrationEvents.csproj" />
+    <ProjectReference
+      Include="..\..\Trusts\IntegrationEvents\Trusts.IntegrationEvents\Trusts.IntegrationEvents.csproj" />
+    <ProjectReference
+      Include="..\..\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
+  </ItemGroup>
+
 </Project>
