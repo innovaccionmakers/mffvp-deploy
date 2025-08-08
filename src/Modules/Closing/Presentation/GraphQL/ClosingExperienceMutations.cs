@@ -1,5 +1,6 @@
 using Closing.Integrations.PreClosing.RunSimulation;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
+using Closing.Presentation.DTOs;
 using Closing.Presentation.GraphQL.DTOs;
 using Closing.Presentation.GraphQL.Inputs;
 using Common.SharedKernel.Domain;
@@ -54,9 +55,9 @@ public class ClosingExperienceMutations(IMediator mediator) : IClosingExperience
 
     }
 
-    public async Task<GraphqlMutationResult> RunSimulationAsync(RunSimulationInput input, IValidator<RunSimulationInput> validator, CancellationToken cancellationToken = default)
+    public async Task<GraphqlMutationResult<RunSimulationDto>> RunSimulationAsync(RunSimulationInput input, IValidator<RunSimulationInput> validator, CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlMutationResult<RunSimulationDto>();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);
@@ -81,7 +82,18 @@ public class ClosingExperienceMutations(IMediator mediator) : IClosingExperience
                 return result;
             }
 
-            result.SetSuccess("Genial!, Se ha cargado el PyG del Portafolio");
+            var valueCommand = commandResult.Value;
+
+            result.SetSuccess(new RunSimulationDto(
+                valueCommand.Income,
+                valueCommand.Expenses,
+                valueCommand.Commissions,
+                valueCommand.Costs,
+                valueCommand.YieldToCredit,
+                valueCommand.UnitValue,
+                valueCommand.DailyProfitability
+                ));
+
             return result;
         }
         catch (Exception ex)
