@@ -5,6 +5,7 @@ using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolio;
 using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolioAndIssuer;
 using Treasury.Integrations.Issuers.GetIssuers;
 using Treasury.Integrations.TreasuryConcepts.GetTreasuryConcepts;
+using Treasury.Integrations.TreasuryMovements.Queries;
 using Treasury.Presentation.DTOs;
 
 namespace Treasury.Presentation.GraphQL;
@@ -95,7 +96,7 @@ public class TreasuryExperienceQueries(IMediator mediator) : ITreasuryExperience
             x.Observations
         )).ToList();
     }
-    
+
     public async Task<IReadOnlyCollection<BankAccountDto>> GetBankAccountsByPortfolioAndIssuerAsync(
         long portfolioId,
         long issuerId,
@@ -124,6 +125,23 @@ public class TreasuryExperienceQueries(IMediator mediator) : ITreasuryExperience
             x.AccountType,
             x.Observations,
             x.ProcessDate
+        )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<TreasuryMovementDto>> GetTreasuryMovementsByPortfolioIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetTreasuryMovementsByPortfolioIdsQuery(portfolioIds), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)  return [];
+
+        var movements = result.Value;
+
+        return movements.Select(x => new TreasuryMovementDto(
+             x.PortfolioId,
+             DateOnly.FromDateTime(x.ClosingDate),
+             x.TreasuryConcept.Concept,
+             x.TreasuryConcept.AllowsExpense ? "Gasto" : "Rendimiento Bruto",
+             x.Value
         )).ToList();
     }
 }
