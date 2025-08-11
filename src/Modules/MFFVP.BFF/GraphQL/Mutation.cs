@@ -1,7 +1,12 @@
 ﻿using Associate.Presentation.GraphQL;
 using Associate.Presentation.GraphQL.Inputs;
+using Closing.Presentation.DTOs;
+using Closing.Presentation.GraphQL;
+using Closing.Presentation.GraphQL.DTOs;
+using Closing.Presentation.GraphQL.Inputs;
 using Common.SharedKernel.Presentation.Results;
 using FluentValidation;
+using HotChocolate.Authorization;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
 using Operations.Presentation.GraphQL.Inputs;
@@ -10,10 +15,6 @@ using Products.Presentation.GraphQL;
 using Products.Presentation.GraphQL.Input;
 using Treasury.Presentation.GraphQL;
 using Treasury.Presentation.GraphQL.Input;
-using Closing.Presentation.GraphQL;
-using Closing.Presentation.GraphQL.Inputs;
-using Closing.Presentation.GraphQL.DTOs;
-using HotChocolate.Authorization;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -124,7 +125,7 @@ public class Mutation
     }
 
     [GraphQLName("simulacionEjecucion")]
-    public async Task<GraphqlMutationResult> RunSimulationAsync([GraphQLName("simulacion")] RunSimulationInput input,
+    public async Task<GraphqlMutationResult<RunSimulationDto>> RunSimulationAsync([GraphQLName("simulacion")] RunSimulationInput input,
                                                         IValidator<RunSimulationInput> validator,
                                                         [Service] IClosingExperienceMutations closingMutations,
                                                         CancellationToken cancellationToken)
