@@ -1,28 +1,30 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Trusts.Domain.Trusts;
-using Trusts.Application.Abstractions.External;
-using Trusts.Integrations.DataSync.TrustSync;
+using DataSync.Integrations.TrustSync;
 
-namespace Trusts.Application.DataSync.TrustSync;
+namespace DataSync.Application.TrustSync;
 
 internal sealed class TrustSyncCommandHandler(
-    ITrustRepository trustRepository,
-    ITrustYieldSyncService syncService) : ICommandHandler<TrustSyncCommand, bool>
+    ITrustDataService trustDataService,
+    IYieldSyncService yieldSyncService) : ICommandHandler<TrustSyncCommand, bool>
 {
     public async Task<Result<bool>> Handle(TrustSyncCommand request, CancellationToken cancellationToken)
     {
-        var trusts = await trustRepository.GetAllAsync(cancellationToken);
-        var activeTrusts = trusts.Where(t => t.Status).ToArray();
+        var trustsResult = await trustDataService.GetActiveTrustsByPortfolioAsync(
+            request.PortfolioId, 
+            cancellationToken);
+
+        if (trustsResult.IsFailure)
+            return Result.Failure<bool>(trustsResult.Error);
 
         var closingDateUtc = request.ClosingDate.Kind == DateTimeKind.Unspecified
             ? DateTime.SpecifyKind(request.ClosingDate, DateTimeKind.Utc)
             : request.ClosingDate.ToUniversalTime();
 
-        foreach (var trust in activeTrusts)
+        foreach (var trust in trustsResult.Value)
         {
-            var result = await syncService.SyncAsync(
-                (int)trust.TrustId,
+            var syncResult = await yieldSyncService.SyncTrustYieldAsync(
+                trust.TrustId,
                 trust.PortfolioId,
                 closingDateUtc,
                 trust.TotalBalance,
@@ -30,11 +32,10 @@ internal sealed class TrustSyncCommandHandler(
                 trust.ContingentWithholding,
                 cancellationToken);
 
-            if (result.IsFailure)
-                return Result.Failure<bool>(result.Error!);
+            if (syncResult.IsFailure)
+                return Result.Failure<bool>(syncResult.Error);
         }
 
         return Result.Success(true);
     }
 }
-
