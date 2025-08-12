@@ -1,5 +1,6 @@
-using Common.SharedKernel.Domain.Auth.Permissions;
+using System.Reflection;
 using System.Linq;
+using Common.SharedKernel.Domain.Auth.Permissions;
 using Security.Application.Abstractions.Services.Auditing;
 
 namespace Security.Infrastructure.Auditing;
@@ -11,18 +12,24 @@ internal sealed class PermissionDescriptionService : IPermissionDescriptionServi
 
     public PermissionDescriptionService()
     {
-        _permissions = MakersPermissionsAssociateActivates.All
-            .Concat(MakersPermissionsAssociatePensionRequirements.All)
-            .Concat(MakersPermissionsOperationsContributionTx.All)
-            .Concat(MakersPermissionsAccounting.All)
-            .Concat(MakersPermissionsAffiliates.All)
-            .Concat(MakersPermissionsClosing.All)
-            .Concat(MakersPermissionsOperations.All)
-            .Concat(MakersPermissionsReports.All)
-            .Concat(MakersPermissionsTreasury.All)
+        _permissions = LoadAllPermissions();
+        _policyDescriptions = _permissions.ToDictionary(p => p.ScopePermission, p => p.Description);
+    }
+
+    private static IReadOnlyCollection<MakersPermission> LoadAllPermissions()
+    {
+        var permissionType = typeof(MakersPermission);
+        var assembly = permissionType.Assembly;
+
+        var permissions = assembly
+            .GetTypes()
+            .Where(t => t.IsClass && t.Name.StartsWith("MakersPermissions", StringComparison.Ordinal))
+            .Select(t => t.GetField("All", BindingFlags.Public | BindingFlags.Static))
+            .Where(f => f is not null && typeof(IEnumerable<MakersPermission>).IsAssignableFrom(f.FieldType))
+            .SelectMany(f => (IEnumerable<MakersPermission>)f!.GetValue(null)!)
             .ToList();
 
-        _policyDescriptions = _permissions.ToDictionary(p => p.ScopePermission, p => p.Description);
+        return permissions;
     }
 
     public string? GetDescriptionByPolicy(string policy)
