@@ -1,35 +1,36 @@
-using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
+using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Products.Application.Abstractions.Data;
-using Products.Domain.Plans;
-using Products.Infrastructure.Plans;
-using Products.Domain.Alternatives;
-using Products.Infrastructure.Alternatives;
-using Products.Domain.Portfolios;
-using Products.Infrastructure.Portfolios;
+using Products.Domain.AccumulatedCommissions;
 using Products.Domain.AlternativePortfolios;
-using Products.Infrastructure.AlternativePortfolios;
-using Products.Domain.Objectives;
-using Products.Infrastructure.Objectives;
+using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
-using Products.Infrastructure.Commercials;
-using Common.SharedKernel.Domain.ConfigurationParameters;
-using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Products.Domain.Commissions;
+using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Domain.PensionFunds;
 using Products.Domain.PlanFunds;
+using Products.Domain.Plans;
+using Products.Domain.Portfolios;
+using Products.Domain.PortfolioValuations;
+using Products.Domain.TechnicalSheets;
+using Products.Infrastructure.AccumulatedCommissions;
+using Products.Infrastructure.AlternativePortfolios;
+using Products.Infrastructure.Alternatives;
+using Products.Infrastructure.Commercials;
+using Products.Infrastructure.Commissions;
+using Products.Infrastructure.Objectives;
 using Products.Infrastructure.Offices;
 using Products.Infrastructure.PensionFunds;
 using Products.Infrastructure.PlanFunds;
-using Products.Domain.Commissions;
-using Products.Domain.AccumulatedCommissions;
-using Products.Domain.PortfolioValuations;
-using Products.Infrastructure.Commissions;
-using Products.Infrastructure.AccumulatedCommissions;
+using Products.Infrastructure.Plans;
+using Products.Infrastructure.Portfolios;
 using Products.Infrastructure.PortfolioValuations;
+using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Products.Infrastructure.Database;
 
@@ -49,6 +50,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
     internal DbSet<Commission> Commissions { get; set; }
     internal DbSet<AccumulatedCommission> AccumulatedCommissions { get; set; }
     internal DbSet<PortfolioValuation> PortfolioValuations { get; set; }
+    internal DbSet<TechnicalSheet> TechnicalSheets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
