@@ -14,5 +14,6 @@ public interface ITrustOperationRepository
     Task<TrustOperation?> GetByPortfolioAndTrustAsync(
       int portfolioId,
       long trustId,
+      DateTime closingDate,
       CancellationToken cancellationToken);
 }

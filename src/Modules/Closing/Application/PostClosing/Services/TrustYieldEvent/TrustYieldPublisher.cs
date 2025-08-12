@@ -16,13 +16,13 @@ public sealed class TrustYieldPublisher(
 
         foreach (var trustYield in trustYields)
         {
-            var shouldEmitEvent =
-                trustYield.YieldAmount != 0 ||
-                trustYield.PreClosingBalance != trustYield.ClosingBalance ||
-                trustYield.PreClosingBalance == trustYield.Capital;
+            //var shouldEmitEvent =
+            //    trustYield.YieldAmount != 0 ||
+            //    trustYield.PreClosingBalance != trustYield.ClosingBalance ||
+            //    trustYield.PreClosingBalance == trustYield.Capital;
 
-            if (!shouldEmitEvent)
-                continue;
+            //if (!shouldEmitEvent)
+            //    continue;
 
             var @event = new TrustYieldGeneratedIntegrationEvent(
                 trustYield.TrustId,

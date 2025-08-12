@@ -29,7 +29,6 @@ using Products.Domain.Offices;
 using Products.Domain.PlanFunds;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
-using Products.Domain.PortfolioValuations;
 using Products.Infrastructure.AccumulatedCommissions;
 using Products.Infrastructure.AdditionalInformation;
 using Products.Infrastructure.Alternatives;
@@ -44,14 +43,13 @@ using Products.Infrastructure.Offices;
 using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
-using Products.Infrastructure.PortfolioValuations;
 using Products.IntegrationEvents.AccumulatedCommissions.CommissionProcessed;
 using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.Portfolio;
+using Products.IntegrationEvents.Portfolio.PortfolioUpdated;
 using Products.IntegrationEvents.PortfolioValidation;
-using Products.IntegrationEvents.PortfolioValuation.PortfolioValuationUpdated;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
 
@@ -118,8 +116,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();
         services.AddTransient<IRpcHandler<GetAdditionalInformationRequest, GetAdditionalInformationResponse>, GetAdditionalInformationConsumer>();
 
-        services.AddScoped<PortfolioValuationUpdatedSuscriber>();
-        services.AddScoped<IPortfolioValuationRepository, PortfolioValuationRepository>();
+        services.AddScoped<PortfolioUpdatedSuscriber>();
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
         services.AddScoped<CommissionProcessedConsumer>();
 

@@ -14,7 +14,7 @@ using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
 using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
-using Closing.Application.PostClosing.Services.PortfolioValuationEvent;
+using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
 using Closing.Infrastructure.External.Operations.SubtransactionTypes;
 using Closing.Infrastructure.External.Trusts.Trusts;
@@ -54,7 +54,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IValidateTrustYieldsDistributionService, ValidateTrustYieldsDistributionService>();
 
             services.AddScoped<IPostClosingEventsOrchestation, PostClosingEventsOrchestation>();
-            services.AddScoped<IPortfolioValuationPublisher, PortfolioValuationPublisher>();
+            services.AddScoped<IPortfolioUpdatePublisher, PortfolioUpdatePublisher>();
             services.AddScoped<ITrustYieldPublisher, TrustYieldPublisher>();
             services.AddScoped<IPortfolioCommissionPublisher, PortfolioCommissionPublisher>();
             services.AddScoped<IPendingTransactionHandler, PendingTransactionHandler>();

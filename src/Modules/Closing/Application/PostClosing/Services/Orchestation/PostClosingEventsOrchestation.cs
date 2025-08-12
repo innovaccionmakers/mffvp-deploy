@@ -1,19 +1,19 @@
 ﻿using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
-using Closing.Application.PostClosing.Services.PortfolioValuationEvent;
+using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
 
 namespace Closing.Application.PostClosing.Services.Orchestation;
 
 public class PostClosingEventsOrchestation : IPostClosingEventsOrchestation
 {
-    private readonly IPortfolioValuationPublisher _valuationPublisher;
+    private readonly IPortfolioUpdatePublisher _valuationPublisher;
     private readonly ITrustYieldPublisher _trustYieldPublisher;
     private readonly IPortfolioCommissionPublisher _commissionPublisher;
     private readonly IPendingTransactionHandler _pendingTransactionHandler;
 
     public PostClosingEventsOrchestation(
-        IPortfolioValuationPublisher valuationPublisher,
+        IPortfolioUpdatePublisher valuationPublisher,
         ITrustYieldPublisher trustYieldPublisher,
         IPortfolioCommissionPublisher commissionPublisher,
         IPendingTransactionHandler pendingTransactionHandler

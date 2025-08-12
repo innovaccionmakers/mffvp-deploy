@@ -23,7 +23,7 @@ public class TreasuryYieldDetailBuilder : IYieldDetailBuilder
 
         var incomeAmount = isIncome && !allowsExpense
             ? summary.TotalAmount
-            : 0;
+            : (isExpense && !allowsExpense ? -summary.TotalAmount : 0);
 
         var expenseAmount = isExpense
             ? summary.TotalAmount

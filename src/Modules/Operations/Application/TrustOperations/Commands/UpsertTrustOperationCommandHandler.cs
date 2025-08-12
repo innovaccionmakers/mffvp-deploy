@@ -27,7 +27,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
 
         // 2. Intentar cargar una operación de fideicomiso existente para este portafolio y fecha de cierre
         var existing = await repository
-            .GetByPortfolioAndTrustAsync(request.PortfolioId, request.TrustId, cancellationToken);
+            .GetByPortfolioAndTrustAsync(request.PortfolioId, request.TrustId, request.ClosingDate, cancellationToken);
 
         if (existing is not null)
         {
@@ -38,12 +38,12 @@ internal sealed class UpsertTrustOperationCommandHandler(
                 newAmount: request.Amount,
                 newSubtransactionTypeId: yieldSubtypeId,
                 newPortfolioId: request.PortfolioId,
-                newRegistrationDate: request.ClosingDate,
-                newProcessDate: request.ProcessDate,
-                newApplicationDate: request.ClosingDate
+                newRegistrationDate: request.ProcessDate,
+                newProcessDate: request.ClosingDate,
+                newApplicationDate: request.ProcessDate
             );
 
-            repository.Update(existing); // o nada si EF ya lo está rastreando
+            repository.Update(existing); 
         }
         else
         {
@@ -54,9 +54,9 @@ internal sealed class UpsertTrustOperationCommandHandler(
                 amount: request.Amount,
                 subtransactionTypeId: yieldSubtypeId,
                 portfolioId: request.PortfolioId,
-                registrationDate: request.ClosingDate,
-                processDate: request.ProcessDate,
-                applicationDate: request.ClosingDate
+                registrationDate: request.ProcessDate,
+                processDate: request.ClosingDate,
+                applicationDate: request.ProcessDate
             );
 
             if (opResult.IsFailure)

@@ -58,7 +58,7 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
             trust.ObjectiveId,
             trust.PortfolioId,
             newTotalBalance,
-            (int)request.Units,
+            request.Units,
             trust.Principal,
             newEarnings,
             trust.TaxCondition,

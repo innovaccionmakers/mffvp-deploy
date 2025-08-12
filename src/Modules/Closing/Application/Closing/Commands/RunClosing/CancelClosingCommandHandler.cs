@@ -10,7 +10,6 @@ namespace Closing.Application.Closing.Commands.RunClosing;
 
 internal sealed class CancelClosingCommandHandler(
     ICancelClosingOrchestrator orchestrator,
-   // IUnitOfWork unitOfWork,
     ILogger<CancelClosingCommandHandler> logger)
     : ICommandHandler<CancelClosingCommand>
 {

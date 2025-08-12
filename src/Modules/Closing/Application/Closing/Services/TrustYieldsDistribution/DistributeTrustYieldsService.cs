@@ -70,8 +70,8 @@ public class DistributeTrustYieldsService(
             var prevPortfolioValuation = await portfolioValuationRepository.GetValuationAsync(portfolioId, closingDate.AddDays(-1), ct);
             if (prevTrustYield is not null && prevPortfolioValuation is not null)
                  participation = TrustMath.CalculateTrustParticipation(prevTrustYield.ClosingBalance,prevPortfolioValuation.Amount, DecimalPrecision.SixteenDecimals);
-            else
-                participation = TrustMath.CalculateTrustParticipation(trust.PreClosingBalance, portfolioValuation.Amount, DecimalPrecision.SixteenDecimals);
+            //else
+            //    participation = TrustMath.CalculateTrustParticipation(trust.PreClosingBalance, portfolioValuation.Amount, DecimalPrecision.SixteenDecimals);
             var yieldAmount = TrustMath.ApplyParticipation(yield.YieldToCredit, participation, DecimalPrecision.SixteenDecimals);
             var income = TrustMath.ApplyParticipation(yield.Income, participation, DecimalPrecision.SixteenDecimals);
             var expenses = TrustMath.ApplyParticipation(yield.Expenses, participation, DecimalPrecision.SixteenDecimals);
@@ -82,10 +82,10 @@ public class DistributeTrustYieldsService(
             decimal units = 0m;
             if (trust.PreClosingBalance != closingBalance)
                 units = Math.Round(closingBalance / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
-            if (prevTrustYield is not null && prevPortfolioValuation is not null)
+            if (prevTrustYield is not null && prevPortfolioValuation is not null) //si hay dia previo con datos, pero no hubo cambio en el balance
                 units = Math.Round(prevTrustYield.Units, DecimalPrecision.SixteenDecimals);
-            else
-                units = Math.Round(closingBalance / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals); // para el primer día de cierre
+            else // si no hay dia previo con datos, es el primer día de cierre y no hubo cambio en el balance
+                units = Math.Round(closingBalance / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
 
             var yieldRetention = TrustMath.CalculateYieldRetention(yieldAmount, yieldRetentionRate, DecimalPrecision.SixteenDecimals);
 
