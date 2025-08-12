@@ -16,6 +16,7 @@ using Closing.Presentation.GraphQL.DTOs;
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
 using HotChocolate.Authorization;
+using Trusts.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -266,5 +267,12 @@ public class Query
                                                                                 CancellationToken cancellationToken)
     {
         return await treasuryQueries.GetBankAccountsByPortfolioAndIssuerAsync(portfolioId, issuerId, cancellationToken);
-    }  
+    }
+
+    //Trust Queries
+    [GraphQLName("getParticipantes")]
+    public async Task<int> GetParticipant([GraphQLName("fideicomisoIds")] IEnumerable<long> trustIds, [Service] ITrustExperienceQueries trustQueries)
+    {
+        return await trustQueries.GetParticipantAsync(trustIds);
+    }
 }

@@ -28,6 +28,7 @@ using Trusts.IntegrationEvents.DataSync.TrustSync;
 using Trusts.IntegrationEvents.GetBalances;
 using Trusts.IntegrationEvents.ObjectiveTrustValidation;
 using Trusts.IntegrationEvents.TrustYields;
+using Trusts.Presentation.GraphQL;
 using Trusts.Presentation.MinimalApis;
 
 namespace Trusts.Infrastructure;
@@ -70,6 +71,7 @@ public class TrustsModule : IModuleConfiguration
         services.AddScoped<IRpcHandler<ValidateObjectiveTrustRequest, ValidateObjectiveTrustResponse>, ValidateObjectiveTrustConsumer>();
         services.AddTransient<IRpcHandler<GetBalancesRequest, GetBalancesResponse>, GetBalancesConsumer>();
         services.AddTransient<IRpcHandler<ActiveTrustsByPortfolioRequest, ActiveTrustsByPortfolioResponse>, ActiveTrustsByPortfolioConsumer>();
+        services.AddScoped<ITrustExperienceQueries, TrustExperienceQueries>();
         services.AddScoped<TrustYieldOperationAppliedSuscriber>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());

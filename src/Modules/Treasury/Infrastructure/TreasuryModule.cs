@@ -76,7 +76,7 @@ public class TreasuryModule : IModuleConfiguration
         services.AddScoped<TreasuryMovementsByPortfolioConsumer>();
         services.AddScoped<ITreasuryExperienceMutations , TreasuryExperienceMutations>();
         services.AddScoped<IRpcHandler<TreasuryMovementsByPortfolioRequest, TreasuryMovementsByPortfolioResponse>, TreasuryMovementsByPortfolioConsumer>();
-        services.AddScoped<ITreasuryExperienceQueries, TreasuryExperienceQueries>();
+        services.AddScoped<ITreasuryExperienceQueries, TreasuryExperienceQueries>();        
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IPortfolioValuationLocator, PortfolioValuationLocator>();
 
