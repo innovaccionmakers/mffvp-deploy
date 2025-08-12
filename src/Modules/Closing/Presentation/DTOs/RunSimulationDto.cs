@@ -1,0 +1,15 @@
+﻿using HotChocolate;
+
+namespace Closing.Presentation.DTOs
+{
+    public record RunSimulationDto
+    (
+        [property: GraphQLName("Ingresos")] decimal Income,
+        [property: GraphQLName("Egresos")] decimal Expenses,
+        [property: GraphQLName("Comision")] decimal Commissions,
+        [property: GraphQLName("Costos")] decimal Costs,
+        [property: GraphQLName("RendimientosAbonar")] decimal YieldToCredit,
+        [property: GraphQLName("ValorUnidad")] decimal? UnitValue,
+        [property: GraphQLName("RentabilidadDiaria")] decimal? DailyProfitability
+    );
+}

@@ -16,12 +16,12 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using Trusts.Application.Abstractions;
 using Trusts.Application.Abstractions.Data;
-using Trusts.Application.Abstractions.External;
+
 using Trusts.Domain.ConfigurationParameters;
 using Trusts.Domain.Trusts;
 using Trusts.Infrastructure.ConfigurationParameters;
 using Trusts.Infrastructure.Database;
-using Trusts.Infrastructure.External.Closing;
+
 using Trusts.Infrastructure.Trusts;
 using Trusts.IntegrationEvents.CreateTrustRequested;
 using Trusts.IntegrationEvents.DataSync.TrustSync;
@@ -61,7 +61,7 @@ public class TrustsModule : IModuleConfiguration
         });
 
         services.AddScoped<ITrustRepository, TrustRepository>();
-        services.AddScoped<ITrustYieldSyncService, TrustYieldSyncService>();
+
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<TrustsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<TrustsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());

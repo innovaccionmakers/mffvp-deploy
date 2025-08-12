@@ -1,15 +1,15 @@
 using Common.SharedKernel.Domain;
 
-namespace Trusts.Application.Abstractions.External;
+namespace DataSync.Application.TrustSync;
 
-public interface ITrustYieldSyncService
+public interface IYieldSyncService
 {
-    Task<Result> SyncAsync(
+    Task<Result> SyncTrustYieldAsync(
         int trustId,
         int portfolioId,
         DateTime closingDate,
         decimal preClosingBalance,
         decimal capital,
         decimal contingentWithholding,
-        CancellationToken ct);
+        CancellationToken cancellationToken);
 }

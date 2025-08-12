@@ -12,7 +12,7 @@ using Microsoft.OpenApi.Models;
 
 using Trusts.Integrations.Trusts.CreateTrust;
 using Trusts.Integrations.Trusts.GetBalances;
-using Trusts.Integrations.DataSync.TrustSync;
+
 using Trusts.Integrations.Trusts;
 using Trusts.Domain.Routes;
 
@@ -71,29 +71,6 @@ public static class TrustsBusinessApi
                 return operation;
             })
             .Produces<IReadOnlyCollection<BalanceResponse>>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
-
-        group.MapPost(
-                NameEndpoints.TrustSync,
-                async (
-                    TrustSyncCommand command,
-                    ISender sender
-                ) =>
-                {
-                    var result = await sender.Send(command);
-                    return result.ToApiResult();
-                }
-            )
-            .WithName(NameEndpoints.TrustSync)
-            .WithSummary(Summary.TrustSync)
-            .WithDescription(Description.TrustSync)
-            .WithOpenApi(operation =>
-            {
-                operation.RequestBody.Description = RequestBodyDescription.TrustSync;
-                return operation;
-            })
-            .Accepts<TrustSyncCommand>("application/json")
-            .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }

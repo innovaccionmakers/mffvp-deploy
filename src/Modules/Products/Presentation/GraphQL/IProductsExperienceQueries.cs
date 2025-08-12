@@ -38,4 +38,6 @@ public interface IProductsExperienceQueries
         CancellationToken cancellationToken = default);
 
     Task<PortfolioInformationDto?> GetPortfolioByIdAsync(long portfolioId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<PortfolioInformationDto>> GetPortfoliosByIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default);
 }

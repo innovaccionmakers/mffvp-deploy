@@ -18,6 +18,7 @@ using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
 using Closing.Infrastructure.External.Operations.SubtransactionTypes;
 using Closing.Infrastructure.External.Trusts.Trusts;
+using Closing.Infrastructure.External.DataSync;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -47,7 +48,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IDistributeTrustYieldsService, DistributeTrustYieldsService>();
             services.AddScoped<IConfirmClosingOrchestrator, ConfirmClosingOrchestrator>();
             services.AddScoped<ICancelClosingOrchestrator, CancelClosingOrchestrator>();
-            services.AddScoped<IDataSyncService, TrustSyncService>();
+            services.AddScoped<IDataSyncService, DataSyncTrustService>();
             services.AddScoped<ITrustLocator, TrustLocator>();
 
             services.AddScoped<IValidateTrustYieldsDistributionService, ValidateTrustYieldsDistributionService>();

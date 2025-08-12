@@ -1,5 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Closing.Integrations.PreClosing.RunSimulation;
+using Closing.Presentation.DTOs;
 using Closing.Presentation.GraphQL.DTOs;
 using Closing.Presentation.GraphQL.Inputs;
 using Common.SharedKernel.Presentation.Results;
@@ -15,7 +17,7 @@ public interface IClosingExperienceMutations
         CancellationToken cancellationToken = default
     );
 
-    Task<GraphqlMutationResult> RunSimulationAsync(
+    Task<GraphqlMutationResult<RunSimulationDto>> RunSimulationAsync(
         RunSimulationInput input,
         IValidator<RunSimulationInput> validator,
         CancellationToken cancellationToken = default

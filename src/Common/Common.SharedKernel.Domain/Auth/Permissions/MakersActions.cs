@@ -13,6 +13,7 @@ public class MakersActions
     public const string process = nameof(process);
     public const string validate = nameof(validate);
     public const string activate = nameof(activate);
+    public const string cancel = nameof(cancel);
 
 
 

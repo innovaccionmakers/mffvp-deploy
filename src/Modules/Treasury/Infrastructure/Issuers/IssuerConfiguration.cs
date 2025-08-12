@@ -16,5 +16,6 @@ internal sealed class IssuerConfiguration : IEntityTypeConfiguration<Issuer>
         builder.Property(x => x.Nit).HasColumnName("nit");
         builder.Property(x => x.Digit).HasColumnName("digito");
         builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
+        builder.Property(x => x.IsBank).HasColumnName("banco").HasDefaultValue(false);
     }
 }

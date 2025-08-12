@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Closing.Presentation.MinimalApis.Closing;
+using Common.SharedKernel.Domain.Auth.Permissions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Closing.Presentation.MinimalApis;
 
@@ -17,12 +19,13 @@ public static class ClosingBusinessApi
     public static void MapClosingBusinessEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("api/v1/FVP/closing/profit-losses")
-                .WithTags("Profit & Loss")
+                .WithTags("Closing")
                 .WithOpenApi()
                 .RequireAuthorization();
 
         group.MapPost(
                     "LoadProfitLoss",
+                    [Authorize(Policy = MakersPermissionsClosing.PolicyCreateLoadProfitAndLost)]
                     async (
                         [Microsoft.AspNetCore.Mvc.FromBody] ProfitandLossLoadCommand request,
                         ISender sender
@@ -66,6 +69,7 @@ public static class ClosingBusinessApi
 
         group.MapGet(
                     "GetProfitandLoss",
+                    [Authorize(Policy = MakersPermissionsClosing.PolicyViewLoadProfitAndLost)]
                     async (
                         [FromQuery] int portfolioId,
                         [FromQuery] DateTime effectiveDate,
