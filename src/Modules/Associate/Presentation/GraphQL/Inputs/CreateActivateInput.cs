@@ -7,6 +7,6 @@ public record CreateActivateInput(
     [property: GraphQLName("identificacion")] string Identification,
     [property: GraphQLName("pensionado")] bool? Pensioner,
     [property: GraphQLName("cumpleRequisitosPension")] bool? MeetsPensionRequirements,
-    [property: GraphQLName("fechaInicioReqPen")] DateTime? StartDateReqPen,
-    [property: GraphQLName("fechaFinReqPen")] DateTime? EndDateReqPen
+    [property: GraphQLName("fechaInicioReqPen")] DateOnly? StartDateReqPen,
+    [property: GraphQLName("fechaFinReqPen")] DateOnly? EndDateReqPen
 );

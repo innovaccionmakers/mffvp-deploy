@@ -31,8 +31,8 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
                 input.Identification,
                 input.Pensioner,
                 input.MeetsPensionRequirements,
-                input.StartDateReqPen,
-                input.EndDateReqPen
+                input.StartDateReqPen?.ToDateTime(TimeOnly.MinValue).ToUniversalTime(),
+                input.EndDateReqPen?.ToDateTime(TimeOnly.MinValue).ToUniversalTime()
             );
 
             var commandResult = await mediator.Send(command, cancellationToken);
