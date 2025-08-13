@@ -1,7 +1,7 @@
 namespace Operations.Domain.TemporaryClientOperations;
 
 using Common.SharedKernel.Domain;
-using Operations.Domain.SubtransactionTypes;
+using Operations.Domain.OperationTypes;
 using Operations.Domain.TemporaryAuxiliaryInformations;
 
 public sealed class TemporaryClientOperation : Entity
@@ -13,11 +13,11 @@ public sealed class TemporaryClientOperation : Entity
     public int PortfolioId { get; private set; }
     public decimal Amount { get; private set; }
     public DateTime ProcessDate { get; private set; }
-    public long SubtransactionTypeId { get; private set; }
+    public long OperationTypeId { get; private set; }
     public DateTime ApplicationDate { get; private set; }
     public bool Processed { get; private set; }
 
-    public SubtransactionType SubtransactionType { get; private set; } = null!;
+    public OperationType OperationType { get; private set; } = null!;
     public TemporaryAuxiliaryInformation TemporaryAuxiliaryInformation { get; private set; } = null!;
 
     private TemporaryClientOperation()
@@ -31,7 +31,7 @@ public sealed class TemporaryClientOperation : Entity
         int portfolioId,
         decimal amount,
         DateTime processDate,
-        long subtransactionTypeId,
+        long operationTypeId,
         DateTime applicationDate
     )
     {
@@ -44,7 +44,7 @@ public sealed class TemporaryClientOperation : Entity
             PortfolioId = portfolioId,
             Amount = amount,
             ProcessDate = processDate,
-            SubtransactionTypeId = subtransactionTypeId,
+            OperationTypeId = operationTypeId,
             ApplicationDate = applicationDate,
             Processed = false
         };
@@ -60,7 +60,7 @@ public sealed class TemporaryClientOperation : Entity
         int newPortfolioId,
         decimal newAmount,
         DateTime newProcessDate,
-        long newSubtransactionTypeId,
+        long newOperationTypeId,
         DateTime newApplicationDate
     )
     {
@@ -70,7 +70,7 @@ public sealed class TemporaryClientOperation : Entity
         PortfolioId = newPortfolioId;
         Amount = newAmount;
         ProcessDate = newProcessDate;
-        SubtransactionTypeId = newSubtransactionTypeId;
+        OperationTypeId = newOperationTypeId;
         ApplicationDate = newApplicationDate;
     }
     

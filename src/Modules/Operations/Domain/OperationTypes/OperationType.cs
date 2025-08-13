@@ -4,13 +4,13 @@ using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.SubtransactionTypes;
 using Operations.Domain.ClientOperations;
 
-namespace Operations.Domain.SubtransactionTypes;
+namespace Operations.Domain.OperationTypes;
 
-public sealed class SubtransactionType : Entity
+public sealed class OperationType : Entity
 {
-    public long SubtransactionTypeId { get; private set; }
+    public long OperationTypeId { get; private set; }
     public string Name { get; private set; }
-    public Guid? Category { get; private set; }
+    public int? CategoryId { get; private set; }
     public IncomeEgressNature Nature { get; private set; }
     public Status Status { get; private set; }
     public string External { get; private set; }
@@ -21,13 +21,13 @@ public sealed class SubtransactionType : Entity
     private readonly List<ClientOperation> _clientOperations = new();
     public IReadOnlyCollection<ClientOperation> ClientOperations => _clientOperations;
 
-    private SubtransactionType()
+    private OperationType()
     {
     }
 
-    public static Result<SubtransactionType> Create(
+    public static Result<OperationType> Create(
         string name,
-        Guid? category,
+        int? categoryId,
         IncomeEgressNature nature,
         Status status,
         string external,
@@ -36,11 +36,11 @@ public sealed class SubtransactionType : Entity
         string homologatedCode
     )
     {
-        var subtransactionType = new SubtransactionType
+        var operationType = new OperationType
         {
-            SubtransactionTypeId = default,
+            OperationTypeId = default,
             Name = name,
-            Category = category,
+            CategoryId = categoryId,
             Nature = nature,
             Status = status,
             External = external,
@@ -49,12 +49,12 @@ public sealed class SubtransactionType : Entity
             HomologatedCode = homologatedCode
         };
 
-        return Result.Success(subtransactionType);
+        return Result.Success(operationType);
     }
 
     public void UpdateDetails(
         string newName,
-        Guid? newCategory,
+        int? newCategoryId,
         IncomeEgressNature newNature,
         Status newStatus,
         string newExternal,
@@ -64,7 +64,7 @@ public sealed class SubtransactionType : Entity
     )
     {
         Name = newName;
-        Category = newCategory;
+        CategoryId = newCategoryId;
         Nature = newNature;
         Status = newStatus;
         External = newExternal;

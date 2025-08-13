@@ -45,15 +45,15 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                 op.AffiliateId == affiliateId &&
                 op.ObjectiveId == objectiveId &&
                 op.PortfolioId == portfolioId)
-            .Join(context.SubtransactionTypes,
-                op => op.SubtransactionTypeId,
-                st => st.SubtransactionTypeId,
+            .Join(context.OperationTypes,
+                op => op.OperationTypeId,
+                st => st.OperationTypeId,
                 (op, st) => st)
-            .Where(st => st.Category != null)
-            .Join(context.ConfigurationParameters,
-                st => st.Category!.Value,
-                cp => cp.Uuid,
-                (st, cp) => cp.Name)
+            .Where(st => st.CategoryId != null)
+            .Join(context.OperationTypes,
+                st => (long)st.CategoryId!.Value,
+                ot => ot.OperationTypeId,
+                (st, ot) => ot.Name)
             .AnyAsync(name => name == contributionLabel, ct);
     }
 }

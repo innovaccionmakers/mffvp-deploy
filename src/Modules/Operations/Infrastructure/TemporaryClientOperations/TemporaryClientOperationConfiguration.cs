@@ -17,10 +17,10 @@ internal sealed class TemporaryClientOperationConfiguration : IEntityTypeConfigu
         builder.Property(x => x.PortfolioId).HasColumnName("portafolio_id");
         builder.Property(x => x.Amount).HasColumnName("valor");
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
-        builder.Property(x => x.SubtransactionTypeId).HasColumnName("subtipo_transaccion_id");
+        builder.Property(x => x.OperationTypeId).HasColumnName("tipo_operaciones_id");
         builder.Property(x => x.ApplicationDate).HasColumnName("fecha_aplicacion");
         builder.Property(x => x.Processed).HasColumnName("procesado");
 
-        builder.Ignore(x => x.SubtransactionType);
+        builder.Ignore(x => x.OperationType);
     }
 }

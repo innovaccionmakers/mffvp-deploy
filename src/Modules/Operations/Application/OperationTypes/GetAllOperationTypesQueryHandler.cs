@@ -3,19 +3,17 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.SubtransactionTypes;
 using Microsoft.Extensions.Caching.Distributed;
-using Operations.Domain.ConfigurationParameters;
-using Operations.Domain.SubtransactionTypes;
-using Operations.Integrations.SubTransactionTypes;
+using Operations.Domain.OperationTypes;
+using Operations.Integrations.OperationTypes;
 
-namespace Operations.Application.SubTransactionTypes;
+namespace Operations.Application.OperationTypes;
 
 public class GetAllOperationTypesQueryHandler(
-    ISubtransactionTypeRepository repository,
-    IConfigurationParameterRepository parameters,
+    IOperationTypeRepository repository,
     IDistributedCache cache)
-    : IQueryHandler<GetAllOperationTypesQuery, IReadOnlyCollection<SubtransactionTypeResponse>>
+    : IQueryHandler<GetAllOperationTypesQuery, IReadOnlyCollection<OperationTypeResponse>>
 {
-    private const string CacheKey = "operations:subtransactiontypes:all";
+    private const string CacheKey = "operations:operationtypes:all";
     private static readonly JsonSerializerOptions _serializerOptions = new();
 
     private record CacheModel(
@@ -27,7 +25,7 @@ public class GetAllOperationTypesQueryHandler(
         string External,
         string HomologatedCode);
 
-    public async Task<Result<IReadOnlyCollection<SubtransactionTypeResponse>>> Handle(
+    public async Task<Result<IReadOnlyCollection<OperationTypeResponse>>> Handle(
         GetAllOperationTypesQuery request,
         CancellationToken cancellationToken)
     {
@@ -38,7 +36,7 @@ public class GetAllOperationTypesQueryHandler(
             if (cached is not null)
             {
                 var listFromCache = cached
-                    .Select(c => new SubtransactionTypeResponse(
+                    .Select(c => new OperationTypeResponse(
                         c.Id,
                         c.Name,
                         c.Category,
@@ -47,26 +45,23 @@ public class GetAllOperationTypesQueryHandler(
                         c.External,
                         c.HomologatedCode))
                     .ToList();
-                return Result.Success((IReadOnlyCollection<SubtransactionTypeResponse>)listFromCache);
+                return Result.Success((IReadOnlyCollection<OperationTypeResponse>)listFromCache);
             }
         }
 
         var list = await repository.GetAllAsync(cancellationToken);
-        var categoryIds = list
-            .Where(x => x.Category.HasValue)
-            .Select(x => x.Category!.Value);
-        var categories = await parameters.GetByUuidsAsync(categoryIds, cancellationToken);
+        var categoryMap = list.ToDictionary(x => x.OperationTypeId, x => x.Name);
 
         var response = list.Select(s =>
         {
             string? categoryName = null;
-            if (s.Category.HasValue && categories.TryGetValue(s.Category.Value, out var cat))
+            if (s.CategoryId.HasValue && categoryMap.TryGetValue((long)s.CategoryId.Value, out var cat))
             {
-                categoryName = cat.Name;
+                categoryName = cat;
             }
 
-            return new SubtransactionTypeResponse(
-                s.SubtransactionTypeId,
+            return new OperationTypeResponse(
+                s.OperationTypeId,
                 s.Name,
                 categoryName,
                 s.Nature,
@@ -80,7 +75,7 @@ public class GetAllOperationTypesQueryHandler(
             AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
         };
         var cacheData = response.Select(s => new CacheModel(
-            s.SubtransactionTypeId,
+            s.OperationTypeId,
             s.Name,
             s.Category,
             s.Nature,
@@ -90,6 +85,6 @@ public class GetAllOperationTypesQueryHandler(
 
         await cache.SetStringAsync(CacheKey, JsonSerializer.Serialize(cacheData, _serializerOptions), options, cancellationToken);
 
-        return Result.Success((IReadOnlyCollection<SubtransactionTypeResponse>)response);
+        return Result.Success((IReadOnlyCollection<OperationTypeResponse>)response);
     }
 }

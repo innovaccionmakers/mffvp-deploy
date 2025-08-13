@@ -14,7 +14,7 @@ internal sealed class TrustOperationConfiguration : IEntityTypeConfiguration<Tru
         builder.Property(x => x.ClientOperationId).HasColumnName("operaciones_clientes_id");
         builder.Property(x => x.TrustId).HasColumnName("fideicomiso_id");
         builder.Property(x => x.Amount).HasColumnName("valor");
-        builder.Property(x => x.SubtransactionTypeId).HasColumnName("subtipo_transaccion_id");
+        builder.Property(x => x.OperationTypeId).HasColumnName("tipo_operaciones_id");
         builder.Property(x => x.PortfolioId).HasColumnName("portafolio_id");
         builder.Property(x => x.RegistrationDate).HasColumnName("fecha_radicacion");
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");

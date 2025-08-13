@@ -3,19 +3,19 @@ using Common.SharedKernel.Domain.SubtransactionTypes;
 using Common.SharedKernel.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Operations.Domain.SubtransactionTypes;
+using Operations.Domain.OperationTypes;
 
-namespace Operations.Infrastructure.SubtransactionTypes;
+namespace Operations.Infrastructure.OperationTypes;
 
-internal sealed class SubtransactionTypeConfiguration : IEntityTypeConfiguration<SubtransactionType>
+internal sealed class OperationTypeConfiguration : IEntityTypeConfiguration<OperationType>
 {
-    public void Configure(EntityTypeBuilder<SubtransactionType> builder)
+    public void Configure(EntityTypeBuilder<OperationType> builder)
     {
-        builder.ToTable("subtipo_transacciones");
-        builder.HasKey(x => x.SubtransactionTypeId);
-        builder.Property(x => x.SubtransactionTypeId).HasColumnName("id");
+        builder.ToTable("tipos_operaciones");
+        builder.HasKey(x => x.OperationTypeId);
+        builder.Property(x => x.OperationTypeId).HasColumnName("id");
         builder.Property(x => x.Name).HasColumnName("nombre");
-        builder.Property(x => x.Category).HasColumnName("categoria");
+        builder.Property(x => x.CategoryId).HasColumnName("categoria");
         builder.Property(x => x.Nature)
             .HasColumnName("naturaleza")
             .HasConversion(new EnumMemberValueConverter<IncomeEgressNature>());

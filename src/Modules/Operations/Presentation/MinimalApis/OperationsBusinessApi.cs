@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 using Operations.Integrations.Contributions.CreateContribution;
-using Operations.Integrations.SubTransactionTypes;
+using Operations.Integrations.OperationTypes;
 using Operations.Domain.Routes;
 
 namespace Operations.Presentation.MinimalApis;
@@ -65,7 +65,7 @@ public static class OperationsBusinessApi
             .WithName(NameEndpoints.GetAllOperationTypes)
             .WithSummary(Summary.GetAllOperationTypes)
             .WithDescription(Description.GetAllOperationTypes)
-            .Produces<IReadOnlyCollection<SubtransactionTypeResponse>>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyCollection<OperationTypeResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
         

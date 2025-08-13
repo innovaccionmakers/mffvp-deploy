@@ -1,10 +1,10 @@
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.SubtransactionTypes;
 
-namespace Operations.Integrations.SubTransactionTypes;
+namespace Operations.Integrations.OperationTypes;
 
-public sealed record SubtransactionTypeResponse(
-    long SubtransactionTypeId,
+public sealed record OperationTypeResponse(
+    long OperationTypeId,
     string Name,
     string? Category,
     IncomeEgressNature Nature,

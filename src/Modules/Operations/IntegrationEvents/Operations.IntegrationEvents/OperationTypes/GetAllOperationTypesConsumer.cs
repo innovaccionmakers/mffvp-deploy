@@ -1,8 +1,8 @@
 using Common.SharedKernel.Application.Rpc;
 using MediatR;
-using Operations.Integrations.SubTransactionTypes;
+using Operations.Integrations.OperationTypes;
 
-namespace Operations.IntegrationEvents.SubTransactionTypes;
+namespace Operations.IntegrationEvents.OperationTypes;
 
 public sealed class GetAllOperationTypesConsumer : IRpcHandler<GetAllOperationTypesRequest, GetAllOperationTypesResponse>
 {
@@ -21,6 +21,6 @@ public sealed class GetAllOperationTypesConsumer : IRpcHandler<GetAllOperationTy
 
         return result.Match(
             types => new GetAllOperationTypesResponse(true, null, null, types),
-            err => new GetAllOperationTypesResponse(false, err.Code, err.Description, Array.Empty<SubtransactionTypeResponse>()));
+            err => new GetAllOperationTypesResponse(false, err.Code, err.Description, Array.Empty<OperationTypeResponse>()));
     }
 }
