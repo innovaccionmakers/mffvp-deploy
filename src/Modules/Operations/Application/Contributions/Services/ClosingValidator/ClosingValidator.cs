@@ -7,5 +7,5 @@ public sealed class ClosingValidator(
     IClosingExecutionStore closingStore) : IClosingValidator
 {
     public Task<bool> IsClosingActiveAsync(int portfolioId, CancellationToken cancellationToken) =>
-        closingStore.IsClosingActiveAsync(portfolioId, cancellationToken);
+        closingStore.IsClosingActiveAsync(cancellationToken);
 }

@@ -4,10 +4,11 @@ public interface ITrustOperationRepository
 {
     Task AddAsync(TrustOperation operation, CancellationToken cancellationToken);
 
-    Task<TrustOperation?> GetByPortfolioAndDateAsync(
-      int portfolioId,
-      DateTime closingDate,
-      CancellationToken cancellationToken);
+    Task<TrustOperation?> GetByPortfolioTrustAndDateAsync(
+       int portfolioId,
+       long trustId,
+       DateTime closingDate,
+       CancellationToken cancellationToken);
 
     void Update(TrustOperation operation);
 

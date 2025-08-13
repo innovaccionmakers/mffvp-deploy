@@ -91,6 +91,9 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         await _unitOfWork.SaveChangesAsync(ct);
 
         var consolidationResult = await _yieldPersistenceService.ConsolidateAsync(localParameters, ct);
+
+        await _unitOfWork.SaveChangesAsync(ct);
+
         return consolidationResult;
     }
 
