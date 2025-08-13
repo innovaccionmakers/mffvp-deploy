@@ -37,7 +37,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
             logger.LogError("Tipo de Transacción 'Rendimientos' no encontrada.");
             throw new InvalidOperationException("Tipo de Transacción 'Rendimientos' no encontrada.");
         }
-        logger.LogDebug("SubtransactionType encontrado: Id={SubtypeId}", subtype.SubtransactionTypeId);
+        logger.LogDebug("SubtransactionType encontrado: Id={SubtypeId}", subtype.OperationTypeId);
 
         var yieldSubtypeId = subtype.OperationTypeId;
 
