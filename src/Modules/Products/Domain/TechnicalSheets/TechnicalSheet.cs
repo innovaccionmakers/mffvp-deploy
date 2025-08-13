@@ -22,9 +22,6 @@ public sealed class TechnicalSheet : Entity
     public decimal PortfolioValue { get; private set; }
     public int Participants { get; private set; }
 
-    // Navigation property
-    public Portfolio Portfolio { get; private set; }
-
     private TechnicalSheet()
     {
     }

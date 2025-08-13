@@ -28,6 +28,7 @@ using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
 using Products.Infrastructure.PortfolioValuations;
+using Products.Infrastructure.TechnicalSheets;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,6 +70,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
         modelBuilder.ApplyConfiguration(new CommissionConfiguration());
         modelBuilder.ApplyConfiguration(new AccumulatedCommissionConfiguration());
         modelBuilder.ApplyConfiguration(new PortfolioValuationConfiguration());
+        modelBuilder.ApplyConfiguration(new TechnicalSheetConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

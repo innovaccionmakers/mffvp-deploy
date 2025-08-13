@@ -102,6 +102,16 @@ public class Query
         return await productsQueries.GetAllPortfoliosAsync(cancellationToken);
     }
 
+    [GraphQLName("obtenerFichaTecnicaPorRangoDeFechaYPortafolio")]
+    public async Task<IReadOnlyCollection<TechnicalSheetDto>> GetTechnicalDataSheetByDateRangeAndPortfolio([GraphQLName("idPortafolio")] int portfolioId,
+                                                                                                               [GraphQLName("fechaInicio")] DateOnly startDate,
+                                                                                                               [GraphQLName("fechaFin")] DateOnly endDate,
+                                                                                                               [Service] IProductsExperienceQueries productsQueries,
+                                                                                                               CancellationToken cancellationToken)
+    {
+        return await productsQueries.GetTechnicalSheetsByDateRangeAndPortfolio(startDate, endDate, portfolioId, cancellationToken);
+    }
+
     //Operations Queries
     [GraphQLName("tipoTransaccion")]
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypes([Service] IOperationsExperienceQueries operationsQueries,
@@ -275,4 +285,5 @@ public class Query
     {
         return await trustQueries.GetParticipantAsync(trustIds);
     }
+
 }

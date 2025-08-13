@@ -30,6 +30,7 @@ using Products.Domain.PlanFunds;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
 using Products.Domain.PortfolioValuations;
+using Products.Domain.TechnicalSheets;
 using Products.Infrastructure.AccumulatedCommissions;
 using Products.Infrastructure.AdditionalInformation;
 using Products.Infrastructure.Alternatives;
@@ -45,6 +46,7 @@ using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
 using Products.Infrastructure.PortfolioValuations;
+using Products.Infrastructure.TechnicalSheets;
 using Products.IntegrationEvents.AccumulatedCommissions.CommissionProcessed;
 using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
@@ -121,6 +123,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<PortfolioValuationUpdatedSuscriber>();
         services.AddScoped<IPortfolioValuationRepository, PortfolioValuationRepository>();
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
+        services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();
         services.AddScoped<CommissionProcessedConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());

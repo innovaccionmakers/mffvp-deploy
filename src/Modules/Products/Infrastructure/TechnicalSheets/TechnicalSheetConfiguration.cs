@@ -72,11 +72,6 @@ internal sealed class TechnicalSheetConfiguration : IEntityTypeConfiguration<Tec
         builder.Property(x => x.Participants)
                .HasColumnName("participes");
 
-        // Relationships
-        builder.HasOne(x => x.Portfolio)
-               .WithMany()
-               .HasForeignKey(x => x.PortfolioId);
-
         // Indexes
         builder.HasIndex(x => x.PortfolioId)
                .HasDatabaseName("ix_ficha_tecnica_portafolio_id");
