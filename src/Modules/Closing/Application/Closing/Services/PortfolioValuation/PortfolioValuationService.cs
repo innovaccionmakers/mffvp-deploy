@@ -10,7 +10,7 @@ using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Helpers.Finance;
 using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.SubtransactionTypes;
+using Common.SharedKernel.Domain.OperationTypes;
 using Microsoft.Extensions.Logging;
 
 namespace Closing.Application.Closing.Services.PortfolioValuation;

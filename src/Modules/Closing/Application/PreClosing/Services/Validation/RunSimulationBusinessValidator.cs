@@ -17,7 +17,7 @@ using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Application.Helpers.Rules;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.SubtransactionTypes;
+using Common.SharedKernel.Domain.OperationTypes;
 
 namespace Closing.Application.PreClosing.Services.Validation;
 

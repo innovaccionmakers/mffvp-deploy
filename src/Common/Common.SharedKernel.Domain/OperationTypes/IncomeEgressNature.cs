@@ -1,7 +1,7 @@
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace Common.SharedKernel.Domain.SubtransactionTypes;
+namespace Common.SharedKernel.Domain.OperationTypes;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum IncomeEgressNature

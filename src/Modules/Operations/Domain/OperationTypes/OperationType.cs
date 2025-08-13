@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.SubtransactionTypes;
+using Common.SharedKernel.Domain.OperationTypes;
 using Operations.Domain.ClientOperations;
 
 namespace Operations.Domain.OperationTypes;

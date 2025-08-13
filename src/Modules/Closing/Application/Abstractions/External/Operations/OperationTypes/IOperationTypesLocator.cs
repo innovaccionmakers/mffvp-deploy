@@ -1,6 +1,6 @@
 ﻿
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.SubtransactionTypes;
+using Common.SharedKernel.Domain.OperationTypes;
 
 namespace Closing.Application.Abstractions.External.Operations.OperationTypes
 {

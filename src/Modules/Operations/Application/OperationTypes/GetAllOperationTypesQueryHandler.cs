@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.SubtransactionTypes;
+using Common.SharedKernel.Domain.OperationTypes;
 using Microsoft.Extensions.Caching.Distributed;
 using Operations.Domain.OperationTypes;
 using Operations.Integrations.OperationTypes;
