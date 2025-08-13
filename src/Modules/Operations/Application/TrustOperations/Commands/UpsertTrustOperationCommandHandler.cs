@@ -1,7 +1,7 @@
 ﻿using Common.SharedKernel.Application.EventBus;
 using MediatR;
 using Operations.Application.Abstractions.Data;
-using Operations.Domain.SubtransactionTypes;
+using Operations.Domain.OperationTypes;
 using Operations.Domain.TrustOperations;
 using Operations.IntegrationEvents.TrustOperations;
 using Operations.Integrations.TrustOperations.Commands;
@@ -12,7 +12,7 @@ namespace Operations.Application.TrustOperations.Commands;
 internal sealed class UpsertTrustOperationCommandHandler(
     ITrustOperationRepository repository,
     IUnitOfWork unitOfWork,
-    ISubtransactionTypeRepository subtransactionTypeRepository,
+    IOperationTypeRepository operationTypeRepository,
     IEventBus eventBus,
     ILogger<UpsertTrustOperationCommandHandler> logger)
     : IRequestHandler<UpsertTrustOperationCommand>
@@ -30,16 +30,16 @@ internal sealed class UpsertTrustOperationCommandHandler(
 
         // 1. Obtener el subtipo "Rendimientos"
         logger.LogDebug("Buscando SubtransactionType 'Rendimientos'...");
-        var subtype = await subtransactionTypeRepository
+        var subtype = await operationTypeRepository
             .GetByNameAsync("Rendimientos", cancellationToken);
         if (subtype is null)
         {
             logger.LogError("Tipo de Transacción 'Rendimientos' no encontrada.");
             throw new InvalidOperationException("Tipo de Transacción 'Rendimientos' no encontrada.");
         }
-        logger.LogDebug("SubtransactionType encontrado: Id={SubtypeId}", subtype.SubtransactionTypeId);
+        logger.LogDebug("SubtransactionType encontrado: Id={SubtypeId}", subtype.OperationTypeId);
 
-        var yieldSubtypeId = subtype.SubtransactionTypeId;
+        var yieldSubtypeId = subtype.OperationTypeId;
 
         // 2. Intentar cargar una operación de fideicomiso existente para el fideicomiso y fecha de cierre
 
@@ -58,7 +58,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
                 newClientOperationId: null,
                 newTrustId: request.TrustId,
                 newAmount: request.Amount,
-                newSubtransactionTypeId: yieldSubtypeId,
+                newOperationTypeId: yieldSubtypeId,
                 newPortfolioId: request.PortfolioId,
                 newRegistrationDate: request.ProcessDate,
                 newProcessDate: request.ClosingDate,
@@ -80,7 +80,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
                 clientOperationId: null,
                 trustId: request.TrustId,
                 amount: request.Amount,
-                subtransactionTypeId: yieldSubtypeId,
+                operationTypeId: yieldSubtypeId,
                 portfolioId: request.PortfolioId,
                 registrationDate: request.ProcessDate,
                 processDate: request.ClosingDate,

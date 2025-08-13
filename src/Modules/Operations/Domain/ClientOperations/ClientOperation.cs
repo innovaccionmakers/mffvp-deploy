@@ -1,7 +1,7 @@
 using Common.SharedKernel.Domain;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.TrustOperations;
-using Operations.Domain.SubtransactionTypes;
+using Operations.Domain.OperationTypes;
 
 namespace Operations.Domain.ClientOperations;
 
@@ -14,10 +14,10 @@ public sealed class ClientOperation : Entity
     public int PortfolioId { get; private set; }
     public decimal Amount { get; private set; }
     public DateTime ProcessDate { get; private set; }
-    public long SubtransactionTypeId { get; private set; }
+    public long OperationTypeId { get; private set; }
     public DateTime ApplicationDate { get; private set; }
 
-    public SubtransactionType SubtransactionType { get; private set; } = null!;
+    public OperationType OperationType { get; private set; } = null!;
     private readonly List<TrustOperation> _trustOperations = new();
     public IReadOnlyCollection<TrustOperation> TrustOperations => _trustOperations;
 
@@ -34,7 +34,7 @@ public sealed class ClientOperation : Entity
         int portfolioId,
         decimal amount,
         DateTime processDate,
-        long subtransactionTypeId,
+        long operationTypeId,
         DateTime applicationDate
     )
     {
@@ -47,7 +47,7 @@ public sealed class ClientOperation : Entity
             PortfolioId = portfolioId,
             Amount = amount,
             ProcessDate = processDate,
-            SubtransactionTypeId = subtransactionTypeId,
+            OperationTypeId = operationTypeId,
             ApplicationDate = applicationDate
         };
 
@@ -62,7 +62,7 @@ public sealed class ClientOperation : Entity
         int newPortfolioId,
         decimal newAmount,
         DateTime newProcessDate,
-        long newSubtransactionTypeId,
+        long newOperationTypeId,
         DateTime newApplicationDate
     )
     {
@@ -72,7 +72,7 @@ public sealed class ClientOperation : Entity
         PortfolioId = newPortfolioId;
         Amount = newAmount;
         ProcessDate = newProcessDate;
-        SubtransactionTypeId = newSubtransactionTypeId;
+        OperationTypeId = newOperationTypeId;
         ApplicationDate = newApplicationDate;
     }
 }

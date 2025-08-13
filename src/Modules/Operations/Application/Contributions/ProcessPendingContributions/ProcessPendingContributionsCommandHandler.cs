@@ -44,7 +44,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                     temp.PortfolioId,
                     temp.Amount,
                     temp.ProcessDate,
-                    temp.SubtransactionTypeId,
+                    temp.OperationTypeId,
                     DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)).Value;
 
                 var info = AuxiliaryInformation.Create(

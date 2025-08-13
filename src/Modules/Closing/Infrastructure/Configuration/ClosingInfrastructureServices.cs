@@ -1,11 +1,11 @@
-﻿using Closing.Application.Abstractions.External.Operations.SubtransactionTypes;
+﻿using Closing.Application.Abstractions.External.Operations.OperationTypes;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
 using Closing.Application.Closing.Services.Abort;
 using Closing.Application.Closing.Services.Orchestation;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.Orchestration;
 using Closing.Application.Closing.Services.PortfolioValuation;
-using Closing.Application.Closing.Services.SubtransactionTypes;
+using Closing.Application.Closing.Services.OperationTypes;
 using Closing.Application.Closing.Services.TimeControl;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
@@ -16,7 +16,7 @@ using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
 using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
-using Closing.Infrastructure.External.Operations.SubtransactionTypes;
+using Closing.Infrastructure.External.Operations.OperationTypes;
 using Closing.Infrastructure.External.Trusts.Trusts;
 using Closing.Infrastructure.External.DataSync;
 using Microsoft.Extensions.Caching.Distributed;
@@ -34,15 +34,15 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IClosingStepEventPublisher, ClosingStepEventPublisher>();
             services.AddTransient<ClosingStepEventSuscriber>();
             services.AddScoped<IAbortClosingService, AbortClosingService>();
-            services.AddScoped<ISubtransactionTypesLocator, SubtransactionTypesLocator>();
+            services.AddScoped<IOperationTypesLocator, OperationTypesLocator>();
            
-            services.AddScoped<ISubtransactionTypesService>(sp =>
+            services.AddScoped<IOperationTypesService>(sp =>
             {
-                var locator = sp.GetRequiredService<ISubtransactionTypesLocator>();
+                var locator = sp.GetRequiredService<IOperationTypesLocator>();
                 var cache = sp.GetRequiredService<IDistributedCache>();
-                var logger = sp.GetRequiredService<ILogger<CachedSubtransactionTypesService>>();
+                var logger = sp.GetRequiredService<ILogger<CachedOperationTypesService>>();
 
-                return new CachedSubtransactionTypesService(locator, cache, logger);
+                return new CachedOperationTypesService(locator, cache, logger);
             });
             services.AddScoped<IPortfolioValuationService, PortfolioValuationService>();
             services.AddScoped<IDistributeTrustYieldsService, DistributeTrustYieldsService>();

@@ -1,5 +1,6 @@
 ﻿using Closing.Application.Closing.Services.Orchestation.Constants;
-using Closing.Application.Closing.Services.SubtransactionTypes;
+using Closing.Application.Closing.Services.OperationTypes;
+using Closing.Application.Closing.Services.TimeControl;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
@@ -9,7 +10,7 @@ using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Helpers.Finance;
 using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.SubtransactionTypes;
+using Common.SharedKernel.Domain.OperationTypes;
 using Microsoft.Extensions.Logging;
 
 namespace Closing.Application.Closing.Services.PortfolioValuation;
@@ -18,7 +19,7 @@ public class PortfolioValuationService(
     IPortfolioValuationRepository valuationRepository,
     IClientOperationRepository clientOperationRepository,
     IYieldRepository yieldRepository,
-    ISubtransactionTypesService subtransactionTypes,
+    IOperationTypesService operationTypes,
     IConfigurationParameterRepository configurationParameterRepository,
     ITimeControlService timeControlService,
     //IUnitOfWork unitOfWork,
@@ -80,17 +81,17 @@ public class PortfolioValuationService(
             yieldIncome, yieldExpenses, yieldCommissions, yieldToCredit, yieldCosts);
 
         // 4. Obtener y clasificar subtipos de transacción
-        var subtypeResult = await subtransactionTypes.GetAllAsync(ct);
+        var subtypeResult = await operationTypes.GetAllAsync(ct);
         if (!subtypeResult.IsSuccess)
             return Result.Failure<ClosedResult>(subtypeResult.Error!);
 
         var incomeSubs = subtypeResult.Value
             .Where(s => s.Nature == IncomeEgressNature.Income)
-            .Select(s => s.SubtransactionTypeId)
+            .Select(s => s.OperationTypeId)
             .ToList();
         var egressSubs = subtypeResult.Value
             .Where(s => s.Nature == IncomeEgressNature.Egress)
-            .Select(s => s.SubtransactionTypeId)
+            .Select(s => s.OperationTypeId)
             .ToList();
         logger.LogInformation("Subtipos: IncomeCount={IncomeCount}, EgressCount={EgressCount}", incomeSubs.Count, egressSubs.Count);
 

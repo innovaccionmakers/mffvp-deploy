@@ -1,7 +1,7 @@
 ﻿
 using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.External;
-using Closing.Application.Abstractions.External.Operations.SubtransactionTypes;
+using Closing.Application.Abstractions.External.Operations.OperationTypes;
 using Closing.Application.Abstractions.External.Products.Commissions;
 using Closing.Application.PreClosing.Services.Commission.Constants;
 using Closing.Application.PreClosing.Services.TreasuryConcepts;
@@ -17,7 +17,7 @@ using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Application.Helpers.Rules;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.SubtransactionTypes;
+using Common.SharedKernel.Domain.OperationTypes;
 
 namespace Closing.Application.PreClosing.Services.Validation;
 
@@ -29,7 +29,7 @@ public class RunSimulationBusinessValidator(
         ICommissionLocator commissionLocator,
         IMovementsConsolidationService movementsConsolidationService,
         IClientOperationRepository clientOperationRepository,
-        ISubtransactionTypesLocator subtransactionTypesLocator,
+        IOperationTypesLocator operationTypesLocator,
         IConfigurationParameterRepository configurationParameterRepository
     ) : IBusinessValidator<RunSimulationCommand>
 {
@@ -147,7 +147,7 @@ public class RunSimulationBusinessValidator(
             }
 
             // --- Subtipos de transacción ---
-            var stResult = await subtransactionTypesLocator.GetAllSubtransactionTypesAsync(ct);
+            var stResult = await operationTypesLocator.GetAllOperationTypesAsync(ct);
             if (!stResult.IsSuccess)
             {
                 // Error técnico: no podemos ni saber si hay client ops.
@@ -166,7 +166,7 @@ public class RunSimulationBusinessValidator(
                 foreach (var item in incomeSubtypes)
                 {
                     if (await clientOperationRepository.ClientOperationsExistsAsync(
-                            command.PortfolioId, command.ClosingDate.Date, item.SubtransactionTypeId, ct))
+                            command.PortfolioId, command.ClosingDate.Date, item.OperationTypeId, ct))
                     {
                         hasClientOps = true;
                         break;
