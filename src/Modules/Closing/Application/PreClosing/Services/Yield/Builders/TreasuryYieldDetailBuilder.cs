@@ -25,7 +25,7 @@ public class TreasuryYieldDetailBuilder : IYieldDetailBuilder
             ? summary.TotalAmount
             : (isExpense && !allowsExpense ? -summary.TotalAmount : 0);
 
-        var expenseAmount = isExpense
+        var expenseAmount = isExpense && allowsExpense
             ? summary.TotalAmount
             : (isIncome && allowsExpense ? -summary.TotalAmount : 0);
 
