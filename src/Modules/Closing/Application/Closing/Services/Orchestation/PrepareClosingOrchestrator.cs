@@ -63,7 +63,7 @@ public class PrepareClosingOrchestrator(
             //    return Result.Failure<ClosedResult>(syncTask.Result.Error);
 
 
-
+            //TODO: Agregar asincronia
             // Paso 2: Ejecutar simulación y sincronización de datos (secuencial para evitar DbContext compartido)
             var simResult = await simulationOrchestrator.RunSimulationAsync(simCommand, cancellationToken);
             if (simResult.IsFailure)

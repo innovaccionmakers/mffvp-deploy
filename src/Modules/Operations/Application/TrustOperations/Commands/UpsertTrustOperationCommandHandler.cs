@@ -5,6 +5,7 @@ using Operations.Domain.SubtransactionTypes;
 using Operations.Domain.TrustOperations;
 using Operations.IntegrationEvents.TrustOperations;
 using Operations.Integrations.TrustOperations.Commands;
+using Microsoft.Extensions.Logging;
 
 namespace Operations.Application.TrustOperations.Commands;
 
@@ -12,25 +13,46 @@ internal sealed class UpsertTrustOperationCommandHandler(
     ITrustOperationRepository repository,
     IUnitOfWork unitOfWork,
     ISubtransactionTypeRepository subtransactionTypeRepository,
-    IEventBus eventBus)
+    IEventBus eventBus,
+    ILogger<UpsertTrustOperationCommandHandler> logger)
     : IRequestHandler<UpsertTrustOperationCommand>
 {
     public async Task Handle(UpsertTrustOperationCommand request, CancellationToken cancellationToken)
     {
+        using var _ = logger.BeginScope(new Dictionary<string, object>
+        {
+            ["PortfolioId"] = request.PortfolioId,
+            ["TrustId"] = request.TrustId,
+            ["ClosingDate"] = request.ClosingDate.Date
+        });
+
+        logger.LogInformation("Iniciando Upsert de operación de fideicomiso.");
+
         // 1. Obtener el subtipo "Rendimientos"
+        logger.LogDebug("Buscando SubtransactionType 'Rendimientos'...");
         var subtype = await subtransactionTypeRepository
             .GetByNameAsync("Rendimientos", cancellationToken);
         if (subtype is null)
+        {
+            logger.LogError("Tipo de Transacción 'Rendimientos' no encontrada.");
             throw new InvalidOperationException("Tipo de Transacción 'Rendimientos' no encontrada.");
+        }
+        logger.LogDebug("SubtransactionType encontrado: Id={SubtypeId}", subtype.SubtransactionTypeId);
 
         var yieldSubtypeId = subtype.SubtransactionTypeId;
 
-        // 2. Intentar cargar una operación de fideicomiso existente para este portafolio y fecha de cierre
+        // 2. Intentar cargar una operación de fideicomiso existente para el fideicomiso y fecha de cierre
+
+        //Definicion: para la tabla operaciones.operaciones_fideicomiso, la fecha de radicación y aplicación es el getdate
+        //y la fecha de proceso es la fecha del último cierre. 
+        logger.LogDebug("Consultando operación existente por (PortfolioId, TrustId, ClosingDate)...");
         var existing = await repository
-            .GetByPortfolioAndTrustAsync(request.PortfolioId, request.TrustId, request.ClosingDate, cancellationToken);
+            .GetByPortfolioTrustAndDateAsync(request.PortfolioId, request.TrustId, request.ClosingDate.Date, cancellationToken);
 
         if (existing is not null)
         {
+            logger.LogInformation("Operación existente encontrada. Se procederá a actualizar (Id={OperationId}).", existing.TrustOperationId);
+
             // 3a. Actualizar la operación existente
             existing.UpdateDetails(
                 newClientOperationId: null,
@@ -43,10 +65,16 @@ internal sealed class UpsertTrustOperationCommandHandler(
                 newApplicationDate: request.ProcessDate
             );
 
-            repository.Update(existing); 
+            logger.LogDebug("Detalles actualizados: Amount={Amount}, SubtypeId={SubtypeId}, RegistrationDate={RegistrationDate}, ProcessDate={ProcessDate}, ApplicationDate={ApplicationDate}",
+                request.Amount, yieldSubtypeId, request.ProcessDate, request.ClosingDate, request.ProcessDate);
+
+            repository.Update(existing);
+            logger.LogDebug("Repository.Update ejecutado para la operación existente.");
         }
         else
         {
+            logger.LogInformation("No existe operación previa. Se procederá a crear una nueva.");
+
             // 3b. Crear una nueva operación
             var opResult = TrustOperation.Create(
                 clientOperationId: null,
@@ -60,15 +88,22 @@ internal sealed class UpsertTrustOperationCommandHandler(
             );
 
             if (opResult.IsFailure)
+            {
+                logger.LogError("Error creando operación de fideicomiso: {ErrorCode} {ErrorDescription}",
+                    opResult.Error.Code, opResult.Error.Description);
                 throw new InvalidOperationException(
                     $"Error creando operación de fideicomiso: {opResult.Error.Description}"
                 );
+            }
 
             await repository.AddAsync(opResult.Value, cancellationToken);
+            logger.LogDebug("Repository.AddAsync ejecutado. Nueva operación preparada para persistir.");
         }
 
         // 4. Guardar los cambios (insertar o actualizar) en una sola transacción
+        logger.LogInformation("Guardando cambios con UnitOfWork...");
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        logger.LogInformation("Cambios guardados correctamente.");
 
         // 5. Publicar el evento de integración
         var integrationEvent = new TrustYieldOperationAppliedIntegrationEvent(
@@ -81,6 +116,9 @@ internal sealed class UpsertTrustOperationCommandHandler(
             units: request.Units
         );
 
+        logger.LogInformation("Publicando evento TrustYieldOperationAppliedIntegrationEvent...");
+        logger.LogDebug("Evento: {@IntegrationEvent}", integrationEvent);
         await eventBus.PublishAsync(integrationEvent, cancellationToken);
+        logger.LogInformation("Evento publicado correctamente.");
     }
 }
