@@ -5,12 +5,14 @@ using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.External;
@@ -34,9 +36,9 @@ using Operations.Domain.Banks;
 using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.ConfigurationParameters;
+using Operations.Domain.OperationTypes;
 using Operations.Domain.Origins;
 using Operations.Domain.Services;
-using Operations.Domain.OperationTypes;
 using Operations.Domain.TemporaryAuxiliaryInformations;
 using Operations.Domain.TemporaryClientOperations;
 using Operations.Domain.TrustOperations;
@@ -49,14 +51,15 @@ using Operations.Infrastructure.Database;
 using Operations.Infrastructure.External.Activate;
 using Operations.Infrastructure.External.ContributionValidation;
 using Operations.Infrastructure.External.Customers;
+using Operations.Infrastructure.External.Portfolio;
+using Operations.Infrastructure.OperationTypes;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.Services;
-using Operations.Infrastructure.OperationTypes;
 using Operations.Infrastructure.TemporaryAuxiliaryInformations;
 using Operations.Infrastructure.TemporaryClientOperations;
 using Operations.Infrastructure.TrustOperations;
-using Operations.IntegrationEvents.PendingContributionProcessor;
 using Operations.IntegrationEvents.OperationTypes;
+using Operations.IntegrationEvents.PendingContributionProcessor;
 using Operations.IntegrationEvents.TrustOperations;
 using Operations.Presentation.GraphQL;
 using Operations.Presentation.MinimalApis;
@@ -140,6 +143,8 @@ public class OperationsModule: IModuleConfiguration
 
         services.AddScoped<ITrustOperationRepository, TrustOperationRepository>();
         services.AddScoped<TrustYieldGeneratedSuscriber>();
+
+        services.AddScoped<IPortfolioLocator, PortfolioLocator>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
