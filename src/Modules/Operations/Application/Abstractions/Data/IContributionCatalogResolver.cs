@@ -1,7 +1,7 @@
 using Operations.Domain.Channels;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
-using Operations.Domain.SubtransactionTypes;
+using Operations.Domain.OperationTypes;
 using Operations.Integrations.Contributions.CreateContribution;
 
 namespace Operations.Application.Abstractions.Data;
@@ -17,5 +17,5 @@ public sealed record ContributionCatalogs(
     ConfigurationParameter? CollectionMethod,
     ConfigurationParameter? PaymentMethod,
     Channel? Channel,
-    SubtransactionType? Subtype,
-    ConfigurationParameter? SubtypeCategoryCfg);
+    OperationType? Subtype,
+    OperationType? SubtypeCategory);

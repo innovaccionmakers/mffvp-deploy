@@ -11,24 +11,26 @@ internal sealed class DistributedClosingExecutionStore(
 {
     private const string KeyPrefix = "closingExecution";
 
-    private string GetKey(int portfolioId) => $"{KeyPrefix}:{portfolioId}";
+    private string GetKeyByPortfolio(int portfolioId) => $"{KeyPrefix}:{portfolioId}";
 
-    public async Task<bool> IsClosingActiveAsync(int portfolioId, CancellationToken cancellationToken = default)
+    private string GetKey => $"{KeyPrefix}";
+
+    public async Task<bool> IsClosingActiveAsync(CancellationToken cancellationToken = default)
     {
-        var key = GetKey(portfolioId);
+        var key = GetKey;
         var value = await cache.GetStringAsync(key, cancellationToken);
         return value != null;
     }
 
-    public async Task BeginAsync(int portfolioId, DateTime closingBeginTime, CancellationToken cancellationToken = default)
+    public async Task BeginAsync(DateTime closingBeginTime, CancellationToken cancellationToken = default)
     {
         var state = new ClosingExecutionState(closingBeginTime, closingBeginTime, ClosingProcess.Begin);
-        await cache.SetStringAsync(GetKey(portfolioId), serializer.Serialize(state), cancellationToken);
+        await cache.SetStringAsync(GetKey, serializer.Serialize(state), cancellationToken);
     }
 
-    public async Task UpdateProcessAsync(int portfolioId, string process, DateTime processDatetime, CancellationToken cancellationToken = default)
+    public async Task UpdateProcessAsync(string process, DateTime processDatetime, CancellationToken cancellationToken = default)
     {
-        var key = GetKey(portfolioId);
+        var key = GetKey;
         var json = await cache.GetStringAsync(key, cancellationToken);
         if (json is null) return;
 
@@ -40,14 +42,14 @@ internal sealed class DistributedClosingExecutionStore(
         await cache.SetStringAsync(key, serializer.Serialize(updated), cancellationToken);
     }
 
-    public async Task EndAsync(int portfolioId, CancellationToken cancellationToken = default)
+    public async Task EndAsync(CancellationToken cancellationToken = default)
     {
-        await cache.RemoveAsync(GetKey(portfolioId), cancellationToken);
+        await cache.RemoveAsync(GetKey, cancellationToken);
     }
 
-    public async Task<string?> GetCurrentProcessAsync(int portfolioId, CancellationToken ct = default)
+    public async Task<string?> GetCurrentProcessAsync(CancellationToken ct = default)
     {
-        var key = GetKey(portfolioId);
+        var key = GetKey;
         var json = await cache.GetStringAsync(key, ct);
         if (json is null) return null;
 
@@ -55,9 +57,9 @@ internal sealed class DistributedClosingExecutionStore(
         return state?.Process;
     }
 
-    public async Task<DateTime?> GetClosingDatetimeAsync(int portfolioId, CancellationToken ct = default)
+    public async Task<DateTime?> GetClosingDatetimeAsync(CancellationToken ct = default)
     {
-        var key = GetKey(portfolioId);
+        var key = GetKey;
         var json = await cache.GetStringAsync(key, ct);
         if (json is null) return null;
 

@@ -40,7 +40,7 @@ public sealed class TransactionControl(
             prevalidationResult.RemoteData.PortfolioId,
             command.Amount,
             DateTime.SpecifyKind(command.ExecutionDate, DateTimeKind.Utc),
-            prevalidationResult.Catalogs.Subtype?.SubtransactionTypeId ?? 0,
+            prevalidationResult.Catalogs.Subtype?.OperationTypeId ?? 0,
             DateTime.UtcNow).Value;
         clientOperationRepository.Insert(operation);
 

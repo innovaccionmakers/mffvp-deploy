@@ -4,7 +4,7 @@ using Operations.Application.Abstractions.Data;
 using Operations.Domain.Channels;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Operations.Domain.Origins;
-using Operations.Domain.SubtransactionTypes;
+using Operations.Domain.OperationTypes;
 using Operations.Integrations.Contributions.CreateContribution;
 
 namespace Operations.Application.Contributions.Services;
@@ -12,7 +12,7 @@ namespace Operations.Application.Contributions.Services;
 public sealed class ContributionCatalogResolver(
     IOriginRepository originRepo,
     IConfigurationParameterRepository cfgRepo,
-    ISubtransactionTypeRepository subtypeRepo,
+    IOperationTypeRepository operationTypeRepo,
     IChannelRepository channelRepo)
     : IContributionCatalogResolver
 {
@@ -34,17 +34,27 @@ public sealed class ContributionCatalogResolver(
         var collMethod = cfgs.GetValueOrDefault(scopes[1]);
         var payMethod = cfgs.GetValueOrDefault(scopes[2]);
 
-        var subtype = string.IsNullOrWhiteSpace(cmd.Subtype)
-            ? await subtypeRepo.GetByNameAndCategoryAsync(DefaultSubtypeName, SubtransactionTypeCategoryUuids.Contribution, ct)
-            : await subtypeRepo.GetByHomologatedCodeAsync(cmd.Subtype, ct);
+        var contributionType = await operationTypeRepo.GetByNameAsync("Aporte", ct);
 
-        var subtypeCfg = subtype?.Category is Guid category
-            ? await cfgRepo.GetByUuidAsync(category, ct)
-            : null;
+        OperationType? subtype;
+        if (string.IsNullOrWhiteSpace(cmd.Subtype))
+        {
+            subtype = await operationTypeRepo.GetByNameAndCategoryAsync(
+                DefaultSubtypeName,
+                (int?)contributionType?.OperationTypeId,
+                ct);
+        }
+        else
+        {
+            var fetched = await operationTypeRepo.GetByHomologatedCodeAsync(cmd.Subtype, ct);
+            subtype = fetched is not null && (long?)fetched.CategoryId == contributionType?.OperationTypeId
+                ? fetched
+                : null;
+        }
 
         var channel = await channelRepo.FindByHomologatedCodeAsync(cmd.Channel, ct);
 
         return new ContributionCatalogs(
-            source, originMod, collMethod, payMethod, channel, subtype, subtypeCfg);
+            source, originMod, collMethod, payMethod, channel, subtype, contributionType);
     }
 }

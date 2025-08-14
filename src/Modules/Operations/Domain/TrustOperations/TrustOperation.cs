@@ -9,7 +9,7 @@ public sealed class TrustOperation : Entity
     public long? ClientOperationId { get; private set; }
     public long TrustId { get; private set; }
     public decimal Amount { get; private set; }
-    public long SubtransactionTypeId { get; private set; }
+    public long OperationTypeId { get; private set; }
     public int PortfolioId { get; private set; }
     public DateTime RegistrationDate { get; private set; }
     public DateTime ProcessDate { get; private set; }
@@ -25,7 +25,7 @@ public sealed class TrustOperation : Entity
         long? clientOperationId,
         long trustId,
         decimal amount,
-        long subtransactionTypeId,
+        long operationTypeId,
         int portfolioId,
         DateTime registrationDate,
         DateTime processDate,
@@ -38,7 +38,7 @@ public sealed class TrustOperation : Entity
             ClientOperationId = clientOperationId,
             TrustId = trustId,
             Amount = amount,
-            SubtransactionTypeId = subtransactionTypeId,
+            OperationTypeId = operationTypeId,
             PortfolioId = portfolioId,
             RegistrationDate = registrationDate,
             ProcessDate = processDate,
@@ -52,7 +52,7 @@ public sealed class TrustOperation : Entity
         long? newClientOperationId,
         long newTrustId,
         decimal newAmount,
-        long newSubtransactionTypeId,
+        long newOperationTypeId,
         int newPortfolioId,
         DateTime newRegistrationDate,
         DateTime newProcessDate,
@@ -62,7 +62,7 @@ public sealed class TrustOperation : Entity
         ClientOperationId = newClientOperationId;
         TrustId = newTrustId;
         Amount = newAmount;
-        SubtransactionTypeId = newSubtransactionTypeId;
+        OperationTypeId = newOperationTypeId;
         PortfolioId = newPortfolioId;
         RegistrationDate = newRegistrationDate;
         ProcessDate = newProcessDate;

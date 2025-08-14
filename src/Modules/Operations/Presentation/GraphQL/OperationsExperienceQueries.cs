@@ -3,7 +3,7 @@ using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.Origins;
 using Operations.Integrations.Banks;
 using Operations.Presentation.DTOs;
-using Operations.Integrations.SubTransactionTypes;
+using Operations.Integrations.OperationTypes;
 
 namespace Operations.Presentation.GraphQL;
     
@@ -29,18 +29,18 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         )).ToList();
     }
 
-    public async Task<IReadOnlyCollection<SubTransactionTypeDto>> GetSubTransactionTypesAsync(
-        Guid? categoryId,
+    public async Task<IReadOnlyCollection<OperationTypeDto>> GetOperationTypesAsync(
+        int? categoryId,
         CancellationToken cancellationToken = default)
     {
-        var result = await mediator.Send(new GetSubTransactionTypesQuery(categoryId), cancellationToken);
+        var result = await mediator.Send(new GetOperationTypesByCategoryQuery(categoryId), cancellationToken);
         if (!result.IsSuccess || result.Value == null)
         {
-            throw new InvalidOperationException("Failed to retrieve transaction subtypes.");
+            throw new InvalidOperationException("Failed to retrieve operation types.");
         }
-        var transactionSubtypes = result.Value;
-        return transactionSubtypes.Select(x => new SubTransactionTypeDto(
-            x.SubtransactionTypeId.ToString(),
+        var operationTypes = result.Value;
+        return operationTypes.Select(x => new OperationTypeDto(
+            x.OperationTypeId.ToString(),
             x.Name,
             x.HomologatedCode
         )).ToList();

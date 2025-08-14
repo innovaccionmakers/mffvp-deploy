@@ -136,7 +136,7 @@ public sealed class Prevalidate(
             CertifiedContributionProvided = !string.IsNullOrWhiteSpace(command.CertifiedContribution),
             CertifiedContributionValid = certifiedValid,
             SubtypeExists = catalogs.Subtype is not null,
-            CategoryIsContribution = catalogs.SubtypeCategoryCfg?.Name == "Aporte"
+            CategoryIsContribution = catalogs.SubtypeCategory?.Name == "Aporte"
         };
 
         var (ok, _, errs) = await ruleEvaluator.EvaluateAsync(Flow, contextValidation, cancellationToken);

@@ -11,7 +11,7 @@ public sealed class ClientOperation : Entity
     public int PortfolioId { get; private set; }
     public decimal Amount { get; private set; }
     public DateTime ProcessDate { get; private set; }
-    public long TransactionSubtypeId { get; private set; }
+    public long OperationTypeId { get; private set; }
     public DateTime ApplicationDate { get; private set; }
 
     private ClientOperation()
@@ -26,7 +26,7 @@ public sealed class ClientOperation : Entity
         int portfolioId,
         decimal amount,
         DateTime processDate,
-        long transactionSubtypeId,
+        long operationTypeId,
         DateTime applicationDate)
     {
         var clientOperation = new ClientOperation
@@ -38,7 +38,7 @@ public sealed class ClientOperation : Entity
             PortfolioId = portfolioId,
             Amount = amount,
             ProcessDate = processDate,
-            TransactionSubtypeId = transactionSubtypeId,
+            OperationTypeId = operationTypeId,
             ApplicationDate = applicationDate
         };
 
@@ -52,7 +52,7 @@ public sealed class ClientOperation : Entity
         int portfolioId,
         decimal amount,
         DateTime processDate,
-        long transactionSubtypeId,
+        long operationTypeId,
         DateTime applicationDate)
     {
         FilingDate = filingDate;
@@ -61,7 +61,7 @@ public sealed class ClientOperation : Entity
         PortfolioId = portfolioId;
         Amount = amount;
         ProcessDate = processDate;
-        TransactionSubtypeId = transactionSubtypeId;
+        OperationTypeId = operationTypeId;
         ApplicationDate = applicationDate;
     }
 }

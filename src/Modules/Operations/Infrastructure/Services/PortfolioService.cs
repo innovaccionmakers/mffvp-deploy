@@ -1,24 +1,24 @@
-using Products.Domain.Portfolios;
+using Operations.Application.Abstractions.External;
 using Operations.Domain.Services;
 
 namespace Operations.Infrastructure.Services;
 
 public class PortfolioService : IPortfolioService
 {
-    private readonly IPortfolioRepository _portfolioRepository;
+    private readonly IPortfolioLocator _portfolioLocator;
 
-    public PortfolioService(IPortfolioRepository portfolioRepository)
+    public PortfolioService(IPortfolioLocator portfolioLocator)
     {
-        _portfolioRepository = portfolioRepository;
+        _portfolioLocator = portfolioLocator;
     }
 
     public async Task<DateTime> GetCurrentDateAsync(string portfolioId, CancellationToken cancellationToken = default)
     {
-        var portfolio = await _portfolioRepository.GetAsync(int.Parse(portfolioId), cancellationToken);
-        if (portfolio == null)
+        var portfolioRes = await _portfolioLocator.FindByPortfolioIdAsync(Convert.ToInt32(portfolioId), cancellationToken);
+        if (portfolioRes == null)
             throw new InvalidOperationException("Portfolio not found.");
 
-        return portfolio.CurrentDate;
+        return portfolioRes.Value.CurrentDate;
     }
 
     public async Task<DateTime> GetNextDateFromCurrentDateAsync(string portfolioId, CancellationToken cancellationToken = default)

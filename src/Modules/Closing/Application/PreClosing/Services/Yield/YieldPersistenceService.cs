@@ -1,4 +1,5 @@
-﻿using Closing.Application.PreClosing.Services.Yield.Dto;
+﻿using Closing.Application.Closing.Services.Orchestation.Constants;
+using Closing.Application.PreClosing.Services.Yield.Dto;
 using Closing.Application.PreClosing.Services.Yield.Helpers;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.ConfigurationParameters;
@@ -63,16 +64,16 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
 
         return new SimulatedYieldResult
         {
-            Income = Math.Round(summary.Income,2),
-            Expenses = Math.Round(summary.Expenses,2),
-            Commissions = Math.Round(summary.Commissions,2),
+            Income = Math.Round(summary.Income,DecimalPrecision.TwoDecimals),
+            Expenses = Math.Round(summary.Expenses, DecimalPrecision.TwoDecimals),
+            Commissions = Math.Round(summary.Commissions, DecimalPrecision.TwoDecimals),
             Costs = Math.Round(summary.Costs,2),
-            YieldToCredit = Math.Round(summary.YieldToCredit,2),
+            YieldToCredit = Math.Round(summary.YieldToCredit, DecimalPrecision.TwoDecimals),
             UnitValue = simulationValues.UnitValue != null
-           ? Math.Round(simulationValues.UnitValue.Value, 2)
+           ? Math.Round(simulationValues.UnitValue.Value, DecimalPrecision.TwoDecimals)
            : (decimal?)null,
             DailyProfitability = simulationValues.DailyProfitability != null
-           ? Math.Round(simulationValues.DailyProfitability.Value * 100, 6)
+           ? Math.Round(simulationValues.DailyProfitability.Value * 100, DecimalPrecision.SixDecimals)
            : (decimal?)null
         };
 

@@ -291,6 +291,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("objetivo_id");
 
+                    b.Property<long>("OperationTypeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("tipo_operaciones_id");
+
                     b.Property<int>("PortfolioId")
                         .HasColumnType("integer")
                         .HasColumnName("portafolio_id");
@@ -303,15 +307,63 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_radicacion");
 
-                    b.Property<long>("SubtransactionTypeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("subtipo_transaccion_id");
-
                     b.HasKey("ClientOperationId");
 
-                    b.HasIndex("SubtransactionTypeId");
+                    b.HasIndex("OperationTypeId");
 
                     b.ToTable("operaciones_clientes", "operaciones");
+                });
+
+            modelBuilder.Entity("Operations.Domain.OperationTypes.OperationType", b =>
+                {
+                    b.Property<long>("OperationTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("OperationTypeId"));
+
+                    b.Property<JsonDocument>("AdditionalAttributes")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("atributos_adicionales");
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("categoria");
+
+                    b.Property<string>("External")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("externo");
+
+                    b.Property<string>("HomologatedCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_homologado");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.Property<string>("Nature")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("naturaleza");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.Property<bool>("Visible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("visible");
+
+                    b.HasKey("OperationTypeId");
+
+                    b.ToTable("tipos_operaciones", "operaciones");
                 });
 
             modelBuilder.Entity("Operations.Domain.OriginModes.OriginMode", b =>
@@ -377,58 +429,6 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.HasKey("OriginId");
 
                     b.ToTable("origen_aportes", "operaciones");
-                });
-
-            modelBuilder.Entity("Operations.Domain.SubtransactionTypes.SubtransactionType", b =>
-                {
-                    b.Property<long>("SubtransactionTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("SubtransactionTypeId"));
-
-                    b.Property<JsonDocument>("AdditionalAttributes")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("atributos_adicionales");
-
-                    b.Property<Guid?>("Category")
-                        .HasColumnType("uuid")
-                        .HasColumnName("categoria");
-
-                    b.Property<string>("External")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("externo");
-
-                    b.Property<string>("HomologatedCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("codigo_homologado");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("nombre");
-
-                    b.Property<string>("Nature")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("naturaleza");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("estado");
-
-                    b.Property<bool>("Visible")
-                        .HasColumnType("boolean")
-                        .HasColumnName("visible");
-
-                    b.HasKey("SubtransactionTypeId");
-
-                    b.ToTable("subtipo_transacciones", "operaciones");
                 });
 
             modelBuilder.Entity("Operations.Domain.TemporaryAuxiliaryInformations.TemporaryAuxiliaryInformation", b =>
@@ -546,6 +546,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("objetivo_id");
 
+                    b.Property<long>("OperationTypeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("tipo_operaciones_id");
+
                     b.Property<int>("PortfolioId")
                         .HasColumnType("integer")
                         .HasColumnName("portafolio_id");
@@ -561,10 +565,6 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_radicacion");
-
-                    b.Property<long>("SubtransactionTypeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("subtipo_transaccion_id");
 
                     b.HasKey("TemporaryClientOperationId");
 
@@ -592,6 +592,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("operaciones_clientes_id");
 
+                    b.Property<long>("OperationTypeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("tipo_operaciones_id");
+
                     b.Property<int>("PortfolioId")
                         .HasColumnType("integer")
                         .HasColumnName("portafolio_id");
@@ -603,10 +607,6 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_radicacion");
-
-                    b.Property<long>("SubtransactionTypeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("subtipo_transaccion_id");
 
                     b.Property<long>("TrustId")
                         .HasColumnType("bigint")
@@ -666,13 +666,13 @@ namespace Operations.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Operations.Domain.ClientOperations.ClientOperation", b =>
                 {
-                    b.HasOne("Operations.Domain.SubtransactionTypes.SubtransactionType", "SubtransactionType")
+                    b.HasOne("Operations.Domain.OperationTypes.OperationType", "OperationType")
                         .WithMany("ClientOperations")
-                        .HasForeignKey("SubtransactionTypeId")
+                        .HasForeignKey("OperationTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SubtransactionType");
+                    b.Navigation("OperationType");
                 });
 
             modelBuilder.Entity("Operations.Domain.OriginModes.OriginMode", b =>
@@ -729,16 +729,16 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Navigation("TrustOperations");
                 });
 
+            modelBuilder.Entity("Operations.Domain.OperationTypes.OperationType", b =>
+                {
+                    b.Navigation("ClientOperations");
+                });
+
             modelBuilder.Entity("Operations.Domain.Origins.Origin", b =>
                 {
                     b.Navigation("AuxiliaryInformations");
 
                     b.Navigation("OriginModes");
-                });
-
-            modelBuilder.Entity("Operations.Domain.SubtransactionTypes.SubtransactionType", b =>
-                {
-                    b.Navigation("ClientOperations");
                 });
 
             modelBuilder.Entity("Operations.Domain.TemporaryClientOperations.TemporaryClientOperation", b =>

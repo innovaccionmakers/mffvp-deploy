@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Operations.Domain.TrustOperations;
 using Operations.Infrastructure.Database;
-
 namespace Operations.Infrastructure.TrustOperations;
 
 internal sealed class TrustOperationRepository(OperationsDbContext context)
@@ -12,15 +11,17 @@ internal sealed class TrustOperationRepository(OperationsDbContext context)
         await context.TrustOperations.AddAsync(operation, cancellationToken);
     }
 
-    public async Task<TrustOperation?> GetByPortfolioAndDateAsync(
+    public async Task<TrustOperation?> GetByPortfolioTrustAndDateAsync(
       int portfolioId,
+      long trustId,
       DateTime closingDate,
       CancellationToken cancellationToken)
     {
-        return await context.TrustOperations
+        return await context.TrustOperations.AsNoTracking()
             .FirstOrDefaultAsync(
                 op => op.PortfolioId == portfolioId
-                   && op.RegistrationDate.Date == closingDate.Date,
+                     && op.TrustId == trustId
+                   && op.ProcessDate.Date == closingDate.Date,
                 cancellationToken);
     }
 
