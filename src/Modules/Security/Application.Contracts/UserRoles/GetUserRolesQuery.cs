@@ -1,7 +1,4 @@
 ﻿using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
-
-using Security.Domain.UserRoles;
 
 namespace Security.Application.Contracts.UserRoles;
 

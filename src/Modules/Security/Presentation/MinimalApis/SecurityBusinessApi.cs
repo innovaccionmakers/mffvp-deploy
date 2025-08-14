@@ -12,8 +12,6 @@ using Security.Application.Contracts.Roles;
 using Security.Application.Contracts.UserPermissions;
 using Security.Application.Contracts.UserRoles;
 using Security.Application.Contracts.Users;
-using Security.Domain.RolePermissions;
-using Security.Domain.UserRoles;
 
 namespace Security.Presentation.MinimalApis;
 

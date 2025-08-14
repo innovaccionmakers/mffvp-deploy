@@ -1,4 +1,4 @@
-﻿namespace Security.Domain.UserRoles;
+﻿namespace Security.Application.Contracts.UserRoles;
 
 public sealed class UserRoleDto
 {
