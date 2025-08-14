@@ -56,4 +56,15 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                 (st, cp) => cp.Name)
             .AnyAsync(name => name == contributionLabel, ct);
     }
+
+    public async Task<IEnumerable<ClientOperation>> GetClientOperationsByProcessDateAsync(DateTime processDate, CancellationToken cancellationToken = default)
+    {
+        var clientOperations = await context.ClientOperations
+            .Where(co => co.ProcessDate == processDate)
+            .Include(co => co.AuxiliaryInformation)
+            .Include(co => co.SubtransactionType)
+            .ToListAsync(cancellationToken);
+
+        return clientOperations;
+    }
 }

@@ -13,4 +13,6 @@ public interface IClientOperationRepository
         int objectiveId,
         int portfolioId,
         CancellationToken ct);
+
+    Task<IEnumerable<ClientOperation>> GetClientOperationsByProcessDateAsync(DateTime processDate, CancellationToken cancellationToken = default);
 }
