@@ -32,7 +32,6 @@ using Operations.Application.Contributions.Services.QueueTransactions;
 using Operations.Application.Contributions.Services.TrustCreation;
 using Operations.Application.Contributions.TransactionControl;
 using Operations.Domain.AuxiliaryInformations;
-using Operations.Domain.Banks;
 using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.ConfigurationParameters;
@@ -43,13 +42,13 @@ using Operations.Domain.TemporaryAuxiliaryInformations;
 using Operations.Domain.TemporaryClientOperations;
 using Operations.Domain.TrustOperations;
 using Operations.Infrastructure.AuxiliaryInformations;
-using Operations.Infrastructure.Banks;
 using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ClientOperations;
 using Operations.Infrastructure.ConfigurationParameters;
 using Operations.Infrastructure.Database;
 using Operations.Infrastructure.External.Activate;
 using Operations.Infrastructure.External.ContributionValidation;
+using Operations.Infrastructure.External.CollectionBankValidation;
 using Operations.Infrastructure.External.Customers;
 using Operations.Infrastructure.External.Portfolio;
 using Operations.Infrastructure.OperationTypes;
@@ -109,12 +108,12 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IOriginRepository, OriginRepository>();
         services.AddScoped<IOperationTypeRepository, OperationTypeRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
-        services.AddScoped<IBankRepository, BankRepository>();
         services.AddScoped<IOperationsExperienceQueries, OperationsExperienceQueries>();
         services.AddScoped<IOperationsExperienceMutation, OperationsExperienceMutation>();
 
         services.AddScoped<IActivateLocator, ActivateLocator>();
         services.AddScoped<IContributionRemoteValidator, ContributionRemoteValidator>();
+        services.AddScoped<ICollectionBankValidator, CollectionBankValidator>();
         services.AddScoped<IPersonValidator, PersonValidator>();
 
         services.AddScoped<IContributionCatalogResolver, ContributionCatalogResolver>();

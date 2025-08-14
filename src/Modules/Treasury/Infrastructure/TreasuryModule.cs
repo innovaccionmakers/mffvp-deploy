@@ -28,6 +28,7 @@ using Treasury.Infrastructure.Issuers;
 using Treasury.Infrastructure.TreasuryConcepts;
 using Treasury.Infrastructure.TreasuryMovements;
 using Treasury.IntegrationEvents.TreasuryMovements.TreasuryMovementsByPortfolio;
+using Treasury.IntegrationEvents.Issuers.ValidateCollectionBank;
 using Treasury.Presentation.GraphQL;
 
 namespace Treasury.Infrastructure;
@@ -74,8 +75,10 @@ public class TreasuryModule : IModuleConfiguration
             (IConfigurationParameterLookupRepository<TreasuryModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<TreasuryModuleMarker>, ErrorCatalog<TreasuryModuleMarker>>();
         services.AddScoped<TreasuryMovementsByPortfolioConsumer>();
+        services.AddScoped<ValidateCollectionBankConsumer>();
         services.AddScoped<ITreasuryExperienceMutations , TreasuryExperienceMutations>();
         services.AddScoped<IRpcHandler<TreasuryMovementsByPortfolioRequest, TreasuryMovementsByPortfolioResponse>, TreasuryMovementsByPortfolioConsumer>();
+        services.AddScoped<IRpcHandler<ValidateCollectionBankRequest, ValidateCollectionBankResponse>, ValidateCollectionBankConsumer>();
         services.AddScoped<ITreasuryExperienceQueries, TreasuryExperienceQueries>();
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IPortfolioValuationLocator, PortfolioValuationLocator>();

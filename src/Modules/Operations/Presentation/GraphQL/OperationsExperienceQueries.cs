@@ -1,7 +1,6 @@
 using MediatR;
 using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.Origins;
-using Operations.Integrations.Banks;
 using Operations.Presentation.DTOs;
 using Operations.Integrations.OperationTypes;
 
@@ -133,28 +132,6 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
             x.Name,
             x.HomologatedCode
         )).ToList();
-    }
-
-    public async Task<IReadOnlyCollection<BankDto>> GetBanksAsync(
-        CancellationToken cancellationToken = default)
-    {
-
-        var result = await mediator.Send(new GetBanksQuery(), cancellationToken);
-
-        if (!result.IsSuccess || result.Value == null)
-        {
-            throw new InvalidOperationException("Failed to retrieve banks.");
-        }
-
-        var banks = result.Value;
-
-
-        return banks.Select(x => new BankDto(
-            x.BankId.ToString(),
-            x.Name,
-            x.HomologatedCode
-        )).ToList();
-
     }
 
     public async Task<string> GetWithholdingContingencyAsync(CancellationToken cancellationToken = default)

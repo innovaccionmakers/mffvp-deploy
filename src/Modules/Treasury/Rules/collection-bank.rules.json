@@ -1,0 +1,13 @@
+[
+  {
+    "WorkflowName": "Treasury.CollectionBank.Validation",
+    "Rules": [
+      {
+        "RuleName": "IssuerMustExistAndBeBank",
+        "ErrorMessage": "El código homologado del Banco de Recaudo no existe",
+        "Expression": "input.IssuerExists == true && input.IsBank == true",
+        "Properties": { "errorCode": "1af301d1-041c-41e8-b28c-d31a3418ffe6" }
+      }
+    ]
+  }
+]
