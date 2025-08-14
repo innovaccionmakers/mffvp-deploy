@@ -1,5 +1,4 @@
-﻿START TRANSACTION;
-ALTER TABLE operaciones.informacion_auxiliar DROP CONSTRAINT "FK_informacion_auxiliar_bancos_banco_recaudo";
+﻿ALTER TABLE operaciones.informacion_auxiliar DROP CONSTRAINT "FK_informacion_auxiliar_bancos_banco_recaudo";
 
 DROP TABLE operaciones.bancos;
 
