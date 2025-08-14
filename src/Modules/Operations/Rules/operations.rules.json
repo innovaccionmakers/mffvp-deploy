@@ -216,14 +216,6 @@
         }
       },
       {
-        "RuleName": "CollectionBankExists",
-        "ErrorMessage": "El código homologado del Banco no existe.",
-        "Expression": "input.CollectionBankExists == true",
-        "Properties": {
-          "errorCode": "dffcfc5b-c9f9-42a6-be7f-d3a8caa16c78"
-        }
-      },
-      {
         "RuleName": "CertificationRequiredButMissing",
         "ErrorMessage": "El campo Aporte Certificado solo es obligatorio cuando el Origen sea Afiliado",
         "Expression": "!input.ContributionSourceRequiresCertification || input.CertifiedContributionProvided",

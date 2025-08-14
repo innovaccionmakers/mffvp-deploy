@@ -156,10 +156,10 @@ public class Query
     }
 
     [GraphQLName("banco")]
-    public async Task<IReadOnlyCollection<BankDto>> GetBanks([Service] IOperationsExperienceQueries operationsQueries,
+    public async Task<IReadOnlyCollection<BankDto>> GetBanks([Service] ITreasuryExperienceQueries treasuryQueries,
                                                              CancellationToken cancellationToken)
     {
-        return await operationsQueries.GetBanksAsync(cancellationToken);
+        return await treasuryQueries.GetBanksAsync(cancellationToken);
     }
 
     [GraphQLName("retencionContingente")]
