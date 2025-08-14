@@ -62,7 +62,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         var clientOperations = await context.ClientOperations
             .Where(co => co.ProcessDate == processDate)
             .Include(co => co.AuxiliaryInformation)
-            .Include(co => co.SubtransactionType)
+            .Include(co => co.OperationType)
             .ToListAsync(cancellationToken);
 
         return clientOperations;

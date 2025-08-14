@@ -23,7 +23,7 @@ namespace Operations.Application.ClientOperations.GetClientOperationsByProcessDa
                 c.Amount,
                 c.AuxiliaryInformation.CollectionAccount,
                 c.AuxiliaryInformation.PaymentMethodDetail,
-                c.SubtransactionType.Name))
+                c.OperationType.Name))
             .ToList();
 
             return Result.Success<IEnumerable<GetClientOperationsByProcessDateResponse>>(response);
