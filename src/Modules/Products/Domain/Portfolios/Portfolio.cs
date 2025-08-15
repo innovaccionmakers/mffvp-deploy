@@ -13,8 +13,6 @@ public sealed class Portfolio : Entity
     public decimal InitialMinimumAmount { get; private set; }
     public decimal AdditionalMinimumAmount { get; private set; }
     public DateTime CurrentDate { get; private set; }
-    public Guid CommissionRateTypeId { get; private set; }
-    public decimal CommissionPercentage { get; private set; }
     public string HomologatedCode { get; private set; }
     public int VerificationDigit { get; private set; }
     public string PortfolioNIT { get; private set; }
@@ -58,8 +56,6 @@ public sealed class Portfolio : Entity
         decimal initialMinimumAmount,
         decimal additionalMinimumAmount,
         DateTime currentDate,
-        Guid commissionRateTypeId,
-        decimal commissionPercentage,
         Status status
     )
     {
@@ -73,8 +69,6 @@ public sealed class Portfolio : Entity
             InitialMinimumAmount = initialMinimumAmount,
             AdditionalMinimumAmount = additionalMinimumAmount,
             CurrentDate = currentDate,
-            CommissionRateTypeId = commissionRateTypeId,
-            CommissionPercentage = commissionPercentage,
             Status = status
         };
 
@@ -90,8 +84,6 @@ public sealed class Portfolio : Entity
         decimal newInitialMinimumAmount,
         decimal newAdditionalMinimumAmount,
         DateTime newCurrentDate,
-        Guid newCommissionRateTypeId,
-        decimal newCommissionPercentage,
         Status newStatus
     )
     {
@@ -102,8 +94,6 @@ public sealed class Portfolio : Entity
         InitialMinimumAmount = newInitialMinimumAmount;
         AdditionalMinimumAmount = newAdditionalMinimumAmount;
         CurrentDate = newCurrentDate;
-        CommissionRateTypeId = newCommissionRateTypeId;
-        CommissionPercentage = newCommissionPercentage;
         Status = newStatus;
     }
 }
