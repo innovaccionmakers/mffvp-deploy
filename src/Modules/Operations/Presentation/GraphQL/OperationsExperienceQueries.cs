@@ -1,3 +1,4 @@
+using Common.SharedKernel.Domain;
 using MediatR;
 using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.Origins;
@@ -21,9 +22,9 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         var transactionTypes = result.Value;
 
         return transactionTypes.Select(x => new TransactionTypeDto(
-            x.Uuid,
+            x.OperationTypeId.ToString(),
             x.Name,
-            x.Status,
+            x.Status == Status.Active,
             x.HomologatedCode
         )).ToList();
     }
