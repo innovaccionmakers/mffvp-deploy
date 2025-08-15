@@ -1,9 +1,10 @@
-﻿
+﻿using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using System.Text.Json.Serialization;
 
 namespace Closing.Integrations.Closing.RunClosing;
 
+[AuditLog]
 public sealed record RunClosingCommand(
     [property: JsonPropertyName("IdPortafolio")]
     int PortfolioId,
