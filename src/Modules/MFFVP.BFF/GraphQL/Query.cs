@@ -109,10 +109,10 @@ public class Query
         return await operationsQueries.GetTransactionTypesAsync(cancellationToken);
     }
 
-    [GraphQLName("tipoOperacion")]
-    public async Task<IReadOnlyCollection<OperationTypeDto>> GetOperationTypes([GraphQLName("idCategoria")] int? categoryId,
-                                                                               [Service] IOperationsExperienceQueries operationsQueries,
-                                                                               CancellationToken cancellationToken)
+    [GraphQLName("subtipoTransaccion")]
+    public async Task<IReadOnlyCollection<OperationTypeDto>> GetSubtransactionTypes([GraphQLName("idTipoTransaccion")] int? categoryId,
+        [Service] IOperationsExperienceQueries operationsQueries,
+        CancellationToken cancellationToken)
     {
         return await operationsQueries.GetOperationTypesAsync(categoryId, cancellationToken);
     }
