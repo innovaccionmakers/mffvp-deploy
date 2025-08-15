@@ -119,10 +119,10 @@ public class CreateObjectiveCommandHandlerTests
             .Setup(r => r.GetByHomologatedCodesAsync(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<string, Office>
             {
-                { request.OpeningOffice, Office.Create("Bogotá", Status.Active, "BO", request.OpeningOffice, 1).Value },
+                { request.OpeningOffice, Office.Create("Bogotá", Status.Active, "BO", request.OpeningOffice,  1,"CC-BO").Value },
                 {
                     request.CurrentOffice,
-                    Office.Create("Medellín", Status.Active, "ME", request.CurrentOffice, 2).Value
+                    Office.Create("Medellín", Status.Active, "ME", request.CurrentOffice,2, "CC-ME").Value
                 }
             });
 
@@ -234,8 +234,8 @@ public class CreateObjectiveCommandHandlerTests
             .Setup(r => r.GetByHomologatedCodesAsync(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<string, Office>
             {
-                { request.OpeningOffice, Office.Create("Bogota", Status.Active, "BO", request.OpeningOffice, 1).Value },
-                { request.CurrentOffice, Office.Create("Med", Status.Active, "ME", request.CurrentOffice, 2).Value }
+                { request.OpeningOffice, Office.Create("Bogota", Status.Active, "BO", request.OpeningOffice,  1,"CC-BO").Value },
+                { request.CurrentOffice, Office.Create("Med", Status.Active, "ME", request.CurrentOffice, 2, "CC-ME").Value }
             });
 
         _commercialRepo
@@ -298,8 +298,8 @@ public class CreateObjectiveCommandHandlerTests
             .Setup(r => r.GetByHomologatedCodesAsync(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<string, Office>
             {
-                { request.OpeningOffice, Office.Create("Bogota", Status.Active, "BO", request.OpeningOffice, 1).Value },
-                { request.CurrentOffice, Office.Create("Med", Status.Active, "ME", request.CurrentOffice, 2).Value }
+                { request.OpeningOffice, Office.Create("Bogota", Status.Active, "BO", request.OpeningOffice,  1,"CC-BO").Value },
+                { request.CurrentOffice, Office.Create("Med", Status.Active, "ME", request.CurrentOffice, 2, "CC-ME").Value }
             });
 
         _commercialRepo

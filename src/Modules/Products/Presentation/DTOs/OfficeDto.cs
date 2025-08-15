@@ -7,5 +7,6 @@ public record class OfficeDto(
     [property: GraphQLName("prefijo")] string Prefix,
     [property: GraphQLName("ciudad")] string City,
     [property: GraphQLName("estado")] bool Status,
-    [property: GraphQLName("codigoHomologado")] string HomologationCode
+    [property: GraphQLName("codigoHomologado")] string HomologationCode,
+    [property: GraphQLName("centroCostos")] string CostCenter
 );
