@@ -50,7 +50,7 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
         }
     }
 
-    public async Task<GraphqlMutationResult> TreasuryConfigHandlerAsync(CreateTreasuryOperationInput input, IValidator<CreateTreasuryOperationInput> validator, CancellationToken cancellationToken = default)
+    public async Task<GraphqlMutationResult> TreasuryConfigHandlerAsync(TreasuryOperationInput input, IValidator<TreasuryOperationInput> validator, CancellationToken cancellationToken = default)
     {
         var result = new GraphqlMutationResult();
         try
@@ -62,7 +62,30 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
                 return result;
             }
 
-            var command = new CreateTreasuryConceptCommand(
+            if (input.Id.HasValue)
+            {
+                return await UpdateConceptAsync(input, cancellationToken);
+            }
+            else
+            {
+                return await CreateConceptAsync(input, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
+    }
+
+    private async Task<GraphqlMutationResult> UpdateConceptAsync(TreasuryOperationInput input, CancellationToken cancellationToken = default)
+    {
+        var result = new GraphqlMutationResult();
+
+        try
+        {
+            var updateCommand = new UpdateTreasuryConceptCommand(
+                input.Id!.Value,
                 input.Concept,
                 input.Nature,
                 input.AllowsNegative,
@@ -72,12 +95,46 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
                 input.Observations
             );
 
-            var commandResult = await mediator.Send(command, cancellationToken);
+            var commandResult = await mediator.Send(updateCommand, cancellationToken);
             if (!commandResult.IsSuccess)
             {
                 result.AddError(commandResult.Error);
                 return result;
             }
+
+            result.SetSuccess("Genial!, Se ha actualizado el concepto de tesorería");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
+    }
+
+    private async Task<GraphqlMutationResult> CreateConceptAsync(TreasuryOperationInput input, CancellationToken cancellationToken = default)
+    {
+        var result = new GraphqlMutationResult();
+
+        try
+        {
+            var createCommand = new CreateTreasuryConceptCommand(
+                input.Concept,
+                input.Nature,
+                input.AllowsNegative,
+                input.AllowsExpense,
+                input.RequiresBankAccount,
+                input.RequiresCounterparty,
+                input.Observations
+            );
+
+            var commandResult = await mediator.Send(createCommand, cancellationToken);
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+
             result.SetSuccess("Genial!, Se ha creado el concepto de tesorería");
             return result;
         }
