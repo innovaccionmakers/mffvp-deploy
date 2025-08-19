@@ -39,7 +39,7 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
     {
         return await context.OperationTypes
             .AsNoTracking()
-            .Where(s => s.CategoryId == categoryId && s.Status == Status.Active)
+            .Where(s => s.CategoryId == categoryId && s.Status == Status.Active && s.Visible)
             .ToListAsync(ct);
     }
 
@@ -47,7 +47,7 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
     {
         return await context.OperationTypes
             .AsNoTracking()
-            .Where(s => s.Status == Status.Active)
+            .Where(s => s.Status == Status.Active && s.Visible)
             .ToListAsync(ct);
     }
 }

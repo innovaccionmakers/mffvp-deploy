@@ -6,10 +6,11 @@ public sealed class Office : Entity
 {
     public int OfficeId { get; private set; }
     public string Name { get; private set; }
-    public string Prefix { get; private set; }
-    public int CityId { get; private set; }
     public Status Status { get; private set; }
+    public string Prefix { get; private set; }
     public string HomologatedCode { get; private set; }
+    public int CityId { get; private set; }
+    public string CostCenter { get; private set; }
 
     private Office()
     {
@@ -20,7 +21,8 @@ public sealed class Office : Entity
         Status status,
         string prefix,
         string homologatedCode,
-        int cityId
+        int cityId,
+        string costCenter
     )
     {
         var office = new Office
@@ -29,7 +31,8 @@ public sealed class Office : Entity
             Status = status,
             Prefix = prefix,
             HomologatedCode = homologatedCode,
-            CityId = cityId
+            CityId = cityId,
+            CostCenter = costCenter
         };
 
         office.Raise(new OfficeCreatedDomainEvent(office.OfficeId));
@@ -41,7 +44,8 @@ public sealed class Office : Entity
         Status status,
         string prefix,
         string homologatedCode,
-        int cityId
+        int cityId,
+        string costCenter
     )
     {
         Name = name;
@@ -49,5 +53,6 @@ public sealed class Office : Entity
         Prefix = prefix;
         HomologatedCode = homologatedCode;
         CityId = cityId;
+        CostCenter = costCenter;
     }
 }

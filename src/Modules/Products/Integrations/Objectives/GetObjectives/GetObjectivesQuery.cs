@@ -4,6 +4,7 @@ using Common.SharedKernel.Application.Messaging;
 
 namespace Products.Integrations.Objectives.GetObjectives;
 
+[AuditLog]
 public record GetObjectivesQuery(
     [property: HomologScope("TipoDocumento")]
     [property: JsonPropertyName("TipoId")]

@@ -7,11 +7,13 @@ using Security.Domain.Roles;
 using Security.Domain.UserPermissions;
 using Security.Domain.UserRoles;
 using Security.Domain.Users;
+using Security.Domain.Logs;
 using Security.Infrastructure.RolePermissions;
 using Security.Infrastructure.Roles;
 using Security.Infrastructure.UserPermissions;
 using Security.Infrastructure.UserRoles;
 using Security.Infrastructure.Users;
+using Security.Infrastructure.Logs;
 
 using System.Data.Common;
 
@@ -25,6 +27,7 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
     internal DbSet<RolePermission> RolePermissions { get; set; }
     internal DbSet<UserRole> UserRoles { get; set; }
     internal DbSet<UserPermission> UserPermissions { get; set; }
+    internal DbSet<Log> Logs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +38,7 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
         modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
         modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
         modelBuilder.ApplyConfiguration(new UserPermissionConfiguration());
+        modelBuilder.ApplyConfiguration(new LogConfiguration());
     }
 
     public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

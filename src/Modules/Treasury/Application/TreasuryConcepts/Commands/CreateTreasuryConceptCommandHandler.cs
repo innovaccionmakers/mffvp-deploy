@@ -13,7 +13,7 @@ internal class CreateTreasuryConceptCommandHandler(ITreasuryConceptRepository re
                                                    IUnitOfWork unitOfWork,
                                                    IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateTreasuryConceptCommand, TreasuryConceptResponse>
 {   
-    private const string RequiredFieldsWorkflow = "Treasury.CreateTreasuryConcept.RequiredFields";
+    private const string RequiredFieldsWorkflow = "Treasury.SaveTreasuryConcept.RequiredFields";
     public async Task<Result<TreasuryConceptResponse>> Handle(CreateTreasuryConceptCommand request, CancellationToken cancellationToken)
     {
         var requiredContext = new

@@ -45,4 +45,25 @@ public sealed class TreasuryConcept : Entity
 
         return Result.Success(treasuryConcept);
     }
+
+    public Result Update(
+        string concept,
+        IncomeExpenseNature nature,
+        bool allowsNegative,
+        bool allowsExpense,
+        bool requiresBankAccount,
+        bool requiresCounterparty,
+        string observations)
+    {
+        Concept = concept;
+        Nature = nature;
+        AllowsNegative = allowsNegative;
+        AllowsExpense = allowsExpense;
+        RequiresBankAccount = requiresBankAccount;
+        RequiresCounterparty = requiresCounterparty;
+        ProcessDate = DateTime.UtcNow;
+        Observations = observations;
+
+        return Result.Success();
+    }
 }
