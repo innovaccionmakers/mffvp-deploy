@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
+using Operations.Domain.OperationTypes;
 
 namespace Operations.Infrastructure.ClientOperations;
 
@@ -18,12 +19,12 @@ internal sealed class ClientOperationConfiguration : IEntityTypeConfiguration<Cl
         builder.Property(x => x.PortfolioId).HasColumnName("portafolio_id");
         builder.Property(x => x.Amount).HasColumnName("valor");
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
-        builder.Property(x => x.SubtransactionTypeId).HasColumnName("subtipo_transaccion_id");
+        builder.Property(x => x.OperationTypeId).HasColumnName("tipo_operaciones_id");
         builder.Property(x => x.ApplicationDate).HasColumnName("fecha_aplicacion");
 
-        builder.HasOne(x => x.SubtransactionType)
+        builder.HasOne(x => x.OperationType)
             .WithMany(st => st.ClientOperations)
-            .HasForeignKey(x => x.SubtransactionTypeId);
+            .HasForeignKey(x => x.OperationTypeId);
 
         builder.HasOne(x => x.AuxiliaryInformation)
             .WithOne(ai => ai.ClientOperation)

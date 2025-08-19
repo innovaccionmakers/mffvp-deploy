@@ -7,5 +7,5 @@ public sealed record ClientOperationResponse(
     int ObjectiveId,
     int PortfolioId,
     decimal Amount,
-    int SubtransactionTypeId
+    int OperationTypeId
 );

@@ -7,8 +7,8 @@ public interface IOperationsExperienceQueries
     Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<SubTransactionTypeDto>> GetSubTransactionTypesAsync(
-        Guid? categoryId,
+    Task<IReadOnlyCollection<OperationTypeDto>> GetOperationTypesAsync(
+        int? categoryId,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<CertificationStatusDto>> GetCertificationStatusesAsync(
@@ -26,8 +26,6 @@ public interface IOperationsExperienceQueries
 
     Task<IReadOnlyCollection<OriginContributionDto>> GetOriginContributionsAsync(
         CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyCollection<BankDto>> GetBanksAsync(CancellationToken cancellationToken = default);
 
     Task<string> GetWithholdingContingencyAsync(
         CancellationToken cancellationToken = default);

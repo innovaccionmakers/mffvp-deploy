@@ -1,7 +1,10 @@
-﻿using Common.SharedKernel.Application.Messaging;
+﻿using Common.SharedKernel.Application.Attributes;
+using Common.SharedKernel.Application.Messaging;
 using System.Text.Json.Serialization;
 
 namespace Closing.Integrations.PreClosing.RunSimulation;
+
+[AuditLog]
 public sealed record RunSimulationCommand(
     [property: JsonPropertyName("IdPortafolio")]
     int PortfolioId,

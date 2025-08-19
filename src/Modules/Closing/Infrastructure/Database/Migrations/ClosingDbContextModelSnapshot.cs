@@ -50,6 +50,10 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("objetivo_id");
 
+                    b.Property<long>("OperationTypeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("tipo_operaciones_id");
+
                     b.Property<int>("PortfolioId")
                         .HasColumnType("integer")
                         .HasColumnName("portafolio_id");
@@ -57,10 +61,6 @@ namespace Closing.Infrastructure.Database.Migrations
                     b.Property<DateTime>("ProcessDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_proceso");
-
-                    b.Property<long>("TransactionSubtypeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("subtipo_transaccion_id");
 
                     b.HasKey("ClientOperationId");
 

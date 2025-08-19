@@ -13,10 +13,10 @@ public sealed class ClosingStepEventSuscriber(IClosingExecutionStore store) : IC
     {
         if (evt.Process == ClosingProcess.End.ToString())
         {
-            await store.EndAsync(evt.PortfolioId, cancellationToken);
+            await store.EndAsync(cancellationToken);
             return;
         }
 
-        await store.UpdateProcessAsync(evt.PortfolioId, evt.Process, evt.ProcessDatetime, cancellationToken);
+        await store.UpdateProcessAsync(evt.Process, evt.ProcessDatetime, cancellationToken);
     }
 }

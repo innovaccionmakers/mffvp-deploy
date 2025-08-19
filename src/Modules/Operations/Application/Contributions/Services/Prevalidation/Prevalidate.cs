@@ -5,7 +5,6 @@ using Operations.Application.Abstractions;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.External;
 using Operations.Application.Abstractions.Services.Prevalidation;
-using Operations.Domain.Banks;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.ConfigurationParameters;
 using Operations.Integrations.Contributions.CreateContribution;
@@ -18,7 +17,7 @@ public sealed class Prevalidate(
     IContributionRemoteValidator remoteValidator,
     IPersonValidator personValidator,
     IClientOperationRepository clientOperationRepository,
-    IBankRepository bankRepository,
+    ICollectionBankValidator collectionBankValidator,
     IConfigurationParameterRepository configurationParameterRepository,
     IRuleEvaluator<OperationsModuleMarker> ruleEvaluator)
     : IPrevalidate
@@ -110,9 +109,14 @@ public sealed class Prevalidate(
             remoteRes.Value.PortfolioId,
             cancellationToken);
 
-        var bank = await bankRepository.FindByHomologatedCodeAsync(
+        var bankResult = await collectionBankValidator.ValidateAsync(
             command.CollectionBank,
             cancellationToken);
+
+        if (!bankResult.IsSuccess)
+            return Result.Failure<PrevalidationResult>(bankResult.Error!);
+
+        var bankId = bankResult.Value;
 
         var contextValidation = new
         {
@@ -128,7 +132,6 @@ public sealed class Prevalidate(
             PaymentMethodExists = catalogs.PaymentMethod is not null,
             PaymentMethodActive = catalogs.PaymentMethod?.Status ?? false,
             ChannelExists = catalogs.Channel is not null,
-            CollectionBankExists = bank is not null,
             IsFirstContribution = firstContribution,
             PortfolioInitialMinimumAmount = remoteRes.Value.PortfolioInitialMinimumAmount,
             PortfolioAdditionalMinimumAmount = remoteRes.Value.PortfolioAdditionalMinimumAmount,
@@ -136,7 +139,7 @@ public sealed class Prevalidate(
             CertifiedContributionProvided = !string.IsNullOrWhiteSpace(command.CertifiedContribution),
             CertifiedContributionValid = certifiedValid,
             SubtypeExists = catalogs.Subtype is not null,
-            CategoryIsContribution = catalogs.SubtypeCategoryCfg?.Name == "Aporte"
+            CategoryIsContribution = catalogs.SubtypeCategory?.Name == "Aporte"
         };
 
         var (ok, _, errs) = await ruleEvaluator.EvaluateAsync(Flow, contextValidation, cancellationToken);
@@ -157,7 +160,7 @@ public sealed class Prevalidate(
             actRes.Value,
             remoteRes.Value,
             catalogs,
-            bank,
+            bankId,
             firstContribution,
             documentTypeExists,
             affiliateFound

@@ -396,6 +396,11 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("ciudad_id");
 
+                    b.Property<string>("CostCenter")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("centro_costos");
+
                     b.Property<string>("HomologatedCode")
                         .IsRequired()
                         .HasColumnType("text")
@@ -523,74 +528,6 @@ namespace Products.Infrastructure.Database.Migrations
                     b.ToTable("planes", "productos");
                 });
 
-            modelBuilder.Entity("Products.Domain.PortfolioValuations.PortfolioValuation", b =>
-                {
-                    b.Property<int>("PortfolioValuationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PortfolioValuationId"));
-
-                    b.Property<DateTime>("CloseDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_cierre");
-
-                    b.Property<decimal>("DailyYield")
-                        .HasPrecision(38, 16)
-                        .HasColumnType("numeric(38,16)")
-                        .HasColumnName("rentabilidad_diaria");
-
-                    b.Property<decimal>("GrossYieldUnits")
-                        .HasPrecision(38, 16)
-                        .HasColumnType("numeric(38,16)")
-                        .HasColumnName("rendimiento_bruto_unidad");
-
-                    b.Property<decimal>("IncomingOperations")
-                        .HasPrecision(19, 2)
-                        .HasColumnType("numeric(19,2)")
-                        .HasColumnName("operaciones_entrada");
-
-                    b.Property<decimal>("OutgoingOperations")
-                        .HasPrecision(19, 2)
-                        .HasColumnType("numeric(19,2)")
-                        .HasColumnName("operaciones_salida");
-
-                    b.Property<int>("PortfolioId")
-                        .HasColumnType("integer")
-                        .HasColumnName("portfolio_id");
-
-                    b.Property<DateTime>("ProcessDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_proceso");
-
-                    b.Property<decimal>("UnitCost")
-                        .HasPrecision(38, 16)
-                        .HasColumnType("numeric(38,16)")
-                        .HasColumnName("costo_unidad");
-
-                    b.Property<decimal>("UnitValue")
-                        .HasPrecision(38, 16)
-                        .HasColumnType("numeric(38,16)")
-                        .HasColumnName("valor_unidad");
-
-                    b.Property<decimal>("Units")
-                        .HasPrecision(38, 16)
-                        .HasColumnType("numeric(38,16)")
-                        .HasColumnName("unidades");
-
-                    b.Property<decimal>("Value")
-                        .HasPrecision(19, 2)
-                        .HasColumnType("numeric(19,2)")
-                        .HasColumnName("valor");
-
-                    b.HasKey("PortfolioValuationId");
-
-                    b.HasIndex("PortfolioId");
-
-                    b.ToTable("valoracion_portafolio_dia", "productos");
-                });
-
             modelBuilder.Entity("Products.Domain.Portfolios.Portfolio", b =>
                 {
                     b.Property<int>("PortfolioId")
@@ -616,14 +553,6 @@ namespace Products.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("permite_retiro_agil");
-
-                    b.Property<decimal>("CommissionPercentage")
-                        .HasColumnType("numeric")
-                        .HasColumnName("porcentaje_comision");
-
-                    b.Property<Guid>("CommissionRateTypeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tipo_tasa_comision");
 
                     b.Property<DateTime>("CurrentDate")
                         .HasColumnType("timestamp with time zone")
@@ -840,17 +769,6 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Navigation("Plan");
                 });
 
-            modelBuilder.Entity("Products.Domain.PortfolioValuations.PortfolioValuation", b =>
-                {
-                    b.HasOne("Products.Domain.Portfolios.Portfolio", "Portfolio")
-                        .WithMany("PortfolioValuations")
-                        .HasForeignKey("PortfolioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Portfolio");
-                });
-
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Navigation("Children");
@@ -888,8 +806,6 @@ namespace Products.Infrastructure.Database.Migrations
                     b.Navigation("Alternatives");
 
                     b.Navigation("Commissions");
-
-                    b.Navigation("PortfolioValuations");
                 });
 #pragma warning restore 612, 618
         }

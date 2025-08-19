@@ -1,7 +1,6 @@
 using Common.SharedKernel.Domain;
 using Products.Domain.AlternativePortfolios;
 using Products.Domain.Commissions;
-using Products.Domain.PortfolioValuations;
 
 namespace Products.Domain.Portfolios;
 
@@ -14,8 +13,6 @@ public sealed class Portfolio : Entity
     public decimal InitialMinimumAmount { get; private set; }
     public decimal AdditionalMinimumAmount { get; private set; }
     public DateTime CurrentDate { get; private set; }
-    public Guid CommissionRateTypeId { get; private set; }
-    public decimal CommissionPercentage { get; private set; }
     public string HomologatedCode { get; private set; }
     public int VerificationDigit { get; private set; }
     public string PortfolioNIT { get; private set; }
@@ -47,9 +44,6 @@ public sealed class Portfolio : Entity
     private readonly List<Commission> _commissions = new();
     public IReadOnlyCollection<Commission> Commissions => _commissions;
 
-    private readonly List<PortfolioValuation> _portfolioValuations = new();
-    public IReadOnlyCollection<PortfolioValuation> PortfolioValuations => _portfolioValuations;
-
     private Portfolio()
     {
     }
@@ -62,8 +56,6 @@ public sealed class Portfolio : Entity
         decimal initialMinimumAmount,
         decimal additionalMinimumAmount,
         DateTime currentDate,
-        Guid commissionRateTypeId,
-        decimal commissionPercentage,
         Status status
     )
     {
@@ -77,8 +69,6 @@ public sealed class Portfolio : Entity
             InitialMinimumAmount = initialMinimumAmount,
             AdditionalMinimumAmount = additionalMinimumAmount,
             CurrentDate = currentDate,
-            CommissionRateTypeId = commissionRateTypeId,
-            CommissionPercentage = commissionPercentage,
             Status = status
         };
 
@@ -94,8 +84,6 @@ public sealed class Portfolio : Entity
         decimal newInitialMinimumAmount,
         decimal newAdditionalMinimumAmount,
         DateTime newCurrentDate,
-        Guid newCommissionRateTypeId,
-        decimal newCommissionPercentage,
         Status newStatus
     )
     {
@@ -106,8 +94,6 @@ public sealed class Portfolio : Entity
         InitialMinimumAmount = newInitialMinimumAmount;
         AdditionalMinimumAmount = newAdditionalMinimumAmount;
         CurrentDate = newCurrentDate;
-        CommissionRateTypeId = newCommissionRateTypeId;
-        CommissionPercentage = newCommissionPercentage;
         Status = newStatus;
     }
 }

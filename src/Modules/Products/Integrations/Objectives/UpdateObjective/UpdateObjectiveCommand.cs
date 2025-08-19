@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Products.Integrations.Objectives.UpdateObjective;
 
+[AuditLog]
 public sealed record UpdateObjectiveCommand(
     [property: JsonPropertyName("IdObjetivo")]
     int ObjectiveId,

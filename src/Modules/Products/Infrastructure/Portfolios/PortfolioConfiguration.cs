@@ -19,8 +19,6 @@ internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfoli
         builder.Property(x => x.InitialMinimumAmount).HasColumnName("aporte_minimo_inicial");
         builder.Property(x => x.AdditionalMinimumAmount).HasColumnName("aporte_minimo_adicional");
         builder.Property(x => x.CurrentDate).HasColumnName("fecha_actual");
-        builder.Property(x => x.CommissionRateTypeId).HasColumnName("tipo_tasa_comision");
-        builder.Property(x => x.CommissionPercentage).HasColumnName("porcentaje_comision");
         builder.Property(x => x.Status)
             .HasColumnName("estado")
             .HasConversion(new EnumMemberValueConverter<Status>());
@@ -33,9 +31,6 @@ internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfoli
     .WithOne(c => c.Portfolio)
     .HasForeignKey(c => c.PortfolioId);
 
-        builder.HasMany(p => p.PortfolioValuations)
-            .WithOne(pv => pv.Portfolio)
-            .HasForeignKey(pv => pv.PortfolioId);
         builder.Property(x => x.VerificationDigit).HasColumnName("digito_verificacion");
         builder.Property(x => x.PortfolioNIT).HasColumnName("nit_portafolio");
         builder.Property(x => x.NitApprovedPortfolio).HasColumnName("nit_portafolio_homologado");

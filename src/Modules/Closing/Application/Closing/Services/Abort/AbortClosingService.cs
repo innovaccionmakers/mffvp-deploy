@@ -20,7 +20,7 @@ public sealed class AbortClosingService(
     public async Task<Result> AbortAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
     {
 
-        var isActive = await store.IsClosingActiveAsync(portfolioId, ct);
+        var isActive = await store.IsClosingActiveAsync(ct);
         if (!isActive)
         {
             return Result.Failure(new Error("001", "No hay cierre activo para el portafolio.", ErrorType.Validation));

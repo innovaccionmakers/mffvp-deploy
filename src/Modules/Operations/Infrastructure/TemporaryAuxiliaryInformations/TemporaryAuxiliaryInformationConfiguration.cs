@@ -32,7 +32,6 @@ internal sealed class TemporaryAuxiliaryInformationConfiguration : IEntityTypeCo
         builder.Property(x => x.UserId).HasColumnName("usuario_id")
             .HasMaxLength(50);
         
-        builder.Ignore(x => x.Bank);
         builder.Ignore(x => x.Channel);
         builder.Ignore(x => x.Origin);
     

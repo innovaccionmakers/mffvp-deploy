@@ -5,6 +5,7 @@ using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.Database.Interceptors;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,8 +53,8 @@ using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.Portfolio;
+using Products.IntegrationEvents.Portfolio.PortfolioUpdated;
 using Products.IntegrationEvents.PortfolioValidation;
-using Products.IntegrationEvents.PortfolioValuation.PortfolioValuationUpdated;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
 
@@ -85,12 +86,16 @@ public class ProductsModule: IModuleConfiguration
         services.AddDbContext<ProductsDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
+                .AddInterceptors(sp.GetRequiredService<PreviousStateSaveChangesInterceptor>())
                 .UseNpgsql(
                     connectionString,
                     npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Products)
                 );
         });
+        
+        services.AddScoped<IPreviousStateProvider, PreviousStateProvider>();
+        services.AddScoped<PreviousStateSaveChangesInterceptor>();
 
         services.AddScoped<IPlanRepository, PlanRepository>();
         services.AddScoped<IAlternativeRepository, AlternativeRepository>();
@@ -120,8 +125,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();
         services.AddTransient<IRpcHandler<GetAdditionalInformationRequest, GetAdditionalInformationResponse>, GetAdditionalInformationConsumer>();
 
-        services.AddScoped<PortfolioValuationUpdatedSuscriber>();
-        services.AddScoped<IPortfolioValuationRepository, PortfolioValuationRepository>();
+        services.AddScoped<PortfolioUpdatedSuscriber>();
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
         services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();
         services.AddScoped<CommissionProcessedConsumer>();

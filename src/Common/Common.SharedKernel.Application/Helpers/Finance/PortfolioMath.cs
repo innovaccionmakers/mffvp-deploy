@@ -60,12 +60,29 @@ public static class PortfolioMath
     // -------------------------
 
     /// <summary>
-    /// Calcula el nuevo valor del portafolio sumando el valor anterior, el rendimiento, las operaciones de entrada y restando operaciones de salida.
+    /// Calcula el nuevo valor del portafolio sumando el valor anterior, el rendimiento, 
+    /// las operaciones de entrada y restando operaciones de salida.
+    /// Permite especificar la precisión (cantidad de decimales) del resultado.
     /// </summary>
-    public static decimal CalculateNewPortfolioValue(decimal previousValue, decimal yieldToCredit, decimal incoming, decimal outgoing)
+    /// <param name="previousValue">Valor del portafolio en el día anterior.</param>
+    /// <param name="yieldToCredit">Rendimiento a acreditar.</param>
+    /// <param name="incoming">Operaciones de entrada.</param>
+    /// <param name="outgoing">Operaciones de salida.</param>
+    /// <param name="precision">
+    /// Cantidad de decimales a devolver en el resultado (por defecto: 2).
+    /// </param>
+    /// <returns>Nuevo valor del portafolio redondeado a la precisión indicada.</returns>
+    public static decimal CalculateNewPortfolioValue(
+        decimal previousValue,
+        decimal yieldToCredit,
+        decimal incoming,
+        decimal outgoing,
+        int precision = 2)
     {
-        return previousValue + yieldToCredit + incoming - outgoing;
+        var result = previousValue + yieldToCredit + incoming - outgoing;
+        return Math.Round(result, precision, MidpointRounding.AwayFromZero);
     }
+
 
     // -------------------------
     // RENTABILIDAD Y TASAS

@@ -36,7 +36,7 @@ public static class ClosingEndpointMappings
                 return operation;
             })
             .AddEndpointFilter<TechnicalValidationFilter<RunClosingCommand>>()
-            .Produces<bool>(StatusCodes.Status200OK)
+            .Produces<ClosedResult>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -59,7 +59,7 @@ public static class ClosingEndpointMappings
                 return operation;
             })
             .AddEndpointFilter<TechnicalValidationFilter<ConfirmClosingCommand>>()
-            .Produces<bool>(StatusCodes.Status200OK)
+            .Produces<ClosedResult>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }

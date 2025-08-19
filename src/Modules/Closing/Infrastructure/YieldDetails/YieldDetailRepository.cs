@@ -44,7 +44,8 @@ namespace Closing.Infrastructure.YieldDetails
             var deletedCount = await context.YieldDetails
                 .Where(yield => yield.PortfolioId == portfolioId
                              && yield.ClosingDate == closingDateUtc
-                             && !yield.IsClosed) //Solo se pueden borrar los que no son Cerrados
+                             && !yield.IsClosed //Solo se pueden borrar los que no son Cerrados
+                            &&  yield.Source != "Conceptos Automáticos") // Excluir los conceptos automáticos calculados el dia anterior
                 .ExecuteDeleteAsync(cancellationToken);
 
         }

@@ -40,7 +40,7 @@ public sealed class TransactionControl(
             prevalidationResult.RemoteData.PortfolioId,
             command.Amount,
             DateTime.SpecifyKind(command.ExecutionDate, DateTimeKind.Utc),
-            prevalidationResult.Catalogs.Subtype?.SubtransactionTypeId ?? 0,
+            prevalidationResult.Catalogs.Subtype?.OperationTypeId ?? 0,
             DateTime.UtcNow).Value;
         clientOperationRepository.Insert(operation);
 
@@ -57,7 +57,7 @@ public sealed class TransactionControl(
             tax.TaxConditionId,
             tax.WithheldAmount,
             command.VerifiableMedium ?? JsonDocument.Parse("{}"),
-            prevalidationResult.Bank?.BankId ?? 0,
+            (int)(prevalidationResult.BankId ?? 0),
             DateTime.SpecifyKind(command.DepositDate, DateTimeKind.Utc),
             command.SalesUser,
             prevalidationResult.Catalogs.OriginModality!.ConfigurationParameterId,

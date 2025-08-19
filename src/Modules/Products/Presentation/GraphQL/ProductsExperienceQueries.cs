@@ -130,7 +130,8 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
             x.Prefix,
             x.CityId.ToString(),
             x.Status == Status.Active,
-            x.HomologatedCode
+            x.HomologatedCode,
+            x.CostCenter
         )).ToList();
     }
 

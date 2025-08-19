@@ -43,7 +43,7 @@ internal sealed class CreateClientOperationCommandHandler(
             clientOperation.PortfolioId,
             clientOperation.Amount,
             clientOperation.ProcessDate,
-            clientOperation.TransactionSubtypeId,
+            clientOperation.OperationTypeId,
             clientOperation.ApplicationDate);
     }
 } 

@@ -121,11 +121,11 @@ public class Query
     }
 
     [GraphQLName("subtipoTransaccion")]
-    public async Task<IReadOnlyCollection<SubTransactionTypeDto>> GetSubTransactionTypes([GraphQLName("idCategoria")] Guid? categoryId,
-                                                                                         [Service] IOperationsExperienceQueries operationsQueries,
-                                                                                         CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<OperationTypeDto>> GetSubtransactionTypes([GraphQLName("idTipoTransaccion")] int? categoryId,
+        [Service] IOperationsExperienceQueries operationsQueries,
+        CancellationToken cancellationToken)
     {
-        return await operationsQueries.GetSubTransactionTypesAsync(categoryId, cancellationToken);
+        return await operationsQueries.GetOperationTypesAsync(categoryId, cancellationToken);
     }
 
     [GraphQLName("estadoCertificacion")]
@@ -167,10 +167,10 @@ public class Query
     }
 
     [GraphQLName("banco")]
-    public async Task<IReadOnlyCollection<BankDto>> GetBanks([Service] IOperationsExperienceQueries operationsQueries,
+    public async Task<IReadOnlyCollection<BankDto>> GetBanks([Service] ITreasuryExperienceQueries treasuryQueries,
                                                              CancellationToken cancellationToken)
     {
-        return await operationsQueries.GetBanksAsync(cancellationToken);
+        return await treasuryQueries.GetBanksAsync(cancellationToken);
     }
 
     [GraphQLName("retencionContingente")]

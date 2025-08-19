@@ -4,6 +4,8 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.PensionRequirements.CreatePensionRequirement;
+
+[AuditLog]
 public sealed record CreatePensionRequirementCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]

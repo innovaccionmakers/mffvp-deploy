@@ -17,7 +17,7 @@ public sealed class OperationCompleted(IEventBus eventBus) : IOperationCompleted
             operation.PortfolioId,
             operation.Amount,
             operation.ProcessDate,
-            operation.SubtransactionTypeId,
+            operation.OperationTypeId,
             operation.ApplicationDate);
 
         await eventBus.PublishAsync(createClosingEvent, cancellationToken);

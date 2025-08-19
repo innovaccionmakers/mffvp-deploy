@@ -3,6 +3,7 @@ using MediatR;
 using System.Linq;
 using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolio;
 using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolioAndIssuer;
+using Treasury.Integrations.Banks;
 using Treasury.Integrations.Issuers.GetIssuers;
 using Treasury.Integrations.TreasuryConcepts.GetTreasuryConcepts;
 using Treasury.Integrations.TreasuryMovements.Queries;
@@ -33,6 +34,28 @@ public class TreasuryExperienceQueries(IMediator mediator) : ITreasuryExperience
             x.Description,
             x.Nit,
             x.Digit,
+            x.HomologatedCode
+        )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<BankDto>> GetBanksAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetBanksQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new GraphQLException(
+                ErrorBuilder.New()
+                    .SetMessage("Failed to retrieve banks")
+                    .Build()
+            );
+        }
+
+        var banks = result.Value;
+
+        return banks.Select(x => new BankDto(
+            x.Id.ToString(),
+            x.Description,
             x.HomologatedCode
         )).ToList();
     }

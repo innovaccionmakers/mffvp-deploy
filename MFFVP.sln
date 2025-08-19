@@ -353,6 +353,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSync.test.UnitTests", "src\Modules\DataSync\test\UnitTests\DataSync.test.UnitTests.csproj", "{F1950654-D9CF-4410-BF17-505E1C8BD7A2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{1E358760-F800-415E-B056-6A204246F965}"
+	ProjectSection(SolutionItems) = preProject
+		src\Modules\Treasury\Rules\treasury-movement.rules.json = src\Modules\Treasury\Rules\treasury-movement.rules.json
+		src\Modules\Treasury\Rules\bank-account.rules.json = src\Modules\Treasury\Rules\bank-account.rules.json
+		src\Modules\Treasury\Rules\treasury-concept.rules.json = src\Modules\Treasury\Rules\treasury-concept.rules.json
+		src\Modules\Treasury\Rules\collection-bank.rules.json = src\Modules\Treasury\Rules\collection-bank.rules.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1467,6 +1475,7 @@ Global
 		{D932FC0A-D092-4AC5-B7DC-DFAD5EA53AE5} = {3AC3E7AE-8B0F-9D19-9BE4-204A60323548}
 		{EE96BF4E-8362-FC0D-0E2C-574F2660FFAA} = {BE1FB447-E880-947D-FA52-6F6E43B0F966}
 		{F1950654-D9CF-4410-BF17-505E1C8BD7A2} = {EE96BF4E-8362-FC0D-0E2C-574F2660FFAA}
+		{1E358760-F800-415E-B056-6A204246F965} = {383B2B05-9B4B-1D16-5114-A3D1EFC314FA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F3F579B2-3972-40CD-910A-1E4758EB0D73}

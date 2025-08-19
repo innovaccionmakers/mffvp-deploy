@@ -23,8 +23,6 @@ internal class UpdatePortfolioFromClosingCommandHandler(
             existing.InitialMinimumAmount,
             existing.AdditionalMinimumAmount,
             request.CloseDate,
-            existing.CommissionRateTypeId,
-            existing.CommissionPercentage,
             existing.Status
         );
 
