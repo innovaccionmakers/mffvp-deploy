@@ -106,7 +106,7 @@ public class Mutation
         return await treasuryMutations.AccountHandlerAsync(bankAccount, validator, cancellationToken);
     }
 
-    [GraphQLName("crearConceptosTesoreria")]
+    [GraphQLName("procesarConceptoTesoreria")]
     public async Task<GraphqlMutationResult> TreasuryConfigHandler([GraphQLName("conceptoTesoreria")] TreasuryOperationInput treasuryMovement,
                                                                         IValidator<TreasuryOperationInput> validator,
                                                                        [Service] ITreasuryExperienceMutations treasuryMutations,
@@ -115,7 +115,7 @@ public class Mutation
         return await treasuryMutations.TreasuryConfigHandlerAsync(treasuryMovement, validator, cancellationToken);
     }
 
-    [GraphQLName("procesarMovimientoTesoreria")]
+    [GraphQLName("crearMovimientoTesoreria")]
     public async Task<GraphqlMutationResult> TreasuryOperationHandler([GraphQLName("movimientoTesoreria")] CreateTreasuryMovementInput treasuryMovement,
                                                                         IValidator<CreateTreasuryMovementInput> validator,
                                                                        [Service] ITreasuryExperienceMutations treasuryMutations,
