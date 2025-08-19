@@ -5,6 +5,7 @@ using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.Activates.UpdateActivate;
 
+[AuditLog]
 public sealed record UpdateActivateCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]

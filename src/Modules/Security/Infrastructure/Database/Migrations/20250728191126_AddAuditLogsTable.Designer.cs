@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Security.Infrastructure.Database;
@@ -12,9 +13,11 @@ using Security.Infrastructure.Database;
 namespace Security.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(SecurityDbContext))]
-    partial class SecurityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250728191126_AddAuditLogsTable")]
+    partial class AddAuditLogsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,8 +38,7 @@ namespace Security.Infrastructure.Database.Migrations
 
                     b.Property<string>("Action")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
+                        .HasColumnType("text")
                         .HasColumnName("accion");
 
                     b.Property<DateTime>("Date")
@@ -45,20 +47,17 @@ namespace Security.Infrastructure.Database.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
+                        .HasColumnType("text")
                         .HasColumnName("descripcion");
 
                     b.Property<string>("Ip")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
+                        .HasColumnType("text")
                         .HasColumnName("ip");
 
                     b.Property<string>("Machine")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
+                        .HasColumnType("text")
                         .HasColumnName("maquina");
 
                     b.Property<JsonDocument>("ObjectData")
@@ -77,8 +76,7 @@ namespace Security.Infrastructure.Database.Migrations
 
                     b.Property<string>("User")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("text")
                         .HasColumnName("usuario");
 
                     b.HasKey("Id");

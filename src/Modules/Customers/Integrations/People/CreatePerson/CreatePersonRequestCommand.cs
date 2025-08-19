@@ -5,6 +5,7 @@ using Common.SharedKernel.Domain;
 
 namespace Integrations.People.CreatePerson
 {
+    [AuditLog]
     public sealed record CreatePersonRequestCommand(
         [property: JsonPropertyName("CodigoHomologado")]
         [property: JsonConverter(typeof(EmptyStringToNullStringConverter))]

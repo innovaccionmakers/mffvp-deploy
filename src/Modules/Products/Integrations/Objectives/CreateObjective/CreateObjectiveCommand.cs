@@ -4,6 +4,7 @@ using Common.SharedKernel.Application.Messaging;
 
 namespace Products.Integrations.Objectives.CreateObjective;
 
+[AuditLog]
 public sealed record CreateObjectiveCommand(
     [property: JsonPropertyName("TipoId")]
     [property: HomologScope("TipoDocumento")]
