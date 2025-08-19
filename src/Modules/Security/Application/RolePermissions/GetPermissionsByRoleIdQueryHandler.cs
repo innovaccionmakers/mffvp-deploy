@@ -1,6 +1,5 @@
 ﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.Auth.Permissions;
 
 using MediatR;
 

@@ -106,9 +106,9 @@ public class Mutation
         return await treasuryMutations.AccountHandlerAsync(bankAccount, validator, cancellationToken);
     }
 
-    [GraphQLName("crearConceptosTesoreria")]
-    public async Task<GraphqlMutationResult> TreasuryConfigHandler([GraphQLName("conceptoTesoreria")] CreateTreasuryOperationInput treasuryMovement,
-                                                                        IValidator<CreateTreasuryOperationInput> validator,
+    [GraphQLName("procesarConceptoTesoreria")]
+    public async Task<GraphqlMutationResult> TreasuryConfigHandler([GraphQLName("conceptoTesoreria")] TreasuryOperationInput treasuryMovement,
+                                                                        IValidator<TreasuryOperationInput> validator,
                                                                        [Service] ITreasuryExperienceMutations treasuryMutations,
                                                                        CancellationToken cancellationToken)
     {

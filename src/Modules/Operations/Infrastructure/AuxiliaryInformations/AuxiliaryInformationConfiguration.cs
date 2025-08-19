@@ -40,9 +40,5 @@ internal sealed class AuxiliaryInformationConfiguration : IEntityTypeConfigurati
             .WithMany(o => o.AuxiliaryInformations)
             .HasForeignKey(x => x.OriginId);
 
-        builder.HasOne(x => x.Bank)
-            .WithMany(b => b.AuxiliaryInformations)
-            .HasForeignKey(x => x.CollectionBankId)
-            .HasPrincipalKey(b => b.BankId);
     }
 }

@@ -184,53 +184,9 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.HasIndex("ClientOperationId")
                         .IsUnique();
 
-                    b.HasIndex("CollectionBankId");
-
                     b.HasIndex("OriginId");
 
                     b.ToTable("informacion_auxiliar", "operaciones");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Banks.Bank", b =>
-                {
-                    b.Property<int>("BankId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BankId"));
-
-                    b.Property<int>("CheckClearingDays")
-                        .HasColumnType("integer")
-                        .HasColumnName("dias_de_canje_cheques");
-
-                    b.Property<int>("CompensationCode")
-                        .HasColumnType("integer")
-                        .HasColumnName("codigo_compensacion");
-
-                    b.Property<string>("HomologatedCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("codigo_homologado");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("nombre");
-
-                    b.Property<string>("Nit")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("nit");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("estado");
-
-                    b.HasKey("BankId");
-
-                    b.ToTable("bancos", "operaciones");
                 });
 
             modelBuilder.Entity("Operations.Domain.Channels.Channel", b =>
@@ -643,19 +599,11 @@ namespace Operations.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Operations.Domain.Banks.Bank", "Bank")
-                        .WithMany("AuxiliaryInformations")
-                        .HasForeignKey("CollectionBankId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Operations.Domain.Origins.Origin", "Origin")
                         .WithMany("AuxiliaryInformations")
                         .HasForeignKey("OriginId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Bank");
 
                     b.Navigation("Channel");
 
@@ -709,11 +657,6 @@ namespace Operations.Infrastructure.Database.Migrations
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Navigation("Children");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Banks.Bank", b =>
-                {
-                    b.Navigation("AuxiliaryInformations");
                 });
 
             modelBuilder.Entity("Operations.Domain.Channels.Channel", b =>

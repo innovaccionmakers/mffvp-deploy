@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Common.SharedKernel.Domain;
-using Operations.Domain.Banks;
 using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.Origins;
@@ -31,7 +30,6 @@ public sealed class AuxiliaryInformation : Entity
     public ClientOperation ClientOperation { get; private set; } = null!;
     public Origin Origin { get; private set; } = null!;
     public Channel Channel { get; private set; } = null!;
-    public Bank Bank { get; private set; } = null!;
 
     private AuxiliaryInformation()
     {

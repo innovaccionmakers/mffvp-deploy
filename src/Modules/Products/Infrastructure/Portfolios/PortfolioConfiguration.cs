@@ -19,8 +19,6 @@ internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfoli
         builder.Property(x => x.InitialMinimumAmount).HasColumnName("aporte_minimo_inicial");
         builder.Property(x => x.AdditionalMinimumAmount).HasColumnName("aporte_minimo_adicional");
         builder.Property(x => x.CurrentDate).HasColumnName("fecha_actual");
-        builder.Property(x => x.CommissionRateTypeId).HasColumnName("tipo_tasa_comision");
-        builder.Property(x => x.CommissionPercentage).HasColumnName("porcentaje_comision");
         builder.Property(x => x.Status)
             .HasColumnName("estado")
             .HasConversion(new EnumMemberValueConverter<Status>());

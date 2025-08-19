@@ -1,0 +1,3 @@
+namespace Treasury.IntegrationEvents.Issuers.ValidateCollectionBank;
+
+public sealed record ValidateCollectionBankRequest(string HomologatedCode);

@@ -1,4 +1,4 @@
-﻿namespace Security.Domain.RolePermissions;
+﻿namespace Security.Application.Contracts.RolePermissions;
 
 public class RolePermissionDto
 {

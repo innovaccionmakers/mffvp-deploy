@@ -4,6 +4,7 @@ using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.Database.Interceptors;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 
 using Microsoft.AspNetCore.Builder;
@@ -32,7 +33,6 @@ using Operations.Application.Contributions.Services.QueueTransactions;
 using Operations.Application.Contributions.Services.TrustCreation;
 using Operations.Application.Contributions.TransactionControl;
 using Operations.Domain.AuxiliaryInformations;
-using Operations.Domain.Banks;
 using Operations.Domain.Channels;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.ConfigurationParameters;
@@ -43,13 +43,13 @@ using Operations.Domain.TemporaryAuxiliaryInformations;
 using Operations.Domain.TemporaryClientOperations;
 using Operations.Domain.TrustOperations;
 using Operations.Infrastructure.AuxiliaryInformations;
-using Operations.Infrastructure.Banks;
 using Operations.Infrastructure.Channels;
 using Operations.Infrastructure.ClientOperations;
 using Operations.Infrastructure.ConfigurationParameters;
 using Operations.Infrastructure.Database;
 using Operations.Infrastructure.External.Activate;
 using Operations.Infrastructure.External.ContributionValidation;
+using Operations.Infrastructure.External.CollectionBankValidation;
 using Operations.Infrastructure.External.Customers;
 using Operations.Infrastructure.External.Portfolio;
 using Operations.Infrastructure.OperationTypes;
@@ -92,12 +92,16 @@ public class OperationsModule: IModuleConfiguration
         services.AddDbContext<OperationsDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
+                .AddInterceptors(sp.GetRequiredService<PreviousStateSaveChangesInterceptor>())
                 .UseNpgsql(
                     connectionString,
                     npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Operations)
                 );
         });
+        
+        services.AddScoped<IPreviousStateProvider, PreviousStateProvider>();
+        services.AddScoped<PreviousStateSaveChangesInterceptor>();
 
         services.AddScoped<IClientOperationRepository, ClientOperationRepository>();
         services.AddScoped<IAuxiliaryInformationRepository, AuxiliaryInformationRepository>();
@@ -109,12 +113,12 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IOriginRepository, OriginRepository>();
         services.AddScoped<IOperationTypeRepository, OperationTypeRepository>();
         services.AddScoped<IChannelRepository, ChannelRepository>();
-        services.AddScoped<IBankRepository, BankRepository>();
         services.AddScoped<IOperationsExperienceQueries, OperationsExperienceQueries>();
         services.AddScoped<IOperationsExperienceMutation, OperationsExperienceMutation>();
 
         services.AddScoped<IActivateLocator, ActivateLocator>();
         services.AddScoped<IContributionRemoteValidator, ContributionRemoteValidator>();
+        services.AddScoped<ICollectionBankValidator, CollectionBankValidator>();
         services.AddScoped<IPersonValidator, PersonValidator>();
 
         services.AddScoped<IContributionCatalogResolver, ContributionCatalogResolver>();

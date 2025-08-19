@@ -396,6 +396,11 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("ciudad_id");
 
+                    b.Property<string>("CostCenter")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("centro_costos");
+
                     b.Property<string>("HomologatedCode")
                         .IsRequired()
                         .HasColumnType("text")
@@ -548,14 +553,6 @@ namespace Products.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("permite_retiro_agil");
-
-                    b.Property<decimal>("CommissionPercentage")
-                        .HasColumnType("numeric")
-                        .HasColumnName("porcentaje_comision");
-
-                    b.Property<Guid>("CommissionRateTypeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tipo_tasa_comision");
 
                     b.Property<DateTime>("CurrentDate")
                         .HasColumnType("timestamp with time zone")

@@ -1,6 +1,6 @@
 using HotChocolate;
 
-namespace Operations.Presentation.DTOs;
+namespace Treasury.Presentation.DTOs;
 
 public record BankDto(
     [property: GraphQLName("bancoId")] string BankId,

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Common.SharedKernel.Domain;
-using Operations.Domain.Banks;
 using Operations.Domain.Channels;
 using Operations.Domain.Origins;
 using Operations.Domain.TemporaryClientOperations;
@@ -31,7 +30,6 @@ public sealed class TemporaryAuxiliaryInformation : Entity
     public TemporaryClientOperation TemporaryClientOperation { get; private set; } = null!;
     public Origin Origin { get; private set; } = null!;
     public Channel Channel { get; private set; } = null!;
-    public Bank Bank { get; private set; } = null!;
 
     private TemporaryAuxiliaryInformation()
     {
