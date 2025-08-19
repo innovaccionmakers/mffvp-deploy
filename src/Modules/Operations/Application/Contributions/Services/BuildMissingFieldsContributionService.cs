@@ -1,6 +1,7 @@
+using Operations.Application.Abstractions.Services.ContributionService;
 using Operations.Domain.Services;
 
-namespace Operations.Infrastructure.Services;
+namespace Operations.Application.Contributions.Services;
 
 public class BuildMissingFieldsContributionService : IBuildMissingFieldsContributionService
 {
