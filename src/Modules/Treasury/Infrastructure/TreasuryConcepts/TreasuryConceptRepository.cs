@@ -20,4 +20,10 @@ public class TreasuryConceptRepository(TreasuryDbContext context) : ITreasuryCon
     {
         await context.TreasuryConcepts.AddAsync(treasuryConcept, cancellationToken);
     }
+
+    public async Task UpdateAsync(TreasuryConcept treasuryConcept, CancellationToken cancellationToken = default)
+    {
+        context.TreasuryConcepts.Update(treasuryConcept);
+        await Task.CompletedTask;
+    }
 }

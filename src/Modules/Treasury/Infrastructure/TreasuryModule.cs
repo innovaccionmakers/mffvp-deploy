@@ -42,7 +42,7 @@ public class TreasuryModule : IModuleConfiguration
     {
         var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         string connectionString = configuration.GetConnectionString("TreasuryDatabase");
-        
+
         if (env != "Development")
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];

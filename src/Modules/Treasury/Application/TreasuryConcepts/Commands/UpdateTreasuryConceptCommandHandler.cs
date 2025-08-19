@@ -1,4 +1,4 @@
-﻿using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain;
 using Treasury.Application.Abstractions;
@@ -9,12 +9,14 @@ using Treasury.Integrations.TreasuryConcepts.Response;
 
 namespace Treasury.Application.TreasuryConcepts.Commands;
 
-internal class CreateTreasuryConceptCommandHandler(ITreasuryConceptRepository repository,
+internal class UpdateTreasuryConceptCommandHandler(ITreasuryConceptRepository repository,
                                                    IUnitOfWork unitOfWork,
-                                                   IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<CreateTreasuryConceptCommand, TreasuryConceptResponse>
-{   
+                                                   IInternalRuleEvaluator<TreasuryModuleMarker> ruleEvaluator) : ICommandHandler<UpdateTreasuryConceptCommand, TreasuryConceptResponse>
+{
     private const string RequiredFieldsWorkflow = "Treasury.SaveTreasuryConcept.RequiredFields";
-    public async Task<Result<TreasuryConceptResponse>> Handle(CreateTreasuryConceptCommand request, CancellationToken cancellationToken)
+    private const string ValidationWorkflow = "Treasury.UpdateTreasuryConcept.Validation";
+
+    public async Task<Result<TreasuryConceptResponse>> Handle(UpdateTreasuryConceptCommand request, CancellationToken cancellationToken)
     {
         var requiredContext = new
         {
@@ -34,32 +36,42 @@ internal class CreateTreasuryConceptCommandHandler(ITreasuryConceptRepository re
                 Error.Validation(first.Code, first.Message));
         }
 
-        var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        var treasuryConcept = TreasuryConcept.Create(
+        var existingConcept = await repository.GetByIdAsync(request.Id, cancellationToken);
+
+        var validationContext = new
+        {
+            ExistingConcept = existingConcept
+        };
+
+        var (validationOk, _, validationErrors) = await ruleEvaluator.EvaluateAsync(ValidationWorkflow, validationContext, cancellationToken);
+        if (!validationOk)
+        {
+            var first = validationErrors.First();
+            return Result.Failure<TreasuryConceptResponse>(
+                Error.Validation(first.Code, first.Message));
+        }
+
+        var updateResult = existingConcept.Update(
             request.Concept,
             request.Nature,
             request.AllowsNegative,
             request.AllowsExpense,
             request.RequiresBankAccount,
             request.RequiresCounterparty,
-            DateTime.UtcNow,
             request.Observations ?? string.Empty
         );
 
-        if (treasuryConcept.IsFailure)
+        if (updateResult.IsFailure)
         {
-            return Result.Failure<TreasuryConceptResponse>(
-                treasuryConcept.Error);
+            return Result.Failure<TreasuryConceptResponse>(updateResult.Error);
         }
 
-        await repository.AddAsync(treasuryConcept.Value, cancellationToken);
+        var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await repository.UpdateAsync(existingConcept, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await tx.CommitAsync(cancellationToken);
 
-        var response = new TreasuryConceptResponse(
-            treasuryConcept.Value.Id          
-        );
-
+        var response = new TreasuryConceptResponse(existingConcept.Id);
         return Result.Success(response);
     }
 }
