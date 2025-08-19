@@ -21,14 +21,17 @@ internal sealed class OfficeConfiguration : IEntityTypeConfiguration<Office>
         builder.Property(o => o.Prefix)
             .HasColumnName("prefijo");
         
-        builder.Property(o => o.CityId)
-            .HasColumnName("ciudad_id");
-        
         builder.Property(o => o.Status)
             .HasColumnName("estado")
             .HasConversion(new EnumMemberValueConverter<Status>());
 
         builder.Property(o => o.HomologatedCode)
             .HasColumnName("codigo_homologado");
+        
+        builder.Property(o => o.CityId)
+            .HasColumnName("ciudad_id");
+        
+        builder.Property(o => o.CostCenter)
+            .HasColumnName("centro_costos");
     }
 }
