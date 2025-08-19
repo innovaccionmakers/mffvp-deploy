@@ -1,3 +1,4 @@
+using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using Operations.Domain.ClientOperations;
 using Operations.Infrastructure.Database;
@@ -59,8 +60,12 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
 
     public async Task<IEnumerable<ClientOperation>> GetClientOperationsByProcessDateAsync(DateTime processDate, CancellationToken cancellationToken = default)
     {
+        var utcProcessDate = processDate.Kind == DateTimeKind.Unspecified
+                            ? DateTime.SpecifyKind(processDate, DateTimeKind.Utc)
+                            : processDate.ToUniversalTime();
+
         var clientOperations = await context.ClientOperations
-            .Where(co => co.ProcessDate == processDate)
+            .Where(co => co.ProcessDate == utcProcessDate)
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
             .ToListAsync(cancellationToken);

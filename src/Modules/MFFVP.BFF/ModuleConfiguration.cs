@@ -1,6 +1,11 @@
 using Common.SharedKernel.Application.Abstractions;
 using MFFVP.BFF.GraphQL;
 using MFFVP.BFF.Services;
+using MFFVP.BFF.Services.Reports;
+using MFFVP.BFF.Services.Reports.DepositsReport;
+using MFFVP.BFF.Services.Reports.DepositsReport.Interfaces;
+using MFFVP.BFF.Services.Reports.Interfaces;
+using MFFVP.BFF.Services.Reports.Strategies;
 
 namespace MFFVP.BFF;
 
@@ -13,6 +18,11 @@ public class ModuleConfiguration : IModuleConfiguration
     {
 
         services.AddScoped<ExperienceOrchestrator>();
+        services.AddScoped<ReportOrchestrator>();
+        services.AddScoped<PaymentMethodProcessor>();
+        services.AddScoped<IExcelReportService, ExcelReportService>();
+        services.AddScoped<IReportStrategy, DepositsReportStrategy>();
+        services.AddScoped<IDepositsReportDataProvider, DepositsReportDataProvider>();
 
         // Add GraphQL Schema Stitching
         services.AddSchemaStitching(configuration);
