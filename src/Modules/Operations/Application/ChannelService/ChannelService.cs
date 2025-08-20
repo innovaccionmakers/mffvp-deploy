@@ -1,7 +1,7 @@
+using Operations.Application.Abstractions.Services.Channel;
 using Operations.Domain.Channels;
-using Operations.Domain.Services;
 
-namespace Operations.Infrastructure.Services;
+namespace Operations.Application.ChannelService;
 
 public class ChannelService : IChannelService
 {

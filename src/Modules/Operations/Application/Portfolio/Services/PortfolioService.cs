@@ -1,7 +1,7 @@
 using Operations.Application.Abstractions.External;
-using Operations.Domain.Services;
+using Operations.Application.Abstractions.Services.Portfolio;
 
-namespace Operations.Infrastructure.Services;
+namespace Operations.Application.Portfolio.Services;
 
 public class PortfolioService : IPortfolioService
 {

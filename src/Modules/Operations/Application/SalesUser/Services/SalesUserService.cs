@@ -1,6 +1,6 @@
-using Operations.Domain.Services;
+using Operations.Application.Abstractions.Services.SalesUser;
 
-namespace Operations.Infrastructure.Services;
+namespace Operations.Application.SalesUser.Services;
 
 public class SalesUserService : ISalesUserService
 {
