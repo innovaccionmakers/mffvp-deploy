@@ -12,17 +12,13 @@ public sealed class TrustSyncConsumer(
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
-            new TrustSyncCommand(
-                message.TrustId,
+            new TrustSyncPostCommand(
                 message.PortfolioId,
-                message.ClosingDate,
-                message.PreClosingBalance,
-                message.Capital,
-                message.ContingentWithholding),
+                message.ClosingDate),
             cancellationToken);
 
         return result.IsSuccess
             ? new TrustSyncResponse(true)
-            : new TrustSyncResponse(false, result.Error!.Code, result.Error.Description);
+            : new TrustSyncResponse(false, result.Error!.Code, result.Error!.Description);
     }
 }

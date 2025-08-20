@@ -1,54 +1,62 @@
 ﻿using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
 using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
+using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
 
 namespace Closing.Application.PostClosing.Services.Orchestation;
 
 public class PostClosingEventsOrchestation : IPostClosingEventsOrchestation
 {
-    private readonly IPortfolioUpdatePublisher _valuationPublisher;
+    private readonly IPortfolioUpdatePublisher _portfolioPublisher;
     private readonly ITrustYieldPublisher _trustYieldPublisher;
     private readonly IPortfolioCommissionPublisher _commissionPublisher;
     private readonly IPendingTransactionHandler _pendingTransactionHandler;
+    private readonly IDataSyncPostService _dataSyncPostService;
 
     public PostClosingEventsOrchestation(
-        IPortfolioUpdatePublisher valuationPublisher,
+        IPortfolioUpdatePublisher portfolioPublisher,
         ITrustYieldPublisher trustYieldPublisher,
         IPortfolioCommissionPublisher commissionPublisher,
-        IPendingTransactionHandler pendingTransactionHandler
+        IPendingTransactionHandler pendingTransactionHandler,
+        IDataSyncPostService dataSyncPostService
         )
     {
-        _valuationPublisher = valuationPublisher;
+        _portfolioPublisher = portfolioPublisher;
         _trustYieldPublisher = trustYieldPublisher;
         _commissionPublisher = commissionPublisher;
         _pendingTransactionHandler = pendingTransactionHandler;
+        _dataSyncPostService = dataSyncPostService;
     }
 
     public async Task ExecuteAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
-        //// 1. Publicar eventos de valoración del portafolio
-        //var valuationTask = _valuationPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
+        // 1. Publicar eventos de actualización del portafolio
+        var valuationTask = _portfolioPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
 
-        //// 2. Publicar eventos de rendimientos de fideicomiso
-        //var trustReturnsTask = _trustYieldPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
+        // 2. Publicar eventos de comisión del portafolio
+        var commissionTask = _commissionPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
 
-        //// 3. Publicar eventos de comisión del portafolio
-        //var commissionTask = _commissionPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
+        // 3. Publicar eventos de sincronización de datos
+        var syncPostTask = _dataSyncPostService.ExecuteAsync(portfolioId, closingDate, cancellationToken);
 
-        //// Ejecutar las tres tareas en paralelo
-        //await Task.WhenAll(valuationTask, trustReturnsTask, commissionTask);
+        // Ejecutar las tres tareas en paralelo
+        await Task.WhenAll(valuationTask, commissionTask, syncPostTask);
 
-        // 1. Publicar eventos de valoración del portafolio
-        await _valuationPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
+        //// sincrono
+        //// 1. Publicar eventos de actualización del portafolio
+        //await _portfolioPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
 
-        // 2. Publicar eventos de rendimientos de fideicomiso
+        //// 2. Publicar eventos de comisión del portafolio
+        //await _commissionPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
+
+        //// 3. Publicar eventos de sincronización de datos
+        //await _dataSyncPostService.ExecuteAsync(portfolioId, closingDate, cancellationToken);
+
+        // 4. Publicar eventos de rendimientos de fideicomiso
         await _trustYieldPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
 
-        // 3. Publicar eventos de comisión del portafolio
-        await _commissionPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
-
-        // 4. Manejar transacciones pendientes y enviar evento de paso ClosingEnd
+        // 5. Manejar transacciones pendientes y enviar evento de paso ClosingEnd
         await _pendingTransactionHandler.HandleAsync(portfolioId, closingDate, cancellationToken);
     }
 }

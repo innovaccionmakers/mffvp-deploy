@@ -34,7 +34,7 @@ internal sealed class ProfitandLossLoadCommandHandler(
         var portfolioData = portfolioDataResult.Value;
         
         var valuationExists = await portfolioValuationRepository
-            .ValuationExistsAsync(
+            .ExistsByPortfolioAndDateAsync(
                 command.PortfolioId,
                 portfolioData.CurrentDate.Date,
                 cancellationToken);

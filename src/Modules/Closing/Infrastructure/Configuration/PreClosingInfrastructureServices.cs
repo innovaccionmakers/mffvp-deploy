@@ -53,6 +53,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IYieldDetailBuilder, CommissionYieldDetailBuilder>();
             services.AddScoped<IYieldDetailBuilder, ProfitLossYieldDetailBuilder>();
             services.AddScoped<IYieldDetailBuilder, TreasuryYieldDetailBuilder>();
+            services.AddScoped<IYieldDetailBuilder, AutomaticConceptYieldDetailBuilder>();
 
             services.AddScoped<YieldDetailBuilderService>();
 

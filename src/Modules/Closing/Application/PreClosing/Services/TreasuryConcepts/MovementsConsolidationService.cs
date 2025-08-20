@@ -14,7 +14,7 @@ namespace Closing.Application.PreClosing.Services.TreasuryConcepts
         public async Task<IReadOnlyList<TreasuryMovementSummary>> GetMovementsSummaryAsync(
              int portfolioId,
              DateTime closingDate,
-             CancellationToken cancellationToken)
+             CancellationToken cancellationToken = default)
         {
             var result = await _movementsLocator
                 .GetMovementsByPortfolioAsync(portfolioId, closingDate, cancellationToken);
@@ -39,7 +39,7 @@ namespace Closing.Application.PreClosing.Services.TreasuryConcepts
         public async Task<bool> HasTreasuryMovementsAsync(
             int portfolioId,
             DateTime closingDate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             var result = await _movementsLocator
                 .GetMovementsByPortfolioAsync(portfolioId, closingDate, cancellationToken);

@@ -6,15 +6,17 @@ namespace Closing.Application.Abstractions.External.Operations.OperationTypes
 {
     public interface IOperationTypesLocator
     {
-        Task<Result<IReadOnlyCollection<OperationTypesRemoteResponse>>> GetAllOperationTypesAsync(
+        Task<Result<IReadOnlyCollection<OperationTypeInfo>>> GetAllOperationTypesAsync(
             CancellationToken cancellationToken);
     }
 
-    public sealed record OperationTypesRemoteResponse(
+    public sealed record OperationTypeInfo(
         long OperationTypeId,
         string Name,
         string? Category,
         IncomeEgressNature Nature,
-        Status Status
+        Status Status,
+        string External,
+        string HomologatedCode
     );
 }

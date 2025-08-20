@@ -9,7 +9,7 @@ namespace Products.Infrastructure.Commissions
     {
         public async Task<IReadOnlyCollection<Commission>> GetActiveCommissionsByPortfolioAsync (int portfolioId, CancellationToken cancellationToken = default)
         {
-           return await context.Commissions.Where(x => x.PortfolioId == portfolioId && x.Status == Status.Active).ToListAsync(cancellationToken);
+           return await context.Commissions.AsNoTracking().Where(x => x.PortfolioId == portfolioId && x.Status == Status.Active).ToListAsync(cancellationToken);
         }
 
     }

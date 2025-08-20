@@ -34,7 +34,7 @@ namespace Closing.Application.PreClosing.Services.Commission
             var previousDate = closingDate.AddDays(-1);
 
             var valuationResult = await _portfolioValuationRepository
-                .GetValuationAsync(portfolioId, previousDate, ct);
+                .GetReadOnlyByPortfolioAndDateAsync(portfolioId, previousDate, ct);
 
             if (valuationResult is null)
             {

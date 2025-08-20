@@ -78,7 +78,7 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
-        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _portfolioValuationRepo.Setup(r => r.ExistsByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
@@ -115,7 +115,7 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
-        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _portfolioValuationRepo.Setup(r => r.ExistsByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
@@ -172,7 +172,7 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(new List<ProfitLossConcept>()); // No se encuentran conceptos
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
-        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _portfolioValuationRepo.Setup(r => r.ExistsByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
@@ -213,7 +213,7 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
-        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _portfolioValuationRepo.Setup(r => r.ExistsByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
@@ -252,7 +252,7 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
-        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _portfolioValuationRepo.Setup(r => r.ExistsByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
@@ -288,7 +288,7 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
-        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _portfolioValuationRepo.Setup(r => r.ExistsByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
@@ -328,7 +328,7 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
-        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _portfolioValuationRepo.Setup(r => r.ExistsByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));
@@ -367,7 +367,7 @@ public class ProfitandLossLoadCommandHandlerTests
             .ReturnsAsync(concepts);
         _portfolioValidator.Setup(v => v.GetPortfolioDataAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(portfolioData));
-        _portfolioValuationRepo.Setup(r => r.ValuationExistsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        _portfolioValuationRepo.Setup(r => r.ExistsByPortfolioAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         _ruleEvaluator.Setup(r => r.EvaluateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>()));

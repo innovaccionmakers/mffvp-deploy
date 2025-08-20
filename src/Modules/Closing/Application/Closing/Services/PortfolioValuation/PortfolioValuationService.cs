@@ -47,13 +47,13 @@ public class PortfolioValuationService(
 
         // 1. Validar existencia previa de cierre para esa fecha
         logger.LogInformation("Verificando si existe valoración previa cerrada para la fecha {ClosingDate}", closingDate.Date);
-        if (await valuationRepository.ValuationExistsAsync(portfolioId, closingDate.Date, ct))
+        if (await valuationRepository.ExistsByPortfolioAndDateAsync(portfolioId, closingDate.Date, ct))
             return Result.Failure<ClosedResult>(
                 new Error("001", "Ya existe una valoración cerrada para este portafolio y fecha.", ErrorType.Validation));
         logger.LogInformation("No existe valoración cerrada previa para la fecha {ClosingDate}", closingDate.Date);
 
         // 2. Obtener valoración del día anterior
-        var previous = await valuationRepository.GetValuationAsync(
+        var previous = await valuationRepository.GetReadOnlyByPortfolioAndDateAsync(
             portfolioId,
             closingDate.AddDays(-1),
             ct);
@@ -86,11 +86,11 @@ public class PortfolioValuationService(
             return Result.Failure<ClosedResult>(subtypeResult.Error!);
 
         var incomeSubs = subtypeResult.Value
-            .Where(s => s.Nature == IncomeEgressNature.Income)
+            .Where(s => s.Nature == IncomeEgressNature.Income && !string.IsNullOrWhiteSpace(s.Category))
             .Select(s => s.OperationTypeId)
             .ToList();
         var egressSubs = subtypeResult.Value
-            .Where(s => s.Nature == IncomeEgressNature.Egress)
+            .Where(s => s.Nature == IncomeEgressNature.Egress && !string.IsNullOrWhiteSpace(s.Category))
             .Select(s => s.OperationTypeId)
             .ToList();
         logger.LogInformation("Subtipos: IncomeCount={IncomeCount}, EgressCount={EgressCount}", incomeSubs.Count, egressSubs.Count);
@@ -112,7 +112,7 @@ public class PortfolioValuationService(
             var param = await configurationParameterRepository
                .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, ct);
 
-            var initialUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "Valor");
+            var initialUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "valor");
 
             prevUnits = incoming / initialUnitValue;
             prevUnitValue = initialUnitValue;
@@ -209,7 +209,7 @@ public class PortfolioValuationService(
         if (!createResult.IsSuccess)
             return Result.Failure<ClosedResult>(createResult.Error!);
 
-        await valuationRepository.AddAsync(createResult.Value);
+        await valuationRepository.InsertAsync(createResult.Value);
 
         logger.LogInformation(
             "Valoración realizada para Portafolio {PortfolioId} en {Date}",

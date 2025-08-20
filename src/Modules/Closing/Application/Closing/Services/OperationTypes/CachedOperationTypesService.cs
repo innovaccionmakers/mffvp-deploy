@@ -1,5 +1,7 @@
 using Closing.Application.Abstractions.External.Operations.OperationTypes;
+using Common.SharedKernel.Application.Caching.OperationTypes;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Infrastructure.Caching.OperationTypes;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,22 +19,47 @@ public class CachedOperationTypesService(
     private readonly string _cacheKey = cacheOptions?.Value.Key ?? new OperationTypesCacheOptions().Key;
     private readonly TimeSpan _ttl = cacheOptions?.Value.Ttl ?? new OperationTypesCacheOptions().Ttl;
 
-    public async Task<Result<IReadOnlyCollection<OperationTypesRemoteResponse>>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<OperationTypeInfo>>> GetAllAsync(CancellationToken cancellationToken)
     {
         try
         {
-            var cached = await cache.GetStringAsync(_cacheKey, cancellationToken);
-            if (cached is not null)
+            var cachedJson = await cache.GetStringAsync(_cacheKey, cancellationToken);
+            if (cachedJson is not null)
             {
-                var result = JsonSerializer.Deserialize<List<OperationTypesRemoteResponse>>(cached);
-                return Result.Success<IReadOnlyCollection<OperationTypesRemoteResponse>>(result!);
+                var cachedOperationTypesList = JsonSerializer.Deserialize<List<CachedOperationTypes>>(cachedJson);
+
+                if (cachedOperationTypesList is not null)
+                {
+                    var listFromCache = cachedOperationTypesList
+                        .Select(c => new OperationTypeInfo(
+                            OperationTypeId: c.Id,
+                            Name: c.Name,
+                            Category: c.Category,
+                            Nature: c.Nature,
+                            Status: c.Status,
+                            External: c.External,
+                            HomologatedCode: c.HomologatedCode))
+                        .ToList();
+
+                    return Result.Success((IReadOnlyCollection<OperationTypeInfo>)listFromCache);
+                }
             }
 
             var resultFromLocator = await locator.GetAllOperationTypesAsync(cancellationToken);
             if (resultFromLocator.IsFailure)
                 return resultFromLocator;
 
-            var serialized = JsonSerializer.Serialize(resultFromLocator.Value);
+            var operationTypesToCache = resultFromLocator.Value
+                .Select(c => new CachedOperationTypes(
+                    Id: c.OperationTypeId,
+                    Name: c.Name,
+                    Category: c.Category,
+                    Nature: c.Nature,
+                    Status: c.Status,
+                    External: c.External,
+                    HomologatedCode: c.HomologatedCode))
+                .ToList();
+            var serialized = JsonSerializer.Serialize(operationTypesToCache);
             await cache.SetStringAsync(_cacheKey, serialized, new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = _ttl

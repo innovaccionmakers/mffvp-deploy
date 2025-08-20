@@ -66,9 +66,12 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     {
         var normalizedParams = NormalizeParameters(parameters);
 
-        var validationResult = await ValidateBusinessRulesAsync(normalizedParams, ct);
-        if (validationResult.IsFailure)
-            return Result.Failure<SimulatedYieldResult>(validationResult.Error!);
+        if (!normalizedParams.IsClosing)  //Cuando es Cierre, se valida en el orquestador de cierre
+        {
+            var validationResult = await ValidateBusinessRulesAsync(normalizedParams, ct);
+            if (validationResult.IsFailure)
+                return Result.Failure<SimulatedYieldResult>(validationResult.Error!);
+        }
 
         var isFirstClosingDay = false;
 
@@ -122,7 +125,7 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         var portfolioData = portfolioDataResult.Value;
 
         var exists = await _portfolioValuationRepository
-            .ValuationExistsAsync(parameters.PortfolioId, portfolioData.CurrentDate, ct);
+            .ExistsByPortfolioAndDateAsync(parameters.PortfolioId, portfolioData.CurrentDate, ct);
 
         return Result.Success(!exists);
     }

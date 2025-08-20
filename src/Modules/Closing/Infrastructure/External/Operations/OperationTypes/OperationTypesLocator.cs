@@ -7,7 +7,7 @@ namespace Closing.Infrastructure.External.Operations.OperationTypes;
 
 internal sealed class OperationTypesLocator(IRpcClient rpcClient) : IOperationTypesLocator
 {
-    public async Task<Result<IReadOnlyCollection<OperationTypesRemoteResponse>>> GetAllOperationTypesAsync(
+    public async Task<Result<IReadOnlyCollection<OperationTypeInfo>>> GetAllOperationTypesAsync(
         CancellationToken cancellationToken)
     {
         var request = new GetAllOperationTypesRequest();
@@ -19,16 +19,18 @@ internal sealed class OperationTypesLocator(IRpcClient rpcClient) : IOperationTy
             cancellationToken
         );
 
-        IReadOnlyCollection<OperationTypesRemoteResponse>? types = response.Types?.Select(c => new OperationTypesRemoteResponse(
+        IReadOnlyCollection<OperationTypeInfo>? types = response.Types?.Select(c => new OperationTypeInfo(
             OperationTypeId: c.OperationTypeId,
             Name: c.Name,
             Category: c.Category,
             Nature: c.Nature,
-            Status: c.Status
+            Status: c.Status,
+            External: c.External,
+            HomologatedCode: c.HomologatedCode
         )).ToList();
         return response.Succeeded
             ? Result.Success(types!)
-            : Result.Failure<IReadOnlyCollection<OperationTypesRemoteResponse>>(
+            : Result.Failure<IReadOnlyCollection<OperationTypeInfo>>(
                 Error.Validation(response.Code!, response.Message!));
     }
 }
