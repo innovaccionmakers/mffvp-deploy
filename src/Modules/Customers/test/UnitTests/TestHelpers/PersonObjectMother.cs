@@ -1,6 +1,7 @@
 using Customers.Domain.People;
 using System;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Customers.UnitTests.TestHelpers
 {

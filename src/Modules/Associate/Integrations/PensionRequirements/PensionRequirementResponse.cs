@@ -1,5 +1,6 @@
+using Common.SharedKernel.Core.Primitives;
+
 using System.Text.Json.Serialization;
-using Common.SharedKernel.Domain;
 
 namespace Associate.Integrations.PensionRequirements;
 

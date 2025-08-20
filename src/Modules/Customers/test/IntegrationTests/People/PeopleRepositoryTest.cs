@@ -3,6 +3,7 @@ using Customers.Application.Abstractions.Data;
 using Moq;
 using FluentAssertions;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Customers.IntegrationTests.People
 {

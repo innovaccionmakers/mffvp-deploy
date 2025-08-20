@@ -1,9 +1,11 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
+
 using MediatR;
+
 using Operations.Integrations.ConfigurationParameters;
+using Operations.Integrations.OperationTypes;
 using Operations.Integrations.Origins;
 using Operations.Presentation.DTOs;
-using Operations.Integrations.OperationTypes;
 
 namespace Operations.Presentation.GraphQL;
     

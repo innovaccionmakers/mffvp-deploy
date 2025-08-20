@@ -1,14 +1,19 @@
-using System.Text.Json;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain.OperationTypes;
+
 using FluentAssertions;
+
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+
 using Moq;
-using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.OperationTypes;
+
 using Operations.Application.OperationTypes;
 using Operations.Domain.OperationTypes;
 using Operations.Integrations.OperationTypes;
+
+using System.Text.Json;
 
 namespace Operations.test.UnitTests.Application.OperationTypes;
 

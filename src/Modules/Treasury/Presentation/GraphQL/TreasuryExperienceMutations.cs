@@ -1,12 +1,14 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using FluentValidation;
+
 using MediatR;
+
 using Treasury.Integrations.BankAccounts.Commands;
 using Treasury.Integrations.TreasuryConcepts.Commands;
 using Treasury.Integrations.TreasuryMovements.Commands;
-using Treasury.Domain.TreasuryMovements;
 using Treasury.Presentation.GraphQL.Input;
 
 namespace Treasury.Presentation.GraphQL;

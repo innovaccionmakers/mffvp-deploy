@@ -1,11 +1,10 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Infrastructure.ValueConverters;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Products.Domain.Objectives;
-using Products.Domain.Alternatives;
-using Products.Domain.Commercials;
-using Products.Domain.Offices;
 
 namespace Products.Infrastructure.Objectives;
 

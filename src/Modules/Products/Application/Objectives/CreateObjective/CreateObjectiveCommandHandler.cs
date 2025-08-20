@@ -1,7 +1,9 @@
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
 using Products.Application.Abstractions.Services.External;

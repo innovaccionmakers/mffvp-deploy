@@ -1,12 +1,16 @@
-using System.Data.Common;
+using Application.Activates;
+
 using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
-using Common.SharedKernel.Application.Rules;
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.UpdateActivate;
+
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-using Application.Activates;
+
+using System.Data.Common;
 
 namespace Associate.Application.Activates;
 

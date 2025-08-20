@@ -1,11 +1,14 @@
 using Associate.Application.Abstractions;
-using Common.SharedKernel.Application.Rules;
 using Associate.Domain.Activates;
 using Associate.Integrations.Activates;
 using Associate.Integrations.Activates.GetActivate;
 using Associate.Integrations.ConfigurationParameters.GetConfigurationParameter;
+
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using MediatR;
 
 

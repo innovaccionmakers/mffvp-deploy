@@ -1,8 +1,10 @@
-using System.Collections.Generic;
-using System.Text.Json;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
+
 using Operations.Domain.ClientOperations;
+
+using System.Text.Json;
 
 namespace Operations.Domain.OperationTypes;
 

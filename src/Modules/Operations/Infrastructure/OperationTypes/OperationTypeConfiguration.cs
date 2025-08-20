@@ -1,8 +1,10 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain.OperationTypes;
 using Common.SharedKernel.Infrastructure.ValueConverters;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Operations.Domain.OperationTypes;
 
 namespace Operations.Infrastructure.OperationTypes;

@@ -1,6 +1,8 @@
 ﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Treasury.Application.Abstractions;
 using Treasury.Application.Abstractions.Data;
 using Treasury.Application.Abstractions.External;
@@ -8,7 +10,6 @@ using Treasury.Domain.BankAccounts;
 using Treasury.Domain.Issuers;
 using Treasury.Integrations.BankAccounts.Commands;
 using Treasury.Integrations.BankAccounts.Response;
-using Treasury.Integrations.TreasuryConcepts.Response;
 
 namespace Treasury.Application.BankAccounts.Commands;
 

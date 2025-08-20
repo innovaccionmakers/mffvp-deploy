@@ -1,8 +1,11 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using FluentValidation;
+
 using MediatR;
+
 using Products.Integrations.Objectives.CreateObjective;
 using Products.Integrations.Objectives.UpdateObjective;
 using Products.Presentation.DTOs;

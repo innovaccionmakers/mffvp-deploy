@@ -3,8 +3,11 @@ using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
+
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Microsoft.Extensions.Logging;
 
 namespace Closing.Application.Closing.Services.Abort;

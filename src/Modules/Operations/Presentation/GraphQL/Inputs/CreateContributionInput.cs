@@ -1,5 +1,4 @@
 using HotChocolate;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace Operations.Presentation.GraphQL.Inputs;

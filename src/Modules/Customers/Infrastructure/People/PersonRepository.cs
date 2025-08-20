@@ -1,7 +1,9 @@
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Customers.Domain.People;
 using Customers.Infrastructure.Database;
-using Customers.Integrations.People;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Customers.Infrastructure.People;

@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Operations.Domain.AuxiliaryInformations;
 
 namespace Operations.Domain.Channels;

@@ -1,4 +1,4 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Customers.Domain.Countries;
 public static class CountryErrors
