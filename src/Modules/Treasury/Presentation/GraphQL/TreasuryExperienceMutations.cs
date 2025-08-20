@@ -6,7 +6,6 @@ using MediatR;
 using Treasury.Integrations.BankAccounts.Commands;
 using Treasury.Integrations.TreasuryConcepts.Commands;
 using Treasury.Integrations.TreasuryMovements.Commands;
-using Treasury.Domain.TreasuryMovements;
 using Treasury.Presentation.GraphQL.Input;
 
 namespace Treasury.Presentation.GraphQL;

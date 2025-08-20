@@ -1,9 +1,7 @@
 ﻿using Associate.Presentation.GraphQL;
 using Common.SharedKernel.Domain;
-using Customers.Domain.People;
 using Customers.Presentation.GraphQL;
 using MFFVP.BFF.DTOs;
-using Products.Domain.Portfolios;
 using Products.Presentation.GraphQL;
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
@@ -20,9 +18,9 @@ public class ExperienceOrchestrator(
 
         if (associates == null || associates.Count == 0)
             return [];
-
+        
         var documents = associates
-            .Select(a => new PersonDocumentKey(a.DocumentTypeUuid, a.Identification))
+            .Select(a => (a.DocumentTypeUuid, a.Identification))
             .ToList();
 
         var persons = await customersQueries.GetPersonsByDocuments(documents, cancellationToken);

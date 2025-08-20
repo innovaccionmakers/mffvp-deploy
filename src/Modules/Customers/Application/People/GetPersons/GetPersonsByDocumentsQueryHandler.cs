@@ -10,7 +10,9 @@ internal sealed class GetPersonsByDocumentsQueryHandler(IPersonRepository reposi
 {
     public async Task<Result<IReadOnlyCollection<PersonResponse>>> Handle(GetPersonsByDocumentsQuery request, CancellationToken cancellationToken)
     {
-        var persons = await repository.GetPersonsByDocumentsAsync(request.Documents, cancellationToken);
+        var persons = await repository.GetPersonsByDocumentsAsync(request.Documents.Select(
+            x => new PersonDocumentKey(x.DocumentTypeUuid, x.Identification)
+        ).ToList(), cancellationToken);
         var response = persons
             .Select(e => new PersonResponse(
                 e.PersonId,

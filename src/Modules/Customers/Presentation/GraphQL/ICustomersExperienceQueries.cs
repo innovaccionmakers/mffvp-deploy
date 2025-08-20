@@ -1,5 +1,4 @@
 ﻿using Common.SharedKernel.Domain;
-using Customers.Domain.People;
 using Customers.Presentation.DTOs;
 
 namespace Customers.Presentation.GraphQL;
@@ -15,6 +14,6 @@ public interface ICustomersExperienceQueries
                                                string identification,
                                                CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<PersonDto>> GetPersonsByDocuments(IReadOnlyCollection<PersonDocumentKey> documents,
+    Task<IReadOnlyCollection<PersonDto>> GetPersonsByDocuments(IReadOnlyCollection<(Guid DocumentTypeUuid, string Identification)> documents,
                                                                CancellationToken cancellationToken = default);
 }
