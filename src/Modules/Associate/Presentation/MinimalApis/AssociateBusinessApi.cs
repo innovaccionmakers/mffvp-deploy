@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
 using Common.SharedKernel.Domain.Auth.Permissions;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Associate.Presentation.MinimalApis;
 

@@ -1,11 +1,11 @@
-using Associate.IntegrationEvents.ActivateValidation;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Customers.Application.Abstractions;
 using Customers.Domain.ConfigurationParameters;
-using Common.SharedKernel.Application.Rules;
-using Common.SharedKernel.Domain.ConfigurationParameters;
 using Customers.Domain.People;
 using Customers.Integrations.People;
 using Customers.Integrations.People.GetPerson;

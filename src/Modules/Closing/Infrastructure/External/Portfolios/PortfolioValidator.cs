@@ -1,6 +1,9 @@
 ﻿using Closing.Application.Abstractions.External;
+
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Products.IntegrationEvents.PortfolioValidation;
 
 namespace Closing.Infrastructure.External.Portfolios;

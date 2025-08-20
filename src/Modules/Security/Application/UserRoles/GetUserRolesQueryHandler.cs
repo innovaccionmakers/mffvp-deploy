@@ -1,8 +1,8 @@
 ﻿using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 using Security.Application.Contracts.UserRoles;
-using Security.Domain.Roles;
 using Security.Domain.UserRoles;
 using Security.Domain.Users;
 

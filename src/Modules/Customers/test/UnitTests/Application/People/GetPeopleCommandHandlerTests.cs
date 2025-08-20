@@ -1,9 +1,12 @@
+using Common.SharedKernel.Core.Primitives;
+
 using Customers.Domain.People;
-using Moq;
-using FluentAssertions;
-using Common.SharedKernel.Domain;
 using Customers.Integrations.People;
 using Customers.UnitTests.TestHelpers;
+
+using FluentAssertions;
+
+using Moq;
 
 namespace Customers.UnitTests.Application.People
 {

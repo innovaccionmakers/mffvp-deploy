@@ -1,9 +1,11 @@
-using Common.SharedKernel.Domain;
+using Associate.Domain.Activates;
+using Associate.Domain.PensionRequirements;
+
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Infrastructure.ValueConverters;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Associate.Domain.PensionRequirements;
-using Associate.Domain.Activates;
 
 namespace Associate.Infrastructure.PensionRequirements;
 internal sealed class PensionRequirementConfiguration : IEntityTypeConfiguration<PensionRequirement>

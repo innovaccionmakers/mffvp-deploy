@@ -1,5 +1,6 @@
 using Associate.Domain.PensionRequirements;
-using Common.SharedKernel.Domain;
+
+using Common.SharedKernel.Core.Primitives;
 
 namespace UnitTests.Domain.PensionRequirements
 {

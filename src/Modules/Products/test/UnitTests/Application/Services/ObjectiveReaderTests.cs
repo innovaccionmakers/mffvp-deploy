@@ -1,6 +1,9 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
+
 using FluentAssertions;
+
 using Moq;
+
 using Products.Application.Objectives.Services;
 using Products.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;

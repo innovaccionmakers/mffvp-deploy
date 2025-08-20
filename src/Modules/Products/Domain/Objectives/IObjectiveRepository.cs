@@ -1,4 +1,5 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
+
 using Products.Integrations.Objectives.GetObjectivesByAffiliate;
 
 namespace Products.Domain.Objectives;

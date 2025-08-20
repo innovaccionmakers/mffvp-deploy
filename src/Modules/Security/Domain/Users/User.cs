@@ -1,4 +1,5 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
 
 using Security.Domain.UserPermissions;
 using Security.Domain.UserRoles;

@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 using Security.Application.Abstractions.Data;

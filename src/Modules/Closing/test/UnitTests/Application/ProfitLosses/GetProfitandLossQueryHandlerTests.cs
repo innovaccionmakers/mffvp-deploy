@@ -3,6 +3,8 @@ using Closing.Application.ProfitLosses.GetProfitandLoss;
 using Closing.Domain.ProfitLossConcepts;
 using Closing.Domain.ProfitLosses;
 using Closing.Integrations.ProfitLosses.GetProfitandLoss;
+
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using FluentAssertions;
 using Moq;

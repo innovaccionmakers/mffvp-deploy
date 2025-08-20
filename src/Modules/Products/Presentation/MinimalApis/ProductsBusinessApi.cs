@@ -1,14 +1,17 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+
 using Products.Domain.Routes;
 using Products.Integrations.Objectives.CreateObjective;
 using Products.Integrations.Objectives.GetObjectives;

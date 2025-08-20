@@ -1,5 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Common.SharedKernel.Core.Primitives;
+
 using Microsoft.AspNetCore.Http;
+
+using System.Diagnostics.CodeAnalysis;
 
 namespace Common.SharedKernel.Domain;
 

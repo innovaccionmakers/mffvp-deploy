@@ -1,12 +1,16 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using FluentValidation;
+
 using MediatR;
+
 using Operations.Application.Abstractions.Services.ContributionService;
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL.Inputs;
+
 using System.Text.Json;
 
 namespace Operations.Presentation.GraphQL;

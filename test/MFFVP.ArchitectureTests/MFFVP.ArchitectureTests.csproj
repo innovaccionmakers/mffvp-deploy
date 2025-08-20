@@ -8,14 +8,53 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="6.0.2"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0"/>
-        <PackageReference Include="xunit" Version="2.9.2"/>
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2"/>
+        <PackageReference Include="coverlet.collector" Version="6.0.2" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
+        <PackageReference Include="Shouldly" Version="4.3.0" />
+        <PackageReference Include="xunit" Version="2.9.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="Xunit"/>
+      <ProjectReference Include="..\..\src\Modules\Associate\Application\Associate.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Associate\Domain\Associate.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Associate\Infrastructure\Associate.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Associate\IntegrationEvents\Associate.IntegrationEvents\Associate.IntegrationEvents.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Associate\Integrations\Associate.Integrations.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Associate\Presentation\Associate.Presentation.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Closing\Application\Closing.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Closing\Domain\Closing.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Closing\Infrastructure\Closing.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Closing\Presentation\Closing.Presentation.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Customers\Application\Customers.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Customers\Domain\Customers.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Customers\Infrastructure\Customers.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Customers\Presentation\Customers.Presentation.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Operations\Application\Operations.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Operations\Domain\Operations.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Operations\Infrastructure\Operations.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Operations\Presentation\Operations.Presentation.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Products\Application\Products.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Products\Domain\Products.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Products\Infrastructure\Products.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Products\Presentation\Products.Presentation.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Security\Application\Security.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Security\Domain\Security.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Security\Infrastructure\Security.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Security\Presentation\Security.Presentation.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Treasury\Application\Treasury.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Treasury\Domain\Treasury.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Treasury\Infrastructure\Treasury.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Treasury\Presentation\Treasury.Presentation.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Trusts\Application\Trusts.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Trusts\Domain\Trusts.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Trusts\Infrastructure\Trusts.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Trusts\Presentation\Trusts.Presentation.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit" />
     </ItemGroup>
 
 </Project>

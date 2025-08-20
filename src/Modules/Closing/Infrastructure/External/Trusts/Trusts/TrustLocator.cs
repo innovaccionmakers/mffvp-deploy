@@ -1,6 +1,9 @@
 ﻿using Closing.Application.Abstractions.External.Trusts.Trusts;
+
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Trusts.IntegrationEvents.DataSync.TrustSync;
 
 namespace Closing.Infrastructure.External.Trusts.Trusts;

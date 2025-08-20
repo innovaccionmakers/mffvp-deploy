@@ -1,6 +1,8 @@
 ﻿
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Trusts.Application.Abstractions.Data;
 using Trusts.Domain.Trusts;
 using Trusts.Integrations.TrustYields.Commands;
