@@ -1,6 +1,6 @@
 using Operations.Domain.Channels;
 
-namespace Operations.Domain.Services;
+namespace Operations.Application.Abstractions.Services.Channel;
 
 public interface IChannelService
 {
