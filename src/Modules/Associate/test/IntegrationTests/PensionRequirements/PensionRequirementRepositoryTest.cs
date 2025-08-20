@@ -1,7 +1,8 @@
 using Associate.Domain.PensionRequirements;
-using Microsoft.EntityFrameworkCore;
+
+using Common.SharedKernel.Core.Primitives;
+
 using Moq;
-using Common.SharedKernel.Domain;
 
 namespace IntegrationTests.PensionRequirements
 {

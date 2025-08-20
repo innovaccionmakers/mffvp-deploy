@@ -1,4 +1,4 @@
-namespace Operations.Domain.Services;
+namespace Operations.Application.Abstractions.Services.Portfolio;
 
 public interface IPortfolioService
 {

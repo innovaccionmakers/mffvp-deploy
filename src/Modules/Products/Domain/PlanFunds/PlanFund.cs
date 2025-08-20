@@ -1,7 +1,9 @@
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Products.Domain.Alternatives;
-using Products.Domain.Plans;
 using Products.Domain.PensionFunds;
+using Products.Domain.Plans;
 
 namespace Products.Domain.PlanFunds;
 

@@ -1,10 +1,13 @@
-using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
-using Customers.Integrations.People.GetPerson;
-using Customers.Application.Abstractions;
-using Common.SharedKernel.Application.Rules;
-using Customers.Integrations.People;
 using Application.People.GetPerson;
+
+using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
+
+using Customers.Application.Abstractions;
+using Customers.Integrations.People;
+using Customers.Integrations.People.GetPerson;
 
 namespace Customers.Application.People.GetPerson;
 

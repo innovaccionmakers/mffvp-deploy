@@ -1,10 +1,10 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
+
 using Microsoft.EntityFrameworkCore;
+
 using Products.Domain.Objectives;
-using Products.Domain.Plans;
 using Products.Infrastructure.Database;
 using Products.Integrations.Objectives.GetObjectivesByAffiliate;
-using System;
 
 namespace Products.Infrastructure.Objectives;
 

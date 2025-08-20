@@ -1,10 +1,12 @@
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
+using Products.Application.Abstractions;
 using Products.Application.Abstractions.Services.AdditionalInformation;
 using Products.Domain.Objectives;
 using Products.Integrations.AdditionalInformation;
-using Common.SharedKernel.Application.Rules;
-using Products.Application.Abstractions;
 
 namespace Products.Application.AdditionalInformation.GetAdditionalInformation;
 

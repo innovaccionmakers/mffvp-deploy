@@ -1,6 +1,7 @@
 using Customers.Domain.People;
 using Common.SharedKernel.Domain;
 using FluentAssertions;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Customers.UnitTests.Domain.People
 {

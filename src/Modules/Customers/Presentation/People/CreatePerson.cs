@@ -1,11 +1,14 @@
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Endpoints;
 using Common.SharedKernel.Presentation.Results;
+
+using Customers.Integrations.People.CreatePerson;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Customers.Integrations.People.CreatePerson;
-using Common.SharedKernel.Domain;
 
 namespace Customers.Presentation.People
 {

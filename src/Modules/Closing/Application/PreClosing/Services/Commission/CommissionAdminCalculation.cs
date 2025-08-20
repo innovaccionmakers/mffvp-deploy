@@ -1,6 +1,8 @@
 ﻿using Closing.Application.PreClosing.Services.Commission.Constants;
 using Closing.Application.PreClosing.Services.Commission.Interfaces;
 using Closing.Domain.PortfolioValuations;
+
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 namespace Closing.Application.PreClosing.Services.Commission

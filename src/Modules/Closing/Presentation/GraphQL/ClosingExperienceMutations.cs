@@ -3,10 +3,13 @@ using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
 using Closing.Presentation.DTOs;
 using Closing.Presentation.GraphQL.DTOs;
 using Closing.Presentation.GraphQL.Inputs;
-using Common.SharedKernel.Domain;
+
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using FluentValidation;
+
 using MediatR;
 
 namespace Closing.Presentation.GraphQL;

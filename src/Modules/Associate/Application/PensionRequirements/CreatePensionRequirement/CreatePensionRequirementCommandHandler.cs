@@ -1,17 +1,15 @@
-using Associate.Domain.ConfigurationParameters;
-using System.Data.Common;
-using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
-using Associate.Domain.PensionRequirements;
-using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
-using Associate.Integrations.PensionRequirements;
-using Associate.Application.Abstractions.Data;
-using Application.PensionRequirements.CreatePensionRequirement;
 using Application.PensionRequirements;
-using Associate.Integrations.Activates.GetActivateId;
-using Common.SharedKernel.Application.Attributes;
-using Common.SharedKernel.Application.Rules;
-using Associate.Application.Abstractions;
+
+using Associate.Application.Abstractions.Data;
+using Associate.Domain.PensionRequirements;
+using Associate.Integrations.PensionRequirements;
+using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
+
+using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
+
+using System.Data.Common;
 
 namespace Associate.Application.PensionRequirements.CreatePensionRequirement;
 

@@ -1,7 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Database;
-using Common.SharedKernel.Domain;
+
+using Common.SharedKernel.Core.Primitives;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace Associate.Infrastructure.PensionRequirements;
 

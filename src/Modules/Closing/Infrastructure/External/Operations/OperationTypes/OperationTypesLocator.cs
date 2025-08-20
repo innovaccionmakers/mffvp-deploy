@@ -1,6 +1,9 @@
 using Closing.Application.Abstractions.External.Operations.OperationTypes;
+
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Operations.IntegrationEvents.OperationTypes;
 
 namespace Closing.Infrastructure.External.Operations.OperationTypes;

@@ -1,7 +1,7 @@
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace Common.SharedKernel.Domain;
+namespace Common.SharedKernel.Core.Primitives;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Status
@@ -11,4 +11,3 @@ public enum Status
     [EnumMember(Value = "I")]
     Inactive = 'I'
 }
-
