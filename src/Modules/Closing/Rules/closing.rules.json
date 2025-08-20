@@ -140,5 +140,18 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "Closing.GetPortfolioValuation.Validation",
+    "Rules": [
+      {
+        "RuleName": "PortfolioValuationExists",
+        "ErrorMessage": "No existe valoración para el portafolio en la fecha indicada.",
+        "Expression": "input.PortfolioValuationExists",
+        "Properties": {
+          "internalCode": "e4433fe9-e957-4d44-b488-53bfa0fa425f"
+        }
+      }
+    ]
   }
 ]

@@ -2,7 +2,6 @@
 using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Closing.Infrastructure.PortfolioValuations
 {
     internal sealed class PortfolioValuationRepository(ClosingDbContext context) : IPortfolioValuationRepository
@@ -38,7 +37,7 @@ namespace Closing.Infrastructure.PortfolioValuations
         {
             await context.PortfolioValuations.AddAsync(valuation, cancellationToken);
         }
-        
+
         public async Task DeleteClosedByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
         {
             await context.PortfolioValuations
@@ -46,5 +45,14 @@ namespace Closing.Infrastructure.PortfolioValuations
                 .ExecuteDeleteAsync(cancellationToken);
         }
 
+        public async Task<IReadOnlyCollection<PortfolioValuation>> GetPortfolioValuationsByClosingDateAsync(DateTime closingDate, CancellationToken cancellationToken = default)
+        {
+            return await context.PortfolioValuations
+                .AsNoTracking()
+                .Where(v => v.ClosingDate == closingDate && v.IsClosed)
+                .GroupBy(v => v.PortfolioId)
+                .Select(g => g.First())
+                .ToListAsync(cancellationToken);
+        }
     }
 }

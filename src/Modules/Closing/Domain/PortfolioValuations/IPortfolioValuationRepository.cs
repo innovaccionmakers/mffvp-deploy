@@ -13,5 +13,7 @@ namespace Closing.Domain.PortfolioValuations
         Task DeleteClosedByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
 
         Task AddAsync(PortfolioValuation valuation, CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<PortfolioValuation>> GetPortfolioValuationsByClosingDateAsync(DateTime closingDate, CancellationToken cancellationToken = default);
     }
 }
