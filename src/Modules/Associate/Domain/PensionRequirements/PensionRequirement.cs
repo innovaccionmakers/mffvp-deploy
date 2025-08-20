@@ -1,3 +1,4 @@
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 namespace Associate.Domain.PensionRequirements;

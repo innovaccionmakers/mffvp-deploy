@@ -1,9 +1,12 @@
 ﻿namespace Treasury.Application.TreasuryMovements.Commands;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using System.Threading;
 using System.Threading.Tasks;
+
 using Treasury.Application.Abstractions;
 using Treasury.Application.Abstractions.Data;
 using Treasury.Application.Abstractions.External;

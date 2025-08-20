@@ -1,7 +1,9 @@
-﻿using System.Diagnostics;
+﻿using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 using HttpResults = Microsoft.AspNetCore.Http.Results;
 
 namespace Common.SharedKernel.Presentation.Results;

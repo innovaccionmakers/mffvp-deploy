@@ -1,8 +1,10 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Infrastructure.ValueConverters;
+
+using Customers.Domain.People;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Customers.Domain.People;
 
 namespace Customers.Infrastructure.People;
 

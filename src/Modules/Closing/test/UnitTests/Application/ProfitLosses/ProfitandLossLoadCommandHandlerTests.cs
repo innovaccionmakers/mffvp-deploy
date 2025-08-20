@@ -8,6 +8,7 @@ using Closing.Domain.ProfitLossConcepts;
 using Closing.Domain.ProfitLosses;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using FluentAssertions;
 using Moq;

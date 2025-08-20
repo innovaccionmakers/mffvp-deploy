@@ -1,14 +1,18 @@
-using System.Data.Common;
+using Application.People;
+
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
+using Customers.Application.Abstractions;
+using Customers.Application.Abstractions.Data;
 using Customers.Domain.People;
 using Customers.Integrations.People;
-using Customers.Application.Abstractions.Data;
+
 using Integrations.People.CreatePerson;
-using Customers.Domain.ConfigurationParameters;
-using Common.SharedKernel.Application.Rules;
-using Customers.Application.Abstractions;
-using Application.People;
+
+using System.Data.Common;
 
 namespace Customers.Application.People.CreatePerson
 

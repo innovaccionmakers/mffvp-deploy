@@ -1,5 +1,6 @@
-﻿    using Common.SharedKernel.Application.Messaging;
+﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+
 using Customers.Domain.People;
 using Customers.Integrations.People;
 using Customers.Integrations.People.GetPersons;

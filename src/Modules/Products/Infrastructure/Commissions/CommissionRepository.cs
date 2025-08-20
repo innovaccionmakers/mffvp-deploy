@@ -1,5 +1,7 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Core.Primitives;
+
 using Microsoft.EntityFrameworkCore;
+
 using Products.Domain.Commissions;
 using Products.Infrastructure.Database;
 

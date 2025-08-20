@@ -6,6 +6,7 @@ using Common.SharedKernel.Application.Rules;
 using RulesEngine.Models;
 using Products.Application.Objectives.GetObjectives;
 using Products.Application.Objectives.Services;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Products.test.UnitTests.Application.Services;
 

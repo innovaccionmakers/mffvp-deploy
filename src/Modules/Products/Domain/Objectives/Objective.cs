@@ -1,4 +1,6 @@
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
 

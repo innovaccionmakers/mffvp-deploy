@@ -8,6 +8,7 @@ using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Closing.Application.PreClosing.Services.Yield.Dto;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Closing.Application.Closing.Services.TrustYieldsDistribution;
 

@@ -1,5 +1,7 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
+
 using Microsoft.EntityFrameworkCore;
+
 using Products.Application.Abstractions.Services.Objectives;
 using Products.Application.Objectives.GetObjectives;
 using Products.Domain.ConfigurationParameters;

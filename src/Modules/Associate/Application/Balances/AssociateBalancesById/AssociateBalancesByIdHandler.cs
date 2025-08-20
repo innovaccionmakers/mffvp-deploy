@@ -2,14 +2,19 @@ using Associate.Application.Abstractions;
 using Associate.Domain.Activates;
 using Associate.Domain.ConfigurationParameters;
 using Associate.Integrations.Balances.AssociateBalancesById;
+
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Application.Rules;
-using Common.SharedKernel.Domain;
-using Trusts.IntegrationEvents.GetBalances;
-using Products.IntegrationEvents.AdditionalInformation;
-using Customers.IntegrationEvents.PersonValidation;
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
+
+using Customers.IntegrationEvents.PersonValidation;
+
+using Products.IntegrationEvents.AdditionalInformation;
+
+using Trusts.IntegrationEvents.GetBalances;
 
 namespace Associate.Application.Balances.AssociateBalancesById;
 

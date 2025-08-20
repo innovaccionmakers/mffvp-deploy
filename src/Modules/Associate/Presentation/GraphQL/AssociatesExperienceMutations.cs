@@ -3,10 +3,13 @@ using Associate.Integrations.Activates.UpdateActivate;
 using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 using Associate.Presentation.GraphQL.Inputs;
-using Common.SharedKernel.Domain;
+
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using FluentValidation;
+
 using MediatR;
 
 namespace Associate.Presentation.GraphQL;

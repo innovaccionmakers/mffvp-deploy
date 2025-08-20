@@ -1,7 +1,9 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Infrastructure.ValueConverters;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Products.Domain.Commissions;
 
 namespace Products.Infrastructure.Commissions;

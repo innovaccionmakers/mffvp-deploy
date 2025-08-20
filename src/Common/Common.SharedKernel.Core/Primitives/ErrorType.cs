@@ -1,4 +1,4 @@
-﻿namespace Common.SharedKernel.Domain;
+﻿namespace Common.SharedKernel.Core.Primitives;
 
 public enum ErrorType
 {

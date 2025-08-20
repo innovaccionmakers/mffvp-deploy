@@ -1,6 +1,7 @@
 ﻿using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Common.SharedKernel.Application.Caching.Closing;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 namespace Closing.Application.Closing.Services.TimeControl;
