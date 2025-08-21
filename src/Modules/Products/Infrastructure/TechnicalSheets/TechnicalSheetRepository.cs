@@ -11,6 +11,11 @@ internal class TechnicalSheetRepository(ProductsDbContext context) : ITechnicalS
         await context.TechnicalSheets.AddAsync(technicalSheet, cancellationToken);
     }
 
+    public async Task AddRangeAsync(IEnumerable<TechnicalSheet> technicalSheets, CancellationToken cancellationToken = default)
+    {
+        await context.TechnicalSheets.AddRangeAsync(technicalSheets, cancellationToken);
+    }
+
     public async Task<IEnumerable<TechnicalSheet>> GetByDateRangeAndPortfolioAsync(
         DateOnly startDate,
         DateOnly endDate,
@@ -26,5 +31,25 @@ internal class TechnicalSheetRepository(ProductsDbContext context) : ITechnicalS
                          ts.Date <= endDateTime)
             .OrderBy(ts => ts.Date)
             .ToListAsync(cancellationToken);
+    }
+
+
+    public async Task<bool> ExistsByDateAsync(DateTime closingDate, CancellationToken cancellationToken = default)
+    {
+        var closingDateUtc = closingDate.ToUniversalTime();
+        return await context.TechnicalSheets
+            .AnyAsync(ts => ts.Date == closingDateUtc.Date, cancellationToken);
+    }
+
+    public async Task DeleteByDateAsync(DateTime closingDate, CancellationToken cancellationToken = default)
+    {
+        var technicalSheetsToDelete = await context.TechnicalSheets
+            .Where(ts => ts.Date == closingDate.Date)
+            .ToListAsync(cancellationToken);
+
+        if (technicalSheetsToDelete.Count != 0)
+        {
+            context.TechnicalSheets.RemoveRange(technicalSheetsToDelete);
+        }
     }
 }

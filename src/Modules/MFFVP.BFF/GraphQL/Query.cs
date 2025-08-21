@@ -246,6 +246,14 @@ public class Query
         return await closingQueries.GetProfitAndLossAsync(portfolioId, effectiveDate, cancellationToken);
     }
 
+    [GraphQLName("obtenerValoracionPortafolio")]
+    public async Task<IReadOnlyCollection<PortfolioValuationDto>> GetPortfolioValuation([GraphQLName("fechaCierre")] DateOnly closingDate,
+                                                                    [Service] IClosingExperienceQueries closingQueries,
+                                                                    CancellationToken cancellationToken)
+    {
+        return await closingQueries.GetPortfolioValuation(closingDate, cancellationToken);
+    }
+
     //treasury Queries
 
     [GraphQLName("emisores")]

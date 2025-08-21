@@ -86,6 +86,14 @@ public class Mutation
         return await productsMutations.UpdateGoalAsync(goal, validator, cancellationToken);
     }
 
+    [GraphQLName("fichaTecnica")]
+    public async Task<GraphqlMutationResult> TechnicalSheet([GraphQLName("fechaCierre")] DateOnly closingDate,
+                                                        [Service] IProductsExperienceMutations productsMutations,
+                                                        CancellationToken cancellationToken)
+    {
+        return await productsMutations.SaveTechnicalSheetAsync(closingDate, cancellationToken);
+    }
+
     //closing mutations
     [GraphQLName("cargarPerdidasGanancias")]
     public async Task<GraphqlMutationResult<LoadProfitLossResult>> LoadProfitLoss([GraphQLName("perdidaganancia")] LoadProfitLossInput input,

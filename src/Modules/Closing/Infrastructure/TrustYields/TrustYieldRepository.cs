@@ -35,8 +35,8 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
             .Where(t => t.ClosingDate.Date == closingDate.Date)
             .GroupBy(t => t.PortfolioId)
             .Select(g => new PortfolioTrustIds(
-                PortfolioId: g.Key,
-                TrustIds: g.Select(ty => ty.TrustId).ToList()
+                g.Key,
+                g.Select(ty => ty.TrustId).ToList()
             ))
             .ToListAsync(ct);
     }

@@ -29,7 +29,7 @@ public class ClosingExperienceQueries(IMediator mediator) : IClosingExperienceQu
 
     public async Task<IReadOnlyCollection<PortfolioValuationDto>> GetPortfolioValuation(DateOnly closingDate, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetPortfolioValuationQuery(closingDate.ToDateTime(TimeOnly.MinValue)), cancellationToken);
+        var result = await mediator.Send(new GetPortfolioValuationQuery(closingDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)), cancellationToken);
 
         if (!result.IsSuccess || result.Value is null)
         {

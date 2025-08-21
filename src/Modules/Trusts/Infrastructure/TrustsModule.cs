@@ -70,6 +70,7 @@ public class TrustsModule : IModuleConfiguration
         services.AddScoped<CreateTrustRequestedConsumer>();
         services.AddScoped<IRpcHandler<ValidateObjectiveTrustRequest, ValidateObjectiveTrustResponse>, ValidateObjectiveTrustConsumer>();
         services.AddTransient<IRpcHandler<GetBalancesRequest, GetBalancesResponse>, GetBalancesConsumer>();
+        services.AddTransient<IRpcHandler<GetTrustParticipantRequest, GetTrustParticipantResponse>, GetTrustParticipantConsumer>();
         services.AddTransient<IRpcHandler<ActiveTrustsByPortfolioRequest, ActiveTrustsByPortfolioResponse>, ActiveTrustsByPortfolioConsumer>();
         services.AddScoped<ITrustExperienceQueries, TrustExperienceQueries>();
         services.AddScoped<TrustYieldOperationAppliedSuscriber>();

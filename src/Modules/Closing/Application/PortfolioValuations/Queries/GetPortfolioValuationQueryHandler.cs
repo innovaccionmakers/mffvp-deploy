@@ -23,7 +23,7 @@ public class GetPortfolioValuationQueryHandler(
 
         var contextValidation = new
         {
-            PortfolioValuationsExists = portfolioValuations.Count != 0,
+            PortfolioValuationExists = portfolioValuations.Count != 0,
         };
 
         var (isValid, _, errors) = await ruleEvaluator
@@ -48,7 +48,7 @@ public class GetPortfolioValuationQueryHandler(
 
         var result = portfolioValuations.Select(x =>
         {
-            var trustIds = trustIdsByPortfolio.GetValueOrDefault(x.PortfolioId)?.TrustIds ?? Array.Empty<long>();
+            var trustIds = trustIdsByPortfolio.GetValueOrDefault(x.PortfolioId)?.TrustIds ?? [];
             var yield = yieldsByPortfolio.GetValueOrDefault(x.PortfolioId);
             return new PortfolioValuationResponse(
                 x.PortfolioId,

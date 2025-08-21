@@ -5,6 +5,7 @@ using FluentValidation;
 using MediatR;
 using Products.Integrations.Objectives.CreateObjective;
 using Products.Integrations.Objectives.UpdateObjective;
+using Products.Integrations.TechnicalSheets.Commands;
 using Products.Presentation.DTOs;
 using Products.Presentation.GraphQL.Input;
 
@@ -61,6 +62,30 @@ public class ProductsExperienceMutations(IMediator mediator) : IProductsExperien
             return result;
         }
 
+    }
+
+    public async Task<GraphqlMutationResult> SaveTechnicalSheetAsync(DateOnly closingDate, CancellationToken cancellationToken = default)
+    {
+        var result = new GraphqlMutationResult();
+        try
+        {
+            var command =  new SaveTechnicalSheetCommand(closingDate);
+            var commandResult = await mediator.Send(command, cancellationToken);
+            
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+
+            result.SetSuccess("Proceso Ejecutado corretamente");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
     }
 
     public async Task<GraphqlMutationResult> UpdateGoalAsync(
