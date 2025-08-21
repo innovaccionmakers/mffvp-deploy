@@ -4,20 +4,20 @@ using DataSync.Infrastructure.ConnectionFactory.Interfaces;
 
 namespace DataSync.Infrastructure.TrustSync;
 
-public sealed class ClosingTrustYieldMerger(IClosingConnectionFactory factory)
+public sealed class ClosingTrustYieldMerger(IClosingConnectionFactory closingConnectionFactory)
     : IClosingTrustYieldMerger
 {
-    public async Task<int> MergeAsync(IReadOnlyList<TrustRow> rows, CancellationToken ct)
+    public async Task<int> MergeAsync(IReadOnlyList<TrustRow> trustRows, CancellationToken cancellationToken)
     {
-        var fids = rows.Select(r => r.TrustId).ToArray();
-        var ports = rows.Select(r => r.PortfolioId).ToArray();
-        var dates = rows.Select(r => r.ClosingDate).ToArray();
-        var bal = rows.Select(r => r.PreClosingBalance).ToArray();
-        var caps = rows.Select(r => r.Capital).ToArray();
-        var rc = rows.Select(r => r.ContingentRetention).ToArray();
+        var trustIds = trustRows.Select(r => r.TrustId).ToArray();
+        var portfolioIds = trustRows.Select(r => r.PortfolioId).ToArray();
+        var closingDates = trustRows.Select(r => r.ClosingDate).ToArray();
+        var preClosingBalances = trustRows.Select(r => r.PreClosingBalance).ToArray();
+        var capitals = trustRows.Select(r => r.Capital).ToArray();
+        var contingentRetentions = trustRows.Select(r => r.ContingentRetention).ToArray();
 
-        await using var conn = await factory.CreateOpenAsync(ct);
-        await using var tx = await conn.BeginTransactionAsync(ct);
+        await using var closingConnection = await closingConnectionFactory.CreateOpenAsync(cancellationToken);
+        await using var transaction = await closingConnection.BeginTransactionAsync(cancellationToken);
 
         const string mergeSql = @"
             MERGE INTO cierre.rendimientos_fideicomisos AS t
@@ -51,16 +51,16 @@ public sealed class ClosingTrustYieldMerger(IClosingConnectionFactory factory)
                  0, 0, 0, 0,
                  0, 0, 0, 0, 0);";
 
-        using var cmd = new Npgsql.NpgsqlCommand(mergeSql, conn, tx);
-        cmd.Parameters.AddWithValue("fids", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Bigint, fids);
-        cmd.Parameters.AddWithValue("ports", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Integer, ports);
-        cmd.Parameters.AddWithValue("dates", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Date, dates);
-        cmd.Parameters.AddWithValue("bal", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Numeric, bal);
-        cmd.Parameters.AddWithValue("caps", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Numeric, caps);
-        cmd.Parameters.AddWithValue("rc", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Numeric, rc);
+        using var mergeCommand = new Npgsql.NpgsqlCommand(mergeSql, closingConnection, transaction);
+        mergeCommand.Parameters.AddWithValue("fids", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Bigint, trustIds);
+        mergeCommand.Parameters.AddWithValue("ports", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Integer, portfolioIds);
+        mergeCommand.Parameters.AddWithValue("dates", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Date, closingDates);
+        mergeCommand.Parameters.AddWithValue("bal", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Numeric, preClosingBalances);
+        mergeCommand.Parameters.AddWithValue("caps", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Numeric, capitals);
+        mergeCommand.Parameters.AddWithValue("rc", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Numeric, contingentRetentions);
 
-        var affected = await cmd.ExecuteNonQueryAsync(ct);
-        await tx.CommitAsync(ct);
-        return affected; // UPDATE + INSERT totales
+        var affectedRows = await mergeCommand.ExecuteNonQueryAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return affectedRows; // UPDATE + INSERT totales
     }
 }

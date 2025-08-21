@@ -9,6 +9,5 @@ public sealed record UpsertTrustOperationCommand(
     DateTime ClosingDate,
     DateTime ProcessDate,
     decimal YieldRetention,
-    decimal ClosingBalance,
-    decimal Units
+    decimal ClosingBalance
 ) : IRequest;

@@ -4,6 +4,7 @@ public struct YieldsSources
     public const string
         ProfitAndLoss = "CargaExterna",
         Commission = "Comisión",
-        Treasury = "Tesorería"
+        Treasury = "Tesorería",
+        AutomaticConcept = "Concepto Automático"
         ;
 }

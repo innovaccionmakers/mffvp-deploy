@@ -9,7 +9,7 @@ public sealed class TrustSyncPostService(ITrustUnitsUpdater updater, ILogger<Tru
 {
     public async Task<int> ExecuteAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
     {
-        var updated = await updater.UpdateUnitsAsync(portfolioId, closingDate.Date, ct);
+        var updated = await updater.UpdateUnitsAsync(portfolioId, closingDate, ct);
         logger.LogInformation("TrustSync Post: portfolio {PortfolioId} date {Date} updated {Updated}",
                               portfolioId, closingDate, updated);
         return updated;

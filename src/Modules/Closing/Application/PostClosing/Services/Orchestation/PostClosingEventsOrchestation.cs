@@ -3,6 +3,7 @@ using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
 using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
 using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
+using Common.SharedKernel.Application.Helpers.General;
 
 namespace Closing.Application.PostClosing.Services.Orchestation;
 
@@ -31,6 +32,7 @@ public class PostClosingEventsOrchestation : IPostClosingEventsOrchestation
 
     public async Task ExecuteAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
+        closingDate = DateTimeConverter.ToUtcDateTime(closingDate);
         // 1. Publicar eventos de actualización del portafolio
         var valuationTask = _portfolioPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
 

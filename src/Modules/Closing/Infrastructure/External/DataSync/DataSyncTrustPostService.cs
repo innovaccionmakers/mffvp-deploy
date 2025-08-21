@@ -1,6 +1,7 @@
 
 using Closing.Application.PostClosing.Services.TrustSync;
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using DataSync.IntegrationEvents.TrustSync;
 

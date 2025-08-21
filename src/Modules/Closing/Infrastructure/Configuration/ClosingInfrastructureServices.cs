@@ -19,7 +19,6 @@ using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
 using Closing.Infrastructure.External.DataSync;
 using Closing.Infrastructure.External.Operations.OperationTypes;
-using Closing.Infrastructure.External.Trusts.Trusts;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -50,7 +49,6 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IConfirmClosingOrchestrator, ConfirmClosingOrchestrator>();
             services.AddScoped<ICancelClosingOrchestrator, CancelClosingOrchestrator>();
             services.AddScoped<IDataSyncService, DataSyncTrustService>();
-            services.AddScoped<ITrustLocator, TrustLocator>();
 
             services.AddScoped<IValidateTrustYieldsDistributionService, ValidateTrustYieldsDistributionService>();
 

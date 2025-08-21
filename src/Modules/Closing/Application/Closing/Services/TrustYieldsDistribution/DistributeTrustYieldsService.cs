@@ -96,8 +96,7 @@ public class DistributeTrustYieldsService(
 
             if (prevTrustYield is not null && prevPortfolioValuation is not null)
                 participation = TrustMath.CalculateTrustParticipation(prevTrustYield.ClosingBalance, prevPortfolioValuation.Amount, DecimalPrecision.SixteenDecimals);
-            //else
-            //    participation = TrustMath.CalculateTrustParticipation(trust.PreClosingBalance, portfolioValuation.Amount, DecimalPrecision.SixteenDecimals);
+          
 
             logger.LogInformation("{Svc} Participación calculada: {Participation}", svc, participation);
 
@@ -124,9 +123,12 @@ public class DistributeTrustYieldsService(
 
             logger.LogInformation("{Svc} Units final: {Units} (UnitValue={UnitValue})", svc, units, portfolioValuation.UnitValue);
 
-            var yieldRetention = TrustMath.CalculateYieldRetention(yieldAmount, yieldRetentionRate, DecimalPrecision.SixteenDecimals);
-            logger.LogInformation("{Svc} Retención de rendimientos calculada: {YieldRetention} con tasa {Rate}", svc, yieldRetention, yieldRetentionRate);
-
+            var yieldRetention = 0m;
+            if ((yield.YieldToCredit > 0))
+            {
+                yieldRetention = TrustMath.CalculateYieldRetention(yieldAmount, yieldRetentionRate, DecimalPrecision.SixteenDecimals);
+                logger.LogInformation("{Svc} Retención de rendimientos calculada: {YieldRetention} con tasa {Rate}", svc, yieldRetention, yieldRetentionRate); 
+            }
             logger.LogInformation("{Svc} UpdateDetails => TrustId={TrustId}, Participation={Participation}, Units={Units}, YieldAmount={YieldAmount}, Income={Income}, Expenses={Expenses}, Commissions={Commissions}, Cost={Cost}, ClosingBalance={ClosingBalance}, Capital={Capital}, ContingentRetention={ContingentRetention}, YieldRetention={YieldRetention}",
                 svc, trust.TrustId, participation, units, yieldAmount, income, expenses, commissions, cost, closingBalance, trust.Capital, trust.ContingentRetention, yieldRetention);
 

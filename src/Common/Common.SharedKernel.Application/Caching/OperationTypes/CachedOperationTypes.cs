@@ -1,5 +1,5 @@
 ﻿
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain.OperationTypes;
 
 namespace Common.SharedKernel.Application.Caching.OperationTypes;

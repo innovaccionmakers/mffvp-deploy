@@ -11,7 +11,7 @@ internal sealed class GetMovementsByPortfolioIdQueryHandler(
 {
     public async Task<Result<IReadOnlyCollection<GetMovementsByPortfolioIdResponse>>> Handle(GetMovementsByPortfolioIdQuery request, CancellationToken cancellationToken)
     {
-        var treasuryMovements = await treasuryMovementRepository.GetTreasuryMovementsByPortfolioAsync(request.PortfolioId, request.ClosingDate, cancellationToken);
+        var treasuryMovements = await treasuryMovementRepository.GetReadOnlyTreasuryMovementsByPortfolioAsync(request.PortfolioId, request.ClosingDate, cancellationToken);
         var response = treasuryMovements
         .Select(m => new GetMovementsByPortfolioIdResponse(
             m.ConceptId, 

@@ -112,8 +112,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
             closingDate: request.ClosingDate,
             yieldAmount: request.Amount,
             yieldRetention: request.YieldRetention,
-            closingBalance: request.ClosingBalance,
-            units: request.Units
+            closingBalance: request.ClosingBalance
         );
 
         logger.LogInformation("Publicando evento TrustYieldOperationAppliedIntegrationEvent...");

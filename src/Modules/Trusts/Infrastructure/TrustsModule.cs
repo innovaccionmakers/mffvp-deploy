@@ -4,16 +4,13 @@ using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
-using Common.SharedKernel.Infrastructure.Extensions;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using Trusts.Application.Abstractions;
 using Trusts.Application.Abstractions.Data;
 
@@ -24,7 +21,6 @@ using Trusts.Infrastructure.Database;
 
 using Trusts.Infrastructure.Trusts;
 using Trusts.IntegrationEvents.CreateTrustRequested;
-using Trusts.IntegrationEvents.DataSync.TrustSync;
 using Trusts.IntegrationEvents.GetBalances;
 using Trusts.IntegrationEvents.ObjectiveTrustValidation;
 using Trusts.IntegrationEvents.TrustYields;
@@ -69,7 +65,7 @@ public class TrustsModule : IModuleConfiguration
         services.AddScoped<CreateTrustRequestedConsumer>();
         services.AddScoped<IRpcHandler<ValidateObjectiveTrustRequest, ValidateObjectiveTrustResponse>, ValidateObjectiveTrustConsumer>();
         services.AddTransient<IRpcHandler<GetBalancesRequest, GetBalancesResponse>, GetBalancesConsumer>();
-        services.AddTransient<IRpcHandler<ActiveTrustsByPortfolioRequest, ActiveTrustsByPortfolioResponse>, ActiveTrustsByPortfolioConsumer>();
+
         services.AddScoped<TrustYieldOperationAppliedSuscriber>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());

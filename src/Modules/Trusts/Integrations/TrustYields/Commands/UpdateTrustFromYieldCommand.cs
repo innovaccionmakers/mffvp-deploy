@@ -10,6 +10,5 @@ public sealed record UpdateTrustFromYieldCommand(
     DateTime ClosingDate,
     decimal YieldAmount,
     decimal YieldRetention,
-    decimal ClosingBalance,
-    decimal Units
+    decimal ClosingBalance
 ) : ICommand;
