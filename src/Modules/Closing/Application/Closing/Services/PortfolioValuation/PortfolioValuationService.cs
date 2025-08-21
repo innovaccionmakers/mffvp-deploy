@@ -31,7 +31,7 @@ public class PortfolioValuationService(
     public async Task<Result<ClosedResult>> CalculateAndPersistValuationAsync(
         int portfolioId,
         DateTime closingDate,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         using var _ = logger.BeginScope(new Dictionary<string, object>
         {
@@ -44,21 +44,21 @@ public class PortfolioValuationService(
         var now = DateTime.UtcNow;
 
         // ⬅️ Se actualiza el paso de cierre usando el flujo estándar
-        await timeControlService.UpdateStepAsync(portfolioId, "ClosingPortfolioValuation", now, ct);
+        await timeControlService.UpdateStepAsync(portfolioId, "ClosingPortfolioValuation", now, cancellationToken);
         logger.LogInformation("Paso de control de tiempo actualizado: NowUtc={NowUtc}", now);
 
         // 1. Validar existencia previa de cierre para esa fecha
         logger.LogInformation("Verificando si existe valoración previa cerrada para la fecha {ClosingDate}", closingDate.Date);
-        if (await valuationRepository.ValuationExistsAsync(portfolioId, closingDate.Date, ct))
+        if (await valuationRepository.ExistsByPortfolioAndDateAsync(portfolioId, closingDate.Date, cancellationToken))
             return Result.Failure<ClosedResult>(
                 new Error("001", "Ya existe una valoración cerrada para este portafolio y fecha.", ErrorType.Validation));
         logger.LogInformation("No existe valoración cerrada previa para la fecha {ClosingDate}", closingDate.Date);
 
         // 2. Obtener valoración del día anterior
-        var previous = await valuationRepository.GetValuationAsync(
+        var previous = await valuationRepository.GetReadOnlyByPortfolioAndDateAsync(
             portfolioId,
             closingDate.AddDays(-1),
-            ct);
+            cancellationToken);
 
         decimal prevValue = Math.Round(previous?.Amount ?? 0m, DecimalPrecision.TwoDecimals);
         decimal prevUnits = Math.Round(previous?.Units ?? 0m, DecimalPrecision.SixteenDecimals);
@@ -70,7 +70,7 @@ public class PortfolioValuationService(
         var yield = await yieldRepository.GetByPortfolioAndDateAsync(
             portfolioId,
             closingDate,
-            ct);
+            cancellationToken);
 
         logger.LogInformation("Rendimientos dia Portafolio: " + yield);
 
@@ -83,25 +83,25 @@ public class PortfolioValuationService(
             yieldIncome, yieldExpenses, yieldCommissions, yieldToCredit, yieldCosts);
 
         // 4. Obtener y clasificar subtipos de transacción
-        var subtypeResult = await operationTypes.GetAllAsync(ct);
+        var subtypeResult = await operationTypes.GetAllAsync(cancellationToken);
         if (!subtypeResult.IsSuccess)
             return Result.Failure<ClosedResult>(subtypeResult.Error!);
 
         var incomeSubs = subtypeResult.Value
-            .Where(s => s.Nature == IncomeEgressNature.Income)
+            .Where(s => s.Nature == IncomeEgressNature.Income && !string.IsNullOrWhiteSpace(s.Category))
             .Select(s => s.OperationTypeId)
             .ToList();
         var egressSubs = subtypeResult.Value
-            .Where(s => s.Nature == IncomeEgressNature.Egress)
+            .Where(s => s.Nature == IncomeEgressNature.Egress && !string.IsNullOrWhiteSpace(s.Category))
             .Select(s => s.OperationTypeId)
             .ToList();
         logger.LogInformation("Subtipos: IncomeCount={IncomeCount}, EgressCount={EgressCount}", incomeSubs.Count, egressSubs.Count);
 
         // 5. Sumar operaciones de entrada y salida del día
         var incoming = Math.Round(await clientOperationRepository
-            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, incomeSubs, ct), DecimalPrecision.TwoDecimals);
+            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, incomeSubs, cancellationToken), DecimalPrecision.TwoDecimals);
         var outgoing = Math.Round(await clientOperationRepository
-            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressSubs, ct), DecimalPrecision.TwoDecimals);
+            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressSubs, cancellationToken), DecimalPrecision.TwoDecimals);
         logger.LogInformation("Suma de operaciones: Incoming={Incoming}, Outgoing={Outgoing}", incoming, outgoing);
 
         // 6. Si es el primer día de cierre, calcular units y unitValue iniciales
@@ -112,9 +112,9 @@ public class PortfolioValuationService(
                     new Error("002", "No se puede calcular la valoración inicial sin operaciones de entrada.", ErrorType.Validation));
 
             var param = await configurationParameterRepository
-               .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, ct);
+               .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, cancellationToken);
 
-            var initialUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "Valor");
+            var initialUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "valor");
 
             prevUnits = incoming / initialUnitValue;
             prevUnitValue = initialUnitValue;
@@ -211,7 +211,7 @@ public class PortfolioValuationService(
         if (!createResult.IsSuccess)
             return Result.Failure<ClosedResult>(createResult.Error!);
 
-        await valuationRepository.AddAsync(createResult.Value);
+        await valuationRepository.InsertAsync(createResult.Value);
 
         logger.LogInformation(
             "Valoración realizada para Portafolio {PortfolioId} en {Date}",

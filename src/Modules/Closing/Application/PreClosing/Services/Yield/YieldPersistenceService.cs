@@ -35,7 +35,7 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
         CancellationToken ct = default)
     {
         var yieldDetails = await _yieldDetailRepository
-            .GetByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, parameters.IsClosing, ct);
+            .GetReadOnlyByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, parameters.IsClosing, ct);
 
         if (!yieldDetails.Any())
             throw new BusinessRuleValidationException("No hay detalles de rendimiento para consolidar.");
@@ -106,7 +106,7 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
         }
 
         var previousValuation = await _portfolioValuationRepository
-            .GetValuationAsync(parameters.PortfolioId, parameters.ClosingDate.AddDays(-1), ct);
+            .GetReadOnlyByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate.AddDays(-1), ct);
 
         return SimulationYieldCalculator.Calculate(
             yieldToCredit,

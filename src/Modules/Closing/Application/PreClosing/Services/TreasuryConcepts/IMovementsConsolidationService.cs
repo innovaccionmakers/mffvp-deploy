@@ -9,5 +9,5 @@ public interface IMovementsConsolidationService
     Task<bool> HasTreasuryMovementsAsync(
            int portfolioId,
            DateTime closingDate,
-           CancellationToken cancellationToken);
+           CancellationToken cancellationToken = default);
 }

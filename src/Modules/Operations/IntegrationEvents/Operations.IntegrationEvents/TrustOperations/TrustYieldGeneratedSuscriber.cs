@@ -18,8 +18,7 @@ public sealed class TrustYieldGeneratedSuscriber(ISender mediator) : ICapSubscri
             ClosingDate: message.ClosingDate,
             ProcessDate: message.ProcessDate,
             YieldRetention: message.YieldRetention,
-            ClosingBalance: message.ClosingBalance,
-            Units: message.Units
+            ClosingBalance: message.ClosingBalance
         ), cancellationToken);
     }
 }

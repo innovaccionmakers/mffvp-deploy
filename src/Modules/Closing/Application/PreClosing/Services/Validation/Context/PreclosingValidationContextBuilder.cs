@@ -8,7 +8,7 @@ public sealed class PreclosingValidationContextBuilder
 
     private bool _closingDateSet;
     private bool _currentDateSet;
-    private bool _firstDayStateSet; // opcional pero recomendado
+    private bool _firstDayStateSet; 
 
     public PreclosingValidationContextBuilder WithClosingDate(DateOnly date)
     {

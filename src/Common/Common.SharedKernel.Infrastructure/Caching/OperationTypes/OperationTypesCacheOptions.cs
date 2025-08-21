@@ -1,4 +1,4 @@
-namespace Closing.Application.Closing.Services.OperationTypes;
+namespace Common.SharedKernel.Infrastructure.Caching.OperationTypes;
 
 public sealed class OperationTypesCacheOptions
 {

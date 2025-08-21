@@ -11,10 +11,10 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
         context.ClientOperations.Add(clientOperation);
     }
 
-    public async Task<bool> ClientOperationsExistsAsync(int portfolioId, DateTime closingDateUtc, long transactionSubtypeId, CancellationToken cancellationToken = default)
+    public async Task<bool> ClientOperationsExistsAsync(int portfolioId, DateTime closingDateUtc, long operationTypeId, CancellationToken cancellationToken = default)
     {
         return await context.ClientOperations
-            .AnyAsync(co => co.PortfolioId == portfolioId && co.ProcessDate == closingDateUtc && co.OperationTypeId == transactionSubtypeId, cancellationToken);
+            .AnyAsync(co => co.PortfolioId == portfolioId && co.ProcessDate == closingDateUtc && co.OperationTypeId == operationTypeId, cancellationToken);
     }
 
     public async Task<decimal> SumByPortfolioAndSubtypesAsync(

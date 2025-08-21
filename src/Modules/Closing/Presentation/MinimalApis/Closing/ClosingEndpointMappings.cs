@@ -22,10 +22,24 @@ public static class ClosingEndpointMappings
         group.MapPost(
             NameEndpoints.RunClosing,
             [Authorize(Policy = MakersPermissionsClosing.PolicyExecuteClosure)]
-            async ([FromBody] RunClosingCommand request, ISender sender) =>
+            async (
+                [FromBody] RunClosingCommand request, 
+                ISender sender,
+                 HttpContext http, 
+                 CancellationToken cancellationToken
+                ) =>
             {
-                var result = await sender.Send(request);
-                return result.ToApiResult();
+                try
+                {
+                    var result = await sender.Send(request, cancellationToken);
+                    return result.ToApiResult();
+                }
+                catch (OperationCanceledException)
+                {
+                    if (!http.Response.HasStarted)
+                        return Results.StatusCode(StatusCodes.Status499ClientClosedRequest);
+                    throw; 
+                }
             })
             .WithName(NameEndpoints.RunClosing)
             .WithSummary(Summary.RunClosing)
@@ -38,17 +52,33 @@ public static class ClosingEndpointMappings
             .AddEndpointFilter<TechnicalValidationFilter<RunClosingCommand>>()
             .Produces<ClosedResult>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .Produces(StatusCodes.Status499ClientClosedRequest);
     }
 
     public static void MapConfirmClosingEndpoint(this RouteGroupBuilder group)
     {
         group.MapPost(
             NameEndpoints.ConfirmClosing,
-            async ([FromBody] ConfirmClosingCommand request, ISender sender) =>
+            async (
+                [FromBody] ConfirmClosingCommand request, 
+                ISender sender,
+                HttpContext http,
+                CancellationToken cancellationToken
+
+                ) =>
             {
-                var result = await sender.Send(request);
-                return result.ToApiResult();
+                try
+                {
+                    var result = await sender.Send(request, cancellationToken); 
+                    return result.ToApiResult();
+                }
+                catch (OperationCanceledException)
+                {
+                    if (!http.Response.HasStarted)
+                        return Results.StatusCode(StatusCodes.Status499ClientClosedRequest);
+                    throw;
+                }
             })
             .WithName(NameEndpoints.ConfirmClosing)
             .WithSummary(Summary.ConfirmClosing)
@@ -61,17 +91,32 @@ public static class ClosingEndpointMappings
             .AddEndpointFilter<TechnicalValidationFilter<ConfirmClosingCommand>>()
             .Produces<ClosedResult>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .Produces(StatusCodes.Status499ClientClosedRequest);
     }
 
     public static void MapCancelClosingEndpoint(this RouteGroupBuilder group)
     {
         group.MapPost(
             NameEndpoints.CancelClosing,
-            async ([FromBody] CancelClosingCommand request, ISender sender) =>
+            async (
+                [FromBody] CancelClosingCommand request, 
+                ISender sender,
+                HttpContext http,
+                CancellationToken cancellationToken
+                ) =>
             {
-                var result = await sender.Send(request);
-                return result.ToApiResult();
+                try
+                {
+                    var result = await sender.Send(request, cancellationToken); // <- propaga cancelación
+                    return result.ToApiResult();
+                }
+                catch (OperationCanceledException)
+                {
+                    if (!http.Response.HasStarted)
+                        return Results.StatusCode(StatusCodes.Status499ClientClosedRequest);
+                    throw; 
+                }
             })
             .WithName(NameEndpoints.CancelClosing)
             .WithSummary(Summary.CancelClosing)
@@ -84,6 +129,7 @@ public static class ClosingEndpointMappings
             .AddEndpointFilter<TechnicalValidationFilter<CancelClosingCommand>>()
             .Produces<bool>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .Produces(StatusCodes.Status499ClientClosedRequest);
     }
 }

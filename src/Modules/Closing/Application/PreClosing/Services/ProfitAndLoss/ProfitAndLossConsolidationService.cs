@@ -14,10 +14,11 @@ namespace Closing.Application.PreClosing.Services.ProfitAndLoss
 
         public async Task<IReadOnlyList<ProfitLossConceptSummary>> GetProfitAndLossSummaryAsync(
              int portfolioId,
-             DateTime closingDate)
+             DateTime closingDate, 
+             CancellationToken cancellationToken = default)
         {
             var summaries = await _profitLossRepository
-                .GetConceptSummaryAsync(portfolioId, closingDate);
+                .GetReadOnlyConceptSummaryAsync(portfolioId, closingDate, cancellationToken);
 
             return summaries;
         }

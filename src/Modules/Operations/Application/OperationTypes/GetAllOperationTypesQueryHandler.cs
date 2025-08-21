@@ -17,7 +17,7 @@ public class GetAllOperationTypesQueryHandler(
     IDistributedCache cache)
     : IQueryHandler<GetAllOperationTypesQuery, IReadOnlyCollection<OperationTypeResponse>>
 {
-    private const string CacheKey = "operations:operationtypes:all";
+    private const string CacheKey = "operations:operationTypes";
     private static readonly JsonSerializerOptions _serializerOptions = new();
 
     private record CacheModel(
@@ -76,7 +76,7 @@ public class GetAllOperationTypesQueryHandler(
 
         var options = new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
         };
         var cacheData = response.Select(s => new CacheModel(
             s.OperationTypeId,

@@ -1,11 +1,11 @@
 ﻿using Closing.Application.Abstractions.External.Operations.OperationTypes;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
 using Closing.Application.Closing.Services.Abort;
+using Closing.Application.Closing.Services.OperationTypes;
 using Closing.Application.Closing.Services.Orchestation;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.Orchestration;
 using Closing.Application.Closing.Services.PortfolioValuation;
-using Closing.Application.Closing.Services.OperationTypes;
 using Closing.Application.Closing.Services.TimeControl;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
@@ -15,10 +15,10 @@ using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
 using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
+using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
-using Closing.Infrastructure.External.Operations.OperationTypes;
-using Closing.Infrastructure.External.Trusts.Trusts;
 using Closing.Infrastructure.External.DataSync;
+using Closing.Infrastructure.External.Operations.OperationTypes;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -49,7 +49,6 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IConfirmClosingOrchestrator, ConfirmClosingOrchestrator>();
             services.AddScoped<ICancelClosingOrchestrator, CancelClosingOrchestrator>();
             services.AddScoped<IDataSyncService, DataSyncTrustService>();
-            services.AddScoped<ITrustLocator, TrustLocator>();
 
             services.AddScoped<IValidateTrustYieldsDistributionService, ValidateTrustYieldsDistributionService>();
 
@@ -58,6 +57,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<ITrustYieldPublisher, TrustYieldPublisher>();
             services.AddScoped<IPortfolioCommissionPublisher, PortfolioCommissionPublisher>();
             services.AddScoped<IPendingTransactionHandler, PendingTransactionHandler>();
+            services.AddScoped<IDataSyncPostService, DataSyncTrustPostService>();
 
             return services;
         }

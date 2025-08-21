@@ -22,7 +22,7 @@ public class TreasuryMovementRepository(TreasuryDbContext context) : ITreasuryMo
         return await context.TreasuryMovements.ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<TreasuryMovementConceptSummary>> GetTreasuryMovementsByPortfolioAsync(int portfolioId, DateTime date, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<TreasuryMovementConceptSummary>> GetReadOnlyTreasuryMovementsByPortfolioAsync(int portfolioId, DateTime date, CancellationToken cancellationToken = default)
     {
 
         var dateUtc = DateTimeConverter.ToUtcDateTime(date);

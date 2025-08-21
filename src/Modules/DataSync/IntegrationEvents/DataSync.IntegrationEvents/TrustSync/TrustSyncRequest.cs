@@ -1,3 +1,3 @@
 namespace DataSync.IntegrationEvents.TrustSync;
 
-public sealed record TrustSyncRequest(DateTime ClosingDate, int PortfolioId);
+public sealed record TrustSyncRequest(int PortfolioId, DateTime ClosingDate);

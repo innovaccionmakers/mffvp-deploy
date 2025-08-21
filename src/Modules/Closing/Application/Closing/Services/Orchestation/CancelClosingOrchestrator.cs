@@ -12,12 +12,12 @@ public class CancelClosingOrchestrator(
     ILogger<CancelClosingOrchestrator> logger)
     : ICancelClosingOrchestrator
 {
-    public async Task<Result<ClosedResult>> CancelAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
+    public async Task<Result<ClosedResult>> CancelAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
         closingDate = DateTimeConverter.ToUtcDateTime(closingDate);
         logger.LogInformation("Cancelando cierre para portafolio {PortfolioId}", portfolioId);
 
-        var abortResult = await abortClosing.AbortAsync(portfolioId, closingDate, ct);
+        var abortResult = await abortClosing.AbortAsync(portfolioId, closingDate, cancellationToken);
         if (abortResult.IsFailure)
         {
             logger.LogWarning("Falló el proceso de Cancelación para portafolio {PortfolioId}", portfolioId);
