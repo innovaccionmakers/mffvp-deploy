@@ -35,7 +35,7 @@ public static class ProductsBusinessApi
 
         group.MapGet(
                 "GetGoals",
-                [Authorize(Policy = MakersPermissionsProducts.PolicyViewGoal)]
+                [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewGoal)]
                 async (
                     [FromQuery] string? typeId,
                     [FromQuery] string? identification,
@@ -89,7 +89,7 @@ public static class ProductsBusinessApi
 
         group.MapPost(
                 "Goals",
-                [Authorize(Policy = MakersPermissionsProducts.PolicyCreateGoal)]
+                [Authorize(Policy = MakersPermissionsAffiliates.PolicyCreateGoal)]
                 async (
                     CreateObjectiveCommand comando,
                     ISender sender
@@ -115,7 +115,7 @@ public static class ProductsBusinessApi
 
         group.MapPut(
                 "Goals",
-                [Authorize(Policy = MakersPermissionsProducts.PolicyUpdateGoal)]
+                [Authorize(Policy = MakersPermissionsAffiliates.PolicyUpdateGoal)]
                 async (
                     UpdateObjectiveCommand comando,
                     ISender sender
@@ -149,7 +149,7 @@ public static class ProductsBusinessApi
 
         group.MapGet(
                 "Portfolios/GetById",
-                [Authorize(Policy = MakersPermissionsProducts.PolicyViewGoal)]
+                [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewGoal)]
                 async (
                     [FromQuery] int portfolioId,
                     ISender sender

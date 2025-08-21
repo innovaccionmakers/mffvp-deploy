@@ -1,4 +1,5 @@
 ﻿public record MakersPermission(
+    Guid PermissionId,
     string Description,
     string Module,
     string Domain,

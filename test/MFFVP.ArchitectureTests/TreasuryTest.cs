@@ -94,21 +94,21 @@ public class TreasuryTest : BaseTest, IModuleTest
 
     #region Test Internals Module
 
-    //[Fact]
-    //public void Presentation_should_not_depend_on_Domain_or_Infrastructure()
-    //{
-    //    var result = Types.InCurrentDomain()
-    //        .That()
-    //        .ResideInNamespaceStartingWith($"{currentModule}.Presentation")
-    //        .ShouldNot()
-    //        .HaveDependencyOnAny($"{currentModule}.Domain", $"{currentModule}.Infrastructure")
-    //        .GetResult();
+    [Fact]
+    public void Presentation_should_not_depend_on_Domain_or_Infrastructure()
+    {
+        var result = Types.InCurrentDomain()
+            .That()
+            .ResideInNamespaceStartingWith($"{currentModule}.Presentation")
+            .ShouldNot()
+            .HaveDependencyOnAny($"{currentModule}.Domain", $"{currentModule}.Infrastructure")
+            .GetResult();
 
-    //    var failingTypeNames = GetTypesFalling(result);
+        var failingTypeNames = GetTypesFalling(result);
 
-    //    result.IsSuccessful.ShouldBeTrue($"{currentModule}.Presentation, no debe depender de sus capas de {currentModule}.Infrastructure" +
-    //                                     (failingTypeNames.Any() ? $"Revisar : {string.Join(", ", failingTypeNames)}" : string.Empty));
-    //}
+        result.IsSuccessful.ShouldBeTrue($"{currentModule}.Presentation, no debe depender de sus capas de {currentModule}.Infrastructure" +
+                                         (failingTypeNames.Any() ? $"Revisar : {string.Join(", ", failingTypeNames)}" : string.Empty));
+    }
 
     [Fact]
     public void Domain_should_not_depend_on_Application_nor_Infrastructure()
