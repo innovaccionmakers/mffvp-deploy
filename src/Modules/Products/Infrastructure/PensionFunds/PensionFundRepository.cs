@@ -18,7 +18,7 @@ namespace Products.Infrastructure.PensionFunds
             _logger = logger;
         }
 
-        public async Task<IReadOnlyCollection<PensionFund>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<PensionFund>> GetAllPensionFundsAsync(CancellationToken cancellationToken = default)
         {
             _logger.LogInformation(_context.Database.GetDbConnection().ConnectionString);
             return await _context.PensionFunds.ToListAsync(cancellationToken);

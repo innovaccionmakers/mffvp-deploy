@@ -1,9 +1,10 @@
 using Common.SharedKernel.Domain;
 using MediatR;
+using Operations.Integrations.ClientOperations.GetClientOperationsByProcessDate;
 using Operations.Integrations.ConfigurationParameters;
+using Operations.Integrations.OperationTypes;
 using Operations.Integrations.Origins;
 using Operations.Presentation.DTOs;
-using Operations.Integrations.OperationTypes;
 
 namespace Operations.Presentation.GraphQL;
     
@@ -145,5 +146,23 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         }
 
         return result.Value;
+    }
+
+    public async Task<IReadOnlyCollection<ClientOperationsByProcessDateDto>> GetClientOperationsByProcessDateAsync(DateTime processDate, CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetClientOperationsByProcessDateQuery(processDate), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+            throw new InvalidOperationException("Failed to retrieve client operations.");
+
+        var response = result.Value
+        .Select(c => new ClientOperationsByProcessDateDto(
+            c.Amount,
+            c.CollectionAccount,
+            c.PaymentMethodDetail,
+            c.Name))
+        .ToList();
+
+        return response;
     }
 }

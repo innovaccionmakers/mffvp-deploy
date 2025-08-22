@@ -1,7 +1,7 @@
-using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using Operations.Domain.ClientOperations;
 using Operations.Infrastructure.Database;
+using System.Linq;
 
 namespace Operations.Infrastructure.ClientOperations;
 
@@ -69,6 +69,19 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
             .ToListAsync(cancellationToken);
+
+        foreach (var operation in clientOperations)
+        {
+            if (operation.OperationType?.CategoryId.HasValue == true)
+            {
+                var categoryName = await context.OperationTypes
+                    .Where(ot => ot.OperationTypeId == operation.OperationType.CategoryId.Value)
+                    .Select(ot => ot.Name)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                operation.OperationType.Name = categoryName;
+            }
+        }
 
         return clientOperations;
     }

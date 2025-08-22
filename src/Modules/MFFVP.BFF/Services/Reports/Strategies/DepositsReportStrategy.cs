@@ -1,12 +1,14 @@
 ﻿using ClosedXML.Excel;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services.Reports.DepositsReport.Interfaces;
-using MFFVP.BFF.Services.Reports.Models;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace MFFVP.BFF.Services.Reports.Strategies
 {
-    public class DepositsReportStrategy(IDepositsReportDataProvider _dataProvider) : IReportStrategy
+    public class DepositsReportStrategy(
+        ILogger<DepositsReportStrategy> _logger,
+        IDepositsReportDataProvider _dataProvider) : IReportStrategy
     {
         public string ReportName => "Formato Mvto Manual";
         public string[] ColumnHeaders => new[]
@@ -25,47 +27,66 @@ namespace MFFVP.BFF.Services.Reports.Strategies
         {
             if (request is DateTime processDate)
             {
-                using var workbook = new XLWorkbook();
-                var worksheet = workbook.Worksheets.Add(ReportName);
+                _logger.LogInformation($"Iniciando generación de reporte con fecha: {processDate}", processDate.ToString("yyyy-MM-dd"));
 
-                SetupHeaders(worksheet);
-
-                int row = 2;
-                await foreach (var item in _dataProvider.GetDataAsync(processDate, cancellationToken))
+                try
                 {
-                    var rowData = item.ToRowData();
-                    for (int col = 0; col < rowData.Length; col++)
+                    using var workbook = new XLWorkbook();
+                    var worksheet = workbook.Worksheets.Add(ReportName);
+
+                    SetupHeaders(worksheet);
+
+                    int row = 2;
+                    await foreach (var item in _dataProvider.GetDataAsync(processDate, cancellationToken))
                     {
-                        var value = rowData[col];
-                        var cell = worksheet.Cell(row, col + 1);
-
-                        cell.Value = value switch
+                        var rowData = item.ToRowData();
+                        for (int col = 0; col < rowData.Length; col++)
                         {
-                            decimal d => Math.Round(d, 2),
-                            _ => value?.ToString() ?? string.Empty
-                        };
+                            var value = rowData[col];
+                            var cell = worksheet.Cell(row, col + 1);
 
-                        if (rowData[col] is decimal)
-                            cell.Style.NumberFormat.Format = "0.00";
+                            cell.Value = value switch
+                            {
+                                decimal d => d.ToString("0.00", CultureInfo.InvariantCulture),
+                                _ => value?.ToString() ?? string.Empty
+                            };
+                        }
+                        row++;
                     }
-                    row++;
+
+                    worksheet.Columns().AdjustToContents();
+
+                    using var stream = new MemoryStream();
+                    workbook.SaveAs(stream);
+                    var reportBytes = stream.ToArray();
+
+                    // Opcional: Guardar para depuración
+                    if (Debugger.IsAttached)
+                    {
+                        var fileName = $"Depositos{processDate.ToString("ddMMyyyy")}.xlsx";
+                        var fullPath = System.IO.Path.Combine("C:\\Users\\JohanSebastiánRamíre\\OneDrive - Makers\\Documentos", fileName);
+                        await File.WriteAllBytesAsync(fullPath, reportBytes);
+                        Process.Start(new ProcessStartInfo { FileName = fullPath, UseShellExecute = true });
+                    }
+
+
+                    return new ReportResponseDto
+                    {
+                        FileContent = Convert.ToBase64String(reportBytes),
+                        FileName = $"Depositos{processDate.ToString("ddMMyyyy")}.xlsx",
+                        MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    };
+
                 }
-
-                worksheet.Columns().AdjustToContents();
-
-                using var stream = new MemoryStream();
-                workbook.SaveAs(stream);
-                var reportBytes = stream.ToArray();
-
-                return new ReportResponseDto
+                catch (Exception ex)
                 {
-                    FileContent = Convert.ToBase64String(reportBytes),
-                    FileName = $"Depositos{processDate.ToString("ddMMyyyy")}.xlsx",
-                    MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                };
+                    _logger.LogError(ex, $"Error al generar el reporte con fecha: {processDate}", processDate.ToString("yyyy-MM-dd"));
+                    throw;
+                }
             }
             else
             {
+                _logger.LogError($"Tipo de request no válido. Se esperaba DateTime, se recibió: {request}", typeof(TRequest).Name);
                 throw new ArgumentException("El tipo de request no es válido. Se esperaba DateTime.");
             }
         }

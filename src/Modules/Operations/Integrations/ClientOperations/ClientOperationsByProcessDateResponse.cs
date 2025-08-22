@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Operations.Integrations.ClientOperations
 {
-    public sealed record GetClientOperationsByProcessDateResponse(
+    public sealed record ClientOperationsByProcessDateResponse(
         //operaciones_clientes
         decimal Amount,
 

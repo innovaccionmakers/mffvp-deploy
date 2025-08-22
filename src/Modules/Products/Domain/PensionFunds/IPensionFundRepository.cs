@@ -2,6 +2,6 @@
 {
     public interface IPensionFundRepository
     {
-        Task<IReadOnlyCollection<PensionFund>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<PensionFund>> GetAllPensionFundsAsync(CancellationToken cancellationToken = default);
     }
 }
