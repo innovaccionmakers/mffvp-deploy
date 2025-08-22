@@ -1,6 +1,8 @@
-using Common.SharedKernel.Domain;
-using Products.Application.Abstractions;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
+
+using Products.Application.Abstractions;
 using Products.Application.Abstractions.Services.Rules;
 using Products.Application.Objectives.GetObjectives;
 

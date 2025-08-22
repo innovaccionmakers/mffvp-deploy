@@ -5,6 +5,9 @@ namespace Closing.Application.PreClosing.Services.ProfitAndLoss
 {
     public interface IProfitAndLossConsolidationService
     {
-        public Task<IReadOnlyList<ProfitLossConceptSummary>> GetProfitAndLossSummaryAsync(int portfolioId, DateTime closingDate);
+        Task<IReadOnlyList<ProfitLossConceptSummary>> GetProfitAndLossSummaryAsync(
+             int portfolioId,
+             DateTime closingDate,
+             CancellationToken cancellationToken = default);
     }
 }

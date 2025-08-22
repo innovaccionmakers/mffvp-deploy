@@ -29,15 +29,15 @@ internal sealed class UpsertTrustOperationCommandHandler(
         logger.LogInformation("Iniciando Upsert de operación de fideicomiso.");
 
         // 1. Obtener el subtipo "Rendimientos"
-        logger.LogDebug("Buscando SubtransactionType 'Rendimientos'...");
+        logger.LogInformation("Buscando SubtransactionType 'Rendimientos'...");
         var subtype = await operationTypeRepository
             .GetByNameAsync("Rendimientos", cancellationToken);
         if (subtype is null)
         {
-            logger.LogError("Tipo de Transacción 'Rendimientos' no encontrada.");
+            logger.LogInformation("Tipo de Transacción 'Rendimientos' no encontrada.");
             throw new InvalidOperationException("Tipo de Transacción 'Rendimientos' no encontrada.");
         }
-        logger.LogDebug("SubtransactionType encontrado: Id={SubtypeId}", subtype.OperationTypeId);
+        logger.LogInformation("SubtransactionType encontrado: Id={SubtypeId}", subtype.OperationTypeId);
 
         var yieldSubtypeId = subtype.OperationTypeId;
 
@@ -45,9 +45,9 @@ internal sealed class UpsertTrustOperationCommandHandler(
 
         //Definicion: para la tabla operaciones.operaciones_fideicomiso, la fecha de radicación y aplicación es el getdate
         //y la fecha de proceso es la fecha del último cierre. 
-        logger.LogDebug("Consultando operación existente por (PortfolioId, TrustId, ClosingDate)...");
+        logger.LogInformation("Consultando operación existente por (PortfolioId, TrustId, ClosingDate)...");
         var existing = await repository
-            .GetByPortfolioTrustAndDateAsync(request.PortfolioId, request.TrustId, request.ClosingDate.Date, cancellationToken);
+            .GetForUpdateByPortfolioTrustAndDateAsync(request.PortfolioId, request.TrustId, request.ClosingDate.Date, cancellationToken);
 
         if (existing is not null)
         {
@@ -65,11 +65,11 @@ internal sealed class UpsertTrustOperationCommandHandler(
                 newApplicationDate: request.ProcessDate
             );
 
-            logger.LogDebug("Detalles actualizados: Amount={Amount}, SubtypeId={SubtypeId}, RegistrationDate={RegistrationDate}, ProcessDate={ProcessDate}, ApplicationDate={ApplicationDate}",
+            logger.LogInformation("Detalles actualizados: Amount={Amount}, SubtypeId={SubtypeId}, RegistrationDate={RegistrationDate}, ProcessDate={ProcessDate}, ApplicationDate={ApplicationDate}",
                 request.Amount, yieldSubtypeId, request.ProcessDate, request.ClosingDate, request.ProcessDate);
 
             repository.Update(existing);
-            logger.LogDebug("Repository.Update ejecutado para la operación existente.");
+            logger.LogInformation("Repository.Update ejecutado para la operación existente.");
         }
         else
         {
@@ -89,7 +89,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
 
             if (opResult.IsFailure)
             {
-                logger.LogError("Error creando operación de fideicomiso: {ErrorCode} {ErrorDescription}",
+                logger.LogInformation("Error creando operación de fideicomiso: {ErrorCode} {ErrorDescription}",
                     opResult.Error.Code, opResult.Error.Description);
                 throw new InvalidOperationException(
                     $"Error creando operación de fideicomiso: {opResult.Error.Description}"
@@ -97,7 +97,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
             }
 
             await repository.AddAsync(opResult.Value, cancellationToken);
-            logger.LogDebug("Repository.AddAsync ejecutado. Nueva operación preparada para persistir.");
+            logger.LogInformation("Repository.AddAsync ejecutado. Nueva operación preparada para persistir.");
         }
 
         // 4. Guardar los cambios (insertar o actualizar) en una sola transacción
@@ -112,12 +112,11 @@ internal sealed class UpsertTrustOperationCommandHandler(
             closingDate: request.ClosingDate,
             yieldAmount: request.Amount,
             yieldRetention: request.YieldRetention,
-            closingBalance: request.ClosingBalance,
-            units: request.Units
+            closingBalance: request.ClosingBalance
         );
 
         logger.LogInformation("Publicando evento TrustYieldOperationAppliedIntegrationEvent...");
-        logger.LogDebug("Evento: {@IntegrationEvent}", integrationEvent);
+        logger.LogInformation("Evento: {@IntegrationEvent}", integrationEvent);
         await eventBus.PublishAsync(integrationEvent, cancellationToken);
         logger.LogInformation("Evento publicado correctamente.");
     }

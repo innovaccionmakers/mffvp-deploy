@@ -1,6 +1,9 @@
 ﻿using Closing.Application.Abstractions.External.Treasury.TreasuryMovements;
+
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Treasury.IntegrationEvents.TreasuryMovements.TreasuryMovementsByPortfolio;
 
 namespace Closing.Infrastructure.External.Treasury.TreasuryMovements;

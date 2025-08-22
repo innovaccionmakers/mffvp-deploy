@@ -2,10 +2,11 @@ using Associate.Application.Abstractions;
 using Associate.Domain.Activates;
 using Associate.Domain.ConfigurationParameters;
 using Associate.Integrations.Activates.GetActivateId;
-using Azure.Core;
+
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 namespace Associate.Application.Activates.GetActivateId;

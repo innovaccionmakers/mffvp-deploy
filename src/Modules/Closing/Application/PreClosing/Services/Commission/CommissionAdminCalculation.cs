@@ -1,6 +1,8 @@
 ﻿using Closing.Application.PreClosing.Services.Commission.Constants;
 using Closing.Application.PreClosing.Services.Commission.Interfaces;
 using Closing.Domain.PortfolioValuations;
+
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 namespace Closing.Application.PreClosing.Services.Commission
@@ -34,7 +36,7 @@ namespace Closing.Application.PreClosing.Services.Commission
             var previousDate = closingDate.AddDays(-1);
 
             var valuationResult = await _portfolioValuationRepository
-                .GetValuationAsync(portfolioId, previousDate, ct);
+                .GetReadOnlyByPortfolioAndDateAsync(portfolioId, previousDate, ct);
 
             if (valuationResult is null)
             {

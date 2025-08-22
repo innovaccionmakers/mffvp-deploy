@@ -1,6 +1,9 @@
 ﻿using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Products.IntegrationEvents.Portfolio;
+
 using Treasury.Application.Abstractions.External;
 
 namespace Treasury.Infrastructure.External.Portfolio;

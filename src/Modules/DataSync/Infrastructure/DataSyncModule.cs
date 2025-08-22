@@ -1,13 +1,16 @@
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Rpc;
+using DataSync.Application.Abstractions.External.TrustSync;
+using DataSync.Application.TrustSync.Services;
+using DataSync.Application.TrustSync.Services.Interfaces;
+using DataSync.Infrastructure.ConnectionFactory;
+using DataSync.Infrastructure.ConnectionFactory.Interfaces;
+using DataSync.Infrastructure.TrustSync;
+using DataSync.IntegrationEvents.TrustSync;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using DataSync.Application.TrustSync;
-using DataSync.Infrastructure.External.Trusts;
-using DataSync.Infrastructure.External.Closing;
-using DataSync.IntegrationEvents.TrustSync;
 
 namespace DataSync.Infrastructure;
 
@@ -18,10 +21,22 @@ public class DataSyncModule : IModuleConfiguration
 
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<ITrustDataService, TrustDataService>();
-        services.AddScoped<IYieldSyncService, YieldSyncService>();
-        
+        // Conexiones por dominio
+        services.AddScoped<ITrustConnectionFactory, TrustConnectionFactory>();
+        services.AddScoped<IClosingConnectionFactory, ClosingConnectionFactory>();
+
+        // Adaptadores externos
+        services.AddScoped<ITrustReader, TrustReader>();
+        services.AddScoped<IClosingTrustYieldMerger, ClosingTrustYieldMerger>();
+        services.AddScoped<ITrustUnitsUpdater, TrustUnitsUpdater>();
+
+        // Servicios 
+        services.AddScoped<ITrustSyncClosingService, TrustSyncClosingService>();
+        services.AddScoped<ITrustSyncPostService, TrustSyncPostService>();
+
+        // RPC (CAP)
         services.AddScoped<IRpcHandler<TrustSyncRequest, TrustSyncResponse>, TrustSyncConsumer>();
+        services.AddScoped<IRpcHandler<TrustSyncPostRequest, TrustSyncPostResponse>, TrustSyncPostConsumer>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -1,15 +1,20 @@
+using Application.Activates;
+
+using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
-using Common.SharedKernel.Application.Rules;
 using Associate.Domain.Activates;
 using Associate.Integrations.Activates.CreateActivate;
 using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
-using Customers.IntegrationEvents.PersonValidation;
+
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-using Associate.Application.Abstractions;
+
+using Customers.IntegrationEvents.PersonValidation;
+
 using MediatR;
-using Application.Activates;
 
 namespace Associate.Application.Activates.CreateActivate;
 

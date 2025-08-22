@@ -1,6 +1,9 @@
 using Associate.IntegrationEvents.ActivateValidation;
+
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Products.Application.Abstractions.Services.External;
 
 namespace Products.Infrastructure.External.Affiliates;

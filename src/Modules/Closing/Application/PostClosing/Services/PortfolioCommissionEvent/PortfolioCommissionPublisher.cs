@@ -13,7 +13,7 @@ public sealed class PortfolioCommissionPublisher(
     public async Task PublishAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
         var details = await repository
-            .GetByPortfolioAndDateAsync(portfolioId, closingDate, isClosed: true, cancellationToken);
+            .GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, isClosed: true, cancellationToken);
 
         foreach (var detail in details)
         {

@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
 using Common.SharedKernel.Domain.Auth.Permissions;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Associate.Presentation.MinimalApis;
 
@@ -136,7 +137,6 @@ public static class AssociateBusinessApi
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet("GetPensionRequirements",
-            [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewPensionRequirements)]
         async (ISender sender) =>
         {
             var result = await sender.Send(new GetPensionRequirementsQuery());
@@ -147,7 +147,6 @@ public static class AssociateBusinessApi
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost("PensionRequirements",
-            [Authorize(Policy = MakersPermissionsAffiliates.PolicyCreatePensionRequirements)] 
             async ([FromBody] CreatePensionRequirementCommand request, ISender sender) =>
         {
             var result = await sender.Send(request);
@@ -171,7 +170,6 @@ public static class AssociateBusinessApi
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPut("PutPensionRequirements",
-            [Authorize(Policy = MakersPermissionsAffiliates.PolicyUpdatePensionRequirements)] 
         async ([FromBody] UpdatePensionRequirementCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);

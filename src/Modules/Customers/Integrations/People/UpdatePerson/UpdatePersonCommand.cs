@@ -1,6 +1,5 @@
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
-using System;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Customers.Integrations.People.UpdatePerson;
 

@@ -6,11 +6,6 @@ namespace Closing.Infrastructure.TrustYields;
 
 internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYieldRepository
 {
-    public async Task<TrustYield?> GetByTrustAndDateAsync(long trustId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
-    {
-        return await context.TrustYields
-            .SingleOrDefaultAsync(x => x.TrustId == trustId && x.ClosingDate == closingDateUtc, cancellationToken);
-    }
 
     public async Task InsertAsync(TrustYield trustYield, CancellationToken cancellationToken = default)
     {
@@ -22,10 +17,24 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
         context.TrustYields.Update(trustYield);
     }
 
-    public async Task<IReadOnlyCollection<TrustYield>> GetByPortfolioAndDateAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
+    public async Task<TrustYield?> GetReadOnlyByTrustAndDateAsync(long trustId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+    {
+        return await context.TrustYields.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.TrustId == trustId && x.ClosingDate == closingDateUtc, cancellationToken);
+    }
+
+
+    public async Task<IReadOnlyCollection<TrustYield>> GetForUpdateByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken ct)
     {
         return await context.TrustYields
-            .Where(t => t.PortfolioId == portfolioId && t.ClosingDate.Date == closingDate.Date)
+            .Where(t => t.PortfolioId == portfolioId && t.ClosingDate == closingDateUtc)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyCollection<TrustYield>> GetReadOnlyByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken ct)
+    {
+        return await context.TrustYields.AsNoTracking() 
+            .Where(t => t.PortfolioId == portfolioId && t.ClosingDate == closingDateUtc)
             .ToListAsync(ct);
     }
 
@@ -52,7 +61,7 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
             .Set<TrustYield>()
             .FirstOrDefaultAsync(y =>
                 y.TrustId == snapshot.TrustId &&
-                y.ClosingDate.Date == snapshot.ClosingDate,
+                y.ClosingDate == snapshot.ClosingDate,
                 ct);
 
         if (existing is null)

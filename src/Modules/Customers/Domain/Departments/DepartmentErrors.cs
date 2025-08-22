@@ -1,4 +1,4 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Customers.Domain.Departments;
 public static class DepartmentErrors

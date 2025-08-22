@@ -1,5 +1,7 @@
+using Operations.Application.Abstractions.Services.Channel;
 using Operations.Application.Abstractions.Services.ContributionService;
-using Operations.Domain.Services;
+using Operations.Application.Abstractions.Services.Portfolio;
+using Operations.Application.Abstractions.Services.SalesUser;
 
 namespace Operations.Application.Contributions.Services;
 

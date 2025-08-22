@@ -12,7 +12,7 @@ public sealed class TrustYieldPublisher(
 {
     public async Task PublishAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
-        var trustYields = await repository.GetByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
+        var trustYields = await repository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
 
         foreach (var trustYield in trustYields)
         {

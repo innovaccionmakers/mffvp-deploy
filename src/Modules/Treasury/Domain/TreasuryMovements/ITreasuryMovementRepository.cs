@@ -6,6 +6,6 @@ public interface ITreasuryMovementRepository
     Task<IReadOnlyCollection<TreasuryMovement>> GetAllAsync(CancellationToken cancellationToken = default);
     Task AddAsync(TreasuryMovement treasuryMovement, CancellationToken cancellationToken = default);
     Task AddRangeAsync(IEnumerable<TreasuryMovement> treasuryMovements, CancellationToken cancellationToken = default);
-    Task<IReadOnlyCollection<TreasuryMovementConceptSummary>> GetTreasuryMovementsByPortfolioAsync(int portfolioId, DateTime date, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<TreasuryMovementConceptSummary>> GetReadOnlyTreasuryMovementsByPortfolioAsync(int portfolioId, DateTime date, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<TreasuryMovement>> GetTreasuryMovementsByPortfolioIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default);
 }

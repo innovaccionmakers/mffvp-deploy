@@ -1,8 +1,11 @@
 ﻿namespace Products.Presentation.GraphQL;
 
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
+
 using HotChocolate;
+
 using MediatR;
+
 using Products.Integrations.Alternatives;
 using Products.Integrations.Commercials;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
@@ -17,6 +20,7 @@ using Products.Integrations.Portfolios.Queries;
 using Products.Integrations.TechnicalSheets.Queries;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
+
 using System.Linq;
 
 public class ProductsExperienceQueries(IMediator mediator) : IProductsExperienceQueries

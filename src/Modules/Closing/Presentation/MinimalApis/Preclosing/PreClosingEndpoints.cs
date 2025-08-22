@@ -24,11 +24,23 @@ namespace Closing.Presentation.MinimalApis.PreClosing
                    [Authorize(Policy = MakersPermissionsClosing.PolicyExecuteSimulation)]
                      async (
                         [FromBody] RunSimulationCommand request,
-                        ISender sender
+                        ISender sender,
+                        HttpContext http,              // opcional, para saber si la respuesta ya empezó
+                        CancellationToken cancellationToken           // 
                     ) =>
                     {
-                        var result = await sender.Send(request);
-                        return result.ToApiResult();
+                        try
+                        {
+                            var result = await sender.Send(request, cancellationToken); // <- propaga cancelación
+                            return result.ToApiResult();
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            // Si el cliente aborta request, cae aquí.
+                            if (!http.Response.HasStarted)
+                                return Results.StatusCode(StatusCodes.Status499ClientClosedRequest); 
+                            throw; // si ya empezó la respuesta, dejamos que el framework cierre la conexión
+                        }
                     }
                 )
                 .WithName(NameEndpoints.RunPreclosing)
@@ -42,7 +54,8 @@ namespace Closing.Presentation.MinimalApis.PreClosing
                 .AddEndpointFilter<TechnicalValidationFilter<RunSimulationCommand>>()
                 .Produces<SimulatedYieldResult>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .ProducesProblem(StatusCodes.Status500InternalServerError);
+                .ProducesProblem(StatusCodes.Status500InternalServerError)
+                .Produces(StatusCodes.Status499ClientClosedRequest); 
         }
     }
 }
