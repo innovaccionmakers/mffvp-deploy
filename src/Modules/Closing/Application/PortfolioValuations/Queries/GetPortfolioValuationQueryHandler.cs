@@ -6,6 +6,7 @@ using Closing.Integrations.PortfolioValuations.Queries;
 using Closing.Integrations.PortfolioValuations.Response;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 namespace Closing.Application.PortfolioValuations.Queries;

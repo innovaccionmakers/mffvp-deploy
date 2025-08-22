@@ -31,7 +31,7 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
             .ToListAsync(ct);
     }
 
-    public async Task<IReadOnlyCollection<TrustYield>> GetReadOnlyByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken ct)
+    public async Task<IReadOnlyCollection<TrustYield>> GetByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken ct)
     {
         return await context.TrustYields.AsNoTracking() 
             .Where(t => t.PortfolioId == portfolioId && t.ClosingDate == closingDateUtc)

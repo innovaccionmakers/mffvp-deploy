@@ -1,5 +1,6 @@
 ﻿using Closing.Integrations.PortfolioValuation;
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Products.Application.Abstractions.External.Closing;
 using Products.IntegrationEvents.PortfolioValuation;

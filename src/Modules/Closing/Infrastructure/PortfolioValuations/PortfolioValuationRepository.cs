@@ -30,7 +30,7 @@ namespace Closing.Infrastructure.PortfolioValuations
                           cancellationToken);
         }
 
-        public async Task InsertAsync(PortfolioValuation valuation, CancellationToken cancellationToken = default)
+        public async Task AddAsync(PortfolioValuation valuation, CancellationToken cancellationToken = default)
         {
             await context.PortfolioValuations.AddAsync(valuation, cancellationToken);
         }

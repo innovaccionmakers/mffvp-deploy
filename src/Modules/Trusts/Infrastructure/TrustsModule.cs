@@ -68,7 +68,6 @@ public class TrustsModule : IModuleConfiguration
         services.AddTransient<IRpcHandler<GetBalancesRequest, GetBalancesResponse>, GetBalancesConsumer>();
 
         services.AddTransient<IRpcHandler<GetTrustParticipantRequest, GetTrustParticipantResponse>, GetTrustParticipantConsumer>();
-        services.AddTransient<IRpcHandler<ActiveTrustsByPortfolioRequest, ActiveTrustsByPortfolioResponse>, ActiveTrustsByPortfolioConsumer>();
         services.AddScoped<ITrustExperienceQueries, TrustExperienceQueries>();
         services.AddScoped<TrustYieldOperationAppliedSuscriber>();
 
