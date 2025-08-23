@@ -20,9 +20,9 @@ public class CommissionCalculationService : ICommissionCalculationService
     public async Task<IReadOnlyList<CommissionConceptSummary>> CalculateAsync(
         int portfolioId,
         DateTime closingDate,
-        CancellationToken ct)
+        CancellationToken cancellationToken = default)
     {
-        var commissionsResult = await _commissionLocator.GetActiveCommissionsAsync(portfolioId, ct);
+        var commissionsResult = await _commissionLocator.GetActiveCommissionsAsync(portfolioId, cancellationToken);
         var commissions = commissionsResult.Value;
 
         var summaries = new List<CommissionConceptSummary>();
@@ -33,7 +33,7 @@ public class CommissionCalculationService : ICommissionCalculationService
                 continue;
 
             var percentage = ParseCommissionPercentage(commission.CalculationRule);
-            var amount = await CalculateCommissionAmountAsync(portfolioId, closingDate, percentage, ct);
+            var amount = await CalculateCommissionAmountAsync(portfolioId, closingDate, percentage, cancellationToken);
 
             summaries.Add(new CommissionConceptSummary(
                 commission.CommissionId,
@@ -59,10 +59,10 @@ public class CommissionCalculationService : ICommissionCalculationService
         int portfolioId,
         DateTime closingDate,
         decimal percentage,
-        CancellationToken ct)
+        CancellationToken cancellationToken = default)
     {
         var result = await _commissionAdminCalculationService.CalculateAsync(
-            portfolioId, closingDate, percentage, ct);
+            portfolioId, closingDate, percentage, cancellationToken);
 
         return result.IsSuccess ? result.Value : 0m;
     }

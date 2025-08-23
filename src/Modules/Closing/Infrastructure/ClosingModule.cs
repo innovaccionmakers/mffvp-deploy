@@ -18,6 +18,8 @@ using Closing.Infrastructure.TrustYields;
 using Closing.IntegrationEvents.DataSync.CreateClientOperationRequested;
 using Closing.IntegrationEvents.DataSync.TrustSync;
 using Closing.IntegrationEvents.PortfolioValuation;
+using Closing.Integrations.PortfolioValuation;
+using Closing.Integrations.PortfolioValuations.Response;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.MinimalApis;
 using Common.SharedKernel.Application.Abstractions;
@@ -33,6 +35,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Products.IntegrationEvents.PortfolioValuation;
 
 namespace Closing.Infrastructure;
 
@@ -88,6 +91,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<CreateClientOperationRequestedConsumer>();
         services.AddScoped<IRpcHandler<TrustSyncRequest, TrustSyncResponse>, TrustSyncConsumer>();
         services.AddScoped<IRpcHandler<CheckPortfolioValuationExistsRequest, CheckPortfolioValuationExistsResponse>, CheckPortfolioValuationExistsConsumer>();
+        services.AddScoped<IRpcHandler<GetPortfolioValuationRequest, GetPortfolioValuationResponse>, GetPortfolioValuationConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
         // Llama a la extension para PreClosing

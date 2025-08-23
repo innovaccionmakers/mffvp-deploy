@@ -1,10 +1,9 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+
 using Customers.Domain.People;
-using Customers.Integrations.People.GetPersons;
 using Customers.Integrations.People;
-using System.Collections.Generic;
-using System.Linq;
+using Customers.Integrations.People.GetPersons;
 
 namespace Customers.Application.People.GetPersons;
 

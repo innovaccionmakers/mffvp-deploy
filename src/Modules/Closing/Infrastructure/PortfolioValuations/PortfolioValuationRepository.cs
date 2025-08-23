@@ -2,25 +2,21 @@
 using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Closing.Infrastructure.PortfolioValuations
 {
     internal sealed class PortfolioValuationRepository(ClosingDbContext context) : IPortfolioValuationRepository
     {
-        public async Task<PortfolioValuation?> GetValuationAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+        public async Task<PortfolioValuation?> GetReadOnlyByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
         {
-            //Siempre se deben retornar valores cuyo indicador Cerrado = True,
-            //si el campo para la fecha se encuentra en False quiere decir
-            //que hace parte de un ejercicio de simulación el cual no debe considerarse como real.
-            return await context.PortfolioValuations.Where(x => x.PortfolioId == portfolioId &&
+            return await context.PortfolioValuations.AsNoTracking().Where(x => x.PortfolioId == portfolioId &&
                                                 x.ClosingDate == closingDateUtc &&
                                                 x.IsClosed == true)
-                .SingleOrDefaultAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<bool> ValuationExistsAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
         {
-            return await context.PortfolioValuations
+            return await context.PortfolioValuations.AsNoTracking()
                 .AnyAsync(x => x.PortfolioId == portfolioId &&
                                x.ClosingDate == closingDateUtc &&
                                x.IsClosed == true,
@@ -29,7 +25,7 @@ namespace Closing.Infrastructure.PortfolioValuations
 
         public async Task<bool> ExistsByPortfolioIdAsync(long portfolioId, CancellationToken cancellationToken = default)
         {
-            return await context.PortfolioValuations
+            return await context.PortfolioValuations.AsNoTracking()
                 .AnyAsync(x => x.PortfolioId == portfolioId,
                           cancellationToken);
         }
@@ -38,7 +34,7 @@ namespace Closing.Infrastructure.PortfolioValuations
         {
             await context.PortfolioValuations.AddAsync(valuation, cancellationToken);
         }
-        
+
         public async Task DeleteClosedByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
         {
             await context.PortfolioValuations
@@ -46,5 +42,14 @@ namespace Closing.Infrastructure.PortfolioValuations
                 .ExecuteDeleteAsync(cancellationToken);
         }
 
+        public async Task<IReadOnlyCollection<PortfolioValuation>> GetPortfolioValuationsByClosingDateAsync(DateTime closingDate, CancellationToken cancellationToken = default)
+        {
+            return await context.PortfolioValuations
+                .AsNoTracking()
+                .Where(v => v.ClosingDate == closingDate && v.IsClosed)
+                .GroupBy(v => v.PortfolioId)
+                .Select(g => g.First())
+                .ToListAsync(cancellationToken);
+        }
     }
 }

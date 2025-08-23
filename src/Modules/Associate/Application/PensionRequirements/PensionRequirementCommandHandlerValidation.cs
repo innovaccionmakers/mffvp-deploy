@@ -1,16 +1,20 @@
 
-using Associate.Integrations.Activates.GetActivateId;
-using Common.SharedKernel.Domain;
-using MediatR;
-using Common.SharedKernel.Application.Rules;
-using Associate.Application.Abstractions;
 using Application.PensionRequirements.CreatePensionRequirement;
-using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
-using Associate.Domain.ConfigurationParameters;
-using Common.SharedKernel.Application.Attributes;
 using Application.PensionRequirements.UpdatePensionRequirement;
-using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
+
+using Associate.Application.Abstractions;
+using Associate.Domain.ConfigurationParameters;
 using Associate.Domain.PensionRequirements;
+using Associate.Integrations.Activates.GetActivateId;
+using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
+using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
+
+using Common.SharedKernel.Application.Attributes;
+using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
+
+using MediatR;
 
 namespace Application.PensionRequirements;
 

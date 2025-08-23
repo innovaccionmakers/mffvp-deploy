@@ -1,7 +1,9 @@
 ﻿namespace Products.Presentation.GraphQL;
 
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
+
 using HotChocolate;
+
 using MediatR;
 using Operations.Integrations.ClientOperations.GetClientOperationsByProcessDate;
 using Products.Integrations.Alternatives;
@@ -16,8 +18,10 @@ using Products.Integrations.PlanFunds.GetPlanFund;
 using Products.Integrations.Portfolios.GetPortfolio;
 using Products.Integrations.Portfolios.GetPortfolios;
 using Products.Integrations.Portfolios.Queries;
+using Products.Integrations.TechnicalSheets.Queries;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
+
 using System.Linq;
 
 public class ProductsExperienceQueries(IMediator mediator) : IProductsExperienceQueries
@@ -324,5 +328,33 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
         var response = result.Value.Select(c => c.Name).First();
 
         return response;
+    }
+
+    public async Task<IReadOnlyCollection<TechnicalSheetDto>> GetTechnicalSheetsByDateRangeAndPortfolio(DateOnly startDate,
+                                                                                                        DateOnly endDate,
+                                                                                                        int portfolioId,
+                                                                                                        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetTechnicalSheetsByDateRangeAndPortfolioQuery(startDate, endDate, portfolioId), cancellationToken);
+        if (!result.IsSuccess || result.Value == null)
+            return [];
+
+        return result.Value
+            .Select(ts => new TechnicalSheetDto(
+                ts.Date,
+                ts.Contributions,
+                ts.Withdrawals,
+                ts.GrossPnl,
+                ts.Expenses,
+                ts.DailyCommission,
+                ts.DailyCost,
+                ts.CreditedYields,
+                ts.GrossUnitYield,
+                ts.UnitCost,
+                ts.UnitValue,
+                ts.Units,
+                ts.PortfolioValue,
+                ts.Participants
+            )).ToList();
     }
 }

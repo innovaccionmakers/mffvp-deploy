@@ -1,5 +1,6 @@
 ﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+
 using Customers.Domain.People;
 using Customers.Integrations.People;
 using Customers.Integrations.People.GetPersons;
@@ -10,7 +11,9 @@ internal sealed class GetPersonsByDocumentsQueryHandler(IPersonRepository reposi
 {
     public async Task<Result<IReadOnlyCollection<PersonResponse>>> Handle(GetPersonsByDocumentsQuery request, CancellationToken cancellationToken)
     {
-        var persons = await repository.GetPersonsByDocumentsAsync(request.Documents, cancellationToken);
+        var persons = await repository.GetPersonsByDocumentsAsync(request.Documents.Select(
+            x => new PersonDocumentKey(x.DocumentTypeUuid, x.Identification)
+        ).ToList(), cancellationToken);
         var response = persons
             .Select(e => new PersonResponse(
                 e.PersonId,

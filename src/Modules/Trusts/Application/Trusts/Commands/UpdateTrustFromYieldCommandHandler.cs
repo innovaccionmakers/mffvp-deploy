@@ -1,6 +1,8 @@
 ﻿
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Trusts.Application.Abstractions.Data;
 using Trusts.Domain.Trusts;
 using Trusts.Integrations.TrustYields.Commands;
@@ -58,7 +60,7 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
             trust.ObjectiveId,
             trust.PortfolioId,
             newTotalBalance,
-            request.Units,
+            trust.TotalUnits,
             trust.Principal,
             newEarnings,
             trust.TaxCondition,

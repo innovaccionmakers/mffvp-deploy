@@ -1,4 +1,5 @@
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
+
 using MediatR;
 using Operations.Integrations.ClientOperations.GetClientOperationsByProcessDate;
 using Operations.Integrations.ConfigurationParameters;

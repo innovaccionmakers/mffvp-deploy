@@ -1,10 +1,14 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using FluentValidation;
+
 using MediatR;
+
 using Products.Integrations.Objectives.CreateObjective;
 using Products.Integrations.Objectives.UpdateObjective;
+using Products.Integrations.TechnicalSheets.Commands;
 using Products.Presentation.DTOs;
 using Products.Presentation.GraphQL.Input;
 
@@ -12,9 +16,9 @@ namespace Products.Presentation.GraphQL;
 
 public class ProductsExperienceMutations(IMediator mediator) : IProductsExperienceMutations
 {
-    public async Task<GraphqlMutationResult<GoalMutationResult>> RegisterGoalAsync(CreateGoalInput input, IValidator<CreateGoalInput> validator, CancellationToken cancellationToken = default)
+    public async Task<GraphqlResult<GoalMutationResult>> RegisterGoalAsync(CreateGoalInput input, IValidator<CreateGoalInput> validator, CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult<GoalMutationResult>();
+        var result = new GraphqlResult<GoalMutationResult>();
         try
         {
 
@@ -63,12 +67,36 @@ public class ProductsExperienceMutations(IMediator mediator) : IProductsExperien
 
     }
 
-    public async Task<GraphqlMutationResult> UpdateGoalAsync(
+    public async Task<GraphqlResult> SaveTechnicalSheetAsync(DateOnly closingDate, CancellationToken cancellationToken = default)
+    {
+        var result = new GraphqlResult();
+        try
+        {
+            var command =  new SaveTechnicalSheetCommand(closingDate);
+            var commandResult = await mediator.Send(command, cancellationToken);
+            
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+
+            result.SetSuccess("Proceso Ejecutado corretamente");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
+    }
+
+    public async Task<GraphqlResult> UpdateGoalAsync(
         UpdateGoalInput input,
         IValidator<UpdateGoalInput> validator,
         CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);

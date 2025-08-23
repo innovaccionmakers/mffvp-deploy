@@ -1,12 +1,14 @@
 ﻿using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
+using Closing.Domain.PortfolioValuations;
 using Closing.Domain.ProfitLossConcepts;
 using Closing.Domain.ProfitLosses;
-using Closing.Domain.PortfolioValuations;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
+
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 namespace Closing.Application.ProfitLosses.ProfitandLossLoad;
@@ -34,7 +36,7 @@ internal sealed class ProfitandLossLoadCommandHandler(
         var portfolioData = portfolioDataResult.Value;
         
         var valuationExists = await portfolioValuationRepository
-            .ValuationExistsAsync(
+            .ExistsByPortfolioAndDateAsync(
                 command.PortfolioId,
                 portfolioData.CurrentDate.Date,
                 cancellationToken);

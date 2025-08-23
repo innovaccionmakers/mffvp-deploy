@@ -13,9 +13,11 @@ using Closing.Domain.PortfolioValuations;
 using Closing.Domain.ProfitLosses;
 using Closing.Domain.Rules;
 using Closing.Integrations.PreClosing.RunSimulation;
+
 using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Application.Helpers.Rules;
 using Common.SharedKernel.Application.Rules;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
 
@@ -46,7 +48,7 @@ public class RunSimulationBusinessValidator(
 
         // 2. ¿Ya existe cierre generado para esta fecha? -> bool
         var existsClosingGenerated = await portfolioValuationRepository
-            .ValuationExistsAsync(command.PortfolioId, command.ClosingDate.Date, ct);
+            .ExistsByPortfolioAndDateAsync(command.PortfolioId, command.ClosingDate.Date, ct);
 
         // 3. Comisiones administrativas
         var commissionResult = await commissionLocator.GetActiveCommissionsAsync(command.PortfolioId, ct);
@@ -116,7 +118,7 @@ public class RunSimulationBusinessValidator(
     {
         // 1. ¿Es primer día de cierre?
         var isFirstClosingDay = !await portfolioValuationRepository
-            .ValuationExistsAsync(command.PortfolioId, portfolioData.CurrentDate.Date, ct);
+            .ExistsByPortfolioAndDateAsync(command.PortfolioId, portfolioData.CurrentDate.Date, ct);
 
         // Inicializar flags por defecto
         bool hasPandL = false;
@@ -138,7 +140,7 @@ public class RunSimulationBusinessValidator(
                 hasInitialFundUnitValue = true;
 
                 // Intenta extraer número
-                decimal? parsed = JsonDecimalHelper.ExtractDecimal(param.Metadata, "Valor");
+                decimal? parsed = JsonDecimalHelper.ExtractDecimal(param.Metadata, "valor");
                 if (parsed.HasValue && parsed.Value > 0m)
                 {
                     isInitialFundUnitValueValid = true;
@@ -147,23 +149,23 @@ public class RunSimulationBusinessValidator(
             }
 
             // --- Subtipos de transacción ---
-            var stResult = await operationTypesLocator.GetAllOperationTypesAsync(ct);
-            if (!stResult.IsSuccess)
+            var otResult = await operationTypesLocator.GetAllOperationTypesAsync(ct);
+            if (!otResult.IsSuccess)
             {
                 // Error técnico: no podemos ni saber si hay client ops.
                 return new FirstDayStateResult(
                     true, false, false, false,
                     hasInitialFundUnitValue, isInitialFundUnitValueValid, initialFundUnitValue,
-                    Result.Failure(stResult.Error!));
+                    Result.Failure(otResult.Error!));
             }
 
-            var incomeSubtypes = stResult.Value.Where(st => st.Nature == IncomeEgressNature.Income).ToList();
+            var incomeOperationTypes = otResult.Value.Where(st => st.Nature == IncomeEgressNature.Income && !string.IsNullOrWhiteSpace(st.Category)).ToList();
 
             // Que no haya operaciones de entrada es una condición funcional; se modela vía hasClientOps=false
             // y que  RulesEngine tenga una regla "Debe existir al menos un tipo de ingreso".
-            if (incomeSubtypes.Count > 0)
+            if (incomeOperationTypes.Count > 0)
             {
-                foreach (var item in incomeSubtypes)
+                foreach (var item in incomeOperationTypes)
                 {
                     if (await clientOperationRepository.ClientOperationsExistsAsync(
                             command.PortfolioId, command.ClosingDate.Date, item.OperationTypeId, ct))

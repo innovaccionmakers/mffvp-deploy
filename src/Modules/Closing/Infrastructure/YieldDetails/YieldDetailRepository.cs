@@ -7,19 +7,7 @@ namespace Closing.Infrastructure.YieldDetails
 {
     internal sealed class YieldDetailRepository(ClosingDbContext context) : IYieldDetailRepository
     {
-        public async Task<IReadOnlyCollection<YieldDetail>> GetAllAsync(CancellationToken cancellationToken = default)
-        {
-            return await context.YieldDetails.ToListAsync(cancellationToken);
-        }
-        public async Task<YieldDetail?> GetAsync(long yieldDetailId, CancellationToken cancellationToken = default)
-        {
-            return await context.YieldDetails
-                .SingleOrDefaultAsync(x => x.YieldDetailId == yieldDetailId, cancellationToken);
-        }
-        public void Insert(YieldDetail yieldDetail)
-        {
-            context.YieldDetails.Add(yieldDetail);
-        }
+
         public async Task InsertAsync(YieldDetail yieldDetail, CancellationToken ct = default)
         {
             await context.YieldDetails.AddAsync(yieldDetail, ct);
@@ -58,18 +46,20 @@ namespace Closing.Infrastructure.YieldDetails
             await context.YieldDetails
                 .Where(yield => yield.PortfolioId == portfolioId
                                 && yield.ClosingDate == closingDateUtc
-                                && yield.IsClosed)
+                                && yield.IsClosed
+                                && yield.Source != "Conceptos Automáticos") // Excluir los conceptos automáticos calculados el dia anterior
+
                 .ExecuteDeleteAsync(cancellationToken);
 
         }
 
-        public async Task<IReadOnlyCollection<YieldDetail>> GetByPortfolioAndDateAsync(
+        public async Task<IReadOnlyCollection<YieldDetail>> GetReadOnlyByPortfolioAndDateAsync(
         int portfolioId,
         DateTime closingDateUtc,
         bool isClosed = false,
         CancellationToken ct = default)
         {
-            return await context.YieldDetails
+            return await context.YieldDetails.AsNoTracking()
                 .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc && y.IsClosed == isClosed)
                 .ToListAsync(ct);
         }
@@ -80,7 +70,7 @@ namespace Closing.Infrastructure.YieldDetails
             bool isClosed = false,
             CancellationToken ct = default)
         {
-            return await context.YieldDetails
+            return await context.YieldDetails.AsNoTracking()
                 .AnyAsync(y => y.PortfolioId == portfolioId &&
                                y.ClosingDate == closingDateUtc &&
                                y.IsClosed == isClosed, ct);

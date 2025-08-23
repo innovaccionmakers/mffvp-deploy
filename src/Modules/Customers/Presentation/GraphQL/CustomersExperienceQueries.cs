@@ -1,5 +1,4 @@
 ﻿using Common.SharedKernel.Domain;
-using Customers.Domain.People;
 using Customers.Integrations.People.GetPerson;
 using Customers.Integrations.People.GetPersons;
 using Customers.Presentation.DTOs;
@@ -42,7 +41,7 @@ public class CustomersExperienceQueries(IMediator mediator) : ICustomersExperien
         );
     }
 
-    public async Task<IReadOnlyCollection<PersonDto>> GetPersonsByDocuments(IReadOnlyCollection<PersonDocumentKey> documents, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<PersonDto>> GetPersonsByDocuments(IReadOnlyCollection<(Guid DocumentTypeUuid, string Identification)> documents, CancellationToken cancellationToken = default)
     {
         var result = (await mediator.Send(new GetPersonsByDocumentsQuery(documents), cancellationToken)).Value;
         return result.Select(x => new PersonDto(

@@ -3,6 +3,7 @@ using Associate.Presentation.GraphQL;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Presentation.Results;
 using Customers.Presentation.DTOs;
 using Customers.Presentation.GraphQL;
 using HotChocolate.Authorization;
@@ -18,6 +19,7 @@ using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
+using Trusts.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -101,6 +103,16 @@ public class Query
                                                  CancellationToken cancellationToken)
     {
         return await productsQueries.GetAllPortfoliosAsync(cancellationToken);
+    }
+
+    [GraphQLName("obtenerFichaTecnicaPorRangoDeFechaYPortafolio")]
+    public async Task<IReadOnlyCollection<TechnicalSheetDto>> GetTechnicalDataSheetByDateRangeAndPortfolio([GraphQLName("idPortafolio")] int portfolioId,
+                                                                                                               [GraphQLName("fechaInicio")] DateOnly startDate,
+                                                                                                               [GraphQLName("fechaFin")] DateOnly endDate,
+                                                                                                               [Service] IProductsExperienceQueries productsQueries,
+                                                                                                               CancellationToken cancellationToken)
+    {
+        return await productsQueries.GetTechnicalSheetsByDateRangeAndPortfolio(startDate, endDate, portfolioId, cancellationToken);
     }
 
     //Operations Queries
@@ -237,6 +249,14 @@ public class Query
         return await closingQueries.GetProfitAndLossAsync(portfolioId, effectiveDate, cancellationToken);
     }
 
+    [GraphQLName("obtenerValoracionPortafolio")]
+    public async Task<IReadOnlyCollection<PortfolioValuationDto>> GetPortfolioValuation([GraphQLName("fechaCierre")] DateOnly closingDate,
+                                                                    [Service] IClosingExperienceQueries closingQueries,
+                                                                    CancellationToken cancellationToken)
+    {
+        return await closingQueries.GetPortfolioValuation(closingDate, cancellationToken);
+    }
+
     //treasury Queries
 
     [GraphQLName("emisores")]
@@ -271,10 +291,18 @@ public class Query
     }
 
     [GraphQLName("generarReporteDepositos")]
-    public async Task<ReportResponseDto> GenerateDepositsReportAsync([GraphQLName("processDate")] DateTime processDate,
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateDepositsReportAsync([GraphQLName("processDate")] DateTime processDate,
                                                                    [Service] ReportOrchestrator reportOrchestrator,
                                                                    CancellationToken cancellationToken)
     {
         return await reportOrchestrator.GetReportDataAsync(processDate, cancellationToken);
+    }    
+
+    //Trust Queries
+    [GraphQLName("getParticipantes")]
+    public async Task<int> GetParticipant([GraphQLName("fideicomisoIds")] IEnumerable<long> trustIds, [Service] ITrustExperienceQueries trustQueries)
+    {
+        return await trustQueries.GetParticipantAsync(trustIds);
     }
+
 }

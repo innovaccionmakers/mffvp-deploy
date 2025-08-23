@@ -1,7 +1,9 @@
+using Common.SharedKernel.Core.Primitives;
+
 using Microsoft.EntityFrameworkCore;
+
 using Operations.Domain.OperationTypes;
 using Operations.Infrastructure.Database;
-using Common.SharedKernel.Domain;
 
 namespace Operations.Infrastructure.OperationTypes;
 

@@ -14,15 +14,14 @@ namespace Closing.Application.PreClosing.RunSimulation
     ILogger<RunSimulationCommandHandler> logger)
     : ICommandHandler<RunSimulationCommand, SimulatedYieldResult>
     {
-        public async Task<Result<SimulatedYieldResult>> Handle(RunSimulationCommand command, CancellationToken cancellationToken)
+        public async Task<Result<SimulatedYieldResult>> Handle(RunSimulationCommand command, CancellationToken cancellationToken = default)
         {
 
             var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
-             
 
-                logger?.LogInformation("Iniciando simulación para Portafolio {PortfolioId} - Fecha {Date}",command.PortfolioId, command.ClosingDate);
+                logger?.LogInformation("Iniciando simulación para Portafolio {PortfolioId} - Fecha {Date}", command.PortfolioId, command.ClosingDate);
                 //var sw = Stopwatch.StartNew();
                 var result = await _simulationOrchestrator.RunSimulationAsync(command, cancellationToken);
                 //sw.Stop();

@@ -1,9 +1,13 @@
 using Associate.IntegrationEvents.ActivateValidation;
 using Associate.Integrations.Activates;
+
 using Common.SharedKernel.Application.Rpc;
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
+
 using FluentAssertions;
+
 using Moq;
+
 using Products.Infrastructure.External.Affiliates;
 
 namespace Products.test.UnitTests.Application.Services;

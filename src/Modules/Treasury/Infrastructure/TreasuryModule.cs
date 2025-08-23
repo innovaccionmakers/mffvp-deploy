@@ -80,6 +80,7 @@ public class TreasuryModule : IModuleConfiguration
         services.AddScoped<IRpcHandler<TreasuryMovementsByPortfolioRequest, TreasuryMovementsByPortfolioResponse>, TreasuryMovementsByPortfolioConsumer>();
         services.AddScoped<IRpcHandler<ValidateCollectionBankRequest, ValidateCollectionBankResponse>, ValidateCollectionBankConsumer>();
         services.AddScoped<ITreasuryExperienceQueries, TreasuryExperienceQueries>();
+        services.AddScoped<ITreasuryExperienceQueries, TreasuryExperienceQueries>();        
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IPortfolioValuationLocator, PortfolioValuationLocator>();
 

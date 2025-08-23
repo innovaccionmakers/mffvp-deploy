@@ -39,7 +39,13 @@ public interface IProductsExperienceQueries
 
     Task<PortfolioInformationDto?> GetPortfolioByIdAsync(long portfolioId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<PortfolioInformationDto>> GetPortfoliosByIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<PortfolioInformationDto>> GetPortfoliosByIdsAsync(IEnumerable<long> portfolioIds,
+                                                                               CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<TechnicalSheetDto>> GetTechnicalSheetsByDateRangeAndPortfolio(DateOnly startDate,
+                                                                                           DateOnly endDate,
+                                                                                           int portfolioId,
+                                                                                           CancellationToken cancellationToken = default);
 
     Task<string> GetAllPensionFundsAsync(CancellationToken cancellationToken = default);
 }

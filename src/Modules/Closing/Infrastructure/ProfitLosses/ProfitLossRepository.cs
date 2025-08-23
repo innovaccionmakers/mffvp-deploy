@@ -69,7 +69,7 @@ internal sealed class ProfitLossRepository(ClosingDbContext context) : IProfitLo
             : dateTime.ToUniversalTime();
     }
 
-    public async Task<IReadOnlyList<ProfitLossConceptSummary>> GetConceptSummaryAsync(int portfolioId, 
+    public async Task<IReadOnlyList<ProfitLossConceptSummary>> GetReadOnlyConceptSummaryAsync(int portfolioId, 
                                                                                     DateTime effectiveDateUtc,
                                                                                    CancellationToken cancellationToken = default)
     {

@@ -1,9 +1,11 @@
 ﻿using Associate.Presentation.DTOs;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.Services.Reports.DepositsReport.Interfaces;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
-using Products.Domain.PensionFunds;
 using Products.Presentation.GraphQL;
+using Error = Common.SharedKernel.Core.Primitives.Error;
 
 namespace MFFVP.BFF.Services.Reports.DepositsReport
 {
@@ -13,13 +15,14 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
         PaymentMethodProcessor _processor,
         ILogger<DepositsReportDataProvider> _logger) : IDepositsReportDataProvider
     {
-        public async IAsyncEnumerable<DepositsReportModel> GetDataAsync(
+        public async IAsyncEnumerable<GraphqlResult<DepositsReportModel>> GetDataAsync(
             DateTime processDate, CancellationToken cancellationToken)
         {
             const int bufferSize = 100;
-            var buffer = new List<DepositsReportModel>(bufferSize); 
+            var buffer = new List<GraphqlResult<DepositsReportModel>>(bufferSize); 
             string pensionFunds = string.Empty;
             IReadOnlyCollection<ClientOperationsByProcessDateDto> operations = new List<ClientOperationsByProcessDateDto>();
+            var errorResult = new GraphqlResult<DepositsReportModel>();
 
             try
             {
@@ -29,8 +32,11 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error al obtener datos para el reporte de depósitos. Fecha: {processDate}", processDate.ToString("yyyy-MM-dd"));
-                throw;
+                errorResult.AddError(new Error("EXCEPTION", $"Error al obtener datos para el reporte de depósitos. Fecha: {processDate}", ErrorType.Failure));                
             }
+
+            if (errorResult.Errors.Count > 0)
+                yield return errorResult;
 
             foreach (var operation in operations)
             { 
@@ -44,10 +50,22 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
                     operation.PaymentMethodDetail,
                     operation.Name
                 );
+                var result = _processor.ProcessPaymentMethod(_operations, processDate, pensionFunds); 
+                
+                if (!result.Success)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        _logger.LogError($"Error: {error.Code} - {error.Description}");
+                        errorResult.AddError(new Error($"{error.Code}", $"{error.Description}", ErrorType.Failure));
+                        yield return errorResult;
+                    }
+                    yield break;
+                }
 
-                var (debitRecord, creditRecord) = _processor.ProcessPaymentMethod(_operations, processDate, pensionFunds);
-                buffer.Add(debitRecord);
-                buffer.Add(creditRecord);
+                var (debitRecord, creditRecord) = result.Data;
+                buffer.Add(new GraphqlResult<DepositsReportModel> { Data = debitRecord });
+                buffer.Add(new GraphqlResult<DepositsReportModel> { Data = creditRecord });
 
                 if (BufferCount >= bufferSize)
                 {

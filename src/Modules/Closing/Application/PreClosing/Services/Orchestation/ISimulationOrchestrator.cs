@@ -5,6 +5,6 @@ namespace Closing.Application.PreClosing.Services.Orchestation
 {
     public interface ISimulationOrchestrator
     {
-        public Task<Result<SimulatedYieldResult>> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken ct);
+        public Task<Result<SimulatedYieldResult>> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken cancellationToken);
     }
 }

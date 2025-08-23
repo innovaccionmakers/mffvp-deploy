@@ -5,9 +5,10 @@ using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
 using Closing.Application.PreClosing.Services.Orchestation;
 using Closing.Application.PreClosing.Services.Validation;
-using Closing.Integrations.Closing.RunClosing;    // para ClosedResult
+using Closing.Integrations.Closing.RunClosing;  
 using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -38,8 +39,8 @@ public class PrepareClosingOrchestrator(
                 portfolioId, closingDate);
 
             // Paso 0: Validación de parámetros de negocio (simulación)
-            var simCommand = new RunSimulationCommand(portfolioId, closingDate, true);
-            var validationResult = await ValidateBusinessRulesAsync(simCommand, cancellationToken);
+            var simulationCommand = new RunSimulationCommand(portfolioId, closingDate, true);
+            var validationResult = await ValidateBusinessRulesAsync(simulationCommand, cancellationToken);
             if (validationResult.IsFailure)
                 return Result.Failure<ClosedResult>(validationResult.Error!);
 
@@ -52,29 +53,27 @@ public class PrepareClosingOrchestrator(
             //  - RunSimulation (via SimulationOrchestrator)
             //  - DataSyncService
 
-            //var simulationTask = simulationOrchestrator.RunSimulationAsync(runSimulationCommand, cancellationToken);
-            //var syncTask = dataSyncService.ExecuteAsync(portfolioId, closingDate.Date, cancellationToken);
+            var simulationTask = simulationOrchestrator.RunSimulationAsync(simulationCommand, cancellationToken);
+            var syncTask = dataSyncService.ExecuteAsync(portfolioId, closingDate.Date, cancellationToken);
 
-            //await Task.WhenAll(simulationTask, syncTask);
+            await Task.WhenAll(simulationTask, syncTask);
 
-            //if (simulationTask.Result.IsFailure)
-            //    return Result.Failure<ClosedResult>(simulationTask.Result.Error);
-            //if (syncTask.Result.IsFailure)
-            //    return Result.Failure<ClosedResult>(syncTask.Result.Error);
+            if (simulationTask.Result.IsFailure)
+                return Result.Failure<ClosedResult>(simulationTask.Result.Error);
+            if (syncTask.Result.IsFailure)
+                return Result.Failure<ClosedResult>(syncTask.Result.Error);
 
-
-            //TODO: Agregar asincronia
             // Paso 2: Ejecutar simulación y sincronización de datos (secuencial para evitar DbContext compartido)
-            var simResult = await simulationOrchestrator.RunSimulationAsync(simCommand, cancellationToken);
-            if (simResult.IsFailure)
-                return Result.Failure<ClosedResult>(simResult.Error);
+            //var simResult = await simulationOrchestrator.RunSimulationAsync(simCommand, cancellationToken);
+            //if (simResult.IsFailure)
+            //    return Result.Failure<ClosedResult>(simResult.Error);
 
-            var syncResult = await dataSyncService.ExecuteAsync(portfolioId, closingDate, cancellationToken);
-            if (syncResult.IsFailure)
-                return Result.Failure<ClosedResult>(syncResult.Error);
+            //var syncResult = await dataSyncService.ExecuteAsync(portfolioId, closingDate, cancellationToken);
+            //if (syncResult.IsFailure)
+            //    return Result.Failure<ClosedResult>(syncResult.Error);
 
             // Paso 3: Calcular y persistir valoración del portafolio
-            // Devuelve un ClosedResult con todos los datos financieros
+            // Devuelve un ClosedResult con datos financieros
             var valuationResult = await portfolioValuationService
                 .CalculateAndPersistValuationAsync(portfolioId, closingDate, cancellationToken);
             if (valuationResult.IsFailure)

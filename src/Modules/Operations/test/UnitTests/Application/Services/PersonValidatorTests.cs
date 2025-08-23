@@ -4,6 +4,7 @@ using FluentAssertions;
 using Moq;
 using Operations.Infrastructure.External.Customers;
 using Customers.IntegrationEvents.ClientValidation;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Operations.test.UnitTests.Application.Services;
 

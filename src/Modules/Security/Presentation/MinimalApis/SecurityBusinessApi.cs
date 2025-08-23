@@ -45,6 +45,7 @@ public static class SecurityBusinessApi
                     var simplified = result.Value
                         .Select(p => new PermissionDto
                         {
+                            PermissionId = p.PermissionId,
                             ScopePermission = p.ScopePermission,
                             DisplayName = p.DisplayName,
                             Description = p.Description

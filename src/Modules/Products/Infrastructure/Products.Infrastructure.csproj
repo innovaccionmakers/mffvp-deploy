@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
-        <ProjectReference Include="..\Application\Products.Application.csproj"/>
-        <ProjectReference Include="..\Domain\Products.Domain.csproj"/>
+        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
+        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
+        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\Application\Products.Application.csproj" />
+        <ProjectReference Include="..\Domain\Products.Domain.csproj" />
         <ProjectReference Include="..\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj" />
-        <ProjectReference Include="..\Presentation\Products.Presentation.csproj"/>
-        <EmbeddedResource Include="..\Rules\**\*.json"/>
+        <ProjectReference Include="..\Presentation\Products.Presentation.csproj" />
+        <EmbeddedResource Include="..\Rules\**\*.json" />
     </ItemGroup>
     
     <ItemGroup>
-        <InternalsVisibleTo Include="Products.test.UnitTests"/>
-        <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
+        <InternalsVisibleTo Include="Products.test.UnitTests" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
     
     <PropertyGroup>

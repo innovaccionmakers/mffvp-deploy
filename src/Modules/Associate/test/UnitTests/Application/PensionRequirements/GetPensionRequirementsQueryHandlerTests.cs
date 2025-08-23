@@ -1,6 +1,7 @@
 using Associate.Integrations.PensionRequirements;
 using Associate.Integrations.PensionRequirements.GetPensionRequirements;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 namespace UnitTests.Application.PensionRequirements

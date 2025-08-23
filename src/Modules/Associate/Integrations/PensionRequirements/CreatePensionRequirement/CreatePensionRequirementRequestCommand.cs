@@ -1,5 +1,5 @@
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 

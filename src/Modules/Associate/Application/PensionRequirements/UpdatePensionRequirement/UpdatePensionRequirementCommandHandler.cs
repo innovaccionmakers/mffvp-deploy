@@ -1,11 +1,14 @@
-using Associate.Domain.ConfigurationParameters;
-using System.Data.Common;
-using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
+using Application.PensionRequirements;
+
+using Associate.Application.Abstractions.Data;
 using Associate.Domain.PensionRequirements;
 using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
-using Associate.Application.Abstractions.Data;
-using Application.PensionRequirements;
+
+using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
+
+using System.Data.Common;
 
 namespace Associate.Application.PensionRequirements;
 

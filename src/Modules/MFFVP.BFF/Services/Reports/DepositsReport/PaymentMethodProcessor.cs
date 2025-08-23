@@ -1,29 +1,43 @@
 ﻿using Associate.Presentation.DTOs;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Presentation.Results;
 using System.Text.Json;
+using Error = Common.SharedKernel.Core.Primitives.Error;
 
 namespace MFFVP.BFF.Services.Reports.DepositsReport
 {
     public class PaymentMethodProcessor(ILogger<PaymentMethodProcessor> _logger)
     {
-        public (DepositsReportModel debitRecord, DepositsReportModel creditRecord) ProcessPaymentMethod(ClientOperationsDto operation, DateTime processDate, string pensionFunds)
+        public GraphqlResult<(DepositsReportModel debitRecord, DepositsReportModel creditRecord)> ProcessPaymentMethod(ClientOperationsDto operation, DateTime processDate, string pensionFunds)
         {
+            var result = new GraphqlResult<(DepositsReportModel, DepositsReportModel)>();
             try
             {
                 var paymentDetail = JsonSerializer.Deserialize<PaymentMethodDetail>(operation.PaymentMethodDetail.RootElement.GetRawText());
 
-                if (!paymentDetail.TipoCuenta.Equals("Ahorros", StringComparison.OrdinalIgnoreCase) &&
-                    !paymentDetail.TipoCuenta.Equals("Corriente", StringComparison.OrdinalIgnoreCase) &&
-                    string.IsNullOrWhiteSpace(paymentDetail.TipoCuenta))
+                if (string.IsNullOrWhiteSpace(paymentDetail.TipoCuenta))
                 {
-                    _logger.LogError($"Tipo de cuenta no válido: {paymentDetail.TipoCuenta}. Debe ser 'Ahorros' o 'Corriente' para el numero de cuenta: {paymentDetail.NumeroCuenta}",
-                        paymentDetail.TipoCuenta, paymentDetail.NumeroCuenta);
-                    throw new ArgumentException("Tipo de cuenta no válido. Debe ser 'Ahorros' o 'Corriente'");
+                    _logger.LogError($"Tipo de cuenta no debe estar vacia");
+
+                    result.AddError(new Error("EXCEPTION", "El dato Tipo de cuenta no debe estar vacío", ErrorType.Failure));
+                    return result;
+                }
+
+                if (!paymentDetail.TipoCuenta.Equals("Ahorros", StringComparison.OrdinalIgnoreCase) &&
+                    !paymentDetail.TipoCuenta.Equals("Corriente", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogError($"Tipo de cuenta no válido: {paymentDetail.TipoCuenta}. Debe ser 'Ahorros' o 'Corriente' para el numero de cuenta en el titular origen {paymentDetail.IdTitularOrigen}: {paymentDetail.NumeroCuenta}",
+                        paymentDetail.TipoCuenta, paymentDetail.NumeroCuenta, paymentDetail.IdTitularOrigen);
+
+                    result.AddError(new Error("EXCEPTION", $"Tipo de cuenta no válido: {paymentDetail.TipoCuenta}. Debe ser 'Ahorros' o 'Corriente' en el titular origen {paymentDetail.IdTitularOrigen}", ErrorType.Failure));
+                    return result;
                 }
 
                 if (string.IsNullOrWhiteSpace(paymentDetail.NumeroCuenta))
                 {
-                    _logger.LogError($"El número de cuenta es requerido para la operación: {operation}", operation);
-                    throw new ArgumentException("El número de cuenta es requerido");
+                    _logger.LogError($"El número de cuenta es requerido para la operación: {operation}", operation); 
+                    result.AddError(new Error("EXCEPTION", "El número de cuenta es requerido", ErrorType.Failure));
+                    return result;
                 }
 
                 var accountType = paymentDetail.TipoCuenta.Equals("Ahorros", StringComparison.OrdinalIgnoreCase) ? "S" : "D";
@@ -67,12 +81,14 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
                 };
 
                 _logger.LogDebug($"Registros creados exitosamente para el numero de cuenta: {paymentDetail.NumeroCuenta}", paymentDetail.NumeroCuenta);
-                return (debitRecord, creditRecord);
+                result.SetSuccess((debitRecord, creditRecord));
+                return result;
             }
             catch ( Exception ex)
             {
                 _logger.LogError(ex, $"Error al procesar método de pago para operación: {operation}.", operation);
-                throw;
+                result.AddError(new Error("EXCEPTION", $"Error al procesar método de pago para operación: {operation}.", ErrorType.Failure));
+                return result;
             }
             
         }
@@ -82,5 +98,6 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
     {
         public string TipoCuenta { get; set; }
         public string NumeroCuenta { get; set; }
+        public string IdTitularOrigen { get; set; }
     }
 }

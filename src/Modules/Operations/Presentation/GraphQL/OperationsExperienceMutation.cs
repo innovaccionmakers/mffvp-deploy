@@ -1,12 +1,16 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using FluentValidation;
+
 using MediatR;
+
+using Operations.Application.Abstractions.Services.ContributionService;
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Presentation.DTOs;
-using Operations.Domain.Services;
 using Operations.Presentation.GraphQL.Inputs;
+
 using System.Text.Json;
 
 namespace Operations.Presentation.GraphQL;
@@ -31,13 +35,13 @@ public class OperationsExperienceMutation(
         }
     }
 
-    public async Task<GraphqlMutationResult<ContributionMutationResult>> RegisterContributionAsync(
+    public async Task<GraphqlResult<ContributionMutationResult>> RegisterContributionAsync(
         CreateContributionInput input,
         IValidator<CreateContributionInput> validator,
         CancellationToken cancellationToken = default
     )
     {
-        var result = new GraphqlMutationResult<ContributionMutationResult>();
+        var result = new GraphqlResult<ContributionMutationResult>();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);

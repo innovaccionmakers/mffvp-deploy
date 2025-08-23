@@ -1,8 +1,11 @@
 ﻿using ClosedXML.Excel;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services.Reports.DepositsReport.Interfaces;
 using System.Diagnostics;
 using System.Globalization;
+using Error = Common.SharedKernel.Core.Primitives.Error;
 
 namespace MFFVP.BFF.Services.Reports.Strategies
 {
@@ -21,10 +24,12 @@ namespace MFFVP.BFF.Services.Reports.Strategies
             "Sucursal de la transacción"
         };
 
-        public async Task<ReportResponseDto> GetReportDataAsync<TRequest>(
+        public async Task<GraphqlResult<ReportResponseDto>> GetReportDataAsync<TRequest>(
             TRequest request,
             CancellationToken cancellationToken)
         {
+            var result = new GraphqlResult<ReportResponseDto>();
+
             if (request is DateTime processDate)
             {
                 _logger.LogInformation($"Iniciando generación de reporte con fecha: {processDate}", processDate.ToString("yyyy-MM-dd"));
@@ -39,7 +44,17 @@ namespace MFFVP.BFF.Services.Reports.Strategies
                     int row = 2;
                     await foreach (var item in _dataProvider.GetDataAsync(processDate, cancellationToken))
                     {
-                        var rowData = item.ToRowData();
+                        if (!item.Success)
+                        {
+                            foreach (var error in item.Errors)
+                            {
+                                _logger.LogError($"Error: {error.Code} - {error.Description}");
+                                result.AddError(new Error($"{error.Code}", $"{error.Description}", ErrorType.Failure));
+                                return result;
+                            }
+                        }
+
+                        var rowData = item.Data.ToRowData();
                         for (int col = 0; col < rowData.Length; col++)
                         {
                             var value = rowData[col];
@@ -60,34 +75,29 @@ namespace MFFVP.BFF.Services.Reports.Strategies
                     workbook.SaveAs(stream);
                     var reportBytes = stream.ToArray();
 
-                    // Opcional: Guardar para depuración
-                    if (Debugger.IsAttached)
-                    {
-                        var fileName = $"Depositos{processDate.ToString("ddMMyyyy")}.xlsx";
-                        var fullPath = System.IO.Path.Combine("C:\\Users\\JohanSebastiánRamíre\\OneDrive - Makers\\Documentos", fileName);
-                        await File.WriteAllBytesAsync(fullPath, reportBytes);
-                        Process.Start(new ProcessStartInfo { FileName = fullPath, UseShellExecute = true });
-                    }
-
-
-                    return new ReportResponseDto
+                    var response = new ReportResponseDto
                     {
                         FileContent = Convert.ToBase64String(reportBytes),
                         FileName = $"Depositos{processDate.ToString("ddMMyyyy")}.xlsx",
                         MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     };
 
+                    result.SetSuccess(response);
+                    return result;
+
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Error al generar el reporte con fecha: {processDate}", processDate.ToString("yyyy-MM-dd"));
-                    throw;
+                    result.AddError(new Error("EXCEPTION", $"Error al generar el reporte con fecha: {processDate}", ErrorType.Failure));
+                    return result;
                 }
             }
             else
             {
                 _logger.LogError($"Tipo de request no válido. Se esperaba DateTime, se recibió: {request}", typeof(TRequest).Name);
-                throw new ArgumentException("El tipo de request no es válido. Se esperaba DateTime.");
+                result.AddError(new Error("EXCEPTION", "El tipo de request no es válido. Se esperaba DateTime.", ErrorType.Failure));
+                return result;
             }
         }
 

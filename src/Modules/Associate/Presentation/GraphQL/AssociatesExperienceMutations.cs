@@ -3,19 +3,22 @@ using Associate.Integrations.Activates.UpdateActivate;
 using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 using Associate.Presentation.GraphQL.Inputs;
-using Common.SharedKernel.Domain;
+
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
+
 using FluentValidation;
+
 using MediatR;
 
 namespace Associate.Presentation.GraphQL;
 
 public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExperienceMutations
 {
-    public async Task<GraphqlMutationResult> RegisterActivateAsync(CreateActivateInput input, IValidator<CreateActivateInput> validator, CancellationToken cancellationToken)
+    public async Task<GraphqlResult> RegisterActivateAsync(CreateActivateInput input, IValidator<CreateActivateInput> validator, CancellationToken cancellationToken)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);
@@ -53,9 +56,9 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
         }
     }
 
-    public async Task<GraphqlMutationResult> RegisterPensionRequirementsAsync(CreatePensionRequirementInput input, IValidator<CreatePensionRequirementInput> validator, CancellationToken cancellationToken)
+    public async Task<GraphqlResult> RegisterPensionRequirementsAsync(CreatePensionRequirementInput input, IValidator<CreatePensionRequirementInput> validator, CancellationToken cancellationToken)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);
@@ -91,9 +94,9 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
         }
     }
 
-    public async Task<GraphqlMutationResult> UpdateActivateAsync(UpdateActivateInput input, IValidator<UpdateActivateInput> validator, CancellationToken cancellationToken)
+    public async Task<GraphqlResult> UpdateActivateAsync(UpdateActivateInput input, IValidator<UpdateActivateInput> validator, CancellationToken cancellationToken)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
 
         try
         {
@@ -128,9 +131,9 @@ public class AssociatesExperienceMutations(IMediator mediator) : IAssociatesExpe
 
     }
 
-    public async Task<GraphqlMutationResult> UpdatePensionRequirementsAsync(UpdatePensionRequirementInput input, IValidator<UpdatePensionRequirementInput> validator, CancellationToken cancellationToken)
+    public async Task<GraphqlResult> UpdatePensionRequirementsAsync(UpdatePensionRequirementInput input, IValidator<UpdatePensionRequirementInput> validator, CancellationToken cancellationToken)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
 
         try
         {

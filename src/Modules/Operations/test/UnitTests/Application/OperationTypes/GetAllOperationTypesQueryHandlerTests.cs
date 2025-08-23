@@ -1,14 +1,19 @@
-using System.Text.Json;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain.OperationTypes;
+
 using FluentAssertions;
+
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+
 using Moq;
-using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.OperationTypes;
+
 using Operations.Application.OperationTypes;
 using Operations.Domain.OperationTypes;
 using Operations.Integrations.OperationTypes;
+
+using System.Text.Json;
 
 namespace Operations.test.UnitTests.Application.OperationTypes;
 
@@ -41,7 +46,7 @@ public class GetAllOperationTypesQueryHandlerTests
         {
             new { Id = 1L, Name = "T", Category = (string?)null, Nature = IncomeEgressNature.Income, Status = Status.Active, External = "EXT", HomologatedCode = "H" }
         };
-        await _cache.SetStringAsync("operations:operationtypes:all", JsonSerializer.Serialize(cached));
+        await _cache.SetStringAsync("operations:operationTypes", JsonSerializer.Serialize(cached));
         var expected = new[] { new OperationTypeResponse(1, "T", null, IncomeEgressNature.Income, Status.Active, "EXT", "H") };
         var handler = Build();
 
@@ -65,6 +70,6 @@ public class GetAllOperationTypesQueryHandlerTests
         var expected = new[] { new OperationTypeResponse(type.OperationTypeId, type.Name, null, type.Nature, type.Status, type.External, type.HomologatedCode) };
         result.Value.Should().BeEquivalentTo(expected);
         _repo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
-        (await _cache.GetStringAsync("operations:operationtypes:all")).Should().NotBeNull();
+        (await _cache.GetStringAsync("operations:operationTypes")).Should().NotBeNull();
     }
 }

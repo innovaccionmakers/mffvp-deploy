@@ -6,17 +6,17 @@ namespace Treasury.Presentation.GraphQL;
 
 public interface ITreasuryExperienceMutations
 {
-    Task<GraphqlMutationResult> AccountHandlerAsync(
+    Task<GraphqlResult> AccountHandlerAsync(
         CreateAccountInput input,
         IValidator<CreateAccountInput> validator,
         CancellationToken cancellationToken = default
     );
-    Task<GraphqlMutationResult> TreasuryConfigHandlerAsync(
+    Task<GraphqlResult> TreasuryConfigHandlerAsync(
         TreasuryOperationInput input,
         IValidator<TreasuryOperationInput> validator,
         CancellationToken cancellationToken = default
     );
-    Task<GraphqlMutationResult> TreasuryOperationHandlerAsync(
+    Task<GraphqlResult> TreasuryOperationHandlerAsync(
         CreateTreasuryMovementInput input,
         IValidator<CreateTreasuryMovementInput> validator,
         CancellationToken cancellationToken = default

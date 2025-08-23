@@ -1,4 +1,6 @@
-﻿using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
+
 using Operations.Domain.AuxiliaryInformations;
 
 namespace Operations.Domain.Banks;

@@ -1,10 +1,14 @@
-using System.Text.Json;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
+
 using Microsoft.Extensions.Caching.Distributed;
+
 using Operations.Domain.OperationTypes;
 using Operations.Integrations.OperationTypes;
+
+using System.Text.Json;
 
 namespace Operations.Application.OperationTypes;
 
@@ -13,7 +17,7 @@ public class GetAllOperationTypesQueryHandler(
     IDistributedCache cache)
     : IQueryHandler<GetAllOperationTypesQuery, IReadOnlyCollection<OperationTypeResponse>>
 {
-    private const string CacheKey = "operations:operationtypes:all";
+    private const string CacheKey = "operations:operationTypes";
     private static readonly JsonSerializerOptions _serializerOptions = new();
 
     private record CacheModel(
@@ -72,7 +76,7 @@ public class GetAllOperationTypesQueryHandler(
 
         var options = new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
         };
         var cacheData = response.Select(s => new CacheModel(
             s.OperationTypeId,

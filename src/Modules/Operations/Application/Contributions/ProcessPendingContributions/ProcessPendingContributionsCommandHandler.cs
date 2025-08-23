@@ -1,7 +1,10 @@
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+
 using Microsoft.Extensions.Logging;
+
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.Cleanup;
 using Operations.Application.Abstractions.Services.TransactionControl;
@@ -10,6 +13,7 @@ using Operations.Domain.ClientOperations;
 using Operations.Domain.TemporaryAuxiliaryInformations;
 using Operations.Domain.TemporaryClientOperations;
 using Operations.Integrations.Contributions.ProcessPendingContributions;
+
 using Trusts.IntegrationEvents.CreateTrustRequested;
 
 namespace Operations.Application.Contributions.ProcessPendingContributions;
