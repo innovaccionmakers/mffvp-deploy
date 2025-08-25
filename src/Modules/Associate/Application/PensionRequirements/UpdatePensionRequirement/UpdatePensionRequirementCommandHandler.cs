@@ -8,8 +8,6 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
-using System.Data.Common;
-
 namespace Associate.Application.PensionRequirements;
 
 internal sealed class UpdatePensionRequirementCommandHandler(
@@ -22,7 +20,7 @@ internal sealed class UpdatePensionRequirementCommandHandler(
 
     public async Task<Result> Handle(UpdatePensionRequirementCommand request, CancellationToken cancellationToken)
     {
-        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var existingPensionRequirement = await pensionrequirementRepository.GetAsync(request.PensionRequirementId ?? 0, cancellationToken);
         var validationResult = await validator.UpdatePensionRequirementValidationContext(request, Workflow, existingPensionRequirement!, cancellationToken);
 

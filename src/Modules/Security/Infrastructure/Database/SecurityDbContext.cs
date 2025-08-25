@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 using Security.Application.Abstractions.Data;
@@ -14,8 +14,6 @@ using Security.Infrastructure.UserPermissions;
 using Security.Infrastructure.UserRoles;
 using Security.Infrastructure.Users;
 using Security.Infrastructure.Logs;
-
-using System.Data.Common;
 
 namespace Security.Infrastructure.Database;
 
@@ -41,10 +39,11 @@ public sealed class SecurityDbContext(DbContextOptions<SecurityDbContext> option
         modelBuilder.ApplyConfiguration(new LogConfiguration());
     }
 
-    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
+        if (Database.CurrentTransaction is not null)
+            await Database.CurrentTransaction.DisposeAsync();
 
-        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
+        return await Database.BeginTransactionAsync(cancellationToken);
     }
 }

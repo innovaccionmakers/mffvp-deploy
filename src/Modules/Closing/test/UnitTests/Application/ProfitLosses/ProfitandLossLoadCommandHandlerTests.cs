@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Storage;
 using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
@@ -24,7 +24,7 @@ public class ProfitandLossLoadCommandHandlerTests
     private readonly Mock<IPortfolioValuationRepository> _portfolioValuationRepo = new();
     private readonly Mock<IInternalRuleEvaluator<ClosingModuleMarker>> _ruleEvaluator = new();
     private readonly Mock<IUnitOfWork> _uow = new();
-    private readonly Mock<DbTransaction> _tx = new();
+    private readonly Mock<IDbContextTransaction> _tx = new();
 
     private ProfitandLossLoadCommandHandler BuildHandler()
     {

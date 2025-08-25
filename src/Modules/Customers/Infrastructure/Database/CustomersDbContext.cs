@@ -1,6 +1,3 @@
-using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Customers.Application.Abstractions.Data;
@@ -41,10 +38,11 @@ public sealed class CustomersDbContext(DbContextOptions<CustomersDbContext> opti
         modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
     }
 
-    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
+        if (Database.CurrentTransaction is not null)
+            await Database.CurrentTransaction.DisposeAsync();
 
-        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
+        return await Database.BeginTransactionAsync(cancellationToken);
     }
 }

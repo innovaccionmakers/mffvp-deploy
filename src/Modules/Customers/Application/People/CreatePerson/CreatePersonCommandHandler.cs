@@ -12,8 +12,6 @@ using Customers.Integrations.People;
 
 using Integrations.People.CreatePerson;
 
-using System.Data.Common;
-
 namespace Customers.Application.People.CreatePerson
 
 {
@@ -29,7 +27,7 @@ namespace Customers.Application.People.CreatePerson
 
         public async Task<Result> Handle(CreatePersonRequestCommand request, CancellationToken cancellationToken)
         {
-            await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+            await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
             var validationResults = await validator.ValidateRequestAsync(request, cancellationToken);
 
             var (isValid, _, ruleErrors) =

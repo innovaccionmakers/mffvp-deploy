@@ -1,4 +1,3 @@
-using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Closing.Application.Abstractions.Data;
@@ -45,10 +44,11 @@ public sealed class ClosingDbContext(DbContextOptions<ClosingDbContext> options)
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.Closing));
     }
 
-    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
+        if (Database.CurrentTransaction is not null)
+            await Database.CurrentTransaction.DisposeAsync();
 
-        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
+        return await Database.BeginTransactionAsync(cancellationToken);
     }
 }

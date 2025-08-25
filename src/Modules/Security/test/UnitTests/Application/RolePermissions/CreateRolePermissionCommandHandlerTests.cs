@@ -8,7 +8,7 @@ using Security.Application.RolePermissions;
 using Security.Domain.RolePermissions;
 using Security.Domain.Roles;
 
-using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Security.test.UnitTests.Application.RolePermissions;
 
@@ -17,7 +17,7 @@ public class CreateRolePermissionCommandHandlerTests
     private readonly Mock<IRolePermissionRepository> _rolePermissionRepository = new();
     private readonly Mock<IRoleRepository> _roleRepository = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
-    private readonly Mock<DbTransaction> _transaction = new();
+    private readonly Mock<IDbContextTransaction> _transaction = new();
 
     private CreateRolePermissionCommandHandler BuildHandler()
     {

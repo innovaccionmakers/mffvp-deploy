@@ -1,4 +1,3 @@
-using System.Data.Common;
 using Associate.Application.Abstractions.Data;
 using Associate.Domain.Activates;
 using Common.SharedKernel.Domain.ConfigurationParameters;
@@ -18,11 +17,12 @@ public sealed class AssociateDbContext(DbContextOptions<AssociateDbContext> opti
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
     internal DbSet<PensionRequirement> PensionRequirements { get; set; }
 
-    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
+        if (Database.CurrentTransaction is not null)
+            await Database.CurrentTransaction.DisposeAsync();
 
-        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
+        return await Database.BeginTransactionAsync(cancellationToken);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
