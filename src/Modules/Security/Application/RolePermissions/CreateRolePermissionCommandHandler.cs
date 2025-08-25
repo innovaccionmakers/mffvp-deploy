@@ -7,8 +7,6 @@ using Security.Application.Contracts.RolePermissions;
 using Security.Domain.RolePermissions;
 using Security.Domain.Roles;
 
-using System.Data.Common;
-
 namespace Security.Application.RolePermissions;
 
 public sealed record CreateRolePermissionCommandHandler(
@@ -40,7 +38,7 @@ public sealed record CreateRolePermissionCommandHandler(
                 "The permission is already assigned to the specified role."));
         }
 
-        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var result = RolePermission.Create(request.RoleId, request.ScopePermission);
         if (result.IsFailure)

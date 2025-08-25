@@ -1,4 +1,3 @@
-using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Trusts.Application.Abstractions.Data;
@@ -15,11 +14,12 @@ public sealed class TrustsDbContext(DbContextOptions<TrustsDbContext> options)
     internal DbSet<Trust> Trusts { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
 
-    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
+        if (Database.CurrentTransaction is not null)
+            await Database.CurrentTransaction.DisposeAsync();
 
-        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
+        return await Database.BeginTransactionAsync(cancellationToken);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

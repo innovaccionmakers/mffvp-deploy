@@ -8,8 +8,6 @@ using Security.Domain.Roles;
 using Security.Domain.UserRoles;
 using Security.Domain.Users;
 
-using System.Data.Common;
-
 namespace Security.Application.UserRoles;
 
 public sealed record UpdateUserRolesCommandHandler(
@@ -34,7 +32,7 @@ public sealed record UpdateUserRolesCommandHandler(
             return Result.Failure(Error.NotFound("User.NotFound", $"User with ID {request.UserId} does not exist."));
         }
 
-        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var currentUserRoles = await repository.GetAllByUserIdAsync(request.UserId, cancellationToken);
         var currentRoleIds = currentUserRoles.Select(x => x.RoleId).ToHashSet();

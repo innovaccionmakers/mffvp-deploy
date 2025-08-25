@@ -24,7 +24,7 @@ using Products.Integrations.Objectives.CreateObjective;
 
 using RulesEngine.Models;
 
-using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Products.test.UnitTests.Application.Objectives;
 
@@ -38,7 +38,7 @@ public class CreateObjectiveCommandHandlerTests
     private readonly Mock<IOfficeRepository> _officeRepo = new();
     private readonly Mock<IRuleEvaluator<ProductsModuleMarker>> _ruleEvaluator = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
-    private readonly Mock<DbTransaction> _tx = new();
+    private readonly Mock<IDbContextTransaction> _tx = new();
 
     private CreateObjectiveCommandHandler BuildHandler()
     {

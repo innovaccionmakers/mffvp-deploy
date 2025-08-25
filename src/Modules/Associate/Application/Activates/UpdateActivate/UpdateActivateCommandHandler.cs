@@ -10,8 +10,6 @@ using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
-using System.Data.Common;
-
 namespace Associate.Application.Activates;
 
 internal sealed class UpdateActivateCommandHandler(
@@ -23,7 +21,7 @@ internal sealed class UpdateActivateCommandHandler(
     private const string Workflow = "Associate.Activates.UpdateValidation";
     public async Task<Result> Handle(UpdateActivateCommand request, CancellationToken cancellationToken)
     {       
-        await using DbTransaction transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         var validationResults = await validator.UpdateActivateValidationContext(request, cancellationToken);
 
         var (isValid, _, ruleErrors) =

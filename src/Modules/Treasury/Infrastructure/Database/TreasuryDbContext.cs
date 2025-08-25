@@ -1,4 +1,3 @@
-using System.Data.Common;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
@@ -24,11 +23,12 @@ public sealed class TreasuryDbContext(DbContextOptions<TreasuryDbContext> option
     internal DbSet<TreasuryMovement> TreasuryMovements { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
 
-    public async Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Database.CurrentTransaction is not null) await Database.CurrentTransaction.DisposeAsync();
+        if (Database.CurrentTransaction is not null)
+            await Database.CurrentTransaction.DisposeAsync();
 
-        return (await Database.BeginTransactionAsync(cancellationToken)).GetDbTransaction();
+        return await Database.BeginTransactionAsync(cancellationToken);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

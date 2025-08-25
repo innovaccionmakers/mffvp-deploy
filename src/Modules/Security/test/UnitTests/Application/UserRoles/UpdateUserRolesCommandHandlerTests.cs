@@ -9,7 +9,7 @@ using Security.Domain.Roles;
 using Security.Domain.UserRoles;
 using Security.Domain.Users;
 
-using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Security.test.UnitTests.Application.UserRoles;
 
@@ -19,7 +19,7 @@ public class UpdateUserRolesCommandHandlerTests
     private readonly Mock<IUserRepository> _userRepo = new();
     private readonly Mock<IRoleRepository> _roleRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
-    private readonly Mock<DbTransaction> _tx = new();
+    private readonly Mock<IDbContextTransaction> _tx = new();
 
     private UpdateUserRolesCommandHandler BuildHandler()
     {

@@ -1,4 +1,4 @@
-using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Closing.Application.Abstractions.Data;
 
@@ -6,5 +6,5 @@ public interface IUnitOfWork
 {
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
-    Task<DbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+    Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 }
