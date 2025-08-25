@@ -13,7 +13,7 @@ public sealed class Issuer : Entity
     public long Id { get; private set; }
     public string IssuerCode { get; private set; }
     public string Description { get; private set; }
-    public float Nit { get; private set; }
+    public string Nit { get; private set; }
     public int Digit { get; private set; }
     public string HomologatedCode { get; private set; }
     public bool IsBank { get; private set; } = false;
@@ -26,7 +26,7 @@ public sealed class Issuer : Entity
     public static Result<Issuer> Create(
         string issuerCode,
         string description,
-        float nit,
+        string nit,
         int digit,
         string homologatedCode,
         bool isBank)

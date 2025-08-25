@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Treasury.Infrastructure.Database;
@@ -12,9 +13,11 @@ using Treasury.Infrastructure.Database;
 namespace Treasury.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(TreasuryDbContext))]
-    partial class TreasuryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250825161101_ChangeIssuerNitTypeToString")]
+    partial class ChangeIssuerNitTypeToString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
