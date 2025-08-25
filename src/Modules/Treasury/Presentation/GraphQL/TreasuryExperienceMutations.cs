@@ -15,9 +15,9 @@ namespace Treasury.Presentation.GraphQL;
 
 public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperienceMutations
 {
-    public async Task<GraphqlMutationResult> AccountHandlerAsync(CreateAccountInput input, IValidator<CreateAccountInput> validator, CancellationToken cancellationToken = default)
+    public async Task<GraphqlResult> AccountHandlerAsync(CreateAccountInput input, IValidator<CreateAccountInput> validator, CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);
@@ -52,9 +52,9 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
         }
     }
 
-    public async Task<GraphqlMutationResult> TreasuryConfigHandlerAsync(TreasuryOperationInput input, IValidator<TreasuryOperationInput> validator, CancellationToken cancellationToken = default)
+    public async Task<GraphqlResult> TreasuryConfigHandlerAsync(TreasuryOperationInput input, IValidator<TreasuryOperationInput> validator, CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);
@@ -80,9 +80,9 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
         }
     }
 
-    private async Task<GraphqlMutationResult> UpdateConceptAsync(TreasuryOperationInput input, CancellationToken cancellationToken = default)
+    private async Task<GraphqlResult> UpdateConceptAsync(TreasuryOperationInput input, CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
 
         try
         {
@@ -114,9 +114,9 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
         }
     }
 
-    private async Task<GraphqlMutationResult> CreateConceptAsync(TreasuryOperationInput input, CancellationToken cancellationToken = default)
+    private async Task<GraphqlResult> CreateConceptAsync(TreasuryOperationInput input, CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
 
         try
         {
@@ -147,9 +147,9 @@ public class TreasuryExperienceMutations(IMediator mediator) : ITreasuryExperien
         }
     }
 
-    public async Task<GraphqlMutationResult> TreasuryOperationHandlerAsync(CreateTreasuryMovementInput input, IValidator<CreateTreasuryMovementInput> validator, CancellationToken cancellationToken = default)
+    public async Task<GraphqlResult> TreasuryOperationHandlerAsync(CreateTreasuryMovementInput input, IValidator<CreateTreasuryMovementInput> validator, CancellationToken cancellationToken = default)
     {
-       var result = new GraphqlMutationResult();
+       var result = new GraphqlResult();
         try
         {
             var validationResult = RequestValidator.Validate(input, validator).GetAwaiter().GetResult();

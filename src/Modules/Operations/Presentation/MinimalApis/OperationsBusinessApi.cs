@@ -2,13 +2,11 @@
 using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
-
 using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-
+using Operations.Domain.Routes;
 using Operations.Domain.Routes;
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Integrations.OperationTypes;
@@ -68,6 +66,5 @@ public static class OperationsBusinessApi
             .Produces<IReadOnlyCollection<OperationTypeResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
-        
     }
 }

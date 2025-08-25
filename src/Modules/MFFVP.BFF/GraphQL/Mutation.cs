@@ -22,7 +22,7 @@ namespace MFFVP.BFF.GraphQL;
 public class Mutation
 {
     [GraphQLName("crearAporte")]
-    public async Task<GraphqlMutationResult<ContributionMutationResult>> RegisterContribution([GraphQLName("aporte")] CreateContributionInput contribution,
+    public async Task<GraphqlResult<ContributionMutationResult>> RegisterContribution([GraphQLName("aporte")] CreateContributionInput contribution,
                                                                         IValidator<CreateContributionInput> validator,
                                                                        [Service] IOperationsExperienceMutation operationsMutations,
                                                                        CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class Mutation
 
     //Associate mutations
     [GraphQLName("crearActivacion")]
-    public async Task<GraphqlMutationResult> RegisterActivation([GraphQLName("activacion")] CreateActivateInput activation,
+    public async Task<GraphqlResult> RegisterActivation([GraphQLName("activacion")] CreateActivateInput activation,
                                                                         IValidator<CreateActivateInput> validator,
                                                                        [Service] IAssociatesExperienceMutations associatesMutations,
                                                                        CancellationToken cancellationToken)
@@ -41,7 +41,7 @@ public class Mutation
     }
 
     [GraphQLName("actualizarActivacion")]
-    public async Task<GraphqlMutationResult> UpdateActivation([GraphQLName("activacion")] UpdateActivateInput activation,
+    public async Task<GraphqlResult> UpdateActivation([GraphQLName("activacion")] UpdateActivateInput activation,
                                                                         IValidator<UpdateActivateInput> validator,
                                                                        [Service] IAssociatesExperienceMutations associatesMutations,
                                                                        CancellationToken cancellationToken)
@@ -50,7 +50,7 @@ public class Mutation
     }
 
     [GraphQLName("crearRequisitosPension")]
-    public async Task<GraphqlMutationResult> RegisterPensionRequirements([GraphQLName("requisitoPension")] CreatePensionRequirementInput pensionRequirement,
+    public async Task<GraphqlResult> RegisterPensionRequirements([GraphQLName("requisitoPension")] CreatePensionRequirementInput pensionRequirement,
                                                                         IValidator<CreatePensionRequirementInput> validator,
                                                                        [Service] IAssociatesExperienceMutations associatesMutations,
                                                                        CancellationToken cancellationToken)
@@ -59,7 +59,7 @@ public class Mutation
     }
 
     [GraphQLName("actualizarRequisitosPension")]
-    public async Task<GraphqlMutationResult> UpdatePensionRequirements([GraphQLName("requisitoPension")] UpdatePensionRequirementInput pensionRequirement,
+    public async Task<GraphqlResult> UpdatePensionRequirements([GraphQLName("requisitoPension")] UpdatePensionRequirementInput pensionRequirement,
                                                                         IValidator<UpdatePensionRequirementInput> validator,
                                                                        [Service] IAssociatesExperienceMutations associatesMutations,
                                                                        CancellationToken cancellationToken)
@@ -69,7 +69,7 @@ public class Mutation
 
     //product mutations
     [GraphQLName("crearObjetivo")]
-    public async Task<GraphqlMutationResult<GoalMutationResult>> RegisterGoal([GraphQLName("objetivo")] CreateGoalInput goal,
+    public async Task<GraphqlResult<GoalMutationResult>> RegisterGoal([GraphQLName("objetivo")] CreateGoalInput goal,
                                                         IValidator<CreateGoalInput> validator,
                                                         [Service] IProductsExperienceMutations productsMutations,
                                                         CancellationToken cancellationToken)
@@ -78,7 +78,7 @@ public class Mutation
     }
 
     [GraphQLName("actualizarObjetivo")]
-    public async Task<GraphqlMutationResult> UpdateGoal([GraphQLName("objetivo")] UpdateGoalInput goal,
+    public async Task<GraphqlResult> UpdateGoal([GraphQLName("objetivo")] UpdateGoalInput goal,
                                                         IValidator<UpdateGoalInput> validator,
                                                         [Service] IProductsExperienceMutations productsMutations,
                                                         CancellationToken cancellationToken)
@@ -87,7 +87,7 @@ public class Mutation
     }
 
     [GraphQLName("fichaTecnica")]
-    public async Task<GraphqlMutationResult> TechnicalSheet([GraphQLName("fechaCierre")] DateOnly closingDate,
+    public async Task<GraphqlResult> TechnicalSheet([GraphQLName("fechaCierre")] DateOnly closingDate,
                                                         [Service] IProductsExperienceMutations productsMutations,
                                                         CancellationToken cancellationToken)
     {
@@ -96,7 +96,7 @@ public class Mutation
 
     //closing mutations
     [GraphQLName("cargarPerdidasGanancias")]
-    public async Task<GraphqlMutationResult<LoadProfitLossResult>> LoadProfitLoss([GraphQLName("perdidaganancia")] LoadProfitLossInput input,
+    public async Task<GraphqlResult<LoadProfitLossResult>> LoadProfitLoss([GraphQLName("perdidaganancia")] LoadProfitLossInput input,
                                                         IValidator<LoadProfitLossInput> validator,
                                                         [Service] IClosingExperienceMutations closingMutations,
                                                         CancellationToken cancellationToken)
@@ -106,7 +106,7 @@ public class Mutation
 
     //Treasury mutations
     [GraphQLName("crearCuentaBancaria")]
-    public async Task<GraphqlMutationResult> AccountHandler([GraphQLName("cuentaBancaria")] CreateAccountInput bankAccount,
+    public async Task<GraphqlResult> AccountHandler([GraphQLName("cuentaBancaria")] CreateAccountInput bankAccount,
                                                                         IValidator<CreateAccountInput> validator,
                                                                        [Service] ITreasuryExperienceMutations treasuryMutations,
                                                                        CancellationToken cancellationToken)
@@ -115,7 +115,7 @@ public class Mutation
     }
 
     [GraphQLName("procesarConceptoTesoreria")]
-    public async Task<GraphqlMutationResult> TreasuryConfigHandler([GraphQLName("conceptoTesoreria")] TreasuryOperationInput treasuryMovement,
+    public async Task<GraphqlResult> TreasuryConfigHandler([GraphQLName("conceptoTesoreria")] TreasuryOperationInput treasuryMovement,
                                                                         IValidator<TreasuryOperationInput> validator,
                                                                        [Service] ITreasuryExperienceMutations treasuryMutations,
                                                                        CancellationToken cancellationToken)
@@ -124,7 +124,7 @@ public class Mutation
     }
 
     [GraphQLName("crearMovimientoTesoreria")]
-    public async Task<GraphqlMutationResult> TreasuryOperationHandler([GraphQLName("movimientoTesoreria")] CreateTreasuryMovementInput treasuryMovement,
+    public async Task<GraphqlResult> TreasuryOperationHandler([GraphQLName("movimientoTesoreria")] CreateTreasuryMovementInput treasuryMovement,
                                                                         IValidator<CreateTreasuryMovementInput> validator,
                                                                        [Service] ITreasuryExperienceMutations treasuryMutations,
                                                                        CancellationToken cancellationToken)
@@ -133,7 +133,7 @@ public class Mutation
     }
 
     [GraphQLName("simulacionEjecucion")]
-    public async Task<GraphqlMutationResult<RunSimulationDto>> RunSimulationAsync([GraphQLName("simulacion")] RunSimulationInput input,
+    public async Task<GraphqlResult<RunSimulationDto>> RunSimulationAsync([GraphQLName("simulacion")] RunSimulationInput input,
                                                         IValidator<RunSimulationInput> validator,
                                                         [Service] IClosingExperienceMutations closingMutations,
                                                         CancellationToken cancellationToken)

@@ -7,7 +7,7 @@ namespace Operations.Presentation.GraphQL;
 
 public interface IOperationsExperienceMutation
 {
-    public Task<GraphqlMutationResult<ContributionMutationResult>> RegisterContributionAsync(
+    public Task<GraphqlResult<ContributionMutationResult>> RegisterContributionAsync(
         CreateContributionInput input,
         IValidator<CreateContributionInput> validator,
         CancellationToken cancellationToken = default

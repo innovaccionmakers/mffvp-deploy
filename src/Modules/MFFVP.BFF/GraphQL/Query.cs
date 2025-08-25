@@ -1,21 +1,24 @@
 ﻿using Associate.Presentation.DTOs;
 using Associate.Presentation.GraphQL;
+using Closing.Presentation.GraphQL;
+using Closing.Presentation.GraphQL.DTOs;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Presentation.Results;
 using Customers.Presentation.DTOs;
 using Customers.Presentation.GraphQL;
+using HotChocolate.Authorization;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services;
+using MFFVP.BFF.Services.Reports;
+using Microsoft.AspNetCore.Mvc;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
-using Closing.Presentation.GraphQL;
-using Closing.Presentation.GraphQL.DTOs;
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
-using HotChocolate.Authorization;
 using Trusts.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;
@@ -286,6 +289,14 @@ public class Query
     {
         return await treasuryQueries.GetBankAccountsByPortfolioAndIssuerAsync(portfolioId, issuerId, cancellationToken);
     }
+
+    [GraphQLName("generarReporteDepositos")]
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateDepositsReportAsync([GraphQLName("processDate")] DateTime processDate,
+                                                                   [Service] ReportOrchestrator reportOrchestrator,
+                                                                   CancellationToken cancellationToken)
+    {
+        return await reportOrchestrator.GetReportDataAsync(processDate, cancellationToken);
+    }    
 
     //Trust Queries
     [GraphQLName("getParticipantes")]

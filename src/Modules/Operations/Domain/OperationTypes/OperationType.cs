@@ -11,7 +11,7 @@ namespace Operations.Domain.OperationTypes;
 public sealed class OperationType : Entity
 {
     public long OperationTypeId { get; private set; }
-    public string Name { get; private set; }
+    public string Name { get; set; }
     public int? CategoryId { get; private set; }
     public IncomeEgressNature Nature { get; private set; }
     public Status Status { get; private set; }

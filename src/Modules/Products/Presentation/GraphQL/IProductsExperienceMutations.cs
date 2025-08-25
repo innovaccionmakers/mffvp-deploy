@@ -7,18 +7,18 @@ namespace Products.Presentation.GraphQL;
 
 public interface IProductsExperienceMutations
 {
-    public Task<GraphqlMutationResult<GoalMutationResult>> RegisterGoalAsync(
+    public Task<GraphqlResult<GoalMutationResult>> RegisterGoalAsync(
         CreateGoalInput input,
         IValidator<CreateGoalInput> validator,
         CancellationToken cancellationToken = default
     );
 
-    Task<GraphqlMutationResult> UpdateGoalAsync(
+    Task<GraphqlResult> UpdateGoalAsync(
         UpdateGoalInput input,
         IValidator<UpdateGoalInput> validator,
         CancellationToken cancellationToken = default
     );
 
-    Task<GraphqlMutationResult> SaveTechnicalSheetAsync(DateOnly closingDate,
+    Task<GraphqlResult> SaveTechnicalSheetAsync(DateOnly closingDate,
                                                         CancellationToken cancellationToken = default);
 }

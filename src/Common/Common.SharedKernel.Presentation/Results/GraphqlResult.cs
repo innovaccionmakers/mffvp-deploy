@@ -3,13 +3,13 @@
 namespace Common.SharedKernel.Presentation.Results;
 
 
-public class GraphqlMutationResult
+public class GraphqlResult
 {
     public bool Success => Errors.Count == 0;
     public string? Message { get; set; }
     public List<Error> Errors { get; set; } = [];
 
-    public GraphqlMutationResult() { }
+    public GraphqlResult() { }
 
     public void AddError(Error error)
     {
@@ -23,11 +23,11 @@ public class GraphqlMutationResult
     }
 }
 
-public class GraphqlMutationResult<T> : GraphqlMutationResult
+public class GraphqlResult<T> : GraphqlResult
 {
     public T? Data { get; set; }
 
-    public GraphqlMutationResult() { }
+    public GraphqlResult() { }
 
     public void SetSuccess(T data, string? message = null)
     {

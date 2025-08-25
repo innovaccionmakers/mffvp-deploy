@@ -35,13 +35,13 @@ public class OperationsExperienceMutation(
         }
     }
 
-    public async Task<GraphqlMutationResult<ContributionMutationResult>> RegisterContributionAsync(
+    public async Task<GraphqlResult<ContributionMutationResult>> RegisterContributionAsync(
         CreateContributionInput input,
         IValidator<CreateContributionInput> validator,
         CancellationToken cancellationToken = default
     )
     {
-        var result = new GraphqlMutationResult<ContributionMutationResult>();
+        var result = new GraphqlResult<ContributionMutationResult>();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);

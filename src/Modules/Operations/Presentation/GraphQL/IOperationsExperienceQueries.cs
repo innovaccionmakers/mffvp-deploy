@@ -1,4 +1,7 @@
-﻿using Operations.Presentation.DTOs;
+﻿using Operations.Domain.ClientOperations;
+using Operations.Integrations.ClientOperations;
+using Operations.Presentation.DTOs;
+using Products.Domain.PensionFunds;
 
 namespace Operations.Presentation.GraphQL;
 
@@ -29,4 +32,8 @@ public interface IOperationsExperienceQueries
 
     Task<string> GetWithholdingContingencyAsync(
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<ClientOperationsByProcessDateDto>> GetClientOperationsByProcessDateAsync(
+        DateTime processDate, CancellationToken cancellationToken = default);
+
 }

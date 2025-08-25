@@ -29,6 +29,7 @@ using Products.Domain.Commissions;
 using Products.Domain.ConfigurationParameters;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
+using Products.Domain.PensionFunds;
 using Products.Domain.PlanFunds;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
@@ -46,6 +47,7 @@ using Products.Infrastructure.External.PortfolioValuations;
 using Products.Infrastructure.External.Trusts;
 using Products.Infrastructure.Objectives;
 using Products.Infrastructure.Offices;
+using Products.Infrastructure.PensionFunds;
 using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
@@ -103,10 +105,11 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IAlternativeRepository, AlternativeRepository>();
         services.AddScoped<IObjectiveRepository, ObjectiveRepository>();
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
+        services.AddScoped<IPlanFundRepository, PlanFundRepository>();
         services.AddScoped<ICommercialRepository, CommercialRepository>();
         services.AddScoped<IOfficeRepository, OfficeRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
-        services.AddScoped<IPlanFundRepository, PlanFundRepository>();
+        services.AddScoped<IPensionFundRepository, PensionFundRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<ProductsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<ProductsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<ProductsModuleMarker>, ErrorCatalog<ProductsModuleMarker>>();

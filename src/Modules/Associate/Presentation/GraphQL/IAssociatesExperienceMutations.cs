@@ -6,22 +6,22 @@ namespace Associate.Presentation.GraphQL;
 
 public interface IAssociatesExperienceMutations
 {
-    public Task<GraphqlMutationResult> RegisterActivateAsync(
+    public Task<GraphqlResult> RegisterActivateAsync(
         CreateActivateInput input,
         IValidator<CreateActivateInput> validator,
         CancellationToken cancellationToken
     );
-    public Task<GraphqlMutationResult> UpdatePensionRequirementsAsync(
+    public Task<GraphqlResult> UpdatePensionRequirementsAsync(
         UpdatePensionRequirementInput input,
         IValidator<UpdatePensionRequirementInput> validator,
         CancellationToken cancellationToken
     );
-    public Task<GraphqlMutationResult> UpdateActivateAsync(
+    public Task<GraphqlResult> UpdateActivateAsync(
         UpdateActivateInput input,
         IValidator<UpdateActivateInput> validator,
         CancellationToken cancellationToken
     );
-    public Task<GraphqlMutationResult> RegisterPensionRequirementsAsync(
+    public Task<GraphqlResult> RegisterPensionRequirementsAsync(
         CreatePensionRequirementInput input,
         IValidator<CreatePensionRequirementInput> validator,
         CancellationToken cancellationToken

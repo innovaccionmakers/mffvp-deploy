@@ -16,9 +16,9 @@ namespace Products.Presentation.GraphQL;
 
 public class ProductsExperienceMutations(IMediator mediator) : IProductsExperienceMutations
 {
-    public async Task<GraphqlMutationResult<GoalMutationResult>> RegisterGoalAsync(CreateGoalInput input, IValidator<CreateGoalInput> validator, CancellationToken cancellationToken = default)
+    public async Task<GraphqlResult<GoalMutationResult>> RegisterGoalAsync(CreateGoalInput input, IValidator<CreateGoalInput> validator, CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult<GoalMutationResult>();
+        var result = new GraphqlResult<GoalMutationResult>();
         try
         {
 
@@ -67,9 +67,9 @@ public class ProductsExperienceMutations(IMediator mediator) : IProductsExperien
 
     }
 
-    public async Task<GraphqlMutationResult> SaveTechnicalSheetAsync(DateOnly closingDate, CancellationToken cancellationToken = default)
+    public async Task<GraphqlResult> SaveTechnicalSheetAsync(DateOnly closingDate, CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
         try
         {
             var command =  new SaveTechnicalSheetCommand(closingDate);
@@ -91,12 +91,12 @@ public class ProductsExperienceMutations(IMediator mediator) : IProductsExperien
         }
     }
 
-    public async Task<GraphqlMutationResult> UpdateGoalAsync(
+    public async Task<GraphqlResult> UpdateGoalAsync(
         UpdateGoalInput input,
         IValidator<UpdateGoalInput> validator,
         CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult();
+        var result = new GraphqlResult();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);

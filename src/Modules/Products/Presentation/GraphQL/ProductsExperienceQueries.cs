@@ -5,7 +5,7 @@ using Common.SharedKernel.Core.Primitives;
 using HotChocolate;
 
 using MediatR;
-
+using Operations.Integrations.ClientOperations.GetClientOperationsByProcessDate;
 using Products.Integrations.Alternatives;
 using Products.Integrations.Commercials;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;
@@ -13,6 +13,7 @@ using Products.Integrations.ConfigurationParameters.GoalTypes;
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Integrations.Objectives.GetObjectivesByAffiliate;
 using Products.Integrations.Offices;
+using Products.Integrations.PensionFunds.GetPensionFunds;
 using Products.Integrations.PlanFunds.GetPlanFund;
 using Products.Integrations.Portfolios.GetPortfolio;
 using Products.Integrations.Portfolios.GetPortfolios;
@@ -315,6 +316,18 @@ public class ProductsExperienceQueries(IMediator mediator) : IProductsExperience
                 x.InitialMinimumAmount,
                 x.CurrentDate
             )).ToList();
+    }
+
+    public async Task<string> GetAllPensionFundsAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetPensionFundsQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+            throw new InvalidOperationException("Failed to retrieve pension funds.");
+
+        var response = result.Value.Select(c => c.Name).First();
+
+        return response;
     }
 
     public async Task<IReadOnlyCollection<TechnicalSheetDto>> GetTechnicalSheetsByDateRangeAndPortfolio(DateOnly startDate,

@@ -11,13 +11,13 @@ namespace Closing.Presentation.GraphQL;
 
 public interface IClosingExperienceMutations
 {
-    Task<GraphqlMutationResult<LoadProfitLossResult>> LoadProfitLossAsync(
+    Task<GraphqlResult<LoadProfitLossResult>> LoadProfitLossAsync(
         LoadProfitLossInput input,
         IValidator<LoadProfitLossInput> validator,
         CancellationToken cancellationToken = default
     );
 
-    Task<GraphqlMutationResult<RunSimulationDto>> RunSimulationAsync(
+    Task<GraphqlResult<RunSimulationDto>> RunSimulationAsync(
         RunSimulationInput input,
         IValidator<RunSimulationInput> validator,
         CancellationToken cancellationToken = default

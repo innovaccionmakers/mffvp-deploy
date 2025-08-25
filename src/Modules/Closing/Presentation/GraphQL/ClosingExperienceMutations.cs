@@ -16,13 +16,13 @@ namespace Closing.Presentation.GraphQL;
 
 public class ClosingExperienceMutations(IMediator mediator) : IClosingExperienceMutations
 {
-    public async Task<GraphqlMutationResult<LoadProfitLossResult>> LoadProfitLossAsync(
+    public async Task<GraphqlResult<LoadProfitLossResult>> LoadProfitLossAsync(
         LoadProfitLossInput input,
         IValidator<LoadProfitLossInput> validator,
         CancellationToken cancellationToken = default
     )
     {
-        var result = new GraphqlMutationResult<LoadProfitLossResult>();
+        var result = new GraphqlResult<LoadProfitLossResult>();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);
@@ -58,9 +58,9 @@ public class ClosingExperienceMutations(IMediator mediator) : IClosingExperience
 
     }
 
-    public async Task<GraphqlMutationResult<RunSimulationDto>> RunSimulationAsync(RunSimulationInput input, IValidator<RunSimulationInput> validator, CancellationToken cancellationToken = default)
+    public async Task<GraphqlResult<RunSimulationDto>> RunSimulationAsync(RunSimulationInput input, IValidator<RunSimulationInput> validator, CancellationToken cancellationToken = default)
     {
-        var result = new GraphqlMutationResult<RunSimulationDto>();
+        var result = new GraphqlResult<RunSimulationDto>();
         try
         {
             var validationResult = await RequestValidator.Validate(input, validator);

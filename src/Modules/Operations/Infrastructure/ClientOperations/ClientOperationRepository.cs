@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Operations.Domain.ClientOperations;
 using Operations.Infrastructure.Database;
+using System.Linq;
 
 namespace Operations.Infrastructure.ClientOperations;
 
@@ -55,5 +56,33 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                 ot => ot.OperationTypeId,
                 (st, ot) => ot.Name)
             .AnyAsync(name => name == contributionLabel, ct);
+    }
+
+    public async Task<IEnumerable<ClientOperation>> GetClientOperationsByProcessDateAsync(DateTime processDate, CancellationToken cancellationToken = default)
+    {
+        var utcProcessDate = processDate.Kind == DateTimeKind.Unspecified
+                            ? DateTime.SpecifyKind(processDate, DateTimeKind.Utc)
+                            : processDate.ToUniversalTime();
+
+        var clientOperations = await context.ClientOperations
+            .Where(co => co.ProcessDate == utcProcessDate)
+            .Include(co => co.AuxiliaryInformation)
+            .Include(co => co.OperationType)
+            .ToListAsync(cancellationToken);
+
+        foreach (var operation in clientOperations)
+        {
+            if (operation.OperationType?.CategoryId.HasValue == true)
+            {
+                var categoryName = await context.OperationTypes
+                    .Where(ot => ot.OperationTypeId == operation.OperationType.CategoryId.Value)
+                    .Select(ot => ot.Name)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                operation.OperationType.Name = categoryName;
+            }
+        }
+
+        return clientOperations;
     }
 }

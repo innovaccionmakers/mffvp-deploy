@@ -46,4 +46,6 @@ public interface IProductsExperienceQueries
                                                                                            DateOnly endDate,
                                                                                            int portfolioId,
                                                                                            CancellationToken cancellationToken = default);
+
+    Task<string> GetAllPensionFundsAsync(CancellationToken cancellationToken = default);
 }
