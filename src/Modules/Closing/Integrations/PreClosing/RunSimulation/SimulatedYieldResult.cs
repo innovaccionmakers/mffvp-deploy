@@ -1,5 +1,6 @@
 ﻿
 
+using Closing.Integrations.Common;
 using System.Text.Json.Serialization;
 
 namespace Closing.Integrations.PreClosing.RunSimulation;
@@ -24,4 +25,10 @@ public sealed class SimulatedYieldResult
 
     [property: JsonPropertyName("RentabilidadDiaria")]
     public decimal? DailyProfitability { get; init; }
+
+    [property: JsonPropertyName("TieneAdvertencias")]
+    public bool? HasWarnings { get; set;  }
+
+    [property: JsonPropertyName("Advertencias")]
+    public IReadOnlyList<WarningItem>? Warnings { get; set; }
 }

@@ -4,7 +4,7 @@ using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Closing.Infrastructure.Yields;
-internal sealed class YieldRepository(ClosingDbContext context) : IYieldRepository
+internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactory<ClosingDbContext> dbFactory) : IYieldRepository
 {
     public async Task InsertAsync(Yield yield, CancellationToken ct = default)
     {
@@ -16,7 +16,8 @@ internal sealed class YieldRepository(ClosingDbContext context) : IYieldReposito
     DateTime closingDateUtc,
     CancellationToken cancellationToken = default)
     {
-        var deletedCount = await context.Yields
+        await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
+        var deletedCount = await db.Yields
             .Where(yield => yield.PortfolioId == portfolioId
                          && yield.ClosingDate == closingDateUtc
                          && !yield.IsClosed)
@@ -28,7 +29,8 @@ internal sealed class YieldRepository(ClosingDbContext context) : IYieldReposito
         DateTime closingDateUtc,
         CancellationToken cancellationToken = default)
     {
-        await context.Yields
+        await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
+        await db.Yields
             .Where(yield => yield.PortfolioId == portfolioId
                             && yield.ClosingDate == closingDateUtc
                             && yield.IsClosed)
@@ -48,7 +50,7 @@ internal sealed class YieldRepository(ClosingDbContext context) : IYieldReposito
     public async Task<Yield?> GetByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
     {
         return await context.Yields.AsNoTracking()
-            .Where(y => y.PortfolioId == portfolioId && y.ClosingDate.Date == closingDateUtc.Date)
+            .Where(y => y.PortfolioId == portfolioId && y.ClosingDate.Date == closingDateUtc)
             .SingleOrDefaultAsync(cancellationToken);
     }
 

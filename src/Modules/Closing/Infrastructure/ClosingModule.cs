@@ -62,7 +62,17 @@ public class ClosingModule : IModuleConfiguration
             connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
         }
 
-        services.AddDbContext<ClosingDbContext>((sp, options) =>
+        //services.AddDbContext<ClosingDbContext>((sp, options) =>
+        //{
+        //    options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
+        //        .UseNpgsql(
+        //            connectionString,
+        //            npgsqlOptions =>
+        //                npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Closing)
+        //        );
+        //});
+
+        services.AddPooledDbContextFactory<ClosingDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
                 .UseNpgsql(
@@ -71,6 +81,9 @@ public class ClosingModule : IModuleConfiguration
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Closing)
                 );
         });
+
+        services.AddScoped<ClosingDbContext>(sp =>
+    sp.GetRequiredService<IDbContextFactory<ClosingDbContext>>().CreateDbContext());
 
         services.AddScoped<IProfitLossConceptRepository, ProfitLossConceptRepository>();
         services.AddScoped<IProfitLossRepository, ProfitLossRepository>();

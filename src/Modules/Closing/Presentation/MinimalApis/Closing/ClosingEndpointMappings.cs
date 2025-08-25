@@ -20,10 +20,10 @@ public static class ClosingEndpointMappings
     public static void MapRunClosingEndpoint(this RouteGroupBuilder group)
     {
         group.MapPost(
-            NameEndpoints.RunClosing,
+            NameEndpoints.PrepareClosing,
             [Authorize(Policy = MakersPermissionsClosing.PolicyExecuteClosure)]
             async (
-                [FromBody] RunClosingCommand request, 
+                [FromBody] PrepareClosingCommand request, 
                 ISender sender,
                  HttpContext http, 
                  CancellationToken cancellationToken
@@ -41,16 +41,16 @@ public static class ClosingEndpointMappings
                     throw; 
                 }
             })
-            .WithName(NameEndpoints.RunClosing)
-            .WithSummary(Summary.RunClosing)
-            .WithDescription(Description.RunClosing)
+            .WithName(NameEndpoints.PrepareClosing)
+            .WithSummary(Summary.PrepareClosing)
+            .WithDescription(Description.PrepareClosing)
             .WithOpenApi(operation =>
             {
-                operation.RequestBody.Description = RequestBodyDescription.RunClosing;
+                operation.RequestBody.Description = RequestBodyDescription.PrepareClosing;
                 return operation;
             })
-            .AddEndpointFilter<TechnicalValidationFilter<RunClosingCommand>>()
-            .Produces<ClosedResult>(StatusCodes.Status200OK)
+            .AddEndpointFilter<TechnicalValidationFilter<PrepareClosingCommand>>()
+            .Produces<PrepareClosingResult>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .Produces(StatusCodes.Status499ClientClosedRequest);
@@ -89,7 +89,7 @@ public static class ClosingEndpointMappings
                 return operation;
             })
             .AddEndpointFilter<TechnicalValidationFilter<ConfirmClosingCommand>>()
-            .Produces<ClosedResult>(StatusCodes.Status200OK)
+            .Produces<ConfirmClosingResult>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .Produces(StatusCodes.Status499ClientClosedRequest);

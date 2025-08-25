@@ -5,9 +5,9 @@ using System.Text.Json.Serialization;
 namespace Closing.Integrations.Closing.RunClosing;
 
 [AuditLog]
-public sealed record RunClosingCommand(
+public sealed record PrepareClosingCommand(
     [property: JsonPropertyName("IdPortafolio")]
     int PortfolioId,
     [property: JsonPropertyName("FechaCierre")]
     DateTime ClosingDate
-) : ICommand<ClosedResult>;
+) : ICommand<PrepareClosingResult>;

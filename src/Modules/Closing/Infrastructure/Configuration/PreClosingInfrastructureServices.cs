@@ -11,12 +11,14 @@ using Closing.Application.PreClosing.Services.Yield;
 using Closing.Application.PreClosing.Services.Yield.Builders;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.PortfolioValuations;
+using Closing.Domain.ProfitLosses;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Closing.Infrastructure.External.Operations.OperationTypes;
 using Closing.Infrastructure.External.Products.Commissions;
 using Closing.Infrastructure.External.Treasury.TreasuryMovements;
 using Closing.Infrastructure.PortfolioValuations;
+using Closing.Infrastructure.ProfitLosses;
 using Closing.Infrastructure.YieldDetails;
 using Closing.Infrastructure.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
@@ -28,6 +30,10 @@ namespace Closing.Infrastructure.Configuration
     {
         public static IServiceCollection AddPreClosingInfrastructure(this IServiceCollection services)
         {
+            services.AddSingleton<ISimulationExecutionLock, SimulationExecutionLock>();
+            services.AddTransient<IProfitLossQueryRepository, ProfitLossQueryRepository>();
+            services.AddTransient<IPreclosingCleanupService, PreclosingCleanupService>();
+
             services.AddScoped<IProfitAndLossConsolidationService, ProfitAndLossConsolidationService>();
             services.AddScoped<IYieldDetailCreationService, YieldDetailCreationService>();
             services.AddScoped<IYieldDetailRepository, YieldDetailRepository>();

@@ -1,10 +1,10 @@
 ﻿using Closing.Application.Closing.Services.Orchestation.Constants;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
+using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.AutomaticConcepts.Dto;
 using Closing.Application.PreClosing.Services.Yield;
 using Closing.Application.PreClosing.Services.Yield.Constants;
-using Closing.Application.PreClosing.Services.Yield.Dto;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.TrustYields;
@@ -14,8 +14,7 @@ using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
-using System.Threading;
+
 
 
 namespace Closing.Application.Closing.Services.TrustYieldsDistribution;
@@ -27,6 +26,7 @@ public class ValidateTrustYieldsDistributionService(
     YieldDetailBuilderService yieldDetailBuilderService,
     ITimeControlService timeControlService,
     IConfigurationParameterRepository configurationParameterRepository,
+    IWarningCollector warnings,
     ILogger<ValidateTrustYieldsDistributionService> logger)
     : IValidateTrustYieldsDistributionService
 {
@@ -40,7 +40,6 @@ public class ValidateTrustYieldsDistributionService(
         });
         const string svc = "[ValidateTrustYieldsDistributionService]";
 
-        logger.LogInformation("Validando distribución de rendimientos para portafolio {PortfolioId}", portfolioId);
         logger.LogInformation("{Svc} Inicio de validación de distribución de rendimientos.", svc);
 
         var now = DateTime.UtcNow;
@@ -104,8 +103,8 @@ public class ValidateTrustYieldsDistributionService(
 
             if (Math.Abs(difference) > tolerance)
             {
+                warnings.Add(WarningCatalog.Val003YieldDifference(difference, tolerance));
                 logger.LogWarning("{Svc} Diferencia de rendimiento fuera de tolerancia: {Difference}. Tolerancia: {Tolerance}", svc, difference, tolerance);
-                return Result.Failure(new Error("003", $"Diferencia de rendimiento fuera de tolerancia: {difference}. Tolerancia: {tolerance}.", ErrorType.Failure));
             }
             logger.LogInformation("{Svc} Se detectó diferencia distinta de 0. Se generará ajuste.", svc);
             var nextClosingDate = closingDate.AddDays(1);
@@ -146,7 +145,7 @@ public class ValidateTrustYieldsDistributionService(
 
             logger.LogInformation("{Svc} YieldDetail construido por builder. Procediendo a persistir.", svc);
 
-            await yieldDetailCreationService.CreateYieldDetailsAsync(buildResult, cancellationToken);
+            await yieldDetailCreationService.CreateYieldDetailsAsync(buildResult, PersistenceMode.Transactional, cancellationToken);
 
             logger.LogInformation("{Svc} Ajuste generado y persistido: Difference={Difference}, NextClosingDate={NextClosingDate}", svc, difference, nextClosingDate);
         }

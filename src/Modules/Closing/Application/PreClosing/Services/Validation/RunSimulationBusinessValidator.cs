@@ -27,7 +27,7 @@ public class RunSimulationBusinessValidator(
         IRuleEvaluator<ClosingModuleMarker> ruleEvaluator,
         IPortfolioValidator portfolioValidator,
         IPortfolioValuationRepository portfolioValuationRepository,
-        IProfitLossRepository profitLossRepository,
+        IProfitLossQueryRepository profitLossRepository,
         ICommissionLocator commissionLocator,
         IMovementsConsolidationService movementsConsolidationService,
         IClientOperationRepository clientOperationRepository,
@@ -37,10 +37,10 @@ public class RunSimulationBusinessValidator(
 {
     private readonly GenericWorkflowValidator<ClosingModuleMarker> _workflowValidator =
                new(new ExternalRuleEvaluatorAdapter<ClosingModuleMarker>(ruleEvaluator));
-    public async Task<Result> ValidateAsync(RunSimulationCommand command, CancellationToken ct)
+    public async Task<Result> ValidateAsync(RunSimulationCommand command, CancellationToken cancellationToken)
     {
         // 1. Portfolio
-        var portfolioDataResult = await portfolioValidator.GetPortfolioDataAsync(command.PortfolioId, ct);
+        var portfolioDataResult = await portfolioValidator.GetPortfolioDataAsync(command.PortfolioId, cancellationToken);
         if (!portfolioDataResult.IsSuccess)
             return Result.Failure(portfolioDataResult.Error!);
 
@@ -48,17 +48,17 @@ public class RunSimulationBusinessValidator(
 
         // 2. ¿Ya existe cierre generado para esta fecha? -> bool
         var existsClosingGenerated = await portfolioValuationRepository
-            .ExistsByPortfolioAndDateAsync(command.PortfolioId, command.ClosingDate.Date, ct);
+            .ExistsByPortfolioAndDateAsync(command.PortfolioId, command.ClosingDate.Date, cancellationToken);
 
         // 3. Comisiones administrativas
-        var commissionResult = await commissionLocator.GetActiveCommissionsAsync(command.PortfolioId, ct);
+        var commissionResult = await commissionLocator.GetActiveCommissionsAsync(command.PortfolioId, cancellationToken);
         if (!commissionResult.IsSuccess)
             return Result.Failure(commissionResult.Error!);
 
         var (adminCount, adminIsNumber, adminBetween0And100) = EvaluateAdminCommission(commissionResult.Value);
 
         // 4. Estado primer día de cierre (incluye InitialFundUnitValue, P&L, etc.)
-        var firstDayState = await EvaluateFirstDayStateAsync(command, portfolioData, ct);
+        var firstDayState = await EvaluateFirstDayStateAsync(command, portfolioData, cancellationToken);
         if (firstDayState.Failure.IsFailure)
             return Result.Failure(firstDayState.Failure.Error!); // error técnico, abortar
 
@@ -87,7 +87,7 @@ public class RunSimulationBusinessValidator(
             ctx,
             ErrorSelection.First, // o ErrorSelection.All si se quiere acumular
             WorkflowEvaluationMode.ShortCircuitOnFailure, // recomendado para bloqueantes
-            ct);
+            cancellationToken);
 
         if (!wfResult.IsValid)
         {

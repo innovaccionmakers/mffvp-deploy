@@ -8,3 +8,5 @@ public struct YieldsSources
         AutomaticConcept = "Concepto Automático"
         ;
 }
+
+public enum PersistenceMode { Immediate, Transactional }

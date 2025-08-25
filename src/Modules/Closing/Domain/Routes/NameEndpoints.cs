@@ -4,11 +4,9 @@ namespace Closing.Domain.Routes
     {
         public const string
             RunPreclosing = "RunSimulation",
-            RunClosing = "RunClosing",
-            RunPostclosing = "RunPostclosing",
+            PrepareClosing = "RunClosing",
             ConfirmClosing = "ConfirmClosing",
-            CancelClosing = "CancelClosing",
-            AbortClosing = "AbortClosing"
+            CancelClosing = "CancelClosing"
             ;
     }
 }

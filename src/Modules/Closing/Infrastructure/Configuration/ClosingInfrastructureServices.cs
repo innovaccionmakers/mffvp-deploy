@@ -11,6 +11,7 @@ using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
 using Closing.Application.Closing.Services.TrustYieldsDistribution;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
+using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
@@ -58,6 +59,8 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IPortfolioCommissionPublisher, PortfolioCommissionPublisher>();
             services.AddScoped<IPendingTransactionHandler, PendingTransactionHandler>();
             services.AddScoped<IDataSyncPostService, DataSyncTrustPostService>();
+
+            services.AddScoped<IWarningCollector, WarningCollector>();
 
             return services;
         }

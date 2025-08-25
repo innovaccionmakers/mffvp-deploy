@@ -1,6 +1,6 @@
-﻿using Associate.Domain.ConfigurationParameters;
-using Closing.Application.Abstractions.Data;
+﻿using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
+using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.Commission.Interfaces;
 using Closing.Application.PreClosing.Services.ProfitAndLoss;
 using Closing.Application.PreClosing.Services.TreasuryConcepts;
@@ -32,6 +32,8 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private readonly IYieldDetailRepository _yieldDetailRepository;
     private readonly IYieldRepository _yieldRepository;
     private readonly IPortfolioValidator _portfolioValidator;
+    private readonly IWarningCollector _warnings;
+    private readonly IPreclosingCleanupService _preclosingCleanupService;
 
     public SimulationOrchestrator(
         IUnitOfWork unitOfWork,
@@ -45,7 +47,9 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         IBusinessValidator<RunSimulationCommand> businessValidator, 
         IYieldDetailRepository yieldDetailRepository,
         IYieldRepository yieldRepository,
-        IPortfolioValidator portfolioValidator)
+        IPortfolioValidator portfolioValidator,
+        IWarningCollector warningCollector,
+         IPreclosingCleanupService preclosingCleanupService)
     {
         _unitOfWork = unitOfWork;
         _profitAndLossConsolidationService = profitAndLossConsolidationService;
@@ -59,24 +63,25 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         _yieldDetailRepository = yieldDetailRepository;
         _yieldRepository = yieldRepository;
         _portfolioValidator = portfolioValidator;
-
+        _warnings = warningCollector;
+        _preclosingCleanupService = preclosingCleanupService;
 
     }
 
-    public async Task<Result<SimulatedYieldResult>> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken ct)
+    public async Task<Result<SimulatedYieldResult>> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
     {
         var normalizedParams = NormalizeParameters(parameters);
 
         if (!normalizedParams.IsClosing)  //Cuando es Cierre, se valida en el orquestador de cierre
         {
-            var validationResult = await ValidateBusinessRulesAsync(normalizedParams, ct);
+            var validationResult = await ValidateBusinessRulesAsync(normalizedParams, cancellationToken);
             if (validationResult.IsFailure)
                 return Result.Failure<SimulatedYieldResult>(validationResult.Error!);
         }
 
         var isFirstClosingDay = false;
 
-        var firstDayResult = await IsFirstClosingDayAsync(normalizedParams, ct);
+        var firstDayResult = await IsFirstClosingDayAsync(normalizedParams, cancellationToken);
         if (firstDayResult.IsFailure)
             return Result.Failure<SimulatedYieldResult>(firstDayResult.Error!);
 
@@ -88,15 +93,20 @@ public class SimulationOrchestrator : ISimulationOrchestrator
             normalizedParams.IsClosing,
             isFirstClosingDay);
 
-        var simulationResult = await ExecuteSimulationsAsync(localParameters, ct);
+        var simulationResult = await ExecuteSimulationsAsync(localParameters, cancellationToken);
         if (simulationResult.IsFailure)
             return Result.Failure<SimulatedYieldResult>(simulationResult.Error!);
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var consolidationResult = await _yieldPersistenceService.ConsolidateAsync(localParameters, ct);
+        var consolidationResult = await _yieldPersistenceService.ConsolidateAsync(localParameters, cancellationToken);
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var warnings = _warnings.GetAll();
+
+        consolidationResult.HasWarnings = warnings.Any();
+        consolidationResult.Warnings = warnings;
 
         return consolidationResult;
     }
@@ -109,9 +119,9 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         };
     }
 
-    private async Task<Result<Unit>> ValidateBusinessRulesAsync(RunSimulationCommand parameters, CancellationToken ct)
+    private async Task<Result<Unit>> ValidateBusinessRulesAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
     {
-        var validation = await _businessValidator.ValidateAsync(parameters, ct);
+        var validation = await _businessValidator.ValidateAsync(parameters, cancellationToken);
         return validation.IsFailure ? Result.Failure<Unit>(validation.Error!) : Result.Success(Unit.Value);
     }
 
@@ -131,23 +141,13 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         return Result.Success(!exists);
     }
 
-    private async Task<Result<Unit>> ExecuteSimulationsAsync(RunSimulationParameters parameters, CancellationToken ct)
+    private async Task<Result<Unit>> ExecuteSimulationsAsync(RunSimulationParameters parameters, CancellationToken cancellationToken)
     {
-        var existsYieldDetails = await _yieldDetailRepository.ExistsByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, false, ct);
+        await _preclosingCleanupService.CleanAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
 
-        if (existsYieldDetails)
-        {
-            await _yieldDetailRepository.DeleteByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
-        }
-
-        var existsYield = await _yieldRepository.ExistsYieldAsync(parameters.PortfolioId, parameters.ClosingDate, false, ct);
-        if (existsYield)
-        {
-            await _yieldRepository.DeleteByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
-        }
-        var profitAndLossTask = ExecuteProfitAndLossSimulationAsync(parameters, ct);
-        var commissionsTask = ExecuteCommissionSimulationAsync(parameters, ct);
-        var treasuryTask = ExecuteTreasurySimulationAsync(parameters, ct);
+        var profitAndLossTask = ExecuteProfitAndLossSimulationAsync(parameters, cancellationToken);
+        var commissionsTask = ExecuteCommissionSimulationAsync(parameters, cancellationToken);
+        var treasuryTask = ExecuteTreasurySimulationAsync(parameters, cancellationToken);
 
         try
         {
@@ -160,46 +160,50 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         }
     }
 
-    private async Task ExecuteProfitAndLossSimulationAsync(RunSimulationParameters parameters, CancellationToken ct)
+    private async Task ExecuteProfitAndLossSimulationAsync(RunSimulationParameters parameters, CancellationToken cancellationToken)
     {
         if (parameters.IsFirstClosingDay) return;
 
         var summary = await _profitAndLossConsolidationService
             .GetProfitAndLossSummaryAsync(parameters.PortfolioId, parameters.ClosingDate);
 
-        if (!summary.Any()) return;
+        if (summary is null || !summary.Any())
+        {
+            _warnings.Add(WarningCatalog.Adv001PygMissing());
+            return;
+        }
 
         var yieldDetails = _yieldDetailBuilderService
             .Build(summary, parameters);
 
-        await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, ct);
+        await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, Yield.Constants.PersistenceMode.Immediate, cancellationToken);
     }
 
-    private async Task ExecuteCommissionSimulationAsync(RunSimulationParameters parameters, CancellationToken ct)
+    private async Task ExecuteCommissionSimulationAsync(RunSimulationParameters parameters, CancellationToken cancellationToken)
     {
         var summary = await _commissionCalculationService
-            .CalculateAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
+            .CalculateAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
 
         if (!summary.Any()) return;
 
         var yieldDetails = _yieldDetailBuilderService
             .Build(summary, parameters);
 
-        await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, ct);
+        await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, Yield.Constants.PersistenceMode.Immediate, cancellationToken);
     }
 
-    private async Task ExecuteTreasurySimulationAsync(RunSimulationParameters parameters, CancellationToken ct)
+    private async Task ExecuteTreasurySimulationAsync(RunSimulationParameters parameters, CancellationToken cancellationToken)
     {
         if (parameters.IsFirstClosingDay) return;
 
         var summary = await _movementsConsolidationService
-            .GetMovementsSummaryAsync(parameters.PortfolioId, parameters.ClosingDate, ct);
+            .GetMovementsSummaryAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
 
         if (!summary.Any()) return;
 
         var yieldDetails = _yieldDetailBuilderService
             .Build(summary, parameters);
 
-        await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, ct);
+        await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, Yield.Constants.PersistenceMode.Immediate, cancellationToken);
     }
 }
