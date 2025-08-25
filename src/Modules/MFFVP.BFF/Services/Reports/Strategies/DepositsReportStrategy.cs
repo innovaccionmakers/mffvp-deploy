@@ -3,7 +3,6 @@ using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services.Reports.DepositsReport.Interfaces;
-using System.Diagnostics;
 using System.Globalization;
 using Error = Common.SharedKernel.Core.Primitives.Error;
 

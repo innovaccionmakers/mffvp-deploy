@@ -55,6 +55,8 @@ public class TreasuryMovementRepository(TreasuryDbContext context) : ITreasuryMo
             .AsNoTracking()
             .Where(tm => portfolioIds.Contains(tm.PortfolioId))
             .Include(tm => tm.TreasuryConcept)
+            .Include(b => b.BankAccount)
+            .Include(c => c.Counterparty)
             .ToListAsync(cancellationToken);
     }
 }
