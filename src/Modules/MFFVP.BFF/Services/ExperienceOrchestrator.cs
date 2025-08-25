@@ -144,6 +144,9 @@ public class ExperienceOrchestrator(
             x.ClosingDate,
             x.Concept,
             x.Distribution,
+            x.TypeConcept,
+            x.BankAccount,
+            x.Counterpart,
             x.Value
         )).ToList();
     }
