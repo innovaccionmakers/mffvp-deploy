@@ -16,4 +16,4 @@ public sealed record MovementsByPortfolioRemoteResponse(
     string Nature,
     bool AllowsExpense,
     decimal TotalAmount
-    );
+);

@@ -31,10 +31,22 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
             .ToListAsync(ct);
     }
 
-    public async Task<IReadOnlyCollection<TrustYield>> GetReadOnlyByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken ct)
+    public async Task<IReadOnlyCollection<TrustYield>> GetByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken ct)
     {
         return await context.TrustYields.AsNoTracking() 
             .Where(t => t.PortfolioId == portfolioId && t.ClosingDate == closingDateUtc)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyCollection<PortfolioTrustIds>> GetTrustIdsByPortfolioAsync(DateTime closingDate, CancellationToken ct)
+    {
+        return await context.TrustYields
+            .Where(t => t.ClosingDate.Date == closingDate.Date)
+            .GroupBy(t => t.PortfolioId)
+            .Select(g => new PortfolioTrustIds(
+                g.Key,
+                g.Select(ty => ty.TrustId).ToList()
+            ))
             .ToListAsync(ct);
     }
 

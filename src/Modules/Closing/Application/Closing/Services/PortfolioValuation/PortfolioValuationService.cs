@@ -211,7 +211,7 @@ public class PortfolioValuationService(
         if (!createResult.IsSuccess)
             return Result.Failure<ClosedResult>(createResult.Error!);
 
-        await valuationRepository.InsertAsync(createResult.Value);
+        await valuationRepository.AddAsync(createResult.Value);
 
         logger.LogInformation(
             "Valoración realizada para Portafolio {PortfolioId} en {Date}",

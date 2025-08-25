@@ -18,4 +18,7 @@ public interface IProductsExperienceMutations
         IValidator<UpdateGoalInput> validator,
         CancellationToken cancellationToken = default
     );
+
+    Task<GraphqlMutationResult> SaveTechnicalSheetAsync(DateOnly closingDate,
+                                                        CancellationToken cancellationToken = default);
 }

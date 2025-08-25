@@ -15,6 +15,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Products.Application.Abstractions;
 using Products.Application.Abstractions.Data;
+using Products.Application.Abstractions.External.Closing;
+using Products.Application.Abstractions.External.Trusts;
 using Products.Application.Abstractions.Services.AdditionalInformation;
 using Products.Application.Abstractions.Services.External;
 using Products.Application.Abstractions.Services.Objectives;
@@ -30,6 +32,7 @@ using Products.Domain.Offices;
 using Products.Domain.PlanFunds;
 using Products.Domain.Plans;
 using Products.Domain.Portfolios;
+using Products.Domain.TechnicalSheets;
 using Products.Infrastructure.AccumulatedCommissions;
 using Products.Infrastructure.AdditionalInformation;
 using Products.Infrastructure.Alternatives;
@@ -39,11 +42,14 @@ using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Database;
 using Products.Infrastructure.External.Affiliates;
 using Products.Infrastructure.External.ObjectivesValidation;
+using Products.Infrastructure.External.PortfolioValuations;
+using Products.Infrastructure.External.Trusts;
 using Products.Infrastructure.Objectives;
 using Products.Infrastructure.Offices;
 using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
+using Products.Infrastructure.TechnicalSheets;
 using Products.IntegrationEvents.AccumulatedCommissions.CommissionProcessed;
 using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
@@ -108,6 +114,8 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IProductsExperienceMutations, ProductsExperienceMutations>();
 
         services.AddScoped<IAffiliateLocator, AffiliateLocator>();
+        services.AddScoped<IPortfolioValuationLocator, PortfolioValuationLocator>();
+        services.AddScoped<ITrustYieldLocator, TrustYieldLocator>();
         services.AddScoped<IObjectivesValidationTrusts, ObjectivesValidationTrusts>();
         services.AddScoped<IObjectiveReader, ObjectiveReader>();
         services.AddScoped<IAdditionalInformationService, AdditionalInformationService>();
@@ -123,6 +131,7 @@ public class ProductsModule: IModuleConfiguration
 
         services.AddScoped<PortfolioUpdatedSuscriber>();
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
+        services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();
         services.AddScoped<CommissionProcessedConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
