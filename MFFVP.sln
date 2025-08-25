@@ -377,9 +377,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reports.Infrastructure", "src\Modules\Reports\Infrastructure\Reports.Infrastructure.csproj", "{0B122B2C-2608-4302-BE80-CF90B39EA191}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{42BEAFD8-4E13-4BFD-813E-05A763270843}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application.Contracts", "Application.Contracts", "{42BEAFD8-4E13-4BFD-813E-05A763270843}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reports.Integrations", "src\Modules\Reports\Integrations\Reports.Integrations.csproj", "{030935A5-9C55-476B-8A31-B8041D8B0CC3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reports.Application.Contracts", "src\Modules\Reports\Application.Contracts\Reports.Application.Contracts.csproj", "{030935A5-9C55-476B-8A31-B8041D8B0CC3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{5C87413B-8768-4EBB-B5E1-B7B92AA2023F}"
 EndProject
