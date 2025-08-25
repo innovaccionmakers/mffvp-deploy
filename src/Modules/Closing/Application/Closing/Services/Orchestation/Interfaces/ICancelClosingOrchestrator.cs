@@ -6,6 +6,6 @@ namespace Closing.Application.Closing.Services.Orchestation.Interfaces;
 
 public interface ICancelClosingOrchestrator
 {
-    Task<Result<ClosedResult>> CancelAsync(int portfolioId, DateTime closingDate, CancellationToken ct);
+    Task<Result<PrepareClosingResult>> CancelAsync(int portfolioId, DateTime closingDate, CancellationToken ct);
 }
 

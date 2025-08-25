@@ -28,7 +28,7 @@ public class PortfolioValuationService(
     ILogger<PortfolioValuationService> logger)
     : IPortfolioValuationService
 {
-    public async Task<Result<ClosedResult>> CalculateAndPersistValuationAsync(
+    public async Task<Result<PrepareClosingResult>> CalculateAndPersistValuationAsync(
         int portfolioId,
         DateTime closingDate,
         CancellationToken cancellationToken)
@@ -50,7 +50,7 @@ public class PortfolioValuationService(
         // 1. Validar existencia previa de cierre para esa fecha
         logger.LogInformation("Verificando si existe valoración previa cerrada para la fecha {ClosingDate}", closingDate.Date);
         if (await valuationRepository.ExistsByPortfolioAndDateAsync(portfolioId, closingDate.Date, cancellationToken))
-            return Result.Failure<ClosedResult>(
+            return Result.Failure<PrepareClosingResult>(
                 new Error("001", "Ya existe una valoración cerrada para este portafolio y fecha.", ErrorType.Validation));
         logger.LogInformation("No existe valoración cerrada previa para la fecha {ClosingDate}", closingDate.Date);
 
@@ -85,7 +85,7 @@ public class PortfolioValuationService(
         // 4. Obtener y clasificar subtipos de transacción
         var subtypeResult = await operationTypes.GetAllAsync(cancellationToken);
         if (!subtypeResult.IsSuccess)
-            return Result.Failure<ClosedResult>(subtypeResult.Error!);
+            return Result.Failure<PrepareClosingResult>(subtypeResult.Error!);
 
         var incomeSubs = subtypeResult.Value
             .Where(s => s.Nature == IncomeEgressNature.Income && !string.IsNullOrWhiteSpace(s.Category))
@@ -108,7 +108,7 @@ public class PortfolioValuationService(
         if (previous == null)
         {
             if (incoming == 0)
-                return Result.Failure<ClosedResult>(
+                return Result.Failure<PrepareClosingResult>(
                     new Error("002", "No se puede calcular la valoración inicial sin operaciones de entrada.", ErrorType.Validation));
 
             var param = await configurationParameterRepository
@@ -209,7 +209,7 @@ public class PortfolioValuationService(
             true);
 
         if (!createResult.IsSuccess)
-            return Result.Failure<ClosedResult>(createResult.Error!);
+            return Result.Failure<PrepareClosingResult>(createResult.Error!);
 
         await valuationRepository.AddAsync(createResult.Value);
 
@@ -221,7 +221,7 @@ public class PortfolioValuationService(
             createResult.Value.Amount, createResult.Value.Units, createResult.Value.UnitValue, incoming, outgoing);
 
         // 9. Construir y devolver ClosedResult con todos los datos financieros
-        var closedResult = new ClosedResult(portfolioId, closingDate)
+        var closedResult = new PrepareClosingResult(portfolioId, closingDate)
         {
             Income = yieldIncome,
             Expenses = yieldExpenses,

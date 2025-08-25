@@ -1,9 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using Closing.Integrations.Common;
+using System.Text.Json.Serialization;
 
 namespace Closing.Integrations.Closing.RunClosing;
-public sealed class ClosedResult
+public sealed class PrepareClosingResult
 {
-    public ClosedResult(int portfolioId, DateTime closingDate)
+    public PrepareClosingResult(int portfolioId, DateTime closingDate)
     {
         PortfolioId = portfolioId;
         ClosingDate = closingDate;
@@ -29,4 +30,10 @@ public sealed class ClosedResult
 
     [property: JsonPropertyName("RentabilidadDiaria")]
     public decimal? DailyProfitability { get; init; }
+
+    [property: JsonPropertyName("TieneAdvertencias")]
+    public bool? HasWarnings { get; set; }
+
+    [property: JsonPropertyName("Advertencias")]
+    public IReadOnlyList<WarningItem>? Warnings { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Closing.Domain.Routes;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -8,8 +9,8 @@ public static class ClosingEndpoints// : IEndpoint
 {
     public static void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/v1/FVP/closing")
-            .WithTags("Closing")
+        var group = app.MapGroup(Routes.RunClosing)
+            .WithTags(TagName.TagClosing)
             .WithOpenApi();
 
         group.MapRunClosingEndpoint();

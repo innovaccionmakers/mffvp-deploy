@@ -15,9 +15,9 @@ internal sealed class PrepareClosingCommandHandler(
         IUnitOfWork unitOfWork,
         ILogger<PrepareClosingCommandHandler> logger
        )
-        : ICommandHandler<RunClosingCommand, ClosedResult>
+        : ICommandHandler<PrepareClosingCommand, PrepareClosingResult>
 {
-    public async Task<Result<ClosedResult>> Handle(RunClosingCommand command, CancellationToken cancellationToken)
+    public async Task<Result<PrepareClosingResult>> Handle(PrepareClosingCommand command, CancellationToken cancellationToken)
     {
         await using var transaction =
         await unitOfWork.BeginTransactionAsync(cancellationToken);

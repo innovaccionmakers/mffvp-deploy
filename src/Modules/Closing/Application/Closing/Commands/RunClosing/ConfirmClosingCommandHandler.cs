@@ -13,11 +13,11 @@ internal sealed class ConfirmClosingCommandHandler(
     IPostClosingEventsOrchestation postClosingEventsOrchestation,
     IUnitOfWork unitOfWork,
     ILogger<ConfirmClosingCommandHandler> logger)
-    : ICommandHandler<ConfirmClosingCommand, ClosedResult>
+    : ICommandHandler<ConfirmClosingCommand, ConfirmClosingResult>
 {
-    public async Task<Result<ClosedResult>> Handle(ConfirmClosingCommand command, CancellationToken cancellationToken)
+    public async Task<Result<ConfirmClosingResult>> Handle(ConfirmClosingCommand command, CancellationToken cancellationToken)
     {
-        Result<ClosedResult> result;
+        Result<ConfirmClosingResult> result;
 
         // -------------------------
         // FASE 1: Cierre + persistencia base
@@ -39,7 +39,6 @@ internal sealed class ConfirmClosingCommandHandler(
                 }
                 catch (Exception rbEx)
                 {
-                    // Evita que un rollback fallido tape la excepción original
                     logger.LogWarning(rbEx,
                         "Rollback falló en ConfirmClosing para Portafolio {PortfolioId}", command.PortfolioId);
                 }
@@ -51,7 +50,7 @@ internal sealed class ConfirmClosingCommandHandler(
         }
 
         // -------------------------
-        // FASE 2: Orquestación post-cierre (sin transacción previa viva)
+        // FASE 2: Orquestación post-cierre 
         // -------------------------
         try
         {
@@ -59,17 +58,13 @@ internal sealed class ConfirmClosingCommandHandler(
         }
         catch (Exception ex)
         {
-            // Aquí decides la política:
-            // - Re-lanzar para que el endpoint falle y el cliente vea el error de post-cierre
-            // - O registrar y devolver éxito parcial (si negocio lo permite) + disparar reintento
-            logger.LogError(ex,
+              logger.LogError(ex,
                 "Error en FASE 2 (post-cierre) para Portafolio {PortfolioId}, Fecha {ClosingDate}",
                 command.PortfolioId, command.ClosingDate);
+            // Fallo total:
+              throw;
 
-            // Si necesitas que el endpoint falle:
-            throw;
-
-            // Si prefieres éxito parcial:
+            // Exito parcial:
             // return Result.Failure<ClosedResult>(new Error("POSTCLOSING_FAILED", "...", ErrorType.Unexpected));
         }
 

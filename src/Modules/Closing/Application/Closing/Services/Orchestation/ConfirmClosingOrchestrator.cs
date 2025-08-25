@@ -2,26 +2,25 @@
 using Closing.Application.Closing.Services.Abort;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
-using Closing.Application.PostClosing.Services.Orchestation;
+using Closing.Application.Closing.Services.Warnings;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
-using System.Threading;
 
 namespace Closing.Application.Closing.Services.Orchestration;
 
 public class ConfirmClosingOrchestrator(
     IDistributeTrustYieldsService trustYieldsDistribution,
     IValidateTrustYieldsDistributionService trustYieldsValidation,
-
+     IWarningCollector warningCollector,
     IAbortClosingService abortClosingService,
     IUnitOfWork unitOfWork,
     ILogger<ConfirmClosingOrchestrator> logger)
     : IConfirmClosingOrchestrator
 {
-    public async Task<Result<ClosedResult>> ConfirmAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
+    public async Task<Result<ConfirmClosingResult>> ConfirmAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
     {
         closingDate = DateTimeConverter.ToUtcDateTime(closingDate);
 
@@ -33,7 +32,7 @@ public class ConfirmClosingOrchestrator(
             if (distributionResult.IsFailure)
             {
                 logger.LogWarning("Falló distribución de rendimientos para portafolio {PortfolioId}: {Error}", portfolioId, distributionResult.Error.Description);
-                return Result.Failure<ClosedResult>(distributionResult.Error);
+                return Result.Failure<ConfirmClosingResult>(distributionResult.Error);
             }
 
             // Paso 2: Validar rendimientos distribuidos
@@ -41,16 +40,19 @@ public class ConfirmClosingOrchestrator(
             if (validationResult.IsFailure)
             {
                 logger.LogWarning("Falló validación de distribución de rendimientos para portafolio {PortfolioId}: {Error}", portfolioId, validationResult.Error.Description);
-                return Result.Failure<ClosedResult>(validationResult.Error);
+                return Result.Failure<ConfirmClosingResult>(validationResult.Error);
             }
 
             await unitOfWork.SaveChangesAsync(ct);
-           
 
+            var generalResult = new ConfirmClosingResult(portfolioId, closingDate);
+            var warnings = warningCollector.GetAll();
+            generalResult.HasWarnings = warnings.Any();
+            generalResult.Warnings = warnings;
 
             logger.LogInformation("Cierre confirmado exitosamente para portafolio {PortfolioId}", portfolioId);
 
-            return Result.Success(new ClosedResult(portfolioId, closingDate));
+            return Result.Success(generalResult);
 
         }
         catch (Exception ex)
@@ -61,7 +63,7 @@ public class ConfirmClosingOrchestrator(
                 "Error inesperado en ConfirmClosingOrchestrator para Portafolio {PortfolioId}",
                 portfolioId);
 
-            return Result.Failure<ClosedResult>(
+            return Result.Failure<ConfirmClosingResult>(
                 new Error("001", "Error inesperado durante el cierre.", ErrorType.Failure));
         }
 

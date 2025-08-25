@@ -3,6 +3,7 @@ using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.PortfolioValuation;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
+using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.Orchestation;
 using Closing.Application.PreClosing.Services.Validation;
 using Closing.Integrations.Closing.RunClosing;  
@@ -22,11 +23,12 @@ public class PrepareClosingOrchestrator(
     IPortfolioValuationService portfolioValuationService,
     IDataSyncService dataSyncService,
     IAbortClosingService abortClosingService,
+    IWarningCollector warningCollector,
     ILogger<PrepareClosingOrchestrator> logger)
     : IPrepareClosingOrchestrator
 {
-    public async Task<Result<ClosedResult>> PrepareAsync(
-        RunClosingCommand command,
+    public async Task<Result<PrepareClosingResult>> PrepareAsync(
+        PrepareClosingCommand command,
         CancellationToken cancellationToken)
     {
         var portfolioId = command.PortfolioId;
@@ -42,12 +44,12 @@ public class PrepareClosingOrchestrator(
             var simulationCommand = new RunSimulationCommand(portfolioId, closingDate, true);
             var validationResult = await ValidateBusinessRulesAsync(simulationCommand, cancellationToken);
             if (validationResult.IsFailure)
-                return Result.Failure<ClosedResult>(validationResult.Error!);
+                return Result.Failure<PrepareClosingResult>(validationResult.Error!);
 
             // Paso 1: Detener el flujo transaccional (marca inicio en Redis)
             var controlResult = await timeControl.StartAsync(portfolioId, cancellationToken);
             if (controlResult.IsFailure)
-                return Result.Failure<ClosedResult>(controlResult.Error);
+                return Result.Failure<PrepareClosingResult>(controlResult.Error);
 
             // Paso 2: Ejecutar en paralelo:
             //  - RunSimulation (via SimulationOrchestrator)
@@ -59,9 +61,9 @@ public class PrepareClosingOrchestrator(
             await Task.WhenAll(simulationTask, syncTask);
 
             if (simulationTask.Result.IsFailure)
-                return Result.Failure<ClosedResult>(simulationTask.Result.Error);
+                return Result.Failure<PrepareClosingResult>(simulationTask.Result.Error);
             if (syncTask.Result.IsFailure)
-                return Result.Failure<ClosedResult>(syncTask.Result.Error);
+                return Result.Failure<PrepareClosingResult>(syncTask.Result.Error);
 
             // Paso 2: Ejecutar simulación y sincronización de datos (secuencial para evitar DbContext compartido)
             //var simResult = await simulationOrchestrator.RunSimulationAsync(simCommand, cancellationToken);
@@ -77,13 +79,17 @@ public class PrepareClosingOrchestrator(
             var valuationResult = await portfolioValuationService
                 .CalculateAndPersistValuationAsync(portfolioId, closingDate, cancellationToken);
             if (valuationResult.IsFailure)
-                return Result.Failure<ClosedResult>(valuationResult.Error);
+                return Result.Failure<PrepareClosingResult>(valuationResult.Error);
 
             logger.LogInformation(
                 "Valoración completada para Portafolio {PortfolioId} en {Date}",
                 portfolioId, closingDate);
 
-            // Paso 4: Devolver el ClosedResult generado en CalculateAndPersistValuationAsync
+            var warnings = warningCollector.GetAll();
+
+            valuationResult.Value.HasWarnings = warnings.Any();
+            valuationResult.Value.Warnings = warnings;
+            // Paso 4: Devolver el Result generado en CalculateAndPersistValuationAsync
             return Result.Success(valuationResult.Value);
         }
         catch (Exception ex)
@@ -95,7 +101,7 @@ public class PrepareClosingOrchestrator(
                 "Error inesperado en PrepareClosingOrchestrator para Portafolio {PortfolioId}",
                 portfolioId);
 
-            return Result.Failure<ClosedResult>(
+            return Result.Failure<PrepareClosingResult>(
                 new Error("001", "Error inesperado durante el cierre.", ErrorType.Failure));
         }
     }

@@ -22,7 +22,7 @@ namespace Closing.Domain.Routes
                                  - `FechaCierre`: Fecha en que se va a ejecutar el cierre del portafolio
                                  - `EsCierre`: Indicador si la ejecución es en modo de cierre real o simulación
                                  """,
-                  RunClosing = """
+                  PrepareClosing = """
                                  **Ejemplo de llamada:**
 
                                  ```http
@@ -70,9 +70,6 @@ namespace Closing.Domain.Routes
                                  - `IdPortafolio`: Identificador del portafolio
                                  - `FechaCierre`: Fecha de Cierre del portafolio
                                  """
-
-            ,
-            AbortClosing = ""
             ;
     }
 
@@ -80,9 +77,8 @@ namespace Closing.Domain.Routes
     {
         public const string
             RunPreclosing = "", 
-            RunClosing = "",
+            PrepareClosing = "",
             ConfirmClosing = "",
-            CancelClosing = "",
-            AbortClosing = "";
+            CancelClosing = "";
     }
 }

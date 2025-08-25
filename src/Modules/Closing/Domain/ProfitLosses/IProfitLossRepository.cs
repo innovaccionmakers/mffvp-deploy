@@ -7,8 +7,5 @@ public interface IProfitLossRepository
     Task DeleteByPortfolioAndDateAsync(int portfolioId, DateTime effectiveDate, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ProfitLossSummary>> GetSummaryAsync(int portfolioId, DateTime effectiveDate, CancellationToken cancellationToken = default);
     void InsertRange(IEnumerable<ProfitLoss> profitLosses);
-    Task<IReadOnlyList<ProfitLossConceptSummary>> GetReadOnlyConceptSummaryAsync(int portfolioId,
-                                                                      DateTime effectiveDateUtc,
-                                                                      CancellationToken cancellationToken = default);
-    Task<bool> PandLExistsAsync(int portfolioId, DateTime effectiveDateUtc, CancellationToken cancellationToken = default);
+
 }

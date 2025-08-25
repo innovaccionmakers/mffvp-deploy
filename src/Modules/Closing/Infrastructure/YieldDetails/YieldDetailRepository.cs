@@ -1,11 +1,13 @@
-﻿using Closing.Domain.YieldDetails;
+﻿using Closing.Application.PreClosing.Services.Yield.Constants;
+using Closing.Domain.YieldDetails;
 using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 
 namespace Closing.Infrastructure.YieldDetails
 {
-    internal sealed class YieldDetailRepository(ClosingDbContext context) : IYieldDetailRepository
+    internal sealed class YieldDetailRepository(ClosingDbContext context, IDbContextFactory<ClosingDbContext> dbFactory) : IYieldDetailRepository
     {
 
         public async Task InsertAsync(YieldDetail yieldDetail, CancellationToken ct = default)
@@ -13,27 +15,17 @@ namespace Closing.Infrastructure.YieldDetails
             await context.YieldDetails.AddAsync(yieldDetail, ct);
         }
 
-        public void Update(YieldDetail yieldDetail)
-        {
-            context.YieldDetails.Update(yieldDetail);
-        }
-
-        public void Delete(YieldDetail yieldDetail)
-        {
-            context.YieldDetails.Remove(yieldDetail);
-
-        }
-
         public async Task DeleteByPortfolioAndDateAsync(
         int portfolioId,
         DateTime closingDateUtc,
         CancellationToken cancellationToken = default)
         {
-            var deletedCount = await context.YieldDetails
-                .Where(yield => yield.PortfolioId == portfolioId
+            await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
+            var deletedCount = await db.YieldDetails
+               .Where(yield => yield.PortfolioId == portfolioId
                              && yield.ClosingDate == closingDateUtc
                              && !yield.IsClosed //Solo se pueden borrar los que no son Cerrados
-                            &&  yield.Source != "Conceptos Automáticos") // Excluir los conceptos automáticos calculados el dia anterior
+                            &&  yield.Source != YieldsSources.AutomaticConcept) // Excluir los conceptos automáticos calculados el dia anterior
                 .ExecuteDeleteAsync(cancellationToken);
 
         }
@@ -43,11 +35,12 @@ namespace Closing.Infrastructure.YieldDetails
             DateTime closingDateUtc,
             CancellationToken cancellationToken = default)
         {
-            await context.YieldDetails
+            await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
+            await db.YieldDetails
                 .Where(yield => yield.PortfolioId == portfolioId
                                 && yield.ClosingDate == closingDateUtc
                                 && yield.IsClosed
-                                && yield.Source != "Conceptos Automáticos") // Excluir los conceptos automáticos calculados el dia anterior
+                                && yield.Source != YieldsSources.AutomaticConcept) // Excluir los conceptos automáticos calculados el dia anterior
 
                 .ExecuteDeleteAsync(cancellationToken);
 
@@ -74,6 +67,19 @@ namespace Closing.Infrastructure.YieldDetails
                 .AnyAsync(y => y.PortfolioId == portfolioId &&
                                y.ClosingDate == closingDateUtc &&
                                y.IsClosed == isClosed, ct);
+        }
+
+        public async Task<int> InsertRangeImmediateAsync(IReadOnlyList<YieldDetail> items, CancellationToken cancellationToken = default)
+        {
+            if (items is null || items.Count == 0) return 0;
+
+            var sw = Stopwatch.StartNew();
+            await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
+
+            await db.YieldDetails.AddRangeAsync(items, cancellationToken);
+            var inserted = await db.SaveChangesAsync(cancellationToken);
+
+            return inserted;
         }
 
 

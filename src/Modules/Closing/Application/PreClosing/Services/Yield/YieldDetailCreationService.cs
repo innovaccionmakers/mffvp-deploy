@@ -1,4 +1,5 @@
 ﻿
+using Closing.Application.PreClosing.Services.Yield.Constants;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.YieldDetails;
 
@@ -16,15 +17,22 @@ public class YieldDetailCreationService : IYieldDetailCreationService
     }
     public async Task CreateYieldDetailsAsync(
     IEnumerable<YieldDetail> yieldDetails,
+    PersistenceMode mode = PersistenceMode.Immediate,
     CancellationToken cancellationToken = default)
     {
-        //var tasks = yieldDetails
-        //    .Select(detail => _yieldDetailRepository.InsertAsync(detail, cancellationToken));
+        var list = yieldDetails as IReadOnlyList<YieldDetail> ?? yieldDetails.ToList();
+        if (list.Count == 0) return;
 
-        //await Task.WhenAll(tasks);
-        foreach (var item in yieldDetails)
+        if (mode == PersistenceMode.Immediate)
         {
-            await _yieldDetailRepository.InsertAsync(item, cancellationToken);
+            // Simulación: contexto efímero, confirma adentro (paralelismo seguro)
+            await _yieldDetailRepository.InsertRangeImmediateAsync(list, cancellationToken);
+        }
+        else
+        {
+            // Cierre: usa el contexto scoped; lo confirma UnitOfWork externo
+            foreach (var d in list)
+                await _yieldDetailRepository.InsertAsync(d, cancellationToken);
         }
     }
 

@@ -5,8 +5,7 @@ namespace Closing.Domain.YieldDetails
     public interface IYieldDetailRepository
     {
         Task InsertAsync(YieldDetail yieldDetail, CancellationToken ct = default);
-        void Update(YieldDetail yieldDetail);
-        void Delete(YieldDetail yieldDetail);
+
         Task<IReadOnlyCollection<YieldDetail>> GetReadOnlyByPortfolioAndDateAsync(
           int portfolioId,
           DateTime closingDateUtc,
@@ -28,5 +27,8 @@ namespace Closing.Domain.YieldDetails
             DateTime closingDateUtc,
             CancellationToken cancellationToken = default);
 
+        Task<int> InsertRangeImmediateAsync(
+            IReadOnlyList<YieldDetail> items, 
+            CancellationToken cancellationToken = default);
     }
 }
