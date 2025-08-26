@@ -1,6 +1,7 @@
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
+using Products.Domain.Administrators;
 using Products.Domain.PlanFunds;
 
 namespace Products.Domain.PensionFunds;
@@ -8,13 +9,16 @@ namespace Products.Domain.PensionFunds;
 public sealed class PensionFund : Entity
 {
     public int PensionFundId { get; private set; }
-    public int DocumentTypeId { get; private set; }
-    public int IdentificationNumber { get; private set; }
+    public int IdentificationTypeId { get; private set; }
+    public string Identification { get; private set; }
+    public int Digit { get; private set; }
     public string Name { get; private set; }
     public string ShortName { get; private set; }
     public Status Status { get; private set; }
     public string HomologatedCode { get; private set; }
+    public int AdministratorId { get; private set; }
 
+    public Administrator Administrator { get; private set; } = null!;
     public IReadOnlyCollection<PlanFund> PlanFunds { get; private set; } = new List<PlanFund>();
 
     private PensionFund()
@@ -23,39 +27,47 @@ public sealed class PensionFund : Entity
 
     public static Result<PensionFund> Create(
         int identificationTypeId,
-        int identificationNumber,
+        string identification,
+        int digit,
         string name,
         string shortName,
         Status status,
-        string homologatedCode
+        string homologatedCode,
+        int administratorId
     )
     {
         var fund = new PensionFund
         {
-            DocumentTypeId = identificationTypeId,
-            IdentificationNumber = identificationNumber,
+            IdentificationTypeId = identificationTypeId,
+            Identification = identification,
+            Digit = digit,
             Name = name,
             ShortName = shortName,
             Status = status,
-            HomologatedCode = homologatedCode
+            HomologatedCode = homologatedCode,
+            AdministratorId = administratorId
         };
         return Result.Success(fund);
     }
 
     public void UpdateDetails(
         int identificationTypeId,
-        int identificationNumber,
+        string identification,
+        int digit,
         string name,
         string shortName,
         Status status,
-        string homologatedCode
+        string homologatedCode,
+        int administratorId
     )
     {
-        DocumentTypeId = identificationTypeId;
-        IdentificationNumber = identificationNumber;
+        IdentificationTypeId = identificationTypeId;
+        Identification = identification;
+        Digit = digit;
         Name = name;
         ShortName = shortName;
         Status = status;
         HomologatedCode = homologatedCode;
+        AdministratorId = administratorId;
     }
 }

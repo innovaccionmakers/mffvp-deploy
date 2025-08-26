@@ -17,8 +17,8 @@ namespace Products.Application.PensionFunds.GetPensionFunds
             var response = entities
                 .Select(p => new PensionFundsResponse(
                     p.PensionFundId,
-                    p.DocumentTypeId,
-                    p.IdentificationNumber,
+                    p.IdentificationTypeId,
+                    p.Identification,
                     p.Name,
                     p.ShortName,
                     p.Status,

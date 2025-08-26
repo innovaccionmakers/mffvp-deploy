@@ -61,7 +61,7 @@ public class CreateObjectiveCommandHandlerTests
     private static Alternative BuildDummyAlternative(string homologatedCode)
     {
         var plan = Plan.Create("Plan", "Desc", "2").Value;
-        var pension = PensionFund.Create(1, 1, "Fund", "F", Status.Active, "F-1").Value;
+        var pension = PensionFund.Create(1, "1", 2, "Fund", "F", Status.Active, "F-1", 1).Value;
         var planFund = PlanFund.Create(plan, pension, Status.Active).Value;
         return Alternative.Create(planFund, 1, "Alt", Status.Active, "Desc", homologatedCode).Value;
     }

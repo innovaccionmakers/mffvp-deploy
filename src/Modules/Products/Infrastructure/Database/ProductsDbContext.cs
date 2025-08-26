@@ -28,6 +28,8 @@ using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
 using Products.Infrastructure.TechnicalSheets;
 using System.Data.Common;
+using Products.Domain.Administrators;
+using Products.Infrastructure.Administrators;
 
 namespace Products.Infrastructure.Database;
 
@@ -47,6 +49,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
     internal DbSet<Commission> Commissions { get; set; }
     internal DbSet<AccumulatedCommission> AccumulatedCommissions { get; set; }
     internal DbSet<TechnicalSheet> TechnicalSheets { get; set; }
+    internal DbSet<Administrator>  Administrators { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,6 +68,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
         modelBuilder.ApplyConfiguration(new CommissionConfiguration());
         modelBuilder.ApplyConfiguration(new AccumulatedCommissionConfiguration());
         modelBuilder.ApplyConfiguration(new TechnicalSheetConfiguration());
+        modelBuilder.ApplyConfiguration(new AdministratorConfiguration());
     }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
