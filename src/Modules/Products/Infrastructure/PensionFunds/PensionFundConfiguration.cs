@@ -18,11 +18,15 @@ internal sealed class PensionFundConfiguration : IEntityTypeConfiguration<Pensio
         builder.Property(f => f.PensionFundId)
             .HasColumnName("id");
 
-        builder.Property(f => f.DocumentTypeId)
-            .HasColumnName("tipo_documento");
+        builder.Property(f => f.IdentificationTypeId)
+            .HasColumnName("tipo_identificacion");
 
-        builder.Property(f => f.IdentificationNumber)
-            .HasColumnName("identificacion");
+        builder.Property(f => f.Identification)
+            .HasColumnName("identificacion")
+            .HasMaxLength(25);
+
+        builder.Property(f => f.Digit)
+            .HasColumnName("digito");
 
         builder.Property(f => f.Name)
             .HasColumnName("nombre");
@@ -36,6 +40,13 @@ internal sealed class PensionFundConfiguration : IEntityTypeConfiguration<Pensio
 
         builder.Property(f => f.HomologatedCode)
             .HasColumnName("codigo_homologado");
+
+        builder.Property(f => f.AdministratorId)
+            .HasColumnName("administrador_id");
+
+        builder.HasOne(f => f.Administrator)
+            .WithMany(a => a.PensionFunds)
+            .HasForeignKey(f => f.AdministratorId);
 
         builder.HasMany(f => f.PlanFunds)
             .WithOne(pf => pf.PensionFund)

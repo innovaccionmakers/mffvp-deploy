@@ -7,7 +7,7 @@ namespace Products.Integrations.PensionFunds
     (
         int PensionFundId,
         int DocumentTypeId,
-        int IdentificationNumber,
+        string IdentificationNumber,
         string Name,
         string ShortName,
         Status Status,
