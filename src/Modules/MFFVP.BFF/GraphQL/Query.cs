@@ -10,6 +10,7 @@ using HotChocolate.Authorization;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services;
 using MFFVP.BFF.Services.Reports;
+using MFFVP.BFF.Services.Reports.Models;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
@@ -73,7 +74,7 @@ public class Query
     {
         return await productsQueries.GetOfficesAsync(cancellationToken);
     }
-    
+
     [GraphQLName("comercial")]
     public async Task<IReadOnlyCollection<CommercialDto>> GetCommercials([Service] IProductsExperienceQueries productsQueries,
                                                                           CancellationToken cancellationToken = default)
@@ -238,7 +239,7 @@ public class Query
     {
         return await experienceOrchestrator.GetTreasuryMovementByPortfoliosAsync(portfolioIds, cancellationToken);
     }
-            
+
     //Closing Queries
     [GraphQLName("obtenerPerdidasGanancias")]
     public async Task<ProfitAndLossDto?> GetProfitAndLoss([GraphQLName("idPortafolio")] int portfolioId,
@@ -295,8 +296,18 @@ public class Query
                                                                    [Service] ReportOrchestrator reportOrchestrator,
                                                                    CancellationToken cancellationToken)
     {
-        return await reportOrchestrator.GetReportDataAsync(processDate, cancellationToken);
-    }    
+        return await reportOrchestrator.GetReportDataAsync(processDate, ReportType.Deposits, cancellationToken);
+    }
+
+    [GraphQLName("generarReporteFichaTecnica")]
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateTechnicalSheetReportAsync([GraphQLName("idPortafolio")] int portfolioId,
+                                                                                          [GraphQLName("fechaInicio")] DateOnly startDate,
+                                                                                          [GraphQLName("fechaFin")] DateOnly endDate,
+                                                                                          [Service] ReportOrchestrator reportOrchestrator,
+                                                                                          CancellationToken cancellationToken)
+    {
+        return await reportOrchestrator.GetReportDataAsync((portfolioId, startDate, endDate), ReportType.TechnicalSheet, cancellationToken);
+    }
 
     //Trust Queries
     [GraphQLName("getParticipantes")]

@@ -2,7 +2,7 @@
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.DTOs;
-using MFFVP.BFF.Services.Reports.DepositsReport.Interfaces;
+using MFFVP.BFF.Services.Reports.TechnicalSheet.Interfaces;
 using System.Globalization;
 using Error = Common.SharedKernel.Core.Primitives.Error;
 
@@ -10,7 +10,7 @@ namespace MFFVP.BFF.Services.Reports.Strategies
 {
     public class TechnicalSheetStrategy(
         ILogger<TechnicalSheetStrategy> _logger,
-        IDepositsReportDataProvider _dataProvider
+        ITechnicalSheetReportDataProvider _dataProvider
     ) : IReportStrategy
     {
         public string ReportName => "Formato ficha tecnica";
@@ -29,7 +29,7 @@ namespace MFFVP.BFF.Services.Reports.Strategies
             "VR UNIDAD",
             "UNIDADES",
             "VALOR PORTAFOLIO",
-            "NÚMERO PARTICIPES"   
+            "NÚMERO PARTICIPES"
         ];
 
         public async Task<GraphqlResult<ReportResponseDto>> GetReportDataAsync<TRequest>(TRequest request, CancellationToken cancellationToken)
@@ -38,10 +38,40 @@ namespace MFFVP.BFF.Services.Reports.Strategies
 
             try
             {
-                if (request is not DateTime processDate)
+                TechnicalSheetRequestDto technicalSheetRequest;
+
+                if (request is TechnicalSheetRequestDto dto)
                 {
-                    _logger.LogError($"Tipo de request no válido. Se esperaba DateTime, se recibió: {request}", typeof(TRequest).Name);
-                    result.AddError(new Error("EXCEPTION", "El tipo de request no es válido. Se esperaba DateTime.", ErrorType.Failure));
+                    technicalSheetRequest = dto;
+                }
+                else if (request is ValueTuple<int, DateOnly, DateOnly> tuple)
+                {
+                    technicalSheetRequest = new TechnicalSheetRequestDto
+                    {
+                        PortfolioId = tuple.Item1,
+                        StartDate = tuple.Item2,
+                        EndDate = tuple.Item3
+                    };
+                }
+                else
+                {
+                    _logger.LogError($"Tipo de request no válido. Se esperaba TechnicalSheetRequestDto o (int, DateOnly, DateOnly), se recibió: {typeof(TRequest).Name}");
+                    result.AddError(new Error("EXCEPTION", "El tipo de request no es válido. Se esperaba TechnicalSheetRequestDto o (int, DateOnly, DateOnly).", ErrorType.Failure));
+                    return result;
+                }
+
+                
+                if (technicalSheetRequest.StartDate > technicalSheetRequest.EndDate)
+                {
+                    _logger.LogError($"Fecha de inicio ({technicalSheetRequest.StartDate}) no puede ser mayor que la fecha de fin ({technicalSheetRequest.EndDate})");
+                    result.AddError(new Error("VALIDATION_ERROR", "La fecha de inicio no puede ser mayor que la fecha de fin.", ErrorType.Failure));
+                    return result;
+                }
+
+                if (technicalSheetRequest.PortfolioId <= 0)
+                {
+                    _logger.LogError($"PortfolioId debe ser mayor que 0, se recibió: {technicalSheetRequest.PortfolioId}");
+                    result.AddError(new Error("VALIDATION_ERROR", "El PortfolioId debe ser mayor que 0.", ErrorType.Failure));
                     return result;
                 }
 
@@ -50,7 +80,7 @@ namespace MFFVP.BFF.Services.Reports.Strategies
                 SetupHeaders(worksheet);
 
                 int row = 2;
-                await foreach (var item in _dataProvider.GetDataAsync(processDate, cancellationToken))
+                await foreach (var item in _dataProvider.GetDataAsync(technicalSheetRequest.StartDate, technicalSheetRequest.EndDate, technicalSheetRequest.PortfolioId, cancellationToken))
                 {
                     if (!item.Success)
                     {
@@ -86,7 +116,7 @@ namespace MFFVP.BFF.Services.Reports.Strategies
                 var response = new ReportResponseDto
                 {
                     FileContent = Convert.ToBase64String(reportBytes),
-                    FileName = $"ThechnicalSheet{processDate.ToString("ddMMyyyy")}.xlsx",
+                    FileName = $"TechnicalSheet_{technicalSheetRequest.StartDate:ddMMyyyy}_{technicalSheetRequest.EndDate:ddMMyyyy}_Portfolio{technicalSheetRequest.PortfolioId}.xlsx",
                     MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 };
 
@@ -95,8 +125,8 @@ namespace MFFVP.BFF.Services.Reports.Strategies
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Tipo de request no válido. Se esperaba DateTime, se recibió: {request}", typeof(TRequest).Name);
-                result.AddError(new Error("EXCEPTION", "El tipo de request no es válido. Se esperaba DateTime.", ErrorType.Failure));
+                _logger.LogError($"Error inesperado al generar reporte: {ex.Message}", ex);
+                result.AddError(new Error("EXCEPTION", "Error inesperado al generar el reporte.", ErrorType.Failure));
                 return result;
             }
         }
