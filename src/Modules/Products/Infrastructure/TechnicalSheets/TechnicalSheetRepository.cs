@@ -27,8 +27,8 @@ internal class TechnicalSheetRepository(ProductsDbContext context) : ITechnicalS
 
         return await context.TechnicalSheets
             .Where(ts => ts.PortfolioId == portfolioId &&
-                         ts.Date >= startDateTime &&
-                         ts.Date <= endDateTime)
+                         ts.Date.Date >= startDateTime.Date &&
+                         ts.Date.Date <= endDateTime.Date)
             .OrderBy(ts => ts.Date)
             .ToListAsync(cancellationToken);
     }

@@ -1,18 +1,20 @@
-﻿using Azure.Core;
-using Common.SharedKernel.Presentation.Results;
+﻿using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services.Reports.Interfaces;
 using MFFVP.BFF.Services.Reports.Strategies;
+using MFFVP.BFF.Services.Reports.Models;
 
 namespace MFFVP.BFF.Services.Reports
 {
     public class ExcelReportService(
-        IReportStrategy strategy) : IExcelReportService
+        IReportStrategyFactory strategyFactory) : IExcelReportService
     {
         public async Task<GraphqlResult<ReportResponseDto>> GetReportDataAsync<TRequest>(
             TRequest request,
+            ReportType reportType,
             CancellationToken cancellationToken = default)
         {
+            var strategy = strategyFactory.GetStrategy(reportType);
             return await strategy.GetReportDataAsync(request, cancellationToken);
         }
     }

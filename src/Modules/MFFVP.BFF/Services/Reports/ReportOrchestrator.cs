@@ -2,6 +2,7 @@
 using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services.Reports.Interfaces;
+using MFFVP.BFF.Services.Reports.Models;
 using Error = Common.SharedKernel.Core.Primitives.Error;
 
 namespace MFFVP.BFF.Services.Reports
@@ -10,12 +11,12 @@ namespace MFFVP.BFF.Services.Reports
         IExcelReportService _excelReportService,
         ILogger<ReportOrchestrator> _logger)
     {
-        public async Task<GraphqlResult<ReportResponseDto>> GetReportDataAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default)
+        public async Task<GraphqlResult<ReportResponseDto>> GetReportDataAsync<TRequest>(TRequest request, ReportType reportType, CancellationToken cancellationToken = default)
         {
             var result = new GraphqlResult<ReportResponseDto>();
             try
             {
-                return await _excelReportService.GetReportDataAsync(request, cancellationToken);
+                return await _excelReportService.GetReportDataAsync(request, reportType, cancellationToken);
             }
             catch (Exception ex)
             {

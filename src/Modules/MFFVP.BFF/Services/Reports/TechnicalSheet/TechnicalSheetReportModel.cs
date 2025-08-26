@@ -19,6 +19,38 @@ public sealed class TechnicalSheetReportModel : ReportModelBase
     public decimal PortfolioValue {get; set;}
     public int Participants {get; set;}
 
+    public TechnicalSheetReportModel(
+        DateTime date,
+        decimal contributions,
+        decimal withdrawals,
+        decimal grossPnl,
+        decimal expenses,
+        decimal dailyCommission,
+        decimal dailyCost,
+        decimal creditedYields,
+        decimal grossUnitYield,
+        decimal unitCost,
+        decimal unitValue,
+        decimal units,
+        decimal portfolioValue,
+        int participants
+        )
+    {
+        Date = date;
+        Contributions = contributions;
+        Withdrawals = withdrawals;
+        GrossPnl = grossPnl;
+        Expenses = expenses;
+        DailyCommission = dailyCommission;
+        DailyCost = dailyCost;
+        CreditedYields = creditedYields;
+        GrossUnitYield = grossUnitYield;    
+        UnitCost = unitCost;
+        UnitValue = unitValue;
+        Units = units;
+        PortfolioValue = portfolioValue;
+        Participants = participants;
+    }
     public override object[] ToRowData()
     {
         return new object[]
