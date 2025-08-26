@@ -28,7 +28,7 @@ public static class AssociateBusinessApi
 {
     public static void MapAssociateBusinessEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("api/v1/FVP/Associate")
+        var group = app.MapGroup("api/v1/fvp/Associate")
             .WithTags("Associate")
             .WithOpenApi()
             .RequireAuthorization();

@@ -19,7 +19,7 @@ public static class SecurityBusinessApi
 {
     public static void MapSecurityBusinessEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("api/v1/FVP/Security")
+        var group = app.MapGroup("api/v1/fvp/Security")
             .WithTags("Security")
             .WithOpenApi()
             .RequireAuthorization();
