@@ -246,12 +246,6 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
 
-var moduleConfigurations = app.Services.GetServices<IModuleConfiguration>();
-foreach (var module in moduleConfigurations)
-{
-    module.Configure(app, app.Environment);
-}
-
 app.UsePathBase("/fiduciaria/fvp");
 
 if (env != "Development")
@@ -264,6 +258,13 @@ if (env != "Development")
 app.UseInfrastructure();
 
 app.UseLogContext();
+
+var moduleConfigurations = app.Services.GetServices<IModuleConfiguration>();
+
+foreach (var module in moduleConfigurations)
+{
+    module.Configure(app, app.Environment);
+}
 
 app.MapEndpoints();
 
