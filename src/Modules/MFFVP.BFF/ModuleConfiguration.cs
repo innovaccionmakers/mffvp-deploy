@@ -48,9 +48,9 @@ public class ModuleConfiguration : IModuleConfiguration
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        app.UseEndpoints(endpoints =>
+        if (app is WebApplication webApp)
         {
-            endpoints.MapGraphQL($"/{RoutePrefix}", "BFFGateway");
-        });
+            webApp.MapGraphQL($"/{RoutePrefix}", "BFFGateway");
+        }
     }
 }
