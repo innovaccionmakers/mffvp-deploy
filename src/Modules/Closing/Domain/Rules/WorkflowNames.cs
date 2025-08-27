@@ -6,7 +6,7 @@ public static class WorkflowNames
 
     public static class Preclosing
     {
-        private const string Prefix = Root + ".Preclosing";
+        private const string Prefix = Root + ".PreClosing";
 
         public static class Simulation
         {
@@ -19,9 +19,11 @@ public static class WorkflowNames
 
     public static class RunClosing
     {
-        private const string Prefix = Root + ".Closing";
+        private const string Prefix = Root + ".RunClosing";
 
-        public const string Before = Prefix + ".RunClosing.Before";
+        private const string Prepare = Prefix + ".Prepare";
+
+        public const string SecondDayBlockingValidations = Prepare + ".SecondDayBlockingValidations";
     }
 
     public static class Postclosing

@@ -47,6 +47,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IMovementsConsolidationService, MovementsConsolidationService>();
             services.AddScoped<ITreasuryMovementsLocator, TreasuryMovementsLocator>();
             services.AddScoped<IBusinessValidator<RunSimulationCommand>, RunSimulationBusinessValidator>();
+            services.AddScoped<IRunSimulationValidationReader, RunSimulationBusinessValidator>();
             services.AddScoped<IOperationTypesLocator, OperationTypesLocator>();
 
             //TODO: Consultar si puedo agregar Scrutor a este proyecto para poder usar Scan

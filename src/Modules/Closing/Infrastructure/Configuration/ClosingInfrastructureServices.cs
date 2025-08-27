@@ -11,6 +11,8 @@ using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
 using Closing.Application.Closing.Services.TrustYieldsDistribution;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
+using Closing.Application.Closing.Services.Validation;
+using Closing.Application.Closing.Services.Validation.Interfaces;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Application.PostClosing.Services.PendingTransactionHandler;
@@ -31,6 +33,7 @@ namespace Closing.Infrastructure.Configuration
         public static IServiceCollection AddClosingInfrastructure(this IServiceCollection services)
         {
             services.AddScoped<IPrepareClosingOrchestrator, PrepareClosingOrchestrator>();
+            services.AddScoped<IPrepareClosingBusinessValidator, PrepareClosingBusinessValidator>();
             services.AddScoped<ITimeControlService, TimeControlService>();
             services.AddScoped<IClosingStepEventPublisher, ClosingStepEventPublisher>();
             services.AddTransient<ClosingStepEventSuscriber>();
