@@ -65,3 +65,6 @@ MFFVP.sln.DotSettings.user.DS_Store
 # Archivos y carpetas de macOS
 .DS_Store
 **/.DS_Store
+
+# Sonar
+.sonarqube/
