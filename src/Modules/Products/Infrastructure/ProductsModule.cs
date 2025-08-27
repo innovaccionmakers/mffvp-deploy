@@ -135,7 +135,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<PortfolioUpdatedSuscriber>();
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
         services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();
-        services.AddScoped<CommissionProcessedConsumer>();
+        services.AddScoped<CommissionProcessedSuscriber>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }

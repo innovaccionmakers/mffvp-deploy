@@ -101,7 +101,7 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
             var param = await _configurationParameterRepository
                 .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, ct);
 
-            var initialFundUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "Valor");
+            var initialFundUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "valor");
             return new SimulationValues(initialFundUnitValue, null);
         }
 

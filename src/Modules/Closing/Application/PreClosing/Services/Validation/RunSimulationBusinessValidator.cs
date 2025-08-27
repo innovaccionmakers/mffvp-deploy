@@ -33,18 +33,23 @@ public class RunSimulationBusinessValidator(
         IClientOperationRepository clientOperationRepository,
         IOperationTypesLocator operationTypesLocator,
         IConfigurationParameterRepository configurationParameterRepository
-    ) : IBusinessValidator<RunSimulationCommand>
+    )
+    : IBusinessValidator<RunSimulationCommand>, IRunSimulationValidationReader
 {
     private readonly GenericWorkflowValidator<ClosingModuleMarker> _workflowValidator =
                new(new ExternalRuleEvaluatorAdapter<ClosingModuleMarker>(ruleEvaluator));
-    public async Task<Result> ValidateAsync(RunSimulationCommand command, CancellationToken cancellationToken)
+
+    public async Task<Result<RunSimulationValidationInfo>> ValidateAndDescribeAsync(
+      RunSimulationCommand command,
+      CancellationToken cancellationToken)
     {
         // 1. Portfolio
         var portfolioDataResult = await portfolioValidator.GetPortfolioDataAsync(command.PortfolioId, cancellationToken);
         if (!portfolioDataResult.IsSuccess)
-            return Result.Failure(portfolioDataResult.Error!);
+            return Result.Failure<RunSimulationValidationInfo>(portfolioDataResult.Error!);
 
         var portfolioData = portfolioDataResult.Value;
+
 
         // 2. ¿Ya existe cierre generado para esta fecha? -> bool
         var existsClosingGenerated = await portfolioValuationRepository
@@ -53,14 +58,15 @@ public class RunSimulationBusinessValidator(
         // 3. Comisiones administrativas
         var commissionResult = await commissionLocator.GetActiveCommissionsAsync(command.PortfolioId, cancellationToken);
         if (!commissionResult.IsSuccess)
-            return Result.Failure(commissionResult.Error!);
+            return Result.Failure<RunSimulationValidationInfo>(commissionResult.Error!);
+
 
         var (adminCount, adminIsNumber, adminBetween0And100) = EvaluateAdminCommission(commissionResult.Value);
 
         // 4. Estado primer día de cierre (incluye InitialFundUnitValue, P&L, etc.)
         var firstDayState = await EvaluateFirstDayStateAsync(command, portfolioData, cancellationToken);
         if (firstDayState.Failure.IsFailure)
-            return Result.Failure(firstDayState.Failure.Error!); // error técnico, abortar
+            return Result.Failure<RunSimulationValidationInfo>(firstDayState.Failure.Error!);// error técnico, abortar
 
         // 5. Construir contexto fluido
         var ctx = new PreclosingValidationContextBuilder()
@@ -91,12 +97,23 @@ public class RunSimulationBusinessValidator(
 
         if (!wfResult.IsValid)
         {
-            // Mapear primer error surfaced (por config) a Result
+            // Mapear primer error a Result
             var e = wfResult.Errors[0];
-            return Result.Failure(Error.Validation(e.Code, e.Message));
+            return Result.Failure<RunSimulationValidationInfo>(Error.Validation(e.Code, e.Message));
         }
 
-        return Result.Success();
+        // 8) Devolver OK y estado
+        var info = new RunSimulationValidationInfo(
+            IsFirstClosingDay: firstDayState.IsFirstDay,
+            FirstDayState: firstDayState);
+
+        return Result.Success(info);
+    }
+
+    public async Task<Result> ValidateAsync(RunSimulationCommand command, CancellationToken cancellationToken)
+    {
+        var result = await ValidateAndDescribeAsync(command, cancellationToken);
+        return result.IsSuccess ? Result.Success() : Result.Failure(result.Error!);
     }
     private (int count, bool isNumber, bool between0And100) EvaluateAdminCommission(IEnumerable<CommissionsByPortfolioRemoteResponse> commissions)
     {
@@ -114,11 +131,11 @@ public class RunSimulationBusinessValidator(
     private async Task<FirstDayStateResult> EvaluateFirstDayStateAsync(
     RunSimulationCommand command,
     PortfolioData portfolioData,
-    CancellationToken ct)
+    CancellationToken cancellationToken)
     {
         // 1. ¿Es primer día de cierre?
         var isFirstClosingDay = !await portfolioValuationRepository
-            .ExistsByPortfolioAndDateAsync(command.PortfolioId, portfolioData.CurrentDate.Date, ct);
+            .ExistsByPortfolioAndDateAsync(command.PortfolioId, portfolioData.CurrentDate.Date, cancellationToken);
 
         // Inicializar flags por defecto
         bool hasPandL = false;
@@ -133,7 +150,7 @@ public class RunSimulationBusinessValidator(
         {
             // --- Param: InitialFundUnitValue ---
             var param = await configurationParameterRepository
-                .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, ct);
+                .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, cancellationToken);
 
             if (param is not null && !string.IsNullOrWhiteSpace(param.Metadata.ToString()))
             {
@@ -149,7 +166,7 @@ public class RunSimulationBusinessValidator(
             }
 
             // --- Subtipos de transacción ---
-            var otResult = await operationTypesLocator.GetAllOperationTypesAsync(ct);
+            var otResult = await operationTypesLocator.GetAllOperationTypesAsync(cancellationToken);
             if (!otResult.IsSuccess)
             {
                 // Error técnico: no podemos ni saber si hay client ops.
@@ -162,13 +179,13 @@ public class RunSimulationBusinessValidator(
             var incomeOperationTypes = otResult.Value.Where(st => st.Nature == IncomeEgressNature.Income && !string.IsNullOrWhiteSpace(st.Category)).ToList();
 
             // Que no haya operaciones de entrada es una condición funcional; se modela vía hasClientOps=false
-            // y que  RulesEngine tenga una regla "Debe existir al menos un tipo de ingreso".
+            // y RulesEngine tiene una regla "Debe existir al menos un tipo de ingreso".
             if (incomeOperationTypes.Count > 0)
             {
                 foreach (var item in incomeOperationTypes)
                 {
                     if (await clientOperationRepository.ClientOperationsExistsAsync(
-                            command.PortfolioId, command.ClosingDate.Date, item.OperationTypeId, ct))
+                            command.PortfolioId, command.ClosingDate.Date, item.OperationTypeId, cancellationToken))
                     {
                         hasClientOps = true;
                         break;
@@ -178,10 +195,10 @@ public class RunSimulationBusinessValidator(
 
             // --- P&L y Tesorería ---
             hasPandL = await profitLossRepository.PandLExistsAsync(
-                command.PortfolioId, command.ClosingDate.Date, ct);
+                command.PortfolioId, command.ClosingDate.Date, cancellationToken);
 
             hasTreasury = await movementsConsolidationService.HasTreasuryMovementsAsync(
-                command.PortfolioId, command.ClosingDate.Date, ct);
+                command.PortfolioId, command.ClosingDate.Date, cancellationToken);
         }
 
         // 3. Retornar estado completo (Failure.Success para camino feliz o cuando solo hay "errores funcionales")

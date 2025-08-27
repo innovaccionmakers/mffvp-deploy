@@ -8,7 +8,7 @@ namespace Closing.Domain.Routes
                                  **Ejemplo de llamada:**
 
                                  ```http
-                                 POST /FVP/closing/RunSimulation
+                                 POST /fvp/closing/RunSimulation
                                  Content-Type: application/json
 
                                  {
@@ -26,7 +26,7 @@ namespace Closing.Domain.Routes
                                  **Ejemplo de llamada:**
 
                                  ```http
-                                 POST /FVP/closing/RunClosing
+                                 POST /fvp/closing/RunClosing
                                  Content-Type: application/json
 
                                  {
@@ -42,7 +42,7 @@ namespace Closing.Domain.Routes
                                  **Ejemplo de llamada:**
 
                                  ```http
-                                 POST /FVP/closing/ConfirmClosing
+                                 POST /fvp/closing/ConfirmClosing
                                  Content-Type: application/json
 
                                  {
@@ -58,7 +58,7 @@ namespace Closing.Domain.Routes
                                  **Ejemplo de llamada:**
 
                                  ```http
-                                 POST /FVP/closing/CancelClosing
+                                 POST /fvp/closing/CancelClosing
                                  Content-Type: application/json
 
                                  {
