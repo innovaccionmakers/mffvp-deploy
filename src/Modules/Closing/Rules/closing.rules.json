@@ -53,7 +53,7 @@
     ]
   },
   {
-    "WorkflowName": "Closing.Preclosing.Simulation.GeneralBlockingValidations",
+    "WorkflowName": "Closing.PreClosing.Simulation.GeneralBlockingValidations",
     "Rules": [
       {
         "RuleName": "ClosingDate_OneDayAfterCurrentDate",
@@ -97,7 +97,7 @@
     ]
   },
   {
-    "WorkflowName": "Closing.Preclosing.Simulation.FirstDayBlockingValidations",
+    "WorkflowName": "Closing.PreClosing.Simulation.FirstDayBlockingValidations",
     "Rules": [
       {
         "RuleName": "FirstDay_NoPandL",
@@ -151,6 +151,47 @@
         "Properties": {
           "internalCode": "e4433fe9-e957-4d44-b488-53bfa0fa425f"
         }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Closing.RunClosing.Prepare.SecondDayBlockingValidations",
+    "Rules": [
+      {
+        "RuleName": "SecondDay_MustHaveRetentionPercentage",
+        "ErrorMessage": "Debe existir el parámetro Porcentaje Retención Rendimientos.",
+        "Expression": "!input.IsFirstClosingDay && input.ConfigFlags.HasWithholdingPercentage",
+        "Properties": { "internalCode": "CLOSING_006" }
+      },
+      {
+        "RuleName": "SecondDay_RetentionPercentageMustBePositive",
+        "ErrorMessage": "El parámetro PorcentajeRetencionRendimientos.metadata.valor debe ser numérico y mayor a 0.",
+        "Expression": "!input.IsFirstClosingDay && input.ConfigFlags.WithholdingPercentageIsValid",
+        "Properties": { "internalCode": "CLOSING_007" }
+      },
+      {
+        "RuleName": "SecondDay_MustHaveYieldTolerance",
+        "ErrorMessage": "Debe existir el parámetro Tolerancia Rendimientos.",
+        "Expression": "!input.IsFirstClosingDay && input.ConfigFlags.HasYieldTolerance",
+        "Properties": { "internalCode": "CLOSING_008" }
+      },
+      {
+        "RuleName": "SecondDay_YieldToleranceMustBePositive",
+        "ErrorMessage": "El parámetro ToleranciaRendimientos.metadata.valor debe ser numérico y mayor a 0.",
+        "Expression": "!input.IsFirstClosingDay && input.ConfigFlags.YieldToleranceIsValid",
+        "Properties": { "internalCode": "CLOSING_009" }
+      },
+      {
+        "RuleName": "SecondDay_MustHaveAutomaticConceptIncome",
+        "ErrorMessage": "Debe existir el parámetro Ajuste Rendimiento Ingreso.",
+        "Expression": "!input.IsFirstClosingDay && input.ConfigFlags.HasAutomaticConceptIncome",
+        "Properties": { "internalCode": "CLOSING_010" }
+      },
+      {
+        "RuleName": "SecondDay_MustHaveAutomaticConceptExpense",
+        "ErrorMessage": "Debe existir el parámetro Ajuste Rendimiento Gasto.",
+        "Expression": "!input.IsFirstClosingDay && input.ConfigFlags.HasAutomaticConceptExpense",
+        "Properties": { "internalCode": "CLOSING_011" }
       }
     ]
   }

@@ -54,15 +54,10 @@ public sealed class PreclosingValidationContextBuilder
         return this;
     }
 
-    // Métodos para futuras extensiones:
-    // public PreclosingValidationContextBuilder WithSomeFutureFlag(bool flag) { ... }
-
     public PreclosingValidationContext Build()
     {
         if (!_closingDateSet || !_currentDateSet)
             throw new InvalidOperationException("ClosingDate and CurrentDate are required to build PreclosingValidationContext.");
-
-        // No exigimos _firstDayStateSet: se puede construir contexto antes de evaluar primer día (fluidez).
         return _ctx;
     }
 }
