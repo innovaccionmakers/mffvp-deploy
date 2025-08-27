@@ -6,7 +6,7 @@ namespace MFFVP.BFF.Services.Reports.Strategies
 {
     public interface IReportStrategy
     {
-        Task<GraphqlResult<ReportResponseDto>> GetReportDataAsync<TRequest>(TRequest processDate, CancellationToken cancellationToken);
+        Task<GraphqlResult<ReportResponseDto>> GetReportDataAsync<TRequest>(TRequest request, CancellationToken cancellationToken);
         string ReportName { get; }
         string[] ColumnHeaders { get; }
     }
