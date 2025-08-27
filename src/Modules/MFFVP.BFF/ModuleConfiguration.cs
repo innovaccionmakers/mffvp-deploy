@@ -48,8 +48,6 @@ public class ModuleConfiguration : IModuleConfiguration
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        app.UseRouting();
-
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapGraphQL($"/{RoutePrefix}", "BFFGateway");
