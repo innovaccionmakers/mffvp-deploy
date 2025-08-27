@@ -135,6 +135,9 @@ public static class InfrastructureConfiguration
 
         app.UseCors("AllowSwaggerUI");
 
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         return app;
     }
 

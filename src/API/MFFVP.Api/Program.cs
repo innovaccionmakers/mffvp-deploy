@@ -265,9 +265,6 @@ app.UseInfrastructure();
 
 app.UseLogContext();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.MapEndpoints();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
