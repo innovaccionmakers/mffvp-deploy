@@ -31,9 +31,10 @@ public static class AssociateBusinessApi
         var group = app.MapGroup("api/v1/fvp/Associate")
             .WithTags("Associate")
             .WithOpenApi()
-            .AllowAnonymous();
+            .RequireAuthorization();
 
         group.MapGet("GetAssociates",
+            [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewAffiliateManagement)]
             async (ISender sender) =>
             {
                 var result = await sender.Send(new GetActivatesQuery());
