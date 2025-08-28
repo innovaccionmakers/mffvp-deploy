@@ -5,6 +5,12 @@ public static class MakersPermissionsReports
     private const string Module = MakersModules.fvp;
     private const string Domain = MakersDomains.reports;
 
+    public const string PolicyGenerateBalancesAndMovements = "fvp:reports:reportBalancesAndMovements:generate";
+    public const string PolicyGenerateTransfers = "fvp:reports:reportTransfers:generate";
+    public const string PolicyValidateTransfers = "fvp:reports:reportTransfers:validate";
+    public const string PolicyGenerateDeposits = "fvp:reports:reportDeposits:generate";
+    public const string PolicyGenerateTechnicalSheet = "fvp:reports:reportTechnicalSheet:generate";
+
     public static readonly MakersPermission GenerateBalances = MakersPermissionFactory.Create(
         Guid.Parse("018f1e2c-9e47-7290-9e56-b7c3a9d4aa01"),
         Module, Domain, MakersResources.reportBalancesAndMovements, MakersActions.generate,
