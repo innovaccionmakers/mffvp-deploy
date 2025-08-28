@@ -27,8 +27,9 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private readonly IYieldDetailCreationService _yieldDetailCreationService;
     private readonly YieldDetailBuilderService _yieldDetailBuilderService;
     private readonly IYieldPersistenceService _yieldPersistenceService;
-    private readonly IPortfolioValuationRepository _portfolioValuationRepository;   
-    IBusinessValidator<RunSimulationCommand> _businessValidator;
+    private readonly IPortfolioValuationRepository _portfolioValuationRepository;
+    // IBusinessValidator<RunSimulationCommand> _businessValidator;
+    IRunSimulationValidationReader _businessValidator;
     private readonly IYieldDetailRepository _yieldDetailRepository;
     private readonly IYieldRepository _yieldRepository;
     private readonly IPortfolioValidator _portfolioValidator;
@@ -44,7 +45,8 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         YieldDetailBuilderService yieldDetailBuilderService,
         IYieldPersistenceService yieldPersistenceService,
         IPortfolioValuationRepository portfolioValuationRepository,
-        IBusinessValidator<RunSimulationCommand> businessValidator, 
+           // IBusinessValidator<RunSimulationCommand> businessValidator, 
+        IRunSimulationValidationReader businessValidator,
         IYieldDetailRepository yieldDetailRepository,
         IYieldRepository yieldRepository,
         IPortfolioValidator portfolioValidator,
@@ -65,27 +67,26 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         _portfolioValidator = portfolioValidator;
         _warnings = warningCollector;
         _preclosingCleanupService = preclosingCleanupService;
-
     }
-
     public async Task<Result<SimulatedYieldResult>> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
     {
         var normalizedParams = NormalizeParameters(parameters);
+        var isFirstClosingDay = false;
 
         if (!normalizedParams.IsClosing)  //Cuando es Cierre, se valida en el orquestador de cierre
         {
-            var validationResult = await ValidateBusinessRulesAsync(normalizedParams, cancellationToken);
-            if (validationResult.IsFailure)
-                return Result.Failure<SimulatedYieldResult>(validationResult.Error!);
-        }
+            var validation = await _businessValidator.ValidateAndDescribeAsync(normalizedParams, cancellationToken);
+            if (validation.IsFailure)
+                return Result.Failure<SimulatedYieldResult>(validation.Error!);
+            isFirstClosingDay = validation.Value.IsFirstClosingDay;
+        }else
+        {
+            var firstDayResult = await IsFirstClosingDayAsync(normalizedParams, cancellationToken);
+            if (firstDayResult.IsFailure)
+                return Result.Failure<SimulatedYieldResult>(firstDayResult.Error!);
 
-        var isFirstClosingDay = false;
-
-        var firstDayResult = await IsFirstClosingDayAsync(normalizedParams, cancellationToken);
-        if (firstDayResult.IsFailure)
-            return Result.Failure<SimulatedYieldResult>(firstDayResult.Error!);
-
-        isFirstClosingDay = firstDayResult.Value;
+            isFirstClosingDay = firstDayResult.Value;
+        } 
 
         var localParameters = new RunSimulationParameters(
             normalizedParams.PortfolioId,
@@ -117,12 +118,6 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         {
             ClosingDate = DateTimeConverter.ToUtcDateTime(parameters.ClosingDate)
         };
-    }
-
-    private async Task<Result<Unit>> ValidateBusinessRulesAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
-    {
-        var validation = await _businessValidator.ValidateAsync(parameters, cancellationToken);
-        return validation.IsFailure ? Result.Failure<Unit>(validation.Error!) : Result.Success(Unit.Value);
     }
 
     private async Task<Result<bool>> IsFirstClosingDayAsync(

@@ -26,6 +26,6 @@ public class ReportsModule : IModuleConfiguration
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        app.UseRouting();
+        
     }
 }

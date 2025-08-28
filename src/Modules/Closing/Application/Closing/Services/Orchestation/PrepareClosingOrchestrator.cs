@@ -3,6 +3,7 @@ using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.PortfolioValuation;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
+using Closing.Application.Closing.Services.Validation.Interfaces;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.Orchestation;
 using Closing.Application.PreClosing.Services.Validation;
@@ -11,13 +12,13 @@ using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Closing.Application.Closing.Services.Orchestration;
 
 public class PrepareClosingOrchestrator(
-    IBusinessValidator<RunSimulationCommand> businessValidator,
+    IRunSimulationValidationReader simulationValidationReader,
+    IPrepareClosingBusinessValidator prepareClosingValidator,
     ITimeControlService timeControl,
     ISimulationOrchestrator simulationOrchestrator,
     IPortfolioValuationService portfolioValuationService,
@@ -40,11 +41,26 @@ public class PrepareClosingOrchestrator(
                 "Iniciando cierre para Portafolio {PortfolioId} - Fecha {Date}",
                 portfolioId, closingDate);
 
-            // Paso 0: Validación de parámetros de negocio (simulación)
-            var simulationCommand = new RunSimulationCommand(portfolioId, closingDate, true);
-            var validationResult = await ValidateBusinessRulesAsync(simulationCommand, cancellationToken);
-            if (validationResult.IsFailure)
-                return Result.Failure<PrepareClosingResult>(validationResult.Error!);
+            // Paso 0a: Validación de Simulación + obtener IsFirstClosingDay (sin recalcular después)
+            var simulationCommand = new RunSimulationCommand(portfolioId, closingDate,  true);
+            var simulationValidation = await simulationValidationReader
+                .ValidateAndDescribeAsync(simulationCommand, cancellationToken);
+
+            if (simulationValidation.IsFailure)
+                return Result.Failure<PrepareClosingResult>(simulationValidation.Error!);
+
+            bool isFirstClosingDay = simulationValidation.Value.IsFirstClosingDay;
+
+            // Paso 0b: Validación específica de PrepareClosing SOLO si NO es primer día
+            if (!isFirstClosingDay)
+            {
+                var prepareValidation = await prepareClosingValidator
+                    .ValidateAsync(command, isFirstClosingDay, cancellationToken);
+
+                if (prepareValidation.IsFailure)
+                    return Result.Failure<PrepareClosingResult>(prepareValidation.Error!);
+            }
+
 
             // Paso 1: Detener el flujo transaccional (marca inicio en Redis)
             var controlResult = await timeControl.StartAsync(portfolioId, cancellationToken);
@@ -65,17 +81,9 @@ public class PrepareClosingOrchestrator(
             if (syncTask.Result.IsFailure)
                 return Result.Failure<PrepareClosingResult>(syncTask.Result.Error);
 
-            // Paso 2: Ejecutar simulación y sincronización de datos (secuencial para evitar DbContext compartido)
-            //var simResult = await simulationOrchestrator.RunSimulationAsync(simCommand, cancellationToken);
-            //if (simResult.IsFailure)
-            //    return Result.Failure<ClosedResult>(simResult.Error);
-
-            //var syncResult = await dataSyncService.ExecuteAsync(portfolioId, closingDate, cancellationToken);
-            //if (syncResult.IsFailure)
-            //    return Result.Failure<ClosedResult>(syncResult.Error);
-
+         
             // Paso 3: Calcular y persistir valoración del portafolio
-            // Devuelve un ClosedResult con datos financieros
+            // Devuelve un PrepareClosingResult con datos financieros
             var valuationResult = await portfolioValuationService
                 .CalculateAndPersistValuationAsync(portfolioId, closingDate, cancellationToken);
             if (valuationResult.IsFailure)
@@ -104,15 +112,5 @@ public class PrepareClosingOrchestrator(
             return Result.Failure<PrepareClosingResult>(
                 new Error("001", "Error inesperado durante el cierre.", ErrorType.Failure));
         }
-    }
-
-    private async Task<Result<Unit>> ValidateBusinessRulesAsync(
-        RunSimulationCommand parameters,
-        CancellationToken ct)
-    {
-        var validation = await businessValidator.ValidateAsync(parameters, ct);
-        return validation.IsFailure
-            ? Result.Failure<Unit>(validation.Error!)
-            : Result.Success(Unit.Value);
     }
 }

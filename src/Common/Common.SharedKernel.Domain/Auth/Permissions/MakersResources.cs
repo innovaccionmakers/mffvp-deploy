@@ -42,6 +42,8 @@ public static class MakersResources
     //Reports
     public const string reportBalancesAndMovements = nameof(reportBalancesAndMovements);
     public const string reportTransfers = nameof(reportTransfers);
+    public const string reportDeposits = nameof(reportDeposits);
+    public const string reportTechnicalSheet = nameof(reportTechnicalSheet);
 
     //Treasury
     public const string treasuryConcepts = nameof(treasuryConcepts);

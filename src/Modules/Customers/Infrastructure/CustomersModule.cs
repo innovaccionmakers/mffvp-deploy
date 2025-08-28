@@ -89,8 +89,6 @@ public class CustomersModule : IModuleConfiguration
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        app.UseRouting();
-
         if (app is WebApplication webApp)
         {
             webApp.MapCustomersBusinessEndpoints();

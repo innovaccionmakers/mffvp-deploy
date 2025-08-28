@@ -22,7 +22,7 @@ namespace Closing.Application.PreClosing.Services.Yield
             this.logger = logger;
         }
 
-        public async Task CleanAsync(int portfolioId, DateTime closingDateUtc, CancellationToken ct = default)
+        public async Task CleanAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
         {
             using var scope = logger?.BeginScope(new Dictionary<string, object?>
             {
@@ -33,8 +33,8 @@ namespace Closing.Application.PreClosing.Services.Yield
             var sw = Stopwatch.StartNew();
 
             // Estos métodos usan DbContextFactory (autocommit, seguro para paralelismo)
-            await yieldDetailRepo.DeleteByPortfolioAndDateAsync(portfolioId, closingDateUtc, ct);
-            await yieldRepo.DeleteByPortfolioAndDateAsync(portfolioId, closingDateUtc, ct);
+            await yieldDetailRepo.DeleteByPortfolioAndDateAsync(portfolioId, closingDateUtc, cancellationToken);
+            await yieldRepo.DeleteByPortfolioAndDateAsync(portfolioId, closingDateUtc, cancellationToken);
 
             sw.Stop();
             logger?.LogInformation("Preclosing cleanup OK. TimeMs={ElapsedMs}", sw.ElapsedMilliseconds);

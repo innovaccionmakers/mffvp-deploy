@@ -5,11 +5,11 @@ using Products.Integrations.AccumulatedCommissions.Commands;
 
 namespace Products.IntegrationEvents.AccumulatedCommissions.CommissionProcessed;
 
-public sealed class CommissionProcessedConsumer : ICapSubscribe
+public sealed class CommissionProcessedSuscriber : ICapSubscribe
 {
     private readonly ISender _mediator;
 
-    public CommissionProcessedConsumer(ISender mediator)
+    public CommissionProcessedSuscriber(ISender mediator)
     {
         _mediator = mediator;
     }
