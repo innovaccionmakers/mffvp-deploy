@@ -8,6 +8,7 @@ public static class MakersPermissionsAffiliates
     public const string PolicyViewAffiliateManagement = "fvp:affiliates:affiliatesManagement:view";
     public const string PolicyUpdateAffiliateManagement = "fvp:affiliates:affiliatesManagement:update";
     public const string PolicyActivateAffiliateManagement = "fvp:affiliates:affiliatesManagement:activate";
+    public const string PolicyPensionRequirementsAffiliateManagement = "fvp:affiliates:affiliatesManagement:pensionRequirements";
 
     public const string PolicyViewGoal = "fvp:affiliates:goalsManagement:view";
     public const string PolicyUpdateGoal = "fvp:affiliates:goalsManagement:update";
@@ -57,6 +58,13 @@ public static class MakersPermissionsAffiliates
         "FVP", "Afiliados", "Objetivo", "Crear"
     );
 
+    public static readonly MakersPermission PensionRequirementsAffiliateManagement = MakersPermissionFactory.Create(
+        Guid.Parse("018f1e2c-9e47-7253-8f78-a7b3dc69c604"),
+        Module, Domain, MakersResources.affiliatesManagement, MakersActions.pensionRequirements,
+        "Permite gestionar requisitos de pensión del afiliado.",
+        "FVP", "Afiliados", "Administración Afiliado", "Requisitos Pensión"
+    );
+
     public static readonly List<MakersPermission> All = new()
     {
         ViewAffiliateManagement,
@@ -64,7 +72,8 @@ public static class MakersPermissionsAffiliates
         ActivateAffiliateManagement,
         ViewGoal,
         UpdateGoal,
-        CreateGoal
+        CreateGoal,
+        PensionRequirementsAffiliateManagement,
     };
 }
 
