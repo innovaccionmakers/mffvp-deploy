@@ -1,7 +1,6 @@
+using Common.SharedKernel.Application.Reports;
 
-using Reports.Infrastructure.Models;
-
-namespace Reports.Infrastructure.Strategies
+namespace Reports.Application.Strategies
 {
     public interface IReportStrategyFactory
     {

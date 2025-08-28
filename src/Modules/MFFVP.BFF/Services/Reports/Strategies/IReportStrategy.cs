@@ -1,6 +1,5 @@
-﻿using Common.SharedKernel.Presentation.Results;
-using MFFVP.BFF.DTOs;
-using MFFVP.BFF.Services.Reports.Models;
+﻿using Common.SharedKernel.Application.Reports;
+using Common.SharedKernel.Presentation.Results;
 
 namespace MFFVP.BFF.Services.Reports.Strategies
 {

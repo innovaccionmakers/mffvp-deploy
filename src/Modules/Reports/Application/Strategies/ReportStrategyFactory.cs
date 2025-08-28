@@ -1,6 +1,8 @@
 using Common.SharedKernel.Application.Reports;
+using Microsoft.Extensions.DependencyInjection;
+using Reports.Application.Balances;
 
-namespace MFFVP.BFF.Services.Reports.Strategies
+namespace Reports.Application.Strategies
 {
     public class ReportStrategyFactory : IReportStrategyFactory
     {
@@ -15,8 +17,7 @@ namespace MFFVP.BFF.Services.Reports.Strategies
         {
             return reportType switch
             {
-                ReportType.Deposits => _serviceProvider.GetRequiredService<DepositsReportStrategy>(),
-                ReportType.TechnicalSheet => _serviceProvider.GetRequiredService<TechnicalSheetStrategy>(),
+                ReportType.Balances => _serviceProvider.GetRequiredService<BalancesReport>(),
                 _ => throw new ArgumentException($"Tipo de reporte no soportado: {reportType}")
             };
         }

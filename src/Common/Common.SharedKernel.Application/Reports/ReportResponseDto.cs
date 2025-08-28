@@ -1,4 +1,4 @@
-﻿namespace Reports.Application.DTOs
+﻿namespace Common.SharedKernel.Application.Reports
 {
     public class ReportResponseDto
     {

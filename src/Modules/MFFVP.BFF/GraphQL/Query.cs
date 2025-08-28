@@ -2,6 +2,7 @@
 using Associate.Presentation.GraphQL;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
+using Common.SharedKernel.Application.Reports;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Presentation.Results;
 using Customers.Presentation.DTOs;
@@ -307,6 +308,14 @@ public class Query
                                                                                           CancellationToken cancellationToken)
     {
         return await reportOrchestrator.GetReportDataAsync((portfolioId, startDate, endDate), ReportType.TechnicalSheet, cancellationToken);
+    }
+
+    [GraphQLName("generarReporteSaldosMovimientos")]
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateBalancesReportAsync([GraphQLName("processDate")] DateTime processDate,
+                                                               [Service] ReportOrchestrator reportOrchestrator,
+                                                               CancellationToken cancellationToken)
+    {
+        return await reportOrchestrator.GetReportData(processDate, ReportType.Balances, cancellationToken);
     }
 
     //Trust Queries
