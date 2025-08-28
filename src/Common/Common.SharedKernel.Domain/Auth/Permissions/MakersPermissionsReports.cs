@@ -19,6 +19,29 @@ public static class MakersPermissionsReports
         "FVP", "Informes", "Transmisiones", "Generar"
     );
 
+    public static readonly MakersPermission ValidateTransfers = MakersPermissionFactory.Create(
+        Guid.Parse("018f1e2c-9e47-7294-9a12-b3c4d5e6fa04"),
+        Module, Domain, MakersResources.reportTransfers, MakersActions.validate,
+        "Permite validar el informe de transmisiones.",
+        "FVP", "Informes", "Transmisiones", "Validar"
+    );
+
+    public static readonly MakersPermission GenerateDeposits = MakersPermissionFactory.Create(
+        Guid.Parse("018f1e2c-9e47-7292-9c7a-d4e5f6a7b803"),
+        Module, Domain, MakersResources.reportDeposits, MakersActions.generate,
+        "Permite generar el informe de depósitos.",
+        "FVP", "Informes", "Informe Depósitos", "Generar"
+    );
+
+    public static readonly MakersPermission GenerateTechnicalSheet = MakersPermissionFactory.Create(
+        Guid.Parse("018f1e2c-9e47-7293-8f21-c3d5e7f9ab03"),
+        Module, Domain, MakersResources.reportTechnicalSheet, MakersActions.generate,
+        "Permite generar la ficha técnica.",
+        "FVP", "Informes", "Ficha Técnica", "Generar"
+    );
+
+
+
     public static readonly List<MakersPermission> All = new()
     {
         GenerateBalances,
