@@ -9,10 +9,8 @@ public static class MakersPermissionsClosing
     public const string PolicyViewLoadProfitAndLost = "fvp:closing:closingLoadProfitAndLost:view";
     public const string PolicyCreateLoadProfitAndLost = "fvp:closing:closingLoadProfitAndLost:create";
 
-    public const string PolicyViewSimulation = "fvp:closing:closingSimulation:view";
     public const string PolicyExecuteSimulation = "fvp:closing:closingSimulation:execute";
 
-    public const string PolicyViewClosure = "fvp:closing:closingExecution:view";
     public const string PolicyExecuteClosure = "fvp:closing:closingExecution:execute";
 
     public static readonly MakersPermission ViewLoadProfitAndLost = MakersPermissionFactory.Create(
@@ -29,25 +27,11 @@ public static class MakersPermissionsClosing
         "FVP", "Cierre", "Carga PyG", "Crear"
     );
 
-    public static readonly MakersPermission ViewSimulation = MakersPermissionFactory.Create(
-        Guid.Parse("018f1e2c-9e47-7262-9f45-e2a7dc38d703"),
-        Module, Domain, MakersResources.closingSimulation, MakersActions.view,
-        "Permite consultar la simulación de cierre.",
-        "FVP", "Cierre", "Simulación Cierre", "Consultar"
-    );
-
     public static readonly MakersPermission ExecuteSimulation = MakersPermissionFactory.Create(
         Guid.Parse("018f1e2c-9e47-7263-8d56-f8c9ba47e704"),
         Module, Domain, MakersResources.closingSimulation, MakersActions.execute,
         "Permite ejecutar la simulación de cierre.",
         "FVP", "Cierre", "Simulación Cierre", "Ejecutar"
-    );
-
-    public static readonly MakersPermission ViewClosure = MakersPermissionFactory.Create(
-        Guid.Parse("018f1e2c-9e47-7264-9e67-dcb4ab59f705"),
-        Module, Domain, MakersResources.closingExecution, MakersActions.view,
-        "Permite consultar el cierre.",
-        "FVP", "Cierre", "Cierre", "Consultar"
     );
 
     public static readonly MakersPermission ExecuteClosure = MakersPermissionFactory.Create(
@@ -60,7 +44,7 @@ public static class MakersPermissionsClosing
     public static readonly List<MakersPermission> All = new()
     {
         ViewLoadProfitAndLost, CreateLoadProfitAndLost,
-        ViewSimulation, ExecuteSimulation,
-        ViewClosure, ExecuteClosure
+        ExecuteSimulation,
+        ExecuteClosure
     };
 }
