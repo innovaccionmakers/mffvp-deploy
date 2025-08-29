@@ -20,8 +20,6 @@ namespace Reports.Application.Strategies
                 decimal d => d.ToString("0.00", CultureInfo.InvariantCulture),
                 double doubleVal => doubleVal.ToString("0.00", CultureInfo.InvariantCulture),
                 float floatVal => floatVal.ToString("0.00", CultureInfo.InvariantCulture),
-                DateTime date => date.ToString("yyyyMMdd"),
-                DateOnly dateOnly => dateOnly.ToString("yyyyMMdd"),
                 _ => value?.ToString() ?? string.Empty
             };
         }

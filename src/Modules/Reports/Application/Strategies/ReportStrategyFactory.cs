@@ -1,6 +1,6 @@
 using Common.SharedKernel.Application.Reports;
 using Microsoft.Extensions.DependencyInjection;
-using Reports.Application.Balances;
+using Reports.Application.BalancesAndMovements;
 
 namespace Reports.Application.Strategies
 {
@@ -17,7 +17,7 @@ namespace Reports.Application.Strategies
         {
             return reportType switch
             {
-                ReportType.Balances => _serviceProvider.GetRequiredService<BalancesReport>(),
+                ReportType.Balances => _serviceProvider.GetRequiredService<BalancesAndMovementsReport>(),
                 _ => throw new ArgumentException($"Tipo de reporte no soportado: {reportType}")
             };
         }

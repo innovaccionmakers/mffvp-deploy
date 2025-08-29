@@ -1,11 +1,13 @@
 ﻿using Common.SharedKernel.Application.Reports;
 using Microsoft.Extensions.Logging;
 using Reports.Application.Strategies;
+using Reports.Domain.BalancesAndMovements;
 
-namespace Reports.Application.Balances
+namespace Reports.Application.BalancesAndMovements
 {
-    public class BalancesReport(
-        ILogger<BalancesReport> logger) : ExcelReportStrategyBase(logger)
+    public class BalancesAndMovementsReport(
+        ILogger<BalancesAndMovementsReport> logger,
+        IBalancesAndMovementsReportRepository reportRepository) : ExcelReportStrategyBase(logger)
     {
         public override string ReportName => "Informe de Saldos y Movimientos";
 
@@ -54,35 +56,29 @@ namespace Reports.Application.Balances
 
         public override string[] ColumnHeaders => _saldosHeaders; // Por defecto retorna los headers de saldos
 
-        protected override string GenerateFileName(object request)
-        {
-            if (request is DateTime processDate)
-            {
-                return $"{ReportName}.xlsx";
-            }
-            return base.GenerateFileName(request);
-        }
-
         public override async Task<ReportResponseDto> GetReportDataAsync<TRequest>(
             TRequest request,
             CancellationToken cancellationToken)
         {
-            if (request is DateTime processDate)
+            if (request is BalancesAndMovementsReportRequest reportRequest)
             {
-                logger.LogInformation("Iniciando generación de reporte de saldos y movimientos con fecha: {ProcessDate}",
-                    processDate.ToString("yyyy-MM-dd"));
+                if (!reportRequest.IsValid())
+                {
+                    logger.LogWarning("Request inválido recibido");
+                    throw new ArgumentException("El request no es válido");
+                }
 
                 try
                 {
                     return await GenerateExcelReportAsync(
-                        ct => GetWorksheetDataAsync(processDate, ct),
-                        GenerateFileName(processDate),
+                        ct => GetWorksheetDataAsync(reportRequest, ct),
+                        $"{ReportName}.xlsx",
                         cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Error al generar el reporte con fecha: {ProcessDate}",
-                        processDate.ToString("yyyy-MM-dd"));
+                    logger.LogError(ex, $"Error al generar el reporte con el rango de fechas de {reportRequest.startDate} a {reportRequest.endDate}",
+                        reportRequest.startDate.ToString("yyyy-MM-dd"), reportRequest.endDate.ToString("yyyy-MM-dd"));
                     throw;
                 }
             }
@@ -94,7 +90,7 @@ namespace Reports.Application.Balances
             }
         }
 
-        private async Task<List<WorksheetData>> GetWorksheetDataAsync(DateTime processDate, CancellationToken cancellationToken)
+        private async Task<List<WorksheetData>> GetWorksheetDataAsync(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
             var worksheetDataList = new List<WorksheetData>();
 
@@ -103,7 +99,7 @@ namespace Reports.Application.Balances
             {
                 WorksheetName = "Saldos",
                 ColumnHeaders = _saldosHeaders,
-                Rows = GetMockSaldosData(processDate)
+                Rows = GetMockSaldosData(reportRequest)
             };
             worksheetDataList.Add(saldosData);
 
@@ -112,22 +108,23 @@ namespace Reports.Application.Balances
             {
                 WorksheetName = "Movimientos",
                 ColumnHeaders = _movimientosHeaders,
-                Rows = GetMockMovimientosData(processDate)
+                Rows = GetMockMovimientosData(reportRequest)
             };
             worksheetDataList.Add(movimientosData);
 
             return await Task.FromResult(worksheetDataList);
         }
 
-        private List<object[]> GetMockSaldosData(DateTime processDate)
+        private List<object[]> GetMockSaldosData(BalancesAndMovementsReportRequest reportRequest)
         {
+            var response = reportRepository.GetBalancesAsync(reportRequest);
             // Datos de ejemplo basados en el CSV proporcionado
             return new List<object[]>
             {
                 new object[]
                 {
-                    processDate.AddDays(-28).ToString("dd/MM/yyyy"),
-                    processDate.ToString("dd/MM/yyyy"),
+                    "14/07/2025",
+                    "14/07/2025",
                     "CC - Cedula Ciudadanía",
                     "1152196365",
                     "Veronica Gutirrez Posada",
@@ -146,8 +143,8 @@ namespace Reports.Application.Balances
                 },
                 new object[]
                 {
-                    processDate.AddDays(-28).ToString("dd/MM/yyyy"),
-                    processDate.ToString("dd/MM/yyyy"),
+                    "14/07/2025",
+                    "14/07/2025",
                     "CC - Cedula Ciudadanía",
                     "1152196365",
                     "Veronica Gutirrez Posada",
@@ -166,8 +163,8 @@ namespace Reports.Application.Balances
                 },
                 new object[]
                 {
-                    processDate.AddDays(-28).ToString("dd/MM/yyyy"),
-                    processDate.ToString("dd/MM/yyyy"),
+                    "14/07/2025",
+                    "14/07/2025",
                     "CC - Cedula Ciudadanía",
                     "1152196000",
                     "Juan Camilo Gomez",
@@ -186,8 +183,8 @@ namespace Reports.Application.Balances
                 },
                 new object[]
                 {
-                    processDate.AddDays(-28).ToString("dd/MM/yyyy"),
-                    processDate.ToString("dd/MM/yyyy"),
+                    "14/07/2025",
+                    "14/07/2025",
                     "CC - Cedula Ciudadanía",
                     "1152196365",
                     "Fabian Arteaga",
@@ -207,8 +204,9 @@ namespace Reports.Application.Balances
             };
         }
 
-        private List<object[]> GetMockMovimientosData(DateTime processDate)
+        private List<object[]> GetMockMovimientosData(BalancesAndMovementsReportRequest reportRequest)
         {
+            var response = reportRepository.GetMovementsAsync(reportRequest);
             // Datos de ejemplo para movimientos
             return new List<object[]>
             {
