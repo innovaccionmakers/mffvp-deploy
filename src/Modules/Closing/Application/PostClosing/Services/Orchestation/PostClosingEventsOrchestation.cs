@@ -3,7 +3,7 @@ using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
 using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
 using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
-using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Application.Helpers.Time;
 
 namespace Closing.Application.PostClosing.Services.Orchestation;
 

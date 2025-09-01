@@ -1,14 +1,13 @@
 ﻿using Closing.Application.Closing.Services.OperationTypes;
-using Closing.Application.Closing.Services.Orchestation.Constants;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.Yields;
 using Closing.Integrations.Closing.RunClosing;
-
+using Common.SharedKernel.Application.Constants;
 using Common.SharedKernel.Application.Helpers.Finance;
-using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
@@ -67,7 +66,7 @@ public class PortfolioValuationService(
             prevValue, prevUnits, prevUnitValue);
 
         // 3. Obtener rendimientos del día
-        var yield = await yieldRepository.GetByPortfolioAndDateAsync(
+        var yield = await yieldRepository.GetReadOnlyByPortfolioAndDateAsync(
             portfolioId,
             closingDate,
             cancellationToken);
@@ -220,7 +219,7 @@ public class PortfolioValuationService(
         logger.LogInformation("Persistido PortfolioValuation: Amount={Amount}, Units={Units}, UnitValue={UnitValue}, Incoming={Incoming}, Outgoing={Outgoing}",
             createResult.Value.Amount, createResult.Value.Units, createResult.Value.UnitValue, incoming, outgoing);
 
-        // 9. Construir y devolver ClosedResult con todos los datos financieros
+        // 9. Construir y devolver PrepareClosingResult con todos los datos financieros
         var closedResult = new PrepareClosingResult(portfolioId, closingDate)
         {
             Income = yieldIncome,

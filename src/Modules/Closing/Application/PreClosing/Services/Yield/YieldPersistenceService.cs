@@ -1,4 +1,5 @@
-﻿using Closing.Application.Closing.Services.Orchestation.Constants;
+﻿using Closing.Application.Closing.Services.Warnings;
+using Closing.Application.PreClosing.Services.Yield.Constants;
 using Closing.Application.PreClosing.Services.Yield.Dto;
 using Closing.Application.PreClosing.Services.Yield.Helpers;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
@@ -7,8 +8,10 @@ using Closing.Domain.PortfolioValuations;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
+using Common.SharedKernel.Application.Constants;
 using Common.SharedKernel.Application.Exceptions;
-using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Application.Helpers.Serialization;
+using System.Threading;
 
 namespace Closing.Application.PreClosing.Services.Yield;
 public sealed class YieldPersistenceService : IYieldPersistenceService
@@ -17,25 +20,28 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
     private readonly IYieldRepository _yieldRepository;
     private readonly IPortfolioValuationRepository _portfolioValuationRepository;
     private readonly IConfigurationParameterRepository _configurationParameterRepository;
+    private readonly IWarningCollector _warningCollector;
 
     public YieldPersistenceService(
         IYieldDetailRepository yieldDetailRepository,
         IYieldRepository yieldRepository,
         IPortfolioValuationRepository portfolioValuationRepository,
-        IConfigurationParameterRepository configurationParameterRepository)
+        IConfigurationParameterRepository configurationParameterRepository,
+        IWarningCollector warningCollector)
     {
         _yieldDetailRepository = yieldDetailRepository;
         _yieldRepository = yieldRepository;
         _portfolioValuationRepository = portfolioValuationRepository;
         _configurationParameterRepository = configurationParameterRepository;
+        _warningCollector = warningCollector;
     }
 
     public async Task<SimulatedYieldResult> ConsolidateAsync(
         RunSimulationParameters parameters,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
         var yieldDetails = await _yieldDetailRepository
-            .GetReadOnlyByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, parameters.IsClosing, ct);
+            .GetReadOnlyByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate, parameters.IsClosing, cancellationToken);
 
         if (!yieldDetails.Any())
             throw new BusinessRuleValidationException("No hay detalles de rendimiento para consolidar.");
@@ -58,9 +64,9 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
         if (yieldResult.IsFailure)
             throw new BusinessRuleValidationException(yieldResult.Error.ToString());
 
-        await _yieldRepository.InsertAsync(yieldResult.Value, ct);
+        await _yieldRepository.InsertAsync(yieldResult.Value, cancellationToken);
 
-        var simulationValues = await CalculateSimulationValuesAsync(parameters, summary.YieldToCredit, ct);
+        var simulationValues = await CalculateSimulationValuesAsync(parameters, summary.YieldToCredit, summary.Income, cancellationToken);
 
         return new SimulatedYieldResult
         {
@@ -91,7 +97,8 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
     private async Task<SimulationValues> CalculateSimulationValuesAsync(
         RunSimulationParameters parameters,
         decimal yieldToCredit,
-        CancellationToken ct)
+        decimal dailyIncome,
+        CancellationToken cancellationToken)
     {
         if (parameters.IsClosing)
             return new SimulationValues(null, null);
@@ -99,14 +106,40 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
         if (parameters.IsFirstClosingDay)
         {
             var param = await _configurationParameterRepository
-                .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, ct);
+                .GetByUuidAsync(ConfigurationParameterUuids.Closing.InitialFundUnitValue, cancellationToken);
 
             var initialFundUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "valor");
             return new SimulationValues(initialFundUnitValue, null);
         }
 
+        // Valoración del día anterior (base para validar y calcular)
         var previousValuation = await _portfolioValuationRepository
-            .GetReadOnlyByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate.AddDays(-1), ct);
+            .GetReadOnlyByPortfolioAndDateAsync(parameters.PortfolioId, parameters.ClosingDate.AddDays(-1), cancellationToken);
+
+        // Si no hay valoración previa válida, advertir y no calcular (evita overflow/divisiones inválidas)
+        if (previousValuation is null || previousValuation.Amount <= 0m || previousValuation.UnitValue <= 0m || previousValuation.Units <= 0m)
+        {
+            _warningCollector.Add(WarningCatalog.Val006MissingPreviousValuation());
+            return new SimulationValues(null, null);
+        }
+
+        // Factor configurable (por ej. param 'PreclosingIncomeLimitFactor' en %); fallback 20%
+        var maxIncomeFactor = YieldMathLimits.OverflowSafeYieldFraction;
+        var preliminaryIncomeLimit = previousValuation.Amount * maxIncomeFactor;
+
+        // Si el ingreso del día es desproporcionado vs la valoración previa, advertir y no calcular (evita overflow)
+        if (dailyIncome > preliminaryIncomeLimit)
+        {
+            _warningCollector.Add(
+                WarningCatalog.Val004IncomeHighVsPreviousValuation(
+                    dailyIncome,
+                    previousValuation.Amount,
+                    preliminaryIncomeLimit));
+
+            return new SimulationValues(null, null);
+        }
+
+        // Cálculo normal si pasa validaciones
 
         return SimulationYieldCalculator.Calculate(
             yieldToCredit,

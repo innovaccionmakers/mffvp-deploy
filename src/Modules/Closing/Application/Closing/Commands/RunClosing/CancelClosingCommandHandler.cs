@@ -1,5 +1,4 @@
-﻿
-using Closing.Application.Closing.Services.Orchestation.Interfaces;
+﻿using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
@@ -12,11 +11,14 @@ internal sealed class CancelClosingCommandHandler(
     ILogger<CancelClosingCommandHandler> logger)
     : ICommandHandler<CancelClosingCommand>
 {
-    public async Task<Result> Handle(CancelClosingCommand command, CancellationToken ct)
+    public async Task<Result> Handle(CancelClosingCommand command, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
-            var result = await orchestrator.CancelAsync(command.PortfolioId, command.ClosingDate, ct);
+            cancellationToken.ThrowIfCancellationRequested();
+            var result = await orchestrator.CancelAsync(command.PortfolioId, command.ClosingDate, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             return result;
         }
         catch (Exception ex)

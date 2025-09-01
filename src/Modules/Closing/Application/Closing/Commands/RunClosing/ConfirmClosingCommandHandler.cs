@@ -19,6 +19,8 @@ internal sealed class ConfirmClosingCommandHandler(
     {
         Result<ConfirmClosingResult> result;
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         // -------------------------
         // FASE 1: Cierre + persistencia base
         // -------------------------
@@ -26,9 +28,11 @@ internal sealed class ConfirmClosingCommandHandler(
         {
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 result = await orchestrator.ConfirmAsync(command.PortfolioId, command.ClosingDate, cancellationToken);
-
+                cancellationToken.ThrowIfCancellationRequested();
                 await unitOfWork.SaveChangesAsync(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
                 await transaction.CommitAsync(cancellationToken);
             }
             catch (Exception ex)
@@ -44,7 +48,7 @@ internal sealed class ConfirmClosingCommandHandler(
                 }
 
                 logger.LogError(ex,
-                    "Error en FASE 1 (cierre) para Portafolio {PortfolioId}", command.PortfolioId);
+                    "ConfirmarCierre: Error en FASE 1 (Cierre) para Portafolio {PortfolioId}", command.PortfolioId);
                 throw;
             }
         }
@@ -59,15 +63,10 @@ internal sealed class ConfirmClosingCommandHandler(
         catch (Exception ex)
         {
               logger.LogError(ex,
-                "Error en FASE 2 (post-cierre) para Portafolio {PortfolioId}, Fecha {ClosingDate}",
+                "ConfirmarCierre: Error en FASE 2 (post-cierre) para Portafolio {PortfolioId}, Fecha {ClosingDate}",
                 command.PortfolioId, command.ClosingDate);
-            // Fallo total:
               throw;
-
-            // Exito parcial:
-            // return Result.Failure<ClosedResult>(new Error("POSTCLOSING_FAILED", "...", ErrorType.Unexpected));
         }
-
         return result;
     }
 }

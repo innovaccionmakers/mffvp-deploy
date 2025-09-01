@@ -1,7 +1,5 @@
 ﻿using Closing.Application.Abstractions.Data;
-using Closing.Application.Closing.Services.Orchestation;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
-using Closing.Application.PreClosing.Services.Validation;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
@@ -19,15 +17,20 @@ internal sealed class PrepareClosingCommandHandler(
 {
     public async Task<Result<PrepareClosingResult>> Handle(PrepareClosingCommand command, CancellationToken cancellationToken)
     {
+
+        cancellationToken.ThrowIfCancellationRequested();
         await using var transaction =
         await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         try
         {
-
+            cancellationToken.ThrowIfCancellationRequested();
             var result = await closingOrchestrator.PrepareAsync(command, cancellationToken);
 
+            cancellationToken.ThrowIfCancellationRequested();
             await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
             await transaction.CommitAsync(cancellationToken);
 
             return result;
@@ -36,7 +39,7 @@ internal sealed class PrepareClosingCommandHandler(
         {
             await transaction.RollbackAsync(cancellationToken);
             await cancelClosingOrchestrator.CancelAsync(command.PortfolioId, command.ClosingDate, cancellationToken);
-            logger?.LogError(ex, "Error en RunClosingCommand para Portafolio {PortfolioId} - Fecha {Date}",
+            logger?.LogError(ex, "Error en PrepareClosingCommand para Portafolio {PortfolioId} - Fecha {Date}",
                 command.PortfolioId, command.ClosingDate);
             throw;
         }

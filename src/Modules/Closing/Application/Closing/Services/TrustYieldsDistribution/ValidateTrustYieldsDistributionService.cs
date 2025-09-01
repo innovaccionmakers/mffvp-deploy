@@ -1,4 +1,4 @@
-﻿using Closing.Application.Closing.Services.Orchestation.Constants;
+﻿
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
 using Closing.Application.Closing.Services.Warnings;
@@ -10,7 +10,9 @@ using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.TrustYields;
 using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
-using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Application.Constants;
+using Common.SharedKernel.Application.Helpers.Money;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
@@ -48,7 +50,7 @@ public class ValidateTrustYieldsDistributionService(
         await timeControlService.UpdateStepAsync(portfolioId, "ClosingAllocationCheck", now, cancellationToken);
         logger.LogInformation("{Svc} Paso de control de tiempo actualizado: NowUtc={NowUtc}", svc, now);
 
-        var yield = await yieldRepository.GetByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
+        var yield = await yieldRepository.GetForUpdateByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
         if (yield is null)
         {
             logger.LogWarning("{Svc} No se encontró información de rendimientos para {ClosingDate}", svc, closingDate);
@@ -65,9 +67,11 @@ public class ValidateTrustYieldsDistributionService(
         }
         logger.LogInformation("{Svc} Registros de trust_yields encontrados: {Count}", svc, trustYields.Count);
 
-        var distributedTotal = Math.Round(trustYields.Sum(x => x.YieldAmount), DecimalPrecision.TwoDecimals);
-        var expectedTotal = yield.YieldToCredit;
-        var difference = distributedTotal - expectedTotal;
+        var expectedTotal = MoneyHelper.Round2(yield.YieldToCredit);
+        var distributedTotal = trustYields
+    .AsEnumerable()
+    .Sum(t => MoneyHelper.Round2(t.YieldAmount));
+        var difference = MoneyHelper.Round2(expectedTotal - distributedTotal);
 
         logger.LogInformation("Distribuido: {Distribuido}, Esperado: {Esperado}, Diferencia: {Diferencia}",
             distributedTotal, expectedTotal, difference);
@@ -84,7 +88,7 @@ public class ValidateTrustYieldsDistributionService(
             yieldToCredit: yield.YieldToCredit,
             creditedYields: distributedTotal,
             closingDate: yield.ClosingDate,
-            processDate: yield.ProcessDate,
+            processDate: DateTime.UtcNow,
             isClosed: yield.IsClosed
         );
 
@@ -103,7 +107,7 @@ public class ValidateTrustYieldsDistributionService(
 
             if (Math.Abs(difference) > tolerance)
             {
-                warnings.Add(WarningCatalog.Val003YieldDifference(difference, tolerance));
+                warnings.Add(WarningCatalog.Adv003YieldDifference(difference, tolerance));
                 logger.LogWarning("{Svc} Diferencia de rendimiento fuera de tolerancia: {Difference}. Tolerancia: {Tolerance}", svc, difference, tolerance);
             }
             logger.LogInformation("{Svc} Se detectó diferencia distinta de 0. Se generará ajuste.", svc);
@@ -128,7 +132,7 @@ public class ValidateTrustYieldsDistributionService(
                 ConceptName: conceptName,
                 Nature: isIncome ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense,
                 Source: YieldsSources.AutomaticConcept,
-                TotalAmount: difference
+                TotalAmount: Math.Abs(difference)
             );
 
             logger.LogInformation("{Svc} Concepto seleccionado para ajuste: Id={ConceptId}, Texto={ConceptText}, Nature={Nature}, Monto={TotalAmount}",

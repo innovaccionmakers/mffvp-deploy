@@ -5,6 +5,11 @@ using Products.Integrations.Portfolios.Commands;
 
 namespace Products.IntegrationEvents.Portfolio.PortfolioUpdated;
 
+/// <summary>
+/// Consume <see cref="PortfolioUpdatedIntegrationEvent"/> y actualiza en el dominio Product
+/// la fecha actual del portafolio tras el cierre.
+/// </summary>
+
 public sealed class PortfolioUpdatedSuscriber(ISender mediator) : ICapSubscribe
 {
     [CapSubscribe(nameof(PortfolioUpdatedIntegrationEvent))]

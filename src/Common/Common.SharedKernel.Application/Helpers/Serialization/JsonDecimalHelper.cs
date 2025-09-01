@@ -1,8 +1,7 @@
-﻿
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 
-namespace Common.SharedKernel.Application.Helpers.General;
+namespace Common.SharedKernel.Application.Helpers.Serialization;
 
 /// <summary>
 /// Helper para extraer valores decimales desde JsonDocument.

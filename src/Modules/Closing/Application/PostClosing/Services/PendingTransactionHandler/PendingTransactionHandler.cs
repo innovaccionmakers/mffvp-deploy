@@ -4,6 +4,13 @@ using Closing.IntegrationEvents.PostClosing.ProcessPendingContributionsRequested
 using Common.SharedKernel.Application.EventBus;
 
 namespace Closing.Application.PostClosing.Services.PendingTransactionHandler;
+/// <summary>
+/// Servicio que cierra el flujo de portafolio: primero publica con <see cref="IEventBus"/>
+/// un evento para procesar aportes pendientes (<see cref="ProcessPendingContributionsRequestedIntegrationEvent"/>)
+/// y luego marca el cierre como finalizado mediante <see cref="ITimeControlService"/>.
+/// Así asegura que los aportes se gestionen antes de reactivar las operaciones normales.
+/// </summary>
+
 
 public class PendingTransactionHandler : IPendingTransactionHandler
 {

@@ -12,6 +12,7 @@ internal sealed class DataSyncTrustService(IRpcClient rpc) : IDataSyncService
 {
     public async Task<Result> ExecuteAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
+        
         var response = await rpc.CallAsync<TrustSyncRequest, TrustSyncResponse>(
             new TrustSyncRequest(portfolioId, closingDate),
             cancellationToken);
