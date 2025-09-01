@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Common.SharedKernel.Application.Helpers.General;
 using Treasury.Domain.TreasuryMovements;
 using Treasury.Infrastructure.Database;
+using Common.SharedKernel.Application.Helpers.Time;
 
 namespace Treasury.Infrastructure.TreasuryMovements;
 

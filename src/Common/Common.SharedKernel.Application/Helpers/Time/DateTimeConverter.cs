@@ -1,4 +1,4 @@
-﻿namespace Common.SharedKernel.Application.Helpers.General
+﻿namespace Common.SharedKernel.Application.Helpers.Time
 {
     public static class DateTimeConverter
     {

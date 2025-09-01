@@ -11,7 +11,7 @@ using Closing.Domain.PortfolioValuations;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
-using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
@@ -122,16 +122,16 @@ public class SimulationOrchestrator : ISimulationOrchestrator
 
     private async Task<Result<bool>> IsFirstClosingDayAsync(
         RunSimulationCommand parameters,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
-        var portfolioDataResult = await _portfolioValidator.GetPortfolioDataAsync(parameters.PortfolioId, ct);
+        var portfolioDataResult = await _portfolioValidator.GetPortfolioDataAsync(parameters.PortfolioId, cancellationToken);
         if (portfolioDataResult.IsFailure)
             return Result.Failure<bool>(portfolioDataResult.Error!);
 
         var portfolioData = portfolioDataResult.Value;
 
         var exists = await _portfolioValuationRepository
-            .ExistsByPortfolioAndDateAsync(parameters.PortfolioId, portfolioData.CurrentDate, ct);
+            .ExistsByPortfolioAndDateAsync(parameters.PortfolioId, portfolioData.CurrentDate, cancellationToken);
 
         return Result.Success(!exists);
     }
