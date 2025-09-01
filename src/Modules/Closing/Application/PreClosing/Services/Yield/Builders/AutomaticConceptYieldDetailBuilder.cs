@@ -3,7 +3,7 @@ using Closing.Application.PreClosing.Services.AutomaticConcepts.Dto;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.PreClosing.RunSimulation;
-using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Domain;
 
 namespace Closing.Application.PreClosing.Services.Yield.Builders;

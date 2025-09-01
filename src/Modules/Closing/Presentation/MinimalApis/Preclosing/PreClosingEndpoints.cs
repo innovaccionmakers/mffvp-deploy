@@ -25,7 +25,7 @@ namespace Closing.Presentation.MinimalApis.PreClosing
                      async (
                         [FromBody] RunSimulationCommand request,
                         ISender sender,
-                        HttpContext http,              // opcional, para saber si la respuesta ya empezó
+                        HttpContext http,              // Para saber si la respuesta ya empezó
                         CancellationToken cancellationToken           // 
                     ) =>
                     {

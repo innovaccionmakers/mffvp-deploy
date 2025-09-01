@@ -7,9 +7,9 @@ using Closing.Application.Closing.Services.Validation.Interfaces;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.Orchestation;
 using Closing.Application.PreClosing.Services.Validation;
-using Closing.Integrations.Closing.RunClosing;  
+using Closing.Integrations.Closing.RunClosing;
 using Closing.Integrations.PreClosing.RunSimulation;
-using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
@@ -73,9 +73,9 @@ public class PrepareClosingOrchestrator(
 
             var simulationTask = simulationOrchestrator.RunSimulationAsync(simulationCommand, cancellationToken);
             var syncTask = dataSyncService.ExecuteAsync(portfolioId, closingDate.Date, cancellationToken);
-
+       
             await Task.WhenAll(simulationTask, syncTask);
-
+            logger.LogInformation("TrustSync finalizado");
             if (simulationTask.Result.IsFailure)
                 return Result.Failure<PrepareClosingResult>(simulationTask.Result.Error);
             if (syncTask.Result.IsFailure)
@@ -97,6 +97,7 @@ public class PrepareClosingOrchestrator(
 
             valuationResult.Value.HasWarnings = warnings.Any();
             valuationResult.Value.Warnings = warnings;
+
             // Paso 4: Devolver el Result generado en CalculateAndPersistValuationAsync
             return Result.Success(valuationResult.Value);
         }
@@ -104,7 +105,7 @@ public class PrepareClosingOrchestrator(
         {
             // En caso de error, abortar cierre y limpiar estado en Redis
             await abortClosingService.AbortAsync(portfolioId, closingDate, cancellationToken);
-            logger.LogError(
+            logger.LogInformation(
                 ex,
                 "Error inesperado en PrepareClosingOrchestrator para Portafolio {PortfolioId}",
                 portfolioId);

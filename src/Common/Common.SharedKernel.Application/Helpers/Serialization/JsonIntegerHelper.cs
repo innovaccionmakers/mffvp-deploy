@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text.Json;
 
-namespace Common.SharedKernel.Application.Helpers.General;
+namespace Common.SharedKernel.Application.Helpers.Serialization;
 
 /// <summary>
 /// Helper para extraer valores enteros Int32 desde JsonDocument.

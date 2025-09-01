@@ -5,6 +5,12 @@ using Common.SharedKernel.Application.EventBus;
 
 namespace Closing.Application.PostClosing.Services.TrustYieldEvent;
 
+/// <summary>
+/// Publica un <see cref="TrustYieldGeneratedIntegrationEvent"/> por cada rendimiento de fideicomiso
+/// leído desde <see cref="ITrustYieldRepository"/>, notificando saldos, rendimientos y retenciones
+/// al dominio Operations mediante <see cref="IEventBus"/>.
+/// </summary>
+
 public sealed class TrustYieldPublisher(
     ITrustYieldRepository repository,
     IEventBus eventBus)
@@ -12,7 +18,7 @@ public sealed class TrustYieldPublisher(
 {
     public async Task PublishAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
-        var trustYields = await repository.GetByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
+        var trustYields = await repository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
 
         foreach (var trustYield in trustYields)
         {

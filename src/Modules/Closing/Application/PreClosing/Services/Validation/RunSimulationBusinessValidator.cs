@@ -13,9 +13,8 @@ using Closing.Domain.PortfolioValuations;
 using Closing.Domain.ProfitLosses;
 using Closing.Domain.Rules;
 using Closing.Integrations.PreClosing.RunSimulation;
-
-using Common.SharedKernel.Application.Helpers.General;
 using Common.SharedKernel.Application.Helpers.Rules;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
