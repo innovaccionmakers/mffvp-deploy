@@ -13,7 +13,12 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
             var result = new GraphqlResult<(DepositsReportModel, DepositsReportModel)>();
             try
             {
-                var paymentDetail = JsonSerializer.Deserialize<PaymentMethodDetail>(operation.PaymentMethodDetail.RootElement.GetRawText());
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var paymentDetail = JsonSerializer.Deserialize<PaymentMethodDetail>(operation.PaymentMethodDetail.RootElement.GetRawText(), options);
 
                 if (string.IsNullOrWhiteSpace(paymentDetail.TipoCuenta))
                 {

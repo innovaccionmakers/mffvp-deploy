@@ -1,6 +1,6 @@
 ﻿using Common.SharedKernel.Application.Reports;
 using MediatR;
-using Reports.Application.Strategies;
+using Reports.Application.Reports.Strategies;
 
 namespace Reports.Presentation.GraphQL
 {

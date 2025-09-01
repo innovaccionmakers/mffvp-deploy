@@ -1,9 +1,10 @@
 ﻿using Common.SharedKernel.Application.Reports;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using Microsoft.Extensions.Logging;
-using Reports.Application.Strategies;
+using Reports.Application.Reports.Strategies;
 using Reports.Domain.BalancesAndMovements;
 
-namespace Reports.Application.BalancesAndMovements
+namespace Reports.Application.Reports.BalancesAndMovements
 {
     public class BalancesAndMovementsReport(
         ILogger<BalancesAndMovementsReport> logger,
@@ -60,34 +61,42 @@ namespace Reports.Application.BalancesAndMovements
             TRequest request,
             CancellationToken cancellationToken)
         {
+            BalancesAndMovementsReportRequest balancesAndMovementsReportRequest = new BalancesAndMovementsReportRequest();
+
             if (request is BalancesAndMovementsReportRequest reportRequest)
             {
-                if (!reportRequest.IsValid())
-                {
-                    logger.LogWarning("Request inválido recibido");
-                    throw new ArgumentException("El request no es válido");
-                }
-
-                try
-                {
-                    return await GenerateExcelReportAsync(
-                        ct => GetWorksheetDataAsync(reportRequest, ct),
-                        $"{ReportName}.xlsx",
-                        cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, $"Error al generar el reporte con el rango de fechas de {reportRequest.startDate} a {reportRequest.endDate}",
-                        reportRequest.startDate.ToString("yyyy-MM-dd"), reportRequest.endDate.ToString("yyyy-MM-dd"));
-                    throw;
-                }
+                balancesAndMovementsReportRequest = reportRequest;
             }
-            else
+            else if (request is ValueTuple<DateOnly, DateOnly, string> tuple)
             {
-                logger.LogError("Tipo de request no válido. Se esperaba DateTime, se recibió: {RequestType}",
-                    typeof(TRequest).Name);
-                throw new ArgumentException("El tipo de request no es válido. Se esperaba DateTime.");
+                balancesAndMovementsReportRequest = new BalancesAndMovementsReportRequest
+                {
+                    startDate = tuple.Item1,
+                    endDate = tuple.Item2,
+                    Identification = tuple.Item3
+                };
             }
+
+            if (!balancesAndMovementsReportRequest.IsValid())
+            {
+                logger.LogWarning("Request inválido recibido");
+                throw new ArgumentException("El request no es válido");
+            }
+
+            try
+            {
+                return await GenerateExcelReportAsync(
+                    ct => GetWorksheetDataAsync(balancesAndMovementsReportRequest, ct),
+                    $"{ReportName}.xlsx",
+                    cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Error al generar el reporte con el rango de fechas de {balancesAndMovementsReportRequest.startDate} a {balancesAndMovementsReportRequest.endDate}",
+                    balancesAndMovementsReportRequest.startDate.ToString("yyyy-MM-dd"), balancesAndMovementsReportRequest.endDate.ToString("yyyy-MM-dd"));
+                throw;
+                }
+            
         }
 
         private async Task<List<WorksheetData>> GetWorksheetDataAsync(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
@@ -99,7 +108,7 @@ namespace Reports.Application.BalancesAndMovements
             {
                 WorksheetName = "Saldos",
                 ColumnHeaders = _saldosHeaders,
-                Rows = GetMockSaldosData(reportRequest)
+                Rows = GetMockSaldosData(reportRequest, cancellationToken)
             };
             worksheetDataList.Add(saldosData);
 
@@ -108,105 +117,25 @@ namespace Reports.Application.BalancesAndMovements
             {
                 WorksheetName = "Movimientos",
                 ColumnHeaders = _movimientosHeaders,
-                Rows = GetMockMovimientosData(reportRequest)
+                Rows = GetMockMovimientosData(reportRequest, cancellationToken)
             };
             worksheetDataList.Add(movimientosData);
 
             return await Task.FromResult(worksheetDataList);
         }
 
-        private List<object[]> GetMockSaldosData(BalancesAndMovementsReportRequest reportRequest)
+        private List<object[]> GetMockSaldosData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
-            var response = reportRepository.GetBalancesAsync(reportRequest);
+            var response = reportRepository.GetBalancesAsync(reportRequest, cancellationToken);
             // Datos de ejemplo basados en el CSV proporcionado
             return new List<object[]>
             {
-                new object[]
-                {
-                    "14/07/2025",
-                    "14/07/2025",
-                    "CC - Cedula Ciudadanía",
-                    "1152196365",
-                    "Veronica Gutirrez Posada",
-                    "123",
-                    "1 - Inversiones",
-                    "1 - FVP Cibest Capital",
-                    "1 - Abierto",
-                    "1 - Multinversion - Autogestionada",
-                    "1- Fiducuenta Pensión",
-                    2000000m,
-                    100000m,
-                    0m,
-                    1280m,
-                    0m,
-                    2101280m
-                },
-                new object[]
-                {
-                    "14/07/2025",
-                    "14/07/2025",
-                    "CC - Cedula Ciudadanía",
-                    "1152196365",
-                    "Veronica Gutirrez Posada",
-                    "124",
-                    "1 - Inversiones",
-                    "1 - FVP Cibest Capital",
-                    "1 - Abierto",
-                    "1 - Multinversion - Autogestionada",
-                    "1- Fiducuenta Pensión",
-                    0m,
-                    650000m,
-                    0m,
-                    8320m,
-                    0m,
-                    658320m
-                },
-                new object[]
-                {
-                    "14/07/2025",
-                    "14/07/2025",
-                    "CC - Cedula Ciudadanía",
-                    "1152196000",
-                    "Juan Camilo Gomez",
-                    "896",
-                    "1 - Inversiones",
-                    "1 - FVP Cibest Capital",
-                    "1 - Abierto",
-                    "1 - Multinversion - Autogestionada",
-                    "1- Fiducuenta Pensión",
-                    0m,
-                    0m,
-                    0m,
-                    0m,
-                    0m,
-                    0m
-                },
-                new object[]
-                {
-                    "14/07/2025",
-                    "14/07/2025",
-                    "CC - Cedula Ciudadanía",
-                    "1152196365",
-                    "Fabian Arteaga",
-                    "258",
-                    "1 - Inversiones",
-                    "1 - FVP Cibest Capital",
-                    "1 - Abierto",
-                    "1 - Multinversion - Autogestionada",
-                    "1- Fiducuenta Pensión",
-                    0m,
-                    2200000m,
-                    0m,
-                    28160m,
-                    0m,
-                    2228160m
-                }
             };
         }
 
-        private List<object[]> GetMockMovimientosData(BalancesAndMovementsReportRequest reportRequest)
+        private List<object[]> GetMockMovimientosData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
-            var response = reportRepository.GetMovementsAsync(reportRequest);
+            var response = reportRepository.GetMovementsAsync(reportRequest, cancellationToken);
             // Datos de ejemplo para movimientos
             return new List<object[]>
             {

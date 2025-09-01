@@ -2,9 +2,9 @@
 {
     public class BalancesAndMovementsReportRequest
     {
-        public DateTime startDate { get; set; }
-        public DateTime endDate { get; set; }
-        public int IdentificationId { get; set; }
+        public DateOnly startDate { get; set; }
+        public DateOnly endDate { get; set; }
+        public string Identification { get; set; }
 
         public bool IsValid()
         {

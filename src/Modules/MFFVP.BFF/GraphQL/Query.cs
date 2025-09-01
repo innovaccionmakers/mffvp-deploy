@@ -293,7 +293,7 @@ public class Query
     }
 
     [GraphQLName("generarReporteDepositos")]
-    public async Task<GraphqlResult<ReportResponseDto>> GenerateDepositsReportAsync([GraphQLName("processDate")] DateTime processDate,
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateDepositsReportAsync([GraphQLName("processDate")] DateOnly processDate,
                                                                    [Service] ReportOrchestrator reportOrchestrator,
                                                                    CancellationToken cancellationToken)
     {
@@ -313,7 +313,7 @@ public class Query
     [GraphQLName("generarReporteSaldosMovimientos")]
     public async Task<GraphqlResult<ReportResponseDto>> GenerateBalancesReportAsync([GraphQLName("fechaInicial")] DateOnly startDate,
                                                                                     [GraphQLName("fechaFinal")] DateOnly endDate,
-                                                                                    [GraphQLName("identificacion")] int identificationId,
+                                                                                    [GraphQLName("identificacion")] string identificationId,
                                                                                     [Service] ReportOrchestrator reportOrchestrator,
                                                                                     CancellationToken cancellationToken)
     {

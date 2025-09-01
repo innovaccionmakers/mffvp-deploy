@@ -3,7 +3,7 @@ using Common.SharedKernel.Application.Reports;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
-namespace Reports.Application.Strategies
+namespace Reports.Application.Reports.Strategies
 {
     public abstract class ExcelReportStrategyBase(
         ILogger<ExcelReportStrategyBase> logger) : IReportStrategy

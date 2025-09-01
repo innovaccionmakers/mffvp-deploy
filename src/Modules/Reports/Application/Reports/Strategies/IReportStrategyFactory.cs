@@ -1,6 +1,6 @@
 using Common.SharedKernel.Application.Reports;
 
-namespace Reports.Application.Strategies
+namespace Reports.Application.Reports.Strategies
 {
     public interface IReportStrategyFactory
     {

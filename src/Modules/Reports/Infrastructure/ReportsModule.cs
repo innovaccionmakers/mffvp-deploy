@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Reports.Application.BalancesAndMovements;
-using Reports.Application.Strategies;
+using Reports.Application.Reports.BalancesAndMovements;
+using Reports.Application.Reports.Strategies;
 using Reports.Domain.BalancesAndMovements;
 using Reports.Infrastructure.BalancesAndMovements;
+using Reports.Infrastructure.ConnectionFactory;
+using Reports.Infrastructure.ConnectionFactory.Interfaces;
 using Reports.Presentation.GraphQL;
 
 namespace Reports.Infrastructure;
@@ -25,6 +27,7 @@ public class ReportsModule : IModuleConfiguration
         services.AddScoped<IReportStrategy, BalancesAndMovementsReport>();
         services.AddScoped<IReportStrategyFactory, ReportStrategyFactory>();
         services.AddScoped<IBalancesAndMovementsReportRepository, BalancesAndMovementsReportRepository>();
+        services.AddTransient<IReportsDbConnectionFactory, ReportsDbConnectionFactory>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
