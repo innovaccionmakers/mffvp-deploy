@@ -1,5 +1,5 @@
 ﻿
-namespace Closing.Application.Closing.Services.Orchestation.Constants;
+namespace Common.SharedKernel.Application.Constants;
 
 public static class DecimalPrecision
 {

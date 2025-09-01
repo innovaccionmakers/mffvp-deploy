@@ -4,6 +4,10 @@ using MediatR;
 using Products.Integrations.AccumulatedCommissions.Commands;
 
 namespace Products.IntegrationEvents.AccumulatedCommissions.CommissionProcessed;
+/// <summary>
+/// Consume <see cref="CommissionProcessedIntegrationEvent"/> y registra/acumula la comisión
+/// en el dominio Product, asegurando consistencia en valores de comisiones.
+/// </summary>
 
 public sealed class CommissionProcessedSuscriber : ICapSubscribe
 {

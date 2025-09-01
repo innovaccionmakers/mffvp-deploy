@@ -6,6 +6,10 @@ using Operations.Integrations.TrustOperations.Commands;
 
 namespace Operations.IntegrationEvents.TrustOperations;
 
+/// <summary>
+/// Consume <see cref="TrustYieldGeneratedIntegrationEvent"/> y actualiza los saldos,
+/// rendimientos y retenciones del fideicomiso en el dominio Operations.
+/// </summary>
 public sealed class TrustYieldGeneratedSuscriber(ISender mediator) : ICapSubscribe
 {
     [CapSubscribe(nameof(TrustYieldGeneratedIntegrationEvent))]

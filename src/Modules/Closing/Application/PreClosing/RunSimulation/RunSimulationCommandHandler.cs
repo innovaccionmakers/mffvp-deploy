@@ -1,5 +1,4 @@
-﻿
-using Closing.Application.Abstractions.Data;
+﻿using Closing.Application.Abstractions.Data;
 using Closing.Application.PreClosing.Services.Orchestation;
 using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Messaging;
@@ -29,6 +28,10 @@ ILogger<RunSimulationCommandHandler> logger)
         });
         var outcome = "Success";
         var swTotal = Stopwatch.StartNew();
+
+        // CHECKPOINT 0: antes de cualquier trabajo
+        cancellationToken.ThrowIfCancellationRequested();
+
         var handle = await execLock.TryAcquireAsync(command.PortfolioId, command.ClosingDate, command.IsClosing, cancellationToken);
         if (handle is null)
         {
@@ -42,15 +45,25 @@ ILogger<RunSimulationCommandHandler> logger)
         }
         using (handle)
         {
+            cancellationToken.ThrowIfCancellationRequested();
 
             var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
+                // CHECKPOINT 2: antes de lanzar orquestación
+                cancellationToken.ThrowIfCancellationRequested();
 
                 logger?.LogInformation("Iniciando simulación para Portafolio {PortfolioId} - Fecha {Date}", command.PortfolioId, command.ClosingDate);
                 var result = await _simulationOrchestrator.RunSimulationAsync(command, cancellationToken);
 
+                // CHECKPOINT 3: antes de persistir (SaveChanges)
+                cancellationToken.ThrowIfCancellationRequested();
+
                 await unitOfWork.SaveChangesAsync(cancellationToken);
+
+                // CHECKPOINT 4: antes de commit
+                cancellationToken.ThrowIfCancellationRequested();
+
                 await transaction.CommitAsync(cancellationToken);
 
                 swTotal.Stop();
@@ -58,13 +71,21 @@ ILogger<RunSimulationCommandHandler> logger)
                 return result;
 
             }
+            catch (OperationCanceledException)
+            {
+                outcome = "Cancelled";
+                await transaction.RollbackAsync(CancellationToken.None);
+                logger.LogWarning(
+                    "Simulación cancelada para Portafolio {PortfolioId} - Fecha {Date}",
+                    command.PortfolioId, command.ClosingDate);
+                throw; 
+            }
             catch (Exception ex)
             {
                 outcome = "Failure";
-                if (transaction is not null)
-                    await transaction.RollbackAsync(cancellationToken);
-
-                logger?.LogInformation(ex, "Error en RunSimulationCommand para Portafolio {PortfolioId} - Fecha {Date}",
+                await transaction.RollbackAsync(CancellationToken.None);
+                logger.LogError(ex,
+                    "Error en RunSimulationCommand para Portafolio {PortfolioId} - Fecha {Date}",
                     command.PortfolioId, command.ClosingDate);
                 throw;
             }

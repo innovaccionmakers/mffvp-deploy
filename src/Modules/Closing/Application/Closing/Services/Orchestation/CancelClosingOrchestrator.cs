@@ -1,7 +1,7 @@
 ﻿using Closing.Application.Closing.Services.Abort;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Integrations.Closing.RunClosing;
-using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 

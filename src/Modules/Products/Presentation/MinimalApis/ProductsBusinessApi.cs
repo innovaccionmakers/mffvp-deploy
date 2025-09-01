@@ -37,9 +37,9 @@ public static class ProductsBusinessApi
                 "GetGoals",
                 [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewGoal)]
                 async (
-                    [FromQuery] string? typeId,
-                    [FromQuery] string? identification,
-                    [FromQuery] string? status,
+                    [FromQuery(Name = "TipoId")] string? typeId,
+                    [FromQuery(Name = "Identificacion")] string? identification,
+                    [FromQuery(Name = "Estado")] string? status,
                     ISender sender
                 ) =>
                 {
@@ -58,28 +58,40 @@ public static class ProductsBusinessApi
             .WithDescription(Description.GetGoals)
             .WithOpenApi(operation =>
             {
-                var p0 = operation.Parameters.First(p => p.Name == "typeId");
-                p0.Description = "Tipo de identificación del cliente (C=Ciudadanía, R=RUC, P=Pasaporte)";
-                p0.Example = new OpenApiString("C");
+                OpenApiParameter? FindParam(params string[] names)
+                    => operation.Parameters.FirstOrDefault(p => names.Any(n => string.Equals(p.Name, n, StringComparison.OrdinalIgnoreCase)));
 
-                var p1 = operation.Parameters.First(p => p.Name == "identification");
-                p1.Description = "Número de documento";
-                p1.Example = new OpenApiString("27577533");
-
-                var p2 = operation.Parameters.First(p => p.Name == "status");
-                p2.Description = "Estado de los objetivos (A=Activo, I=Inactivo, T=Todos)";
-                p2.Example = new OpenApiString("A");
-
-                p2.Schema ??= new OpenApiSchema { Type = "string" };
-
-                if (p2.Schema.Enum is null || p2.Schema.Enum.Count == 0)
+                var p0 = FindParam("TipoId", "typeId");
+                if (p0 is not null)
                 {
-                    p2.Schema.Enum = new List<IOpenApiAny>
+                    p0.Description = "Tipo de identificación del cliente (C=Ciudadanía, R=RUC, P=Pasaporte)";
+                    p0.Example = new OpenApiString("C");
+                }
+
+                var p1 = FindParam("Identificacion", "identification");
+                if (p1 is not null)
+                {
+                    p1.Description = "Número de documento";
+                    p1.Example = new OpenApiString("27577533");
+                }
+
+                var p2 = FindParam("Estado", "status");
+                if (p2 is not null)
+                {
+                    p2.Description = "Estado de los objetivos (A=Activo, I=Inactivo, T=Todos)";
+                    p2.Example = new OpenApiString("A");
+
+                    p2.Schema ??= new OpenApiSchema { Type = "string" };
+
+                    if (p2.Schema.Enum is null || p2.Schema.Enum.Count == 0)
                     {
-                        new OpenApiString("A"),
-                        new OpenApiString("I"),
-                        new OpenApiString("T")
-                    };
+                        p2.Schema.Enum = new List<IOpenApiAny>
+                        {
+                            new OpenApiString("A"),
+                            new OpenApiString("I"),
+                            new OpenApiString("T")
+                        };
+                    }
                 }
 
                 return operation;
