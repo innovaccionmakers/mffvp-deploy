@@ -51,6 +51,9 @@ public static class MakersPermissionsReports
     public static readonly List<MakersPermission> All = new()
     {
         GenerateBalances,
-        GenerateTransfers
+        GenerateTransfers,
+        ValidateTransfers,
+        GenerateDeposits,
+        GenerateTechnicalSheet
     };
 }
