@@ -20,7 +20,6 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
     public async Task<IReadOnlyCollection<TemporaryClientOperation>> GetByPortfolioAsync(int portfolioId, CancellationToken cancellationToken = default)
     {
         return await context.TemporaryClientOperations
-            .AsNoTracking()
             .Where(x => x.PortfolioId == portfolioId && !x.Processed)
             .OrderBy(x => x.RegistrationDate)
             .ToListAsync(cancellationToken);
