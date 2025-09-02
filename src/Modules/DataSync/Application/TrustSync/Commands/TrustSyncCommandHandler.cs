@@ -31,13 +31,13 @@ internal sealed class TrustSyncCommandHandler(
         }
         catch (OperationCanceledException)
         {
-            logger.LogWarning("DataSync.TrustSync cancelado por token. Portafolio={PortfolioId}, Fecha={ClosingDate}",
+            logger.LogInformation("DataSync.TrustSync cancelado por token. Portafolio={PortfolioId}, Fecha={ClosingDate}",
                 command.PortfolioId, command.ClosingDate);
             return Result.Failure<bool>(new Error("DS-TS-008", "Operación cancelada.", ErrorType.Validation));
         }
         catch (Exception ex)
         {
-            logger.LogError(ex,
+            logger.LogInformation(ex,
                 "Error en DataSync.TrustSync. Portafolio={PortfolioId}, Fecha={ClosingDate}",
                 command.PortfolioId, command.ClosingDate);
 

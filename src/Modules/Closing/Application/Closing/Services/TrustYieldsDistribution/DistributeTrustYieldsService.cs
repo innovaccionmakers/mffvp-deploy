@@ -1,12 +1,13 @@
-﻿using Closing.Application.Closing.Services.Orchestation.Constants;
-using Closing.Application.Closing.Services.TimeControl.Interrfaces;
+﻿using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.TrustYields;
 using Closing.Domain.Yields;
+using Common.SharedKernel.Application.Constants;
 using Common.SharedKernel.Application.Helpers.Finance;
-using Common.SharedKernel.Application.Helpers.General;
+using Common.SharedKernel.Application.Helpers.Money;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
@@ -35,11 +36,11 @@ public class DistributeTrustYieldsService(
 
         var now = DateTime.UtcNow;
 
-        // ⬅️ Se actualiza el paso de cierre usando el flujo estándar
+        // ⬅️ Se actualiza el paso de cierre - camino feliz
         await timeControlService.UpdateStepAsync(portfolioId, "ClosingAllocation", now, ct);
         logger.LogInformation("{Svc} Paso de control de tiempo actualizado: NowUtc={NowUtc}", svc, now);
 
-        var yield = await yieldRepository.GetByPortfolioAndDateAsync(portfolioId, closingDate, ct);
+        var yield = await yieldRepository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, ct);
         if (yield is null)
         {
             logger.LogWarning("{Svc} No se encontró información de rendimientos para la fecha {ClosingDate}", svc, closingDate);
@@ -94,40 +95,45 @@ public class DistributeTrustYieldsService(
             logger.LogInformation("{Svc} Datos previos: PrevTrustYieldExists={PrevTY}, PrevPortfolioValuationExists={PrevPV}",
                 svc, prevTrustYield is not null, prevPortfolioValuation is not null);
 
-            if (prevTrustYield is not null && prevPortfolioValuation is not null)
-                participation = TrustMath.CalculateTrustParticipation(prevTrustYield.ClosingBalance, prevPortfolioValuation.Amount, DecimalPrecision.SixteenDecimals);
-          
+            if (prevTrustYield is not null && prevPortfolioValuation is not null) {
+                logger.LogInformation(
+                   "{Svc} Valores previos: PrevTrustBalance={PrevTrustBalance}, PrevPortfolioAmount={PrevPortfolioAmount}",
+                   svc,
+                   prevTrustYield.ClosingBalance,
+                   prevPortfolioValuation.Amount);
+                participation = TrustMath.CalculateTrustParticipation(MoneyHelper.Round2(prevTrustYield.ClosingBalance), MoneyHelper.Round2(prevPortfolioValuation.Amount), DecimalPrecision.SixteenDecimals);
+             }
 
             logger.LogInformation("{Svc} Participación calculada: {Participation}", svc, participation);
 
-            var yieldAmount = TrustMath.ApplyParticipation(yield.YieldToCredit, participation, DecimalPrecision.SixteenDecimals);
-            var income = TrustMath.ApplyParticipation(yield.Income, participation, DecimalPrecision.SixteenDecimals);
-            var expenses = TrustMath.ApplyParticipation(yield.Expenses, participation, DecimalPrecision.SixteenDecimals);
-            var commissions = TrustMath.ApplyParticipation(yield.Commissions, participation, DecimalPrecision.SixteenDecimals);
-            var cost = TrustMath.ApplyParticipation(yield.Costs, participation, DecimalPrecision.SixteenDecimals);
-            var closingBalance = trust.PreClosingBalance + yieldAmount;
+            var yieldAmount = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.YieldToCredit), participation, DecimalPrecision.SixteenDecimals);
+            var income = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.Income), participation, DecimalPrecision.SixteenDecimals);
+            var expenses = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.Expenses), participation, DecimalPrecision.SixteenDecimals);
+            var commissions = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.Commissions), participation, DecimalPrecision.SixteenDecimals);
+            var cost = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.Costs), participation, DecimalPrecision.SixteenDecimals);
+            var closingBalance = MoneyHelper.Round2(trust.PreClosingBalance) + MoneyHelper.Round2(yieldAmount);
 
             logger.LogInformation("{Svc} Montos por participación: YieldToCredit={YieldAmount}, Income={Income}, Expenses={Expenses}, Commissions={Commissions}, Cost={Cost}",
                 svc, yieldAmount, income, expenses, commissions, cost);
             logger.LogInformation("{Svc} Saldos: PreClosingBalance={Pre}, ClosingBalance={Close}", svc, trust.PreClosingBalance, closingBalance);
 
             decimal units = 0m;
-            if (trust.PreClosingBalance != closingBalance)
-                units = Math.Round(closingBalance / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
+            if (MoneyHelper.Round2(trust.PreClosingBalance) != MoneyHelper.Round2(closingBalance))
+                units = Math.Round(MoneyHelper.Round2(closingBalance) / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
             logger.LogInformation("{Svc} Units provisional (si cambió balance): {UnitsProvisional}", svc, units);
 
             if (prevTrustYield is not null && prevPortfolioValuation is not null) //si hay dia previo con datos, pero no hubo cambio en el balance
                 units = Math.Round(prevTrustYield.Units, DecimalPrecision.SixteenDecimals);
             else // si no hay dia previo con datos, es el primer día de cierre y no hubo cambio en el balance
-                units = Math.Round(closingBalance / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
+                units = Math.Round(MoneyHelper.Round2(closingBalance) / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
 
             logger.LogInformation("{Svc} Units final: {Units} (UnitValue={UnitValue})", svc, units, portfolioValuation.UnitValue);
 
             var yieldRetention = 0m;
             if ((yield.YieldToCredit > 0))
             {
-                yieldRetention = TrustMath.CalculateYieldRetention(yieldAmount, yieldRetentionRate, DecimalPrecision.SixteenDecimals);
-                logger.LogInformation("{Svc} Retención de rendimientos calculada: {YieldRetention} con tasa {Rate}", svc, yieldRetention, yieldRetentionRate); 
+                yieldRetention = TrustMath.CalculateYieldRetention(MoneyHelper.Round2(yieldAmount), yieldRetentionRate, DecimalPrecision.TwoDecimals);
+                logger.LogInformation("{Svc} Retención de rendimientos calculada: {YieldRetention} con tasa {Rate}", svc, yieldRetention, yieldRetentionRate);
             }
             logger.LogInformation("{Svc} UpdateDetails => TrustId={TrustId}, Participation={Participation}, Units={Units}, YieldAmount={YieldAmount}, Income={Income}, Expenses={Expenses}, Commissions={Commissions}, Cost={Cost}, ClosingBalance={ClosingBalance}, Capital={Capital}, ContingentRetention={ContingentRetention}, YieldRetention={YieldRetention}",
                 svc, trust.TrustId, participation, units, yieldAmount, income, expenses, commissions, cost, closingBalance, trust.Capital, trust.ContingentRetention, yieldRetention);

@@ -38,6 +38,8 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IClosingStepEventPublisher, ClosingStepEventPublisher>();
             services.AddTransient<ClosingStepEventSuscriber>();
             services.AddScoped<IAbortClosingService, AbortClosingService>();
+            services.AddScoped<IAbortPortfolioValuationService, AbortPortfolioValuationService>();
+            services.AddScoped<IAbortSimulationService, AbortSimulationService>();
             services.AddScoped<IOperationTypesLocator, OperationTypesLocator>();
            
             services.AddScoped<IOperationTypesService>(sp =>

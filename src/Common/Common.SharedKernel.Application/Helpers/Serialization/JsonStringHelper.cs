@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Common.SharedKernel.Application.Helpers.General;
+namespace Common.SharedKernel.Application.Helpers.Serialization;
 
 /// <summary>
 /// Helper para extraer valores de tipo string desde JsonDocument.

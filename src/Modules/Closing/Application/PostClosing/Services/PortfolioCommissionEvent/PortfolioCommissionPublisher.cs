@@ -5,6 +5,13 @@ using System.Text.Json;
 
 namespace Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
 
+/// <summary>
+/// Publica eventos de comisiones procesadas al cierre: lee detalles cerrados con
+/// <see cref="IYieldDetailRepository"/>, identifica registros de tipo "Comisión"
+/// y emite <see cref="CommissionProcessedIntegrationEvent"/> vía <see cref="IEventBus" />
+/// para notificar al dominio Product y actualizar comisiones acumuladas.
+/// </summary>
+
 public sealed class PortfolioCommissionPublisher(
     IYieldDetailRepository repository,
     IEventBus eventBus
