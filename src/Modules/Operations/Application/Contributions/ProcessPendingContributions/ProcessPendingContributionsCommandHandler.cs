@@ -2,7 +2,7 @@ using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Operations.Application.Abstractions.Data;
@@ -38,65 +38,101 @@ internal sealed class ProcessPendingContributionsCommandHandler(
 
             foreach (var temp in operations)
             {
-                var aux = await tempAuxRepo.GetAsync(temp.TemporaryClientOperationId, cancellationToken);
-                if (aux is null) continue;
+                await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
+                try
+                {
+                    var current = await tempOpRepo.GetForUpdateAsync(temp.TemporaryClientOperationId, cancellationToken);
+                    if (current is null)
+                    {
+                        await tx.RollbackAsync(cancellationToken);
+                        continue;
+                    }
 
-                var op = ClientOperation.Create(
-                    temp.RegistrationDate,
-                    temp.AffiliateId,
-                    temp.ObjectiveId,
-                    temp.PortfolioId,
-                    temp.Amount,
-                    temp.ProcessDate,
-                    temp.OperationTypeId,
-                    DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)).Value;
+                    var aux = await tempAuxRepo.GetAsync(current.TemporaryClientOperationId, cancellationToken);
+                    if (aux is null)
+                    {
+                        await tx.RollbackAsync(cancellationToken);
+                        continue;
+                    }
 
-                var info = AuxiliaryInformation.Create(
-                    op.ClientOperationId,
-                    aux.OriginId,
-                    aux.CollectionMethodId,
-                    aux.PaymentMethodId,
-                    aux.CollectionAccount,
-                    aux.PaymentMethodDetail,
-                    aux.CertificationStatusId,
-                    aux.TaxConditionId,
-                    aux.ContingentWithholding,
-                    aux.VerifiableMedium,
-                    aux.CollectionBankId,
-                    aux.DepositDate,
-                    aux.SalesUser,
-                    aux.OriginModalityId,
-                    aux.CityId,
-                    aux.ChannelId,
-                    aux.UserId).Value;
+                    var op = ClientOperation.Create(
+                        current.RegistrationDate,
+                        current.AffiliateId,
+                        current.ObjectiveId,
+                        current.PortfolioId,
+                        current.Amount,
+                        current.ProcessDate,
+                        current.OperationTypeId,
+                        DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)).Value;
 
-                await transactionControl.ExecuteAsync(op, info, cancellationToken);
-                logger.LogInformation("Operación Cliente procesada {ClientOperationId} para portafolio {PortfolioId}", op.ClientOperationId, op.PortfolioId);
-                temp.MarkAsProcessed();
-                tempOpRepo.Update(temp);
-                logger.LogInformation("Operación temporal {TemporaryClientOperationId} marcada como procesada", temp.TemporaryClientOperationId);
-                await unitOfWork.SaveChangesAsync(cancellationToken);
-                logger.LogInformation("Cambios guardados para la operación temporal {TemporaryClientOperationId}", temp.TemporaryClientOperationId);
-                var trustEvent = new CreateTrustRequestedIntegrationEvent(
-                    op.AffiliateId,
-                    op.ClientOperationId,
-                    DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
-                    op.ObjectiveId,
-                    op.PortfolioId,
-                    op.Amount,
-                    0m,
-                    op.Amount,
-                    0m,
-                    aux.TaxConditionId,
-                    aux.ContingentWithholding,
-                    0m,
-                    op.Amount,
-                    true);
-                logger.LogInformation("Publicando evento de creación de fideicomiso para la operación {ClientOperationId}", op.ClientOperationId);
-                await eventBus.PublishAsync(trustEvent, cancellationToken);
+                    var info = AuxiliaryInformation.Create(
+                        op.ClientOperationId,
+                        aux.OriginId,
+                        aux.CollectionMethodId,
+                        aux.PaymentMethodId,
+                        aux.CollectionAccount,
+                        aux.PaymentMethodDetail,
+                        aux.CertificationStatusId,
+                        aux.TaxConditionId,
+                        aux.ContingentWithholding,
+                        aux.VerifiableMedium,
+                        aux.CollectionBankId,
+                        aux.DepositDate,
+                        aux.SalesUser,
+                        aux.OriginModalityId,
+                        aux.CityId,
+                        aux.ChannelId,
+                        aux.UserId).Value;
 
-                tempOpIds.Add(temp.TemporaryClientOperationId);
-                tempAuxIds.Add(aux.TemporaryAuxiliaryInformationId);
+                    await transactionControl.ExecuteAsync(op, info, cancellationToken);
+                    logger.LogInformation(
+                        "Operación Cliente procesada {ClientOperationId} para portafolio {PortfolioId}",
+                        op.ClientOperationId,
+                        op.PortfolioId);
+
+                    current.MarkAsProcessed();
+                    tempOpRepo.Update(current);
+                    logger.LogInformation(
+                        "Operación temporal {TemporaryClientOperationId} marcada como procesada",
+                        current.TemporaryClientOperationId);
+
+                    await unitOfWork.SaveChangesAsync(cancellationToken);
+                    await tx.CommitAsync(cancellationToken);
+                    logger.LogInformation(
+                        "Cambios guardados para la operación temporal {TemporaryClientOperationId}",
+                        current.TemporaryClientOperationId);
+
+                    var trustEvent = new CreateTrustRequestedIntegrationEvent(
+                        op.AffiliateId,
+                        op.ClientOperationId,
+                        DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
+                        op.ObjectiveId,
+                        op.PortfolioId,
+                        op.Amount,
+                        0m,
+                        op.Amount,
+                        0m,
+                        aux.TaxConditionId,
+                        aux.ContingentWithholding,
+                        0m,
+                        op.Amount,
+                        true);
+                    logger.LogInformation(
+                        "Publicando evento de creación de fideicomiso para la operación {ClientOperationId}",
+                        op.ClientOperationId);
+                    await eventBus.PublishAsync(trustEvent, cancellationToken);
+
+                    tempOpIds.Add(current.TemporaryClientOperationId);
+                    tempAuxIds.Add(aux.TemporaryAuxiliaryInformationId);
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    await tx.RollbackAsync(cancellationToken);
+                    logger.LogWarning(
+                        ex,
+                        "Concurrencia detectada procesando la operación temporal {TemporaryClientOperationId}",
+                        temp.TemporaryClientOperationId);
+                }
             }
 
             if (tempOpIds.Count > 0)

@@ -17,6 +17,13 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
             .SingleOrDefaultAsync(x => x.TemporaryClientOperationId == temporaryClientOperationId, cancellationToken);
     }
 
+    public async Task<TemporaryClientOperation?> GetForUpdateAsync(long temporaryClientOperationId, CancellationToken cancellationToken = default)
+    {
+        return await context.TemporaryClientOperations
+            .Where(x => x.TemporaryClientOperationId == temporaryClientOperationId && !x.Processed)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyCollection<TemporaryClientOperation>> GetByPortfolioAsync(int portfolioId, CancellationToken cancellationToken = default)
     {
         return await context.TemporaryClientOperations
