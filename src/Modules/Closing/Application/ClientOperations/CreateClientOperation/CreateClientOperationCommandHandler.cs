@@ -16,7 +16,7 @@ internal sealed class CreateClientOperationCommandHandler(
     private const string ClassName = nameof(CreateClientOperationCommandHandler);
     public async Task<Result<ClientOperationResponse>> Handle(CreateClientOperationCommand request, CancellationToken cancellationToken)
     {
-        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        //await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         var existing = await repository.GetForUpdateByIdAsync(request.ClientOperationId, cancellationToken);
 
@@ -44,13 +44,11 @@ internal sealed class CreateClientOperationCommandHandler(
 
             var clientOperation = result.Value;
             repository.Insert(clientOperation);
-            logger.LogInformation("{Class} - ClientOperation creada e insertada: {@ClientOperation}", ClassName, clientOperation.ClientOperationId);
+            logger.LogInformation("{Class} - Closing ClientOperation creada e insertada: {@ClientOperation}", ClassName, clientOperation.ClientOperationId);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             logger.LogInformation("{Class} - Cambios guardados en base de datos", ClassName);
 
-            await transaction.CommitAsync(cancellationToken);
-
-            logger.LogInformation("{Class} - Transacción confirmada para ClientOperationId {ClientOperationId}", ClassName, clientOperation.ClientOperationId);
+            //await transaction.CommitAsync(cancellationToken);
 
             return MapToResponse(clientOperation);
         }
@@ -71,7 +69,7 @@ internal sealed class CreateClientOperationCommandHandler(
             logger.LogInformation("{Class} - Update ClientOperation {@Entity}", ClassName, existing.ClientOperationId);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
+            //await transaction.CommitAsync(cancellationToken);
 
             logger.LogInformation("{Class} - Commit Update para ClientOperationId {Id}", ClassName, existing.ClientOperationId);
 

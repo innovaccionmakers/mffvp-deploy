@@ -95,9 +95,9 @@ public sealed class TransactionControl(
     {
         
         clientOperationRepository.Insert(operation);
-        logger.LogInformation("{Class} - Operaci�n creada e insertada: {@Operation}", ClassName, operation.ClientOperationId);
+        logger.LogInformation("{Class} - Operacion creada e insertada: {@Operation}, fecha: {@fecha}", ClassName, operation.ClientOperationId, operation.ProcessDate);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("{Class} - Cambios guardados despu�s de insertar operaci�n: {@Operation}", ClassName, operation.ClientOperationId);
+        logger.LogInformation("{Class} - Cambios guardados despues de insertar operacion: {@Operation}, fecha: {@fecha}", ClassName, operation.ClientOperationId, operation.ProcessDate);
         var info = AuxiliaryInformation.Create(
             operation.ClientOperationId,
             auxiliaryInformation.OriginId,
@@ -119,7 +119,7 @@ public sealed class TransactionControl(
 
         auxiliaryInformationRepository.Insert(info);
 
-        logger.LogInformation("{Class} - Informaci�n auxiliar creada e insertada: {@Aux}", ClassName, info.ClientOperationId);
+        logger.LogInformation("{Class} - Informacion auxiliar creada e insertada: {@Aux}", ClassName, info.ClientOperationId);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("{Class} - Cambios guardados despu�s de insertar informaci�n auxiliar: {@Aux}", ClassName, info.ClientOperationId);

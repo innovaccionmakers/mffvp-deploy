@@ -17,6 +17,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
     ILogger<UpsertTrustOperationCommandHandler> logger)
     : IRequestHandler<UpsertTrustOperationCommand>
 {
+    private const string ClassName = nameof(UpsertTrustOperationCommandHandler);
     public async Task Handle(UpsertTrustOperationCommand request, CancellationToken cancellationToken)
     {
         using var _ = logger.BeginScope(new Dictionary<string, object>
@@ -26,18 +27,16 @@ internal sealed class UpsertTrustOperationCommandHandler(
             ["ClosingDate"] = request.ClosingDate.Date
         });
 
-        logger.LogInformation("Iniciando Upsert de operación de fideicomiso.");
+        logger.LogInformation("{Class} - Iniciando Upsert de operación de fideicomiso.",ClassName);
 
         // 1. Obtener el subtipo "Rendimientos"
-        logger.LogInformation("Buscando SubtransactionType 'Rendimientos'...");
         var subtype = await operationTypeRepository
             .GetByNameAsync("Rendimientos", cancellationToken);
         if (subtype is null)
         {
-            logger.LogInformation("Tipo de Transacción 'Rendimientos' no encontrada.");
             throw new InvalidOperationException("Tipo de Transacción 'Rendimientos' no encontrada.");
         }
-        logger.LogInformation("SubtransactionType encontrado: Id={SubtypeId}", subtype.OperationTypeId);
+        //logger.LogInformation("SubtransactionType encontrado: Id={SubtypeId}", subtype.OperationTypeId);
 
         var yieldSubtypeId = subtype.OperationTypeId;
 
@@ -45,13 +44,13 @@ internal sealed class UpsertTrustOperationCommandHandler(
 
         //Definicion: para la tabla operaciones.operaciones_fideicomiso, la fecha de radicación y aplicación es el getdate
         //y la fecha de proceso es la fecha del último cierre. 
-        logger.LogInformation("Consultando operación existente por (PortfolioId, TrustId, ClosingDate)...");
+       // logger.LogInformation("Consultando operación existente por (PortfolioId, TrustId, ClosingDate)...");
         var existing = await repository
             .GetForUpdateByPortfolioTrustAndDateAsync(request.PortfolioId, request.TrustId, request.ClosingDate.Date, cancellationToken);
 
         if (existing is not null)
         {
-            logger.LogInformation("Operación existente encontrada. Se procederá a actualizar (Id={OperationId}).", existing.TrustOperationId);
+            //logger.LogInformation("Operación existente encontrada. Se procederá a actualizar (Id={OperationId}).", existing.TrustOperationId);
 
             // 3a. Actualizar la operación existente
             existing.UpdateDetails(
@@ -73,7 +72,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
         }
         else
         {
-            logger.LogInformation("No existe operación previa. Se procederá a crear una nueva.");
+            //logger.LogInformation("No existe operación previa. Se procederá a crear una nueva.");
 
             // 3b. Crear una nueva operación
             var opResult = TrustOperation.Create(
@@ -89,7 +88,7 @@ internal sealed class UpsertTrustOperationCommandHandler(
 
             if (opResult.IsFailure)
             {
-                logger.LogInformation("Error creando operación de fideicomiso: {ErrorCode} {ErrorDescription}",
+                logger.LogError("Error creando operación de fideicomiso: {ErrorCode} {ErrorDescription}",
                     opResult.Error.Code, opResult.Error.Description);
                 throw new InvalidOperationException(
                     $"Error creando operación de fideicomiso: {opResult.Error.Description}"
@@ -97,13 +96,11 @@ internal sealed class UpsertTrustOperationCommandHandler(
             }
 
             await repository.AddAsync(opResult.Value, cancellationToken);
-            logger.LogInformation("Repository.AddAsync ejecutado. Nueva operación preparada para persistir.");
+         
         }
 
         // 4. Guardar los cambios (insertar o actualizar) en una sola transacción
-        logger.LogInformation("Guardando cambios con UnitOfWork...");
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Cambios guardados correctamente.");
 
         // 5. Publicar el evento de integración
         var integrationEvent = new TrustYieldOperationAppliedIntegrationEvent(

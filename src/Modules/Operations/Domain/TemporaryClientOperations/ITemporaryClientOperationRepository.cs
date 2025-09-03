@@ -11,4 +11,12 @@ public interface ITemporaryClientOperationRepository
     void Update(TemporaryClientOperation temporaryClientOperation);
     void Delete(TemporaryClientOperation temporaryClientOperation);
     void DeleteRange(IEnumerable<TemporaryClientOperation> operations);
+
+    Task<long?> GetNextPendingIdAsync(
+   int portfolioId,
+   CancellationToken cancellationToken = default);
+
+    Task<int> MarkProcessedIfPendingAsync(
+    long temporaryClientOperationId,
+    CancellationToken cancellationToken = default);
 }

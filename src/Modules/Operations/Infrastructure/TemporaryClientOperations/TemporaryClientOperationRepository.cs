@@ -58,4 +58,31 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
     {
         context.TemporaryClientOperations.RemoveRange(operations);
     }
+
+    public async Task<long?> GetNextPendingIdAsync(
+    int portfolioId,
+    CancellationToken cancellationToken = default)
+    {
+        return await context.TemporaryClientOperations
+            .AsNoTracking()
+            .Where(t => t.PortfolioId == portfolioId && !t.Processed)
+            .OrderBy(t => t.RegistrationDate)              
+            .ThenBy(t => t.TemporaryClientOperationId)      
+            .Select(t => (long?)t.TemporaryClientOperationId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public Task<int> MarkProcessedIfPendingAsync(
+    long temporaryClientOperationId,
+    CancellationToken cancellationToken = default)
+    {
+        return context.TemporaryClientOperations
+            .Where(x => x.TemporaryClientOperationId == temporaryClientOperationId && !x.Processed)
+            .ExecuteUpdateAsync(
+                updates => updates
+                    .SetProperty(x => x.Processed, true)
+                    ,
+                cancellationToken);
+    }
+
 }
