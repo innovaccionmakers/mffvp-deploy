@@ -1,5 +1,4 @@
 ﻿using Common.SharedKernel.Application.Reports;
-using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using Microsoft.Extensions.Logging;
 using Reports.Application.Reports.Strategies;
 using Reports.Domain.BalancesAndMovements;
@@ -108,7 +107,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
             {
                 WorksheetName = "Saldos",
                 ColumnHeaders = _saldosHeaders,
-                Rows = GetMockSaldosData(reportRequest, cancellationToken)
+                Rows = await GetSaldosData(reportRequest, cancellationToken)
             };
             worksheetDataList.Add(saldosData);
 
@@ -117,150 +116,83 @@ namespace Reports.Application.Reports.BalancesAndMovements
             {
                 WorksheetName = "Movimientos",
                 ColumnHeaders = _movimientosHeaders,
-                Rows = GetMockMovimientosData(reportRequest, cancellationToken)
+                Rows = await GetMovimientosData(reportRequest, cancellationToken)
             };
             worksheetDataList.Add(movimientosData);
 
             return await Task.FromResult(worksheetDataList);
         }
 
-        private List<object[]> GetMockSaldosData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
+        private async Task<List<object[]>> GetSaldosData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
-            var response = reportRepository.GetBalancesAsync(reportRequest, cancellationToken);
-            // Datos de ejemplo basados en el CSV proporcionado
-            return new List<object[]>
+            var dataList = new List<object[]>();
+
+            foreach (var balanceResult in await reportRepository.GetBalancesAsync(reportRequest, cancellationToken))
             {
-            };
+                if (balanceResult.IsSuccess && balanceResult.Value != null)
+                {
+                    var row = new object[]
+                    {
+                        balanceResult.Value.StartDate,
+                        balanceResult.Value.StartDate,
+                        balanceResult.Value.IdentificationType,
+                        balanceResult.Value.Identification,
+                        balanceResult.Value.FullName,
+                        balanceResult.Value.TargetID,
+                        balanceResult.Value.Target,
+                        balanceResult.Value.Fund,
+                        balanceResult.Value.Plan,
+                        balanceResult.Value.Alternative,
+                        balanceResult.Value.Portfolio,
+                        balanceResult.Value.InitialBalance,
+                        balanceResult.Value.Entry,
+                        balanceResult.Value.Outflows,
+                        balanceResult.Value.Returns,
+                        balanceResult.Value.SourceWithholding,
+                        balanceResult.Value.ClosingBalance
+                    };
+
+                    dataList.Add(row);
+                }
+            }
+
+            return dataList;
         }
 
-        private List<object[]> GetMockMovimientosData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
+        private async Task<List<object[]>> GetMovimientosData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
-            var response = reportRepository.GetMovementsAsync(reportRequest, cancellationToken);
-            // Datos de ejemplo para movimientos
-            return new List<object[]>
+            var dataList = new List<object[]>();
+
+            foreach (var movementResult in await reportRepository.GetMovementsAsync(reportRequest, cancellationToken))
             {
-                new object[]
+                if (movementResult.IsSuccess && movementResult.Value != null)
                 {
-                    "14/07/2025", // Fecha
-                    "CC - Cedula Ciudadanía", // Tipo Identificacion
-                    "1152196365", // Identificacion
-                    "Veronica Gutirrez Posada", // Nombre Afiliado
-                    "123", // IdObjetivo
-                    "1 - Inversiones", // Objetivo
-                    "1 - FVP Cibest Capital", // Nombre Fondo
-                    "1 - Abierto", // Plan
-                    "1 - Multinversion - Autogestionada", // Alternativa
-                    "1- Fiducuenta Pensión", // Portafolio
-                    "326", // Comprobante
-                    "A - Aporte", // Tipo Transacción
-                    "N - Ninguno", // Subtipo Transacción
-                    5000000m, // Valor
-                    "Exento", // Condición Tributaria
-                    0m, // Retención Contingente Por Aplicar
-                    "T - Transferencia Bancaria" // Forma de Pago
-                },
-                new object[]
-                {
-                    "14/07/2025", // Fecha
-                    "CC - Cedula Ciudadanía", // Tipo Identificacion
-                    "1152196000", // Identificacion
-                    "Juan Camilo Gomez", // Nombre Afiliado
-                    "896", // IdObjetivo
-                    "1 - Inversiones", // Objetivo
-                    "1 - FVP Cibest Capital", // Nombre Fondo
-                    "1 - Abierto", // Plan
-                    "1 - Multinversion - Autogestionada", // Alternativa
-                    "1- Fiducuenta Pensión", // Portafolio
-                    "327", // Comprobante
-                    "A - Aporte", // Tipo Transacción
-                    "N - Ninguno", // Subtipo Transacción
-                    2350000m, // Valor
-                    "Sin Retención Contingente", // Condición Tributaria
-                    0m, // Retención Contingente Por Aplicar
-                    "T - Transferencia Bancaria" // Forma de Pago
-                },
-                new object[]
-                {
-                    "14/07/2025", // Fecha
-                    "CC - Cedula Ciudadanía", // Tipo Identificacion
-                    "1152196365", // Identificacion
-                    "Fabian Arteaga", // Nombre Afiliado
-                    "258", // IdObjetivo
-                    "1 - Inversiones", // Objetivo
-                    "1 - FVP Cibest Capital", // Nombre Fondo
-                    "1 - Abierto", // Plan
-                    "1 - Multinversion - Autogestionada", // Alternativa
-                    "1- Fiducuenta Pensión", // Portafolio
-                    "328", // Comprobante
-                    "A - Aporte", // Tipo Transacción
-                    "N - Ninguno", // Subtipo Transacción
-                    10000000m, // Valor
-                    "Con Retención Contigente Afiliado", // Condición Tributaria
-                    700000m, // Retención Contingente Por Aplicar
-                    "T - Transferencia Bancaria" // Forma de Pago
-                },
-                new object[]
-                {
-                    "15/07/2025", // Fecha
-                    "CC - Cedula Ciudadanía", // Tipo Identificacion
-                    "1152196365", // Identificacion
-                    "Fabian Arteaga", // Nombre Afiliado
-                    "258", // IdObjetivo
-                    "1 - Inversiones", // Objetivo
-                    "1 - FVP Cibest Capital", // Nombre Fondo
-                    "1 - Abierto", // Plan
-                    "1 - Multinversion - Autogestionada", // Alternativa
-                    "1- Fiducuenta Pensión", // Portafolio
-                    "329", // Comprobante
-                    "A - Aporte", // Tipo Transacción
-                    "N - Ninguno", // Subtipo Transacción
-                    10000000m, // Valor
-                    "Con Retención Contigente Afiliado", // Condición Tributaria
-                    700000m, // Retención Contingente Por Aplicar
-                    "T - Transferencia Bancaria" // Forma de Pago
-                },
-                // Puedes agregar más datos de ejemplo aquí si es necesario
-                new object[]
-                {
-                    "16/07/2025", // Fecha
-                    "CC - Cedula Ciudadanía", // Tipo Identificacion
-                    "1152196365", // Identificacion
-                    "Veronica Gutirrez Posada", // Nombre Afiliado
-                    "123", // IdObjetivo
-                    "1 - Inversiones", // Objetivo
-                    "1 - FVP Cibest Capital", // Nombre Fondo
-                    "1 - Abierto", // Plan
-                    "1 - Multinversion - Autogestionada", // Alternativa
-                    "1- Fiducuenta Pensión", // Portafolio
-                    "330", // Comprobante
-                    "R - Retiro", // Tipo Transacción
-                    "P - Parcial", // Subtipo Transacción
-                    1500000m, // Valor
-                    "Exento", // Condición Tributaria
-                    0m, // Retención Contingente Por Aplicar
-                    "T - Transferencia Bancaria" // Forma de Pago
-                },
-                new object[]
-                {
-                    "17/07/2025", // Fecha
-                    "CC - Cedula Ciudadanía", // Tipo Identificacion
-                    "1152196000", // Identificacion
-                    "Juan Camilo Gomez", // Nombre Afiliado
-                    "896", // IdObjetivo
-                    "1 - Inversiones", // Objetivo
-                    "1 - FVP Cibest Capital", // Nombre Fondo
-                    "1 - Abierto", // Plan
-                    "1 - Multinversion - Autogestionada", // Alternativa
-                    "1- Fiducuenta Pensión", // Portafolio
-                    "331", // Comprobante
-                    "R - Retiro", // Tipo Transacción
-                    "T - Total", // Subtipo Transacción
-                    500000m, // Valor
-                    "Sin Retención Contingente", // Condición Tributaria
-                    0m, // Retención Contingente Por Aplicar
-                    "T - Transferencia Bancaria" // Forma de Pago
+                    var row = new object[]
+                    {
+                        movementResult.Value.Date,
+                        movementResult.Value.IdentificationType,
+                        movementResult.Value.Identification,
+                        movementResult.Value.AffiliateName,
+                        movementResult.Value.TargetID,
+                        movementResult.Value.Target,
+                        movementResult.Value.FundName,
+                        movementResult.Value.Plan,
+                        movementResult.Value.Alternative,
+                        movementResult.Value.Portfolio,
+                        movementResult.Value.Receipt,
+                        movementResult.Value.TransactionType,
+                        movementResult.Value.TransactionSubtype,
+                        movementResult.Value.Value,
+                        movementResult.Value.TaxCondition,
+                        movementResult.Value.ContingentWithholdingDue,
+                        movementResult.Value.PaymentMethod
+                    };
+
+                    dataList.Add(row);
                 }
-            };
+            }
+
+            return dataList;
         }
     }
 }
