@@ -1,3 +1,4 @@
+using Azure;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Application.Messaging;
@@ -8,7 +9,9 @@ using Microsoft.Extensions.Logging;
 
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.Cleanup;
+using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Application.Abstractions.Services.TransactionControl;
+using Operations.Application.Contributions.Services.OperationCompleted;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.TemporaryAuxiliaryInformations;
@@ -23,6 +26,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
     ITemporaryClientOperationRepository tempOpRepo,
     ITemporaryAuxiliaryInformationRepository tempAuxRepo,
     ITransactionControl transactionControl,
+     IOperationCompleted operationCompleted,
     IEventBus eventBus,
     ITempClientOperationsCleanupService cleanupService,
     IUnitOfWork unitOfWork,
@@ -120,7 +124,10 @@ internal sealed class ProcessPendingContributionsCommandHandler(
 
                     await transaction.CommitAsync(cancellationToken);
 
-                    // 6) Publicar evento después del commit
+                    // 6) Publicar eventos después del commit
+
+                    await operationCompleted.ExecuteAsync(op, cancellationToken);
+
                     var trustEvent = new CreateTrustRequestedIntegrationEvent(
                         op.AffiliateId,
                         op.ClientOperationId,
