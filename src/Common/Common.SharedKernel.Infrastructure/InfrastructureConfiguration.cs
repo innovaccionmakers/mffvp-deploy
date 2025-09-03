@@ -133,7 +133,7 @@ public static class InfrastructureConfiguration
             options.RoutePrefix = "fiduciaria/fvp/swagger";
         });
 
-        app.UseCors("AllowSwaggerUI");
+        app.UseCors("FvpCorsPolicy");
 
         app.UseAuthentication();
         app.UseAuthorization();

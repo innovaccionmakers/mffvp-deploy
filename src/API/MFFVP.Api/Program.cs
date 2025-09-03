@@ -217,11 +217,14 @@ if (bffAssembly != null)
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));
 
+var corsPolicyName = builder.Configuration.GetValue<string>("Cors:PolicyName") ?? "FvpCorsPolicy";
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSwaggerUI", policy =>
+    options.AddPolicy(corsPolicyName, policy =>
     {
-        policy.WithOrigins("https://localhost:7203", "https://localhost:5173", "http://localhost:3000", "https://mffvp-frontend.pages.dev", "https://fvp.testsmakers.com", "https://fvp.calidad.makersfundsbc.com", "https://testsmakers.com", "https://calidad.makersfundsbc.com", "https://www.calidad.makersfundsbc.com", "https://apiscalidad.makersfundsbc.com")
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
