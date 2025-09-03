@@ -1,9 +1,6 @@
-using Asp.Versioning;
-
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Infrastructure;
-using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Extensions;
 using Common.SharedKernel.Infrastructure.Validation;
@@ -81,10 +78,7 @@ else
         loggerConfig.ReadFrom.Configuration(context.Configuration));
 }
 
-
-
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient(typeof(IValidator<>), typeof(TechnicalValidator<>));
 builder.Services.AddSingleton(typeof(TechnicalValidationFilter<>));
 
@@ -138,13 +132,12 @@ var capDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("Ca
 var appSettingsSecret = builder.Configuration["CustomSettings:Secret"];
 
 builder.Services.AddInfrastructure(
+    builder.Configuration,
     DiagnosticsConfig.ServiceName,
     databaseConnectionString,
     capDbConnectionString,
     databaseConnectionStringSQL,
     appSettingsSecret);
-
-builder.Services.AddRedisCache(builder.Configuration);
 
 builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing", "treasury", "datasync", "reports"], env);
 
@@ -217,34 +210,6 @@ if (bffAssembly != null)
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));
 
-var corsPolicyName = builder.Configuration.GetValue<string>("Cors:PolicyName") ?? "FvpCorsPolicy";
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(corsPolicyName, policy =>
-    {
-        policy.WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
-    });
-});
-
-builder.Services
-    .AddApiVersioning(opt =>
-    {
-        opt.DefaultApiVersion = new ApiVersion(1, 0);
-        opt.AssumeDefaultVersionWhenUnspecified = true;
-        opt.ReportApiVersions = true;
-        opt.ApiVersionReader = new UrlSegmentApiVersionReader();
-    })
-    .AddApiExplorer(opt =>
-    {
-        opt.GroupNameFormat = "'v'VVV";
-        opt.SubstituteApiVersionInUrl = true;
-    });
-
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
@@ -275,7 +240,6 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapGet("/",
     () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
-
 
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
 
