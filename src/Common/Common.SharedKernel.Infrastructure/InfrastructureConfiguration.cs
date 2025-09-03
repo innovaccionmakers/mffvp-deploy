@@ -1,16 +1,18 @@
-﻿using Common.SharedKernel.Application.Caching.Closing;
+﻿using Asp.Versioning;
+
+using Common.SharedKernel.Application.Caching.Closing;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.EventBus;
-using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Caching.Closing;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
-using Common.SharedKernel.Infrastructure.EventBus;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
@@ -31,6 +33,7 @@ public static class InfrastructureConfiguration
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
+        IConfiguration configuration,
         string serviceName,
         string databaseConnectionString,
         string capDbConnectionString,
@@ -97,6 +100,38 @@ public static class InfrastructureConfiguration
                 tracing.AddOtlpExporter();
             });
 
+        services.AddEndpointsApiExplorer();
+
+        services
+            .AddApiVersioning(opt =>
+            {
+                opt.DefaultApiVersion = new ApiVersion(1, 0);
+                opt.AssumeDefaultVersionWhenUnspecified = true;
+                opt.ReportApiVersions = true;
+                opt.ApiVersionReader = new UrlSegmentApiVersionReader();
+            })
+            .AddApiExplorer(opt =>
+            {
+                opt.GroupNameFormat = "'v'VVV";
+                opt.SubstituteApiVersionInUrl = true;
+            });
+
+        var corsPolicyName = configuration.GetValue<string>("Cors:PolicyName") ?? "FvpCorsPolicy";
+        var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy(corsPolicyName, policy =>
+            {
+                policy.WithOrigins(allowedOrigins)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            });
+        });
+
+        services.AddRedisCache(configuration);
+
         services.AddScoped<IDatabaseConnectionStrategy, SqlServerConnectionStrategy>();
         services.AddScoped<IDatabaseConnectionStrategy, YugaByteConnectionStrategy>();
         services.AddScoped<DatabaseConnectionContext>();
@@ -133,7 +168,8 @@ public static class InfrastructureConfiguration
             options.RoutePrefix = "fiduciaria/fvp/swagger";
         });
 
-        app.UseCors("AllowSwaggerUI");
+        var corsPolicyName = app.Configuration.GetValue<string>("Cors:PolicyName") ?? "FvpCorsPolicy";
+        app.UseCors(corsPolicyName);
 
         app.UseAuthentication();
         app.UseAuthorization();

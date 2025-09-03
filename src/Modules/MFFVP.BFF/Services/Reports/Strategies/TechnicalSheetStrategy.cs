@@ -116,7 +116,7 @@ namespace MFFVP.BFF.Services.Reports.Strategies
                 var response = new ReportResponseDto
                 {
                     FileContent = Convert.ToBase64String(reportBytes),
-                    FileName = $"TechnicalSheet_{technicalSheetRequest.StartDate:ddMMyyyy}_{technicalSheetRequest.EndDate:ddMMyyyy}_Portfolio{technicalSheetRequest.PortfolioId}.xlsx",
+                    FileName = $"InformaciónFichaTécnica_{technicalSheetRequest.StartDate:ddMMyyyy}_{technicalSheetRequest.EndDate:ddMMyyyy}_Portafolio{technicalSheetRequest.PortfolioId}.xlsx",
                     MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 };
 
