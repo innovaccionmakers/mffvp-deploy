@@ -14,7 +14,7 @@ public sealed class PendingContributionProcessor(ISender mediator) : ICapSubscri
         CancellationToken cancellationToken)
     {
         await mediator.Send(
-            new ProcessPendingContributionsCommand(message.PortfolioId),
+            new ProcessPendingContributionsCommand(message.PortfolioId, message.ProcessDate),
             cancellationToken);
     }
 }
