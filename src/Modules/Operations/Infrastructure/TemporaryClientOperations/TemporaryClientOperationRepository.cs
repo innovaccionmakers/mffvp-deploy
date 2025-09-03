@@ -39,6 +39,13 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
             .ToListAsync(cancellationToken);
     }
 
+    public Task<int> DeleteByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default)
+    {
+        return context.TemporaryClientOperations
+            .Where(x => ids.Contains(x.TemporaryClientOperationId))
+            .ExecuteDeleteAsync(cancellationToken);
+    }
+
     public void Insert(TemporaryClientOperation temporaryClientOperation)
     {
         context.TemporaryClientOperations.Add(temporaryClientOperation);
