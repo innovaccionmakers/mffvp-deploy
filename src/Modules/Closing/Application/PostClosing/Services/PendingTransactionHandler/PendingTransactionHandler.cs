@@ -25,10 +25,10 @@ public class PendingTransactionHandler : IPendingTransactionHandler
         _timeControlService = timeControlService;
     }
 
-    public async Task HandleAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
+    public async Task HandleAsync(int portfolioId, DateTime processDate, CancellationToken cancellationToken)
     {
         // 1. Publicar evento para procesar aportes pendientes
-        var pendingEvent = new ProcessPendingContributionsRequestedIntegrationEvent(portfolioId);
+        var pendingEvent = new ProcessPendingContributionsRequestedIntegrationEvent(portfolioId, processDate);
         await _eventBus.PublishAsync(pendingEvent, cancellationToken);
 
         // 2. Una vez procesados los aportes pendientes, finalizar el flujo de cierre

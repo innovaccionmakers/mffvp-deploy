@@ -135,7 +135,10 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<ITrustCreation, TrustCreation>();
         services.AddScoped<IOperationCompleted, OperationCompleted>();
         services.AddScoped<PendingContributionProcessor>();
-        services.AddSingleton<ITempClientOperationsCleanupService, TempClientOpsCleanupService>();
+        services.AddSingleton<TempClientOpsCleanupService>();
+        services.AddSingleton<ITempClientOperationsCleanupService>(sp =>
+            sp.GetRequiredService<TempClientOpsCleanupService>());
+        services.AddHostedService(sp => sp.GetRequiredService<TempClientOpsCleanupService>());
 
         services.AddScoped<IErrorCatalog<OperationsModuleMarker>, ErrorCatalog<OperationsModuleMarker>>();
 

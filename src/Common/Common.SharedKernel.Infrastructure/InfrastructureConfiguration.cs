@@ -81,6 +81,7 @@ public static class InfrastructureConfiguration
             x.UseInMemoryStorage();
             x.UseInMemoryMessageQueue();
             x.UsePostgreSql(capDbConnectionString);
+            x.UseStorageLock = true;
             x.FailedRetryInterval = 5;
             x.FailedRetryCount = 10;
             x.UseDashboard();
