@@ -18,6 +18,7 @@ using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
 using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
+using Closing.Application.PostClosing.Services.TechnicalSheetEvent;
 using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYieldEvent;
 using Closing.Infrastructure.External.DataSync;
@@ -60,6 +61,7 @@ namespace Closing.Infrastructure.Configuration
 
             services.AddScoped<IPostClosingEventsOrchestation, PostClosingEventsOrchestation>();
             services.AddScoped<IPortfolioUpdatePublisher, PortfolioUpdatePublisher>();
+            services.AddScoped<ITechnicalSheetPublisher, TechnicalSheetPublisher>();
             services.AddScoped<ITrustYieldPublisher, TrustYieldPublisher>();
             services.AddScoped<IPortfolioCommissionPublisher, PortfolioCommissionPublisher>();
             services.AddScoped<IPendingTransactionHandler, PendingTransactionHandler>();
