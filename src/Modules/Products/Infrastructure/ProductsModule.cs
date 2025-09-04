@@ -138,7 +138,6 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();
         services.AddScoped<CommissionProcessedSuscriber>();
         services.AddScoped<TechnicalSheetDataBuilderSuscriber>();
-        services.AddScoped<CommissionProcessedConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }
