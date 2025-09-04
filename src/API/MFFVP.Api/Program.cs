@@ -47,6 +47,47 @@ if (env != "Development")
         options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
         options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
         options.DefaultAttributes = observabilityOptions.DefaultAttributes;
+
+        options.UseSidecarPattern = true;
+        options.SidecarEndpoint = "http://localhost:4317";
+        options.EnablePrometheusExporter = false;
+        options.EnableAspireExport = true;
+
+        options.AutoTracingAssemblyPatterns = new[]
+        {
+            "Makers.Funds.*",            // Todos los assemblies Makers.Funds
+            "Core.Makers.Funds.*",       // Core assemblies (para IErrorOperationsBusiness)
+            "Makers.*.Bussines",         // Capas de negocio
+            "Makers.*.Business",         // Por si usan "Business" sin "s"
+            "Makers.*.Data",             // Capas de datos
+            "*.Application",
+            "*.Application.Contracts",
+            "*.Domain",
+            "*.Infrastructure",
+            "*.IntegrationEvents",
+            "*.Integrations",
+            "*.Presentation",
+            "MFFVP.Api"
+        };
+
+        options.AutoTracingServicePatterns = new[]
+        {
+            "*Business",                 // IErrorOperationsBusiness
+            "*Bussines",                 // IEscrowBussines, IInconsistencyBussines, IClosingLogBussines
+            "*Service",                  // Servicios generales
+            "*Repository",               // Repositorios
+            "*Handler",                  // Handlers
+            "*Manager",                  // Managers
+            "*Processor"                 // Procesadores
+        };
+
+        options.AutoTracingExcludePatterns = new[]
+        {
+            "*HealthCheck*",             // Health checks
+            "*Configuration*",           // Configuraciones
+            "*Logger*",                  // Loggers (pueden crear recursión)
+            "*.Internal.*"               // Clases internas
+        };
     });
 
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
