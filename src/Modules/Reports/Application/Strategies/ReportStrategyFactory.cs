@@ -2,6 +2,7 @@ using Common.SharedKernel.Application.Reports;
 using Microsoft.Extensions.DependencyInjection;
 using Reports.Application.BalancesAndMovements;
 using Reports.Application.Reports.DailyClosing;
+using Reports.Application.TechnicalSheet;
 
 namespace Reports.Application.Strategies
 {
@@ -20,6 +21,7 @@ namespace Reports.Application.Strategies
             {
                 ReportType.DailyClosing => _serviceProvider.GetRequiredService<DailyClosingReport>(),
                 ReportType.Balances => _serviceProvider.GetRequiredService<BalancesAndMovementsReport>(),
+                ReportType.TechnicalSheet => _serviceProvider.GetRequiredService<TechnicalSheetReport>(),
                 _ => throw new ArgumentException($"Tipo de reporte no soportado: {reportType}")
             };
         }
