@@ -47,4 +47,10 @@ public class BankAccountRepository(TreasuryDbContext context) : IBankAccountRepo
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> ExistByPortfolioAndAccountNumberAsync(long portfolioId, string accountNumber, CancellationToken cancellationToken = default)
+    {
+        return await context.BankAccounts
+            .AnyAsync(x => x.PortfolioId == portfolioId && x.AccountNumber == accountNumber, cancellationToken);
+    }
+
 }

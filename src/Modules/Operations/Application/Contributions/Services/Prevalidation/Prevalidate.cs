@@ -115,6 +115,8 @@ public sealed class Prevalidate(
             command.CollectionBank,
             cancellationToken);
 
+        var existBankAccount = await collectionBankValidator.ValidateExistByPortfolioAndAccountNumberAsync(command.PortfolioId, command.CollectionAccount, cancellationToken);
+
         if (!bankResult.IsSuccess)
             return Result.Failure<PrevalidationResult>(bankResult.Error!);
 

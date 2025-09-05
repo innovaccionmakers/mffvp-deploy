@@ -48,7 +48,7 @@ public sealed class QueueTransactions(
             prevalidationResult.Catalogs.Source!.OriginId,
             prevalidationResult.Catalogs.CollectionMethod!.ConfigurationParameterId,
             prevalidationResult.Catalogs.PaymentMethod!.ConfigurationParameterId,
-            int.TryParse(command.CollectionAccount, out var acc) ? acc : 0,
+            command.CollectionAccount,
             command.PaymentMethodDetail ?? JsonDocument.Parse("{}"),
             tax.CertificationStatusId,
             tax.TaxConditionId,

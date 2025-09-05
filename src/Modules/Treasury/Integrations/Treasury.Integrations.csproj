@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="BankAccounts\Queries\" />
     <Folder Include="TreasuryConcepts\Queries\" />
     <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
   </ItemGroup>

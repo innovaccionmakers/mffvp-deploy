@@ -24,4 +24,8 @@ internal sealed class CollectionBankValidator(IRpcClient rpc) : ICollectionBankV
             ? Result.Success(response.BankId!.Value)
             : Result.Failure<long>(Error.Validation(response.Code!, response.Message!));
     }
+
+    public Task<Result<bool>> ValidateExistByPortfolioAndAccountNumberAsync(long portfolioId, string accountNumber, string homologatedCode, CancellationToken cancellationToken = default)
+    {        
+    }
 }
