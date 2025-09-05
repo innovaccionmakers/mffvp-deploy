@@ -27,9 +27,8 @@ public class ReportsExperienceQueriesTests
         factoryMock
             .Setup(f => f.GetStrategy(ReportType.DailyClosing))
             .Returns(strategyMock.Object);
-
-        var mediatorMock = new Mock<IMediator>();
-        var queries = new ReportsExperienceQueries(mediatorMock.Object, factoryMock.Object);
+        
+        var queries = new ReportsExperienceQueries(factoryMock.Object);
 
         var result = await queries.GetReportDataAsync(request, ReportType.DailyClosing, CancellationToken.None);
 
