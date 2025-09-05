@@ -1,6 +1,5 @@
 ﻿using Associate.Presentation.GraphQL;
 using Associate.Presentation.GraphQL.Inputs;
-using Closing.Presentation.DTOs;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
 using Closing.Presentation.GraphQL.Inputs;
@@ -139,5 +138,33 @@ public class Mutation
                                                         CancellationToken cancellationToken)
     {
         return await closingMutations.RunSimulationAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("cierreEjecucion")]
+    public async Task<GraphqlResult<RunClosingDto>> RunClosingAsync([GraphQLName("cierre")] RunClosingInput input,
+                                                       IValidator<RunClosingInput> validator,
+                                                       [Service] IClosingExperienceMutations closingMutations,
+                                                       CancellationToken cancellationToken)
+    {
+        return await closingMutations.RunClosingAsync(input, validator, cancellationToken);
+    }
+
+
+    [GraphQLName("cierreConfirmacion")]
+    public async Task<GraphqlResult<ConfirmClosingDto>> ConfirmClosingAsync([GraphQLName("cierre")] ConfirmClosingInput input,
+                                                       IValidator<ConfirmClosingInput> validator,
+                                                       [Service] IClosingExperienceMutations closingMutations,
+                                                       CancellationToken cancellationToken)
+    {
+        return await closingMutations.ConfirmClosingAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("cierreCancelacion")]
+    public async Task<GraphqlResult<CancelClosingDto>> CancelClosingAsync([GraphQLName("cierre")] CancelClosingInput input,
+                                                       IValidator<CancelClosingInput> validator,
+                                                       [Service] IClosingExperienceMutations closingMutations,
+                                                       CancellationToken cancellationToken)
+    {
+        return await closingMutations.CancelClosingAsync(input, validator, cancellationToken);
     }
 }
