@@ -9,9 +9,9 @@ namespace Closing.Application.Closing.Commands.RunClosing;
 internal sealed class CancelClosingCommandHandler(
     ICancelClosingOrchestrator orchestrator,
     ILogger<CancelClosingCommandHandler> logger)
-    : ICommandHandler<CancelClosingCommand>
+    : ICommandHandler<CancelClosingCommand, CancelClosingResult>
 {
-    public async Task<Result> Handle(CancelClosingCommand command, CancellationToken cancellationToken)
+    public async Task<Result<CancelClosingResult>> Handle(CancelClosingCommand command, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         try
