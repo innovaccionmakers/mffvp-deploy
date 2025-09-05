@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Common.SharedKernel.Application.Reports;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.DTOs;

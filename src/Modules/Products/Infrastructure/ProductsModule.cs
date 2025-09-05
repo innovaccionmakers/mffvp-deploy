@@ -59,6 +59,7 @@ using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.Portfolio;
 using Products.IntegrationEvents.Portfolio.PortfolioUpdated;
 using Products.IntegrationEvents.PortfolioValidation;
+using Products.IntegrationEvents.TechnicalSheet;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
 
@@ -136,6 +137,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
         services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();
         services.AddScoped<CommissionProcessedSuscriber>();
+        services.AddScoped<TechnicalSheetDataBuilderSuscriber>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }
