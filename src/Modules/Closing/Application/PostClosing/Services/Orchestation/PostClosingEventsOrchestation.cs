@@ -66,6 +66,6 @@ public class PostClosingEventsOrchestation : IPostClosingEventsOrchestation
         await _trustYieldPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
 
         // 5. Manejar transacciones pendientes y enviar evento de paso ClosingEnd
-        await _pendingTransactionHandler.HandleAsync(portfolioId, closingDate, cancellationToken);
+        await _pendingTransactionHandler.HandleAsync(portfolioId, closingDate.AddDays(1), cancellationToken);
     }
 }

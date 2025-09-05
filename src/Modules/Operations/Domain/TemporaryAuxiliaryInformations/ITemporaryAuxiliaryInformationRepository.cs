@@ -9,4 +9,5 @@ public interface ITemporaryAuxiliaryInformationRepository
     void Delete(TemporaryAuxiliaryInformation temporaryAuxiliaryInformation);
     void DeleteRange(IEnumerable<TemporaryAuxiliaryInformation> infos);
     Task<IReadOnlyCollection<TemporaryAuxiliaryInformation>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default);
+    Task<int> DeleteByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default);
 }

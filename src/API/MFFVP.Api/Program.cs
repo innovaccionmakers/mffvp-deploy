@@ -1,9 +1,6 @@
-using Asp.Versioning;
-
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Infrastructure;
-using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Extensions;
 using Common.SharedKernel.Infrastructure.Validation;
@@ -50,6 +47,47 @@ if (env != "Development")
         options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
         options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
         options.DefaultAttributes = observabilityOptions.DefaultAttributes;
+
+        options.UseSidecarPattern = true;
+        options.SidecarEndpoint = "http://localhost:4317";
+        options.EnablePrometheusExporter = false;
+        options.EnableAspireExport = true;
+
+        options.AutoTracingAssemblyPatterns = new[]
+        {
+            "Makers.Funds.*",            // Todos los assemblies Makers.Funds
+            "Core.Makers.Funds.*",       // Core assemblies (para IErrorOperationsBusiness)
+            "Makers.*.Bussines",         // Capas de negocio
+            "Makers.*.Business",         // Por si usan "Business" sin "s"
+            "Makers.*.Data",             // Capas de datos
+            "*.Application",
+            "*.Application.Contracts",
+            "*.Domain",
+            "*.Infrastructure",
+            "*.IntegrationEvents",
+            "*.Integrations",
+            "*.Presentation",
+            "MFFVP.Api"
+        };
+
+        options.AutoTracingServicePatterns = new[]
+        {
+            "*Business",                 // IErrorOperationsBusiness
+            "*Bussines",                 // IEscrowBussines, IInconsistencyBussines, IClosingLogBussines
+            "*Service",                  // Servicios generales
+            "*Repository",               // Repositorios
+            "*Handler",                  // Handlers
+            "*Manager",                  // Managers
+            "*Processor"                 // Procesadores
+        };
+
+        options.AutoTracingExcludePatterns = new[]
+        {
+            "*HealthCheck*",             // Health checks
+            "*Configuration*",           // Configuraciones
+            "*Logger*",                  // Loggers (pueden crear recursión)
+            "*.Internal.*"               // Clases internas
+        };
     });
 
     var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
@@ -81,10 +119,7 @@ else
         loggerConfig.ReadFrom.Configuration(context.Configuration));
 }
 
-
-
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient(typeof(IValidator<>), typeof(TechnicalValidator<>));
 builder.Services.AddSingleton(typeof(TechnicalValidationFilter<>));
 
@@ -138,13 +173,12 @@ var capDbConnectionString = builder.Configuration.GetConnectionStringOrThrow("Ca
 var appSettingsSecret = builder.Configuration["CustomSettings:Secret"];
 
 builder.Services.AddInfrastructure(
+    builder.Configuration,
     DiagnosticsConfig.ServiceName,
     databaseConnectionString,
     capDbConnectionString,
     databaseConnectionStringSQL,
     appSettingsSecret);
-
-builder.Services.AddRedisCache(builder.Configuration);
 
 builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing", "treasury", "datasync", "reports"], env);
 
@@ -217,31 +251,6 @@ if (bffAssembly != null)
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(moduleApplicationAssemblies));
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSwaggerUI", policy =>
-    {
-        policy.WithOrigins("https://localhost:7203", "https://localhost:5173", "http://localhost:3000", "https://mffvp-frontend.pages.dev", "https://fvp.testsmakers.com", "https://fvp.calidad.makersfundsbc.com", "https://testsmakers.com", "https://calidad.makersfundsbc.com", "https://www.calidad.makersfundsbc.com")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
-    });
-});
-
-builder.Services
-    .AddApiVersioning(opt =>
-    {
-        opt.DefaultApiVersion = new ApiVersion(1, 0);
-        opt.AssumeDefaultVersionWhenUnspecified = true;
-        opt.ReportApiVersions = true;
-        opt.ApiVersionReader = new UrlSegmentApiVersionReader();
-    })
-    .AddApiExplorer(opt =>
-    {
-        opt.GroupNameFormat = "'v'VVV";
-        opt.SubstituteApiVersionInUrl = true;
-    });
-
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
@@ -272,7 +281,6 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapGet("/",
     () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
-
 
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
 

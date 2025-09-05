@@ -1,13 +1,17 @@
+using Azure;
 using Common.SharedKernel.Application.EventBus;
+using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.Cleanup;
+using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Application.Abstractions.Services.TransactionControl;
+using Operations.Application.Contributions.Services.OperationCompleted;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.TemporaryAuxiliaryInformations;
@@ -22,6 +26,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
     ITemporaryClientOperationRepository tempOpRepo,
     ITemporaryAuxiliaryInformationRepository tempAuxRepo,
     ITransactionControl transactionControl,
+     IOperationCompleted operationCompleted,
     IEventBus eventBus,
     ITempClientOperationsCleanupService cleanupService,
     IUnitOfWork unitOfWork,
@@ -32,79 +37,127 @@ internal sealed class ProcessPendingContributionsCommandHandler(
     {
         try
         {
-            var operations = await tempOpRepo.GetByPortfolioAsync(request.PortfolioId, cancellationToken);
-            var tempOpIds = new List<long>();
-            var tempAuxIds = new List<long>();
+            var processedTempIds = new List<long>();
+            var processedAuxIds = new List<long>();
+            var processDate = DateTimeConverter.ToUtcDateTime(request.ProcessDate);
 
-            foreach (var temp in operations)
+            while (true)
             {
-                var aux = await tempAuxRepo.GetAsync(temp.TemporaryClientOperationId, cancellationToken);
-                if (aux is null) continue;
+                // 1) Traer siguiente id pendiente (sin tracking)
+                var nextId = await tempOpRepo.GetNextPendingIdAsync(request.PortfolioId, cancellationToken);
+                if (nextId is null) break;
 
-                var op = ClientOperation.Create(
-                    temp.RegistrationDate,
-                    temp.AffiliateId,
-                    temp.ObjectiveId,
-                    temp.PortfolioId,
-                    temp.Amount,
-                    temp.ProcessDate,
-                    temp.OperationTypeId,
-                    DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)).Value;
+                await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-                var info = AuxiliaryInformation.Create(
-                    op.ClientOperationId,
-                    aux.OriginId,
-                    aux.CollectionMethodId,
-                    aux.PaymentMethodId,
-                    aux.CollectionAccount,
-                    aux.PaymentMethodDetail,
-                    aux.CertificationStatusId,
-                    aux.TaxConditionId,
-                    aux.ContingentWithholding,
-                    aux.VerifiableMedium,
-                    aux.CollectionBankId,
-                    aux.DepositDate,
-                    aux.SalesUser,
-                    aux.OriginModalityId,
-                    aux.CityId,
-                    aux.ChannelId,
-                    aux.UserId).Value;
+                try
+                {
+                    // 2) Cargar la fila (con tracking)
+                    var current = await tempOpRepo.GetAsync(nextId.Value, cancellationToken);
+                    if (current is null || current.Processed)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        continue;
+                    }
 
-                await transactionControl.ExecuteAsync(op, info, cancellationToken);
-                logger.LogInformation("Operación Cliente procesada {ClientOperationId} para portafolio {PortfolioId}", op.ClientOperationId, op.PortfolioId);
-                temp.MarkAsProcessed();
-                tempOpRepo.Update(temp);
-                logger.LogInformation("Operación temporal {TemporaryClientOperationId} marcada como procesada", temp.TemporaryClientOperationId);
-                await unitOfWork.SaveChangesAsync(cancellationToken);
-                logger.LogInformation("Cambios guardados para la operación temporal {TemporaryClientOperationId}", temp.TemporaryClientOperationId);
-                var trustEvent = new CreateTrustRequestedIntegrationEvent(
-                    op.AffiliateId,
-                    op.ClientOperationId,
-                    DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
-                    op.ObjectiveId,
-                    op.PortfolioId,
-                    op.Amount,
-                    0m,
-                    op.Amount,
-                    0m,
-                    aux.TaxConditionId,
-                    aux.ContingentWithholding,
-                    0m,
-                    op.Amount,
-                    true);
-                logger.LogInformation("Publicando evento de creación de fideicomiso para la operación {ClientOperationId}", op.ClientOperationId);
-                await eventBus.PublishAsync(trustEvent, cancellationToken);
+                    var aux = await tempAuxRepo.GetAsync(current.TemporaryClientOperationId, cancellationToken);
+                    if (aux is null)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        continue;
+                    }
 
-                tempOpIds.Add(temp.TemporaryClientOperationId);
-                tempAuxIds.Add(aux.TemporaryAuxiliaryInformationId);
+                    // 3) Crear operación final
+                    var op = ClientOperation.Create(
+                        current.RegistrationDate,
+                        current.AffiliateId,
+                        current.ObjectiveId,
+                        current.PortfolioId,
+                        current.Amount,
+                        processDate,
+                        current.OperationTypeId,
+                        DateTime.UtcNow).Value;
+
+
+                    var info = AuxiliaryInformation.Create(
+                        op.ClientOperationId,
+                        aux.OriginId,
+                        aux.CollectionMethodId,
+                        aux.PaymentMethodId,
+                        aux.CollectionAccount,
+                        aux.PaymentMethodDetail,
+                        aux.CertificationStatusId,
+                        aux.TaxConditionId,
+                        aux.ContingentWithholding,
+                        aux.VerifiableMedium,
+                        aux.CollectionBankId,
+                        aux.DepositDate,
+                        aux.SalesUser,
+                        aux.OriginModalityId,
+                        aux.CityId,
+                        aux.ChannelId,
+                        aux.UserId).Value;
+
+                    await transactionControl.ExecuteAsync(op, info, cancellationToken);
+
+                    // 4) Guardar inserción 
+                    try
+                    {
+                        await unitOfWork.SaveChangesAsync(cancellationToken);
+                    }
+                    catch (DbUpdateException ex) when (IsUniqueViolation23505(ex))
+                    {
+                        logger.LogInformation("Transaccion temporal {TemporaryClientOperationId}, valor {Amount} ya insertada: {Message}", current.TemporaryClientOperationId, current.Amount, ex.Message);
+                    }
+
+                    // 5) Marcar procesado
+                    var affected = await tempOpRepo.MarkProcessedIfPendingAsync(
+                        current.TemporaryClientOperationId,
+                        cancellationToken);
+
+                    await unitOfWork.SaveChangesAsync(cancellationToken);
+                    if (affected == 0)
+                    {
+                        logger.LogInformation("Transaccion temporal {TemporaryClientOperationId}, valor {Amount} ya marcada por otra instancia", current.TemporaryClientOperationId, current.Amount);
+                        await transaction.RollbackAsync(cancellationToken);
+                        continue;
+                    }
+
+                    await transaction.CommitAsync(cancellationToken);
+
+                    // 6) Publicar eventos después del commit
+
+                    await operationCompleted.ExecuteAsync(op, cancellationToken);
+
+                    var trustEvent = new CreateTrustRequestedIntegrationEvent(
+                        op.AffiliateId,
+                        op.ClientOperationId,
+                        DateTime.UtcNow,
+                        op.ObjectiveId,
+                        op.PortfolioId,
+                        op.Amount,
+                        0m, op.Amount, 0m,
+                        aux.TaxConditionId, aux.ContingentWithholding,
+                        0m, op.Amount, true);
+
+                    await eventBus.PublishAsync(trustEvent, cancellationToken);
+
+                    processedTempIds.Add(current.TemporaryClientOperationId);
+                    processedAuxIds.Add(aux.TemporaryAuxiliaryInformationId);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    logger.LogInformation("DbUpdateConcurrencyException para transaccion temporal {TemporaryClientOperationId}, otra sesión tocó la fila", nextId);
+                    await transaction.RollbackAsync(cancellationToken);
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
             }
 
-            if (tempOpIds.Count > 0)
-            {
-                await cleanupService.ScheduleCleanupAsync(tempOpIds, tempAuxIds, cancellationToken);
-                logger.LogInformation("Limpieza programada de operaciones temporales: {TemporaryClientOperationIds} y auxiliares temporales: {TemporaryAuxiliaryInformationIds}",
-                    string.Join(", ", tempOpIds), string.Join(", ", tempAuxIds));
-            }
+            if (processedTempIds.Count > 0)
+                await cleanupService.ScheduleCleanupAsync(processedTempIds, processedAuxIds, cancellationToken);
 
             return Result.Success();
         }
@@ -114,6 +167,10 @@ internal sealed class ProcessPendingContributionsCommandHandler(
             return Result.Failure(new Error("ErrorProcesandoContribuciones", "Ocurrió un error al procesar las contribuciones pendientes.", ErrorType.Failure));
 
         }
-   
+
+        static bool IsUniqueViolation23505(DbUpdateException ex)
+      => ex.InnerException?.Message.Contains("23505") == true
+         || ex.Message.Contains("duplicate key value", StringComparison.OrdinalIgnoreCase);
+
     }
 }

@@ -51,7 +51,7 @@ public sealed class ClientOperation : Entity
             ApplicationDate = applicationDate
         };
 
-        clientOperation.Raise(new ClientOperationCreatedDomainEvent(clientOperation.ClientOperationId));
+        //clientOperation.Raise(new ClientOperationCreatedDomainEvent(clientOperation.ClientOperationId));
         return Result.Success(clientOperation);
     }
 

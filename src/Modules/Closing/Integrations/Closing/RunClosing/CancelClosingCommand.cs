@@ -10,4 +10,4 @@ public sealed record CancelClosingCommand(
     int PortfolioId,
     [property: JsonPropertyName("FechaCierre")]
     DateTime ClosingDate)
-    : ICommand;
+ : ICommand<CancelClosingResult>;

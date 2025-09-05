@@ -17,10 +17,16 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
             .SingleOrDefaultAsync(x => x.TemporaryClientOperationId == temporaryClientOperationId, cancellationToken);
     }
 
+    public async Task<TemporaryClientOperation?> GetForUpdateAsync(long temporaryClientOperationId, CancellationToken cancellationToken = default)
+    {
+        return await context.TemporaryClientOperations
+            .Where(x => x.TemporaryClientOperationId == temporaryClientOperationId && !x.Processed)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyCollection<TemporaryClientOperation>> GetByPortfolioAsync(int portfolioId, CancellationToken cancellationToken = default)
     {
         return await context.TemporaryClientOperations
-            .AsNoTracking()
             .Where(x => x.PortfolioId == portfolioId && !x.Processed)
             .OrderBy(x => x.RegistrationDate)
             .ToListAsync(cancellationToken);
@@ -31,6 +37,13 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
         return await context.TemporaryClientOperations
             .Where(x => ids.Contains(x.TemporaryClientOperationId))
             .ToListAsync(cancellationToken);
+    }
+
+    public Task<int> DeleteByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default)
+    {
+        return context.TemporaryClientOperations
+            .Where(x => ids.Contains(x.TemporaryClientOperationId))
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
     public void Insert(TemporaryClientOperation temporaryClientOperation)
@@ -52,4 +65,31 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
     {
         context.TemporaryClientOperations.RemoveRange(operations);
     }
+
+    public async Task<long?> GetNextPendingIdAsync(
+    int portfolioId,
+    CancellationToken cancellationToken = default)
+    {
+        return await context.TemporaryClientOperations
+            .AsNoTracking()
+            .Where(t => t.PortfolioId == portfolioId && !t.Processed)
+            .OrderBy(t => t.RegistrationDate)              
+            .ThenBy(t => t.TemporaryClientOperationId)      
+            .Select(t => (long?)t.TemporaryClientOperationId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public Task<int> MarkProcessedIfPendingAsync(
+    long temporaryClientOperationId,
+    CancellationToken cancellationToken = default)
+    {
+        return context.TemporaryClientOperations
+            .Where(x => x.TemporaryClientOperationId == temporaryClientOperationId && !x.Processed)
+            .ExecuteUpdateAsync(
+                updates => updates
+                    .SetProperty(x => x.Processed, true)
+                    ,
+                cancellationToken);
+    }
+
 }

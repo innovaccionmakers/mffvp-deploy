@@ -19,8 +19,7 @@
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore"
-      Version="1.0.0-beta.12" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta.12" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
     <PackageReference Include="Polly.Core" Version="8.4.2" />
     <PackageReference Include="Polly.Extensions" Version="8.4.2" />
@@ -32,32 +31,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
-    <ProjectReference
-      Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
-    <ProjectReference
-      Include="..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
+    <ProjectReference Include="..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
+    <ProjectReference Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
     <ProjectReference Include="..\..\Modules\Associate\Application\Associate.Application.csproj" />
-    <ProjectReference
-      Include="..\..\Modules\Associate\Infrastructure\Associate.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Associate\Infrastructure\Associate.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Closing\Domain\Closing.Domain.csproj" />
     <ProjectReference Include="..\..\Modules\Closing\Infrastructure\Closing.Infrastructure.csproj" />
-    <ProjectReference
-      Include="..\..\Modules\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\Modules\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\Modules\Closing\Integrations\Closing.Integrations.csproj" />
     <ProjectReference Include="..\..\Modules\Closing\Presentation\Closing.Presentation.csproj" />
     <ProjectReference Include="..\..\Modules\MFFVP.BFF\MFFVP.BFF.csproj" />
     <ProjectReference Include="..\..\Modules\Operations\Application\Operations.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Operations\Domain\Operations.Domain.csproj" />
-    <ProjectReference
-      Include="..\..\Modules\Operations\Infrastructure\Operations.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Operations\Infrastructure\Operations.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Operations\Integrations\Operations.Integrations.csproj" />
     <ProjectReference Include="..\..\Modules\Operations\Presentation\Operations.Presentation.csproj" />
     <ProjectReference Include="..\..\Modules\Customers\Application\Customers.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Customers\Domain\Customers.Domain.csproj" />
-    <ProjectReference
-      Include="..\..\Modules\Customers\Infrastructure\Customers.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Customers\Infrastructure\Customers.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Customers\Integrations\Customers.Integrations.csproj" />
     <ProjectReference Include="..\..\Modules\Customers\Presentation\Customers.Presentation.csproj" />
     <ProjectReference Include="..\..\Modules\Products\Application\Products.Application.csproj" />
@@ -87,7 +79,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(IsCI)' != 'true'">
-    <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.1" />
+    <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.6" />
   </ItemGroup>
 
 

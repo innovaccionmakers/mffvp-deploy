@@ -43,4 +43,11 @@ internal sealed class TemporaryAuxiliaryInformationRepository(OperationsDbContex
             .Where(x => ids.Contains(x.TemporaryAuxiliaryInformationId))
             .ToListAsync(cancellationToken);
     }
+
+    public Task<int> DeleteByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default)
+    {
+        return context.TemporaryAuxiliaryInformations
+            .Where(x => ids.Contains(x.TemporaryAuxiliaryInformationId))
+            .ExecuteDeleteAsync(cancellationToken);
+    }
 }
