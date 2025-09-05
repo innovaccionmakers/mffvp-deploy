@@ -93,8 +93,18 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
         foreach (var concept in request.Concepts)
         {
             var treasuryConcept = await treasuryConceptRepository.GetByIdAsync(concept.TreasuryConceptId, cancellationToken);
-            var bankAccount = await bankAccountRepository.GetByIdAsync(concept.BankAccountId, cancellationToken);
-            var counterparty = await issuerRepository.GetByIdAsync(concept.CounterpartyId, cancellationToken);
+
+            BankAccount? bankAccount = null;
+            Issuer? counterparty = null;
+            if (concept.BankAccountId.HasValue && concept.BankAccountId.Value > 0)
+            {
+                bankAccount = await bankAccountRepository.GetByIdAsync(concept.BankAccountId.Value, cancellationToken);
+            }
+
+            if(concept.CounterpartyId.HasValue && concept.CounterpartyId.Value > 0)
+            {
+                counterparty = await issuerRepository.GetByIdAsync(concept.CounterpartyId.Value, cancellationToken);
+            }
 
             var validationContext = new
             {
@@ -105,7 +115,9 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
                 AllowsNegative = treasuryConcept?.AllowsNegative ?? false,
                 concept.Value,
                 PortfolioValuationExists = existPortfolioValuation.Value,
-                ClosingDateIsValid = isClosingDateValid
+                ClosingDateIsValid = isClosingDateValid,
+                ShouldValidateBankAccount = concept.BankAccountId.HasValue && concept.BankAccountId.Value > 0,
+                ShouldValidateCounterparty = concept.CounterpartyId.HasValue && concept.CounterpartyId.Value > 0
             };
 
             var (rulesOk, _, ruleErrors) = await ruleEvaluator
