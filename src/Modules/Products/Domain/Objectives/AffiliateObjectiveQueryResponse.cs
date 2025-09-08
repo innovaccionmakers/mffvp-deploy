@@ -7,6 +7,10 @@ public sealed class AffiliateObjectiveQueryResponse
     public string IdType { get; set; }
     public string Type { get; set; }
     public string HomologatedCodeType { get; set; }
+    public string CommercialHomologatedCodeType { get; set; }
+    public string OpeningOfficeHomologatedCodeType { get; set; }
+    public string CurrentOfficeHomologatedCodeType { get; set; }
+
     public string IdPlan { get; set; }
     public string Plan { get; set; }
     public string IdFund { get; set; }
@@ -29,6 +33,9 @@ public sealed class AffiliateObjectiveQueryResponse
         string idType,
         string type,
         string homologatedCodeType,
+        string commercialHomologatedCodeType,
+        string openingOfficeHomologatedCodeType,
+        string currentOfficeHomologatedCodeType,
         string idPlan,
         string plan,
         string idFund,
@@ -50,6 +57,9 @@ public sealed class AffiliateObjectiveQueryResponse
             IdType = idType,
             Type = type,
             HomologatedCodeType = homologatedCodeType,
+            CommercialHomologatedCodeType = commercialHomologatedCodeType,
+            OpeningOfficeHomologatedCodeType = openingOfficeHomologatedCodeType,
+            CurrentOfficeHomologatedCodeType = currentOfficeHomologatedCodeType,
             IdPlan = idPlan,
             Plan = plan,
             IdFund = idFund,

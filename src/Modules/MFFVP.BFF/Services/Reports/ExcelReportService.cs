@@ -1,8 +1,8 @@
-﻿using Common.SharedKernel.Presentation.Results;
+﻿using Common.SharedKernel.Application.Reports;
+using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services.Reports.Interfaces;
 using MFFVP.BFF.Services.Reports.Strategies;
-using MFFVP.BFF.Services.Reports.Models;
 
 namespace MFFVP.BFF.Services.Reports
 {

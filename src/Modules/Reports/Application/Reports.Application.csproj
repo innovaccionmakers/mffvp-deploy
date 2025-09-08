@@ -7,17 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
-    <ProjectReference
-      Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
+    <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
     <ProjectReference Include="..\Application.Contracts\Reports.Application.Contracts.csproj" />
+    <ProjectReference Include="..\Domain\Reports.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Reports.test.UnitTests" />
     <InternalsVisibleTo Include="Reports.test.IntegrationTests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
   </ItemGroup>
 
 </Project>

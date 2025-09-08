@@ -1,4 +1,4 @@
-﻿namespace MFFVP.BFF.DTOs
+﻿namespace Common.SharedKernel.Application.Reports
 {
     public class ReportResponseDto
     {
