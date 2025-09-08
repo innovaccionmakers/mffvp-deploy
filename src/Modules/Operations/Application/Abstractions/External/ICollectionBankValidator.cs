@@ -10,6 +10,5 @@ public interface ICollectionBankValidator
 
     Task<Result<bool>> ValidateExistByPortfolioAndAccountNumberAsync(long portfolioId,
                                                                      string accountNumber,
-                                                                     string homologatedCode,
                                                                      CancellationToken cancellationToken = default);
 }

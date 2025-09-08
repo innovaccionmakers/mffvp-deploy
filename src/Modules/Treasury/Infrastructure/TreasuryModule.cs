@@ -27,8 +27,9 @@ using Treasury.Infrastructure.External.PortfolioValuation;
 using Treasury.Infrastructure.Issuers;
 using Treasury.Infrastructure.TreasuryConcepts;
 using Treasury.Infrastructure.TreasuryMovements;
-using Treasury.IntegrationEvents.TreasuryMovements.TreasuryMovementsByPortfolio;
 using Treasury.IntegrationEvents.Issuers.ValidateCollectionBank;
+using Treasury.IntegrationEvents.TreasuryMovements.TreasuryMovementsByPortfolio;
+using Treasury.IntegrationEvents.TreasuryMovements.ValidateExistByPortfolioAndAccountNumber;
 using Treasury.Presentation.GraphQL;
 
 namespace Treasury.Infrastructure;
@@ -78,6 +79,7 @@ public class TreasuryModule : IModuleConfiguration
         services.AddScoped<ValidateCollectionBankConsumer>();
         services.AddScoped<ITreasuryExperienceMutations , TreasuryExperienceMutations>();
         services.AddScoped<IRpcHandler<TreasuryMovementsByPortfolioRequest, TreasuryMovementsByPortfolioResponse>, TreasuryMovementsByPortfolioConsumer>();
+        services.AddScoped<IRpcHandler<ValidateExistByPortfolioAndAccountNumberRequest, ValidateExistByPortfolioAndAccountNumberResponse>, ValidateExistByPortfolioAndAccountNumberConsumer>();
         services.AddScoped<IRpcHandler<ValidateCollectionBankRequest, ValidateCollectionBankResponse>, ValidateCollectionBankConsumer>();
         services.AddScoped<ITreasuryExperienceQueries, TreasuryExperienceQueries>();
         services.AddScoped<ITreasuryExperienceQueries, TreasuryExperienceQueries>();        
