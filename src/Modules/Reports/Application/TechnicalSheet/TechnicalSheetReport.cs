@@ -9,7 +9,7 @@ public class TechnicalSheetReport(
         ILogger<TechnicalSheetReport> logger,
         ITechnicalSheetRepository technicalSheetRepository) : ExcelReportStrategyBase(logger)
 {
-    public override string ReportName => "Informe Ficha Técnica";
+    public override string ReportName => "InformaciónFichaTécnica";
 
     public override string[] ColumnHeaders =>
     [
@@ -42,12 +42,12 @@ public class TechnicalSheetReport(
             {
                 return await GenerateExcelReportAsync(
                     ct => GetWorksheetDataAsync(reportRequest, ct),
-                    $"{ReportName}.xlsx",
+                    GenerateReportFileName(reportRequest),
                     cancellationToken);
             }
             catch(Exception ex)
             {
-                                   
+
                 logger.LogError(ex, "Error al generar el reporte de ficha técnica para el request: {Request}", reportRequest);
                 throw;
             }
@@ -94,5 +94,12 @@ public class TechnicalSheetReport(
 
 
         return await Task.FromResult(worksheetDataList);
+    }
+
+    private string GenerateReportFileName(TechnicalSheetReportRequest reportRequest)
+    {
+        var startDate = reportRequest.StartDate.ToString("ddMMyyyy");
+        var endDate = reportRequest.EndDate.ToString("ddMMyyyy");
+        return $"{ReportName}_{startDate}_{endDate}_Portafolio{reportRequest.PortfolioId}.xlsx";
     }
 }
