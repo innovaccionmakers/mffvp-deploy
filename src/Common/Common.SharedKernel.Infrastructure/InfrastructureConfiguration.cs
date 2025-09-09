@@ -88,12 +88,12 @@ public static class InfrastructureConfiguration
             x.FailedRetryCount = 3;
             x.UseDashboard();
 
-            x.FailedThresholdCallback = failed =>
-            {
-                //ACA PODRIA GUARDAR EN UNA TABLA DE cap.deadletter, los mensajes que no se pudieron procesar
-                // Aquí puedes loguear o alertar
-                Console.WriteLine($"Mensaje movido a dead-letter después de {x.FailedRetryCount} intentos. Id: {failed.Message.Value}");
-            };
+            //x.FailedThresholdCallback = failed =>
+            //{
+            //    //ACA PODRIA GUARDAR EN UNA TABLA DE cap.deadletter, los mensajes que no se pudieron procesar
+            //    // Aquí puedes loguear o alertar
+            //    Console.WriteLine($"Mensaje movido a dead-letter después de {x.FailedRetryCount} intentos. Id: {failed.Message.Value}");
+            //};
         }).AddSubscribeFilter<CapsEventsFilter>();
 
         services
