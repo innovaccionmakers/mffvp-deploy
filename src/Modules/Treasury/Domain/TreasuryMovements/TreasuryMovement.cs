@@ -18,7 +18,7 @@ public sealed class TreasuryMovement : Entity
     public long TreasuryConceptId { get; private set; }
     public decimal Value { get; private set; }
     public long? BankAccountId { get; private set; }
-    public long EntityId { get; private set; }
+    public long? EntityId { get; private set; }
     public long? CounterpartyId { get; private set; }
 
     public TreasuryConcept TreasuryConcept { get; set; }
@@ -33,7 +33,7 @@ public sealed class TreasuryMovement : Entity
         long treasuryConceptId,
         decimal value,
         long? bankAccountId,
-        long entityId,
+        long? entityId,
         long? counterpartyId)
     {
         var treasuryMovement = new TreasuryMovement
