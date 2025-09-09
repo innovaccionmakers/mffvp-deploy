@@ -95,7 +95,7 @@ public class ClosingExperienceMutations(IMediator mediator) : IClosingExperience
                 valueCommand.UnitValue,
                 valueCommand.DailyProfitability,
                 valueCommand.HasWarnings,
-                (IEnumerable<WarningItemDto>?)valueCommand.Warnings
+                valueCommand.Warnings?.Select(w => w.ToDto()).ToList() ?? new List<WarningItemDto>()
                 ));
 
             return result;
