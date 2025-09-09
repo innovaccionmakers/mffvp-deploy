@@ -1,69 +1,275 @@
-﻿using Azure;
-using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Domain;
 using Dapper;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using Reports.Application.Reports.DTOs;
 using Reports.Domain.BalancesAndMovements;
 using Reports.Infrastructure.ConnectionFactory.Interfaces;
+using System.Data;
 
 namespace Reports.Infrastructure.BalancesAndMovements
 {
     internal class BalancesAndMovementsReportRepository(IReportsDbConnectionFactory dbConnectionFactory) : IBalancesAndMovementsReportRepository
     {
-        public async Task<IEnumerable<Result<BalancesResponse>>> GetBalancesAsync(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
+        public async Task<IEnumerable<BalancesResponse>> GetBalancesAsync(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
             try
             {
                 using var connection = await dbConnectionFactory.CreateOpenAsync(cancellationToken);
-                IEnumerable<int> activateIds = new List<int>();
-                IEnumerable<TrustYieldRequest> responseTrustYiel = new List<TrustYieldRequest>();
-                if (reportRequest.Identification.IsNullOrEmpty())
-                {
-                    responseTrustYiel = await GetTrustYieldAsync(reportRequest.startDate, reportRequest.endDate, connection, cancellationToken, null);
-                    activateIds = responseTrustYiel.Select(x => x.ActivitesId);
-                }
-                else
-                {
-                    activateIds = await GetActivateWhitIdentificationAsync(reportRequest.Identification, connection, cancellationToken);
-                    responseTrustYiel = await GetTrustYieldAsync(reportRequest.startDate, reportRequest.endDate, connection, cancellationToken, activateIds);
-                }
+                var (activateIds, responseTrustYiel) = await GetTrustYieldDataAsync(reportRequest, connection, cancellationToken);
 
-                if (!activateIds.Any())
-                    return (IEnumerable<Result<BalancesResponse>>)Task.FromResult(Enumerable.Empty<Result<BalancesResponse>>());
+                if (!activateIds.Any() || !responseTrustYiel.Any())
+                    return Enumerable.Empty<BalancesResponse>();
 
-                if (!responseTrustYiel.Any())
-                    return (IEnumerable<Result<BalancesResponse>>)Task.FromResult(Enumerable.Empty<Result<BalancesResponse>>());
-
-                var operations = await GetOperationsAsync(activateIds, connection, cancellationToken);
+                var operations = await GetOperationsBalancesAsync(activateIds, connection, cancellationToken);
+                var portfolioIds = operations.Select(x => x.PortfolioId).Distinct();
                 var persons = await GetPersonsInfoAsync(activateIds, connection, cancellationToken);
-                var alternative = await GetAlternativeIdAsync(operations, connection, cancellationToken);
-                var products = await GetProductsInfoAsync(responseTrustYiel, alternative, operations, connection, cancellationToken);
-                var closingData = await GetClosingDataAsync(reportRequest.startDate, responseTrustYiel, connection, cancellationToken);
+                var alternative = await GetAlternativeIdAsync(portfolioIds, connection, cancellationToken);
+                var products = await GetProductsInfoAsync(responseTrustYiel, alternative, portfolioIds, connection, cancellationToken);
+                var closingData = await GetClosingDataAsync(reportRequest.StartDate, responseTrustYiel, connection, cancellationToken);
                 connection.Close();
 
-                var response = BuildBalancesResponse(reportRequest.startDate, reportRequest.endDate, responseTrustYiel, operations, persons, products, closingData);
-                return response.Select(response => Result<BalancesResponse>.Success(response));
+                return BuildBalancesResponse(reportRequest.StartDate, reportRequest.EndDate, responseTrustYiel, operations, persons, products, closingData);
             }
             catch (Exception ex)
             {
-                return (IEnumerable<Result<BalancesResponse>>)Task.FromResult(Enumerable.Empty<Result<BalancesResponse>>());
+                return Enumerable.Empty<BalancesResponse>();
             }
         }
 
-        public Task<IEnumerable<Result<MovementsResponse>>> GetMovementsAsync(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MovementsResponse>> GetMovementsAsync(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
-            return Task.FromResult(Enumerable.Empty<Result<MovementsResponse>>());
+            try
+            {
+                using var connection = await dbConnectionFactory.CreateOpenAsync(cancellationToken);
+                var (activateIds, responseTrustYiel) = await GetTrustYieldDataAsync(reportRequest, connection, cancellationToken);
+
+                if (!activateIds.Any() || !responseTrustYiel.Any())
+                    return Enumerable.Empty<MovementsResponse>();
+
+                var operations = await GetOperationsMovementsAsync(reportRequest.StartDate, reportRequest.EndDate, connection, cancellationToken);
+                var portfolioIds = operations.Select(x => x.PortfolioId).Distinct();
+                var persons = await GetPersonsInfoAsync(activateIds, connection, cancellationToken);
+                var alternative = await GetAlternativeIdAsync(portfolioIds, connection, cancellationToken);
+                var products = await GetProductsInfoAsync(responseTrustYiel, alternative, portfolioIds, connection, cancellationToken);
+                connection.Close();
+
+                return BuildMovementsResponse(operations, persons, products);
+            }
+            catch (Exception ex)
+            {
+                return Enumerable.Empty<MovementsResponse>();
+            }
         }
 
-        public async Task<IEnumerable<int>> GetActivateWhitIdentificationAsync(string identification, Npgsql.NpgsqlConnection connection, CancellationToken cancellationToken)
+        #region Balances
+
+        private async Task<IEnumerable<OperationBalancesRequest>> GetOperationsBalancesAsync(IEnumerable<int> activateIds, NpgsqlConnection connection, CancellationToken cancellationToken)
+        {
+            try
+            {
+                const string sql = @"SELECT 
+                                        portafolio_id AS PortfolioId,
+                                        SUM(valor) AS Entry
+                                    FROM operaciones.operaciones_clientes
+                                    WHERE afiliado_id = ANY(@activateIds) AND tipo_operaciones_id = 1
+                                    GROUP BY PortfolioId;";
+
+                var command = new CommandDefinition(sql, new { activateIds = activateIds.ToArray() }, cancellationToken: cancellationToken);
+                return await connection.QueryAsync<OperationBalancesRequest>(command);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+        private IEnumerable<BalancesResponse> BuildBalancesResponse(
+            DateTime startDate,
+            DateTime endDate,
+            IEnumerable<TrustYieldRequest> trustYields,
+            IEnumerable<OperationBalancesRequest> operations,
+            IEnumerable<PersonsRequest> persons,
+            IEnumerable<ProductsRequest> products,
+            IEnumerable<CloseRequest> closingData)
+        {
+            try
+            {
+                var result = new List<BalancesResponse>();
+
+                var person = persons.FirstOrDefault();
+                if (person == null)
+                    return result;
+
+                foreach (var product in products)
+                {
+                    var operation = operations.FirstOrDefault(op => op.PortfolioId == product.PortfolioId);
+                    var productTrustYields = trustYields.Where(ty => ty.ObjectsId == product.ObjectiveId);
+
+                    if (!productTrustYields.Any())
+                        continue;
+
+                    var productClosingData = closingData.Where(cd =>
+                        productTrustYields.Any(ty => ty.TrustYieldId == cd.TrustYieldId));
+
+                    var initialBalance = productClosingData.Sum(cd => cd.InitialBalance);
+                    var entry = operation?.Entry ?? 0m;
+                    var outflows = 0m;
+                    var yields = productClosingData.Sum(cd => cd.Yields);
+                    var sourceWithholding = 0m;
+                    var closingBalance = initialBalance + entry - outflows + yields - sourceWithholding;
+
+                    var response = new BalancesResponse(
+                        StartDate: startDate.ToString("yyyy-MM-dd") ?? string.Empty,
+                        EndDate: endDate.ToString("yyyy-MM-dd") ?? string.Empty,
+                        IdentificationType: person.IdentificationType ?? string.Empty,
+                        Identification: person.Identification ?? string.Empty,
+                        FullName: person.FullName ?? string.Empty,
+                        ObjectiveId: product.ObjectiveId,
+                        Objective: product.Objective ?? string.Empty,
+                        Fund: product.Fund ?? string.Empty,
+                        Plan: product.Plan ?? string.Empty,
+                        Alternative: product.Alternative ?? string.Empty,
+                        Portfolio: product.Portfolio ?? string.Empty,
+                        InitialBalance: initialBalance,
+                        Entry: entry,
+                        Outflows: outflows,
+                        Returns: yields,
+                        SourceWithholding: sourceWithholding,
+                        ClosingBalance: closingBalance
+                    );
+
+                    result.Add(response);
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Movements
+
+        private async Task<IEnumerable<OperationMovementsRequest>> GetOperationsMovementsAsync(DateTime startDate, DateTime endDate, NpgsqlConnection connection, CancellationToken cancellationToken)
+        {
+            try
+            {
+                const string sql = @"SELECT 
+                                        OC.portafolio_id AS PortfolioId,
+                                        OC.id AS Voucher,
+                                        OC.fecha_proceso AS ProcessDate,    
+                                        CONCAT_WS(' - ', T.codigo_homologado, T.nombre) AS TransactionType,
+                                        CONCAT_WS(' - ', ST.codigo_homologado, ST.nombre) AS TransactionSubtype,
+	                                    OC.valor AS Value,
+                                        PC_Tributaria.nombre AS TaxCondition,
+                                        IA.retencion_contingente AS ContingentWithholding,
+                                        CONCAT_WS(' - ', PC_FormaPago.codigo_homologacion, PC_FormaPago.nombre) AS PaymentMethod
+                                    FROM operaciones.operaciones_clientes OC
+                                    JOIN operaciones.tipos_operaciones T ON T.id = OC.tipo_operaciones_id
+                                    LEFT JOIN operaciones.tipos_operaciones ST ON ST.id = T.categoria
+                                    LEFT JOIN operaciones.informacion_auxiliar IA ON IA.operacion_cliente_id = OC.id
+                                    LEFT JOIN operaciones.parametros_configuracion PC_Tributaria ON PC_Tributaria.id = IA.condicion_tributaria_id
+                                    LEFT JOIN operaciones.parametros_configuracion PC_FormaPago ON PC_FormaPago.id = IA.forma_pago_id
+                                    WHERE tipo_operaciones_id = 1 AND fecha_aplicacion::date BETWEEN @startDate AND @endDate;";
+
+                var command = new CommandDefinition(sql, new { startDate, endDate }, cancellationToken: cancellationToken);
+                return await connection.QueryAsync<OperationMovementsRequest>(command);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        private IEnumerable<MovementsResponse> BuildMovementsResponse(
+            IEnumerable<OperationMovementsRequest> operations,
+            IEnumerable<PersonsRequest> persons,
+            IEnumerable<ProductsRequest> products)
+        {
+            try
+            {
+                var result = new List<MovementsResponse>();
+                var person = persons.FirstOrDefault();
+                if (person == null)
+                    return result;
+
+                foreach (var product in products)
+                {
+                    var operation = operations.FirstOrDefault(op => op.PortfolioId == product.PortfolioId);
+
+                    if (operation == null)
+                        continue;
+
+                    var response = new MovementsResponse(
+                        ProcesDate: operation.ProcessDate.ToString("yyyy-MM-dd") ?? string.Empty,
+                        IdentificationType: person.IdentificationType ?? string.Empty,
+                        Identification: person.Identification ?? string.Empty,
+                        FullName: person.FullName ?? string.Empty,
+                        ObjectiveId: product.ObjectiveId,
+                        Objective: product.Objective ?? string.Empty,
+                        Fund: product.Fund ?? string.Empty,
+                        Plan: product.Plan ?? string.Empty,
+                        Alternative: product.Alternative ?? string.Empty,
+                        Portfolio: product.Portfolio ?? string.Empty,
+                        Voucher: operation.Voucher,
+                        TransactionType: operation.TransactionType ?? string.Empty,
+                        TransactionSubtype: operation.TransactionSubtype ?? string.Empty,
+                        Value: operation.Value,
+                        TaxCondition: operation.TaxCondition ?? string.Empty,
+                        ContingentWithholding: operation.ContingentWithholding,
+                        PaymentMethod:  operation.PaymentMethod ?? string.Empty
+                    );
+
+                    result.Add(response);
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Private methods
+
+        public async Task<(IEnumerable<int> activateIds, IEnumerable<TrustYieldRequest> responseTrustYiel)>GetTrustYieldDataAsync(BalancesAndMovementsReportRequest reportRequest, NpgsqlConnection connection, CancellationToken cancellationToken)
+        {
+            IEnumerable<int> activateIds = new List<int>();
+            IEnumerable<TrustYieldRequest> responseTrustYiel = new List<TrustYieldRequest>();
+
+            if (reportRequest.Identification.IsNullOrEmpty())
+            {
+                responseTrustYiel = await GetTrustYieldAsync(reportRequest.StartDate, reportRequest.EndDate, connection, cancellationToken, null);
+                activateIds = responseTrustYiel.Select(x => x.ActivitesId);
+            }
+            else
+            {
+                activateIds = await GetActivateWhitIdentificationAsync(reportRequest.Identification, connection, cancellationToken);
+                responseTrustYiel = await GetTrustYieldAsync(reportRequest.StartDate, reportRequest.EndDate, connection, cancellationToken, activateIds);
+            }
+
+            return (activateIds, responseTrustYiel);
+        }
+
+        private async Task<IEnumerable<int>> GetActivateWhitIdentificationAsync(string identification, NpgsqlConnection connection, CancellationToken cancellationToken)
         {
             try
             {
                 var sql = @"SELECT 
-	                        id afiliado_id
-                        FROM afiliados.activacion_afiliados
-                        WHERE identificacion = @identification;";
+	                            id afiliado_id
+                            FROM afiliados.activacion_afiliados
+                            WHERE identificacion = @identification;";
 
                 var command = new CommandDefinition(sql, new { identification }, cancellationToken: cancellationToken);
 
@@ -75,23 +281,19 @@ namespace Reports.Infrastructure.BalancesAndMovements
             }
         }
 
-        public async Task<IEnumerable<TrustYieldRequest>> GetTrustYieldAsync(DateOnly startDate, DateOnly endDate, Npgsql.NpgsqlConnection connection, CancellationToken cancellationToken, IEnumerable<int>? activateId = null)
+        private async Task<IEnumerable<TrustYieldRequest>> GetTrustYieldAsync(DateTime startDate, DateTime endDate, NpgsqlConnection connection, CancellationToken cancellationToken, IEnumerable<int>? activateId = null)
         {
             try
             {
                 const string baseSql = @"SELECT 
-                                    id AS TrustYieldId, 
-                                    afiliado_id AS ActivitesId,
-                                    objetivo_id AS ObjectsId
-                                FROM fideicomisos.fideicomisos
-                                WHERE fecha_creacion::date BETWEEN @startDate AND @endDate";
+                                            id AS TrustYieldId, 
+                                            afiliado_id AS ActivitesId,
+                                            objetivo_id AS ObjectsId
+                                        FROM fideicomisos.fideicomisos
+                                        WHERE fecha_creacion::date BETWEEN @startDate AND @endDate";
 
                 string sql = baseSql;
                 object parameters;
-
-                // Convertir DateOnly a DateTime para compatibilidad con Dapper
-                var startDateTime = startDate.ToDateTime(TimeOnly.MinValue);
-                var endDateTime = endDate.ToDateTime(TimeOnly.MinValue);
 
                 // Validar si la lista tiene elementos (considerando null y vacía)
                 var hasActivateIds = activateId != null && activateId.Any();
@@ -102,8 +304,8 @@ namespace Reports.Infrastructure.BalancesAndMovements
                     sql += " AND afiliado_id = ANY(@activateId);";
                     parameters = new
                     {
-                        startDate = startDateTime,
-                        endDate = endDateTime,
+                        startDate = startDate,
+                        endDate = endDate,
                         activateId = activateId.ToArray()
                     };
                 }
@@ -111,8 +313,8 @@ namespace Reports.Infrastructure.BalancesAndMovements
                 {
                     parameters = new
                     {
-                        startDate = startDateTime,
-                        endDate = endDateTime
+                        startDate = startDate,
+                        endDate = endDate
                     };
                 }
 
@@ -125,45 +327,19 @@ namespace Reports.Infrastructure.BalancesAndMovements
             }
         }
 
-        private async Task<IEnumerable<OperationRequest>> GetOperationsAsync(IEnumerable<int> activateIds,
-            NpgsqlConnection connection, CancellationToken cancellationToken)
-        {
-            try
-            {
-                const string sql = @"
-                SELECT 
-                    portafolio_id AS PortfolioId,
-                    SUM(valor) AS Entry
-                FROM operaciones.operaciones_clientes
-                WHERE afiliado_id = ANY(@activateIds) 
-                AND tipo_operaciones_id = 1
-                GROUP BY portafolio_id;";
-
-                var command = new CommandDefinition(sql, new { activateIds = activateIds.ToArray() }, cancellationToken: cancellationToken);
-                return await connection.QueryAsync<OperationRequest>(command);
-
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-        }
-
         private async Task<IEnumerable<PersonsRequest>> GetPersonsInfoAsync(IEnumerable<int> activateIds,
             NpgsqlConnection connection, CancellationToken cancellationToken)
         {
             try
             {
-                const string sql = @"
-                SELECT 
-                    P.identificacion AS Identification,
-                    CONCAT_WS(' - ', PC.codigo_homologacion, PC.nombre) AS IdentificationType,
-                    P.nombre_completo AS FullName
-                FROM personas.parametros_configuracion PC
-                JOIN personas.personas P ON P.tipo_documento_uuid = PC.uuid
-                JOIN afiliados.activacion_afiliados AA ON AA.identificacion = P.identificacion
-                WHERE AA.id = ANY(@activateIds);";
+                const string sql = @"SELECT 
+                                        P.identificacion AS Identification,
+                                        CONCAT_WS(' - ', PC.codigo_homologacion, PC.nombre) AS IdentificationType,
+                                        P.nombre_completo AS FullName
+                                    FROM personas.parametros_configuracion PC
+                                    JOIN personas.personas P ON P.tipo_documento_uuid = PC.uuid
+                                    JOIN afiliados.activacion_afiliados AA ON AA.identificacion = P.identificacion
+                                    WHERE AA.id = ANY(@activateIds);";
 
                 var command = new CommandDefinition(sql, new { activateIds = activateIds.ToArray() }, cancellationToken: cancellationToken);
                 return await connection.QueryAsync<PersonsRequest>(command);
@@ -176,12 +352,43 @@ namespace Reports.Infrastructure.BalancesAndMovements
             }
         }
 
-        public async Task<IEnumerable<AlternativeRequest>> GetAlternativeIdAsync(IEnumerable<OperationRequest> operations, Npgsql.NpgsqlConnection connection, CancellationToken cancellationToken)
+        private async Task<IEnumerable<CloseRequest>> GetClosingDataAsync(DateTime startDate,
+            IEnumerable<TrustYieldRequest> trustYields, NpgsqlConnection connection, CancellationToken cancellationToken)
         {
             try
             {
-                var portfolioIds = operations.Select(x => x.PortfolioId).Distinct();
+                var previousDate = startDate.AddDays(-1);
+                var fideicomisoIds = trustYields.Select(x => x.TrustYieldId).Distinct();
 
+                const string sql = @"SELECT 
+                                        fideicomiso_id AS TrustYieldId,
+                                        SUM(saldo_cierre) AS InitialBalance,
+                                        rendimientos AS Yields
+                                    FROM cierre.rendimientos_fideicomisos
+                                    WHERE fecha_cierre::date = @previousDate AND fideicomiso_id = ANY(@fideicomisoIds)
+                                    GROUP BY fideicomiso_id, rendimientos;";
+
+                var parameters = new
+                {
+                    previousDate = previousDate,
+                    fideicomisoIds = fideicomisoIds.ToArray()
+                };
+
+                var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+                return await connection.QueryAsync<CloseRequest>(command);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        private async Task<IEnumerable<AlternativeRequest>> GetAlternativeIdAsync(IEnumerable<int> portfolioIds, NpgsqlConnection connection, CancellationToken cancellationToken)
+        {
+            try
+            {
                 var sql = @"SELECT 
                                 ""AlternativeId""
                             FROM productos.alternativas_portafolios
@@ -196,16 +403,16 @@ namespace Reports.Infrastructure.BalancesAndMovements
                 throw;
             }
         }
-
-        private async Task<IEnumerable<ProductsRequest>> GetProductsInfoAsync(IEnumerable<TrustYieldRequest> trustYields, IEnumerable<AlternativeRequest> alternative, IEnumerable<OperationRequest> operations, NpgsqlConnection connection, CancellationToken cancellationToken)
+        private async Task<IEnumerable<ProductsRequest>> GetProductsInfoAsync(IEnumerable<TrustYieldRequest> trustYields, IEnumerable<AlternativeRequest> alternative, IEnumerable<int> portfolioIds, NpgsqlConnection connection, CancellationToken cancellationToken)
         {
             try
             {
                 var objectiveIds = trustYields.Select(x => x.ObjectsId).Distinct();
-                var portfolioIds = operations.Select(x => x.PortfolioId).Distinct();
                 var alternativeIds = alternative.Select(x => x.AlternativeId).Distinct();
 
                 const string sql = @"SELECT 
+                                        P.id AS PortfolioId,
+	                                    O.id AS ObjectiveId,
 	                                    CONCAT_WS(' - ', O.tipo_objetivo_id, O.nombre) AS Objective,
 	                                    CONCAT_WS(' - ', FVP.codigo_homologado, FVP.nombre) AS Fund,
 	                                    CONCAT_WS(' - ', PL.codigo_homologado, PL.nombre) AS Plan,
@@ -220,7 +427,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
                                     JOIN productos.fondos_voluntarios_pensiones FVP ON PF.fondo_id = FVP.id
                                     JOIN productos.planes PL ON PF.plan_id = PL.id
                                     WHERE P.id = ANY(@portfolioIds) AND A.tipo_alternativa_id = ANY(@alternativeIds) AND O.id = ANY(@objectiveIds)
-                                    GROUP BY Objective, Fund, Plan, Alternative, Portfolio;";
+                                    GROUP BY PortfolioId, ObjectiveId, Objective, Fund, Plan, Alternative, Portfolio;";
 
                 var parameters = new
                 {
@@ -239,182 +446,6 @@ namespace Reports.Infrastructure.BalancesAndMovements
             }
         }
 
-        private async Task<IEnumerable<CloseRequest>> GetClosingDataAsync(DateOnly startDate,
-            IEnumerable<TrustYieldRequest> trustYields, NpgsqlConnection connection, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var previousDate = startDate.AddDays(-1);
-                var fideicomisoIds = trustYields.Select(x => x.TrustYieldId).Distinct();
-
-                const string sql = @"SELECT 
-                                        fideicomiso_id AS TrustYieldId,
-                                        SUM(saldo_cierre) AS InitialBalance,
-                                        rendimientos AS Yields
-                                    FROM cierre.rendimientos_fideicomisos
-                                    WHERE fecha_cierre::date = @previousDate AND fideicomiso_id = ANY(@fideicomisoIds)
-                                    GROUP BY fideicomiso_id, rendimientos;";
-
-                var parameters = new
-                {
-                    previousDate = previousDate.ToDateTime(TimeOnly.MinValue),
-                    fideicomisoIds = fideicomisoIds.ToArray()
-                };
-
-                var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
-                return await connection.QueryAsync<CloseRequest>(command);
-
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-        }
-
-        private IEnumerable<BalancesResponse> BuildBalancesResponse(
-            DateOnly startDate,
-            DateOnly endDate,
-            IEnumerable<TrustYieldRequest> trustYields,
-            IEnumerable<OperationRequest> operations,
-            IEnumerable<PersonsRequest> persons,
-            IEnumerable<ProductsRequest> products,
-            IEnumerable<CloseRequest> closingData)
-        {
-            try
-            {
-                var result = new List<BalancesResponse>();
-
-                // Obtener la persona (asumiendo que solo hay una por request)
-                var person = persons.FirstOrDefault();
-                if (person == null)
-                    return result;
-
-                // Crear un response por cada combinación de portafolio/objetivo
-                foreach (var product in products)
-                {
-                    // Encontrar la operación correspondiente a este portafolio
-                    var portfolioId = ExtractPortfolioId(product.Portfolio);
-                    var operation = operations.FirstOrDefault(op => op.PortfolioId == portfolioId);
-
-                    // Encontrar los trust yields y closing data correspondientes
-                    var productTrustYields = trustYields.Where(ty =>
-                        ty.ObjectsId.ToString() == ExtractObjectiveId(product.Objective));
-
-                    var productClosingData = closingData.Where(cd =>
-                        productTrustYields.Any(ty => ty.TrustYieldId == cd.TrustYieldId));
-
-                    // Calcular balances
-                    var initialBalance = productClosingData.Sum(cd => cd.InitialBalance);
-                    var entry = operation?.Entry ?? 0m;
-                    var outflows = 0m;
-                    var yields = productClosingData.Sum(cd => cd.Yields);
-                    var sourceWithholding = 0m;
-                    var closingBalance = initialBalance + entry - outflows + yields - sourceWithholding;
-
-                    // Extraer TargetID del objetivo (primer parte antes del '-')
-                    var targetId = ExtractObjectiveId(product.Objective);
-
-                    var response = new BalancesResponse(
-                        StartDate: startDate.ToString("yyyy-MM-dd"),
-                        EndDate: endDate.ToString("yyyy-MM-dd"),
-                        IdentificationType: person.IdentificationType,
-                        Identification: person.Identification,
-                        FullName: person.FullName,
-                        TargetID: targetId,
-                        Target: product.Objective,
-                        Fund: product.Fund,
-                        Plan: product.Plan,
-                        Alternative: product.Alternative,
-                        Portfolio: product.Portfolio,
-                        InitialBalance: initialBalance.ToString("N2"),
-                        Entry: entry.ToString("N2"),
-                        Outflows: outflows.ToString("N2"),
-                        Returns: yields.ToString("N2"),
-                        SourceWithholding: sourceWithholding.ToString("N2"),
-                        ClosingBalance: closingBalance.ToString("N2")
-                    );
-
-                    result.Add(response);
-                }
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-
-        //private IEnumerable<MovementsResponse> BuildMovementsResponse(
-        //    DateOnly startDate,
-        //    DateOnly endDate,
-        //    IEnumerable<TrustYieldRequest> trustYields,
-        //    IEnumerable<OperationRequest> operations,
-        //    IEnumerable<PersonsRequest> persons,
-        //    IEnumerable<ProductsRequest> products,
-        //    IEnumerable<CloseRequest> closingData)
-        //{
-        //    try
-        //    {
-        //        var result = new List<MovementsResponse>();
-
-        //        // Obtener la persona (asumiendo que solo hay una por request)
-        //        var person = persons.FirstOrDefault();
-        //        if (person == null)
-        //            return result;
-
-        //        // Crear un response por cada combinación de portafolio/objetivo
-        //        foreach (var product in products)
-        //        {
-        //            // Encontrar la operación correspondiente a este portafolio
-        //            var portfolioId = ExtractPortfolioId(product.Portfolio);
-        //            var operation = operations.FirstOrDefault(op => op.PortfolioId == portfolioId);
-
-        //            // Encontrar los trust yields y closing data correspondientes
-        //            var productTrustYields = trustYields.Where(ty =>
-        //                ty.ObjectsId.ToString() == ExtractObjectiveId(product.Objective));
-
-        //            var productClosingData = closingData.Where(cd =>
-        //                productTrustYields.Any(ty => ty.TrustYieldId == cd.TrustYieldId));
-
-        //            // Calcular balances
-        //            var initialBalance = productClosingData.Sum(cd => cd.InitialBalance);
-        //            var entry = operation?.Entry ?? 0m;
-        //            var outflows = 0m;
-        //            var yields = productClosingData.Sum(cd => cd.Yields);
-        //            var sourceWithholding = 0m;
-        //            var closingBalance = initialBalance + entry - outflows + yields - sourceWithholding;
-
-        //            // Extraer TargetID del objetivo (primer parte antes del '-')
-        //            var targetId = ExtractObjectiveId(product.Objective);
-
-        //            var response = new MovementsResponse(
-        //            );
-
-        //            result.Add(response);
-        //        }
-
-        //        return result;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw;
-        //    }
-        //}
-
-        private int ExtractPortfolioId(string portfolioString)
-        {
-            if (string.IsNullOrEmpty(portfolioString)) return 0;
-            var parts = portfolioString.Split('-');
-            return parts.Length > 0 && int.TryParse(parts[0].Trim(), out int id) ? id : 0;
-        }
-
-        private string ExtractObjectiveId(string objectiveString)
-        {
-            if (string.IsNullOrEmpty(objectiveString)) return string.Empty;
-            var parts = objectiveString.Split('-');
-            return parts.Length > 0 ? parts[0].Trim() : string.Empty;
-        }
+        #endregion
     }
 }

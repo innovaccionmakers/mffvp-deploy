@@ -1,22 +1,22 @@
 ﻿namespace Reports.Domain.BalancesAndMovements
 {
     public sealed record MovementsResponse(
-        string Date,
+        string ProcesDate,
         string IdentificationType,
         string Identification,
-        string AffiliateName,
-        string TargetID,
-        string Target,
-        string FundName,
+        string FullName,
+        int ObjectiveId,
+        string Objective,
+        string Fund,
         string Plan,
         string Alternative,
         string Portfolio,
-        string Receipt,
+        long Voucher,
         string TransactionType,
         string TransactionSubtype,
-        string Value,
+        decimal Value,
         string TaxCondition,
-        string ContingentWithholdingDue,
+        decimal ContingentWithholding,
         string PaymentMethod
         );
 }

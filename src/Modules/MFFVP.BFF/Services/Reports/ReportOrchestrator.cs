@@ -2,6 +2,7 @@
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.Services.Reports.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Reports.Presentation.GraphQL;
 using Error = Common.SharedKernel.Core.Primitives.Error;
 
@@ -33,17 +34,41 @@ namespace MFFVP.BFF.Services.Reports
             try
             { 
                 var response = await _reportsExperience.GetReportDataAsync(request, reportType, cancellationToken);
-                if (response != null)
+
+                if (response is FileStreamResult fileStreamResult)
                 {
-                    result.Data = response;
+                    if (fileStreamResult?.FileStream == null)
+                        return result;
+
+                    using var memoryStream = new MemoryStream();
+
+                    if (fileStreamResult.FileStream.CanSeek)
+                        fileStreamResult.FileStream.Position = 0;
+
+                    await fileStreamResult.FileStream.CopyToAsync(memoryStream);
+
+                    var reportResponse = new ReportResponseDto
+                    {
+                        FileContent = Convert.ToBase64String(memoryStream.ToArray()),
+                        FileName = fileStreamResult.FileDownloadName,
+                        MimeType = fileStreamResult.ContentType
+                    };
+
+                    if (reportResponse != null)
+                    {
+                        result.Data = reportResponse;
+                        return result;
+                    }
+                }
+                else if (response is ReportResponseDto reportResponseDto)
+                {
+                    result.Data = reportResponseDto;
                     return result;
                 }
-                else
-                {
-                    _logger.LogError("La respuesta del reporte es nula");
-                    result.AddError(new Error("NULL_RESPONSE", "La respuesta del reporte es nula", ErrorType.Failure));
-                    return result;
-                }
+
+                _logger.LogError("La respuesta del reporte es null o de tipo inesperado: {0}", response?.GetType().Name);
+                result.AddError(new Error("EXCEPTION", "No se pudo generar el reporte", ErrorType.Failure));
+                return result;
             }
             catch (Exception ex)
             {

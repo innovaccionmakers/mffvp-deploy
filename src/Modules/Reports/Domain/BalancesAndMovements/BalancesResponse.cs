@@ -1,22 +1,22 @@
 ﻿namespace Reports.Domain.BalancesAndMovements
 {
     public sealed record BalancesResponse(
-        string? StartDate,
-        string? EndDate,
-        string? IdentificationType,
-        string? Identification,
-        string? FullName,
-        string? TargetID,
-        string? Target,
-        string? Fund,
-        string? Plan,
-        string? Alternative,
-        string? Portfolio,
-        string? InitialBalance,
-        string? Entry,
-        string? Outflows,
-        string? Returns,
-        string? SourceWithholding,
-        string? ClosingBalance
+        string StartDate,
+        string EndDate,
+        string IdentificationType,
+        string Identification,
+        string FullName,
+        int ObjectiveId,
+        string Objective,
+        string Fund,
+        string Plan,
+        string Alternative,
+        string Portfolio,
+        decimal InitialBalance,
+        decimal Entry,
+        decimal Outflows,
+        decimal Returns,
+        decimal SourceWithholding,
+        decimal ClosingBalance
         );
 }

@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Application.Reports;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Reports.Application.Reports.Strategies;
 using Reports.Domain.BalancesAndMovements;
@@ -56,7 +57,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
 
         public override string[] ColumnHeaders => _saldosHeaders; // Por defecto retorna los headers de saldos
 
-        public override async Task<ReportResponseDto> GetReportDataAsync<TRequest>(
+        public override async Task<IActionResult> GetReportDataAsync<TRequest>(
             TRequest request,
             CancellationToken cancellationToken)
         {
@@ -66,12 +67,12 @@ namespace Reports.Application.Reports.BalancesAndMovements
             {
                 balancesAndMovementsReportRequest = reportRequest;
             }
-            else if (request is ValueTuple<DateOnly, DateOnly, string> tuple)
+            else if (request is ValueTuple<DateTime, DateTime, string> tuple)
             {
                 balancesAndMovementsReportRequest = new BalancesAndMovementsReportRequest
                 {
-                    startDate = tuple.Item1,
-                    endDate = tuple.Item2,
+                    StartDate = tuple.Item1,
+                    EndDate = tuple.Item2,
                     Identification = tuple.Item3
                 };
             }
@@ -91,8 +92,8 @@ namespace Reports.Application.Reports.BalancesAndMovements
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Error al generar el reporte con el rango de fechas de {balancesAndMovementsReportRequest.startDate} a {balancesAndMovementsReportRequest.endDate}",
-                    balancesAndMovementsReportRequest.startDate.ToString("yyyy-MM-dd"), balancesAndMovementsReportRequest.endDate.ToString("yyyy-MM-dd"));
+                logger.LogError(ex, $"Error al generar el reporte con el rango de fechas de {balancesAndMovementsReportRequest.StartDate} a {balancesAndMovementsReportRequest.EndDate}",
+                    balancesAndMovementsReportRequest.StartDate.ToString("yyyy-MM-dd"), balancesAndMovementsReportRequest.EndDate.ToString("yyyy-MM-dd"));
                 throw;
                 }
             
@@ -129,31 +130,28 @@ namespace Reports.Application.Reports.BalancesAndMovements
 
             foreach (var balanceResult in await reportRepository.GetBalancesAsync(reportRequest, cancellationToken))
             {
-                if (balanceResult.IsSuccess && balanceResult.Value != null)
+                var row = new object[]
                 {
-                    var row = new object[]
-                    {
-                        balanceResult.Value.StartDate,
-                        balanceResult.Value.StartDate,
-                        balanceResult.Value.IdentificationType,
-                        balanceResult.Value.Identification,
-                        balanceResult.Value.FullName,
-                        balanceResult.Value.TargetID,
-                        balanceResult.Value.Target,
-                        balanceResult.Value.Fund,
-                        balanceResult.Value.Plan,
-                        balanceResult.Value.Alternative,
-                        balanceResult.Value.Portfolio,
-                        balanceResult.Value.InitialBalance,
-                        balanceResult.Value.Entry,
-                        balanceResult.Value.Outflows,
-                        balanceResult.Value.Returns,
-                        balanceResult.Value.SourceWithholding,
-                        balanceResult.Value.ClosingBalance
-                    };
+                    balanceResult.StartDate,
+                    balanceResult.StartDate,
+                    balanceResult.IdentificationType,
+                    balanceResult.Identification,
+                    balanceResult.FullName,
+                    balanceResult.ObjectiveId,
+                    balanceResult.Objective,
+                    balanceResult.Fund,
+                    balanceResult.Plan,
+                    balanceResult.Alternative,
+                    balanceResult.Portfolio,
+                    balanceResult.InitialBalance,
+                    balanceResult.Entry,
+                    balanceResult.Outflows,
+                    balanceResult.Returns,
+                    balanceResult.SourceWithholding,
+                    balanceResult.ClosingBalance
+                };
 
-                    dataList.Add(row);
-                }
+                dataList.Add(row);                
             }
 
             return dataList;
@@ -164,32 +162,29 @@ namespace Reports.Application.Reports.BalancesAndMovements
             var dataList = new List<object[]>();
 
             foreach (var movementResult in await reportRepository.GetMovementsAsync(reportRequest, cancellationToken))
-            {
-                if (movementResult.IsSuccess && movementResult.Value != null)
+            {  
+                var row = new object[]
                 {
-                    var row = new object[]
-                    {
-                        movementResult.Value.Date,
-                        movementResult.Value.IdentificationType,
-                        movementResult.Value.Identification,
-                        movementResult.Value.AffiliateName,
-                        movementResult.Value.TargetID,
-                        movementResult.Value.Target,
-                        movementResult.Value.FundName,
-                        movementResult.Value.Plan,
-                        movementResult.Value.Alternative,
-                        movementResult.Value.Portfolio,
-                        movementResult.Value.Receipt,
-                        movementResult.Value.TransactionType,
-                        movementResult.Value.TransactionSubtype,
-                        movementResult.Value.Value,
-                        movementResult.Value.TaxCondition,
-                        movementResult.Value.ContingentWithholdingDue,
-                        movementResult.Value.PaymentMethod
-                    };
+                    movementResult.ProcesDate,
+                    movementResult.IdentificationType,
+                    movementResult.Identification,
+                    movementResult.FullName,
+                    movementResult.ObjectiveId,
+                    movementResult.Objective,
+                    movementResult.Fund,
+                    movementResult.Plan,
+                    movementResult.Alternative,
+                    movementResult.Portfolio,
+                    movementResult.Voucher,
+                    movementResult.TransactionType,
+                    movementResult.TransactionSubtype,
+                    movementResult.Value,
+                    movementResult.TaxCondition,
+                    movementResult.ContingentWithholding,
+                    movementResult.PaymentMethod
+                };
 
-                    dataList.Add(row);
-                }
+                dataList.Add(row);                
             }
 
             return dataList;

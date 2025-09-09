@@ -1,5 +1,5 @@
 ﻿using ClosedXML.Excel;
-using Common.SharedKernel.Application.Reports;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
@@ -10,8 +10,6 @@ namespace Reports.Application.Reports.Strategies
     {
         public abstract string ReportName { get; }
         public abstract string[] ColumnHeaders { get; }
-
-        protected virtual string GenerateFileName(object request) => $"{ReportName}.xlsx";
 
         protected virtual void ApplyCellFormatting(IXLCell cell, object value)
         {
@@ -39,7 +37,7 @@ namespace Reports.Application.Reports.Strategies
             worksheet.SheetView.FreezeRows(1);
         }
 
-        protected virtual async Task<ReportResponseDto> GenerateExcelReportAsync(
+        protected virtual async Task<FileStreamResult> GenerateExcelReportAsync(
             Func<CancellationToken, Task<List<WorksheetData>>> dataProvider,
             string fileName,
             CancellationToken cancellationToken)
@@ -71,15 +69,14 @@ namespace Reports.Application.Reports.Strategies
                     worksheet.Columns().AdjustToContents();
                 }
 
-                using var stream = new MemoryStream();
-                workbook.SaveAs(stream);
-                var reportBytes = stream.ToArray();
+                using var memoryStream = new MemoryStream();
+                workbook.SaveAs(memoryStream);
+                memoryStream.Position = 0;
+                var fileBytes = memoryStream.ToArray();
 
-                return new ReportResponseDto
+                return new FileStreamResult(new MemoryStream(fileBytes), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 {
-                    FileContent = Convert.ToBase64String(reportBytes),
-                    FileName = fileName,
-                    MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    FileDownloadName = fileName
                 };
             }
             catch (Exception ex)
@@ -89,7 +86,7 @@ namespace Reports.Application.Reports.Strategies
             }
         }
 
-        public abstract Task<ReportResponseDto> GetReportDataAsync<TRequest>(
+        public abstract Task<IActionResult> GetReportDataAsync<TRequest>(
             TRequest request,
             CancellationToken cancellationToken);
     }

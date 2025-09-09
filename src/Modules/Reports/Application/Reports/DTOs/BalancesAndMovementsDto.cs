@@ -17,10 +17,22 @@
         string FullName
         );
 
-    public sealed record OperationRequest(
+    public sealed record OperationBalancesRequest(
         int PortfolioId,
         decimal Entry
         );
+
+    public sealed record OperationMovementsRequest(
+        int PortfolioId,
+        long Voucher,
+        DateTime ProcessDate,
+        string TransactionType,
+        string TransactionSubtype,
+        decimal Value,
+        string TaxCondition,
+        decimal ContingentWithholding,
+        string PaymentMethod
+      );
 
     public sealed record CloseRequest(
         long TrustYieldId,
@@ -29,6 +41,8 @@
         );
 
     public sealed record ProductsRequest(
+        int PortfolioId,
+        int ObjectiveId,
         string Objective,
         string Fund,
         string Plan,
