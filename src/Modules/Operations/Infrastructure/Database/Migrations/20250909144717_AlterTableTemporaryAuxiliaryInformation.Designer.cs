@@ -13,8 +13,8 @@ using Operations.Infrastructure.Database;
 namespace Operations.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(OperationsDbContext))]
-    [Migration("20250905171433_AlterTableAuxiliaryInformation")]
-    partial class AlterTableAuxiliaryInformation
+    [Migration("20250909144717_AlterTableTemporaryAuxiliaryInformation")]
+    partial class AlterTableTemporaryAuxiliaryInformation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -123,8 +123,9 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("operacion_cliente_id");
 
-                    b.Property<int>("CollectionAccount")
-                        .HasColumnType("integer")
+                    b.Property<string>("CollectionAccount")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("cuenta_recaudo");
 
                     b.Property<int>("CollectionBankId")
@@ -411,8 +412,9 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("ciudad_id");
 
-                    b.Property<int>("CollectionAccount")
-                        .HasColumnType("integer")
+                    b.Property<string>("CollectionAccount")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("cuenta_recaudo");
 
                     b.Property<int>("CollectionBankId")

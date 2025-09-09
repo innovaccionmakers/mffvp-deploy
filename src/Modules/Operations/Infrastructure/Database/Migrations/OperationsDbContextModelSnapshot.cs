@@ -120,8 +120,9 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("operacion_cliente_id");
 
-                    b.Property<int>("CollectionAccount")
-                        .HasColumnType("integer")
+                    b.Property<string>("CollectionAccount")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("cuenta_recaudo");
 
                     b.Property<int>("CollectionBankId")
@@ -408,8 +409,9 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("ciudad_id");
 
-                    b.Property<int>("CollectionAccount")
-                        .HasColumnType("integer")
+                    b.Property<string>("CollectionAccount")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("cuenta_recaudo");
 
                     b.Property<int>("CollectionBankId")
