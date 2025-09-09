@@ -14,7 +14,7 @@ public class PortfolioService : IPortfolioService
 
     public async Task<DateTime> GetCurrentDateAsync(string portfolioId, CancellationToken cancellationToken = default)
     {
-        var portfolioRes = await _portfolioLocator.FindByPortfolioIdAsync(Convert.ToInt32(portfolioId), cancellationToken);
+        var portfolioRes = await _portfolioLocator.FindByHomologatedCodeAsync(portfolioId, cancellationToken);
         if (portfolioRes == null)
             throw new InvalidOperationException("Portfolio not found.");
 

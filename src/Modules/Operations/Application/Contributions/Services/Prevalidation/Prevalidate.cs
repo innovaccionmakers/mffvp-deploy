@@ -115,6 +115,9 @@ public sealed class Prevalidate(
             command.CollectionBank,
             cancellationToken);
 
+        var existBankAccount = await collectionBankValidator.ValidateExistByPortfolioAndAccountNumberAsync(remoteRes.Value.PortfolioId, command.CollectionAccount, cancellationToken);
+
+
         if (!bankResult.IsSuccess)
             return Result.Failure<PrevalidationResult>(bankResult.Error!);
 
@@ -141,7 +144,8 @@ public sealed class Prevalidate(
             CertifiedContributionProvided = !string.IsNullOrWhiteSpace(command.CertifiedContribution),
             CertifiedContributionValid = certifiedValid,
             SubtypeExists = catalogs.Subtype is not null,
-            CategoryIsContribution = catalogs.SubtypeCategory?.Name == "Aporte"
+            CategoryIsContribution = catalogs.SubtypeCategory?.Name == "Aporte",
+            BankAccountExists = existBankAccount.Value
         };
 
         var (ok, _, errs) = await ruleEvaluator.EvaluateAsync(Flow, contextValidation, cancellationToken);
@@ -170,4 +174,4 @@ public sealed class Prevalidate(
 
         return Result.Success(result);
     }
-} 
+}
