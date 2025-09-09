@@ -118,14 +118,6 @@ public class DistributeTrustYieldsService(
             logger.LogInformation("{Svc} Saldos: PreClosingBalance={Pre}, ClosingBalance={Close}", svc, trust.PreClosingBalance, closingBalance);
 
             decimal units = 0m;
-            //if (MoneyHelper.Round2(trust.PreClosingBalance) != MoneyHelper.Round2(closingBalance))
-            //    units = Math.Round(MoneyHelper.Round2(closingBalance) / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
-            //logger.LogInformation("{Svc} Units provisional (si cambió balance): {UnitsProvisional}", svc, units);
-
-            //if (prevTrustYield is not null && prevPortfolioValuation is not null) //si hay dia previo con datos, pero no hubo cambio en el balance
-            //    units = Math.Round(prevTrustYield.Units, DecimalPrecision.SixteenDecimals);
-            //else // si no hay dia previo con datos, es el primer día de cierre y no hubo cambio en el balance
-            //    units = Math.Round(MoneyHelper.Round2(closingBalance) / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
 
             var balanceChanged = MoneyHelper.Round2(trust.PreClosingBalance) != MoneyHelper.Round2(closingBalance);
 
