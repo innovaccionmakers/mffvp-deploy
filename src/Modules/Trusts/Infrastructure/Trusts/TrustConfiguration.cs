@@ -18,26 +18,33 @@ internal sealed class TrustConfiguration : IEntityTypeConfiguration<Trust>
         builder.Property(x => x.PortfolioId).HasColumnName("portafolio_id");
         builder.Property(x => x.TotalBalance)
             .HasColumnName("saldo_total")
-            .HasColumnType("decimal(19, 2)");
+            .HasColumnType("decimal(19, 2)")
+            .HasPrecision(19,2);
         builder.Property(x => x.TotalUnits)
             .HasColumnName("unidades_totales")
-            .HasColumnType("decimal(38, 16)");
+            .HasColumnType("decimal(38, 16)")
+             .HasPrecision(38, 16);
         builder.Property(x => x.Principal)
             .HasColumnName("capital")
-            .HasColumnType("decimal(19, 2)");
+            .HasColumnType("decimal(19, 2)")
+             .HasPrecision(19, 2);
         builder.Property(x => x.Earnings)
             .HasColumnName("rendimiento")
-            .HasColumnType("decimal(19, 2)");
+            .HasColumnType("decimal(19, 2)")
+             .HasPrecision(19, 2);
         builder.Property(x => x.TaxCondition).HasColumnName("condicion_tributaria");
         builder.Property(x => x.ContingentWithholding)
             .HasColumnName("retencion_contingente")
-            .HasColumnType("decimal(19, 2)");
+            .HasColumnType("decimal(19, 2)")
+            .HasPrecision(19, 2);
         builder.Property(x => x.EarningsWithholding)
             .HasColumnName("retencion_rendimiento")
-            .HasColumnType("decimal(19, 2)");
+            .HasColumnType("decimal(19, 2)")
+            .HasPrecision(19, 2);
         builder.Property(x => x.AvailableAmount)
             .HasColumnName("disponible")
-            .HasColumnType("decimal(19, 2)");
+            .HasColumnType("decimal(19, 2)")
+            .HasPrecision(19, 2);
         builder.Property(x => x.Status).HasColumnName("estado");
     }
 }
