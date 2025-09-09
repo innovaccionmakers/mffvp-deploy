@@ -260,7 +260,7 @@
         "ErrorMessage": "La cuenta bancaria no existe o no está asociada al portafolio.",
         "Expression": "input.BankAccountExists == true",
         "Properties": {
-          "errorCode": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          "errorCode": "e11af3ba-5ecd-45c7-b3e9-71f6bbb06e1c"
         }
       }
     ]

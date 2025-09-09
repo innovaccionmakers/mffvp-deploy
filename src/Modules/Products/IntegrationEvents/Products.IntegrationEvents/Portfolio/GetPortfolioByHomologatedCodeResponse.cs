@@ -1,10 +1,10 @@
-﻿using IntegrationResponse = Products.Integrations.Portfolios.GetPortfolioById;
+﻿using Products.Integrations.Portfolios;
 
 namespace Products.IntegrationEvents.Portfolio;
 
 public sealed record GetPortfolioByHomologatedCodeResponse(
     bool Succeeded,
-    IntegrationResponse.GetPortfolioByIdResponse? Portfolio,
+    PortfolioResponse? Portfolio,
     string? Code,
     string? Message
 );

@@ -19,7 +19,7 @@ internal sealed class PortfolioLocator(IRpcClient rpc) : IPortfolioLocator
             ct);
 
         return rc.Succeeded
-            ? Result.Success(((long)rc.Portfolio!.IdPortfolio, rc.Portfolio.Name, rc.Portfolio.CurrentDateProcess))
+            ? Result.Success((rc.Portfolio!.PortfolioId, rc.Portfolio.Name, rc.Portfolio.CurrentDate))
             : Result.Failure<(long, string, DateTime)>(Error.Validation(rc.Code, rc.Message));
     }
 
