@@ -17,4 +17,13 @@ public interface ITrustOperationRepository
       long trustId,
       DateTime closingDate,
       CancellationToken cancellationToken);
-}
+
+    Task<bool> UpsertAsync(
+     int portfolioId,
+     long trustId,
+     DateTime processDate,
+     decimal amount,
+     long operationTypeId,
+     long? clientOperationId,
+     CancellationToken cancellationToken);
+    }

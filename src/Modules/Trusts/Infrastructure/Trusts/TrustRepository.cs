@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Trusts.Domain.Trusts;
 using Trusts.Domain.Trusts.Balances;
+using Trusts.Domain.Trusts.TrustYield;
 using Trusts.Infrastructure.Database;
 
 namespace Trusts.Infrastructure.Trusts;
@@ -75,4 +76,55 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
             .Distinct()
             .CountAsync(cancellationToken);
     }
+
+    public async Task<int> TryApplyYieldSetBasedAsync(
+     long trustId,
+     decimal yieldAmount,
+     decimal yieldRetention,
+     decimal closingBalance,
+     CancellationToken cancellationToken = default)
+    {
+
+        return await context.Trusts
+            .Where(t => t.TrustId == trustId)
+            //.Where(t => t.TotalBalance + yieldAmount == closingBalance)
+            //.Where(t => t.TotalBalance + yieldAmount == (t.Principal + yieldAmount)) se debe validar con negocio si esta condicion se mantiene
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(t => t.TotalBalance, t => t.TotalBalance + yieldAmount)
+                .SetProperty(t => t.Earnings, t => t.Earnings + yieldAmount)
+                .SetProperty(t => t.EarningsWithholding, t => t.EarningsWithholding + yieldRetention)
+                .SetProperty(t => t.AvailableAmount,
+                    t => (t.TotalBalance + yieldAmount)
+                         - (t.EarningsWithholding + yieldRetention)
+                         - t.ContingentWithholding),
+                cancellationToken);
+    }
+
+    public async Task<TrustYieldUpdateDiagnostics?> GetYieldUpdateDiagnosticsAsync(
+      long trustId,
+      decimal yieldAmount,
+      decimal closingBalance,
+      CancellationToken cancellationToken = default)
+    {
+        var data = await context.Trusts
+            .AsNoTracking()
+            .Where(t => t.TrustId == trustId)
+            .Select(t => new
+            {
+                NewTotal = Math.Round(t.TotalBalance, 2) + Math.Round(yieldAmount, 2),
+                ExpectedCapPlusYield = t.Principal + yieldAmount
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (data is null) return null;
+
+        return new TrustYieldUpdateDiagnostics(
+            data.NewTotal == Math.Round(closingBalance, 2),
+            data.NewTotal == data.ExpectedCapPlusYield,
+            data.NewTotal,
+            data.ExpectedCapPlusYield
+        );
+    }
+
+
 }
