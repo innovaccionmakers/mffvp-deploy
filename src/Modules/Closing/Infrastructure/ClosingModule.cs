@@ -72,6 +72,15 @@ public class ClosingModule : IModuleConfiguration
         //        );
         //});
 
+        // Web/API (1 DbContext por request con tracking)
+        services.AddDbContextPool<ClosingDbContext>(options =>
+        {
+            options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
+                   .UseNpgsql(connectionString, npgsqlOptions =>
+                       npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Closing));
+        });
+
+        // Workers/Paralelo (crear contextos a demanda)
         services.AddPooledDbContextFactory<ClosingDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
@@ -81,9 +90,6 @@ public class ClosingModule : IModuleConfiguration
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Closing)
                 );
         });
-
-        services.AddScoped<ClosingDbContext>(sp =>
-    sp.GetRequiredService<IDbContextFactory<ClosingDbContext>>().CreateDbContext());
 
         services.AddScoped<IProfitLossConceptRepository, ProfitLossConceptRepository>();
         services.AddScoped<IProfitLossRepository, ProfitLossRepository>();
@@ -109,6 +115,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
         // Llama a la extension para PreClosing
         services.AddPreClosingInfrastructure();
+        // Llama a la extension para Closing
         services.AddClosingInfrastructure();
 
     }
