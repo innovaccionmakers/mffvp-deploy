@@ -25,6 +25,7 @@ using Treasury.Presentation.GraphQL;
 using Trusts.Presentation.GraphQL;
 using Reports.Domain.DailyClosing;
 using Common.SharedKernel.Application.Reports;
+using Reports.Domain.TechnicalSheet;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -220,7 +221,6 @@ public class Query
         return await experienceOrchestrator.GetAllAssociatesByFilterAsync(identificationType, searchBy, text, cancellationToken);
     }
 
-    [Authorize(Policy = "fvp:associate:activates:view")]
     [GraphQLName("obtenerAfiliados")]
     public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([Service] ExperienceOrchestrator experienceOrchestrator,
                                                                           CancellationToken cancellationToken)
@@ -310,7 +310,13 @@ public class Query
                                                                                           [Service] ReportOrchestrator reportOrchestrator,
                                                                                           CancellationToken cancellationToken)
     {
-        return await reportOrchestrator.GetReportDataAsync((portfolioId, startDate, endDate), ReportType.TechnicalSheet, cancellationToken);
+        var request = new TechnicalSheetReportRequest
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            PortfolioId = portfolioId
+        };
+        return await reportOrchestrator.GetReportData(request, ReportType.TechnicalSheet, cancellationToken);
     }
 
     [GraphQLName("generarReporteSaldosMovimientos")]
@@ -319,7 +325,7 @@ public class Query
                                                                                     [Service] ReportOrchestrator reportOrchestrator,
                                                                                     CancellationToken cancellationToken,
                                                                                     [GraphQLName("identificacion")] string? identificationId = null)
-    {
+    {      
         return await reportOrchestrator.GetReportData((startDate, endDate, identificationId), ReportType.Balances, cancellationToken);
     }
 

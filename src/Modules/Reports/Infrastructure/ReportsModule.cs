@@ -13,12 +13,15 @@ using Reports.Domain.BalancesAndMovements;
 using Reports.Domain.DailyClosing;
 using Reports.Domain.Health;
 using Reports.Infrastructure.BalancesAndMovements;
+using Reports.Domain.TechnicalSheet;
 using Reports.Infrastructure.ConnectionFactory;
 using Reports.Infrastructure.ConnectionFactory.Interfaces;
 using Reports.Infrastructure.DailyClosing;
 using Reports.Infrastructure.Health;
 using Reports.Infrastructure.Options;
+using Reports.Infrastructure.TechnicalSheet;
 using Reports.Presentation.GraphQL;
+using Reports.Application.TechnicalSheet;
 
 namespace Reports.Infrastructure;
 
@@ -34,10 +37,14 @@ public class ReportsModule : IModuleConfiguration
         services.AddTransient<IProfitabilityCalculator, ProfitabilityCalculator>();
         services.AddTransient<IReportHealthRepository, ReportHealthRepository>();
         services.AddTransient<IDailyClosingReportRepository, DailyClosingReportRepository>();
+        services.AddTransient<ITechnicalSheetRepository, TechnicalSheetRepository>();
         services.AddScoped<IReportGeneratorStrategy, DailyClosingReportStrategy>();
         services.AddScoped<IReportStrategyBuilder, ReportStrategyBuilder>();
         services.AddScoped<IDailyClosingReportBuilder, DailyClosingReportBuilder>();
-        services.AddScoped<DailyClosingReport>();
+        services.AddScoped<DailyClosingReport>();        
+        services.AddScoped<TechnicalSheetReport>();
+        services.AddScoped<IReportStrategy, DailyClosingReport>();      
+        services.AddScoped<IReportStrategy, TechnicalSheetReport>();
         services.AddScoped<IReportStrategyFactory, ReportStrategyFactory>();
         services.AddScoped<IReportsExperienceQueries, ReportsExperienceQueries>();
         services.AddTransient<IReportsDbConnectionFactory, ReportsDbConnectionFactory>();
@@ -48,6 +55,6 @@ public class ReportsModule : IModuleConfiguration
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        
+
     }
 }

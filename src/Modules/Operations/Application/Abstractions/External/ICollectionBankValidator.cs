@@ -7,4 +7,8 @@ namespace Operations.Application.Abstractions.External;
 public interface ICollectionBankValidator
 {
     Task<Result<long>> ValidateAsync(string homologatedCode, CancellationToken cancellationToken = default);
+
+    Task<Result<bool>> ValidateExistByPortfolioAndAccountNumberAsync(long portfolioId,
+                                                                     string accountNumber,
+                                                                     CancellationToken cancellationToken = default);
 }

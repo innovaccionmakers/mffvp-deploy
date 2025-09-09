@@ -7,7 +7,7 @@ namespace Operations.Presentation.DTOs
         decimal Amount,
 
         //informacion_auxiliar
-        int CollectionAccount,
+        string CollectionAccount,
         JsonDocument PaymentMethodDetail,
 
         //subtipo_transacciones

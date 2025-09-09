@@ -59,7 +59,7 @@ public sealed class TransactionControl(
             prevalidationResult.Catalogs.Source!.OriginId,
             prevalidationResult.Catalogs.CollectionMethod!.ConfigurationParameterId,
             prevalidationResult.Catalogs.PaymentMethod!.ConfigurationParameterId,
-            int.TryParse(command.CollectionAccount, out var acc) ? acc : 0,
+            command.CollectionAccount,
             command.PaymentMethodDetail ?? JsonDocument.Parse("{}"),
             tax.CertificationStatusId,
             tax.TaxConditionId,
@@ -122,7 +122,7 @@ public sealed class TransactionControl(
         logger.LogInformation("{Class} - Informacion auxiliar creada e insertada: {@Aux}", ClassName, info.ClientOperationId);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("{Class} - Cambios guardados despu�s de insertar informaci�n auxiliar: {@Aux}", ClassName, info.ClientOperationId);
-        await operationCompleted.ExecuteAsync(operation, cancellationToken);
+        logger.LogInformation("{Class} - Cambios guardados despues de insertar informaci�n auxiliar: {@Aux}", ClassName, info.ClientOperationId);
+       
     }
 } 

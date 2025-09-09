@@ -59,6 +59,7 @@ using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.Portfolio;
 using Products.IntegrationEvents.Portfolio.PortfolioUpdated;
 using Products.IntegrationEvents.PortfolioValidation;
+using Products.IntegrationEvents.TechnicalSheet;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
 
@@ -125,6 +126,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();
         services.AddScoped<IRpcHandler<ContributionValidationRequest, ContributionValidationResponse>, ContributionValidationConsumer>();
         services.AddScoped<IRpcHandler<GetPortfolioByIdRequest, GetPortfolioByIdResponse>, GetPortfolioByIdConsumer>();
+        services.AddScoped<IRpcHandler<GetPortfolioByHomologatedCodeRequest, GetPortfolioByHomologatedCodeResponse>, GetPortfolioByHomologatedCodeConsumer>();
         services.AddTransient<IRpcHandler<ValidatePortfolioRequest, ValidatePortfolioResponse>, PortfolioValidationConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioDataRequest, GetPortfolioDataResponse>, PortfolioValidationConsumer>();
 
@@ -136,6 +138,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
         services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();
         services.AddScoped<CommissionProcessedSuscriber>();
+        services.AddScoped<TechnicalSheetDataBuilderSuscriber>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }

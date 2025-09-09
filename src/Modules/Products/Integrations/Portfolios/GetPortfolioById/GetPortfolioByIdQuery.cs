@@ -1,7 +1,6 @@
 using Common.SharedKernel.Application.Messaging;
-using Products.Integrations.Portfolios.GetPortfolioById;
 
-namespace Products.Integrations.Portfolios.Queries;
+namespace Products.Integrations.Portfolios.GetPortfolioById;
 
 public sealed record GetPortfolioByIdQuery(
     string CodigoPortafolio

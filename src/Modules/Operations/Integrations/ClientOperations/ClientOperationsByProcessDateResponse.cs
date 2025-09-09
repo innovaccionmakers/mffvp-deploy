@@ -12,7 +12,7 @@ namespace Operations.Integrations.ClientOperations
         decimal Amount,
 
         //informacion_auxiliar
-        int CollectionAccount,
+        string CollectionAccount,
         JsonDocument PaymentMethodDetail,
 
         //subtipo_transacciones

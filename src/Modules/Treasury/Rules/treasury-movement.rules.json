@@ -25,18 +25,6 @@
         "ErrorMessage": "El valor es obligatorio",
         "Expression": "input.Value != null",
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000004" }
-      },
-      {
-        "RuleName": "BankAccountIdRequired",
-        "ErrorMessage": "La cuenta bancaria es obligatoria",
-        "Expression": "input.BankAccountId > 0",
-        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000006" }
-      },
-      {
-        "RuleName": "CounterpartyIdRequired",
-        "ErrorMessage": "La contraparte es obligatoria",
-        "Expression": "input.CounterpartyId > 0",
-        "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000008" }
       }
     ]
   },
@@ -52,13 +40,13 @@
       {
         "RuleName": "BankAccountMustExist",
         "ErrorMessage": "La cuenta bancaria no existe",
-        "Expression": "input.BankAccountExists != null",
+        "Expression": "input.ShouldValidateBankAccount == false || input.BankAccountExists != null",
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000005" }
       },
       {
         "RuleName": "CounterpartyMustExist",
         "ErrorMessage": "La contraparte no existe",
-        "Expression": "input.CounterpartyExists != null",
+        "Expression": "input.ShouldValidateCounterparty == false || input.CounterpartyExists != null",
         "Properties": { "errorCode": "a1b2c3d4-e5f6-7890-abcd-000000000014" }
       },
       {

@@ -254,6 +254,14 @@
         "Properties": {
           "errorCode": "fe27ea5b-444f-4e12-a63f-1c1618708677"
         }
+      },
+      {
+        "RuleName": "BankAccountAssociatedToPortfolio",
+        "ErrorMessage": "La cuenta bancaria no existe o no está asociada al portafolio.",
+        "Expression": "input.BankAccountExists == true",
+        "Properties": {
+          "errorCode": "e11af3ba-5ecd-45c7-b3e9-71f6bbb06e1c"
+        }
       }
     ]
   }

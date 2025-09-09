@@ -38,18 +38,11 @@ public sealed class TempClientOpsCleanupService : BackgroundService, ITempClient
             var tempAuxRepo = scope.ServiceProvider.GetRequiredService<ITemporaryAuxiliaryInformationRepository>();
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-            var operations = await tempOpRepo.GetByIdsAsync(operationIds, stoppingToken);
-            if (operations.Count == 0)
-            {
-                continue;
-            }
-
-            var auxiliaries = await tempAuxRepo.GetByIdsAsync(auxiliaryIds, stoppingToken);
-
             await using var transaction = await unitOfWork.BeginTransactionAsync(stoppingToken);
-            tempOpRepo.DeleteRange(operations);
-            tempAuxRepo.DeleteRange(auxiliaries);
-            await unitOfWork.SaveChangesAsync(stoppingToken);
+
+            await tempAuxRepo.DeleteByIdsAsync(auxiliaryIds, stoppingToken);
+            await tempOpRepo.DeleteByIdsAsync(operationIds, stoppingToken);
+
             await transaction.CommitAsync(stoppingToken);
         }
     }

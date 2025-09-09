@@ -9,8 +9,9 @@ public sealed class ConfirmClosingResult
         PortfolioId = portfolioId;
         ClosingDate = closingDate;
     }
-
+    [property: JsonPropertyName("IdPortafolio")]
     public int PortfolioId { get; init; }
+    [property: JsonPropertyName("FechaCierre")]
     public DateTime ClosingDate { get; init; }
 
     [property: JsonPropertyName("TieneAdvertencias")]

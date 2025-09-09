@@ -80,6 +80,15 @@ public class DailyClosingReportTests
             report.Should().Contain("43140101005+00000000000000010.12");
             report.Should().Contain("43140101010+00000000000000020.34");
             report.Should().Contain("43140101015+00000000000000030.56");
+            lines[^1].Trim().Should().Be("000295");
+            report.Should().Contain("000022000001161234");
+            report.Should().Contain("0000343120101011+0000000000100.123456");
+            report.Should().Contain("0000443130101005+0000000001000.000000");
+            report.Should().Contain("0000643130202005-00000000000001000.50");
+            report.Should().Contain("43130103005+0000000000200.000000");
+            report.Should().Contain("43140101005+00000000000000010.12");
+            report.Should().Contain("43140101010+00000000000000020.34");
+            report.Should().Contain("43140101015+00000000000000030.56");
             lines[^1].Should().Be("000295");
 
             var totalRecordsFromHeader = int.Parse(lines[0].Substring(22, 5));

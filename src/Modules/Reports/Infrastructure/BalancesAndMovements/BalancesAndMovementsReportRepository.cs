@@ -304,8 +304,8 @@ namespace Reports.Infrastructure.BalancesAndMovements
                     sql += " AND afiliado_id = ANY(@activateId);";
                     parameters = new
                     {
-                        startDate = startDate,
-                        endDate = endDate,
+                        startDate,
+                        endDate,
                         activateId = activateId.ToArray()
                     };
                 }
@@ -313,8 +313,8 @@ namespace Reports.Infrastructure.BalancesAndMovements
                 {
                     parameters = new
                     {
-                        startDate = startDate,
-                        endDate = endDate
+                        startDate,
+                        endDate
                     };
                 }
 

@@ -12,6 +12,6 @@ public sealed record CreateTreasuryMovementCommand(
 public sealed record TreasuryMovementConcept(
     long TreasuryConceptId,
     decimal Value,
-    long BankAccountId,
-    long CounterpartyId
+    long? BankAccountId,
+    long? CounterpartyId
 );

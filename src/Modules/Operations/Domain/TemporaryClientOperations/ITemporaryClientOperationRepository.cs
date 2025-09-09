@@ -7,6 +7,7 @@ public interface ITemporaryClientOperationRepository
     Task<TemporaryClientOperation?> GetForUpdateAsync(long temporaryClientOperationId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<TemporaryClientOperation>> GetByPortfolioAsync(int portfolioId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<TemporaryClientOperation>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default);
+    Task<int> DeleteByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default);
     void Insert(TemporaryClientOperation temporaryClientOperation);
     void Update(TemporaryClientOperation temporaryClientOperation);
     void Delete(TemporaryClientOperation temporaryClientOperation);
