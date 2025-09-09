@@ -138,7 +138,7 @@ internal class CreateTreasuryMovementCommandHandler(ITreasuryMovementRepository 
                 concept.TreasuryConceptId,
                 concept.Value,
                 concept.BankAccountId,
-                bankAccount?.IssuerId ?? 0,
+                bankAccount?.IssuerId,
                 concept.CounterpartyId
             );
 
