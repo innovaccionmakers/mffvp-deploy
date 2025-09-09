@@ -216,7 +216,6 @@ public class Query
         return await experienceOrchestrator.GetAllAssociatesByFilterAsync(identificationType, searchBy, text, cancellationToken);
     }
 
-    [Authorize(Policy = "fvp:associate:activates:view")]
     [GraphQLName("obtenerAfiliados")]
     public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([Service] ExperienceOrchestrator experienceOrchestrator,
                                                                           CancellationToken cancellationToken)

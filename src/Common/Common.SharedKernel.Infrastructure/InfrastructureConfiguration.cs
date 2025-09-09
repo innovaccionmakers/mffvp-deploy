@@ -8,12 +8,14 @@ using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Caching.Closing;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
+using Common.SharedKernel.Infrastructure.EventBus;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 using Npgsql;
@@ -82,10 +84,17 @@ public static class InfrastructureConfiguration
             x.UseInMemoryMessageQueue();
             x.UsePostgreSql(capDbConnectionString);
             x.UseStorageLock = true;
-            x.FailedRetryInterval = 5;
-            x.FailedRetryCount = 10;
+            x.FailedRetryInterval = 3;
+            x.FailedRetryCount = 3;
             x.UseDashboard();
-        });
+
+            x.FailedThresholdCallback = failed =>
+            {
+                //ACA PODRIA GUARDAR EN UNA TABLA DE cap.deadletter, los mensajes que no se pudieron procesar
+                // Aquí puedes loguear o alertar
+                Console.WriteLine($"Mensaje movido a dead-letter después de {x.FailedRetryCount} intentos. Id: {failed.Message.Value}");
+            };
+        }).AddSubscribeFilter<CapsEventsFilter>();
 
         services
             .AddOpenTelemetry()
