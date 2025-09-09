@@ -7,20 +7,25 @@ using Common.SharedKernel.Presentation.Results;
 using Customers.Presentation.DTOs;
 using Customers.Presentation.GraphQL;
 using HotChocolate.Authorization;
+using HotChocolate;
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services;
 using MFFVP.BFF.Services.Reports;
-using MFFVP.BFF.Services.Reports.Models;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Presentation.DTOs;
+using Microsoft.Extensions.Logging;
 using Operations.Presentation.GraphQL;
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
+using Reports.Presentation.GraphQL;
 using Products.Presentation.GraphQL;
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
 using Trusts.Presentation.GraphQL;
+using Reports.Domain.DailyClosing;
+using Common.SharedKernel.Application.Reports;
+using Reports.Domain.TechnicalSheet;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -305,7 +310,40 @@ public class Query
                                                                                           [Service] ReportOrchestrator reportOrchestrator,
                                                                                           CancellationToken cancellationToken)
     {
-        return await reportOrchestrator.GetReportDataAsync((portfolioId, startDate, endDate), ReportType.TechnicalSheet, cancellationToken);
+        var request = new TechnicalSheetReportRequest
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            PortfolioId = portfolioId
+        };
+        return await reportOrchestrator.GetReportData(request, ReportType.TechnicalSheet, cancellationToken);
+    }
+
+    [GraphQLName("generarReporteSaldosMovimientos")]
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateBalancesReportAsync([GraphQLName("fechaInicial")] DateOnly startDate,
+                                                                                    [GraphQLName("fechaFinal")] DateOnly endDate,
+                                                                                    [GraphQLName("identificacion")] int identificationId,
+                                                                                    [Service] ReportOrchestrator reportOrchestrator,
+                                                                                    CancellationToken cancellationToken)
+    {      
+        return await reportOrchestrator.GetReportData((startDate, endDate, identificationId), ReportType.Balances, cancellationToken);
+    }
+
+    // Reports Queries
+    [GraphQLName("generarReporteCierreDiario")]
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateDailyClosingReportAsync(
+        [GraphQLName("idPortafolio")] int portfolioId,
+        [GraphQLName("fechaGeneracion")] DateTime generationDate,
+        [Service] ReportOrchestrator reportOrchestrator,
+        CancellationToken cancellationToken)
+    {
+        var request = new DailyClosingReportRequest
+        {
+            PortfolioId = portfolioId,
+            GenerationDate = generationDate
+        };
+
+        return await reportOrchestrator.GetReportData(request, ReportType.DailyClosing, cancellationToken);
     }
 
     //Trust Queries

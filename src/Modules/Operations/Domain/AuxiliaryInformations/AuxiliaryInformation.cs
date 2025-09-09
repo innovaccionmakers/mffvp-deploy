@@ -13,7 +13,7 @@ public sealed class AuxiliaryInformation : Entity
     public int OriginId { get; private set; }
     public int CollectionMethodId { get; private set; }
     public int PaymentMethodId { get; private set; }
-    public int CollectionAccount { get; private set; }
+    public string CollectionAccount { get; private set; }
     public JsonDocument PaymentMethodDetail { get; private set; }
     public int CertificationStatusId { get; private set; }
     public int TaxConditionId { get; private set; }
@@ -40,7 +40,7 @@ public sealed class AuxiliaryInformation : Entity
         int originId,
         int collectionMethodId,
         int paymentMethodId,
-        int collectionAccount,
+        string collectionAccount,
         JsonDocument paymentMethodDetail,
         int certificationStatusId,
         int taxConditionId,
@@ -87,7 +87,7 @@ public sealed class AuxiliaryInformation : Entity
         int newOriginId,
         int newCollectionMethodId,
         int newPaymentMethodId,
-        int newCollectionAccount,
+        string newCollectionAccount,
         JsonDocument newPaymentMethodDetail,
         int newCertificationStatusId,
         int newTaxConditionId,

@@ -1,0 +1,3 @@
+﻿namespace Treasury.IntegrationEvents.TreasuryMovements.ValidateExistByPortfolioAndAccountNumber;
+
+public sealed record ValidateExistByPortfolioAndAccountNumberRequest(long PortfolioId, string AccountNumber);

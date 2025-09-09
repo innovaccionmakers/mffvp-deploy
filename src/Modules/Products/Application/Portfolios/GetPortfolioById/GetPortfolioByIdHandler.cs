@@ -6,7 +6,6 @@ using Common.SharedKernel.Domain;
 using Products.Application.Abstractions;
 using Products.Domain.Portfolios;
 using Products.Integrations.Portfolios.GetPortfolioById;
-using Products.Integrations.Portfolios.Queries;
 
 namespace Products.Application.Portfolios.GetPortfolioById;
 internal sealed class GetPortfolioByIdHandler(

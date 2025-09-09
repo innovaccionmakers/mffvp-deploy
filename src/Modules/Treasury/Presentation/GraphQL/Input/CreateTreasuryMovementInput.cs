@@ -11,6 +11,6 @@ public sealed record CreateTreasuryMovementInput(
 public sealed record TreasuryMovementConceptInput(
     [property: GraphQLName("concepto")] long TreasuryConceptId,
     [property: GraphQLName("valor")] decimal Value,
-    [property: GraphQLName("cuentaBancaria")] long BankAccountId,
-    [property: GraphQLName("contraparte")] long CounterpartyId
+    [property: GraphQLName("cuentaBancaria")] long? BankAccountId,
+    [property: GraphQLName("contraparte")] long? CounterpartyId
 );

@@ -21,7 +21,6 @@
 
 
     <ItemGroup>
-      <Folder Include="BankAccounts\Queries\" />
       <Folder Include="TreasuryConcepts\Queries\" />
     </ItemGroup>
 
