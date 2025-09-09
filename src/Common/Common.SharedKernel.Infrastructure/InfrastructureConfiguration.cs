@@ -84,17 +84,17 @@ public static class InfrastructureConfiguration
             x.UseInMemoryMessageQueue();
             x.UsePostgreSql(capDbConnectionString);
             x.UseStorageLock = true;
-            x.FailedRetryInterval = 5;
-            x.FailedRetryCount = 10;
+            x.FailedRetryInterval = 3;
+            x.FailedRetryCount = 3;
             x.UseDashboard();
 
-            //x.FailedThresholdCallback = failed =>
-            //{
-            //    //ACA PODRIA GUARDAR EN UNA TABLA DE cap.deadletter, los mensajes que no se pudieron procesar
-            //    // Aquí puedes loguear o alertar
-            //    Console.WriteLine($"Mensaje movido a dead-letter después de {x.FailedRetryCount} intentos. Id: {failed.Message.Value}");
-            //};
-        });//.AddSubscribeFilter<CapsEventsFilter>();
+            x.FailedThresholdCallback = failed =>
+            {
+                //ACA PODRIA GUARDAR EN UNA TABLA DE cap.deadletter, los mensajes que no se pudieron procesar
+                // Aquí puedes loguear o alertar
+                Console.WriteLine($"Mensaje movido a dead-letter después de {x.FailedRetryCount} intentos. Id: {failed.Message.Value}");
+            };
+        }).AddSubscribeFilter<CapsEventsFilter>();
 
         services
             .AddOpenTelemetry()
