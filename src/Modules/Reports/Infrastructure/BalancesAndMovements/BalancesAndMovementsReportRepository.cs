@@ -86,7 +86,6 @@ namespace Reports.Infrastructure.BalancesAndMovements
             }
         }
 
-
         private IEnumerable<BalancesResponse> BuildBalancesResponse(
             DateTime startDate,
             DateTime endDate,
