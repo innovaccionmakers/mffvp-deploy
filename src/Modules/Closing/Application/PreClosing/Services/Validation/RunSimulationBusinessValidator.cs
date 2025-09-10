@@ -13,6 +13,7 @@ using Closing.Domain.PortfolioValuations;
 using Closing.Domain.ProfitLosses;
 using Closing.Domain.Rules;
 using Closing.Integrations.PreClosing.RunSimulation;
+using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.Helpers.Rules;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Application.Rules;
@@ -31,7 +32,8 @@ public class RunSimulationBusinessValidator(
         IMovementsConsolidationService movementsConsolidationService,
         IClientOperationRepository clientOperationRepository,
         IOperationTypesLocator operationTypesLocator,
-        IConfigurationParameterRepository configurationParameterRepository
+        IConfigurationParameterRepository configurationParameterRepository,
+        IClosingExecutionStore store
     )
     : IBusinessValidator<RunSimulationCommand>, IRunSimulationValidationReader
 {
@@ -42,6 +44,12 @@ public class RunSimulationBusinessValidator(
       RunSimulationCommand command,
       CancellationToken cancellationToken)
     {
+        // 0. Validación: ¿hay cierre activo?
+        var isActive = await store.IsClosingActiveAsync(cancellationToken);
+        if (isActive)
+        {
+            return Result.Failure<RunSimulationValidationInfo>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
+        }
         // 1. Portfolio
         var portfolioDataResult = await portfolioValidator.GetPortfolioDataAsync(command.PortfolioId, cancellationToken);
         if (!portfolioDataResult.IsSuccess)

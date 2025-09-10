@@ -1,3 +1,5 @@
+using Trusts.Domain.Trusts.TrustYield;
+
 namespace Trusts.Domain.Trusts;
 
 public interface ITrustRepository
@@ -11,4 +13,16 @@ public interface ITrustRepository
     Task<IReadOnlyCollection<Trust>> GetByObjectiveIdAsync(int objectiveId, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<Trust>> GetActiveTrustsByPortfolioAsync(int portfolioId, CancellationToken ct);
     Task<int> GetParticipantAsync(IEnumerable<long> trustIds, CancellationToken cancellationToken = default);
+    Task<int> TryApplyYieldSetBasedAsync(
+     long trustId,
+     decimal yieldAmount,
+     decimal yieldRetention,
+     decimal closingBalance,
+     CancellationToken cancellationToken = default);
+
+    Task<TrustYieldUpdateDiagnostics?> GetYieldUpdateDiagnosticsAsync(
+       long trustId,
+       decimal yieldAmount,
+       decimal closingBalance,
+       CancellationToken cancellationToken = default);
 }

@@ -182,70 +182,29 @@ builder.Services.AddInfrastructure(
 
 builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing", "treasury", "datasync", "reports"], env);
 
-var trustsModuleAssembly = Assembly.GetAssembly(typeof(Trusts.Infrastructure.TrustsModule));
-if (trustsModuleAssembly != null)
+var modules = new List<Type>
 {
-    builder.Services.AddModulesFromAssembly(trustsModuleAssembly, builder.Configuration);
-}
+    typeof(Trusts.Infrastructure.TrustsModule),
+    typeof(Associate.Infrastructure.ActivatesModule),
+    typeof(Products.Infrastructure.ProductsModule),
+    typeof(Customers.Infrastructure.CustomersModule),
+    typeof(Operations.Infrastructure.OperationsModule),
+    typeof(Closing.Infrastructure.ClosingModule),
+    typeof(Security.Infrastructure.SecurityModule),
+    typeof(Treasury.Infrastructure.TreasuryModule),
+    typeof(DataSync.Infrastructure.DataSyncModule),
+    typeof(Reports.Infrastructure.ReportsModule),
+    typeof(MFFVP.BFF.ModuleConfiguration)
+};
 
-var activatesModuleAssembly = Assembly.GetAssembly(typeof(Associate.Infrastructure.ActivatesModule));
-if (activatesModuleAssembly != null)
-{
-    builder.Services.AddModulesFromAssembly(activatesModuleAssembly, builder.Configuration);
-}
 
-var productsModuleAssembly = Assembly.GetAssembly(typeof(Products.Infrastructure.ProductsModule));
-if (productsModuleAssembly != null)
+foreach (var moduleType in modules)
 {
-    builder.Services.AddModulesFromAssembly(productsModuleAssembly, builder.Configuration);
-}
-
-var customersModuleAssembly = Assembly.GetAssembly(typeof(Customers.Infrastructure.CustomersModule));
-if (customersModuleAssembly != null)
-{
-    builder.Services.AddModulesFromAssembly(customersModuleAssembly, builder.Configuration);
-}
-
-var operationsModuleAssembly = Assembly.GetAssembly(typeof(Operations.Infrastructure.OperationsModule));
-if (operationsModuleAssembly != null)
-{
-    builder.Services.AddModulesFromAssembly(operationsModuleAssembly, builder.Configuration);
-}
-
-var closingModuleAssembly = Assembly.GetAssembly(typeof(Closing.Infrastructure.ClosingModule));
-if (closingModuleAssembly != null)
-{
-    builder.Services.AddModulesFromAssembly(closingModuleAssembly, builder.Configuration);
-}
-
-var securityModuleAssembly = Assembly.GetAssembly(typeof(Security.Infrastructure.SecurityModule));
-if (securityModuleAssembly != null)
-{
-    builder.Services.AddModulesFromAssembly(securityModuleAssembly, builder.Configuration);
-}
-
-var treasuryModuleAssembly = Assembly.GetAssembly(typeof(Treasury.Infrastructure.TreasuryModule));
-if (treasuryModuleAssembly != null)
-{
-    builder.Services.AddModulesFromAssembly(treasuryModuleAssembly, builder.Configuration);
-}
-
-var dataSyncModuleAssembly = Assembly.GetAssembly(typeof(DataSync.Infrastructure.DataSyncModule));
-if (dataSyncModuleAssembly != null)
-{
-    builder.Services.AddModulesFromAssembly(dataSyncModuleAssembly, builder.Configuration);
-}
-
-var reportsModuleAssembly = Assembly.GetAssembly(typeof(Reports.Infrastructure.ReportsModule));
-if (reportsModuleAssembly != null)
-{
-    builder.Services.AddModulesFromAssembly(reportsModuleAssembly, builder.Configuration);
-}
-
-var bffAssembly = Assembly.GetAssembly(typeof(MFFVP.BFF.ModuleConfiguration));
-if (bffAssembly != null)
-{
-    builder.Services.AddModulesFromAssembly(bffAssembly, builder.Configuration);
+    var moduleAssembly = Assembly.GetAssembly(moduleType);
+    if (moduleAssembly != null)
+    {
+        builder.Services.AddModulesFromAssembly(moduleAssembly, builder.Configuration);
+    }
 }
 
 builder.Services.AddMediatR(cfg =>
