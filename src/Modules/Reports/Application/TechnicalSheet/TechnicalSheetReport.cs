@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Reports.Application.Reports.Strategies;
 using Reports.Application.Strategies;
+using Reports.Domain.BalancesAndMovements;
 using Reports.Domain.TechnicalSheet;
 
 namespace Reports.Application.TechnicalSheet;
@@ -88,7 +89,7 @@ public class TechnicalSheetReport(
 
         var saldosData = new WorksheetData
         {
-            WorksheetName = "Ficha Técnica",
+            WorksheetName = WorksheetName.TechnicalSheet.GetDescription(),
             ColumnHeaders = ColumnHeaders,
             Rows = rows ?? []
         };

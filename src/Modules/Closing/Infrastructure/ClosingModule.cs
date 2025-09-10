@@ -19,7 +19,6 @@ using Closing.IntegrationEvents.DataSync.CreateClientOperationRequested;
 using Closing.IntegrationEvents.DataSync.TrustSync;
 using Closing.IntegrationEvents.PortfolioValuation;
 using Closing.Integrations.PortfolioValuation;
-using Closing.Integrations.PortfolioValuations.Response;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.MinimalApis;
 using Common.SharedKernel.Application.Abstractions;
@@ -61,16 +60,6 @@ public class ClosingModule : IModuleConfiguration
             var region = configuration["AWS:SecretsManager:Region"];
             connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
         }
-
-        //services.AddDbContext<ClosingDbContext>((sp, options) =>
-        //{
-        //    options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
-        //        .UseNpgsql(
-        //            connectionString,
-        //            npgsqlOptions =>
-        //                npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Closing)
-        //        );
-        //});
 
         // Web/API (1 DbContext por request con tracking)
         services.AddDbContextPool<ClosingDbContext>(options =>

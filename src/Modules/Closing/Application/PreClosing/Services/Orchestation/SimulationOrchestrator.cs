@@ -28,7 +28,6 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private readonly YieldDetailBuilderService _yieldDetailBuilderService;
     private readonly IYieldPersistenceService _yieldPersistenceService;
     private readonly IPortfolioValuationRepository _portfolioValuationRepository;
-    // IBusinessValidator<RunSimulationCommand> _businessValidator;
     IRunSimulationValidationReader _businessValidator;
     private readonly IYieldDetailRepository _yieldDetailRepository;
     private readonly IYieldRepository _yieldRepository;
@@ -45,7 +44,6 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         YieldDetailBuilderService yieldDetailBuilderService,
         IYieldPersistenceService yieldPersistenceService,
         IPortfolioValuationRepository portfolioValuationRepository,
-           // IBusinessValidator<RunSimulationCommand> businessValidator, 
         IRunSimulationValidationReader businessValidator,
         IYieldDetailRepository yieldDetailRepository,
         IYieldRepository yieldRepository,

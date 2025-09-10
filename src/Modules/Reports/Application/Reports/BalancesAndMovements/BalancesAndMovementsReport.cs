@@ -106,7 +106,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
             // Hoja 1: Saldos
             var saldosData = new WorksheetData
             {
-                WorksheetName = "Saldos",
+                WorksheetName = WorksheetName.Balances.GetDescription(),
                 ColumnHeaders = _saldosHeaders,
                 Rows = await GetSaldosData(reportRequest, cancellationToken)
             };
@@ -115,7 +115,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
             // Hoja 2: Movimientos
             var movimientosData = new WorksheetData
             {
-                WorksheetName = "Movimientos",
+                WorksheetName = WorksheetName.Movements.GetDescription(),
                 ColumnHeaders = _movimientosHeaders,
                 Rows = await GetMovimientosData(reportRequest, cancellationToken)
             };
