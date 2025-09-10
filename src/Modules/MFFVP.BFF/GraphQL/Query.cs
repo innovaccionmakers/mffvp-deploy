@@ -296,7 +296,7 @@ public class Query
     }
 
     [GraphQLName("generarReporteDepositos")]
-    public async Task<GraphqlResult<ReportResponseDto>> GenerateDepositsReportAsync([GraphQLName("processDate")] DateOnly processDate,
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateDepositsReportAsync([GraphQLName("processDate")] DateTime processDate,
                                                                    [Service] ReportOrchestrator reportOrchestrator,
                                                                    CancellationToken cancellationToken)
     {
