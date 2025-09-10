@@ -1,10 +1,10 @@
 using Common.SharedKernel.Application.Reports;
 using Microsoft.Extensions.DependencyInjection;
-using Reports.Application.BalancesAndMovements;
+using Reports.Application.Reports.BalancesAndMovements;
 using Reports.Application.Reports.DailyClosing;
 using Reports.Application.TechnicalSheet;
 
-namespace Reports.Application.Strategies
+namespace Reports.Application.Reports.Strategies
 {
     public class ReportStrategyFactory : IReportStrategyFactory
     {

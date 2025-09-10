@@ -1,6 +1,9 @@
-using System.Text;
 using Common.SharedKernel.Application.Reports;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Reports.Application.Reports.Strategies;
+using System.IO;
+using System.Text;
 
 namespace Reports.Application.Strategies;
 
@@ -16,17 +19,17 @@ public abstract class TextReportStrategyBase<TStrategy>(ILogger<TStrategy> logge
 
     protected abstract Task<string> GenerateReportContentAsync<TRequest>(TRequest request, CancellationToken cancellationToken);
 
-    public async Task<ReportResponseDto> GetReportDataAsync<TRequest>(TRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetReportDataAsync<TRequest>(TRequest request, CancellationToken cancellationToken)
     {
         try
         {
             var content = await GenerateReportContentAsync(request, cancellationToken);
             var bytes = Encoding.UTF8.GetBytes(content);
-            return new ReportResponseDto
+            var memoryStream = new MemoryStream(bytes);
+
+            return new FileStreamResult(memoryStream, "text/plain")
             {
-                FileContent = Convert.ToBase64String(bytes),
-                FileName = GenerateFileName(request),
-                MimeType = "text/plain"
+                FileDownloadName = GenerateFileName(request)
             };
         }
         catch (Exception ex)

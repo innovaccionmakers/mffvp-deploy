@@ -23,7 +23,6 @@ public class UserPermissionService : IUserPermissionService
 
     public async Task<List<string>> GetPermissionsAsync(int userId)
     {
-        //var direct = await _userPermissionRepo.GetGrantedPermissionsByUserIdAsync(userId);
         var roleIds = await _userRoleRepo.GetRoleIdsByUserIdAsync(userId);
         var permissionsFromRoles = await _rolePermissionRepo.GetPermissionsByRoleIdsAsync(roleIds);
         return permissionsFromRoles;

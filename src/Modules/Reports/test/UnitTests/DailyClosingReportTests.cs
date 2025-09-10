@@ -1,8 +1,5 @@
-using System;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Reports.Application.Reports.Common.Strategies;
@@ -10,6 +7,10 @@ using Reports.Application.Reports.DailyClosing;
 using Reports.Application.Reports.DailyClosing.Strategies;
 using Reports.Domain.DailyClosing;
 using Reports.Domain.DailyClosing.Records;
+using System;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Reports.test.UnitTests;
@@ -65,20 +66,33 @@ public class DailyClosingReportTests
         var request = new DailyClosingReportRequest { PortfolioId = 1, GenerationDate = new DateTime(2025, 2, 6) };
 
         var response = await strategy.GetReportDataAsync(request, CancellationToken.None);
-        var report = Encoding.UTF8.GetString(Convert.FromBase64String(response.FileContent));
-        var lines = report.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-        report.Should().Contain("000022000001161234");
-        report.Should().Contain("0000343120101011+0000000000100.123456");
-        report.Should().Contain("0000443130101005+0000000001000.000000");
-        report.Should().Contain("0000643130202005-00000000000001000.50");
-        report.Should().Contain("43130103005+0000000000200.000000");
-        report.Should().Contain("43140101005+00000000000000010.12");
-        report.Should().Contain("43140101010+00000000000000020.34");
-        report.Should().Contain("43140101015+00000000000000030.56");
-        lines[^1].Trim().Should().Be("000295");
+        if (response is FileContentResult fileResult)
+        {
+            var report = Encoding.UTF8.GetString(fileResult.FileContents);
+            var lines = report.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-        var totalRecordsFromHeader = int.Parse(lines[0].Substring(22, 5));
-        totalRecordsFromHeader.Should().Be(lines.Length);
+            report.Should().Contain("000022000001161234");
+            report.Should().Contain("0000343120101011+0000000000100.123456");
+            report.Should().Contain("0000443130101005+0000000001000.000000");
+            report.Should().Contain("0000643130202005-00000000000001000.50");
+            report.Should().Contain("43130103005+0000000000200.000000");
+            report.Should().Contain("43140101005+00000000000000010.12");
+            report.Should().Contain("43140101010+00000000000000020.34");
+            report.Should().Contain("43140101015+00000000000000030.56");
+            lines[^1].Trim().Should().Be("000295");
+            report.Should().Contain("000022000001161234");
+            report.Should().Contain("0000343120101011+0000000000100.123456");
+            report.Should().Contain("0000443130101005+0000000001000.000000");
+            report.Should().Contain("0000643130202005-00000000000001000.50");
+            report.Should().Contain("43130103005+0000000000200.000000");
+            report.Should().Contain("43140101005+00000000000000010.12");
+            report.Should().Contain("43140101010+00000000000000020.34");
+            report.Should().Contain("43140101015+00000000000000030.56");
+            lines[^1].Should().Be("000295");
+
+            var totalRecordsFromHeader = int.Parse(lines[0].Substring(22, 5));
+            totalRecordsFromHeader.Should().Be(lines.Length);
+        }
     }
 }

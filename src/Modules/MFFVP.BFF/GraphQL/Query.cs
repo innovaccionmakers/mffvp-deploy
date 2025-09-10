@@ -320,11 +320,11 @@ public class Query
     }
 
     [GraphQLName("generarReporteSaldosMovimientos")]
-    public async Task<GraphqlResult<ReportResponseDto>> GenerateBalancesReportAsync([GraphQLName("fechaInicial")] DateOnly startDate,
-                                                                                    [GraphQLName("fechaFinal")] DateOnly endDate,
-                                                                                    [GraphQLName("identificacion")] int identificationId,
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateBalancesReportAsync([GraphQLName("fechaInicial")] DateTime startDate,
+                                                                                    [GraphQLName("fechaFinal")] DateTime endDate,
                                                                                     [Service] ReportOrchestrator reportOrchestrator,
-                                                                                    CancellationToken cancellationToken)
+                                                                                    CancellationToken cancellationToken,
+                                                                                    [GraphQLName("identificacion")] string? identificationId = null)
     {      
         return await reportOrchestrator.GetReportData((startDate, endDate, identificationId), ReportType.Balances, cancellationToken);
     }

@@ -110,13 +110,10 @@ public class OperationsExperienceMutation(
                 input.CertifiedContribution,
                 input.ContingentWithholding,
                 input.DepositDate,
-                //input.ExecutionDate ?? default, // Fix: Provide a default value for nullable DateTime
                 ExecutionDate: contributionData.ExecuteDate,
-                //input.SalesUser,
                 SalesUser: contributionData.SalesUser,
                 JsonDocument.Parse(JsonSerializer.Serialize(input.VerifiableMedium)),
                 input.Subtype,
-                //input.Channel,
                 Channel: contributionData.Channel,
                 input.User
             );

@@ -5,18 +5,18 @@
         string EndDate,
         string IdentificationType,
         string Identification,
-        string AffiliateName,
-        string TargetID,
-        string Target,
-        string FundName,
+        string FullName,
+        int ObjectiveId,
+        string Objective,
+        string Fund,
         string Plan,
         string Alternative,
         string Portfolio,
-        string StartingBalance,
-        string Inflows,
-        string Outflows,
-        string Returns,
-        string SourceWithholding,
-        string ClosingBalance
+        decimal InitialBalance,
+        decimal Entry,
+        decimal Outflows,
+        decimal Returns,
+        decimal SourceWithholding,
+        decimal ClosingBalance
         );
 }
