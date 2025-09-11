@@ -35,4 +35,16 @@ internal sealed class PortfolioLocator(IRpcClient rpc) : IPortfolioLocator
             ? Result.Success((rc.Portfolio!.PortfolioId, rc.Portfolio.Name, rc.Portfolio.CurrentDate))
             : Result.Failure<(long, string, DateTime)>(Error.Validation(rc.Code, rc.Message));
     }
+
+    public async Task<Result<string>> GetHomologateCodeByObjetiveIdAsync(int objetiveId, CancellationToken ct)
+    {        
+        var rc = await rpc.CallAsync<
+            GetHomologateCodeByObjetiveIdRequest,
+            GetHomologateCodeByObjetiveIdResponse>(
+            new GetHomologateCodeByObjetiveIdRequest(objetiveId),
+            ct);
+        return rc.Succeeded
+            ? Result.Success<string>(rc.HomologatedCode)
+            : Result.Failure<string>(Error.Validation(rc.Code, rc.Message));
+    }
 }

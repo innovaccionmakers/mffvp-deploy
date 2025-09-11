@@ -52,8 +52,10 @@ public class OperationsExperienceMutation(
                 return result;
             }
 
+           
             var contributionData = await buildMissingFieldsContributionService.BuildAsync(
-            input.PortfolioId ?? "1", // Manejo básico cuando PortfolioId es null
+            input.PortfolioId,
+            input.ObjectiveId,
             cancellationToken);
 
             var command = CreateContributionCommand(input, contributionData);

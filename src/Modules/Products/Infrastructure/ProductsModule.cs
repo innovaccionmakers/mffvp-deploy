@@ -126,6 +126,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IGetObjectivesRules, GetObjectivesRules>();
         services.AddScoped<IRpcHandler<ContributionValidationRequest, ContributionValidationResponse>, ContributionValidationConsumer>();
         services.AddScoped<IRpcHandler<GetPortfolioByIdRequest, GetPortfolioByIdResponse>, GetPortfolioByIdConsumer>();
+        services.AddScoped<IRpcHandler<GetHomologateCodeByObjetiveIdRequest, GetHomologateCodeByObjetiveIdResponse>, GetHomologateCodeByObjetiveIdConsumer>();
         services.AddScoped<IRpcHandler<GetPortfolioByHomologatedCodeRequest, GetPortfolioByHomologatedCodeResponse>, GetPortfolioByHomologatedCodeConsumer>();
         services.AddTransient<IRpcHandler<ValidatePortfolioRequest, ValidatePortfolioResponse>, PortfolioValidationConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioDataRequest, GetPortfolioDataResponse>, PortfolioValidationConsumer>();

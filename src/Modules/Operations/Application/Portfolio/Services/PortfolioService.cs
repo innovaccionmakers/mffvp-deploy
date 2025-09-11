@@ -1,3 +1,4 @@
+using Microsoft.IdentityModel.Tokens;
 using Operations.Application.Abstractions.External;
 using Operations.Application.Abstractions.Services.Portfolio;
 
@@ -12,18 +13,23 @@ public class PortfolioService : IPortfolioService
         _portfolioLocator = portfolioLocator;
     }
 
-    public async Task<DateTime> GetCurrentDateAsync(string portfolioId, CancellationToken cancellationToken = default)
+    public async Task<DateTime> GetCurrentDateAsync(string portfolioId, int objetiveId, CancellationToken cancellationToken = default)
     {
-        var portfolioRes = await _portfolioLocator.FindByHomologatedCodeAsync(portfolioId, cancellationToken);
+        var homologateCode = !portfolioId.IsNullOrEmpty()
+            ? portfolioId
+            : (await _portfolioLocator.GetHomologateCodeByObjetiveIdAsync(objetiveId, cancellationToken)).Value;
+
+        var portfolioRes = await _portfolioLocator.FindByHomologatedCodeAsync(homologateCode, cancellationToken);
+
         if (portfolioRes == null)
             throw new InvalidOperationException("Portfolio not found.");
 
         return portfolioRes.Value.CurrentDate;
     }
 
-    public async Task<DateTime> GetNextDateFromCurrentDateAsync(string portfolioId, CancellationToken cancellationToken = default)
+    public async Task<DateTime> GetNextDateFromCurrentDateAsync(string portfolioId, int objetiveId, CancellationToken cancellationToken = default)
     {
-        var currentDate = await GetCurrentDateAsync(portfolioId, cancellationToken);
+        var currentDate = await GetCurrentDateAsync(portfolioId, objetiveId, cancellationToken);
 
         return currentDate.AddDays(1);
     }
