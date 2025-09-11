@@ -19,22 +19,7 @@ public class OperationsExperienceMutation(
     IMediator mediator,
     IBuildMissingFieldsContributionService buildMissingFieldsContributionService
 ) : IOperationsExperienceMutation
-{
-    private static class Constants
-    {
-        public static class CertifiedContribution
-        {
-            public const string No = "no";
-            public const string Si = "si";
-        }
-
-        public static class TaxCondition
-        {
-            public const string SinRetencionContingente = "Sin Retención Contingente";
-            public const string ConRetencionContingente = "Con Retención Contingente";
-        }
-    }
-
+{    
     public async Task<GraphqlResult<ContributionMutationResult>> RegisterContributionAsync(
         CreateContributionInput input,
         IValidator<CreateContributionInput> validator,
@@ -66,17 +51,16 @@ public class OperationsExperienceMutation(
                 result.AddError(commandResult.Error);
                 return result;
             }
-
-            var condicionTributaria = GetTaxCondition(input.CertifiedContribution);
+            
             var detalle = new
             {
-                condicion_tributaria = condicionTributaria
+                condicion_tributaria = commandResult.Value.TaxCondition
             };
 
             var detalleJson = JsonDocument.Parse(JsonSerializer.Serialize(detalle));
 
             var response = new ContributionMutationResult(
-                commandResult.Value.OperationId ?? 0,
+                commandResult.Value.OperationId ?? 0,                
                 "Comprobante",
                 detalleJson.RootElement
             );
@@ -119,20 +103,5 @@ public class OperationsExperienceMutation(
                 Channel: contributionData.Channel,
                 input.User
             );
-    }
-
-    private static string GetTaxCondition(string? certifiedContribution)
-    {
-        if (string.IsNullOrWhiteSpace(certifiedContribution))
-            return string.Empty;
-
-        var normalizedValue = certifiedContribution.ToLower().Trim();
-
-        return normalizedValue switch
-        {
-            Constants.CertifiedContribution.No => Constants.TaxCondition.ConRetencionContingente,
-            Constants.CertifiedContribution.Si => Constants.TaxCondition.SinRetencionContingente,
-            _ => string.Empty
-        };
-    }
+    }   
 }
