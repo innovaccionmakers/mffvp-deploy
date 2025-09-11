@@ -3,7 +3,6 @@ using Associate.Presentation.GraphQL;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Results;
 
 using Customers.Presentation.DTOs;
@@ -28,6 +27,7 @@ using Trusts.Presentation.GraphQL;
 using Reports.Domain.TransmissionFormat;
 using Common.SharedKernel.Application.Reports;
 using Reports.Domain.TechnicalSheet;
+using Common.SharedKernel.Domain.Auth.Permissions;
 
 namespace MFFVP.BFF.GraphQL;
 
