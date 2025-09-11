@@ -23,7 +23,9 @@ namespace MFFVP.BFF.Services.Reports
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error en la orquestación del reporte");
-                result.AddError(new Error("EXCEPTION", "Error en la orquestación del reporte", ErrorType.Failure));
+                var description = ex.InnerException?.Message ?? ex.Message ?? "Error en la orquestación del reporte";
+                var code = ex is ArgumentException ? "VALIDATION_ERROR" : "EXCEPTION";
+                result.AddError(new Error(code, description, ErrorType.Failure));
                 return result;
             }
         }
@@ -73,7 +75,9 @@ namespace MFFVP.BFF.Services.Reports
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en la orquestación del reporte");
-                result.AddError(new Error("EXCEPTION", "Error en la orquestación del reporte", ErrorType.Failure));
+                var description = ex.InnerException?.Message ?? ex.Message ?? "Error en la orquestación del reporte";
+                var code = ex is ArgumentException ? "VALIDATION_ERROR" : "EXCEPTION";
+                result.AddError(new Error(code, description, ErrorType.Failure));
                 return result;
             }
         }

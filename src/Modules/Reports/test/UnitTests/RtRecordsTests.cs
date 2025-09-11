@@ -1,7 +1,7 @@
 using System;
 using FluentAssertions;
-using Reports.Domain.DailyClosing;
-using Reports.Domain.DailyClosing.Records;
+using Reports.Domain.TransmissionFormat;
+using Reports.Domain.TransmissionFormat.Records;
 using Xunit;
 
 namespace Reports.test.UnitTests;
