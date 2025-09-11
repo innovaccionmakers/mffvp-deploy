@@ -22,10 +22,11 @@ public class BuildMissingFieldsContributionService : IBuildMissingFieldsContribu
     }
 
     public async Task<(DateTime ExecuteDate, string Channel, string SalesUser)> BuildAsync(
-        string portfolioId,
+        string? portfolioId,
+        int objetiveId,
         CancellationToken cancellationToken = default)
     {
-        var executeDate = await _portfolioService.GetNextDateFromCurrentDateAsync(portfolioId, cancellationToken);
+        var executeDate = await _portfolioService.GetNextDateFromCurrentDateAsync(portfolioId, objetiveId, cancellationToken);
         var channel = await _channelService.GetChannelCodeAsync("Makers", cancellationToken);
         var salesUser = _salesUserService.GetUser();
 
