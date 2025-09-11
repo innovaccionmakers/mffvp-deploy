@@ -27,6 +27,7 @@ using Products.Domain.Alternatives;
 using Products.Domain.Commercials;
 using Products.Domain.Commissions;
 using Products.Domain.ConfigurationParameters;
+using Products.Domain.Administrators;
 using Products.Domain.Objectives;
 using Products.Domain.Offices;
 using Products.Domain.PensionFunds;
@@ -41,6 +42,7 @@ using Products.Infrastructure.Commercials;
 using Products.Infrastructure.Commissions;
 using Products.Infrastructure.ConfigurationParameters;
 using Products.Infrastructure.Database;
+using Products.Infrastructure.Administrators;
 using Products.Infrastructure.External.Affiliates;
 using Products.Infrastructure.External.ObjectivesValidation;
 using Products.Infrastructure.External.PortfolioValuations;
@@ -54,6 +56,7 @@ using Products.Infrastructure.Portfolios;
 using Products.Infrastructure.TechnicalSheets;
 using Products.IntegrationEvents.AccumulatedCommissions.CommissionProcessed;
 using Products.IntegrationEvents.AdditionalInformation;
+using Products.IntegrationEvents.EntityValidation;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.Portfolio;
@@ -111,6 +114,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IOfficeRepository, OfficeRepository>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IPensionFundRepository, PensionFundRepository>();
+        services.AddScoped<IAdministratorRepository, AdministratorRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<ProductsModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<ProductsModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<ProductsModuleMarker>, ErrorCatalog<ProductsModuleMarker>>();
@@ -130,6 +134,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddScoped<IRpcHandler<GetPortfolioByHomologatedCodeRequest, GetPortfolioByHomologatedCodeResponse>, GetPortfolioByHomologatedCodeConsumer>();
         services.AddTransient<IRpcHandler<ValidatePortfolioRequest, ValidatePortfolioResponse>, PortfolioValidationConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioDataRequest, GetPortfolioDataResponse>, PortfolioValidationConsumer>();
+        services.AddTransient<IRpcHandler<ValidateEntityRequest, ValidateEntityResponse>, ValidateEntityConsumer>();
 
         services.AddScoped<ICommissionRepository, CommissionRepository>();
         services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();
