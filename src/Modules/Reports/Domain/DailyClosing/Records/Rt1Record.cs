@@ -1,4 +1,4 @@
-namespace Reports.Domain.DailyClosing.Records;
+namespace Reports.Domain.TransmissionFormat.Records;
 
 public sealed record Rt1Record(Rt1Header Header, DateTime Date, int TotalRecords)
 {

@@ -1,8 +1,8 @@
 using Reports.Application.Reports.Common;
 
-namespace Reports.Application.Reports.DailyClosing;
+namespace Reports.Application.Reports.TransmissionFormat;
 
-public sealed record DailyReportData(
+public sealed record TransmissionFormatReportData(
     decimal UnitValue,
     decimal PreviousUnits,
     decimal PreviousAmount,

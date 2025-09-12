@@ -1,4 +1,4 @@
-namespace Reports.Domain.DailyClosing.Records;
+namespace Reports.Domain.TransmissionFormat.Records;
 
 public sealed record Rt5Record()
 {
@@ -7,4 +7,3 @@ public sealed record Rt5Record()
         return $"{recordNumber:00000}5";
     }
 }
-

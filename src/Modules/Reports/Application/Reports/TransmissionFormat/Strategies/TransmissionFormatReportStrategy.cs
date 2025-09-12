@@ -1,27 +1,25 @@
 using Common.SharedKernel.Application.Reports;
 using Reports.Application.Reports.Common;
 using Reports.Application.Reports.Common.Strategies;
-using Reports.Domain.DailyClosing.Layout;
-using Reports.Domain.DailyClosing.Records;
+using Reports.Domain.TransmissionFormat.Layout;
+using Reports.Domain.TransmissionFormat.Records;
 
-namespace Reports.Application.Reports.DailyClosing.Strategies;
+namespace Reports.Application.Reports.TransmissionFormat.Strategies;
 
-public class DailyClosingReportStrategy : IReportGeneratorStrategy
+public class TransmissionFormatReportStrategy : IReportGeneratorStrategy
 {
-    public ReportType ReportType => ReportType.DailyClosing;
+    public ReportType ReportType => ReportType.TransmissionFormat;
 
     public int Generate(IReportData payload, IList<string> records, ref int recordNumber)
     {
-        var data = (DailyReportData)payload;
+        var data = (TransmissionFormatReportData)payload;
         var generated = 0;
 
-        // RT4 - 312
         recordNumber++;
         records.Add(Rt4Lines.UnitValue(data.UnitValue).ToLine(recordNumber));
         generated++;
 
-        // RT4 - 313
-        const string prefix = DailyClosingLayout.Rt4.R4313;
+        const string prefix = TransmissionFormatLayout.Rt4.R4313;
 
         recordNumber++;
         records.Add(Rt4Lines.PreviousUnits(data.PreviousUnits).ToLine(recordNumber));
@@ -110,7 +108,7 @@ public class DailyClosingReportStrategy : IReportGeneratorStrategy
         recordNumber++;
         records.Add(Rt4Lines.CurrentAmount(data.CurrentAmount).ToLine(recordNumber));
         generated++;
-        // RT4 - 314 (signo siempre '+', magnitud absoluta)
+
         recordNumber++;
         records.Add(Rt4Lines.Return30Days(data.ReturnThirtyDay).ToLine(recordNumber));
         generated++;

@@ -2,22 +2,24 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using Reports.Domain.DailyClosing;
+using Reports.Domain.TransmissionFormat;
 using Common.SharedKernel.Application.Helpers.Finance;
 using Microsoft.Extensions.Options;
 using Reports.Infrastructure.Options;
 using Reports.Infrastructure.ConnectionFactory.Interfaces;
 
-namespace Reports.Infrastructure.DailyClosing;
+namespace Reports.Infrastructure.TransmissionFormat;
 
-public class DailyClosingReportRepository(
+public class TransmissionFormatReportRepository(
     IReportsDbConnectionFactory dbConnectionFactory,
     IProfitabilityCalculator profitabilityCalculator,
-    IOptions<ReportsOptions> options) : IDailyClosingReportRepository
+    IOptions<ReportsOptions> options) : ITransmissionFormatReportRepository
 {
     private readonly string ProductsSchema = string.IsNullOrWhiteSpace(options.Value.ProductsSchema) ? "productos" : options.Value.ProductsSchema!;
     private readonly string ClosingSchema = string.IsNullOrWhiteSpace(options.Value.ClosingSchema) ? "cierre" : options.Value.ClosingSchema!;
-    private readonly string Rt1Keyword = string.IsNullOrWhiteSpace(options.Value.Rt1Keyword) ? "CLAVE123456" : options.Value.Rt1Keyword!;
+    private readonly string Rt1Keyword = string.IsNullOrWhiteSpace(options.Value.KeywordTransmissionFormat)
+        ? throw new InvalidOperationException("Configuración inválida para reportes de transmisión")
+        : options.Value.KeywordTransmissionFormat!;
 
     public async Task<Rt1Header> GetRt1HeaderAsync(int portfolioId, CancellationToken cancellationToken)
     {
@@ -198,6 +200,36 @@ public class DailyClosingReportRepository(
         var rent365 = Calc(current, value365, 365);
 
         return new Rt4Profitabilities(rent30, rent180, rent365);
+    }
+
+    public async Task<bool> AnyPortfolioExistsOnOrAfterDateAsync(DateTime date, CancellationToken cancellationToken)
+    {
+        var sql = $@"
+            SELECT EXISTS(
+                SELECT 1
+                FROM {ProductsSchema}.portafolios po
+                WHERE @Date::date <= po.fecha_actual::date
+                LIMIT 1
+            );";
+
+        using var connection = await dbConnectionFactory.CreateOpenAsync(cancellationToken);
+        var command = new CommandDefinition(sql, new { Date = date }, cancellationToken: cancellationToken);
+        var exists = await connection.ExecuteScalarAsync<bool>(command);
+        return exists;
+    }
+
+    public async Task<IReadOnlyList<int>> GetPortfolioIdsWithClosureOnDateAsync(DateTime date, CancellationToken cancellationToken)
+    {
+        var sql = $@"
+            SELECT DISTINCT vp.portafolio_id
+            FROM {ClosingSchema}.valoracion_portafolio vp
+            WHERE vp.fecha_cierre = @Date::date
+            ORDER BY vp.portafolio_id;";
+
+        using var connection = await dbConnectionFactory.CreateOpenAsync(cancellationToken);
+        var command = new CommandDefinition(sql, new { Date = date }, cancellationToken: cancellationToken);
+        var ids = await connection.QueryAsync<int>(command);
+        return ids.ToList();
     }
 
     private sealed record AdministratorDto(string EntityType, string EntityCode);

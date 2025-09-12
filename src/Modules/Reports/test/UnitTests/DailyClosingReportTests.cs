@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Reports.Application.Reports.Common.Strategies;
-using Reports.Application.Reports.DailyClosing;
-using Reports.Application.Reports.DailyClosing.Strategies;
-using Reports.Domain.DailyClosing;
-using Reports.Domain.DailyClosing.Records;
+using Reports.Application.Reports.TransmissionFormat;
+using Reports.Application.Reports.TransmissionFormat.Strategies;
+using Reports.Domain.TransmissionFormat;
+using Reports.Domain.TransmissionFormat.Records;
 using System;
 using System.Text;
 using System.Threading;
@@ -15,15 +15,15 @@ using Xunit;
 
 namespace Reports.test.UnitTests;
 
-public class DailyClosingReportTests
+public class TransmissionFormatReportTests
 {
     [Fact]
     public async Task GetReportDataAsync_ShouldBuildRt2And312()
     {
-        var strategies = new IReportGeneratorStrategy[] { new DailyClosingReportStrategy() };
+        var strategies = new IReportGeneratorStrategy[] { new TransmissionFormatReportStrategy() };
         var strategyBuilder = new ReportStrategyBuilder(strategies);
 
-        var repositoryMock = new Mock<IDailyClosingReportRepository>();
+        var repositoryMock = new Mock<ITransmissionFormatReportRepository>();
         repositoryMock
             .Setup(r => r.GetRt1HeaderAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Rt1Header("5", "123456", "CLAVE12345"));
@@ -61,9 +61,17 @@ public class DailyClosingReportTests
             .Setup(r => r.GetProfitabilitiesAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Rt4Profitabilities(10.12m, 20.34m, 30.56m));
 
-        var reportBuilder = new DailyClosingReportBuilder(strategyBuilder);
-        var strategy = new DailyClosingReport(new NullLogger<DailyClosingReport>(), repositoryMock.Object, reportBuilder);
-        var request = new DailyClosingReportRequest { PortfolioId = 1, GenerationDate = new DateTime(2025, 2, 6) };
+        // New methods for multi-portfolio support
+        repositoryMock
+            .Setup(r => r.AnyPortfolioExistsOnOrAfterDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        repositoryMock
+            .Setup(r => r.GetPortfolioIdsWithClosureOnDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<int> { 1 });
+
+        var reportBuilder = new TransmissionFormatReportBuilder(strategyBuilder);
+        var strategy = new TransmissionFormatReport(new NullLogger<TransmissionFormatReport>(), repositoryMock.Object, reportBuilder);
+        var request = new TransmissionFormatReportRequest { GenerationDate = new DateTime(2025, 2, 6) };
 
         var response = await strategy.GetReportDataAsync(request, CancellationToken.None);
 

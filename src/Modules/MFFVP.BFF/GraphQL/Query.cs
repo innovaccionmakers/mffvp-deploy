@@ -1,12 +1,8 @@
 ﻿using Associate.Presentation.DTOs;
 using Associate.Presentation.GraphQL;
-
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
-
-using Common.SharedKernel.Application.Reports;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Results;
 
 using Customers.Presentation.DTOs;
@@ -25,14 +21,13 @@ using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
-
-using Reports.Domain.DailyClosing;
-using Reports.Domain.TechnicalSheet;
-
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
-
 using Trusts.Presentation.GraphQL;
+using Reports.Domain.TransmissionFormat;
+using Common.SharedKernel.Application.Reports;
+using Reports.Domain.TechnicalSheet;
+using Common.SharedKernel.Domain.Auth.Permissions;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -342,20 +337,18 @@ public class Query
     }
 
     // Reports Queries
-    [GraphQLName("generarReporteCierreDiario")]
-    public async Task<GraphqlResult<ReportResponseDto>> GenerateDailyClosingReportAsync(
-        [GraphQLName("idPortafolio")] int portfolioId,
+    [GraphQLName("generarReporteFormatoTransmision")]
+    public async Task<GraphqlResult<ReportResponseDto>> GenerateTransmissionFormatReportAsync(
         [GraphQLName("fechaGeneracion")] DateTime generationDate,
         [Service] ReportOrchestrator reportOrchestrator,
         CancellationToken cancellationToken)
     {
-        var request = new DailyClosingReportRequest
+        var request = new TransmissionFormatReportRequest
         {
-            PortfolioId = portfolioId,
             GenerationDate = generationDate
         };
 
-        return await reportOrchestrator.GetReportData(request, ReportType.DailyClosing, cancellationToken);
+        return await reportOrchestrator.GetReportData(request, ReportType.TransmissionFormat, cancellationToken);
     }
 
     //Trust Queries
