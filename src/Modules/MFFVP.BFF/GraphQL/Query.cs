@@ -1,31 +1,38 @@
 ﻿using Associate.Presentation.DTOs;
 using Associate.Presentation.GraphQL;
+
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
+
+using Common.SharedKernel.Application.Reports;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Results;
+
 using Customers.Presentation.DTOs;
 using Customers.Presentation.GraphQL;
+
 using HotChocolate.Authorization;
-using HotChocolate;
+
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services;
 using MFFVP.BFF.Services.Reports;
-using Microsoft.AspNetCore.Mvc;
+
 using Operations.Presentation.DTOs;
-using Microsoft.Extensions.Logging;
 using Operations.Presentation.GraphQL;
+
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
-using Reports.Presentation.GraphQL;
 using Products.Presentation.GraphQL;
+
+using Reports.Domain.DailyClosing;
+using Reports.Domain.TechnicalSheet;
+
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
+
 using Trusts.Presentation.GraphQL;
-using Reports.Domain.DailyClosing;
-using Common.SharedKernel.Application.Reports;
-using Reports.Domain.TechnicalSheet;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -50,6 +57,7 @@ public class Query
     }
 
     [GraphQLName("objetivo")]
+    [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewGoal)]
     public async Task<IReadOnlyCollection<GoalDto>> GetGoals([GraphQLName("idTipoIdentificacion")] string typeId,
                                                          [GraphQLName("identificacion")] string identification,
                                                          [GraphQLName("estado")] StatusType status,
@@ -222,6 +230,7 @@ public class Query
     }
 
     [GraphQLName("obtenerAfiliados")]
+    [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewAffiliateManagement)]
     public async Task<IReadOnlyCollection<AffiliateDto>> GetAllAssociates([Service] ExperienceOrchestrator experienceOrchestrator,
                                                                           CancellationToken cancellationToken)
     {
@@ -229,6 +238,7 @@ public class Query
     }
 
     [GraphQLName("afilidadoPorId")]
+    [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewAffiliateManagement)]
     public async Task<AffiliateDto?> GetAffiliateById([GraphQLName("idAfiliado")] int affiliateId,
                                                      [Service] ExperienceOrchestrator experienceOrchestrator,
                                                      CancellationToken cancellationToken)
@@ -246,6 +256,7 @@ public class Query
 
     //Closing Queries
     [GraphQLName("obtenerPerdidasGanancias")]
+    [Authorize(Policy = MakersPermissionsClosing.PolicyViewLoadProfitAndLost)]
     public async Task<ProfitAndLossDto?> GetProfitAndLoss([GraphQLName("idPortafolio")] int portfolioId,
                                                     [GraphQLName("fechaEfectiva")] DateTime effectiveDate,
                                                     [Service] IClosingExperienceQueries closingQueries,

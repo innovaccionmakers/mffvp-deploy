@@ -1,17 +1,25 @@
 ﻿using Associate.Presentation.GraphQL;
 using Associate.Presentation.GraphQL.Inputs;
+
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
 using Closing.Presentation.GraphQL.Inputs;
+
+using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Results;
+
 using FluentValidation;
+
 using HotChocolate.Authorization;
+
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
 using Operations.Presentation.GraphQL.Inputs;
+
 using Products.Presentation.DTOs;
 using Products.Presentation.GraphQL;
 using Products.Presentation.GraphQL.Input;
+
 using Treasury.Presentation.GraphQL;
 using Treasury.Presentation.GraphQL.Input;
 
@@ -21,6 +29,7 @@ namespace MFFVP.BFF.GraphQL;
 public class Mutation
 {
     [GraphQLName("crearAporte")]
+    [Authorize(Policy = MakersPermissionsOperations.PolicyExecuteIndividualOperations)]
     public async Task<GraphqlResult<ContributionMutationResult>> RegisterContribution([GraphQLName("aporte")] CreateContributionInput contribution,
                                                                         IValidator<CreateContributionInput> validator,
                                                                        [Service] IOperationsExperienceMutation operationsMutations,
@@ -31,6 +40,7 @@ public class Mutation
 
     //Associate mutations
     [GraphQLName("crearActivacion")]
+    [Authorize(Policy = MakersPermissionsAffiliates.PolicyActivateAffiliateManagement)]
     public async Task<GraphqlResult> RegisterActivation([GraphQLName("activacion")] CreateActivateInput activation,
                                                                         IValidator<CreateActivateInput> validator,
                                                                        [Service] IAssociatesExperienceMutations associatesMutations,
@@ -40,6 +50,7 @@ public class Mutation
     }
 
     [GraphQLName("actualizarActivacion")]
+    [Authorize(Policy = MakersPermissionsAffiliates.PolicyUpdateAffiliateManagement)]
     public async Task<GraphqlResult> UpdateActivation([GraphQLName("activacion")] UpdateActivateInput activation,
                                                                         IValidator<UpdateActivateInput> validator,
                                                                        [Service] IAssociatesExperienceMutations associatesMutations,
@@ -68,6 +79,7 @@ public class Mutation
 
     //product mutations
     [GraphQLName("crearObjetivo")]
+    [Authorize(Policy = MakersPermissionsAffiliates.PolicyCreateGoal)]
     public async Task<GraphqlResult<GoalMutationResult>> RegisterGoal([GraphQLName("objetivo")] CreateGoalInput goal,
                                                         IValidator<CreateGoalInput> validator,
                                                         [Service] IProductsExperienceMutations productsMutations,
@@ -77,6 +89,7 @@ public class Mutation
     }
 
     [GraphQLName("actualizarObjetivo")]
+    [Authorize(Policy = MakersPermissionsAffiliates.PolicyUpdateGoal)]
     public async Task<GraphqlResult> UpdateGoal([GraphQLName("objetivo")] UpdateGoalInput goal,
                                                         IValidator<UpdateGoalInput> validator,
                                                         [Service] IProductsExperienceMutations productsMutations,
@@ -95,6 +108,7 @@ public class Mutation
 
     //closing mutations
     [GraphQLName("cargarPerdidasGanancias")]
+    [Authorize(Policy = MakersPermissionsClosing.PolicyCreateLoadProfitAndLost)]
     public async Task<GraphqlResult<LoadProfitLossResult>> LoadProfitLoss([GraphQLName("perdidaganancia")] LoadProfitLossInput input,
                                                         IValidator<LoadProfitLossInput> validator,
                                                         [Service] IClosingExperienceMutations closingMutations,
@@ -132,6 +146,7 @@ public class Mutation
     }
 
     [GraphQLName("simulacionEjecucion")]
+    [Authorize(Policy = MakersPermissionsClosing.PolicyExecuteSimulation)]
     public async Task<GraphqlResult<RunSimulationDto>> RunSimulationAsync([GraphQLName("simulacion")] RunSimulationInput input,
                                                         IValidator<RunSimulationInput> validator,
                                                         [Service] IClosingExperienceMutations closingMutations,
@@ -141,6 +156,7 @@ public class Mutation
     }
 
     [GraphQLName("cierreEjecucion")]
+    [Authorize(Policy = MakersPermissionsClosing.PolicyExecuteClosure)]
     public async Task<GraphqlResult<RunClosingDto>> RunClosingAsync([GraphQLName("cierre")] RunClosingInput input,
                                                        IValidator<RunClosingInput> validator,
                                                        [Service] IClosingExperienceMutations closingMutations,
