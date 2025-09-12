@@ -1,0 +1,15 @@
+[
+  {
+    "WorkflowName": "Products.Entity.Validation",
+    "Rules": [
+      {
+        "RuleName": "EntityExists",
+        "ErrorMessage": "La entidad suministrada no existe o no es válida.",
+        "Expression": "EntityExists == true",
+        "Properties": {
+          "errorCode": "62550c19-167f-4542-a4f9-486c083ece8a"
+        }
+      }
+    ]
+  }
+]

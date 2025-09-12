@@ -8,6 +8,7 @@ using Associate.Integrations.PensionRequirements.CreatePensionRequirement;
 using Associate.Integrations.PensionRequirements.GetPensionRequirements;
 using Associate.Integrations.PensionRequirements.UpdatePensionRequirement;
 using Associate.Integrations.Balances.AssociateBalancesById;
+using Associate.Integrations.Balances.GetBalancesByObjective;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
@@ -211,6 +212,36 @@ public static class AssociateBusinessApi
             )
             .WithSummary("Obtiene los saldos consolidados de un afiliado")
             .Produces<IReadOnlyCollection<AssociateBalanceItem>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet(
+                "GetInfoBalancesAccount",
+                async (
+                    [FromQuery(Name = "entidad")] string entity,
+                    [FromQuery(Name = "tipoId")] string documentType,
+                    [FromQuery(Name = "identificacion")] string identification,
+                    [FromQuery(Name = "numeroPagina")] int pageNumber,
+                    [FromQuery(Name = "registrosPorPagina")] int recordsPerPage,
+                    ISender sender
+                ) =>
+                {
+                    var result = await sender.Send(new GetBalancesByObjectiveQuery(
+                        entity,
+                        documentType,
+                        identification,
+                        pageNumber,
+                        recordsPerPage));
+                    return result.Match(
+                        Results.Ok,
+                        r => r.Error.Type == ErrorType.Validation
+                            ? ApiResults.Failure(r)
+                            : ApiResults.Problem(r)
+                    );
+                }
+            )
+            .WithSummary("Obtiene los saldos por objetivo del afiliado")
+            .Produces<GetBalancesByObjectiveResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
