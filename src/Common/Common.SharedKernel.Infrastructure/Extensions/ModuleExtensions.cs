@@ -26,7 +26,7 @@ public static class ModuleExtensions
                                 
                 moduleInstance.ConfigureServices(services, configuration);
                 
-                Console.WriteLine($"✅ Registered module: {moduleInstance.ModuleName} (Route: /{moduleInstance.RoutePrefix})");
+                Console.WriteLine($"Registered module: {moduleInstance.ModuleName} (Route: /{moduleInstance.RoutePrefix})");
             }
         }
 

@@ -283,6 +283,7 @@ public class Query
     }
 
     [GraphQLName("cuentasBancariasPorPortafolio")]
+    [Authorize(Policy = MakersPermissionsAffiliates.PolicyViewGoal)]
     public async Task<IReadOnlyCollection<BankAccountByPortfolioDto>> GetBankAccountsByPortfolio([GraphQLName("idPortafolio")] long portfolioId,
                                                     [Service] ExperienceOrchestrator experienceOrchestrator,
                                                     CancellationToken cancellationToken)
