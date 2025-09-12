@@ -1,7 +1,11 @@
-﻿namespace Common.SharedKernel.Application.EventBus;
+﻿using DotNetCore.CAP;
+
+namespace Common.SharedKernel.Application.EventBus;
 
 public interface IEventBus
 {
     Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken = default)
         where T : IntegrationEvent;
+
+    ICapPublisher GetCapPublisher();
 }

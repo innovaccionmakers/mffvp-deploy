@@ -1,11 +1,12 @@
 ﻿using Common.SharedKernel.Application.EventBus;
+using DotNetCore.CAP;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Operations.Application.Abstractions.Data;
 using Operations.Domain.OperationTypes;
 using Operations.Domain.TrustOperations;
 using Operations.IntegrationEvents.TrustOperations;
 using Operations.Integrations.TrustOperations.Commands;
-using Microsoft.Extensions.Logging;
 
 namespace Operations.Application.TrustOperations.Commands;
 
@@ -42,9 +43,13 @@ internal sealed class UpsertTrustOperationCommandHandler(
 
         //Definicion: para la tabla operaciones.operaciones_fideicomiso, la fecha de radicación y aplicación es el getdate
         //y la fecha de proceso es la fecha del último cierre. 
-        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        // Upsert ExecuteSqlInterpolatedAsync
-        bool changed = await repository.UpsertAsync(
+
+        using (var connection = unitOfWork.GetDbConnection())
+        
+        using (var transaction = connection.BeginTransaction(eventBus.GetCapPublisher(), autoCommit: false))
+        { 
+                // Upsert ExecuteSqlInterpolatedAsync
+            bool changed = await repository.UpsertAsync(
             portfolioId: request.PortfolioId,
             trustId: request.TrustId,
             processDate: request.ClosingDate,
@@ -52,23 +57,25 @@ internal sealed class UpsertTrustOperationCommandHandler(
             operationTypeId: yieldSubtypeId,
             clientOperationId: null,
             cancellationToken: cancellationToken);
-        logger.LogInformation("{Class} -  Upsert ejecutado para operación de fideicomiso {fideicomisoId}, fecha cierre: {fechaCierre}.", ClassName, request.TrustId, request.ClosingDate);
-        if (changed)
-        {
-            logger.LogInformation("{Class} -  Hubo cambios en Upsert de operación de fideicomiso {fideicomisoId}," +
-                " fecha cierre: {fechaCierre}. Se dispara evento de actualizacion de Fideicomiso", ClassName, request.TrustId, request.ClosingDate);
-            var integrationEvent = new TrustYieldOperationAppliedIntegrationEvent(
-                trustId: request.TrustId,
-                portfolioId: request.PortfolioId,
-                closingDate: request.ClosingDate,
-                yieldAmount: request.Amount,
-                yieldRetention: request.YieldRetention,
-                closingBalance: request.ClosingBalance
-            );
+            logger.LogInformation("{Class} -  Upsert ejecutado para operación de fideicomiso {fideicomisoId}, fecha cierre: {fechaCierre}.", ClassName, request.TrustId, request.ClosingDate);
 
-            await eventBus.PublishAsync(integrationEvent, cancellationToken);
+            if (changed)
+                {
+                    logger.LogInformation("{Class} -  Hubo cambios en Upsert de operación de fideicomiso {fideicomisoId}," +
+                        " fecha cierre: {fechaCierre}. Se dispara evento de actualizacion de Fideicomiso", ClassName, request.TrustId, request.ClosingDate);
+                    var integrationEvent = new TrustYieldOperationAppliedIntegrationEvent(
+                        trustId: request.TrustId,
+                        portfolioId: request.PortfolioId,
+                        closingDate: request.ClosingDate,
+                        yieldAmount: request.Amount,
+                        yieldRetention: request.YieldRetention,
+                        closingBalance: request.ClosingBalance
+                    );
+
+                    await eventBus.PublishAsync(integrationEvent, cancellationToken);
+                }
+
+         await transaction.CommitAsync(cancellationToken);
         }
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
     }
 }

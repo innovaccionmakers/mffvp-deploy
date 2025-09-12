@@ -77,7 +77,7 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
             .CountAsync(cancellationToken);
     }
 
-    public async Task<int> TryApplyYieldSetBasedAsync(
+    public async Task<int> TryApplyYieldToBalanceAsync(
      long trustId,
      decimal yieldAmount,
      decimal yieldRetention,
@@ -87,7 +87,8 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
 
         return await context.Trusts
             .Where(t => t.TrustId == trustId)
-            //.Where(t => t.TotalBalance + yieldAmount == closingBalance)
+            .Where(t => t.TotalBalance + yieldAmount == closingBalance)
+            .TagWith("Actualizacion Saldos Fideicomiso desde Cierre")
             //.Where(t => t.TotalBalance + yieldAmount == (t.Principal + yieldAmount)) se debe validar con negocio si esta condicion se mantiene
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(t => t.TotalBalance, t => t.TotalBalance + yieldAmount)

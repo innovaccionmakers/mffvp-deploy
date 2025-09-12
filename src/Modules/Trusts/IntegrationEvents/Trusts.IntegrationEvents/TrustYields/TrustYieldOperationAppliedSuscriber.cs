@@ -31,7 +31,7 @@ public sealed class TrustYieldOperationAppliedSuscriber(ISender mediator, ILogge
                 var result = await mediator.Send(new UpdateTrustFromYieldCommand(
                     message.TrustId, message.PortfolioId, message.ClosingDate,
                     message.YieldAmount, message.YieldRetention, message.ClosingBalance
-                ), cancellationToken); 
+                     ), cancellationToken); 
 
                 logger.LogInformation("CAP Después de mediator.Send. IsFailure={IsFailure}", result.IsFailure);
 

@@ -1,20 +1,21 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Closing.Application.Abstractions.Data;
-using Closing.Domain.ProfitLossConcepts;
-using Closing.Domain.ProfitLosses;
-using Closing.Domain.YieldDetails;
-using Closing.Domain.TrustYields;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.PortfolioValuations;
+using Closing.Domain.ProfitLossConcepts;
+using Closing.Domain.ProfitLosses;
+using Closing.Domain.TrustYields;
+using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
+using Closing.Infrastructure.ClientOperations;
+using Closing.Infrastructure.PortfolioValuations;
 using Closing.Infrastructure.ProfitLossConcepts;
 using Closing.Infrastructure.ProfitLosses;
 using Closing.Infrastructure.TrustYields;
-using Closing.Infrastructure.ClientOperations;
-using Closing.Infrastructure.PortfolioValuations;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Data;
 
 namespace Closing.Infrastructure.Database;
 
@@ -51,4 +52,10 @@ public sealed class ClosingDbContext(DbContextOptions<ClosingDbContext> options)
 
         return await Database.BeginTransactionAsync(cancellationToken);
     }
+
+    public IDbConnection GetDbConnection()
+    {
+        return Database.GetDbConnection();
+    }
+
 }
