@@ -85,7 +85,7 @@ if (env != "Development")
         {
             "*HealthCheck*",             // Health checks
             "*Configuration*",           // Configuraciones
-            "*Logger*",                  // Loggers (pueden crear recursión)
+            "*Logger*",                  // Loggers (pueden crear recursiï¿½n)
             "*.Internal.*"               // Clases internas
         };
     });
@@ -180,7 +180,7 @@ builder.Services.AddInfrastructure(
     databaseConnectionStringSQL,
     appSettingsSecret);
 
-builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing", "treasury", "datasync", "reports"], env);
+builder.Configuration.AddModuleConfiguration(["trusts", "associate", "products", "customers", "operations", "closing", "treasury", "datasync", "reports", "accounting"], env);
 
 var modules = new List<Type>
 {
