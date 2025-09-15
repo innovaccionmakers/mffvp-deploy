@@ -28,7 +28,7 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
 
         logger.LogInformation("{Class} - Intentando actualización. TrustId:{TrustId} ClosingDate:{ClosingDate}", ClassName, request.TrustId, request.ClosingDate);
 
-        var affectedRows = await trustRepository.TryApplyYieldSetBasedAsync(
+        var affectedRows = await trustRepository.TryApplyYieldToBalanceAsync(
             request.TrustId,
             request.YieldAmount,
             request.YieldRetention,
@@ -43,34 +43,12 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
         {
             await transaction.CommitAsync(cancellationToken);
             logger.LogInformation("{Class} - Éxito. Fideicomiso actualizado. TrustId:{TrustId}  ClosingDate:{ClosingDate}", ClassName, request.TrustId, request.ClosingDate);
-            var trust = await trustRepository.GetAsync(request.TrustId, cancellationToken);
-            if (trust is not null)
-            {
-                logger.LogInformation(
-                    "{Class} - Detalles fideicomiso actualizado. ClosingDate:{ClosingDate}. TrustId:{TrustId}, " +
-                    "TotalBalance:{TotalBalance}, CapitalPrincipal:{CapitalPrincipal}, Earnings:{Earnings}, " +
-                    "EarningsWithholding:{EarningsWithholding}, ContingentWithholding:{ContingentWithholding}, " +
-                    "AvailableAmount:{AvailableAmount}",
-                    ClassName,
-                    request.ClosingDate,
-                    trust.TrustId,
-                    trust.TotalBalance,
-                    trust.Principal,
-                    trust.Earnings,
-                    trust.EarningsWithholding,
-                    trust.ContingentWithholding,
-                    trust.AvailableAmount);
-            }
+           
             return Result.Success();
         }
+        logger.LogInformation("{Class} - No actualizado Fideicomiso. TrustId:{TrustId}  ClosingDate:{ClosingDate}", ClassName, request.TrustId, request.ClosingDate);
 
-         await transaction.RollbackAsync(cancellationToken);
-
-        logger.LogError(
-            "{Class} - Puede haberse dado Concurrencia. Las condiciones pasan pero la actualización afectó 0 filas. FideicomisoId:{TrustId} ClosingDate:{ClosingDate}",
-            ClassName, request.TrustId, request.ClosingDate);
-
-        return Result.Failure(new Error("CONC001", "No se pudo actualizar por concurrencia.", ErrorType.Validation));
+        return Result.Failure(new Error("ERR001", "No se pudo actualizar Fideicomiso.", ErrorType.Validation));
      
     }
 }

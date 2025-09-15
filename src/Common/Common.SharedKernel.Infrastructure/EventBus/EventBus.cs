@@ -11,4 +11,6 @@ internal sealed class EventBus(ICapPublisher capPublisher) : IEventBus
         var eventName = typeof(T).Name;
         await capPublisher.PublishAsync(eventName, integrationEvent);
     }
+
+    public ICapPublisher GetCapPublisher() => capPublisher;
 }

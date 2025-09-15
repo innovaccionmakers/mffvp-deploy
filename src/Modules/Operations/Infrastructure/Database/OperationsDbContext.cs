@@ -1,28 +1,29 @@
-using System.Threading;
-using System.Threading.Tasks;
+using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Operations.Application.Abstractions.Data;
-using Operations.Domain.ClientOperations;
-using Operations.Infrastructure.ClientOperations;
 using Operations.Domain.AuxiliaryInformations;
-using Operations.Domain.TemporaryClientOperations;
-using Operations.Domain.TemporaryAuxiliaryInformations;
 using Operations.Domain.Channels;
-using Common.SharedKernel.Domain.ConfigurationParameters;
-using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Operations.Domain.ClientOperations;
+using Operations.Domain.OperationTypes;
 using Operations.Domain.OriginModes;
 using Operations.Domain.Origins;
-using Operations.Domain.OperationTypes;
+using Operations.Domain.TemporaryAuxiliaryInformations;
+using Operations.Domain.TemporaryClientOperations;
 using Operations.Domain.TrustOperations;
 using Operations.Infrastructure.AuxiliaryInformations;
-using Operations.Infrastructure.TemporaryClientOperations;
-using Operations.Infrastructure.TemporaryAuxiliaryInformations;
 using Operations.Infrastructure.Channels;
+using Operations.Infrastructure.ClientOperations;
+using Operations.Infrastructure.OperationTypes;
 using Operations.Infrastructure.OriginModes;
 using Operations.Infrastructure.Origins;
-using Operations.Infrastructure.OperationTypes;
+using Operations.Infrastructure.TemporaryAuxiliaryInformations;
+using Operations.Infrastructure.TemporaryClientOperations;
 using Operations.Infrastructure.TrustOperations;
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Operations.Infrastructure.Database;
 
@@ -62,5 +63,10 @@ public sealed class OperationsDbContext(DbContextOptions<OperationsDbContext> op
             await Database.CurrentTransaction.DisposeAsync();
 
         return await Database.BeginTransactionAsync(cancellationToken);
+    }
+
+    public IDbConnection GetDbConnection()
+    {
+        return Database.GetDbConnection();
     }
 }
