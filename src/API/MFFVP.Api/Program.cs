@@ -194,7 +194,8 @@ var modules = new List<Type>
     typeof(Treasury.Infrastructure.TreasuryModule),
     typeof(DataSync.Infrastructure.DataSyncModule),
     typeof(Reports.Infrastructure.ReportsModule),
-    typeof(MFFVP.BFF.ModuleConfiguration)
+    typeof(MFFVP.BFF.ModuleConfiguration),
+    typeof(Accounting.Infrastructure.AccountingModule)
 };
 
 

@@ -34,6 +34,11 @@
     <ProjectReference Include="..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
     <ProjectReference Include="..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
+    <ProjectReference Include="..\..\Modules\Accounting\Domain\Accounting.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Accounting\Infrastructure\Accounting.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Accounting\IntegrationEvents\Accounting.IntegrationEvents\Accounting.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\Modules\Accounting\Integrations\Accounting.Integrations.csproj" />
+    <ProjectReference Include="..\..\Modules\Accounting\Presentation\Accounting.Presentation.csproj" />
     <ProjectReference Include="..\..\Modules\Associate\Application\Associate.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Associate\Infrastructure\Associate.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Closing\Domain\Closing.Domain.csproj" />
