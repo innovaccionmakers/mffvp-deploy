@@ -57,7 +57,7 @@ internal sealed class AccountingAssistantConfiguration : IEntityTypeConfiguratio
             .HasColumnName("valor")
             .HasPrecision(19, 2)
             .IsRequired()
-            .HasDefaultValue(0);
+            .HasDefaultValue(0m);
 
         builder.Property(x => x.Nature)
             .HasColumnName("naturaleza")
