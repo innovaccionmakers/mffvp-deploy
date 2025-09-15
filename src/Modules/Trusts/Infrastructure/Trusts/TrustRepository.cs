@@ -89,7 +89,6 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
             .Where(t => t.TrustId == trustId)
             .Where(t => t.TotalBalance + yieldAmount == closingBalance)
             .TagWith("Actualizacion Saldos Fideicomiso desde Cierre")
-            //.Where(t => t.TotalBalance + yieldAmount == (t.Principal + yieldAmount)) se debe validar con negocio si esta condicion se mantiene
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(t => t.TotalBalance, t => t.TotalBalance + yieldAmount)
                 .SetProperty(t => t.Earnings, t => t.Earnings + yieldAmount)
