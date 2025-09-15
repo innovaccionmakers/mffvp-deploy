@@ -2,7 +2,7 @@ namespace Common.SharedKernel.Application.Reports
 {
     public enum ReportType
     {
-        DailyClosing,
+        TransmissionFormat,
         Balances,
         Deposits,
         TechnicalSheet

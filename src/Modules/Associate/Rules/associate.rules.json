@@ -329,29 +329,37 @@
         }
       }
     ]
-  }
-  ,{
+  },
+  {
     "WorkflowName": "Associate.BalancesById.Validation",
     "Rules": [
       {
         "RuleName": "IdTypeRequired",
         "Expression": "input.DocumentTypeProvided",
-        "Properties": { "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3" }
+        "Properties": {
+          "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
       },
       {
         "RuleName": "IdTypeHomologated",
         "Expression": "input.DocumentTypeExists",
-        "Properties": { "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4" }
+        "Properties": {
+          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
+        }
       },
       {
         "RuleName": "IdentificationRequired",
         "Expression": "input.IdentificationProvided",
-        "Properties": { "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711" }
+        "Properties": {
+          "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
+        }
       },
       {
         "RuleName": "ClientActivates",
         "Expression": "input.ActivateExists",
-        "Properties": { "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7" }
+        "Properties": {
+          "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
+        }
       }
     ]
   },
@@ -361,7 +369,87 @@
       {
         "RuleName": "AffiliateHasContributions",
         "Expression": "input.AffiliateHasContributions == true",
-        "Properties": { "errorCode": "8955cc97-4d77-4314-9ee5-4c850721817b" }
+        "Properties": {
+          "errorCode": "8955cc97-4d77-4314-9ee5-4c850721817b"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Associate.BalancesByObjective.Validation",
+    "Rules": [
+      {
+        "RuleName": "IdTypeRequired",
+        "Expression": "input.DocumentTypeProvided",
+        "Properties": {
+          "errorCode": "1bdb6db5-ee4e-4969-bd87-2740016f28d3"
+        }
+      },
+      {
+        "RuleName": "IdTypeHomologated",
+        "Expression": "input.DocumentTypeExists",
+        "Properties": {
+          "errorCode": "0aae772e-618e-442e-8b1d-581552ca72c4"
+        }
+      },
+      {
+        "RuleName": "IdentificationRequired",
+        "Expression": "input.IdentificationProvided",
+        "Properties": {
+          "errorCode": "35146b8a-88c4-44a3-bf8d-74a6f59a3711"
+        }
+      },
+      {
+        "RuleName": "ClientActivates",
+        "Expression": "input.ActivateExists",
+        "Properties": {
+          "errorCode": "abe878c5-dee7-44e2-b5e4-0d2f369ff2d7"
+        }
+      },
+      {
+        "RuleName": "EntityRequired",
+        "ErrorMessage": "El campo 'Entidad' es obligatorio.",
+        "Expression": "input.EntityProvided",
+        "Properties": {
+          "errorCode": "b67397df-117c-473e-b861-19334a41e41c"
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Associate.BalancesByObjective.PaginationValidation",
+    "Rules": [
+      {
+        "RuleName": "PageAndRecordsNonNegative",
+        "ErrorMessage": "Página y registros por página no pueden ser negativos.",
+        "Expression": "input.PageNumber >= 0 && input.RecordsPerPage >= 0",
+        "Properties": {
+          "errorCode": "71de4be7-86f1-4400-b516-070f5433295a"
+        }
+      },
+      {
+        "RuleName": "RecordsPerPagePositiveWhenPageProvided",
+        "ErrorMessage": "Si se envía número de página, los registros por página deben ser > 0.",
+        "Expression": "input.PageNumber == 0 || input.RecordsPerPage > 0",
+        "Properties": {
+          "errorCode": "16b31acc-f438-44d3-b499-799780d7e152"
+        }
+      },
+      {
+        "RuleName": "PagePositiveWhenRecordsPerPageProvided",
+        "ErrorMessage": "Si se envían registros por página, el número de página debe ser > 0.",
+        "Expression": "input.RecordsPerPage == 0 || input.PageNumber > 0",
+        "Properties": {
+          "errorCode": "5c15e09f-4b72-4da7-9a45-dae1633af399"
+        }
+      },
+      {
+        "RuleName": "PageNumberWithinTotalPages",
+        "ErrorMessage": "El número de página no puede exceder el total de páginas.",
+        "Expression": "input.PageNumber <= input.TotalPages",
+        "Properties": {
+          "errorCode": "70307408-fa8b-4f81-bc58-7814553696b3"
+        }
       }
     ]
   }

@@ -1,6 +1,6 @@
-namespace Reports.Domain.DailyClosing.Layout;
+namespace Reports.Domain.TransmissionFormat.Layout;
 
-public static class DailyClosingLayout
+public static class TransmissionFormatLayout
 {
     public static class Rt4
     {
