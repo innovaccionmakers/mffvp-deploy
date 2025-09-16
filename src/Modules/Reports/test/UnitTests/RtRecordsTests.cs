@@ -19,6 +19,26 @@ public class RtRecordsTests
     }
 
     [Fact]
+    public void Rt1Record_Should_Pad_EntityCode_To_6_Chars()
+    {
+        var header = new Rt1Header("5", "123", "KEY");
+        var date = new DateTime(2025, 2, 6);
+        var line = new Rt1Record(header, date, 1).ToLine();
+
+        line.Should().Be("00001105" + "000123" + "06022025" + "00001" + "KEY" + "01" + "17");
+    }
+
+    [Fact]
+    public void Rt1Record_Should_Truncate_EntityCode_Over_6_Chars()
+    {
+        var header = new Rt1Header("5", "123456789", "KEY");
+        var date = new DateTime(2025, 2, 6);
+        var line = new Rt1Record(header, date, 1).ToLine();
+
+        line.Should().Be("00001105" + "123456" + "06022025" + "00001" + "KEY" + "01" + "17");
+    }
+
+    [Fact]
     public void Rt2Record_Should_Format_Correctly()
     {
         var rt2 = new Rt2Record("1234");
