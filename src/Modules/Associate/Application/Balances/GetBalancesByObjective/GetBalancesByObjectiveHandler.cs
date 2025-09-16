@@ -29,7 +29,6 @@ internal sealed class GetBalancesByObjectiveHandler(
         GetBalancesByObjectiveQuery request,
         CancellationToken cancellationToken)
     {
-        // Validate affiliate using existing workflow
         var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.DocumentType,
             HomologScope.Of<GetBalancesByObjectiveQuery>(q => q.DocumentType),
