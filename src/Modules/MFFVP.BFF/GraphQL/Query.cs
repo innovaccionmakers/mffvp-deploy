@@ -28,6 +28,7 @@ using Reports.Domain.TransmissionFormat;
 using Common.SharedKernel.Application.Reports;
 using Reports.Domain.TechnicalSheet;
 using Common.SharedKernel.Domain.Auth.Permissions;
+using Accounting.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -358,4 +359,9 @@ public class Query
         return await trustQueries.GetParticipantAsync(trustIds);
     }
 
+    [GraphQLName("saraza")]
+    public async Task<string> GetSaraza([GraphQLName("idsPortafolios")] List<int> portfolioIds, DateTime closingDate, [Service] IAccountingExperienceQueries accountingExperienceQueries)
+    {
+        return await accountingExperienceQueries.GetAccountingFeesAsync(portfolioIds, closingDate);
+    }
 }

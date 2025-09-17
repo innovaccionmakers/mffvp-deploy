@@ -1,3 +1,4 @@
+using Accounting.Application;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Infrastructure;
@@ -152,7 +153,7 @@ builder.Services.AddSwaggerGen(c =>
 
 Assembly[] moduleApplicationAssemblies =
 [
-    Associate.Application.AssemblyReference.Assembly,
+    AssemblyReference.Assembly,
     Trusts.Application.AssemblyReference.Assembly,
     Products.Application.AssemblyReference.Assembly,
     Customers.Application.AssemblyReference.Assembly,
@@ -161,7 +162,8 @@ Assembly[] moduleApplicationAssemblies =
     Security.Application.AssemblyReference.Assembly,
     Treasury.Application.AssemblyReference.Assembly,
     DataSync.Application.AssemblyReference.Assembly,
-    Reports.Application.AssemblyReference.Assembly
+    Reports.Application.AssemblyReference.Assembly,
+    Accounting.Application.AssemblyReference.Assembly
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);
