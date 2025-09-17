@@ -29,13 +29,13 @@ public class TransmissionFormatReport(
         var existsAtDate = await reportRepository.AnyPortfolioExistsOnOrAfterDateAsync(reportRequest.GenerationDate, cancellationToken);
         if (!existsAtDate)
         {
-            throw new ArgumentException("Ningun portafolio existía en la fecha ingresada.");
+            throw new ArgumentException("Ningun portafolio existe en la fecha ingresada.");
         }
 
         var portfolioIds = await reportRepository.GetPortfolioIdsWithClosureOnDateAsync(reportRequest.GenerationDate, cancellationToken);
         if (portfolioIds is null || portfolioIds.Count == 0)
         {
-            throw new ArgumentException("No hay información disponible.");
+            throw new ArgumentException("No hay información disponible para la fecha ingresada.");
         }
 
         var rt1Header = await reportRepository.GetRt1HeaderAsync(portfolioIds[0], cancellationToken);
