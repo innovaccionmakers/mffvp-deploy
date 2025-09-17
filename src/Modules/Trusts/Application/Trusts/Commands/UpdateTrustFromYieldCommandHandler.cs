@@ -46,7 +46,7 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
            
             return Result.Success();
         }
-        logger.LogInformation("{Class} - No actualizado Fideicomiso. TrustId:{TrustId}  ClosingDate:{ClosingDate}", ClassName, request.TrustId, request.ClosingDate);
+        logger.LogInformation("{Class} - No actualizado saldo de Fideicomiso. Posiblemente no cumplió con alguna condición de negocio. TrustId:{TrustId}  ClosingDate:{ClosingDate}", ClassName, request.TrustId, request.ClosingDate);
 
         return Result.Failure(new Error("ERR001", "No se pudo actualizar Fideicomiso.", ErrorType.Validation));
      
