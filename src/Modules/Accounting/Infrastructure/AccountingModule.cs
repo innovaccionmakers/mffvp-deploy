@@ -1,9 +1,11 @@
 ﻿using Accounting.Application.Abstractions;
+using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
 using Accounting.Domain.ConfigurationParameters;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
+using Accounting.Infrastructure.External.Portfolios;
 using Accounting.Infrastructure.External.Yields;
 using Accounting.Infrastructure.PassiveTransactions;
 using Accounting.Presentation.GraphQL;
@@ -20,7 +22,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Accounting.Application.Abstractions.Data;
 
 namespace Accounting.Infrastructure;
 
@@ -63,6 +64,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConfigurationParameterLookupRepository<AccountingModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<AccountingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IYieldLocator, YieldLocator>();
+        services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
         services.AddScoped<IPassiveTransactionRepository, PassiveTransactionRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AccountingDbContext>());

@@ -362,6 +362,6 @@ public class Query
     [GraphQLName("saraza")]
     public async Task<string> GetSaraza([GraphQLName("idsPortafolios")] List<int> portfolioIds, DateTime closingDate, [Service] IAccountingExperienceQueries accountingExperienceQueries)
     {
-        return await accountingExperienceQueries.GetAccountingFeesAsync(portfolioIds, closingDate);
+        return await accountingExperienceQueries.GetAccountingFeesAsync(portfolioIds, closingDate.ToUniversalTime());
     }
 }

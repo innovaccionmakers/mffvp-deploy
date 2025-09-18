@@ -12,12 +12,13 @@ internal sealed class GetAccountingFeesQueryHandler(
     ILogger<GetAccountingFeesQueryHandler> logger,
     IPassiveTransactionRepository passiveTransactionRepository,
     IUnitOfWork unitOfWork,
-    IYieldLocator yieldLocator) : IQueryHandler<GetAccountingFeesQuery, bool>
+    IYieldLocator yieldLocator,
+    IPortfolioLocator portfolioLocator) : IQueryHandler<GetAccountingFeesQuery, bool>
 {
     public async Task<Result<bool>> Handle(GetAccountingFeesQuery request, CancellationToken cancellationToken)
     {
         var yieldsResult = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(request.PortfolioIds, request.ClosingDate, cancellationToken);
-
+        var portfoliosResult = await portfolioLocator.GetPortfolioInformationAsync(5, cancellationToken);
         return true;
     }
 }
