@@ -1,8 +1,10 @@
-﻿using Common.SharedKernel.Application.Messaging;
+﻿using Common.SharedKernel.Application.Attributes;
+using Common.SharedKernel.Application.Messaging;
 using Treasury.Integrations.TreasuryConcepts.Response;
 
 namespace Treasury.Integrations.TreasuryMovements.Commands;
 
+[AuditLog]
 public sealed record CreateTreasuryMovementCommand(
     int PortfolioId,
     DateTime ClosingDate,
