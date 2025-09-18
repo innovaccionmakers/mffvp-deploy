@@ -152,6 +152,7 @@ builder.Services.AddSwaggerGen(c =>
 
 Assembly[] moduleApplicationAssemblies =
 [
+    Accounting.Application.AssemblyReference.Assembly,
     Associate.Application.AssemblyReference.Assembly,
     Trusts.Application.AssemblyReference.Assembly,
     Products.Application.AssemblyReference.Assembly,
