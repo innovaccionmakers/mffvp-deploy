@@ -24,6 +24,7 @@ public class AccountingAssistant : Entity
     }
 
     public static Result<AccountingAssistant> Create(
+        string identification,
         int? verificationDigit,
         string name,
         string? period,
@@ -39,6 +40,7 @@ public class AccountingAssistant : Entity
         var accountingAssistant = new AccountingAssistant
         {
             AccountingAssistantId = default,
+            Identification = identification,
             VerificationDigit = verificationDigit,
             Name = name,
             Period = period,
@@ -55,6 +57,7 @@ public class AccountingAssistant : Entity
     }
 
     public void UpdateDetails(
+        string identification,
         int? verificationDigit,
         string name,
         string? period,
@@ -67,6 +70,7 @@ public class AccountingAssistant : Entity
         string nature,
         long identifier)
     {
+        Identification = identification;
         VerificationDigit = verificationDigit;
         Name = name;
         Period = period;

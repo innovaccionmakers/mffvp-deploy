@@ -2,5 +2,5 @@
 
 public interface IPassiveTransactionRepository
 {
-    Task<IReadOnlyCollection<PassiveTransaction>> GetByPortfolioIdAsync(int portfolioId);
+    Task<PassiveTransaction?> GetByPortfolioIdAsync(int portfolioId, CancellationToken cancellationToken = default);
 }
