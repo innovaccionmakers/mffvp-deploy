@@ -18,11 +18,6 @@ namespace Accounting.Application.AccountProcess
             if (isActive)
                 return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
 
-            var personValidation = await rpcClient.CallAsync<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>(
-                                                            new GetAccountingOperationsRequestEvents(command.PortfolioIds, command.ProcessDate), cancellationToken);
-            if (!personValidation.IsValid)
-                return Result.Failure<string>(Error.Validation(personValidation.Code ?? string.Empty, personValidation.Message ?? string.Empty));
-
             return Result.Success<string>(string.Empty);
         }
     }
