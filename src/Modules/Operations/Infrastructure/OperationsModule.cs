@@ -6,6 +6,7 @@ using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Database.Interceptors;
 using Common.SharedKernel.Infrastructure.RulesEngine;
+using Customers.IntegrationEvents.ClientValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,7 @@ using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.TemporaryAuxiliaryInformations;
 using Operations.Infrastructure.TemporaryClientOperations;
 using Operations.Infrastructure.TrustOperations;
+using Operations.IntegrationEvents.ClientOperations;
 using Operations.IntegrationEvents.OperationTypes;
 using Operations.IntegrationEvents.PendingContributionProcessor;
 using Operations.IntegrationEvents.TrustOperations;
@@ -150,6 +152,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IBuildMissingFieldsContributionService, BuildMissingFieldsContributionService>();
 
         services.AddScoped<IRpcHandler<GetAllOperationTypesRequest, GetAllOperationTypesResponse>, GetAllOperationTypesConsumer>();
+        services.AddTransient<IRpcHandler<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>, AccountingOperationsConsumer>();
 
         services.AddScoped<ITrustOperationRepository, TrustOperationRepository>();
         services.AddScoped<TrustYieldGeneratedSuscriber>();

@@ -11,6 +11,8 @@ using Security.Application.Abstractions.Data;
 using Security.Application.Abstractions.Services.Auditing;
 using Common.SharedKernel.Application.Abstractions;
 using Security.Domain.Logs;
+using Common.SharedKernel.Domain;
+using Common.SharedKernel.Presentation.Results;
 
 namespace Security.Application.Auditing;
 
@@ -56,6 +58,15 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
         var machine = Environment.MachineName;
         var endpoint = _contextAccessor.HttpContext?.GetEndpoint();
         var policy = endpoint?.Metadata.GetMetadata<AuthorizeAttribute>()?.Policy;
+
+        if (string.IsNullOrWhiteSpace(policy))
+        {
+            var items = _contextAccessor.HttpContext?.Items;
+            if (items is not null && items.TryGetValue("Audit:Policy", out var policyObj))
+            {
+                policy = policyObj?.ToString();
+            }
+        }
         var endpointName = endpoint?.Metadata.GetMetadata<IEndpointNameMetadata>()?.EndpointName;
         var httpMethod = _contextAccessor.HttpContext?.Request.Method ?? "";
         var action = policy ?? request.GetType().Name;
@@ -82,6 +93,11 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
         try
         {
             response = await next();
+            var evaluatedSuccess = EvaluateSuccessfulProcess(response);
+            if (evaluatedSuccess.HasValue)
+            {
+                successful = evaluatedSuccess.Value;
+            }
             return response!;
         }
         catch
@@ -114,5 +130,15 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
                 _logger.LogWarning("Failed to create log: {Error}", logResult.Error);
             }
         }
+    }
+
+    private static bool? EvaluateSuccessfulProcess(object? response)
+    {
+        return response switch
+        {
+            Result result => result.IsSuccess,
+            GraphqlResult graphqlResult => graphqlResult.Success,
+            _ => (bool?)null
+        };
     }
 }

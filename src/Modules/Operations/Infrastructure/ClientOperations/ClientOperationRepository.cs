@@ -85,4 +85,15 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
 
         return clientOperations;
     }
+    public async Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(List<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken = default)
+    {
+        if (portfolioIds == null || !portfolioIds.Any())
+            return Enumerable.Empty<ClientOperation>();
+
+        var portfolioIdsSet = new HashSet<int>(portfolioIds);
+
+        return await context.ClientOperations
+            .Where(co => portfolioIdsSet.Contains(co.PortfolioId) && co.ProcessDate == processDate)
+            .ToListAsync(cancellationToken);
+    }
 }

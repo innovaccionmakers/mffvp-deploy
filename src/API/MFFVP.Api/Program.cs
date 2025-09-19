@@ -153,7 +153,8 @@ builder.Services.AddSwaggerGen(c =>
 
 Assembly[] moduleApplicationAssemblies =
 [
-    AssemblyReference.Assembly,
+    Accounting.Application.AssemblyReference.Assembly,
+    Associate.Application.AssemblyReference.Assembly,
     Trusts.Application.AssemblyReference.Assembly,
     Products.Application.AssemblyReference.Assembly,
     Customers.Application.AssemblyReference.Assembly,
@@ -162,8 +163,7 @@ Assembly[] moduleApplicationAssemblies =
     Security.Application.AssemblyReference.Assembly,
     Treasury.Application.AssemblyReference.Assembly,
     DataSync.Application.AssemblyReference.Assembly,
-    Reports.Application.AssemblyReference.Assembly,
-    Accounting.Application.AssemblyReference.Assembly
+    Reports.Application.AssemblyReference.Assembly
 ];
 
 builder.Services.AddApplication(moduleApplicationAssemblies);

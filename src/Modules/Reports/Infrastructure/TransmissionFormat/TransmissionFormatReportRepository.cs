@@ -83,7 +83,6 @@ public class TransmissionFormatReportRepository(
     public async Task<Rt4ValuationMovements> GetValuationMovementsAsync(int portfolioId, DateTime date, CancellationToken cancellationToken)
     {
         var previousDate = date.AddDays(-1);
-        const int contributionOperationTypeId = 1;
 
         var sql = $@"
             -- previous day valuation
@@ -103,10 +102,10 @@ public class TransmissionFormatReportRepository(
               AND (tf.participacion = 0 OR tf.participacion IS NULL);
 
             -- contribution amount
-            SELECT COALESCE(SUM(oc.valor), 0)
-            FROM {ClosingSchema}.operaciones_cliente oc
-            WHERE oc.portafolio_id = @PortfolioId AND oc.fecha_proceso = @Date::date
-              AND oc.tipo_operaciones_id = @ContributionTypeId;
+            SELECT COALESCE(SUM(tf.capital), 0)
+            FROM {ClosingSchema}.rendimientos_fideicomisos tf
+            WHERE tf.portafolio_id = @PortfolioId AND tf.fecha_cierre = @Date::date
+              AND (tf.participacion = 0 OR tf.participacion IS NULL);
 
             -- current day valuation
             SELECT vp.unidades AS ""Units"", vp.valor AS ""Amount""
@@ -118,8 +117,7 @@ public class TransmissionFormatReportRepository(
         {
             PortfolioId = portfolioId,
             Date = date,
-            PreviousDate = previousDate,
-            ContributionTypeId = contributionOperationTypeId
+            PreviousDate = previousDate
         }, cancellationToken: cancellationToken);
 
         using var reader = await connection.QueryMultipleAsync(command);

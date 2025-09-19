@@ -1,9 +1,11 @@
+using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Treasury.Integrations.TreasuryConcepts.Response;
 
 namespace Treasury.Integrations.TreasuryConcepts.Commands;
 
+[AuditLog]
 public sealed record UpdateTreasuryConceptCommand(
     long Id,
     string Concept,

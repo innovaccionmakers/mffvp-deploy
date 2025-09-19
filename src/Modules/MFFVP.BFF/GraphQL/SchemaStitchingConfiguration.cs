@@ -12,6 +12,7 @@ public static class SchemaStitchingConfiguration
         services
             .AddGraphQLServer("BFFGateway")
             .AddAuthorization()
+            .UseField<Middlewares.GraphQLAuthorizePolicyItemsMiddleware>()
             .AddQueryType<Query>()
             .AddMutationType<Mutation>()
             .BindRuntimeType <DateTime, Common.SharedKernel.Presentation.GraphQlBinding.DateTimeType>()//configura el manejo personalizado de DateTime
