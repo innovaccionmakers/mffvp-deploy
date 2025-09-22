@@ -1,9 +1,8 @@
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Presentation.Results;
-using Customers.Integrations.People.GetPerson;
-using MediatR;
 using Customers.Domain.People;
 using Customers.Integrations.People.GetPerson;
+using MediatR;
 
 namespace Customers.IntegrationEvents.PersonValidation;
 

@@ -1,4 +1,6 @@
-﻿using Associate.Presentation.GraphQL;
+﻿using Accounting.Presentation.GraphQL;
+using Accounting.Presentation.GraphQL.Inputs;
+using Associate.Presentation.GraphQL;
 using Associate.Presentation.GraphQL.Inputs;
 
 using Closing.Presentation.GraphQL;
@@ -182,5 +184,14 @@ public class Mutation
                                                        CancellationToken cancellationToken)
     {
         return await closingMutations.CancelClosingAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("procesoCuenta")]
+    public async Task<GraphqlResult<string>> AccountProcess([GraphQLName("cuenta")] AccountingInput input,
+                                                       IValidator<AccountingInput> validator,
+                                                       [Service] IAccountProcessExperienceMutations accountProcessMutations,
+                                                       CancellationToken cancellationToken)
+    {
+        return await accountProcessMutations.AccountProcessAsync(input, validator, cancellationToken);
     }
 }
