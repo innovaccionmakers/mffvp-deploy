@@ -18,17 +18,19 @@ internal sealed class GetAccountingFeesQueryHandler(
     IPortfolioLocator portfolioLocator,
     IMediator mediator) : IQueryHandler<GetAccountingFeesQuery, bool>
 {
+    private const string Debit = "D";
+    private const string Credit = "C";
     public async Task<Result<bool>> Handle(GetAccountingFeesQuery request, CancellationToken cancellationToken)
     {       
         try
         {
             var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(request.PortfolioIds, request.ClosingDate, cancellationToken);            
             
-            var accountingFees = await CreateRange(yields.Value, request.ClosingDate, cancellationToken);
+            var accountingFees = await CreateRange(yields.Value, cancellationToken);
             
             if (!accountingFees.Any())
             {
-                logger.LogInformation("No accounting fees to process for closing date {ClosingDate}", request.ClosingDate);
+                logger.LogInformation("No accounting fees to process");
                 return false;
             }
 
@@ -43,7 +45,6 @@ internal sealed class GetAccountingFeesQueryHandler(
 
     private async Task<IEnumerable<AccountingAssistant>> CreateRange(
         IEnumerable<YieldResponse> yields,
-        DateTime closingDate,
         CancellationToken cancellationToken)
     {
         var accountingAssistants = new List<AccountingAssistant>();
@@ -62,7 +63,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 new DateTime(),
                 "",
                 "",  
-                "D",
+                Debit,
                 1,
                 "",
                 1

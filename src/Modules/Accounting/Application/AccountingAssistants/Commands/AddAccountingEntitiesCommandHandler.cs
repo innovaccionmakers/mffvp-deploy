@@ -1,4 +1,5 @@
 ﻿using Accounting.Domain.AccountingAssistants;
+using Common.SharedKernel.Core.Primitives;
 using Accounting.Application.Abstractions.Data;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Common.SharedKernel.Application.Messaging;
@@ -24,8 +25,8 @@ internal sealed class AddAccountingEntitiesCommandHandler(ILogger<AddAccountingE
         }
         catch(Exception ex)
         {
-            logger.LogError(ex, "Error handling AddAccountingEntitiesCommand");
-            return false;
+            logger.LogError(ex, "Error handling AddAccountingEntitiesCommand");            
+            return Result.Failure<bool>(new Error("Exception", ex.Message, ErrorType.Failure));
         }
     }
 }
