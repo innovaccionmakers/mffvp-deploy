@@ -1,9 +1,7 @@
 ﻿using Common.SharedKernel.Domain;
-using HotChocolate.Types.Introspection;
-
 namespace Accounting.Domain.AccountingAssistants;
 
-public class AccountingAssistant : Entity
+public class AccountingAssistant : Entity, ICloneable
 {
     public long AccountingAssistantId { get; private set; }
     public string Identification { get; private set; }
@@ -82,5 +80,24 @@ public class AccountingAssistant : Entity
         Value = value;
         Nature = nature;
         Identifier = identifier;
+    }
+
+    public object Clone()
+    {
+        return MemberwiseClone();
+    }
+
+    public AccountingAssistant DuplicateWithType(string type)
+    {
+        var clone = (AccountingAssistant)Clone();
+        clone.AccountingAssistantId = default;
+        clone.Type = type;
+        return clone;
+    }
+
+    public IEnumerable<AccountingAssistant> ToDebitAndCredit()
+    {
+        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Debit);
+        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Credit);
     }
 }

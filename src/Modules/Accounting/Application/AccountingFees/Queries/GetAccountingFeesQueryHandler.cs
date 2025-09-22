@@ -17,9 +17,7 @@ internal sealed class GetAccountingFeesQueryHandler(
     IYieldLocator yieldLocator,
     IPortfolioLocator portfolioLocator,
     IMediator mediator) : IQueryHandler<GetAccountingFeesQuery, bool>
-{
-    private const string Debit = "D";
-    private const string Credit = "C";
+{   
     public async Task<Result<bool>> Handle(GetAccountingFeesQuery request, CancellationToken cancellationToken)
     {       
         try
@@ -44,34 +42,38 @@ internal sealed class GetAccountingFeesQueryHandler(
     }
 
     private async Task<IEnumerable<AccountingAssistant>> CreateRange(
-        IEnumerable<YieldResponse> yields,
-        CancellationToken cancellationToken)
+    IEnumerable<YieldResponse> yields,
+    CancellationToken cancellationToken)
     {
         var accountingAssistants = new List<AccountingAssistant>();
+
         foreach (var yield in yields)
         {
-            var passiveTransaction = await passiveTransactionRepository.GetByPortfolioIdAsync(yield.PortfolioId, cancellationToken);
-            var portfolioResult = (await portfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken))?.Value;
+            var passiveTransaction = await passiveTransactionRepository
+                .GetByPortfolioIdAsync(yield.PortfolioId, cancellationToken);
 
+            var portfolioResult = (await portfolioLocator
+                .GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken))?.Value;
 
             var accountingAssistant = AccountingAssistant.Create(
                 portfolioResult.NitApprovedPortfolio,
                 portfolioResult.VerificationDigit,
                 portfolioResult.Name,
-                new DateTime().ToString("yyyyMM"),
+                DateTime.UtcNow.ToString("yyyyMM"),
                 passiveTransaction.ContraCreditAccount,
-                new DateTime(),
+                DateTime.UtcNow,
                 "",
-                "",  
-                Debit,
+                "",
+                "",
                 1,
                 "",
                 1
             );
 
-            if(accountingAssistant.IsSuccess)
-                accountingAssistants.Add(accountingAssistant.Value);
+            if (accountingAssistant.IsSuccess)                
+                accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit());
         }
+
         return accountingAssistants;
     }
 }
