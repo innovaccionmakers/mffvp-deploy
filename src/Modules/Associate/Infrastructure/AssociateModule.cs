@@ -1,6 +1,5 @@
 using Application.Activates;
 using Application.PensionRequirements;
-
 using Associate.Application.Abstractions;
 using Associate.Application.Abstractions.Data;
 using Associate.Domain.Activates;
@@ -9,19 +8,18 @@ using Associate.Domain.PensionRequirements;
 using Associate.Infrastructure.Database;
 using Associate.Infrastructure.PensionRequirements;
 using Associate.IntegrationEvents.ActivateValidation;
+using Associate.IntegrationEvents.GetActivateIds;
+using Associate.IntegrationsEvents.GetActivateIds;
 using Associate.Presentation.GraphQL;
 using Associate.Presentation.MinimalApis;
-using Common.SharedKernel.Application.Rpc;
-
 using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
-
 using Microsoft.AspNetCore.Builder;
-
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -73,6 +71,7 @@ public class ActivatesModule: IModuleConfiguration
         services.AddScoped<IErrorCatalog<AssociateModuleMarker>, ErrorCatalog<AssociateModuleMarker>>();
         services.AddScoped<PensionRequirementCommandHandlerValidation>();
         services.AddScoped<IRpcHandler<GetActivateIdByIdentificationRequest, GetActivateIdByIdentificationResponse>, ActivateValidationConsumer>();
+        services.AddScoped<IRpcHandler<GetIdentificationByActivateIdsRequestEvent, GetIdentificationByActivateIdsResponseEvent>, ActivateByActivateIdsValidationConsumer>();
         services.AddScoped<ActivatesCommandHandlerValidation>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AssociateDbContext>());
     }

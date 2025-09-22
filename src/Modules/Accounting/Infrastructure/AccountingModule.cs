@@ -1,7 +1,9 @@
 ﻿using Accounting.Application.Abstractions;
 using Accounting.Domain.ConfigurationParameters;
+using Accounting.Domain.Treasuries;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
+using Accounting.Infrastructure.Treasuries;
 using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.MinimalApis;
 using Common.SharedKernel.Application.Abstractions;
@@ -58,6 +60,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConfigurationParameterLookupRepository<AccountingModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<AccountingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IAccountProcessExperienceMutations, AccountProcessExperienceMutations>();
+        services.AddScoped<ITreasuryRepository, TreasuryRepository>();
 
     }
 

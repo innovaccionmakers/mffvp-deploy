@@ -1,13 +1,12 @@
 using Application.People;
 using Application.People.GetPerson;
-
 using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.RulesEngine;
-
 using Customers.Application.Abstractions;
 using Customers.Application.Abstractions.Data;
 using Customers.Domain.ConfigurationParameters;
@@ -22,11 +21,10 @@ using Customers.Infrastructure.Database;
 using Customers.Infrastructure.EconomicActivities;
 using Customers.Infrastructure.People;
 using Customers.IntegrationEvents.ClientValidation;
+using Customers.IntegrationEvents.PeopleByIdentificationsValidation;
 using Customers.IntegrationEvents.PersonValidation;
 using Customers.Presentation.GraphQL;
 using Customers.Presentation.MinimalApis;
-using Common.SharedKernel.Application.Rpc;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -82,6 +80,7 @@ public class CustomersModule : IModuleConfiguration
         services.AddScoped<IErrorCatalog<CustomersModuleMarker>, ErrorCatalog<CustomersModuleMarker>>();
         services.AddTransient<IRpcHandler<PersonDataRequestEvent, GetPersonValidationResponse>, PersonValidationConsumer>();
         services.AddTransient<IRpcHandler<ValidatePersonByIdentificationRequest, ValidatePersonByIdentificationResponse>, ClientValidationConsumer>();
+        services.AddTransient<IRpcHandler<GetPersonByIdentificationsRequestEvent, GetPeopleByIdentificationsResponseEvent>, PeopleByIdentificationsValidationConsumer>();
         services.AddTransient<PersonCommandHandlerValidation>();
         services.AddTransient<GetPersonQueryHandlerValidation>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CustomersDbContext>());

@@ -8,7 +8,7 @@ namespace Accounting.Integrations.AccountProcess
     [AuditLog]
     public sealed record AccountProcessCommand(
         [property: JsonPropertyName("idsPortafolio")]
-        List<int> PortfolioIds,
+        IEnumerable<int> PortfolioIds,
         [property: JsonPropertyName("fechaProceso")]
         DateTime ProcessDate
         ) : ICommand<string>;
