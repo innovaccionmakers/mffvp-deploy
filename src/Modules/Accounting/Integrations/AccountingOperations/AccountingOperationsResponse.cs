@@ -2,16 +2,16 @@
 {
     public sealed record class AccountingOperationsResponse(
         string Identification,
-        int VerificationDigit,
-        string FullName,
-        string Period,
-        string Account,
-        DateTime Date,
-        string Details,
+        int? VerificationDigit,
+        string Name,
+        string? Period,
+        string? Account,
+        DateTime? Date,
+        string? Nit,
+        string? Detail,
         string Type,
-        decimal Amount,
+        decimal? Value,
         string Nature,
-        string Nit = "",
-        long? Identificator = 0
+        long Identifier
         );
 }

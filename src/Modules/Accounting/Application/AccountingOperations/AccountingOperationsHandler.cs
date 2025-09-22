@@ -1,11 +1,14 @@
 ﻿using Accounting.Integrations.AccountingOperations;
 using Accounting.Integrations.Treasuries.GetTreasuriesByPortfolioIds;
 using Associate.IntegrationsEvents.GetActivateIds;
+using Azure;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+using Customers.Domain.People;
 using Customers.IntegrationEvents.PeopleByIdentificationsValidation;
+using Customers.Integrations.People.GetPeopleByIdentifications;
 using MediatR;
 using Operations.IntegrationEvents.ClientOperations;
 
@@ -36,7 +39,45 @@ namespace Accounting.Application.AccountingOperations
                 if (!peoples.IsValid)
                     return Result.Failure<string>(Error.Validation(peoples.Code ?? string.Empty, peoples.Message ?? string.Empty));
 
-                var treasury = sender.Send(new GetTreasuriesByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
+                var treasury = await sender.Send(new GetTreasuriesByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
+
+                var identificationByActivateId = identification.Indentifications
+                     .ToDictionary(x => x.ActivateIds, x => x.Identification);
+
+                var peopleByIdentification = peoples.Person?
+                    .ToDictionary(x => x.Identification, x => x)
+                    ?? new Dictionary<string, GetPeopleByIdentificationsResponse>();
+
+                var treasuryByPortfolioId = treasury.Value
+                    .ToDictionary(x => x.PortfolioIds, x => x);
+
+                // 6. Transformar cada operación en AccountingOperationsResponse
+                var accountingOperations = operations.ClientOperations.Select(operation =>
+                {
+                    // Obtener identificación del affiliate
+                    var identification = identificationByActivateId.GetValueOrDefault(operation.AffiliateId);
+
+                    // Obtener información de la persona
+                    var person = peopleByIdentification.GetValueOrDefault(identification);
+
+                    // Obtener información de tesorería
+                    var treasury = treasuryByPortfolioId.GetValueOrDefault(operation.PortfolioId);
+
+                    return new AccountingOperationsResponse(
+                        Identification: identification ?? string.Empty,
+                        VerificationDigit: 0,
+                        Name: person?.FullName ?? string.Empty,
+                        Period: command.ProcessDate.ToString("yyyyMM"),
+                        Account: treasury?.DebitAccount ?? string.Empty,
+                        Date: command.ProcessDate,
+                        Detail: operation.OperationType,
+                        Type: "D",
+                        Value: operation.Amount,
+                        Nature: operation.OperationType,
+                        Nit: string.Empty,
+                        Identifier: 0                        
+                    );
+                }).ToList();
 
                 return Result.Success<string>(string.Empty);
             }
