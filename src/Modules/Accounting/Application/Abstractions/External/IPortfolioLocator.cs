@@ -11,6 +11,5 @@ public sealed record PortfolioResponse
 (
     string NitApprovedPortfolio,
     int VerificationDigit,
-    string Name,
-    string IdentificationType
+    string Name
 );

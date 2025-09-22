@@ -17,7 +17,7 @@ public class PortfolioLocator(IRpcClient rpc) : IPortfolioLocator
             ct);
 
         return rc.Succeeded
-            ? Result.Success(new PortfolioResponse(rc.PortfolioInformation.NitApprovedPortfolio, rc.PortfolioInformation.VerificationDigit, rc.PortfolioInformation.Name, ""))
+            ? Result.Success(new PortfolioResponse(rc.PortfolioInformation!.NitApprovedPortfolio, rc.PortfolioInformation.VerificationDigit, rc.PortfolioInformation.Name))
             : Result.Failure<PortfolioResponse>(Error.Validation(rc.Code!, rc.Message!));
     }
 }

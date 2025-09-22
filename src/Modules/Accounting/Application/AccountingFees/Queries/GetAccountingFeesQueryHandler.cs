@@ -2,25 +2,24 @@
 using Accounting.Application.Abstractions.External;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.PassiveTransactions;
+using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingFees;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Accounting.Application.AccountingFees;
+namespace Accounting.Application.AccountingFees.Queries;
 
 internal sealed class GetAccountingFeesQueryHandler(
     ILogger<GetAccountingFeesQueryHandler> logger,
-    IAccountingAssistantRepository accountingAssistantRepository,
     IPassiveTransactionRepository passiveTransactionRepository,
-    IUnitOfWork unitOfWork,
     IYieldLocator yieldLocator,
-    IPortfolioLocator portfolioLocator) : IQueryHandler<GetAccountingFeesQuery, bool>
+    IPortfolioLocator portfolioLocator,
+    IMediator mediator) : IQueryHandler<GetAccountingFeesQuery, bool>
 {
     public async Task<Result<bool>> Handle(GetAccountingFeesQuery request, CancellationToken cancellationToken)
-    {
-        await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
-
+    {       
         try
         {
             var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(request.PortfolioIds, request.ClosingDate, cancellationToken);            
@@ -33,11 +32,8 @@ internal sealed class GetAccountingFeesQueryHandler(
                 return false;
             }
 
-            await accountingAssistantRepository.AddRangeAsync(accountingFees, cancellationToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            await tx.CommitAsync(cancellationToken);
-            return true;
-
+            return await mediator.Send(new AddAccountingEntitiesCommand(accountingFees), cancellationToken);
+            
         } catch (Exception ex)
         {
             logger.LogError(ex, "Error handling GetAccountingFeesQuery");
@@ -53,12 +49,16 @@ internal sealed class GetAccountingFeesQueryHandler(
         var accountingAssistants = new List<AccountingAssistant>();
         foreach (var yield in yields)
         {
+            var passiveTransaction = await passiveTransactionRepository.GetByPortfolioIdAsync(yield.PortfolioId, cancellationToken);
+            var portfolioResult = (await portfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken))?.Value;
+
+
             var accountingAssistant = AccountingAssistant.Create(
-                "",
-                0,
-                "",
-                "",
-                "",
+                portfolioResult.NitApprovedPortfolio,
+                portfolioResult.VerificationDigit,
+                portfolioResult.Name,
+                new DateTime().ToString("yyyyMM"),
+                passiveTransaction.ContraCreditAccount,
                 new DateTime(),
                 "",
                 "",  
@@ -67,6 +67,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 "",
                 1
             );
+
             if(accountingAssistant.IsSuccess)
                 accountingAssistants.Add(accountingAssistant.Value);
         }
