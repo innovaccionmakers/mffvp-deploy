@@ -4,7 +4,6 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-using Operations.IntegrationEvents.ClientOperations;
 
 namespace Accounting.Application.AccountProcess
 {

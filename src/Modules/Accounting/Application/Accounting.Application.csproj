@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
     <ProjectReference Include="..\..\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\Operations\IntegrationEvents\Operations.IntegrationEvents\Operations.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\Products\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj" />
     <ProjectReference Include="..\IntegrationEvents\Accounting.IntegrationEvents\Accounting.IntegrationEvents.csproj" />
     <ProjectReference Include="..\Integrations\Accounting.Integrations.csproj" />
