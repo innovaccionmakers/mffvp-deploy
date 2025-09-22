@@ -1,8 +1,6 @@
-﻿using Common.SharedKernel.Application.Reports;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Reports.Application.Reports.Strategies;
-using Reports.Application.Strategies;
 using Reports.Domain.BalancesAndMovements;
 using Reports.Domain.TechnicalSheet;
 
@@ -38,8 +36,10 @@ public class TechnicalSheetReport(
         {
             if (!reportRequest.IsValid())
             {
-                logger.LogError("Request inválido: {Request}", reportRequest);
-                throw new ArgumentException("El request proporcionado no es válido.");
+                var validationErrors = reportRequest.GetValidationErrors();
+                var firstError = validationErrors.FirstOrDefault() ?? "El request proporcionado no es válido";
+                logger.LogError("Request inválido: {Request}. Error: {ValidationError}", reportRequest, firstError);
+                throw new ArgumentException(firstError);
             }
             try
             {
