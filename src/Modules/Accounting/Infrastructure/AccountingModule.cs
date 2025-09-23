@@ -1,15 +1,17 @@
 ﻿using Accounting.Application.Abstractions;
 using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
+using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.ConfigurationParameters;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Domain.Treasuries;
+using Accounting.Infrastructure.AccountingAssistants;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
-using Accounting.Infrastructure.Treasuries;
 using Accounting.Infrastructure.External.Portfolios;
 using Accounting.Infrastructure.External.Yields;
 using Accounting.Infrastructure.PassiveTransactions;
+using Accounting.Infrastructure.Treasuries;
 using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.MinimalApis;
 using Common.SharedKernel.Application.Abstractions;
@@ -70,6 +72,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
         services.AddScoped<IPassiveTransactionRepository, PassiveTransactionRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AccountingDbContext>());
+        services.AddScoped<IAccountingAssistantRepository, AccountingAssistantRepository>();
         services.AddScoped<IAccountProcessExperienceMutations, AccountProcessExperienceMutations>();
         services.AddScoped<ITreasuryRepository, TreasuryRepository>();
 
