@@ -1,3 +1,4 @@
+using Accounting.Application;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Infrastructure;

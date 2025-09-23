@@ -7,4 +7,5 @@ public interface IActivateRepository
     void Insert(Activate activate, CancellationToken cancellationToken = default);    
     void Update(Activate activate, CancellationToken cancellationToken = default);
     Task<Activate?> GetByIdAsync(long activateId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Activate?>> GetActivateByIdsAsync(IEnumerable<int> ActivateIds, CancellationToken cancellationToken = default);
 }

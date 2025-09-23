@@ -1,6 +1,5 @@
 ﻿using Common.SharedKernel.Application.Rpc;
 using MediatR;
-using Products.Integrations.Portfolios.GetPortfolioById;
 using Products.Integrations.Portfolios.Queries;
 
 namespace Products.IntegrationEvents.Portfolio;

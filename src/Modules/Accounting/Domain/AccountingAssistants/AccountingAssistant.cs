@@ -1,9 +1,7 @@
 ﻿using Common.SharedKernel.Domain;
-using HotChocolate.Types.Introspection;
-
 namespace Accounting.Domain.AccountingAssistants;
 
-public class AccountingAssistant : Entity
+public class AccountingAssistant : Entity, ICloneable
 {
     public long AccountingAssistantId { get; private set; }
     public string Identification { get; private set; }
@@ -24,6 +22,7 @@ public class AccountingAssistant : Entity
     }
 
     public static Result<AccountingAssistant> Create(
+        string identification,
         int? verificationDigit,
         string name,
         string? period,
@@ -39,6 +38,7 @@ public class AccountingAssistant : Entity
         var accountingAssistant = new AccountingAssistant
         {
             AccountingAssistantId = default,
+            Identification = identification,
             VerificationDigit = verificationDigit,
             Name = name,
             Period = period,
@@ -55,6 +55,7 @@ public class AccountingAssistant : Entity
     }
 
     public void UpdateDetails(
+        string identification,
         int? verificationDigit,
         string name,
         string? period,
@@ -67,6 +68,7 @@ public class AccountingAssistant : Entity
         string nature,
         long identifier)
     {
+        Identification = identification;
         VerificationDigit = verificationDigit;
         Name = name;
         Period = period;
@@ -78,5 +80,24 @@ public class AccountingAssistant : Entity
         Value = value;
         Nature = nature;
         Identifier = identifier;
+    }
+
+    public object Clone()
+    {
+        return MemberwiseClone();
+    }
+
+    public AccountingAssistant DuplicateWithType(string type)
+    {
+        var clone = (AccountingAssistant)Clone();
+        clone.AccountingAssistantId = default;
+        clone.Type = type;
+        return clone;
+    }
+
+    public IEnumerable<AccountingAssistant> ToDebitAndCredit()
+    {
+        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Debit);
+        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Credit);
     }
 }

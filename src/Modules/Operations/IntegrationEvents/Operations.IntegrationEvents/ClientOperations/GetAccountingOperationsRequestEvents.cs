@@ -1,7 +1,7 @@
 ﻿namespace Operations.IntegrationEvents.ClientOperations
 {
     public sealed record class GetAccountingOperationsRequestEvents(
-        List<int> PortfolioId,
+        IEnumerable<int> PortfolioId,
         DateTime ProcessDate
         );
 }

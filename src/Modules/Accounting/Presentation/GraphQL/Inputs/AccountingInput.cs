@@ -3,7 +3,7 @@
 namespace Accounting.Presentation.GraphQL.Inputs
 {
     public record AccountingInput(
-        [property: GraphQLName("idsPortafolio")] List<int> PortfolioIds,
+        [property: GraphQLName("idsPortafolio")] IEnumerable<int> PortfolioIds,
         [property: GraphQLName("fechaProceso")] DateTime ProcessDate
         );
 }

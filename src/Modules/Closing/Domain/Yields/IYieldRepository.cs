@@ -22,4 +22,6 @@ public interface IYieldRepository
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 
     Task<Yield?> GetReadOnlyByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Yield>> GetByPortfolioIdsAndClosingDateAsync(List<int> portfolioIds, DateTime closingDate, CancellationToken cancellationToken = default);
 }

@@ -13,8 +13,8 @@ namespace Operations.IntegrationEvents.ClientOperations
                     cancellationToken);
 
             return result.Match(
-                clientOperations => new GetAccountingOperationsValidationResponse(true, null, null, clientOperations),
-                err => new GetAccountingOperationsValidationResponse(false, err.Code, err.Description, Array.Empty<GetAccountingOperationsResponse>())
+                success => new GetAccountingOperationsValidationResponse(true, null, null, success),
+                failure => new GetAccountingOperationsValidationResponse(false, failure.Code, failure.Description, Array.Empty<GetAccountingOperationsResponse>())
             );
         }
     }
