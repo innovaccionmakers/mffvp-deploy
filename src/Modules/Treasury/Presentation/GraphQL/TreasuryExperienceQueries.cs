@@ -1,6 +1,5 @@
 using HotChocolate;
 using MediatR;
-using System.Linq;
 using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolio;
 using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolioAndIssuer;
 using Treasury.Integrations.Banks;
