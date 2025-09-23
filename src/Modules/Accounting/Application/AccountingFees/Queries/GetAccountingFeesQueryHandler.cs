@@ -4,6 +4,7 @@ using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingFees;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -57,7 +58,7 @@ internal sealed class GetAccountingFeesQueryHandler(
     CancellationToken cancellationToken)
     {
         var accountingAssistants = new List<AccountingAssistant>();
-
+        var errors = new List<Error>();
         foreach (var yield in yields)
         {
             var passiveTransaction = await passiveTransactionRepository
@@ -70,7 +71,8 @@ internal sealed class GetAccountingFeesQueryHandler(
             {
                 logger.LogError("No se pudo obtener la información del portafolio {PortfolioId}: {Error}",
                     yield.PortfolioId, portfolioResult.Error);
-                return Result.Failure<IEnumerable<AccountingAssistant>>(portfolioResult.Error);
+                errors.Add(portfolioResult.Error);
+                continue;
             }
 
             var accountingAssistant = AccountingAssistant.Create(
@@ -84,12 +86,19 @@ internal sealed class GetAccountingFeesQueryHandler(
                 "",
                 "",
                 1,
-                "",
-                1
+                ""
             );
-
-            if (accountingAssistant.IsSuccess)
-                accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit());
+            if (accountingAssistant.IsFailure)
+            {
+                logger.LogError("Error al crear el AccountingAssistant para el portafolio {PortfolioId}: {Error}",
+                    yield.PortfolioId, accountingAssistant.Error);
+                errors.Add(accountingAssistant.Error);
+                continue;
+            }
+        }
+        if (errors.Count > 0)
+        {
+            return Result.Failure<IEnumerable<AccountingAssistant>>(new ValidationError(errors.ToArray()));
         }
 
         return accountingAssistants;

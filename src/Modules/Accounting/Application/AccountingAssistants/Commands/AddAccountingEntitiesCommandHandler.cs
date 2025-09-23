@@ -21,12 +21,15 @@ internal sealed class AddAccountingEntitiesCommandHandler(ILogger<AddAccountingE
             await accountingAssistantRepository.AddRangeAsync(request.AccountingAssistants, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             await tx.CommitAsync(cancellationToken);
+
+            logger.LogInformation("Successfully added {Count} accounting entities", request.AccountingAssistants.Count());
             return true;
         }
         catch(Exception ex)
         {
-            logger.LogError(ex, "Error handling AddAccountingEntitiesCommand");            
+            logger.LogError(ex, "Error handling AddAccountingEntitiesCommand");
             return Result.Failure<bool>(new Error("Exception", ex.Message, ErrorType.Failure));
         }
     }
+
 }

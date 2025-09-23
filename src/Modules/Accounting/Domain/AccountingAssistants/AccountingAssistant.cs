@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Domain;
+using Common.SharedKernel.Core.Primitives;
 namespace Accounting.Domain.AccountingAssistants;
 
 public class AccountingAssistant : Entity, ICloneable
@@ -15,7 +16,7 @@ public class AccountingAssistant : Entity, ICloneable
     public string Type { get; private set; }
     public decimal? Value { get; private set; }
     public string Nature { get; private set; }
-    public long Identifier { get; private set; }
+    public Guid Identifier { get; private set; }
 
     private AccountingAssistant()
     {
@@ -32,8 +33,7 @@ public class AccountingAssistant : Entity, ICloneable
         string? detail,
         string type,
         decimal? value,
-        string nature,
-        long identifier)
+        string nature)
     {
         var accountingAssistant = new AccountingAssistant
         {
@@ -49,8 +49,15 @@ public class AccountingAssistant : Entity, ICloneable
             Type = type,
             Value = value,
             Nature = nature,
-            Identifier = identifier
+            Identifier = Guid.NewGuid()
         };
+
+        var validationResult = accountingAssistant.ValidateRequiredFields();
+        if (validationResult.IsFailure)
+        {
+            return Result.Failure<AccountingAssistant>(validationResult.Error);
+        }
+
         return Result.Success(accountingAssistant);
     }
 
@@ -65,8 +72,7 @@ public class AccountingAssistant : Entity, ICloneable
         string? detail,
         string type,
         decimal? value,
-        string nature,
-        long identifier)
+        string nature)
     {
         Identification = identification;
         VerificationDigit = verificationDigit;
@@ -79,12 +85,6 @@ public class AccountingAssistant : Entity, ICloneable
         Type = type;
         Value = value;
         Nature = nature;
-        Identifier = identifier;
-    }
-
-    public object Clone()
-    {
-        return MemberwiseClone();
     }
 
     public AccountingAssistant DuplicateWithType(string type)
@@ -99,5 +99,59 @@ public class AccountingAssistant : Entity, ICloneable
     {
         yield return DuplicateWithType(Constants.Constants.AccountingTypes.Debit);
         yield return DuplicateWithType(Constants.Constants.AccountingTypes.Credit);
+    }
+    
+
+    public Result ValidateRequiredFields()
+    {
+        var errors = new List<Error>();
+
+        var accountValidation = ValidateAccount();
+        if (accountValidation.IsFailure)
+        {
+            errors.Add(accountValidation.Error);
+        }
+
+        var detailValidation = ValidateDetail();
+        if (detailValidation.IsFailure)
+        {
+            errors.Add(detailValidation.Error);
+        }
+
+        if (errors.Count != 0)
+        {
+            return Result.Failure<bool>(new ValidationError(errors.ToArray()));
+        }
+
+        return Result.Success(true);
+    }
+
+    private Result ValidateAccount()
+    {
+        if (string.IsNullOrWhiteSpace(Account))
+        {
+            return Result.Failure<bool>(Error.Validation(
+                "AccountingAssistant.Account.Required",
+                $"La cuenta es obligatoria para la entidad {AccountingAssistantId}"));
+        }
+
+        return Result.Success(true);
+    }
+
+    private Result ValidateDetail()
+    {
+        if (string.IsNullOrWhiteSpace(Detail))
+        {
+            return Result.Failure<bool>(Error.Validation(
+                "AccountingAssistant.Detail.Required",
+                $"El detalle es obligatorio para la entidad {AccountingAssistantId}"));
+        }
+
+        return Result.Success(true);
+    }
+
+    public object Clone()
+    {
+        return MemberwiseClone();
     }
 }
