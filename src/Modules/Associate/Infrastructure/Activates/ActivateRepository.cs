@@ -44,4 +44,16 @@ public class ActivateRepository : IActivateRepository
     {
         return await _context.Activates.SingleOrDefaultAsync(x => x.ActivateId == activateId, cancellationToken);
     }
+
+    public async Task<IEnumerable<Activate?>> GetActivateByIdsAsync(IEnumerable<int> ActivateIds, CancellationToken cancellationToken = default)
+    {
+        if (ActivateIds == null || !ActivateIds.Any())
+            return Enumerable.Empty<Activate>();
+
+        var activateIdsSet = new HashSet<int>(ActivateIds);
+
+        return await _context.Activates
+            .Where(co => activateIdsSet.Contains(co.ActivateId))
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -1,3 +1,4 @@
+using Associate.Domain.Activates;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
@@ -116,5 +117,25 @@ internal sealed class PersonRepository(CustomersDbContext context) : IPersonRepo
             .ToListAsync(cancellationToken);
 
         return result;
+    }
+
+    public async Task<IEnumerable<PeopleByIdentifications?>> GetPeoplebyIdentificationsAsync(IEnumerable<string> Identifications, CancellationToken cancellationToken = default)
+    {
+        if (Identifications == null || !Identifications.Any())
+            return Enumerable.Empty<PeopleByIdentifications>();
+
+        var identificationsSet = new HashSet<string>(Identifications);
+
+        var query = from p in context.Customers
+                    join pc in context.ConfigurationParameters
+                    on p.DocumentType equals pc.Uuid
+                    where identificationsSet.Contains(p.Identification)
+                    select new PeopleByIdentifications(
+                        p.Identification,
+                        pc.Name,
+                        p.FullName
+                    );
+
+        return await query.ToListAsync(cancellationToken);
     }
 }

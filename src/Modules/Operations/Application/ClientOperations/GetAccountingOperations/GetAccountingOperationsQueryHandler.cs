@@ -22,7 +22,7 @@ namespace Operations.Application.ClientOperations.GetAccountingOperations
                 c.PortfolioId,
                 c.AffiliateId,
                 c.Amount,
-                c.OperationTypeId))
+                c.OperationType.Name))
             .ToList();
 
             return Result.Success<IReadOnlyCollection<GetAccountingOperationsResponse>>(response);

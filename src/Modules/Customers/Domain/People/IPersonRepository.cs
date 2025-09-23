@@ -1,4 +1,5 @@
 using Common.SharedKernel.Domain;
+using System.ComponentModel;
 
 namespace Customers.Domain.People;
 
@@ -9,6 +10,7 @@ public interface IPersonRepository
 
     Task<Person?> GetForIdentificationAsync(Guid? DocumentType, string Identification,
         CancellationToken cancellationToken = default);
+    
 
     void Insert(Person person);
     void Update(Person person);
@@ -26,4 +28,6 @@ public interface IPersonRepository
     Task<IReadOnlyCollection<Person>> GetPersonsByDocumentsAsync(
         IReadOnlyCollection<PersonDocumentKey> documents,
         CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<PeopleByIdentifications?>> GetPeoplebyIdentificationsAsync(IEnumerable<string> Identification, CancellationToken cancellationToken = default);
 }
