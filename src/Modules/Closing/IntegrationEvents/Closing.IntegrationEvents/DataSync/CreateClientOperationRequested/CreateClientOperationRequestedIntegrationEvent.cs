@@ -13,7 +13,11 @@ public sealed class CreateClientOperationRequestedIntegrationEvent : Integration
         decimal amount,
         DateTime processDate,
         long transactionSubtypeId,
-        DateTime applicationDate)
+        DateTime applicationDate,
+        int status,
+        long? trustId,
+        long? linkedClientOperationId,
+        decimal? units)
         : base(Guid.NewGuid(), DateTime.UtcNow)
     {
         ClientOperationId = clientOperationId;
@@ -25,6 +29,10 @@ public sealed class CreateClientOperationRequestedIntegrationEvent : Integration
         ProcessDate = processDate;
         TransactionSubtypeId = transactionSubtypeId;
         ApplicationDate = applicationDate;
+        Status = status;
+        TrustId = trustId;
+        LinkedClientOperationId = linkedClientOperationId;
+        Units = units;
     }
 
     public long ClientOperationId { get; init; }
@@ -36,4 +44,8 @@ public sealed class CreateClientOperationRequestedIntegrationEvent : Integration
     public DateTime ProcessDate { get; init; }
     public long TransactionSubtypeId { get; init; }
     public DateTime ApplicationDate { get; init; }
+    public int Status { get; init; }
+    public long? TrustId { get; init; }
+    public long? LinkedClientOperationId { get; init; }
+    public decimal? Units { get; init; }
 }

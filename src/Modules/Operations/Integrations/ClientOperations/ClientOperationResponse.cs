@@ -7,5 +7,9 @@ public sealed record ClientOperationResponse(
     int ObjectiveId,
     int PortfolioId,
     decimal Amount,
-    int OperationTypeId
+    int OperationTypeId,
+    int Status,
+    long? TrustId,
+    long? LinkedClientOperationId,
+    decimal? Units
 );
