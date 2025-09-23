@@ -1,5 +1,4 @@
-﻿using Accounting.Application.Abstractions.Data;
-using Accounting.Application.Abstractions.External;
+﻿using Accounting.Application.Abstractions.External;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
