@@ -17,23 +17,35 @@ internal sealed class GetAccountingFeesQueryHandler(
     IYieldLocator yieldLocator,
     IPortfolioLocator portfolioLocator,
     IMediator mediator) : IQueryHandler<GetAccountingFeesQuery, bool>
-{   
+{
     public async Task<Result<bool>> Handle(GetAccountingFeesQuery request, CancellationToken cancellationToken)
-    {       
+    {
         try
         {
-            var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(request.PortfolioIds, request.ClosingDate, cancellationToken);            
-            
-            var accountingFees = await CreateRange(yields.Value, cancellationToken);
-            
-            if (!accountingFees.Any())
+            var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(request.PortfolioIds, request.ClosingDate, cancellationToken);
+
+            if (yields.IsFailure)
+            {
+                logger.LogError("No se pudieron obtener los yields para los portafolios: {Error}", yields.Error);
+                return Result.Failure<bool>(yields.Error);
+            }
+
+            var accountingFeesResult = await CreateRange(yields.Value, cancellationToken);
+
+            if (accountingFeesResult.IsFailure)
+            {
+                logger.LogError("Error al crear las entidades contables: {Error}", accountingFeesResult.Error);
+                return Result.Failure<bool>(accountingFeesResult.Error);
+            }
+
+            if (!accountingFeesResult.Value.Any())
             {
                 logger.LogInformation("No accounting fees to process");
                 return false;
             }
 
-            return await mediator.Send(new AddAccountingEntitiesCommand(accountingFees), cancellationToken);
-            
+            return await mediator.Send(new AddAccountingEntitiesCommand(accountingFeesResult.Value), cancellationToken);
+
         } catch (Exception ex)
         {
             logger.LogError(ex, "Error handling GetAccountingFeesQuery");
@@ -41,7 +53,7 @@ internal sealed class GetAccountingFeesQueryHandler(
         }
     }
 
-    private async Task<IEnumerable<AccountingAssistant>> CreateRange(
+    private async Task<Result<IEnumerable<AccountingAssistant>>> CreateRange(
     IEnumerable<YieldResponse> yields,
     CancellationToken cancellationToken)
     {
@@ -52,13 +64,20 @@ internal sealed class GetAccountingFeesQueryHandler(
             var passiveTransaction = await passiveTransactionRepository
                 .GetByPortfolioIdAsync(yield.PortfolioId, cancellationToken);
 
-            var portfolioResult = (await portfolioLocator
-                .GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken))?.Value;
+            var portfolioResult = await portfolioLocator
+                .GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
+
+            if (portfolioResult.IsFailure)
+            {
+                logger.LogError("No se pudo obtener la información del portafolio {PortfolioId}: {Error}",
+                    yield.PortfolioId, portfolioResult.Error);
+                return Result.Failure<IEnumerable<AccountingAssistant>>(portfolioResult.Error);
+            }
 
             var accountingAssistant = AccountingAssistant.Create(
-                portfolioResult.NitApprovedPortfolio,
-                portfolioResult.VerificationDigit,
-                portfolioResult.Name,
+                portfolioResult.Value.NitApprovedPortfolio,
+                portfolioResult.Value.VerificationDigit,
+                portfolioResult.Value.Name,
                 DateTime.UtcNow.ToString("yyyyMM"),
                 passiveTransaction.ContraCreditAccount,
                 DateTime.UtcNow,
@@ -70,7 +89,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 1
             );
 
-            if (accountingAssistant.IsSuccess)                
+            if (accountingAssistant.IsSuccess)
                 accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit());
         }
 
