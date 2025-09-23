@@ -25,7 +25,11 @@ public sealed class CreateClientOperationRequestedConsumer : ICapSubscribe
                 message.Amount,
                 message.ProcessDate,
                 message.TransactionSubtypeId,
-                message.ApplicationDate),
+                message.ApplicationDate,
+                message.Status,
+                message.TrustId,
+                message.LinkedClientOperationId,
+                message.Units),
             cancellationToken);
     }
-} 
+}

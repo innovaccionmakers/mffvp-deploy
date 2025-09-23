@@ -21,5 +21,11 @@ internal sealed class ClientOperationConfiguration : IEntityTypeConfiguration<Cl
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
         builder.Property(x => x.OperationTypeId).HasColumnName("tipo_operaciones_id");
         builder.Property(x => x.ApplicationDate).HasColumnName("fecha_aplicacion");
+        builder.Property(x => x.Status).HasColumnName("estado");
+        builder.Property(x => x.TrustId).HasColumnName("fideicomiso_id");
+        builder.Property(x => x.LinkedClientOperationId).HasColumnName("operaciones_cliente_id");
+        builder.Property(x => x.Units)
+            .HasColumnName("unidades")
+            .HasColumnType("decimal(38, 16)");
     }
 }

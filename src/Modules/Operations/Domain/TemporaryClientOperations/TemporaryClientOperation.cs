@@ -16,6 +16,10 @@ public sealed class TemporaryClientOperation : Entity
     public long OperationTypeId { get; private set; }
     public DateTime ApplicationDate { get; private set; }
     public bool Processed { get; private set; }
+    public long? TrustId { get; private set; }
+    public long? LinkedClientOperationId { get; private set; }
+    public int Status { get; private set; }
+    public decimal? Units { get; private set; }
 
     public OperationType OperationType { get; private set; } = null!;
     public TemporaryAuxiliaryInformation TemporaryAuxiliaryInformation { get; private set; } = null!;
@@ -32,7 +36,11 @@ public sealed class TemporaryClientOperation : Entity
         decimal amount,
         DateTime processDate,
         long operationTypeId,
-        DateTime applicationDate
+        DateTime applicationDate,
+        int status,
+        long? trustId = null,
+        long? linkedClientOperationId = null,
+        decimal? units = null
     )
     {
         var clientOperation = new TemporaryClientOperation
@@ -46,7 +54,11 @@ public sealed class TemporaryClientOperation : Entity
             ProcessDate = processDate,
             OperationTypeId = operationTypeId,
             ApplicationDate = applicationDate,
-            Processed = false
+            Processed = false,
+            Status = status,
+            TrustId = trustId,
+            LinkedClientOperationId = linkedClientOperationId,
+            Units = units
         };
 
         clientOperation.Raise(new TemporaryClientOperationCreatedDomainEvent(clientOperation.TemporaryClientOperationId));
@@ -61,7 +73,11 @@ public sealed class TemporaryClientOperation : Entity
         decimal newAmount,
         DateTime newProcessDate,
         long newOperationTypeId,
-        DateTime newApplicationDate
+        DateTime newApplicationDate,
+        int newStatus,
+        long? newTrustId = null,
+        long? newLinkedClientOperationId = null,
+        decimal? newUnits = null
     )
     {
         RegistrationDate = newRegistrationDate;
@@ -72,6 +88,10 @@ public sealed class TemporaryClientOperation : Entity
         ProcessDate = newProcessDate;
         OperationTypeId = newOperationTypeId;
         ApplicationDate = newApplicationDate;
+        Status = newStatus;
+        TrustId = newTrustId;
+        LinkedClientOperationId = newLinkedClientOperationId;
+        Units = newUnits;
     }
     
     public void MarkAsProcessed()

@@ -11,5 +11,9 @@ public sealed record CreateClientOperationCommand(
     decimal Amount,
     DateTime ProcessDate,
     long TransactionSubtypeId,
-    DateTime ApplicationDate
-) : ICommand<ClientOperationResponse>; 
+    DateTime ApplicationDate,
+    int Status,
+    long? TrustId,
+    long? LinkedClientOperationId,
+    decimal? Units
+) : ICommand<ClientOperationResponse>;
