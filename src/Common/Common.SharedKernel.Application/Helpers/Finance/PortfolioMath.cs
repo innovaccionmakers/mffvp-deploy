@@ -98,12 +98,12 @@ public static class PortfolioMath
     }
 
     /// <summary>
-    /// Calcula la rentabilidad diaria compuesta con redondeo.
+    /// Calcula la rentabilidad diaria con redondeo.
     /// </summary>
-    public static decimal CalculateRoundedDailyProfitability(decimal previousUnitValue, decimal newUnitValue, int precision, int periodsPerYear = 365)
+    public static decimal CalculateRoundedDailyProfitability(decimal previousUnitValue, decimal newUnitValue, int precision)
     {
         if (previousUnitValue <= 0) return 0;
-        var profitability = CalculateCompoundReturn(previousUnitValue, newUnitValue, periodsPerYear);
+        var profitability = CalculateDailyProfitability(previousUnitValue, newUnitValue);
         return Math.Round(profitability, precision);
     }
 
