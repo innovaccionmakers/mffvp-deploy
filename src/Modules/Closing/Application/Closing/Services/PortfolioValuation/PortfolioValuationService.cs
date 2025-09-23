@@ -181,14 +181,14 @@ public class PortfolioValuationService(
             yieldCosts, prevUnits, costPerUnit);
 
         // 7.6. Rentabilidad diaria:
-        //     (newUnitValue / prevUnitValue)^(365) - 1, redondeado a 16 decimales
+        //     (newUnitValue / prevUnitValue)- 1, redondeado a 16 decimales
         decimal dailyProfitability = previous == null
             ? 0m
             : PortfolioMath.CalculateRoundedDailyProfitability(
                 prevUnitValue,
                 newUnitValue,
-                DecimalPrecision.SixteenDecimals,
-                365);
+                DecimalPrecision.SixteenDecimals
+                );
         logger.LogInformation("Cálculo dailyProfitability(prevUnitValue={PrevUnitValue}, newUnitValue={NewUnitValue}) = {DailyProfitability}",
             prevUnitValue, newUnitValue, dailyProfitability);
 
