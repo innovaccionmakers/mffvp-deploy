@@ -32,19 +32,16 @@ internal sealed class GetAccountingFeesQueryHandler(
 
             var accountingFeesResult = await CreateRange(yields.Value, cancellationToken);
 
-            if (accountingFeesResult.IsFailure)
-            {
-                logger.LogError("Error al crear las entidades contables: {Error}", accountingFeesResult.Error);
-                return Result.Failure<bool>(accountingFeesResult.Error);
-            }
+            if (!accountingFeesResult.IsSuccess)
+                logger.LogError("Error al crear las entidades contables: {Error}", accountingFeesResult.Errors);                
 
-            if (!accountingFeesResult.Value.Any())
+            if (!accountingFeesResult.SuccessItems.Any())
             {
                 logger.LogInformation("No accounting fees to process");
                 return false;
             }
 
-            return await mediator.Send(new AddAccountingEntitiesCommand(accountingFeesResult.Value), cancellationToken);
+            return await mediator.Send(new AddAccountingEntitiesCommand(accountingFeesResult.SuccessItems), cancellationToken);
 
         } catch (Exception ex)
         {
@@ -53,12 +50,12 @@ internal sealed class GetAccountingFeesQueryHandler(
         }
     }
 
-    private async Task<Result<IEnumerable<AccountingAssistant>>> CreateRange(
-    IEnumerable<YieldResponse> yields,
-    CancellationToken cancellationToken)
+    private async Task<ProcessingResult<AccountingAssistant>> CreateRange(IEnumerable<YieldResponse> yields,
+                                                                             CancellationToken cancellationToken)
     {
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<Error>();
+
         foreach (var yield in yields)
         {
             var passiveTransaction = await passiveTransactionRepository
@@ -80,7 +77,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 portfolioResult.Value.VerificationDigit,
                 portfolioResult.Value.Name,
                 DateTime.UtcNow.ToString("yyyyMM"),
-                passiveTransaction.ContraCreditAccount,
+                passiveTransaction?.ContraCreditAccount ?? "",
                 DateTime.UtcNow,
                 "",
                 "",
@@ -88,6 +85,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 1,
                 ""
             );
+
             if (accountingAssistant.IsFailure)
             {
                 logger.LogError("Error al crear el AccountingAssistant para el portafolio {PortfolioId}: {Error}",
@@ -95,12 +93,10 @@ internal sealed class GetAccountingFeesQueryHandler(
                 errors.Add(accountingAssistant.Error);
                 continue;
             }
-        }
-        if (errors.Count > 0)
-        {
-            return Result.Failure<IEnumerable<AccountingAssistant>>(new ValidationError(errors.ToArray()));
+            
+            accountingAssistants.Add(accountingAssistant.Value);
         }
 
-        return accountingAssistants;
+        return new ProcessingResult<AccountingAssistant>(accountingAssistants, errors);
     }
 }
