@@ -11,7 +11,6 @@ public class AccountingAssistant : Entity, ICloneable
     public string? Period { get; private set; }
     public string? Account { get; private set; }
     public DateTime? Date { get; private set; }
-    public string? Nit { get; private set; }
     public string? Detail { get; private set; }
     public string Type { get; private set; }
     public decimal? Value { get; private set; }
@@ -29,7 +28,6 @@ public class AccountingAssistant : Entity, ICloneable
         string? period,
         string? account,
         DateTime? date,
-        string? nit,
         string? detail,
         string type,
         decimal? value,
@@ -44,7 +42,6 @@ public class AccountingAssistant : Entity, ICloneable
             Period = period,
             Account = account,
             Date = date,
-            Nit = nit,
             Detail = detail,
             Type = type,
             Value = value,
@@ -80,7 +77,6 @@ public class AccountingAssistant : Entity, ICloneable
         Period = period;
         Account = account;
         Date = date;
-        Nit = nit;
         Detail = detail;
         Type = type;
         Value = value;
