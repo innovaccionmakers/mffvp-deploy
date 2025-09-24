@@ -57,7 +57,7 @@ internal sealed class GetAccountingFeesQueryHandler(
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<Error>();
 
-        var operations = await operationLocator.GetAccountingOperationsAsync();
+        //var operations = await operationLocator.GetAccountingOperationsAsync();
 
         foreach (var yield in yields)
         {
