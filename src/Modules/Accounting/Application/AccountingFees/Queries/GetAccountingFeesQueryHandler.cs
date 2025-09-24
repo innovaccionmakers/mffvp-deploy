@@ -61,6 +61,15 @@ internal sealed class GetAccountingFeesQueryHandler(
             var passiveTransaction = await passiveTransactionRepository
                 .GetByPortfolioIdAsync(yield.PortfolioId, cancellationToken);
 
+            if (passiveTransaction == null)
+            {
+                logger.LogWarning("No se encontró una transacción pasiva para el portafolio {PortfolioId}", yield.PortfolioId);
+                errors.Add(Error.NotFound(
+                    "PassiveTransaction.NotFound",
+                    $"No se encontró una transacción pasiva para el portafolio {yield.PortfolioId}"));
+                continue;
+            }
+
             var portfolioResult = await portfolioLocator
                 .GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
 
@@ -77,7 +86,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 portfolioResult.Value.VerificationDigit,
                 portfolioResult.Value.Name,
                 DateTime.UtcNow.ToString("yyyyMM"),
-                passiveTransaction?.ContraCreditAccount ?? "",
+                passiveTransaction.ContraCreditAccount,
                 DateTime.UtcNow,
                 "",
                 "",
