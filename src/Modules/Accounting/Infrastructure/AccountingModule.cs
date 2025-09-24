@@ -8,6 +8,7 @@ using Accounting.Domain.Treasuries;
 using Accounting.Infrastructure.AccountingAssistants;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
+using Accounting.Infrastructure.External.Operations;
 using Accounting.Infrastructure.External.Portfolios;
 using Accounting.Infrastructure.External.Yields;
 using Accounting.Infrastructure.PassiveTransactions;
@@ -69,6 +70,7 @@ public class AccountingModule : IModuleConfiguration
             (IConfigurationParameterLookupRepository<AccountingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IYieldLocator, YieldLocator>();
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
+        services.AddScoped<IOperationLocator, OperationLocator>();
         services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
         services.AddScoped<IPassiveTransactionRepository, PassiveTransactionRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AccountingDbContext>());

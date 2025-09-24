@@ -16,13 +16,14 @@ internal sealed class GetAccountingFeesQueryHandler(
     IPassiveTransactionRepository passiveTransactionRepository,
     IYieldLocator yieldLocator,
     IPortfolioLocator portfolioLocator,
+    IOperationLocator operationLocator,
     IMediator mediator) : IQueryHandler<GetAccountingFeesQuery, bool>
 {
     public async Task<Result<bool>> Handle(GetAccountingFeesQuery request, CancellationToken cancellationToken)
     {
         try
         {
-            var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(request.PortfolioIds, request.ClosingDate, cancellationToken);
+            var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(request.PortfolioIds, request.ProcessDate, cancellationToken);
 
             if (yields.IsFailure)
             {
@@ -30,7 +31,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 return Result.Failure<bool>(yields.Error);
             }
 
-            var accountingFeesResult = await CreateRange(yields.Value, cancellationToken);
+            var accountingFeesResult = await CreateRange(yields.Value, request.ProcessDate, cancellationToken);
 
             if (!accountingFeesResult.IsSuccess)
                 logger.LogError("Error al crear las entidades contables: {Error}", accountingFeesResult.Errors);                
@@ -50,11 +51,13 @@ internal sealed class GetAccountingFeesQueryHandler(
         }
     }
 
-    private async Task<ProcessingResult<AccountingAssistant>> CreateRange(IEnumerable<YieldResponse> yields,
+    private async Task<ProcessingResult<AccountingAssistant>> CreateRange(IEnumerable<YieldResponse> yields, DateTime processDate,
                                                                              CancellationToken cancellationToken)
     {
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<Error>();
+
+        var operations = await operationLocator.GetAccountingOperationsAsync();
 
         foreach (var yield in yields)
         {
@@ -85,10 +88,9 @@ internal sealed class GetAccountingFeesQueryHandler(
                 portfolioResult.Value.NitApprovedPortfolio,
                 portfolioResult.Value.VerificationDigit,
                 portfolioResult.Value.Name,
-                DateTime.UtcNow.ToString("yyyyMM"),
-                passiveTransaction?.ContraCreditAccount ?? "22",
-                DateTime.UtcNow,
-                "1",
+                processDate.ToString("yyyyMM"),
+                passiveTransaction?.ContraCreditAccount,
+                processDate,
                 "2",
                 "2",
                 1,
