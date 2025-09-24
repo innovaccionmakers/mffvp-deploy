@@ -86,13 +86,13 @@ internal sealed class GetAccountingFeesQueryHandler(
                 portfolioResult.Value.VerificationDigit,
                 portfolioResult.Value.Name,
                 DateTime.UtcNow.ToString("yyyyMM"),
-                passiveTransaction.ContraCreditAccount,
+                passiveTransaction?.ContraCreditAccount ?? "22",
                 DateTime.UtcNow,
-                "",
-                "",
-                "",
+                "1",
+                "2",
+                "2",
                 1,
-                ""
+                "2"
             );
 
             if (accountingAssistant.IsFailure)
@@ -103,7 +103,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 continue;
             }
             
-            accountingAssistants.Add(accountingAssistant.Value);
+            accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit());
         }
 
         return new ProcessingResult<AccountingAssistant>(accountingAssistants, errors);
