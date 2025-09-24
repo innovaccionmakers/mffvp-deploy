@@ -164,8 +164,8 @@ public class TreasuryExperienceQueries(IMediator mediator) : ITreasuryExperience
              x.TreasuryConcept.Concept,
              x.TreasuryConcept.AllowsExpense ? "Gasto" : "Rendimiento Bruto",
              x.TreasuryConcept.Nature.ToString(),
-             x.BankAccount.AccountNumber,
-             x.Counterparty.Description,
+             x.BankAccount?.AccountNumber,
+             x.Counterparty?.Description,
              x.Value
         )).ToList();
     }
