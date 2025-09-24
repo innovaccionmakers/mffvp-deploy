@@ -4,5 +4,5 @@ namespace Accounting.Integrations.AccountingFees;
 
 public sealed record GetAccountingFeesQuery(
     List<int> PortfolioIds,
-    DateTime ClosingDate
+    DateTime ProcessDate
 ) : IQuery<bool>;

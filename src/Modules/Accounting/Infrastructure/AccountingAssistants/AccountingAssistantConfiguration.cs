@@ -40,10 +40,6 @@ internal sealed class AccountingAssistantConfiguration : IEntityTypeConfiguratio
             .HasColumnName("fecha")
             .HasColumnType("timestamp with time zone");
 
-        builder.Property(x => x.Nit)
-            .HasColumnName("nit")
-            .HasMaxLength(12);
-
         builder.Property(x => x.Detail)
             .HasColumnName("detalle")
             .HasMaxLength(100);
