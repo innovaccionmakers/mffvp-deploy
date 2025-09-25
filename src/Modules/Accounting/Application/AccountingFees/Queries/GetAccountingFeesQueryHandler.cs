@@ -16,6 +16,7 @@ internal sealed class GetAccountingFeesQueryHandler(
     IPassiveTransactionRepository passiveTransactionRepository,
     IYieldLocator yieldLocator,
     IPortfolioLocator portfolioLocator,
+    IOperationLocator operationLocator,
     IMediator mediator) : IQueryHandler<GetAccountingFeesQuery, bool>
 {
     public async Task<Result<bool>> Handle(GetAccountingFeesQuery request, CancellationToken cancellationToken)
@@ -61,6 +62,14 @@ internal sealed class GetAccountingFeesQueryHandler(
         {
             var passiveTransaction = await passiveTransactionRepository
                 .GetByPortfolioIdAsync(yield.PortfolioId, cancellationToken);
+            var operationType = await operationLocator.GetOperationTypeByNameAsync("Comisión", cancellationToken);
+
+            if(operationType.IsFailure)
+            {
+                logger.LogWarning("No se pudo obtener el tipo de operación 'Comisión': {Error}", operationType.Error);
+                errors.Add(operationType.Error);
+                return new ProcessingResult<AccountingAssistant>(accountingAssistants, errors);
+            }
 
             if (passiveTransaction == null)
             {
@@ -89,10 +98,10 @@ internal sealed class GetAccountingFeesQueryHandler(
                 processDate.ToString("yyyyMM"),
                 passiveTransaction?.ContraCreditAccount,
                 processDate,
-                "2",
+                operationType.Value.Name,
                 "",
-                1,
-                "2"
+                yield.Commissions,
+                operationType.Value.Nature
             );
 
             if (accountingAssistant.IsFailure)
