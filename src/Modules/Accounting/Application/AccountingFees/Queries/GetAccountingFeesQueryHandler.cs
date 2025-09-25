@@ -57,20 +57,21 @@ internal sealed class GetAccountingFeesQueryHandler(
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<Error>();
 
+        var operationType = await operationLocator.GetOperationTypeByNameAsync("Comisión", cancellationToken);
+
+        if (operationType.IsFailure)
+        {
+            logger.LogWarning("No se pudo obtener el tipo de operación 'Comisión': {Error}", operationType.Error);
+            errors.Add(operationType.Error);
+            return new ProcessingResult<AccountingAssistant>(accountingAssistants, errors);
+        }
        
         foreach (var yield in yields)
         {
+
             var passiveTransaction = await passiveTransactionRepository
                 .GetByPortfolioIdAsync(yield.PortfolioId, cancellationToken);
-            var operationType = await operationLocator.GetOperationTypeByNameAsync("Comisión", cancellationToken);
-
-            if(operationType.IsFailure)
-            {
-                logger.LogWarning("No se pudo obtener el tipo de operación 'Comisión': {Error}", operationType.Error);
-                errors.Add(operationType.Error);
-                return new ProcessingResult<AccountingAssistant>(accountingAssistants, errors);
-            }
-
+            
             if (passiveTransaction == null)
             {
                 logger.LogWarning("No se encontró una transacción pasiva para el portafolio {PortfolioId}", yield.PortfolioId);
@@ -99,9 +100,8 @@ internal sealed class GetAccountingFeesQueryHandler(
                 passiveTransaction?.ContraCreditAccount,
                 processDate,
                 operationType.Value.Name,
-                "",
                 yield.Commissions,
-                operationType.Value.Nature
+                operationType.Value.Nature                
             );
 
             if (accountingAssistant.IsFailure)
