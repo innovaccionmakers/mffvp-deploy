@@ -12,3 +12,9 @@ public static class OperationTypeNames
     public const string Commission = "Comisión";
 }
 
+public static class ProcessTypes
+{
+    public const string AccountingFees = "AccountingFees";
+    public const string AccountingOperations = "AccountingOperations";
+}
+
