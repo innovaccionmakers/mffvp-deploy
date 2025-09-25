@@ -1,5 +1,6 @@
 ﻿using Accounting.Application.Abstractions.External;
 using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingFees;
@@ -57,7 +58,7 @@ internal sealed class GetAccountingFeesCommandHandler(
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<Error>();
 
-        var operationType = await operationLocator.GetOperationTypeByNameAsync("Comisión", cancellationToken);
+        var operationType = await operationLocator.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken);
 
         if (operationType.IsFailure)
         {

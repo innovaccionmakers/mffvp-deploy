@@ -1,6 +1,7 @@
 ﻿using Common.SharedKernel.Domain;
 using Common.SharedKernel.Core.Primitives;
 namespace Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.Constants;
 
 public class AccountingAssistant : Entity, ICloneable
 {
@@ -92,8 +93,8 @@ public class AccountingAssistant : Entity, ICloneable
 
     public IEnumerable<AccountingAssistant> ToDebitAndCredit()
     {
-        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Debit);
-        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Credit);
+        yield return DuplicateWithType(AccountingTypes.Debit);
+        yield return DuplicateWithType(AccountingTypes.Credit);
     }
     
 
