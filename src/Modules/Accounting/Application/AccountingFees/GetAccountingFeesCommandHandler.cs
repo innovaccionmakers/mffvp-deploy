@@ -9,21 +9,21 @@ using Common.SharedKernel.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Accounting.Application.AccountingFees.Queries;
+namespace Accounting.Application.AccountingFees;
 
-internal sealed class GetAccountingFeesQueryHandler(
-    ILogger<GetAccountingFeesQueryHandler> logger,
+internal sealed class GetAccountingFeesCommandHandler(
+    ILogger<GetAccountingFeesCommandHandler> logger,
     IPassiveTransactionRepository passiveTransactionRepository,
     IYieldLocator yieldLocator,
     IPortfolioLocator portfolioLocator,
     IOperationLocator operationLocator,
-    IMediator mediator) : IQueryHandler<GetAccountingFeesQuery, bool>
+    IMediator mediator) : ICommandHandler<GetAccountingFeesCommand, bool>
 {
-    public async Task<Result<bool>> Handle(GetAccountingFeesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<bool>> Handle(GetAccountingFeesCommand command, CancellationToken cancellationToken)
     {
         try
         {
-            var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(request.PortfolioIds, request.ProcessDate, cancellationToken);
+            var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken);
 
             if (yields.IsFailure)
             {
@@ -31,7 +31,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 return Result.Failure<bool>(yields.Error);
             }
 
-            var accountingFeesResult = await CreateRange(yields.Value, request.ProcessDate, cancellationToken);
+            var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, cancellationToken);
 
             if (!accountingFeesResult.IsSuccess)
                 logger.LogError("Error al crear las entidades contables: {Error}", accountingFeesResult.Errors);                

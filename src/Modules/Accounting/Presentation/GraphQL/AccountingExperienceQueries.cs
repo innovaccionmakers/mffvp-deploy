@@ -8,7 +8,7 @@ public class AccountingExperienceQueries(IMediator mediator) : IAccountingExperi
 {
     public async Task<string> GetAccountingFeesAsync(List<int> portfolioIds, DateTime closingDate, CancellationToken cancellationToken = default)
     {
-        var result = await mediator.Send(new GetAccountingFeesQuery(portfolioIds, closingDate), cancellationToken);
+        var result = await mediator.Send(new GetAccountingFeesCommand(portfolioIds, closingDate), cancellationToken);
 
         return "";
     }
