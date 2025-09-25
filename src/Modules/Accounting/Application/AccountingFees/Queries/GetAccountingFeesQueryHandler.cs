@@ -16,7 +16,6 @@ internal sealed class GetAccountingFeesQueryHandler(
     IPassiveTransactionRepository passiveTransactionRepository,
     IYieldLocator yieldLocator,
     IPortfolioLocator portfolioLocator,
-    IOperationLocator operationLocator,
     IMediator mediator) : IQueryHandler<GetAccountingFeesQuery, bool>
 {
     public async Task<Result<bool>> Handle(GetAccountingFeesQuery request, CancellationToken cancellationToken)
@@ -57,8 +56,7 @@ internal sealed class GetAccountingFeesQueryHandler(
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<Error>();
 
-        //var operations = await operationLocator.GetAccountingOperationsAsync();
-
+       
         foreach (var yield in yields)
         {
             var passiveTransaction = await passiveTransactionRepository
@@ -92,7 +90,7 @@ internal sealed class GetAccountingFeesQueryHandler(
                 passiveTransaction?.ContraCreditAccount,
                 processDate,
                 "2",
-                "2",
+                "",
                 1,
                 "2"
             );
