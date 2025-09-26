@@ -75,7 +75,11 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                         current.Amount,
                         processDate,
                         current.OperationTypeId,
-                        DateTime.UtcNow).Value;
+                        DateTime.UtcNow,
+                        current.Status,
+                        current.TrustId,
+                        current.LinkedClientOperationId,
+                        current.Units).Value;
 
 
                     var info = AuxiliaryInformation.Create(

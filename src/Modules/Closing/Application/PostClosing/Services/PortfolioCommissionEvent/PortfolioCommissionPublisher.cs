@@ -1,4 +1,5 @@
-﻿using Closing.Domain.YieldDetails;
+﻿using Closing.Application.PreClosing.Services.Yield.Constants;
+using Closing.Domain.YieldDetails;
 using Closing.IntegrationEvents.PostClosing;
 using Common.SharedKernel.Application.EventBus;
 using System.Text.Json;
@@ -43,7 +44,7 @@ public sealed class PortfolioCommissionPublisher(
     }
 
     private static bool IsCommission(YieldDetail detail) =>
-        detail.Source.Equals("Comisión", StringComparison.OrdinalIgnoreCase);
+        detail.Source.Equals(YieldsSources.Commission, StringComparison.OrdinalIgnoreCase);
 
     private static int? ParseCommissionId(JsonDocument concept)
     {

@@ -18,7 +18,11 @@ public sealed class OperationCompleted(IEventBus eventBus) : IOperationCompleted
             operation.Amount,
             operation.ProcessDate,
             operation.OperationTypeId,
-            operation.ApplicationDate);
+            operation.ApplicationDate,
+            operation.Status,
+            operation.TrustId,
+            operation.LinkedClientOperationId,
+            operation.Units);
 
         await eventBus.PublishAsync(createClosingEvent, cancellationToken);
     }

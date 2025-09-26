@@ -46,6 +46,10 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_radicacion");
 
+                    b.Property<long?>("LinkedClientOperationId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("operaciones_cliente_id");
+
                     b.Property<int>("ObjectiveId")
                         .HasColumnType("integer")
                         .HasColumnName("objetivo_id");
@@ -61,6 +65,18 @@ namespace Closing.Infrastructure.Database.Migrations
                     b.Property<DateTime>("ProcessDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_proceso");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("estado");
+
+                    b.Property<long?>("TrustId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("fideicomiso_id");
+
+                    b.Property<decimal?>("Units")
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("unidades");
 
                     b.HasKey("ClientOperationId");
 
@@ -216,10 +232,12 @@ namespace Closing.Infrastructure.Database.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("TrustYieldId"));
 
                     b.Property<decimal>("Capital")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("capital");
 
                     b.Property<decimal>("ClosingBalance")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("saldo_cierre");
 
@@ -228,26 +246,32 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnName("fecha_cierre");
 
                     b.Property<decimal>("Commissions")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("comisiones");
 
                     b.Property<decimal>("ContingentRetention")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("retencion_contingente");
 
                     b.Property<decimal>("Cost")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("costo");
 
                     b.Property<decimal>("Expenses")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("gastos");
 
                     b.Property<decimal>("Income")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("ingresos");
 
                     b.Property<decimal>("Participation")
+                        .HasPrecision(38, 16)
                         .HasColumnType("decimal(38, 16)")
                         .HasColumnName("participacion");
 
@@ -256,6 +280,7 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnName("portafolio_id");
 
                     b.Property<decimal>("PreClosingBalance")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("saldo_precierre");
 
@@ -268,14 +293,17 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnName("fideicomiso_id");
 
                     b.Property<decimal>("Units")
+                        .HasPrecision(38, 16)
                         .HasColumnType("decimal(38, 16)")
                         .HasColumnName("unidades");
 
                     b.Property<decimal>("YieldAmount")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("rendimientos");
 
                     b.Property<decimal>("YieldRetention")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("retencion_rendimiento");
 

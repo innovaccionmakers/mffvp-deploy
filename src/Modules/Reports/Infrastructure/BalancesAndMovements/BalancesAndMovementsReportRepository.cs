@@ -1,5 +1,6 @@
 ﻿using Common.SharedKernel.Domain;
 using Dapper;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using Reports.Application.Reports.DTOs;
@@ -21,7 +22,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
                 if (!activateIds.Any() || !responseTrustYiel.Any())
                     return Enumerable.Empty<BalancesResponse>();
 
-                var operations = await GetOperationsBalancesAsync(activateIds, connection, cancellationToken);
+                var operations = await GetOperationsBalancesAsync(activateIds, reportRequest.StartDate, reportRequest.EndDate, connection, cancellationToken);
                 var portfolioIds = operations.Select(x => x.PortfolioId).Distinct();
                 var persons = await GetPersonsInfoAsync(activateIds, connection, cancellationToken);
                 var alternative = await GetAlternativeIdAsync(portfolioIds, connection, cancellationToken);
@@ -64,7 +65,12 @@ namespace Reports.Infrastructure.BalancesAndMovements
 
         #region Balances
 
-        private async Task<IEnumerable<OperationBalancesRequest>> GetOperationsBalancesAsync(IEnumerable<int> activateIds, NpgsqlConnection connection, CancellationToken cancellationToken)
+        private async Task<IEnumerable<OperationBalancesRequest>> GetOperationsBalancesAsync(
+            IEnumerable<int> activateIds,
+            DateTime startDate,
+            DateTime endDate,
+            NpgsqlConnection connection, 
+            CancellationToken cancellationToken)
         {
             try
             {
@@ -72,10 +78,10 @@ namespace Reports.Infrastructure.BalancesAndMovements
                                         portafolio_id AS PortfolioId,
                                         SUM(valor) AS Entry
                                     FROM operaciones.operaciones_clientes
-                                    WHERE afiliado_id = ANY(@activateIds) AND tipo_operaciones_id = 1
+                                    WHERE afiliado_id = ANY(@activateIds) AND fecha_aplicacion::date BETWEEN @startDate AND @endDate AND tipo_operaciones_id = 1
                                     GROUP BY PortfolioId;";
 
-                var command = new CommandDefinition(sql, new { activateIds = activateIds.ToArray() }, cancellationToken: cancellationToken);
+                var command = new CommandDefinition(sql, new { activateIds = activateIds.ToArray(), startDate, endDate }, cancellationToken: cancellationToken);
                 return await connection.QueryAsync<OperationBalancesRequest>(command);
 
             }
@@ -289,7 +295,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
                                             afiliado_id AS ActivitesId,
                                             objetivo_id AS ObjectsId
                                         FROM fideicomisos.fideicomisos
-                                        WHERE fecha_creacion::date BETWEEN @startDate AND @endDate";
+                                        WHERE fecha_creacion::date BETWEEN @startDate AND @endDate;";
 
                 string sql = baseSql;
                 object parameters;

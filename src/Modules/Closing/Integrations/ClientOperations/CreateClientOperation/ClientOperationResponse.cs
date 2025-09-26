@@ -9,5 +9,9 @@ public sealed record ClientOperationResponse(
     decimal Amount,
     DateTime ProcessDate,
     long TransactionSubtypeId,
-    DateTime ApplicationDate
-); 
+    DateTime ApplicationDate,
+    int Status,
+    long? TrustId,
+    long? LinkedClientOperationId,
+    decimal? Units
+);

@@ -244,6 +244,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_aplicacion");
 
+                    b.Property<long?>("LinkedClientOperationId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("operaciones_cliente_id");
+
                     b.Property<int>("ObjectiveId")
                         .HasColumnType("integer")
                         .HasColumnName("objetivo_id");
@@ -263,6 +267,18 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_radicacion");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("estado");
+
+                    b.Property<long?>("TrustId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("fideicomiso_id");
+
+                    b.Property<decimal?>("Units")
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("unidades");
 
                     b.HasKey("ClientOperationId");
 
@@ -500,6 +516,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_aplicacion");
 
+                    b.Property<long?>("LinkedClientOperationId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("operaciones_cliente_id");
+
                     b.Property<int>("ObjectiveId")
                         .HasColumnType("integer")
                         .HasColumnName("objetivo_id");
@@ -523,6 +543,18 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_radicacion");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("estado");
+
+                    b.Property<long?>("TrustId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("fideicomiso_id");
+
+                    b.Property<decimal?>("Units")
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("unidades");
 
                     b.HasKey("TemporaryClientOperationId");
 

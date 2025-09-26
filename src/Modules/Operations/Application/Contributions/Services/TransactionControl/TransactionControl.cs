@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.OperationCompleted;
+using Operations.Application.Abstractions.Services.OperationState;
 using Operations.Application.Abstractions.Services.Prevalidation;
 using Operations.Application.Abstractions.Services.TransactionControl;
 using Operations.Domain.AuxiliaryInformations;
@@ -14,12 +15,14 @@ public sealed class TransactionControl(
     IClientOperationRepository clientOperationRepository,
     IAuxiliaryInformationRepository auxiliaryInformationRepository,
     IOperationCompleted operationCompleted,
+    IOperationStateService operationStateService,
     IUnitOfWork unitOfWork,
     ITaxCalculator taxCalculator,
     ILogger<TransactionControl> logger)
     : ITransactionControl
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IOperationStateService _operationStateService = operationStateService;
     private const string ClassName = nameof(TransactionControl);
     public async Task<(ClientOperation Operation, TaxResult Tax)> ExecuteAsync(
         CreateContributionCommand command,
@@ -36,6 +39,8 @@ public sealed class TransactionControl(
 
         await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
+        var status = await _operationStateService.GetActiveStateAsync(cancellationToken);
+
         var operation = ClientOperation.Create(
             DateTime.UtcNow,
             prevalidationResult.RemoteData.AffiliateId,
@@ -44,7 +49,8 @@ public sealed class TransactionControl(
             command.Amount,
             DateTime.SpecifyKind(command.ExecutionDate, DateTimeKind.Utc),
             prevalidationResult.Catalogs.Subtype?.OperationTypeId ?? 0,
-            DateTime.UtcNow).Value;
+            DateTime.UtcNow,
+            status).Value;
         clientOperationRepository.Insert(operation);
 
         logger.LogInformation("{Class} - Operaci�n creada e insertada: {@Operation}", ClassName, operation.ClientOperationId);
