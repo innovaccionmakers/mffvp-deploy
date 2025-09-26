@@ -1,6 +1,6 @@
-﻿namespace Accounting.Integrations.AccountingOperations
+﻿namespace Accounting.Integrations.AccountProcess
 {
-    public sealed record class AccountingOperationsResponse(
+    public sealed record class AccountProcessResponse(
         string Identification,
         int? VerificationDigit,
         string Name,

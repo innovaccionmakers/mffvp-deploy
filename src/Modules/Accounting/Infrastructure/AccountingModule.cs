@@ -2,10 +2,12 @@
 using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
 using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.Concepts;
 using Accounting.Domain.ConfigurationParameters;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Domain.Treasuries;
 using Accounting.Infrastructure.AccountingAssistants;
+using Accounting.Infrastructure.Concepts;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
 using Accounting.Infrastructure.External.Operations;
@@ -77,6 +79,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountingAssistantRepository, AccountingAssistantRepository>();
         services.AddScoped<IAccountProcessExperienceMutations, AccountProcessExperienceMutations>();
         services.AddScoped<ITreasuryRepository, TreasuryRepository>();
+        services.AddScoped<IConceptsRepository, ConceptsRepository>();
 
     }
 

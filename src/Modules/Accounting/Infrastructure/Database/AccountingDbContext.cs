@@ -21,7 +21,7 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
 {
 
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }
-    internal DbSet<Treasury> Treasuries { get; set; }
+    internal DbSet<Domain.Treasuries.Treasury> Treasuries { get; set; }
     internal DbSet<PassiveTransaction> PassiveTransactions { get; set; }
     internal DbSet<Concept> Concepts { get; set; }
     internal DbSet<AccountingAssistant> AccountingAssistants { get; set; }

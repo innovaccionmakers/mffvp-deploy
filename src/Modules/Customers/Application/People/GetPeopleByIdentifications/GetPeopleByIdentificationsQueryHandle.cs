@@ -17,7 +17,6 @@ namespace Customers.Application.People.GetPeopleByIdentification
             var response = person
             .Select(p => new GetPeopleByIdentificationsResponse(
                 p!.Identification,
-                p.DocumentType,
                 p.FullName))
             .ToList();
 

@@ -1,12 +1,11 @@
-﻿using Accounting.Domain.Treasuries;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Accounting.Infrastructure.Treasuries;
 
-internal sealed class TreasuryConfiguration : IEntityTypeConfiguration<Treasury>
+internal sealed class TreasuryConfiguration : IEntityTypeConfiguration<Domain.Treasuries.Treasury>
 {
-    public void Configure(EntityTypeBuilder<Treasury> builder)
+    public void Configure(EntityTypeBuilder<Domain.Treasuries.Treasury> builder)
     {
         builder.ToTable("tesoreria");
 

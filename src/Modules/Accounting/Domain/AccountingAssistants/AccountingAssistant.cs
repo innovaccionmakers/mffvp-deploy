@@ -83,18 +83,19 @@ public class AccountingAssistant : Entity, ICloneable
         Nature = nature;
     }
 
-    public AccountingAssistant DuplicateWithType(string type)
+    public AccountingAssistant DuplicateWithType(string type, string? account = null)
     {
         var clone = (AccountingAssistant)Clone();
         clone.AccountingAssistantId = default;
         clone.Type = type;
+        if (account != null) clone.Account = account;
         return clone;
     }
 
-    public IEnumerable<AccountingAssistant> ToDebitAndCredit()
+    public IEnumerable<AccountingAssistant> ToDebitAndCredit(string? DebitAccount = null, string? CreditAccount= null)
     {
-        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Debit);
-        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Credit);
+        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Debit, DebitAccount);
+        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Credit, CreditAccount);
     }
     
 

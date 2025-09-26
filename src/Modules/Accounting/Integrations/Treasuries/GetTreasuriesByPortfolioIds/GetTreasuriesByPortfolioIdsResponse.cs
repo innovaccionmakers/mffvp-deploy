@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Accounting.Integrations.Treasuries.GetTreasuriesByPortfolioIds
 {
     public sealed record class GetTreasuriesByPortfolioIdsResponse(
-        int PortfolioIds,
+        int PortfolioId,
         string? DebitAccount
         );
 }
