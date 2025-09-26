@@ -1,5 +1,4 @@
-﻿using Accounting.Application.AccountingFees.Queries;
-using Accounting.Domain.AccountingAssistants;
+﻿using Accounting.Domain.AccountingAssistants;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingOperations;
 using Accounting.Integrations.Treasuries.GetTreasuriesByPortfolioIds;
@@ -19,7 +18,7 @@ namespace Accounting.Application.AccountingOperations
     internal sealed class AccountingOperationsHandler(
         ISender sender,
         IRpcClient rpcClient,
-        ILogger<GetAccountingFeesQueryHandler> logger) : ICommandHandler<AccountingOperationsCommand, bool>
+        ILogger<AccountingOperationsHandler> logger) : ICommandHandler<AccountingOperationsCommand, bool>
     {
         public async Task<Result<bool>> Handle(AccountingOperationsCommand command, CancellationToken cancellationToken)
         {
@@ -52,7 +51,7 @@ namespace Accounting.Application.AccountingOperations
                 var treasury = await sender.Send(new GetTreasuriesByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
                 if (!treasury.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, treasury.Description ?? string.Empty));
-                var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioId, x => x);
+                var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioIds, x => x);
 
                 foreach (var operation in operations.ClientOperations)
                 {
@@ -68,8 +67,7 @@ namespace Accounting.Application.AccountingOperations
                         command.ProcessDate.ToString("yyyyMM"),
                         debitAccount?.DebitAccount ?? string.Empty,
                         command.ProcessDate,
-                        operation.OperationType,
-                        "2",
+                        operation.OperationType,                        
                         operation.Amount,
                         operation.OperationType
                         );

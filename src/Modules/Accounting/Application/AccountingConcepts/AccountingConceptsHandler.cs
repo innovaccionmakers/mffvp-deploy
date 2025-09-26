@@ -1,5 +1,4 @@
-﻿using Accounting.Application.AccountingFees.Queries;
-using Accounting.Domain.AccountingAssistants;
+﻿using Accounting.Domain.AccountingAssistants;
 using Accounting.Integrations.AccountingConcepts;
 using Accounting.Integrations.Treasuries.GetConceptsByPortfolioIds;
 using Accounting.Integrations.Treasuries.GetTreasuriesByPortfolioIds;
@@ -17,7 +16,7 @@ namespace Accounting.Application.AccountingConcepts
     internal class AccountingConceptsHandler(
         ISender sender,
         IRpcClient rpcClient,
-        ILogger<GetAccountingFeesQueryHandler> logger) : ICommandHandler<AccountingConceptsCommand, bool>
+        ILogger<AccountingConceptsHandler> logger) : ICommandHandler<AccountingConceptsCommand, bool>
     {
         public async Task<Result<bool>> Handle(AccountingConceptsCommand command, CancellationToken cancellationToken)
         {
@@ -35,7 +34,7 @@ namespace Accounting.Application.AccountingConcepts
                 var treasury = await sender.Send(new GetTreasuriesByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
                 if (!treasury.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, treasury.Description ?? string.Empty));
-                var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioId, x => x);
+                var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioIds, x => x);
 
 
                 var concept = await sender.Send(new GetConceptsByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
@@ -105,8 +104,7 @@ namespace Accounting.Application.AccountingConcepts
                         command.ProcessDate.ToString("yyyyMM"),
                         debitAccount,
                         command.ProcessDate,
-                        movement.TreasuryConcept.Observations ?? string.Empty,
-                        "2",
+                        movement.TreasuryConcept.Observations ?? string.Empty,                        
                         movement.Value,
                         movement.TreasuryConcept.Nature.ToString() ?? string.Empty
                         );

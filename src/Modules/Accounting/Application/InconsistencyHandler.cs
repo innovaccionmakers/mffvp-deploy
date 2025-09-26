@@ -7,7 +7,7 @@ namespace Accounting.Application;
 /// <summary>
 /// Implementación del manejo de inconsistencias para el módulo de Accounting
 /// </summary>
-internal sealed class InconsistencyHandler(ILogger<InconsistencyHandler> logger) : IInconsistencyHandler
+public sealed class InconsistencyHandler(ILogger<InconsistencyHandler> logger) : IInconsistencyHandler
 {
     public async Task HandleInconsistenciesAsync(
         IEnumerable<Error> errors,
