@@ -64,7 +64,7 @@ public class AccountingModule : IModuleConfiguration
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Accounting)
                 );
         });
-        services.AddScoped<IErrorCatalog<AccountingModuleMarker>, ErrorCatalog<AccountingModuleMarker>>();    
+        services.AddScoped<IErrorCatalog<AccountingModuleMarker>, ErrorCatalog<AccountingModuleMarker>>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<AccountingModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<AccountingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
@@ -77,6 +77,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountingAssistantRepository, AccountingAssistantRepository>();
         services.AddScoped<IAccountProcessExperienceMutations, AccountProcessExperienceMutations>();
         services.AddScoped<ITreasuryRepository, TreasuryRepository>();
+        services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
 
     }
 

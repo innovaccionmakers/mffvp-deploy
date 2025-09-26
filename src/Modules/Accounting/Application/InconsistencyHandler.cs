@@ -11,14 +11,13 @@ internal sealed class InconsistencyHandler(ILogger<InconsistencyHandler> logger)
 {
     public async Task HandleInconsistenciesAsync(
         IEnumerable<Error> errors,
-        IEnumerable<string> portfolioIds,
         DateTime processDate,
         string processType,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            //TODO: un log
+            //TODO: log
             // TODO: Implementar envío a Redis
 
 
@@ -27,8 +26,8 @@ internal sealed class InconsistencyHandler(ILogger<InconsistencyHandler> logger)
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error al manejar las inconsistencias para {ProcessType} en los portafolios: {PortfolioIds}",
-                processType, string.Join(", ", portfolioIds));
+            logger.LogError(ex, "Error al manejar las inconsistencias para {ProcessType}",
+                processType);
         }
     }
 }
