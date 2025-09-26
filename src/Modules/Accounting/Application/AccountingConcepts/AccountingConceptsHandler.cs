@@ -34,7 +34,7 @@ namespace Accounting.Application.AccountingConcepts
                 var treasury = await sender.Send(new GetTreasuriesByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
                 if (!treasury.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, treasury.Description ?? string.Empty));
-                var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioIds, x => x);
+                var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioId, x => x);
 
 
                 var concept = await sender.Send(new GetConceptsByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);

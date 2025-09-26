@@ -51,7 +51,7 @@ namespace Accounting.Application.AccountingOperations
                 var treasury = await sender.Send(new GetTreasuriesByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
                 if (!treasury.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, treasury.Description ?? string.Empty));
-                var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioIds, x => x);
+                var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioId, x => x);
 
                 foreach (var operation in operations.ClientOperations)
                 {
