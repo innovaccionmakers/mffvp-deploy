@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Reports.Domain.TransmissionFormat;
+using Reports.Domain.TransmissionFormat.Layout;
 using Reports.Domain.TransmissionFormat.Records;
 using Xunit;
 
@@ -8,6 +10,22 @@ namespace Reports.test.UnitTests;
 
 public class RtRecordsTests
 {
+    public static IEnumerable<object[]> MovementsWithNegativeSignData()
+    {
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.TransferUnits, TransmissionFormatLayout.Rt4.TransferUnits, 10.123456m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.TransferAmount, TransmissionFormatLayout.Rt4.TransferAmount, 10.12m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.PensionUnits, TransmissionFormatLayout.Rt4.PensionUnits, 5.654321m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.PensionAmount, TransmissionFormatLayout.Rt4.PensionAmount, 5.67m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.WithdrawalUnits, TransmissionFormatLayout.Rt4.WithdrawalUnits, 8.765432m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.WithdrawalAmount, TransmissionFormatLayout.Rt4.WithdrawalAmount, 8.9m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.OtherCommissionUnits, TransmissionFormatLayout.Rt4.OtherCommissionUnits, 4.321098m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.OtherCommissionAmount, TransmissionFormatLayout.Rt4.OtherCommissionAmount, 4.32m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.VitalityTransferUnits, TransmissionFormatLayout.Rt4.VitalityTransferUnits, 3.210987m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.VitalityTransferAmount, TransmissionFormatLayout.Rt4.VitalityTransferAmount, 3.21m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.OtherWithdrawalUnits, TransmissionFormatLayout.Rt4.OtherWithdrawalUnits, 2.109876m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.OtherWithdrawalAmount, TransmissionFormatLayout.Rt4.OtherWithdrawalAmount, 2.1m };
+    }
+    
     [Fact]
     public void Rt1Record_Should_Format_Correctly()
     {
@@ -106,5 +124,31 @@ public class RtRecordsTests
         line30.Should().Be("00020" + "4314" + "0101005" + "+" + "00000000000000010.12");
         line180.Should().Be("00021" + "4314" + "0101010" + "+" + "00000000000000020.34");
         line365.Should().Be("00022" + "4314" + "0101015" + "+" + "00000000000000030.56");
+    }
+    
+    [Theory]
+    [MemberData(nameof(MovementsWithNegativeSignData))]
+    public void Rt4_313_Movements_Should_Always_Show_Negative_Sign(
+        Func<decimal, Rt4NumberLine> lineFactory,
+        string expectedCode,
+        decimal sampleValue)
+    {
+        const int recordNumber = 10;
+
+        var positiveLine = lineFactory(sampleValue).ToLine(recordNumber);
+        var negativeLine = lineFactory(-sampleValue).ToLine(recordNumber);
+        var zeroLine = lineFactory(0m).ToLine(recordNumber);
+
+        var signIndex = 5 + TransmissionFormatLayout.Rt4.R4313.Length + expectedCode.Length;
+        positiveLine[signIndex].Should().Be('-');
+        negativeLine[signIndex].Should().Be('-');
+        zeroLine[signIndex].Should().Be('-');
+
+        negativeLine.Should().Be(positiveLine);
+
+        var expectedSegment = $"{TransmissionFormatLayout.Rt4.R4313}{expectedCode}-";
+        positiveLine.Should().Contain(expectedSegment);
+        negativeLine.Should().Contain(expectedSegment);
+        zeroLine.Should().Contain(expectedSegment);
     }
 }

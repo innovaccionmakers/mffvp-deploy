@@ -4,7 +4,6 @@ using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
-
 namespace Closing.Infrastructure.YieldDetails
 {
     internal sealed class YieldDetailRepository(ClosingDbContext context, IDbContextFactory<ClosingDbContext> dbFactory) : IYieldDetailRepository
@@ -50,11 +49,28 @@ namespace Closing.Infrastructure.YieldDetails
         int portfolioId,
         DateTime closingDateUtc,
         bool isClosed = false,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
         {
-            return await context.YieldDetails.AsNoTracking()
-                .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc && y.IsClosed == isClosed)
-                .ToListAsync(ct);
+            var baseQuery = context.YieldDetails
+            .AsNoTracking()
+            .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc);
+
+            if (isClosed)
+            {
+                // Solo cerrados
+                return await baseQuery
+                    .Where(y => y.IsClosed)
+                    .ToListAsync(cancellationToken);
+            }
+
+            // Abiertos + cerrados por Conceptos Automáticos 
+            var openQ = baseQuery.Where(y => !y.IsClosed);
+            var closedAutoQ = baseQuery.Where(y => y.IsClosed && y.Source == YieldsSources.AutomaticConcept);
+
+            return await openQ
+                .Union(closedAutoQ)        
+                .OrderBy(y => y.YieldDetailId) 
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<bool> ExistsByPortfolioAndDateAsync(
