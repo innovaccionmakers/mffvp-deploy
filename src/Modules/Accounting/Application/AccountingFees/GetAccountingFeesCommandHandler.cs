@@ -1,4 +1,5 @@
-﻿using Accounting.Application.Abstractions.External;
+﻿using Accounting.Application.Abstractions;
+using Accounting.Application.Abstractions.External;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
@@ -18,6 +19,7 @@ internal sealed class GetAccountingFeesCommandHandler(
     IYieldLocator yieldLocator,
     IPortfolioLocator portfolioLocator,
     IOperationLocator operationLocator,
+    IInconsistencyHandler inconsistencyHandler,
     IMediator mediator) : ICommandHandler<GetAccountingFeesCommand, bool>
 {
     public async Task<Result<bool>> Handle(GetAccountingFeesCommand command, CancellationToken cancellationToken)
@@ -35,7 +37,7 @@ internal sealed class GetAccountingFeesCommandHandler(
             var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, cancellationToken);
 
             if (!accountingFeesResult.IsSuccess)
-                logger.LogError("Error al crear las entidades contables: {Error}", accountingFeesResult.Errors);                
+                await inconsistencyHandler.HandleInconsistenciesAsync(accountingFeesResult.Errors, command.ProcessDate, ProcessTypes.AccountingFees, cancellationToken);                 
 
             if (!accountingFeesResult.SuccessItems.Any())
             {

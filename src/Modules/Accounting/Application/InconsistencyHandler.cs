@@ -17,7 +17,7 @@ internal sealed class InconsistencyHandler(ILogger<InconsistencyHandler> logger)
     {
         try
         {
-            //TODO: log
+            logger.LogError("Error al crear las entidades contables: {Error}", errors);
             // TODO: Implementar envío a Redis
 
 
