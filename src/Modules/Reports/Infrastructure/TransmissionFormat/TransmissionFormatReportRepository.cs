@@ -200,6 +200,29 @@ public class TransmissionFormatReportRepository(
         return new Rt4Profitabilities(rent30, rent180, rent365);
     }
 
+    public async Task<AutomaticConceptAmounts> GetAutomaticConceptAmountsAsync(
+        int portfolioId,
+        DateTime date,
+        CancellationToken cancellationToken)
+    {
+        var sql = $@"
+        SELECT
+            COALESCE(SUM(r.rendimientos_a_abonar), 0) AS ""AmountToBePaid"",
+            COALESCE(SUM(r.rendimientos_abonados), 0)     AS ""AmountPaid""
+        FROM {ClosingSchema}.rendimientos r
+        WHERE r.portafolio_id = @PortfolioId
+          AND r.fecha_cierre = @Date::date;";
+
+        using var connection = await dbConnectionFactory.CreateOpenAsync(cancellationToken);
+        var command = new CommandDefinition(
+            sql,
+            new { PortfolioId = portfolioId, Date = date },
+            cancellationToken: cancellationToken);
+
+        var amounts = await connection.QueryFirstOrDefaultAsync<AutomaticConceptAmounts?>(command);
+        return amounts ?? new AutomaticConceptAmounts(0m, 0m);
+    }
+    
     public async Task<bool> AnyPortfolioExistsOnOrAfterDateAsync(DateTime date, CancellationToken cancellationToken)
     {
         var sql = $@"
