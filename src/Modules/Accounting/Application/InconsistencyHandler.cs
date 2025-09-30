@@ -1,4 +1,5 @@
 using Accounting.Application.Abstractions;
+using Accounting.Domain.AccountingInconsistencies;
 using Common.SharedKernel.Core.Primitives;
 using Microsoft.Extensions.Logging;
 
@@ -9,17 +10,13 @@ namespace Accounting.Application;
 /// </summary>
 public sealed class InconsistencyHandler(ILogger<InconsistencyHandler> logger) : IInconsistencyHandler
 {
-    public async Task HandleInconsistenciesAsync(
-        IEnumerable<Error> errors,
-        DateTime processDate,
-        string processType,
-        CancellationToken cancellationToken = default)
+    public async Task HandleInconsistenciesAsync(IEnumerable<AccountingInconsistency> inconsistencies, DateTime processDate, string processType, CancellationToken cancellationToken = default)
     {
         try
         {
-            logger.LogError("Error al crear las entidades contables: {Error}", errors);
+            logger.LogError("Error al crear las entidades contables: {Error}", inconsistencies);
             // TODO: Implementar envío a Redis
-
+            
 
             // Simular operación asíncrona
             await Task.CompletedTask;

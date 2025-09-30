@@ -10,5 +10,5 @@ public interface IOperationLocator
                                                                                                     DateTime processDate,
                                                                                                     CancellationToken cancellationToken);
 
-    Task<Result<(string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken);
+    Task<Result<(long OperationTypeId, string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken);
 }

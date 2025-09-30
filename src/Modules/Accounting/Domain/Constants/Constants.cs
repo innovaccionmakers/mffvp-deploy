@@ -18,3 +18,9 @@ public static class ProcessTypes
     public const string AccountingOperations = "AccountingOperations";
 }
 
+public static class AccountingActivity
+{ 
+    public const string Debit = "Débito";
+    public const string Credit = "Crédito";
+}
+

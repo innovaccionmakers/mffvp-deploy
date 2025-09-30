@@ -1,15 +1,16 @@
 ﻿using Accounting.Application.Abstractions;
 using Accounting.Application.Abstractions.External;
 using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingFees;
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Accounting.Application.AccountingFees;
 
@@ -34,10 +35,21 @@ internal sealed class GetAccountingFeesCommandHandler(
                 return Result.Failure<bool>(yields.Error);
             }
 
-            var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, cancellationToken);
+            var operationType = await operationLocator.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken);
+
+            if (operationType.IsFailure)
+            {
+                logger.LogWarning("No se pudo obtener el tipo de operación 'Comisión': {Error}", operationType.Error);
+                 return Result.Failure<bool>(operationType.Error);
+            }
+
+            var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, operationType.Value.Nature, cancellationToken);
 
             if (!accountingFeesResult.IsSuccess)
-                await inconsistencyHandler.HandleInconsistenciesAsync(accountingFeesResult.Errors, command.ProcessDate, ProcessTypes.AccountingFees, cancellationToken);                 
+            {
+                await inconsistencyHandler.HandleInconsistenciesAsync(accountingFeesResult.Errors, command.ProcessDate, ProcessTypes.AccountingFees, cancellationToken);
+                return false;
+            }
 
             if (!accountingFeesResult.SuccessItems.Any())
             {
@@ -54,44 +66,51 @@ internal sealed class GetAccountingFeesCommandHandler(
         }
     }
 
-    private async Task<ProcessingResult<AccountingAssistant>> CreateRange(IEnumerable<YieldResponse> yields, DateTime processDate,
-                                                                             CancellationToken cancellationToken)
+    private async Task<ProcessingResult<AccountingAssistant, AccountingInconsistency>> CreateRange(IEnumerable<YieldResponse> yields,
+                                                                                                   DateTime processDate,
+                                                                                                   long operationTypeId,
+                                                                                                   string operationTypeName,
+                                                                                                   string operationTypeNature,
+                                                                                                   CancellationToken cancellationToken)
     {
         var accountingAssistants = new List<AccountingAssistant>();
-        var errors = new List<Error>();
+        var errors = new List<AccountingInconsistency>();
 
-        var operationType = await operationLocator.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken);
-
-        if (operationType.IsFailure)
-        {
-            logger.LogWarning("No se pudo obtener el tipo de operación 'Comisión': {Error}", operationType.Error);
-            errors.Add(operationType.Error);
-            return new ProcessingResult<AccountingAssistant>(accountingAssistants, errors);
-        }
-       
         foreach (var yield in yields)
         {
 
             var passiveTransaction = await passiveTransactionRepository
-                .GetByPortfolioIdAsync(yield.PortfolioId, cancellationToken);
-            
+                .GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationTypeId, cancellationToken);
+
             if (passiveTransaction == null)
             {
-                logger.LogWarning("No se encontró una transacción pasiva para el portafolio {PortfolioId}", yield.PortfolioId);
-                errors.Add(Error.NotFound(
-                    "PassiveTransaction.NotFound",
-                    $"No se encontró una transacción pasiva para el portafolio {yield.PortfolioId}"));
+                logger.LogWarning("No se encontró una transacción pasiva para el portafolio {PortfolioId} y el tipo operación {OperationType}", yield.PortfolioId, operationTypeId);
+                errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Commission, "No existe parametrización contable", AccountingActivity.Credit));
+                errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Commission, "No existe parametrización contable", AccountingActivity.Debit));
                 continue;
             }
 
-            var portfolioResult = await portfolioLocator
-                .GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
+            if(passiveTransaction.CreditAccount.IsNullOrEmpty())
+            {
+                logger.LogWarning("La transacción pasiva para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de crédito", yield.PortfolioId, operationTypeId);
+                errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Commission, "No existe cuenta de crédito", AccountingActivity.Credit));
+                continue;
+            }
+
+            if (passiveTransaction.DebitAccount.IsNullOrEmpty())
+            {
+                logger.LogWarning("La transacción pasiva para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de débito", yield.PortfolioId, operationTypeId);
+                errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Commission, "No existe cuenta de débito", AccountingActivity.Debit));
+                continue;
+            }
+
+            var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
 
             if (portfolioResult.IsFailure)
             {
                 logger.LogError("No se pudo obtener la información del portafolio {PortfolioId}: {Error}",
                     yield.PortfolioId, portfolioResult.Error);
-                errors.Add(portfolioResult.Error);
+                errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Commission, portfolioResult.Error.Description));
                 continue;
             }
 
@@ -102,22 +121,22 @@ internal sealed class GetAccountingFeesCommandHandler(
                 processDate.ToString("yyyyMM"),
                 passiveTransaction?.ContraCreditAccount,
                 processDate,
-                operationType.Value.Name,
+                operationTypeName,
                 yield.Commissions,
-                operationType.Value.Nature                
+                operationTypeNature
             );
 
             if (accountingAssistant.IsFailure)
             {
                 logger.LogError("Error al crear el AccountingAssistant para el portafolio {PortfolioId}: {Error}",
                     yield.PortfolioId, accountingAssistant.Error);
-                errors.Add(accountingAssistant.Error);
+                errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Commission, accountingAssistant.Error.Description));
                 continue;
             }
-            
+
             accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit());
         }
 
-        return new ProcessingResult<AccountingAssistant>(accountingAssistants, errors);
+        return new ProcessingResult<AccountingAssistant, AccountingInconsistency>(accountingAssistants, errors);
     }
 }
