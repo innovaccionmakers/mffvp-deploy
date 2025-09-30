@@ -26,13 +26,13 @@ public class AccountingAssistant : Entity, ICloneable
         string identification,
         int? verificationDigit,
         string name,
-        string? period,
-        string? account,
+        string? period,        
         DateTime? date,
         string? detail,        
         decimal? value,
         string nature,
-        string type = "")
+        string type = "",
+        string? account = "")
     {
         var accountingAssistant = new AccountingAssistant
         {
@@ -64,12 +64,12 @@ public class AccountingAssistant : Entity, ICloneable
         int? verificationDigit,
         string name,
         string? period,
-        string? account,
         DateTime? date,        
         string? detail,        
         decimal? value,
         string nature,
-        string type = "")
+        string type = "",
+        string? account = "")
     {
         Identification = identification;
         VerificationDigit = verificationDigit;

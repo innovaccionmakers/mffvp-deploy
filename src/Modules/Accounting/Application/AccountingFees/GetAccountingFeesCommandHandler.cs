@@ -32,7 +32,7 @@ internal sealed class GetAccountingFeesCommandHandler(
             if (yields.IsFailure)
             {
                 logger.LogError("No se pudieron obtener los yields para los portafolios: {Error}", yields.Error);
-                return Result.Failure<bool>(yields.Error);
+                return false;
             }
 
             var operationType = await operationLocator.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken);
@@ -40,7 +40,7 @@ internal sealed class GetAccountingFeesCommandHandler(
             if (operationType.IsFailure)
             {
                 logger.LogWarning("No se pudo obtener el tipo de operación 'Comisión': {Error}", operationType.Error);
-                 return Result.Failure<bool>(operationType.Error);
+                return false;
             }
 
             var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, operationType.Value.Nature, cancellationToken);
@@ -118,8 +118,7 @@ internal sealed class GetAccountingFeesCommandHandler(
                 portfolioResult.Value.NitApprovedPortfolio,
                 portfolioResult.Value.VerificationDigit,
                 portfolioResult.Value.Name,
-                processDate.ToString("yyyyMM"),
-                passiveTransaction?.ContraCreditAccount,
+                processDate.ToString("yyyyMM"),                
                 processDate,
                 operationTypeName,
                 yield.Commissions,
@@ -134,7 +133,7 @@ internal sealed class GetAccountingFeesCommandHandler(
                 continue;
             }
 
-            accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit());
+            accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit(passiveTransaction.DebitAccount, passiveTransaction.CreditAccount));
         }
 
         return new ProcessingResult<AccountingAssistant, AccountingInconsistency>(accountingAssistants, errors);
