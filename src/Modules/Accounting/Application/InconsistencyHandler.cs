@@ -1,6 +1,5 @@
 using Accounting.Application.Abstractions;
 using Accounting.Domain.AccountingInconsistencies;
-using Common.SharedKernel.Core.Primitives;
 using Microsoft.Extensions.Logging;
 
 namespace Accounting.Application;
@@ -8,18 +7,29 @@ namespace Accounting.Application;
 /// <summary>
 /// Implementación del manejo de inconsistencias para el módulo de Accounting
 /// </summary>
-public sealed class InconsistencyHandler(ILogger<InconsistencyHandler> logger) : IInconsistencyHandler
+public sealed class InconsistencyHandler(
+    IAccountingInconsistencyRepository accountingInconsistencyRepository,
+    ILogger<InconsistencyHandler> logger) : IInconsistencyHandler
 {
     public async Task HandleInconsistenciesAsync(IEnumerable<AccountingInconsistency> inconsistencies, DateTime processDate, string processType, CancellationToken cancellationToken = default)
     {
         try
         {
-            logger.LogError("Error al crear las entidades contables: {Error}", inconsistencies);
-            // TODO: Implementar envío a Redis
-            
+            logger.LogWarning("Se detectaron inconsistencias en el proceso {ProcessType} para la fecha {ProcessDate}",
+                processType, processDate);
 
-            // Simular operación asíncrona
-            await Task.CompletedTask;
+            var result = await accountingInconsistencyRepository.SaveInconsistenciesAsync(
+                inconsistencies, processDate, processType, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                logger.LogError("Error al procesar inconsistencias: {Error}", result.Error);
+            }
+            else
+            {
+                logger.LogInformation("Inconsistencias procesadas exitosamente para el proceso {ProcessType} en la fecha {ProcessDate}",
+                    processType, processDate);
+            }
         }
         catch (Exception ex)
         {

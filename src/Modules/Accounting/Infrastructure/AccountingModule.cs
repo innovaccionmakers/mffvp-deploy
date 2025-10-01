@@ -2,11 +2,13 @@
 using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
 using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Concepts;
 using Accounting.Domain.ConfigurationParameters;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Domain.Treasuries;
 using Accounting.Infrastructure.AccountingAssistants;
+using Accounting.Infrastructure.AccountingInconsistencies;
 using Accounting.Infrastructure.Concepts;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
@@ -82,6 +84,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<ITreasuryRepository, TreasuryRepository>();
         services.AddScoped<IConceptsRepository, ConceptsRepository>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
+        services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
 
     }
 

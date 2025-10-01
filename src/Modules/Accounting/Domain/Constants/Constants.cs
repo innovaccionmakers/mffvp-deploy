@@ -10,6 +10,7 @@ public static class AccountingTypes
 public static class OperationTypeNames
 {
     public const string Commission = "Comisión";
+    public const string Yield = "Rendimientos";
 }
 
 public static class ProcessTypes

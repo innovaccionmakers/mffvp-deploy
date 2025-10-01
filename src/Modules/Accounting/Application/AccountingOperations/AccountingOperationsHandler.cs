@@ -65,7 +65,6 @@ namespace Accounting.Application.AccountingOperations
                         0,
                         person?.FullName ?? string.Empty,
                         command.ProcessDate.ToString("yyyyMM"),
-                        debitAccount?.DebitAccount ?? string.Empty,
                         command.ProcessDate,
                         operation.OperationType,                        
                         operation.Amount,
