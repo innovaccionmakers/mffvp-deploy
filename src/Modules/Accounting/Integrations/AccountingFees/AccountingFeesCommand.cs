@@ -2,7 +2,7 @@
 
 namespace Accounting.Integrations.AccountingFees;
 
-public sealed record GetAccountingFeesCommand(
-    List<int> PortfolioIds,
+public sealed record AccountingFeesCommand(
+    IEnumerable<int> PortfolioIds,
     DateTime ProcessDate
 ) : ICommand<bool>;

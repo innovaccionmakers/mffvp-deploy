@@ -2,7 +2,7 @@
 
 namespace Accounting.Integrations.AccountingReturns;
 
-public sealed record GetAccountingReturnsCommand(
-    List<int> PortfolioIds,
+public sealed record AccountingReturnsCommand(
+    IEnumerable<int> PortfolioIds,
     DateTime ProcessDate
  ) : ICommand<bool>;

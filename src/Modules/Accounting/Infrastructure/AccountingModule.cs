@@ -76,7 +76,6 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IYieldLocator, YieldLocator>();
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IOperationLocator, OperationLocator>();
-        services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
         services.AddScoped<IPassiveTransactionRepository, PassiveTransactionRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AccountingDbContext>());
         services.AddScoped<IAccountingAssistantRepository, AccountingAssistantRepository>();
