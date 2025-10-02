@@ -20,6 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
+    <ProjectReference Include="..\..\Application\Accounting.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

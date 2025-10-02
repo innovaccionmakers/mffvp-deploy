@@ -1,7 +1,6 @@
 using Associate.Integrations.Activates.GetActivateIds;
 using Associate.IntegrationsEvents.GetActivateIds;
 using Common.SharedKernel.Application.Rpc;
-using Common.SharedKernel.Presentation.Results;
 using MediatR;
 
 namespace Associate.IntegrationEvents.GetActivateIds;

@@ -1,6 +1,7 @@
 ﻿using Accounting.Application.Abstractions;
 using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
+using Accounting.Application.AccountingOperations;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Concepts;
@@ -82,8 +83,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountProcessExperienceMutations, AccountProcessExperienceMutations>();
         services.AddScoped<ITreasuryRepository, TreasuryRepository>();
         services.AddScoped<IConceptsRepository, ConceptsRepository>();
+        services.AddScoped<AccountingOperationsHandlerValidation>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
-        services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
 
     }
 

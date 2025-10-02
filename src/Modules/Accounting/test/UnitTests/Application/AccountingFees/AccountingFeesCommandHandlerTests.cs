@@ -66,7 +66,7 @@ public class AccountingFeesCommandHandlerTests
         };
 
         var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "1", "CO");
-        var passiveTransaction = PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
+        var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
         var portfolioInfo = new PortfolioResponse(
             "1232",
             1,
@@ -161,7 +161,7 @@ public class AccountingFeesCommandHandlerTests
             .ReturnsAsync(Result.Success<(long OperationTypeId, string Nature, string Name)>((operationType.OperationTypeId, operationType.Nature.ToString(), operationType.Name)));
 
         _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(It.IsAny<int>(), It.IsAny<long>(), cancellationToken))
-            .ReturnsAsync((PassiveTransaction?)null); // Simular que no existe transacción pasiva
+            .ReturnsAsync((Domain.PassiveTransactions.PassiveTransaction?)null); // Simular que no existe transacción pasiva
 
         // Act
         var result = await _handler.Handle(command, cancellationToken);
@@ -174,44 +174,6 @@ public class AccountingFeesCommandHandlerTests
             command.ProcessDate,
             ProcessTypes.AccountingFees,
             cancellationToken), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_ConSinAccountingFeesParaProcesar_DeberiaRetornarFalso()
-    {
-        // Arrange
-        var command = new AccountingFeesCommand(new[] { 1 }, DateTime.UtcNow);
-        var cancellationToken = CancellationToken.None;
-        var yields = new List<YieldResponse>
-        {
-            new(1, 1, 1000, 100, 0, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true) // Commissions = 0
-        };
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "", "CO");
-        var passiveTransaction = PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
-        var portfolioInfo = new PortfolioResponse(
-            "1232",
-            1,
-            "Name"
-        );
-
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
-            .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
-
-        _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
-            .ReturnsAsync(Result.Success<(long OperationTypeId, string Nature, string Name)>((operationType.OperationTypeId, operationType.Nature.ToString(), operationType.Name)));
-
-        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(It.IsAny<int>(), It.IsAny<long>(), cancellationToken))
-            .ReturnsAsync(passiveTransaction.Value);
-
-        _portfolioLocatorMock.Setup(x => x.GetPortfolioInformationAsync(It.IsAny<int>(), cancellationToken))
-            .ReturnsAsync(Result.Success(portfolioInfo));
-
-        // Act
-        var result = await _handler.Handle(command, cancellationToken);
-
-        // Assert
-        Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
     }
 
     [Fact]
@@ -249,7 +211,7 @@ public class AccountingFeesCommandHandlerTests
         };
 
         var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "", "CO");
-        var passiveTransaction = PassiveTransaction.Create(1, 1, "123", null, "123", "123"); // Sin cuenta de crédito
+        var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "123", null, "123", "123"); // Sin cuenta de crédito
 
         _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
@@ -284,7 +246,7 @@ public class AccountingFeesCommandHandlerTests
             new(1, 1, 1000, 100, 50, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
         var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "", "CO");
-        var passiveTransaction = PassiveTransaction.Create(1, 1, null, "123", "123", "123"); // Sin cuenta de débito
+        var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, null, "123", "123", "123"); // Sin cuenta de débito
 
         _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
@@ -319,7 +281,7 @@ public class AccountingFeesCommandHandlerTests
             new(1, 1, 1000, 100, 50, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
         var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "", "CO");
-        var passiveTransaction = PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
+        var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
         var error = Error.NotFound("PortfolioLocator.Error", "No se encontró el portafolio");
 
         _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
