@@ -47,22 +47,28 @@ public class TransmissionFormatReport(
             var unitValue = await reportRepository.GetUnitValueAsync(pid, reportRequest.GenerationDate, cancellationToken);
             var movements = await reportRepository.GetValuationMovementsAsync(pid, reportRequest.GenerationDate, cancellationToken);
             var profitabilities = await reportRepository.GetProfitabilitiesAsync(pid, reportRequest.GenerationDate, cancellationToken);
+            var automaticConcept = await reportRepository.GetAutomaticConceptAmountsAsync(pid, reportRequest.GenerationDate, cancellationToken);
 
             var preClosing = movements.PreviousAmount + movements.YieldAmount;
+            var (contributionUnits, contributionAmount, withdrawalUnits, withdrawalAmount) = ApplyAutomaticConceptAdjustment(
+                unitValue,
+                movements,
+                automaticConcept);
+
             var data = new TransmissionFormatReportData(
                 unitValue,
                 movements.PreviousUnits,
                 movements.PreviousAmount,
                 movements.YieldAmount,
                 preClosing,
-                movements.ContributionUnits,
-                movements.ContributionAmount,
+                contributionUnits,
+                contributionAmount,
                 movements.TransferUnits,
                 movements.TransferAmount,
                 movements.PensionUnits,
                 movements.PensionAmount,
-                movements.WithdrawalUnits,
-                movements.WithdrawalAmount,
+                withdrawalUnits,
+                withdrawalAmount,
                 movements.OtherCommissionUnits,
                 movements.OtherCommissionAmount,
                 movements.VitalityTransferUnits,
@@ -87,4 +93,48 @@ public class TransmissionFormatReport(
         request is TransmissionFormatReportRequest reportRequest
             ? $"FormatoDeTransmision_{reportRequest.GenerationDate:yyyyMMdd}.txt"
             : base.GenerateFileName(request);
+
+    private static (decimal contributionUnits, decimal contributionAmount, decimal withdrawalUnits, decimal withdrawalAmount) ApplyAutomaticConceptAdjustment(
+        decimal unitValue,
+        Rt4ValuationMovements movements,
+        AutomaticConceptAmounts automaticConcept)
+    {
+        var contributionUnits = movements.ContributionUnits;
+        var contributionAmount = movements.ContributionAmount;
+        var withdrawalUnits = movements.WithdrawalUnits;
+        var withdrawalAmount = movements.WithdrawalAmount;
+
+        var conceptDifference = automaticConcept.AmountToBePaid - automaticConcept.AmountPaid;
+        if (conceptDifference == 0m)
+        {
+            return (contributionUnits, contributionAmount, withdrawalUnits, withdrawalAmount);
+        }
+
+        var absoluteDifference = Math.Abs(conceptDifference);
+        var unitsAdjustment = unitValue <= 0m ? 0m : Truncate(absoluteDifference / unitValue, 6);
+
+        if (conceptDifference < 0m)
+        {
+            contributionUnits += unitsAdjustment;
+            contributionAmount += absoluteDifference;
+        }
+        else
+        {
+            withdrawalUnits = -unitsAdjustment;
+            withdrawalAmount = -absoluteDifference;
+        }
+
+        return (contributionUnits, contributionAmount, withdrawalUnits, withdrawalAmount);
+    }
+
+    private static decimal Truncate(decimal value, int decimals)
+    {
+        var factor = 1m;
+        for (var i = 0; i < decimals; i++)
+        {
+            factor *= 10m;
+        }
+
+        return Math.Truncate(value * factor) / factor;
+    }
 }
