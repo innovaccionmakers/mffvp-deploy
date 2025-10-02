@@ -8,7 +8,7 @@ namespace Accounting.Infrastructure.External.Yields;
 
 internal sealed class YieldLocator(IRpcClient rpc) : IYieldLocator
 {
-    public async Task<Result<IReadOnlyCollection<YieldResponse>>> GetYieldsPortfolioIdsAndClosingDate(List<int> portfolioIds, DateTime closingDate, CancellationToken ct)
+    public async Task<Result<IReadOnlyCollection<YieldResponse>>> GetYieldsPortfolioIdsAndClosingDate(IEnumerable<int> portfolioIds, DateTime closingDate, CancellationToken ct)
     {
         var rc = await rpc.CallAsync<
             GetYieldsByPortfolioIdsAndClosingDateRequest,

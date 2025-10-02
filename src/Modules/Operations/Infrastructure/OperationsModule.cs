@@ -155,6 +155,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IBuildMissingFieldsContributionService, BuildMissingFieldsContributionService>();
 
         services.AddScoped<IRpcHandler<GetAllOperationTypesRequest, GetAllOperationTypesResponse>, GetAllOperationTypesConsumer>();
+        services.AddScoped<IRpcHandler<GetOperationTypeByNameRequest, GetOperationTypeByNameResponse>, GetOperationTypeByNameConsumer>();
         services.AddTransient<IRpcHandler<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>, AccountingOperationsConsumer>();
 
         services.AddScoped<ITrustOperationRepository, TrustOperationRepository>();

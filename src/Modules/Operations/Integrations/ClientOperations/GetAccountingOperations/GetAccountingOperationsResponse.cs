@@ -1,12 +1,15 @@
-﻿namespace Operations.Integrations.ClientOperations.GetAccountingOperations
+﻿using Common.SharedKernel.Domain.OperationTypes;
+
+namespace Operations.Integrations.ClientOperations.GetAccountingOperations
 {
     public sealed record class GetAccountingOperationsResponse
-        (
+    (
         int PortfolioId,
         int AffiliateId,
         decimal Amount,
-        string OperationType,
+        string OperationTypeName,
+        IncomeEgressNature Nature,
         long OperationTypeId,
         string CollectionAccount
-        );
+    );
 }

@@ -89,12 +89,10 @@ namespace Accounting.Application.AccountingOperations
                         0,
                         person?.FullName ?? string.Empty,
                         processDate.ToString("yyyyMM"),
-                        debitAccount?.DebitAccount ?? string.Empty,
                         processDate,
-                        operation.OperationType,
-                        "2",
+                        operation.OperationTypeName,
                         operation.Amount,
-                        operation.OperationType
+                        operation.Nature.ToString()
                     );
 
                     if (accountingAssistant.IsFailure)

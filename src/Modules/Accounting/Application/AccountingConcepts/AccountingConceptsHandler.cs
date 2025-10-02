@@ -1,5 +1,4 @@
-﻿using Accounting.Application.AccountingFees.Queries;
-using Accounting.Domain.AccountingAssistants;
+﻿using Accounting.Domain.AccountingAssistants;
 using Accounting.Integrations.AccountingConcepts;
 using Accounting.Integrations.Treasuries.GetAccountingConceptsTreasuries;
 using Accounting.Integrations.Treasuries.GetConceptsByPortfolioIds;
@@ -17,7 +16,7 @@ namespace Accounting.Application.AccountingConcepts
     internal class AccountingConceptsHandler(
         ISender sender,
         IRpcClient rpcClient,
-        ILogger<GetAccountingFeesQueryHandler> logger) : ICommandHandler<AccountingConceptsCommand, bool>
+        ILogger<AccountingConceptsHandler> logger) : ICommandHandler<AccountingConceptsCommand, bool>
     {
         public async Task<Result<bool>> Handle(AccountingConceptsCommand command, CancellationToken cancellationToken)
         {
@@ -102,11 +101,9 @@ namespace Accounting.Application.AccountingConcepts
                         identification ?? string.Empty,
                         verificationDigit,
                         name ?? string.Empty,
-                        command.ProcessDate.ToString("yyyyMM"),
-                        debitAccount,
+                        command.ProcessDate.ToString("yyyyMM"),                        
                         command.ProcessDate,
-                        movement.TreasuryConcept.Observations ?? string.Empty,
-                        "2",
+                        movement.TreasuryConcept.Observations ?? string.Empty,                        
                         movement.Value,
                         movement.TreasuryConcept.Nature.ToString() ?? string.Empty
                         );

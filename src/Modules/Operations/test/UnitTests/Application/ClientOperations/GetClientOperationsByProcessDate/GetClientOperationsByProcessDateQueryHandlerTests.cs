@@ -1,4 +1,5 @@
-﻿using Operations.Integrations.ClientOperations.GetAccountingOperations;
+﻿using Common.SharedKernel.Domain.OperationTypes;
+using Operations.Integrations.ClientOperations.GetAccountingOperations;
 
 namespace Operations.test.UnitTests.Application.ClientOperations.GetClientOperationsByProcessDate
 {
@@ -15,6 +16,7 @@ namespace Operations.test.UnitTests.Application.ClientOperations.GetClientOperat
             var operationTypeName = "Transfer";
             var operationTypeId = new int();
             var collectionAccount = "ACC123456";
+            IncomeEgressNature nature = new IncomeEgressNature();
 
             // Act
             var response = new GetAccountingOperationsResponse(
@@ -22,6 +24,7 @@ namespace Operations.test.UnitTests.Application.ClientOperations.GetClientOperat
                 affiliateId,
                 amount,
                 operationTypeName,
+                nature,
                 operationTypeId,
                 collectionAccount);
 
@@ -46,6 +49,7 @@ namespace Operations.test.UnitTests.Application.ClientOperations.GetClientOperat
                 new int(),
                 amount,
                 "TestOperation",
+                new IncomeEgressNature(),
                 new int(),
                 "TestAccount");
 
@@ -62,6 +66,7 @@ namespace Operations.test.UnitTests.Application.ClientOperations.GetClientOperat
                 new int(),
                 100m,
                 "TestOperation",
+                new IncomeEgressNature(),
                 new int(),
                 null);
 

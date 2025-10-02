@@ -8,7 +8,7 @@ public sealed class GetYieldsByPortfolioIdsAndClosingDateConsumer(ISender sender
 {
     public async Task<GetYieldsByPortfolioIdsAndClosingDateResponse> HandleAsync(GetYieldsByPortfolioIdsAndClosingDateRequest request, CancellationToken ct)
     {
-        var result = await sender.Send(new GetAllReturnsQuery(request.PortfolioIds, request.ClosingDate), ct);
+        var result = await sender.Send(new GetAllFeesQuery(request.PortfolioIds, request.ClosingDate), ct);
 
         if(!result.IsSuccess)
             return new GetYieldsByPortfolioIdsAndClosingDateResponse(false, null, result.Error.Code, result.Error.Description);

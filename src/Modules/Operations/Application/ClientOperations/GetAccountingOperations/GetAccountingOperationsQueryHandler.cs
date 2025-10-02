@@ -23,6 +23,7 @@ namespace Operations.Application.ClientOperations.GetAccountingOperations
                 c.AffiliateId,
                 c.Amount,
                 c.OperationType.Name,
+                c.OperationType.Nature,
                 c.OperationTypeId,
                 c.AuxiliaryInformation.CollectionAccount))
             .ToList();

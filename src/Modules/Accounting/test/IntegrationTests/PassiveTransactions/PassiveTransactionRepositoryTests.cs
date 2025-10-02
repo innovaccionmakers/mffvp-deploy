@@ -18,19 +18,21 @@ namespace Accounting.test.IntegrationTests.PassiveTransactions
         {
             // Arrange
             var portfolioId = 999;
+            var operationTypeId = 888;
 
-            _mockPassiveTransactionRepository.Setup(x => x.GetByPortfolioIdAsync(
+            _mockPassiveTransactionRepository.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(
                 It.Is<int>(id => id == portfolioId),
+                It.Is<long>(operationTypeId => operationTypeId == operationTypeId),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((PassiveTransaction?)null);
 
             // Act
-            var result = await _mockPassiveTransactionRepository.Object.GetByPortfolioIdAsync(portfolioId, CancellationToken.None);
+            var result = await _mockPassiveTransactionRepository.Object.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, CancellationToken.None);
 
             // Assert
             result.Should().BeNull();
-            _mockPassiveTransactionRepository.Verify(x => x.GetByPortfolioIdAsync(
-                portfolioId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockPassiveTransactionRepository.Verify(x => x.GetByPortfolioIdAndOperationTypeAsync(
+                portfolioId, operationTypeId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -158,17 +160,19 @@ namespace Accounting.test.IntegrationTests.PassiveTransactions
         {
             // Arrange
             var portfolioId = 1;
+            var operationTypeId = 888;
             var cancellationToken = new CancellationToken(canceled: true);
 
-            _mockPassiveTransactionRepository.Setup(x => x.GetByPortfolioIdAsync(
+            _mockPassiveTransactionRepository.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(
                 It.IsAny<int>(),
+                It.IsAny<long>(),
                 It.Is<CancellationToken>(ct => ct.IsCancellationRequested)))
                 .ThrowsAsync(new OperationCanceledException());
 
             // Act & Assert
             await Assert.ThrowsAsync<OperationCanceledException>(() =>
-                _mockPassiveTransactionRepository.Object.GetByPortfolioIdAsync(
-                    portfolioId, cancellationToken));
+                _mockPassiveTransactionRepository.Object.GetByPortfolioIdAndOperationTypeAsync(
+                    portfolioId, operationTypeId, cancellationToken));
         }
     }
 }

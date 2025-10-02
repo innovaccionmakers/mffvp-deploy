@@ -1,6 +1,7 @@
 ﻿using Common.SharedKernel.Domain;
 using Common.SharedKernel.Core.Primitives;
 namespace Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.Constants;
 
 public class AccountingAssistant : Entity, ICloneable
 {
@@ -25,13 +26,13 @@ public class AccountingAssistant : Entity, ICloneable
         string identification,
         int? verificationDigit,
         string name,
-        string? period,
-        string? account,
+        string? period,        
         DateTime? date,
-        string? detail,
-        string type,
+        string? detail,        
         decimal? value,
-        string nature)
+        string nature,
+        string type = "",
+        string? account = "")
     {
         var accountingAssistant = new AccountingAssistant
         {
@@ -63,13 +64,12 @@ public class AccountingAssistant : Entity, ICloneable
         int? verificationDigit,
         string name,
         string? period,
-        string? account,
-        DateTime? date,
-        string? nit,
-        string? detail,
-        string type,
+        DateTime? date,        
+        string? detail,        
         decimal? value,
-        string nature)
+        string nature,
+        string type = "",
+        string? account = "")
     {
         Identification = identification;
         VerificationDigit = verificationDigit;
@@ -92,10 +92,10 @@ public class AccountingAssistant : Entity, ICloneable
         return clone;
     }
 
-    public IEnumerable<AccountingAssistant> ToDebitAndCredit(string? DebitAccount = null, string? CreditAccount= null)
+    public IEnumerable<AccountingAssistant> ToDebitAndCredit(string? debitAccount = null, string? creditAccount= null)
     {
-        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Debit, DebitAccount);
-        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Credit, CreditAccount);
+        yield return DuplicateWithType(AccountingTypes.Debit, debitAccount);
+        yield return DuplicateWithType(AccountingTypes.Credit, creditAccount);
     }
     
 
