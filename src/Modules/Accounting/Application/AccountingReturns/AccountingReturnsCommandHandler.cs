@@ -47,7 +47,7 @@ internal sealed class AccountingReturnsCommandHandler(
 
             if (!accountingReturnsResult.IsSuccess)
             {
-                await inconsistencyHandler.HandleInconsistenciesAsync(accountingReturnsResult.Errors, command.ProcessDate, ProcessTypes.AccountingFees, cancellationToken);
+                await inconsistencyHandler.HandleInconsistenciesAsync(accountingReturnsResult.Errors, command.ProcessDate, ProcessTypes.AccountingReturns, cancellationToken);
                 return false;
             }
 
@@ -90,14 +90,14 @@ internal sealed class AccountingReturnsCommandHandler(
                 continue;
             }
 
-            if (passiveTransaction.CreditAccount.IsNullOrEmpty())
+            if (passiveTransaction.CreditAccount.IsNullOrEmpty() || passiveTransaction.ContraCreditAccount.IsNullOrEmpty())
             {
                 logger.LogWarning("La transacción pasiva para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de crédito", yield.PortfolioId, operationTypeId);
                 errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Yield, "No existe cuenta de crédito", AccountingActivity.Credit));
                 continue;
             }
 
-            if (passiveTransaction.DebitAccount.IsNullOrEmpty())
+            if (passiveTransaction.DebitAccount.IsNullOrEmpty() || passiveTransaction.ContraDebitAccount.IsNullOrEmpty())
             {
                 logger.LogWarning("La transacción pasiva para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de débito", yield.PortfolioId, operationTypeId);
                 errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Yield, "No existe cuenta de débito", AccountingActivity.Debit));
@@ -133,7 +133,20 @@ internal sealed class AccountingReturnsCommandHandler(
                 continue;
             }
 
-            accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit(passiveTransaction.DebitAccount, passiveTransaction.CreditAccount));
+            string? cuentaDebit;
+            string? cuentaCredit;
+            if (accountingAssistant.Value.Value > 0)
+            {
+                cuentaDebit = passiveTransaction.DebitAccount!;
+                cuentaCredit = passiveTransaction.CreditAccount!;
+            }
+            else
+            {
+                cuentaDebit = passiveTransaction.ContraCreditAccount!;
+                cuentaCredit = passiveTransaction.ContraDebitAccount!;
+            }
+
+            accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit(cuentaDebit, cuentaCredit));
         }
 
         return new ProcessingResult<AccountingAssistant, AccountingInconsistency>(accountingAssistants, errors);
