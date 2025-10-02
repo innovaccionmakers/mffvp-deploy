@@ -1,20 +1,32 @@
-﻿using Common.SharedKernel.Core.Primitives;
+﻿using System.Text.Json.Serialization;
 
 namespace Accounting.Domain.AccountingInconsistencies;
 
 public class AccountingInconsistency
 {
-    public long PortfolioId {get; private set;}
-    public string Transaction {get; private set;}
-    public string Inconsistency {get; private set;}
-    public string? Activity {get; private set;} = string.Empty;
+    [JsonPropertyName("portfolioId")]
+    public long PortfolioId {get; set;}
+
+    [JsonPropertyName("transaction")]
+    public string Transaction {get; set;} = string.Empty;
+
+    [JsonPropertyName("inconsistency")]
+    public string Inconsistency {get; set;} = string.Empty;
+
+    [JsonPropertyName("activity")]
+    public string? Activity {get; set;} = string.Empty;
+
+    // Constructor público sin parámetros para serialización JSON
+    public AccountingInconsistency()
+    {
+    }
 
     private AccountingInconsistency(
         long portfolioId,
-        string transaction, 
+        string transaction,
         string inconsistency,
         string? activity
-        ) 
+        )
     {
         PortfolioId = portfolioId;
         Transaction = transaction;
@@ -24,9 +36,9 @@ public class AccountingInconsistency
 
     public static AccountingInconsistency Create(
         long portfolioId,
-        string transaction, 
+        string transaction,
         string inconsistency,
-        string? activity = "") 
+        string? activity = "")
     {
         return new AccountingInconsistency(
             portfolioId,

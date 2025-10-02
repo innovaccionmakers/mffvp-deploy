@@ -26,9 +26,9 @@ public class AccountingAssistant : Entity, ICloneable
         string identification,
         int? verificationDigit,
         string name,
-        string? period,        
+        string? period,
         DateTime? date,
-        string? detail,        
+        string? detail,
         decimal? value,
         string nature,
         string type = "",
@@ -64,8 +64,8 @@ public class AccountingAssistant : Entity, ICloneable
         int? verificationDigit,
         string name,
         string? period,
-        DateTime? date,        
-        string? detail,        
+        DateTime? date,
+        string? detail,
         decimal? value,
         string nature,
         string type = "",
@@ -97,17 +97,11 @@ public class AccountingAssistant : Entity, ICloneable
         yield return DuplicateWithType(AccountingTypes.Debit, debitAccount);
         yield return DuplicateWithType(AccountingTypes.Credit, creditAccount);
     }
-    
+
 
     public Result ValidateRequiredFields()
     {
         var errors = new List<Error>();
-
-        var accountValidation = ValidateAccount();
-        if (accountValidation.IsFailure)
-        {
-            errors.Add(accountValidation.Error);
-        }
 
         var detailValidation = ValidateDetail();
         if (detailValidation.IsFailure)
@@ -123,25 +117,13 @@ public class AccountingAssistant : Entity, ICloneable
         return Result.Success(true);
     }
 
-    private Result ValidateAccount()
-    {
-        if (string.IsNullOrWhiteSpace(Account))
-        {
-            return Result.Failure<bool>(Error.Validation(
-                "AccountingAssistant.Account.Required",
-                $"La cuenta es obligatoria para la entidad {AccountingAssistantId}"));
-        }
-
-        return Result.Success(true);
-    }
-
     private Result ValidateDetail()
     {
         if (string.IsNullOrWhiteSpace(Detail))
         {
             return Result.Failure<bool>(Error.Validation(
                 "AccountingAssistant.Detail.Required",
-                $"El detalle es obligatorio para la entidad {AccountingAssistantId}"));
+                $"El detalle es obligatorio para la entidad {Identifier}"));
         }
 
         return Result.Success(true);
