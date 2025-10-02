@@ -6,7 +6,6 @@ using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingFees;
-using Azure.Core;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using MediatR;
@@ -15,7 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Accounting.Application.AccountingFees;
 
-internal sealed class AccountingFeesCommandHandler(
+public sealed class AccountingFeesCommandHandler(
     ILogger<AccountingFeesCommandHandler> logger,
     IPassiveTransactionRepository passiveTransactionRepository,
     IYieldLocator yieldLocator,
