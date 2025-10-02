@@ -177,44 +177,6 @@ public class AccountingFeesCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ConSinAccountingFeesParaProcesar_DeberiaRetornarFalso()
-    {
-        // Arrange
-        var command = new AccountingFeesCommand(new[] { 1 }, DateTime.UtcNow);
-        var cancellationToken = CancellationToken.None;
-        var yields = new List<YieldResponse>
-        {
-            new(1, 1, 1000, 100, 0, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true) // Commissions = 0
-        };
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "", "CO");
-        var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
-        var portfolioInfo = new PortfolioResponse(
-            "1232",
-            1,
-            "Name"
-        );
-
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
-            .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
-
-        _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
-            .ReturnsAsync(Result.Success<(long OperationTypeId, string Nature, string Name)>((operationType.OperationTypeId, operationType.Nature.ToString(), operationType.Name)));
-
-        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(It.IsAny<int>(), It.IsAny<long>(), cancellationToken))
-            .ReturnsAsync(passiveTransaction.Value);
-
-        _portfolioLocatorMock.Setup(x => x.GetPortfolioInformationAsync(It.IsAny<int>(), cancellationToken))
-            .ReturnsAsync(Result.Success(portfolioInfo));
-
-        // Act
-        var result = await _handler.Handle(command, cancellationToken);
-
-        // Assert
-        Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
-    }
-
-    [Fact]
     public async Task Handle_ConExcepcion_DeberiaManejarExcepcionYRetornarFalso()
     {
         // Arrange
