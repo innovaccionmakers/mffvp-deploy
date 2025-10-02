@@ -6,10 +6,10 @@ namespace Accounting.Infrastructure.PassiveTransactions;
 
 public class PassiveTransactionRepository(AccountingDbContext context) : IPassiveTransactionRepository
 {
-    public async Task<PassiveTransaction?> GetByPortfolioIdAsync(int portfolioId, CancellationToken cancellationToken)
+    public async Task<PassiveTransaction?> GetByPortfolioIdAndOperationTypeAsync(int portfolioId, long operationTypeId, CancellationToken cancellationToken)
     {
         return await context.PassiveTransactions.SingleOrDefaultAsync(
-            pt => pt.PortfolioId == portfolioId,
+            pt => pt.PortfolioId == portfolioId && pt.TypeOperationsId == operationTypeId,
             cancellationToken
         );
     }

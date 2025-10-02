@@ -7,11 +7,11 @@ using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 namespace Closing.Application.Yields;
 
-internal sealed class GetAllReturnsQueryHandler(
-    ILogger<GetAllReturnsQueryHandler> logger,
-    IYieldRepository yieldRepository) : IQueryHandler<GetAllReturnsQuery, IReadOnlyCollection<YieldResponse>>
+internal sealed class GetAllFeesQueryHandler(
+    ILogger<GetAllFeesQueryHandler> logger,
+    IYieldRepository yieldRepository) : IQueryHandler<GetAllFeesQuery, IReadOnlyCollection<YieldResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<YieldResponse>>> Handle(GetAllReturnsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<YieldResponse>>> Handle(GetAllFeesQuery request, CancellationToken cancellationToken)
     {
         try
         {

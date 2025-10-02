@@ -2,10 +2,14 @@
 using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
 using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.AccountingInconsistencies;
+using Accounting.Domain.Concepts;
 using Accounting.Domain.ConfigurationParameters;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Domain.Treasuries;
 using Accounting.Infrastructure.AccountingAssistants;
+using Accounting.Infrastructure.AccountingInconsistencies;
+using Accounting.Infrastructure.Concepts;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
 using Accounting.Infrastructure.External.Operations;
@@ -27,6 +31,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Accounting.Application;
 
 namespace Accounting.Infrastructure;
 
@@ -64,19 +69,21 @@ public class AccountingModule : IModuleConfiguration
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Accounting)
                 );
         });
-        services.AddScoped<IErrorCatalog<AccountingModuleMarker>, ErrorCatalog<AccountingModuleMarker>>();    
+        services.AddScoped<IErrorCatalog<AccountingModuleMarker>, ErrorCatalog<AccountingModuleMarker>>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<AccountingModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<AccountingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IYieldLocator, YieldLocator>();
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IOperationLocator, OperationLocator>();
-        services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
         services.AddScoped<IPassiveTransactionRepository, PassiveTransactionRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AccountingDbContext>());
         services.AddScoped<IAccountingAssistantRepository, AccountingAssistantRepository>();
         services.AddScoped<IAccountProcessExperienceMutations, AccountProcessExperienceMutations>();
         services.AddScoped<ITreasuryRepository, TreasuryRepository>();
+        services.AddScoped<IConceptsRepository, ConceptsRepository>();
+        services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
+        services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
 
     }
 

@@ -8,4 +8,5 @@ public interface ITreasuryMovementRepository
     Task AddRangeAsync(IEnumerable<TreasuryMovement> treasuryMovements, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<TreasuryMovementConceptSummary>> GetReadOnlyTreasuryMovementsByPortfolioAsync(int portfolioId, DateTime date, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<TreasuryMovement>> GetTreasuryMovementsByPortfolioIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<TreasuryMovement>> GetAccountingConceptsAsync(IEnumerable<int> portfolioIds, DateTime ProcessDate, CancellationToken cancellationToken = default);
 }

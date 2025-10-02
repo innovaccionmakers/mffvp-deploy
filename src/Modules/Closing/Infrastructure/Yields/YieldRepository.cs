@@ -77,7 +77,7 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<Yield>> GetByPortfolioIdsAndClosingDateAsync(List<int> portfolioIds, DateTime closingDate, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<Yield>> GetByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, CancellationToken cancellationToken = default)
     {
         return await context.Yields
             .AsNoTracking()

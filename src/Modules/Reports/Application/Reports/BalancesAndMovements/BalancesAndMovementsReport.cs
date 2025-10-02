@@ -133,7 +133,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
                 var row = new object[]
                 {
                     balanceResult.StartDate,
-                    balanceResult.StartDate,
+                    balanceResult.EndDate,
                     balanceResult.IdentificationType,
                     balanceResult.Identification,
                     balanceResult.FullName,

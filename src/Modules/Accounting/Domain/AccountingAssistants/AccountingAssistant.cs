@@ -1,6 +1,7 @@
 ﻿using Common.SharedKernel.Domain;
 using Common.SharedKernel.Core.Primitives;
 namespace Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.Constants;
 
 public class AccountingAssistant : Entity, ICloneable
 {
@@ -26,12 +27,12 @@ public class AccountingAssistant : Entity, ICloneable
         int? verificationDigit,
         string name,
         string? period,
-        string? account,
         DateTime? date,
         string? detail,
-        string type,
         decimal? value,
-        string nature)
+        string nature,
+        string type = "",
+        string? account = "")
     {
         var accountingAssistant = new AccountingAssistant
         {
@@ -63,13 +64,12 @@ public class AccountingAssistant : Entity, ICloneable
         int? verificationDigit,
         string name,
         string? period,
-        string? account,
         DateTime? date,
-        string? nit,
         string? detail,
-        string type,
         decimal? value,
-        string nature)
+        string nature,
+        string type = "",
+        string? account = "")
     {
         Identification = identification;
         VerificationDigit = verificationDigit;
@@ -83,30 +83,25 @@ public class AccountingAssistant : Entity, ICloneable
         Nature = nature;
     }
 
-    public AccountingAssistant DuplicateWithType(string type)
+    public AccountingAssistant DuplicateWithType(string type, string? account = null)
     {
         var clone = (AccountingAssistant)Clone();
         clone.AccountingAssistantId = default;
         clone.Type = type;
+        if (account != null) clone.Account = account;
         return clone;
     }
 
-    public IEnumerable<AccountingAssistant> ToDebitAndCredit()
+    public IEnumerable<AccountingAssistant> ToDebitAndCredit(string? debitAccount = null, string? creditAccount= null)
     {
-        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Debit);
-        yield return DuplicateWithType(Constants.Constants.AccountingTypes.Credit);
+        yield return DuplicateWithType(AccountingTypes.Debit, debitAccount);
+        yield return DuplicateWithType(AccountingTypes.Credit, creditAccount);
     }
-    
+
 
     public Result ValidateRequiredFields()
     {
         var errors = new List<Error>();
-
-        var accountValidation = ValidateAccount();
-        if (accountValidation.IsFailure)
-        {
-            errors.Add(accountValidation.Error);
-        }
 
         var detailValidation = ValidateDetail();
         if (detailValidation.IsFailure)
@@ -122,25 +117,13 @@ public class AccountingAssistant : Entity, ICloneable
         return Result.Success(true);
     }
 
-    private Result ValidateAccount()
-    {
-        if (string.IsNullOrWhiteSpace(Account))
-        {
-            return Result.Failure<bool>(Error.Validation(
-                "AccountingAssistant.Account.Required",
-                $"La cuenta es obligatoria para la entidad {AccountingAssistantId}"));
-        }
-
-        return Result.Success(true);
-    }
-
     private Result ValidateDetail()
     {
         if (string.IsNullOrWhiteSpace(Detail))
         {
             return Result.Failure<bool>(Error.Validation(
                 "AccountingAssistant.Detail.Required",
-                $"El detalle es obligatorio para la entidad {AccountingAssistantId}"));
+                $"El detalle es obligatorio para la entidad {Identifier}"));
         }
 
         return Result.Success(true);

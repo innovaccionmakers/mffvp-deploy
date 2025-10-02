@@ -26,5 +26,21 @@ namespace Operations.test.IntegrationTests.ClientOperations
             Assert.NotNull(result);
             Assert.Empty(result);
         }
+
+        [Fact]
+        public async Task GetGetAccountingOperationsAsync_WithNoMatchingOperations_ReturnsEmptyList()
+        {
+            // Arrange
+            IEnumerable<int> portfolioIds = new List<int> { 1, 2, 3 };
+            var processDate = new DateTime(2025, 1, 16);
+            var cancellationToken = CancellationToken.None;
+
+            // Act
+            var result = await _repositoryMock.Object.GetAccountingOperationsAsync(portfolioIds, processDate, cancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
     }
 }

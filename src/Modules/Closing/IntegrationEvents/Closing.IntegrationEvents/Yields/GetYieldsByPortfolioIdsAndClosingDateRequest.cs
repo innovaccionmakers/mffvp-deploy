@@ -1,6 +1,6 @@
 ﻿namespace Closing.IntegrationEvents.Yields;
 
 public sealed record GetYieldsByPortfolioIdsAndClosingDateRequest(
-    List<int> PortfolioIds,
+    IEnumerable<int> PortfolioIds,
     DateTime ClosingDate
 );

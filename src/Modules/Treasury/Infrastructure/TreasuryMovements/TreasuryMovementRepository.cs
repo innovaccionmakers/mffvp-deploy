@@ -59,4 +59,15 @@ public class TreasuryMovementRepository(TreasuryDbContext context) : ITreasuryMo
             .Include(c => c.Counterparty)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<TreasuryMovement>> GetAccountingConceptsAsync(IEnumerable<int> portfolioIds, DateTime ProcessDate, CancellationToken cancellationToken = default)
+    {
+        return await context.TreasuryMovements
+            .AsNoTracking()
+            .Where(tm => portfolioIds.Contains(tm.PortfolioId))
+            .Include(tm => tm.TreasuryConcept)
+            .Include(b => b.BankAccount)
+            .Include(c => c.Counterparty)
+            .ToListAsync(cancellationToken);
+    }
 }
