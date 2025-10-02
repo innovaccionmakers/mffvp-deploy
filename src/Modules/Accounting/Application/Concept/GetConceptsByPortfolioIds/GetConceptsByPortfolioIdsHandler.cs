@@ -1,7 +1,5 @@
 ﻿using Accounting.Domain.Concepts;
-using Accounting.Domain.Treasuries;
 using Accounting.Integrations.Treasuries.GetConceptsByPortfolioIds;
-using Accounting.Integrations.Treasuries.GetTreasuriesByPortfolioIds;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 

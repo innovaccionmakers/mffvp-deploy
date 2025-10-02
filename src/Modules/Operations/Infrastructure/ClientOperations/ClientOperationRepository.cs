@@ -94,7 +94,9 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
 
         return await context.ClientOperations
             .Where(co => portfolioIdsSet.Contains(co.PortfolioId) && co.ProcessDate == processDate)
+            .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
+            .Where(co => co.OperationType != null && (co.OperationType.OperationTypeId == 1 || co.OperationType.CategoryId == 1))
             .ToListAsync(cancellationToken);
     }
 }

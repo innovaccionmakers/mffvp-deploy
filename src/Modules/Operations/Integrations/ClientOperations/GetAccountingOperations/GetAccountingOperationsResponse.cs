@@ -5,6 +5,8 @@
         int PortfolioId,
         int AffiliateId,
         decimal Amount,
-        string OperationType
+        string OperationType,
+        long OperationTypeId,
+        string CollectionAccount
         );
 }

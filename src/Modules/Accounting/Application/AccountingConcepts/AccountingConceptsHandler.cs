@@ -1,8 +1,8 @@
 ﻿using Accounting.Application.AccountingFees.Queries;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Integrations.AccountingConcepts;
+using Accounting.Integrations.Treasuries.GetAccountingConceptsTreasuries;
 using Accounting.Integrations.Treasuries.GetConceptsByPortfolioIds;
-using Accounting.Integrations.Treasuries.GetTreasuriesByPortfolioIds;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
@@ -32,7 +32,7 @@ namespace Accounting.Application.AccountingConcepts
                     return Result.Failure<bool>(Error.Validation(treasuryMovement.Code ?? string.Empty, treasuryMovement.Message ?? string.Empty));
 
                 //Treasury
-                var treasury = await sender.Send(new GetTreasuriesByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
+                var treasury = await sender.Send(new GetAccountingConceptsTreasuriesQuery(command.PortfolioIds), cancellationToken);
                 if (!treasury.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, treasury.Description ?? string.Empty));
                 var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioId, x => x);

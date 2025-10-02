@@ -1,17 +1,16 @@
 ﻿namespace Reports.Application.Reports.DTOs
 {
-    public sealed record ActivateRequest(
-        string Identification,
-        int ActivitesId
-        );
-
     public sealed record TrustYieldRequest(
-        long TrustYieldId,
+        int PortfolioId,
         int ActivitesId,
-        int ObjectsId
+        int ObjectsId,
+        decimal Yields,
+        decimal InitialBalance,
+        decimal ClosingBalance
         );
 
     public sealed record PersonsRequest(
+        int ActiviteId,
         string Identification,
         string IdentificationType,
         string FullName
@@ -19,11 +18,15 @@
 
     public sealed record OperationBalancesRequest(
         int PortfolioId,
+        int ActivitesId,
+        int ObjectsId,
         decimal Entry
         );
 
     public sealed record OperationMovementsRequest(
         int PortfolioId,
+        int ActiviteId,
+        int ObjectId,
         long Voucher,
         DateTime ProcessDate,
         string TransactionType,
@@ -33,12 +36,6 @@
         decimal ContingentWithholding,
         string PaymentMethod
       );
-
-    public sealed record CloseRequest(
-        long TrustYieldId,
-        decimal InitialBalance,
-        decimal Yields
-        );
 
     public sealed record ProductsRequest(
         int PortfolioId,
