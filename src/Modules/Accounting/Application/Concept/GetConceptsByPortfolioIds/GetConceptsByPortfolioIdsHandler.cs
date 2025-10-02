@@ -1,4 +1,5 @@
 ﻿using Accounting.Domain.Concepts;
+using Accounting.Integrations.Concept.GetConceptsByPortfolioIds;
 using Accounting.Integrations.Treasuries.GetConceptsByPortfolioIds;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
@@ -17,8 +18,6 @@ namespace Accounting.Application.Treasuries.GetConceptsByPortfolioIds
             var response = concept
             .Select(c => new GetConceptsByPortfolioIdsResponse(
                 c.PortfolioId,
-                c.ContraCreditAccount,
-                c.ContraDebitAccount,
                 c.CreditAccount,
                 c.DebitAccount
                 ))

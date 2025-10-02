@@ -85,6 +85,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConceptsRepository, ConceptsRepository>();
         services.AddScoped<AccountingOperationsHandlerValidation>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
+        services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
 
     }
 

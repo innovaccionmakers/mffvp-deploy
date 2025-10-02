@@ -80,7 +80,6 @@ namespace Accounting.Application.AccountingConcepts
                         }
                         else
                         {
-                            debitAccount = accountConcept?.ContraCreditAccount ?? string.Empty;
                             creditAccount = accountConcept?.CreditAccount ?? string.Empty;
                         }
                     }
@@ -93,7 +92,6 @@ namespace Accounting.Application.AccountingConcepts
                         else
                         {
                             debitAccount = accountConcept?.DebitAccount ?? string.Empty;
-                            creditAccount = accountConcept?.ContraDebitAccount ?? string.Empty;
                         }
                     }
 
