@@ -11,6 +11,7 @@ public interface ITransmissionFormatReportRepository
     Task<decimal> GetUnitValueAsync(int portfolioId, DateTime date, CancellationToken cancellationToken);
     Task<Rt4ValuationMovements> GetValuationMovementsAsync(int portfolioId, DateTime date, CancellationToken cancellationToken);
     Task<Rt4Profitabilities> GetProfitabilitiesAsync(int portfolioId, DateTime date, CancellationToken cancellationToken);
+    Task<AutomaticConceptAmounts> GetAutomaticConceptAmountsAsync(int portfolioId, DateTime date, CancellationToken cancellationToken);
 
     // New requirements
     Task<bool> AnyPortfolioExistsOnOrAfterDateAsync(DateTime date, CancellationToken cancellationToken);
@@ -44,3 +45,5 @@ public sealed record Rt4Profitabilities(
     decimal ThirtyDay,
     decimal OneHundredEightyDay,
     decimal ThreeHundredSixtyFiveDay);
+
+public sealed record AutomaticConceptAmounts(decimal AmountToBePaid, decimal AmountPaid);
