@@ -27,7 +27,7 @@ internal sealed class AccountingReturnsCommandHandler(
     {
         try
         {
-            var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken);
+            var yields = await yieldLocator.GetAllReturnsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken);
 
             if (yields.IsFailure)
             {

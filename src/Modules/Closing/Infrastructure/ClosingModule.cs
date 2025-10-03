@@ -101,7 +101,8 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IRpcHandler<TrustSyncRequest, TrustSyncResponse>, TrustSyncConsumer>();
         services.AddScoped<IRpcHandler<CheckPortfolioValuationExistsRequest, CheckPortfolioValuationExistsResponse>, CheckPortfolioValuationExistsConsumer>();
         services.AddScoped<IRpcHandler<GetPortfolioValuationRequest, GetPortfolioValuationResponse>, GetPortfolioValuationConsumer>();
-        services.AddScoped<IRpcHandler<GetYieldsByPortfolioIdsAndClosingDateRequest, GetYieldsByPortfolioIdsAndClosingDateResponse>, GetYieldsByPortfolioIdsAndClosingDateConsumer>();
+        services.AddScoped<IRpcHandler<GetAllComissionsByPortfolioIdsAndClosingDateRequest, GetAllComissionsByPortfolioIdsAndClosingDateResponse>, GetAllComissionsByPortfolioIdsAndClosingDateConsumer>();
+        services.AddScoped<IRpcHandler<GetAllReturnsByPortfolioIdsAndClosingDateRequest, GetAllReturnsByPortfolioIdsAndClosingDateResponse>, GetAllReturnsByPortfolioIdsAndClosingDateConsumer>();
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());
