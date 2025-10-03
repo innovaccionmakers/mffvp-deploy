@@ -1,4 +1,6 @@
-﻿using Accounting.Domain.AccountingAssistants;
+﻿using Accounting.Application.Abstractions;
+using Accounting.Domain.AccountingInconsistencies;
+using Accounting.Domain.Constants;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingOperations;
 using Accounting.Integrations.PassiveTransaction.GetAccountingOperationsPassiveTransaction;
@@ -13,6 +15,7 @@ using Customers.Integrations.People.GetPeopleByIdentifications;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Operations.IntegrationEvents.ClientOperations;
+using System.Collections.Concurrent;
 
 namespace Accounting.Application.AccountingOperations
 {
@@ -20,13 +23,14 @@ namespace Accounting.Application.AccountingOperations
         ISender sender,
         IRpcClient rpcClient,
         ILogger<AccountingOperationsHandler> logger,
-        AccountingOperationsHandlerValidation validator) : ICommandHandler<AccountingOperationsCommand, bool>
+        AccountingOperationsHandlerValidation validator,
+        IInconsistencyHandler inconsistencyHandler) : ICommandHandler<AccountingOperationsCommand, bool>
     {
         public async Task<Result<bool>> Handle(AccountingOperationsCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var accountingAssistants = new List<AccountingAssistant>();
+                var errors = new ConcurrentBag<AccountingInconsistency>();
                 //Operations
                 var operations = await rpcClient.CallAsync<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>(
                                                                 new GetAccountingOperationsRequestEvents(command.PortfolioIds, command.ProcessDate), cancellationToken);
@@ -63,7 +67,7 @@ namespace Accounting.Application.AccountingOperations
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, passiveTransaction.Description ?? string.Empty));
                 var passiveTransactionByPortfolioId = passiveTransaction.Value.ToDictionary(x => x.PortfolioId, x => x);
 
-                accountingAssistants = await validator.ProcessOperationsInParallel(
+                var accountingAssistants = await validator.ProcessOperationsInParallel(
                     operations.ClientOperations,
                     identificationByActivateId,
                     peopleByIdentification,
@@ -72,7 +76,21 @@ namespace Accounting.Application.AccountingOperations
                     command.ProcessDate,
                     cancellationToken);
 
-                return await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants), cancellationToken);
+                if (!accountingAssistants.IsSuccess)
+                {
+                    logger.LogInformation("Insertar errores en Redis");
+                    await inconsistencyHandler.HandleInconsistenciesAsync(accountingAssistants.Errors, command.ProcessDate, ProcessTypes.AccountingOperations, cancellationToken);
+                    return false;
+                }
+
+                if (!accountingAssistants.SuccessItems.Any())
+                {
+                    logger.LogInformation("No hay operaciones contables que procesar");
+                    return false;
+                }
+                await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
+
+                return Result.Success<bool>(true);
             }
             catch (Exception ex)
             {

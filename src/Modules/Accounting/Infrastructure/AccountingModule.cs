@@ -1,6 +1,8 @@
-﻿using Accounting.Application.Abstractions;
+﻿using Accounting.Application;
+using Accounting.Application.Abstractions;
 using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
+using Accounting.Application.AccountingConcepts;
 using Accounting.Application.AccountingOperations;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
@@ -32,7 +34,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Accounting.Application;
 
 namespace Accounting.Infrastructure;
 
@@ -84,7 +85,9 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<ITreasuryRepository, TreasuryRepository>();
         services.AddScoped<IConceptsRepository, ConceptsRepository>();
         services.AddScoped<AccountingOperationsHandlerValidation>();
+        services.AddScoped<AccountingConceptsHandlerValidator>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
+        services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
 
     }
 

@@ -17,8 +17,6 @@ namespace Accounting.Application.Treasuries.GetConceptsByPortfolioIds
             var response = concept
             .Select(c => new GetConceptsByPortfolioIdsResponse(
                 c.PortfolioId,
-                c.ContraCreditAccount,
-                c.ContraDebitAccount,
                 c.CreditAccount,
                 c.DebitAccount
                 ))

@@ -1,7 +1,9 @@
 ﻿using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.AccountingInconsistencies;
+using Accounting.Domain.Constants;
 using Accounting.Integrations.PassiveTransaction.GetAccountingOperationsPassiveTransaction;
 using Accounting.Integrations.Treasuries.GetAccountingOperationsTreasuries;
-using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
 using Customers.Integrations.People.GetPeopleByIdentifications;
 using Microsoft.Extensions.Logging;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
@@ -11,7 +13,7 @@ namespace Accounting.Application.AccountingOperations
 {
     public record class AccountingOperationsHandlerValidation(ILogger<AccountingOperationsHandlerValidation> logger)
     {
-        public async Task<List<AccountingAssistant>> ProcessOperationsInParallel(
+        public async Task<ProcessingResult<AccountingAssistant, AccountingInconsistency>> ProcessOperationsInParallel(
            IReadOnlyCollection<GetAccountingOperationsResponse> operations,
            Dictionary<int, string> identificationByActivateId,
            Dictionary<string, GetPeopleByIdentificationsResponse> peopleByIdentification,
@@ -25,7 +27,7 @@ namespace Accounting.Application.AccountingOperations
             var batches = operationsList.Chunk(batchSize);
 
             var allAccountingAssistants = new ConcurrentBag<AccountingAssistant>();
-            var allErrors = new ConcurrentBag<Error>();
+            var errors = new ConcurrentBag<AccountingInconsistency>();
 
             var parallelOptions = new ParallelOptions
             {
@@ -50,21 +52,14 @@ namespace Accounting.Application.AccountingOperations
 
                 foreach (var error in batchAssistants.Errors)
                 {
-                    allErrors.Add(error);
+                    errors.Add(error);
                 }
             });
 
-            // Manejar errores acumulados
-            if (allErrors.Count > 0)
-            {
-                logger.LogError($"Se encontraron {allErrors} errores durante el procesamiento", allErrors.Count);
-                // Puedes decidir si continuar o fallar basado en tu lógica de negocio
-            }
-
-            return allAccountingAssistants.ToList();
+            return new ProcessingResult<AccountingAssistant, AccountingInconsistency>(allAccountingAssistants.ToList(), errors);
         }
 
-        public (List<AccountingAssistant> Assistants, List<Error> Errors) ProcessBatch(
+        public (List<AccountingAssistant> Assistants, List<AccountingInconsistency> Errors) ProcessBatch(
             GetAccountingOperationsResponse[] operations,
             Dictionary<int, string> identificationByActivateId,
             Dictionary<string, GetPeopleByIdentificationsResponse> peopleByIdentification,
@@ -73,7 +68,7 @@ namespace Accounting.Application.AccountingOperations
             DateTime processDate)
         {
             var assistants = new List<AccountingAssistant>();
-            var errors = new List<Error>();
+            var errors = new List<AccountingInconsistency>();
 
             foreach (var operation in operations)
             {
@@ -97,7 +92,9 @@ namespace Accounting.Application.AccountingOperations
 
                     if (accountingAssistant.IsFailure)
                     {
-                        errors.Add(accountingAssistant.Error);
+
+                        logger.LogError($"Error procesando operación para portfolio {operation.PortfolioId}", operation.PortfolioId);
+                        errors.Add(AccountingInconsistency.Create(operation.PortfolioId, OperationTypeNames.Operation, accountingAssistant.Error.Description));
                         continue;
                     }
 
@@ -108,7 +105,7 @@ namespace Accounting.Application.AccountingOperations
                 catch (Exception ex)
                 {
                     logger.LogError(ex, $"Error procesando operación para portfolio {operation.PortfolioId}", operation.PortfolioId);
-                    errors.Add(Error.Failure("ProcessingError", $"Error procesando operación: {ex.Message}"));
+                    errors.Add(AccountingInconsistency.Create(operation.PortfolioId, OperationTypeNames.Operation, $"Error procesando operación para portfolio {operation.PortfolioId}"));
                 }
             }
 
