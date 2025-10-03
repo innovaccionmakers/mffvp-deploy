@@ -39,18 +39,11 @@ public sealed class TrustUnitsUpdater(
             }
         }
 
-        logger.LogInformation(
-            "TrustUnitsUpdater - Portafolio {PortfolioId}, Fecha {ClosingDate}: {Count} registros obtenidos desde cierre.rendimientos_fideicomisos",
-            portfolioId, closingDate.Date, trustIds.Count);
-
         if (trustIds.Count > 0)
         {
             var fetchedData = trustIds
                 .Select((id, index) => new { Id = id, Units = trustUnits[index] })
                 .ToList();
-            logger.LogInformation(
-                "TrustUnitsUpdater - Datos obtenidos: {FetchedData}",
-                JsonSerializer.Serialize(fetchedData, new JsonSerializerOptions { WriteIndented = true }));
         }
 
         if (trustIds.Count == 0) return 0;
@@ -63,38 +56,6 @@ public sealed class TrustUnitsUpdater(
         await using var transaction = await trustConnection.BeginTransactionAsync(cancellationToken);
 
         // 2) Diagnóstico previo: ver qué va a actualizarse (antes del UPDATE)
-        const string previewSql = @"
-            WITH src AS (
-              SELECT fideicomiso, unidades
-              FROM unnest(@ids::bigint[], @units::numeric(38,16)[]) AS s(fideicomiso, unidades)
-            )
-            SELECT f.id               AS target_id,
-                   f.unidades_totales AS before_units,
-                   s.unidades         AS new_units
-            FROM fideicomisos.fideicomisos f
-            JOIN src s ON f.id = s.fideicomiso
-            ORDER BY target_id;";
-        using (var previewCmd = new NpgsqlCommand(previewSql, trustConnection, transaction))
-        {
-            previewCmd.Parameters.AddWithValue("ids", NpgsqlDbType.Array | NpgsqlDbType.Bigint, trustIds.ToArray());
-            previewCmd.Parameters.AddWithValue("units", NpgsqlDbType.Array | NpgsqlDbType.Numeric, trustUnits.ToArray());
-
-            var previewList = new List<object>();
-            await using var previewReader = await previewCmd.ExecuteReaderAsync(cancellationToken);
-            while (await previewReader.ReadAsync(cancellationToken))
-            {
-                previewList.Add(new
-                {
-                    Id = previewReader.GetInt64(0),
-                    Before = previewReader.GetDecimal(1),
-                    New = previewReader.GetDecimal(2)
-                });
-            }
-
-            logger.LogInformation(
-                "TrustUnitsUpdater - PREVIEW cambios en fideicomisos: {Preview}",
-                JsonSerializer.Serialize(previewList, new JsonSerializerOptions { WriteIndented = true }));
-        }
 
         // 3) UPDATE batch (zip arrays) con retorno extendido
         const string updateSql = @"
@@ -127,9 +88,6 @@ public sealed class TrustUnitsUpdater(
             }
         }
 
-        logger.LogInformation(
-            "TrustUnitsUpdater - RESULT batch update: {Details}",
-            JsonSerializer.Serialize(updatedEcho, new JsonSerializerOptions { WriteIndented = true }));
 
         // 4) Fallback: si faltaron filas, intenta por id (1x1) para aislar causa
         var updatedCount = updatedIds.Count;
@@ -146,6 +104,7 @@ public sealed class TrustUnitsUpdater(
                    SET unidades_totales = @u
                  WHERE id = @id
                 RETURNING id, unidades_totales;";
+
             using var updateOne = new NpgsqlCommand(updateOneSql, trustConnection, transaction);
             var pId = updateOne.Parameters.Add("id", NpgsqlDbType.Bigint);
             var pU = updateOne.Parameters.Add("u", NpgsqlDbType.Numeric);

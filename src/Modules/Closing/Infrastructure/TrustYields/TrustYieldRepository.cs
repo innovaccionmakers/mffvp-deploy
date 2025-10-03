@@ -50,9 +50,34 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
             .ToListAsync(ct);
     }
 
+    public async Task<int> DeleteByPortfolioAndDateAsync(
+        int portfolioId,
+        DateTime closingDateUtc,
+        CancellationToken cancellationToken = default)
+    {
+        var deleted = await context.TrustYields
+            .TagWith("Closing.TrustYields.DeleteByPortfolioAndDate")
+            .TagWith($"portfolioId={portfolioId} closingDateUtc={closingDateUtc:O}")
+            .Where(t => t.PortfolioId == portfolioId && t.ClosingDate == closingDateUtc)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        return deleted;
+    }
+
     public async Task SaveChangesAsync(CancellationToken ct)
     {
         await context.SaveChangesAsync(ct);
     }
+
+    public async Task<IReadOnlyDictionary<long, TrustYield>> GetReadOnlyByTrustIdsAndDateAsync(IEnumerable<long> trustIds, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+    {
+        var trustIdsList = trustIds.ToList();
+        var results = await context.TrustYields.AsNoTracking()
+            .Where(x => trustIdsList.Contains(x.TrustId) && x.ClosingDate == closingDateUtc)
+            .ToListAsync(cancellationToken);
+
+        return results.ToDictionary(x => x.TrustId, x => x);
+    }
+
 }
 

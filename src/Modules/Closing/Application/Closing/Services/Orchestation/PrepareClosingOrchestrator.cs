@@ -1,6 +1,7 @@
 ﻿using Closing.Application.Closing.Services.Abort;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.PortfolioValuation;
+using Closing.Application.Closing.Services.Telemetry;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
 using Closing.Application.Closing.Services.Validation.Interfaces;
@@ -75,7 +76,7 @@ public class PrepareClosingOrchestrator(
             var syncTask = dataSyncService.ExecuteAsync(portfolioId, closingDate.Date, cancellationToken);
        
             await Task.WhenAll(simulationTask, syncTask);
-            logger.LogInformation("TrustSync finalizado");
+
             if (simulationTask.Result.IsFailure)
                 return Result.Failure<PrepareClosingResult>(simulationTask.Result.Error);
             if (syncTask.Result.IsFailure)
@@ -89,9 +90,6 @@ public class PrepareClosingOrchestrator(
             if (valuationResult.IsFailure)
                 return Result.Failure<PrepareClosingResult>(valuationResult.Error);
 
-            logger.LogInformation(
-                "Valoración completada para Portafolio {PortfolioId} en {Date}",
-                portfolioId, closingDate);
 
             var warnings = warningCollector.GetAll();
 
@@ -105,7 +103,7 @@ public class PrepareClosingOrchestrator(
         {
             // En caso de error, abortar cierre y limpiar estado en Redis
             await abortClosingService.AbortAsync(portfolioId, closingDate, cancellationToken);
-            logger.LogInformation(
+            logger.LogError(
                 ex,
                 "Error inesperado en PrepareClosingOrchestrator para Portafolio {PortfolioId}",
                 portfolioId);

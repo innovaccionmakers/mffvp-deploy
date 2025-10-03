@@ -1,4 +1,6 @@
-﻿using Accounting.Domain.AccountingAssistants;
+﻿using Accounting.Application.Abstractions;
+using Accounting.Domain.Constants;
+using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingConcepts;
 using Accounting.Integrations.Treasuries.GetAccountingConceptsTreasuries;
 using Accounting.Integrations.Treasuries.GetConceptsByPortfolioIds;
@@ -8,7 +10,6 @@ using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Products.IntegrationEvents.Portfolio.GetPortfolioInformation;
 using Treasury.IntegrationEvents.TreasuryMovements.AccountingConcepts;
 
 namespace Accounting.Application.AccountingConcepts
@@ -16,14 +17,14 @@ namespace Accounting.Application.AccountingConcepts
     internal class AccountingConceptsHandler(
         ISender sender,
         IRpcClient rpcClient,
-        ILogger<AccountingConceptsHandler> logger) : ICommandHandler<AccountingConceptsCommand, bool>
+        AccountingConceptsHandlerValidator validator,
+        ILogger<AccountingConceptsHandler> logger,
+        IInconsistencyHandler inconsistencyHandler) : ICommandHandler<AccountingConceptsCommand, bool>
     {
         public async Task<Result<bool>> Handle(AccountingConceptsCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var accountingAssistants = new List<AccountingAssistant>();
-
                 //TreasuryMovement
                 var treasuryMovement = await rpcClient.CallAsync<AccountingConceptsRequestEvent, AccountingConceptsResponseEvent>(
                                                                 new AccountingConceptsRequestEvent(command.PortfolioIds, command.ProcessDate), cancellationToken);
@@ -36,84 +37,28 @@ namespace Accounting.Application.AccountingConcepts
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, treasury.Description ?? string.Empty));
                 var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioId, x => x);
 
-
+                //Concept
                 var concept = await sender.Send(new GetConceptsByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
                 if (!concept.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener los conceptos" ?? string.Empty, concept.Description ?? string.Empty));
                 var conceptByPortfolioId = concept.Value.ToDictionary(x => x.PortfolioId, x => x);
+                
+                var accountingAssistants = await validator.AccountingConceptsValidator(command, treasuryMovement.movements, treasuryByPortfolioId, conceptByPortfolioId, cancellationToken);
 
-                foreach (var movement in treasuryMovement.movements)
+                if (!accountingAssistants.IsSuccess)
                 {
-                    var errors = new List<Error>();
-                    var identification = string.Empty;
-                    int verificationDigit = 0;
-                    string name = string.Empty;
-                    var accountTreasury = treasuryByPortfolioId.GetValueOrDefault(movement.PortfolioId);
-                    var accountConcept = conceptByPortfolioId.GetValueOrDefault(movement.PortfolioId);
-                    string debitAccount = string.Empty;
-                    string creditAccount = string.Empty;
-
-                    if (movement.CounterpartyId == null || movement.CounterpartyId == 0)
-                    {
-                        var portfolio = await rpcClient.CallAsync<GetPortfolioInformationByIdRequest, GetPortfolioInformationByIdResponse>(
-                                                           new GetPortfolioInformationByIdRequest(movement.PortfolioId), cancellationToken);
-                        if (!portfolio.Succeeded)
-                            return Result.Failure<bool>(Error.Validation("Error al optener los portfolios" ?? string.Empty, treasury.Description ?? string.Empty));
-
-                        identification = portfolio.PortfolioInformation.PortfolioNIT;
-                        verificationDigit = portfolio.PortfolioInformation?.VerificationDigit ?? 0;
-                        name = portfolio.PortfolioInformation.Name;
-                    }
-                    else
-                    {
-                        identification = movement.Counterparty.Nit;
-                        verificationDigit = movement.Counterparty?.Digit ?? 0;
-                        name = movement.Counterparty.Description;
-                    }
-
-                    if (movement.TreasuryConceptId == 0)
-                    {
-                        if (movement.TreasuryConcept.RequiresBankAccount == true)
-                        {
-                            debitAccount = accountTreasury?.DebitAccount ?? string.Empty;
-                            creditAccount = accountConcept?.CreditAccount ?? string.Empty;
-                        }
-                        else
-                        {
-                            creditAccount = accountConcept?.CreditAccount ?? string.Empty;
-                        }
-                    }
-                    else
-                    {
-                        if (movement.TreasuryConcept.RequiresBankAccount == true)
-                        {
-                            debitAccount = accountConcept?.DebitAccount ?? string.Empty;
-                        }
-                        else
-                        {
-                            debitAccount = accountConcept?.DebitAccount ?? string.Empty;
-                        }
-                    }
-
-                    var accountingAssistant = AccountingAssistant.Create(
-                        identification ?? string.Empty,
-                        verificationDigit,
-                        name ?? string.Empty,
-                        command.ProcessDate.ToString("yyyyMM"),                        
-                        command.ProcessDate,
-                        movement.TreasuryConcept.Observations ?? string.Empty,                        
-                        movement.Value,
-                        movement.TreasuryConcept.Nature.ToString() ?? string.Empty
-                        );
-
-                    if (accountingAssistant.IsFailure)
-                    {
-                        logger.LogError("Error al crear el AccountingAssistant para el portafolio {PortfolioId}: {Error}", movement.PortfolioId, accountingAssistant.Error);
-                        errors.Add(accountingAssistant.Error);
-                    }
-
-                    accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit(debitAccount, creditAccount));
+                    logger.LogInformation("Insertar errores en Redis");
+                    await inconsistencyHandler.HandleInconsistenciesAsync(accountingAssistants.Errors, command.ProcessDate, ProcessTypes.AccountingConcepts, cancellationToken);
+                    return false;
                 }
+
+                if (!accountingAssistants.SuccessItems.Any())
+                {
+                    logger.LogInformation("No hay operaciones contables que procesar");
+                    return false;
+                }
+
+                await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
 
                 return Result.Success<bool>(true);
             }
