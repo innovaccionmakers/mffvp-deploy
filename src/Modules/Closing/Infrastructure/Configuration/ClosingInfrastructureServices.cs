@@ -6,6 +6,7 @@ using Closing.Application.Closing.Services.Orchestation;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.Orchestration;
 using Closing.Application.Closing.Services.PortfolioValuation;
+using Closing.Application.Closing.Services.Telemetry;
 using Closing.Application.Closing.Services.TimeControl;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
@@ -38,6 +39,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<ITimeControlService, TimeControlService>();
             services.AddScoped<IClosingStepEventPublisher, ClosingStepEventPublisher>();
             services.AddTransient<ClosingStepEventSuscriber>();
+            services.AddScoped<IAbortTrustYieldService, AbortTrustYieldService>();
             services.AddScoped<IAbortClosingService, AbortClosingService>();
             services.AddScoped<IAbortPortfolioValuationService, AbortPortfolioValuationService>();
             services.AddScoped<IAbortSimulationService, AbortSimulationService>();
@@ -68,6 +70,8 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IDataSyncPostService, DataSyncTrustPostService>();
 
             services.AddScoped<IWarningCollector, WarningCollector>();
+
+            services.AddSingleton<IClosingStepTimer, ClosingStepTimerLite>();
 
             return services;
         }

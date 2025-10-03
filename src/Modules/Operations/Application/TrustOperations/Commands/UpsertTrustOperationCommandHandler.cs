@@ -14,22 +14,13 @@ internal sealed class UpsertTrustOperationCommandHandler(
     ITrustOperationRepository repository,
     IUnitOfWork unitOfWork,
     IOperationTypeRepository operationTypeRepository,
-    IEventBus eventBus,
-    ILogger<UpsertTrustOperationCommandHandler> logger)
+    IEventBus eventBus)
     : IRequestHandler<UpsertTrustOperationCommand>
 {
     private const string ClassName = nameof(UpsertTrustOperationCommandHandler);
     public async Task Handle(UpsertTrustOperationCommand request, CancellationToken cancellationToken)
     {
         
-        using var _ = logger.BeginScope(new Dictionary<string, object>
-        {
-            ["PortfolioId"] = request.PortfolioId,
-            ["TrustId"] = request.TrustId,
-            ["ClosingDate"] = request.ClosingDate.Date
-        });
-
-        logger.LogInformation("{Class} - Iniciando Upsert con SQL Crudo de operación de fideicomiso {fideicomisoId}.",ClassName, request.TrustId);
 
         // 1. Obtener el subtipo "Rendimientos"
         var subtype = await operationTypeRepository
@@ -57,12 +48,10 @@ internal sealed class UpsertTrustOperationCommandHandler(
             operationTypeId: yieldSubtypeId,
             clientOperationId: null,
             cancellationToken: cancellationToken);
-            logger.LogInformation("{Class} -  Upsert ejecutado para operación de fideicomiso {fideicomisoId}, fecha cierre: {fechaCierre}.", ClassName, request.TrustId, request.ClosingDate);
 
             if (changed)
-                {
-                    logger.LogInformation("{Class} -  Hubo cambios en Upsert de operación de fideicomiso {fideicomisoId}," +
-                        " fecha cierre: {fechaCierre}. Se dispara evento de actualizacion de Fideicomiso", ClassName, request.TrustId, request.ClosingDate);
+            {
+
                     var integrationEvent = new TrustYieldOperationAppliedIntegrationEvent(
                         trustId: request.TrustId,
                         portfolioId: request.PortfolioId,

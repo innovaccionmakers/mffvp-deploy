@@ -30,8 +30,10 @@ internal sealed class ConfirmClosingCommandHandler(
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 result = await orchestrator.ConfirmAsync(command.PortfolioId, command.ClosingDate, cancellationToken);
+
                 cancellationToken.ThrowIfCancellationRequested();
                 await unitOfWork.SaveChangesAsync(cancellationToken);
+
                 cancellationToken.ThrowIfCancellationRequested();
                 await transaction.CommitAsync(cancellationToken);
             }

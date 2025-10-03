@@ -16,8 +16,6 @@ public sealed class TrustSyncClosingService(
         var rows = await reader.ReadActiveAsync(portfolioId, closingDate.Date, cancellationToken);
         if (rows.Count == 0) return 0;
         var affected = await merger.MergeAsync(rows, cancellationToken);
-        logger.LogInformation("TrustSync Preclosing: portfolio {PortfolioId} date {Date} rows {Rows} affected {Affected}",
-                              portfolioId, closingDate, rows.Count, affected);
         return affected;
     }
 }

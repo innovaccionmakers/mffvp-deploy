@@ -1,4 +1,5 @@
-﻿using Closing.Application.PostClosing.Services.PendingTransactionHandler;
+﻿using Closing.Application.Closing.Services.Telemetry;
+using Closing.Application.PostClosing.Services.PendingTransactionHandler;
 using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
 using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
 using Closing.Application.PostClosing.Services.TechnicalSheetEvent;
@@ -16,6 +17,7 @@ public class PostClosingEventsOrchestation : IPostClosingEventsOrchestation
     private readonly IPendingTransactionHandler _pendingTransactionHandler;
     private readonly IDataSyncPostService _dataSyncPostService;
     private readonly ITechnicalSheetPublisher _technicalSheetPublisher;
+    private readonly IClosingStepTimer _stepTimer;
 
     public PostClosingEventsOrchestation(
         IPortfolioUpdatePublisher portfolioPublisher,
@@ -23,7 +25,8 @@ public class PostClosingEventsOrchestation : IPostClosingEventsOrchestation
         IPortfolioCommissionPublisher commissionPublisher,
         IPendingTransactionHandler pendingTransactionHandler,
         IDataSyncPostService dataSyncPostService,
-        ITechnicalSheetPublisher technicalSheetPublisher
+        ITechnicalSheetPublisher technicalSheetPublisher,
+        IClosingStepTimer stepTimer
         )
     {
         _portfolioPublisher = portfolioPublisher;
@@ -32,6 +35,7 @@ public class PostClosingEventsOrchestation : IPostClosingEventsOrchestation
         _pendingTransactionHandler = pendingTransactionHandler;
         _dataSyncPostService = dataSyncPostService;
         _technicalSheetPublisher = technicalSheetPublisher;
+        _stepTimer = stepTimer;
     }
 
     public async Task ExecuteAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
@@ -49,9 +53,11 @@ public class PostClosingEventsOrchestation : IPostClosingEventsOrchestation
         //4. Publicar eventos de generacion ficha tecnica
         var technicalSheet = _technicalSheetPublisher.PublishAsync(DateOnly.FromDateTime(closingDate), cancellationToken);
 
-        // Ejecutar las tres tareas en paralelo
-        await Task.WhenAll(valuationTask, commissionTask, syncPostTask, technicalSheet);
-
+        // Ejecutar las cuatro tareas en paralelo
+        using (_stepTimer.Track("PostClosingEventsOrchestation.PublishParallel", portfolioId, closingDate))
+        {
+            await Task.WhenAll(valuationTask, commissionTask, syncPostTask, technicalSheet);
+        }
         //// sincrono
         //// 1. Publicar eventos de actualización del portafolio
         //await _portfolioPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
@@ -63,9 +69,15 @@ public class PostClosingEventsOrchestation : IPostClosingEventsOrchestation
         //await _dataSyncPostService.ExecuteAsync(portfolioId, closingDate, cancellationToken);
 
         // 4. Publicar eventos de rendimientos de fideicomiso
-        await _trustYieldPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
+        using (_stepTimer.Track("PostClosingEventsOrchestation.TrustYield.Publish", portfolioId, closingDate))
+        {
+            await _trustYieldPublisher.PublishAsync(portfolioId, closingDate, cancellationToken);
+        }
 
         // 5. Manejar transacciones pendientes y enviar evento de paso ClosingEnd
-        await _pendingTransactionHandler.HandleAsync(portfolioId, closingDate.AddDays(1), cancellationToken);
+        using (_stepTimer.Track("PostClosingEventsOrchestation.PendingTransactions", portfolioId, closingDate.AddDays(1)))
+        {
+            await _pendingTransactionHandler.HandleAsync(portfolioId, closingDate.AddDays(1), cancellationToken);
+        }
     }
 }
