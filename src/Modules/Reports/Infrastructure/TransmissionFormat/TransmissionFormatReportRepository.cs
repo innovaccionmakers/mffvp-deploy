@@ -207,7 +207,7 @@ public class TransmissionFormatReportRepository(
     {
         var sql = $@"
         SELECT
-            COALESCE(SUM(r.rendimientos_a_abonar), 0) AS ""AmountToBePaid"",
+            COALESCE(SUM(r.rendimientos_abonar), 0) AS ""AmountToBePaid"",
             COALESCE(SUM(r.rendimientos_abonados), 0)     AS ""AmountPaid""
         FROM {ClosingSchema}.rendimientos r
         WHERE r.portafolio_id = @PortfolioId
