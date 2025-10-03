@@ -17,7 +17,8 @@ namespace Accounting.Application.Treasuries.GetAccountingConceptsTreasuries
             var response = treasury
             .Select(t => new GetAccountingConceptsTreasuriesResponse(
                 t.PortfolioId,
-                t.DebitAccount))
+                t.DebitAccount,
+                t.CreditAccount))
             .ToList();
 
             return Result.Success<IReadOnlyCollection<GetAccountingConceptsTreasuriesResponse>>(response);

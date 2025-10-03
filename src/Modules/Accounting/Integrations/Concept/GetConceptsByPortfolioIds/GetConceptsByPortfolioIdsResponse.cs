@@ -8,8 +8,6 @@ namespace Accounting.Integrations.Treasuries.GetConceptsByPortfolioIds
 {
     public sealed record class GetConceptsByPortfolioIdsResponse(
         int PortfolioId,
-        string? ContraCreditAccount,
-        string? ContraDebitAccount,
         string? DebitAccount,
         string? CreditAccount
         );

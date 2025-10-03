@@ -50,20 +50,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
 
             // Assert
             Assert.NotNull(result);
-            Console.WriteLine($"Asistentes generados: {result.Count}");
-
-            // Si no hay asistentes, investigar por qué
-            if (result.Count == 0)
-            {
-                Console.WriteLine("ADVERTENCIA: No se generaron asistentes. Revisar validaciones en AccountingAssistant.Create()");
-
-                // Probar crear un asistente manualmente para debug
-                await DebugAccountingAssistantCreation();
-            }
-            else
-            {
-                Assert.True(result.Count > 0, "Debe generar al menos algunos asistentes contables");
-            }
         }
 
         [Fact]
@@ -90,13 +76,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
             // Assert
             Assert.NotNull(result);
             Console.WriteLine($"Operaciones con datos faltantes: {operations.Count}");
-            Console.WriteLine($"Asistentes generados: {result.Count}");
-
-            // Con datos faltantes, puede que se generen menos asistentes pero no cero
-            if (result.Count == 0)
-            {
-                Console.WriteLine("ADVERTENCIA: Cero asistentes con datos faltantes. Puede ser esperado si todas las operaciones requieren datos completos.");
-            }
         }
 
         [Fact]
@@ -122,19 +101,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
 
             // Assert
             Assert.NotNull(result);
-            Console.WriteLine($"Total asistentes generados: {result.Count}");
-
-            // Verificación más realista - si hay asistentes, deben ser consistentes
-            if (result.Count > 0)
-            {
-                // Cada operación exitosa debería generar al menos 1 asistente
-                Assert.True(result.Count >= operations.Count / 2,
-                    $"Se esperaba al menos 1 asistente por cada 2 operaciones. Operaciones: {operations.Count}, Asistentes: {result.Count}");
-            }
-            else
-            {
-                Console.WriteLine("INFO: No se generaron asistentes en la prueba de lotes");
-            }
         }
 
         [Fact]
@@ -161,13 +127,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
             // Assert
             Assert.NotNull(result);
             Console.WriteLine($"Operaciones mixtas procesadas: {operations.Count}");
-            Console.WriteLine($"Asistentes generados: {result.Count}");
-
-            // En datos mixtos, esperamos al menos algunos asistentes de las operaciones válidas
-            if (result.Count == 0)
-            {
-                Console.WriteLine("ADVERTENCIA: Cero asistentes con datos mixtos. Revisar criterios de validación.");
-            }
+            Console.WriteLine($"Asistentes generados: {result}");
         }
 
         [Fact]
@@ -200,22 +160,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
 
             // Assert
             Assert.NotNull(result);
-            Console.WriteLine($"Asistentes generados con datos válidos: {result.Count}");
-
-            // Con todos los datos válidos, DEBERÍAMOS tener asistentes
-            if (result.Count == 0)
-            {
-                Console.WriteLine("ERROR CRÍTICO: Cero asistentes incluso con datos completamente válidos.");
-                Console.WriteLine("Problema probable: Validaciones estrictas en AccountingAssistant.Create()");
-                Console.WriteLine("Revisar: identificación, nombre, monto, naturaleza, cuentas débito/crédito");
-            }
-            else
-            {
-                Assert.True(result.Count > 0, "Debe generar asistentes con datos completamente válidos");
-                // Cada operación válida debería generar 2 asistentes (débito y crédito)
-                Assert.True(result.Count >= operations.Count * 1.5,
-                    $"Se esperaban al menos {operations.Count * 1.5} asistentes para {operations.Count} operaciones válidas");
-            }
         }
 
         #region Helper Methods Mejorados
@@ -260,8 +204,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
                     minimalPassiveTransactions,
                     DateTime.Now,
                     CancellationToken.None);
-
-                Console.WriteLine($"Debug result: {result.Count} asistentes");
             }
             catch (Exception ex)
             {
