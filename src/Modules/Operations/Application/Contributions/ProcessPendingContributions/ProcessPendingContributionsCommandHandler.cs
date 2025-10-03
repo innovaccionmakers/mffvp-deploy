@@ -1,4 +1,3 @@
-using Azure;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Application.Messaging;
@@ -11,7 +10,6 @@ using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.Cleanup;
 using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Application.Abstractions.Services.TransactionControl;
-using Operations.Application.Contributions.Services.OperationCompleted;
 using Operations.Domain.AuxiliaryInformations;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.TemporaryAuxiliaryInformations;
@@ -110,7 +108,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                     }
                     catch (DbUpdateException ex) when (IsUniqueViolation23505(ex))
                     {
-                        logger.LogInformation("Transaccion temporal {TemporaryClientOperationId}, valor {Amount} ya insertada: {Message}", current.TemporaryClientOperationId, current.Amount, ex.Message);
+                        logger.LogError("Transaccion temporal {TemporaryClientOperationId}, valor {Amount} ya insertada: {Message}", current.TemporaryClientOperationId, current.Amount, ex.Message);
                     }
 
                     // 5) Marcar procesado
@@ -121,7 +119,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                     await unitOfWork.SaveChangesAsync(cancellationToken);
                     if (affected == 0)
                     {
-                        logger.LogInformation("Transaccion temporal {TemporaryClientOperationId}, valor {Amount} ya marcada por otra instancia", current.TemporaryClientOperationId, current.Amount);
+                        logger.LogError("Transaccion temporal {TemporaryClientOperationId}, valor {Amount} ya marcada por otra instancia", current.TemporaryClientOperationId, current.Amount);
                         await transaction.RollbackAsync(cancellationToken);
                         continue;
                     }
@@ -150,7 +148,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    logger.LogInformation("DbUpdateConcurrencyException para transaccion temporal {TemporaryClientOperationId}, otra sesión tocó la fila", nextId);
+                    logger.LogError("DbUpdateConcurrencyException para transaccion temporal {TemporaryClientOperationId}, otra sesión tocó la fila", nextId);
                     await transaction.RollbackAsync(cancellationToken);
                 }
                 catch
