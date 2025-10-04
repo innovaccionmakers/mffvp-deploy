@@ -14,7 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Accounting.Application.AccountingReturns;
 
-internal sealed class AccountingReturnsCommandHandler(
+public sealed class AccountingReturnsCommandHandler(
     ILogger<AccountingReturnsCommandHandler> logger,
     IPassiveTransactionRepository passiveTransactionRepository,
     IYieldLocator yieldLocator,
