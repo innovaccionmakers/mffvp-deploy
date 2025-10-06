@@ -1,4 +1,5 @@
 ﻿using Accounting.Domain.Constants;
+using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.IntegrationEvents.AccountingInconsistencies;
 using Accounting.Integrations.AccountingConcepts;
 using Accounting.Integrations.AccountingFees;
@@ -21,9 +22,15 @@ namespace Accounting.Application.AccountProcess
     {
         public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
         {
+
             var isActive = await closingValidator.IsClosingActiveAsync(cancellationToken);
             if (isActive)
                 return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
+
+            var deleteCommand = new DeleteAccountingAssistantsCommand();
+            var deleteResult = await sender.Send(deleteCommand, cancellationToken);
+            if (deleteResult.IsFailure)
+                return Result.Failure<string>(deleteResult.Error);
 
             var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, command.ProcessDate);
             var accountingReturnsCommand = new AccountingReturnsCommand(command.PortfolioIds, command.ProcessDate);
@@ -35,7 +42,7 @@ namespace Accounting.Application.AccountProcess
             _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingOperations, acountingOperationsCommand, cancellationToken), cancellationToken);
             _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingConcepts, accountingConceptsCommand, cancellationToken), cancellationToken);
 
-            return Result.Success<string>("Proceso de contabilidad iniciado exitosamente en segundo plano.");
+            return Result.Success<string>(string.Empty, "Se está generando la información del proceso contable. Será notificado cuando finalice.");
         }
 
         private async Task ExecuteAccountingOperationAsync<T>(string operationType, T command, CancellationToken cancellationToken) where T : ICommand<bool>

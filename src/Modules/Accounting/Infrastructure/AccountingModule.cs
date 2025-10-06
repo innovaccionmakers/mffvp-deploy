@@ -15,6 +15,7 @@ using Accounting.Infrastructure.AccountingInconsistencies;
 using Accounting.Infrastructure.Concepts;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
+using Accounting.Infrastructure.External;
 using Accounting.Infrastructure.External.Operations;
 using Accounting.Infrastructure.External.Portfolios;
 using Accounting.Infrastructure.External.Yields;
@@ -88,6 +89,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<AccountingConceptsHandlerValidator>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
+        services.AddScoped<ICabMessagingService, CabMessagingService>();
 
     }
 
