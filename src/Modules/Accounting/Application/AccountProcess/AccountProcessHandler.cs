@@ -42,19 +42,19 @@ namespace Accounting.Application.AccountProcess
             _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingOperations, acountingOperationsCommand, cancellationToken), cancellationToken);
             _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingConcepts, accountingConceptsCommand, cancellationToken), cancellationToken);
 
-            return Result.Success<string>(string.Empty, "Se está generando la información del proceso contable. Será notificado cuando finalice.");
+            return Result.Success(string.Empty, "Se está generando la información del proceso contable. Será notificado cuando finalice.");
         }
 
         private async Task ExecuteAccountingOperationAsync<T>(string operationType, T command, CancellationToken cancellationToken) where T : ICommand<bool>
         {
             var result = await sender.Send(command, cancellationToken);
 
-            var success = result.Value;
+            var success = result.IsSuccess;
             var message = success
                 ? $"{operationType} procesado exitosamente"
-                : $"{operationType} falló durante el procesamiento";
+                : $"{result.Error?.Description ?? "falló durante el procesamiento"}";
 
-            var resultEvent = new AccountingServiceResultIntegrationEvent(success, operationType, message);
+            var resultEvent = new AccountingServiceResultIntegrationEvent(success, message, operationType);
             await eventBus.PublishAsync(resultEvent, cancellationToken);         
         }
     }

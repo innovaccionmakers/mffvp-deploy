@@ -7,6 +7,7 @@ using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingFees;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,7 @@ public sealed class AccountingFeesCommandHandler(
             if (yields.IsFailure)
             {
                 logger.LogError("No se pudieron obtener los yields para los portafolios: {Error}", yields.Error);
-                return false;
+                return Result.Failure<bool>(Error.Problem("Accounting.Fees", "No se pudieron obtener los yields para los portafolios"));
             }
 
             var operationType = await operationLocator.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken);
@@ -40,7 +41,7 @@ public sealed class AccountingFeesCommandHandler(
             if (operationType.IsFailure)
             {
                 logger.LogWarning("No se pudo obtener el tipo de operación '{OperationType}': {Error}", OperationTypeNames.Commission, operationType.Error);
-                return false;
+                return Result.Failure<bool>(Error.Problem("Accounting.Fees", "No se pudo obtener el tipo de operación"));
             }
 
             var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, operationType.Value.Nature, cancellationToken);
@@ -48,16 +49,23 @@ public sealed class AccountingFeesCommandHandler(
             if (!accountingFeesResult.IsSuccess)
             {
                 await inconsistencyHandler.HandleInconsistenciesAsync(accountingFeesResult.Errors, command.ProcessDate, ProcessTypes.AccountingFees, cancellationToken);
-                return false;
+                return Result.Failure<bool>(Error.Problem("Accounting.Fees", "Se encontraron inconsistencias"));
             }
 
             if (!accountingFeesResult.SuccessItems.Any())
             {
-                logger.LogInformation("No accounting fees to process");
-                return false;
+                logger.LogInformation("Sin comisiones contables para procesar");
+                return Result.Failure<bool>(Error.Problem("Accounting.Fees", "Sin comisiones contables para procesar"));
             }
 
-            return await mediator.Send(new AddAccountingEntitiesCommand(accountingFeesResult.SuccessItems), cancellationToken);
+            var accountingFeesSave = await mediator.Send(new AddAccountingEntitiesCommand(accountingFeesResult.SuccessItems), cancellationToken);
+            if (accountingFeesSave.IsFailure)
+            {
+                logger.LogWarning("No se pudieron guardar las comisiones contables: {Error}", accountingFeesSave.Error);
+                return Result.Failure<bool>(Error.Problem("Accounting.Fees", "No se pudieron guardar las comisiones contables"));
+            }
+
+            return Result.Success(true);
 
         } catch (Exception ex)
         {
@@ -65,7 +73,7 @@ public sealed class AccountingFeesCommandHandler(
                 command.ProcessDate,
                 string.Join(",", command.PortfolioIds)
             );
-            return false;
+            return Result.Failure<bool>(Error.Problem("Exception", "Ocurrio un error inesperado al procesar las comisiones contables"));
         }
     }
 

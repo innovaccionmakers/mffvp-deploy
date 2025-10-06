@@ -89,7 +89,6 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<AccountingConceptsHandlerValidator>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
-        services.AddScoped<ICabMessagingService, CabMessagingService>();
 
     }
 

@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Presentation\Accounting.Presentation.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="External\Services\" />
+  </ItemGroup>
+
 </Project>
