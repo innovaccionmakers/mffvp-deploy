@@ -17,7 +17,7 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
     }
     public async Task<bool> ClientOperationsExistsAsync(int portfolioId, DateTime closingDateUtc, long operationTypeId, CancellationToken cancellationToken = default)
     {
-        return await context.ClientOperations.AsNoTracking()
+        return await context.ClientOperations.AsNoTracking().TagWith("ClientOperationRepository_ClientOperationsExistsAsync")
             .AnyAsync(co => co.PortfolioId == portfolioId && co.ProcessDate == closingDateUtc && co.OperationTypeId == operationTypeId, cancellationToken);
     }
 
@@ -27,7 +27,7 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
        IEnumerable<long> subtransactionTypeIds,
        CancellationToken cancellationToken = default)
     {
-        return await context.ClientOperations.AsNoTracking()
+        return await context.ClientOperations.AsNoTracking().TagWith("ClientOperationRepository_SumByPortfolioAndSubtypesAsync")
             .Where(op => op.PortfolioId == portfolioId
                          && op.ProcessDate.Date == closingDateUtc.Date
                          && subtransactionTypeIds.Contains(op.OperationTypeId))
@@ -37,6 +37,7 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
     {
         return await context.ClientOperations
             .Where(co => co.ClientOperationId == id)
+            .TagWith("ClientOperationRepository_GetForUpdateByIdAsync")
             .AsNoTracking()
             .FirstOrDefaultAsync(cancellationToken);
     }

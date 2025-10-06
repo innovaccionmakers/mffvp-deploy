@@ -16,8 +16,11 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
     DateTime closingDateUtc,
     CancellationToken cancellationToken = default)
     {
-        await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbFactory
+            .CreateDbContextAsync(cancellationToken);
+
         var deletedCount = await db.Yields
+           .TagWith("YieldRepository_DeleteByPortfolioAndDateAsync")
             .Where(yield => yield.PortfolioId == portfolioId
                          && yield.ClosingDate == closingDateUtc
                          && !yield.IsClosed)
@@ -31,6 +34,7 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
     {
         await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
         await db.Yields
+            .TagWith("YieldRepository_DeleteClosedByPortfolioAndDateAsync")
             .Where(yield => yield.PortfolioId == portfolioId
                             && yield.ClosingDate == closingDateUtc
                             && yield.IsClosed)
@@ -40,7 +44,9 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
     public async Task<bool> ExistsYieldAsync(int portfolioId, DateTime closingDateUtc, bool isClosed, CancellationToken cancellationToken = default)
     {
 
-        return await context.Yields.AsNoTracking()
+        return await context.Yields
+            .AsNoTracking()
+            .TagWith("YieldRepository_ExistsYieldAsync")
             .AnyAsync(y => y.PortfolioId == portfolioId
                         && y.ClosingDate == closingDateUtc
                         && y.IsClosed == isClosed,
@@ -50,13 +56,16 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
     public async Task<Yield?> GetForUpdateByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
     {
         return await context.Yields
+            .TagWith("YieldRepository_GetForUpdateByPortfolioAndDateAsync")
             .Where(y => y.PortfolioId == portfolioId && y.ClosingDate.Date == closingDateUtc)
             .SingleOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Yield?> GetReadOnlyByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
     {
-        return await context.Yields.AsNoTracking()
+        return await context.Yields
+            .AsNoTracking()
+             .TagWith("YieldRepository_GetReadOnlyByPortfolioAndDateAsync")
             .Where(y => y.PortfolioId == portfolioId && y.ClosingDate.Date == closingDateUtc)
             .SingleOrDefaultAsync(cancellationToken);
     }

@@ -1,6 +1,6 @@
 using Closing.Application.Abstractions.Data;
 using Closing.Application.Closing.Services.Telemetry;
-using Closing.Application.PostClosing.Services.PendingTransactionHandler;
+using Closing.Application.PostClosing.Services.PendingTransactions;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -13,7 +13,7 @@ public sealed class AbortClosingService(
       IAbortSimulationService abortSimulationService,
       IAbortPortfolioValuationService abortPortfolioValuationService,
       IAbortTrustYieldService abortTrustYieldService,
-      IPendingTransactionHandler pendingTransactionHandler,
+      IPendingTransactionsService pendingTransactionHandler,
       IUnitOfWork unitOfWork,
       IClosingStepTimer stepTimer,
       ILogger<AbortClosingService> logger) : IAbortClosingService

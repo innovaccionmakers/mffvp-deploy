@@ -1,4 +1,8 @@
-﻿using Closing.Application.Abstractions.External.Operations.OperationTypes;
+﻿using Closing.Application.Abstractions.External.Operations.ClientOperations;
+using Closing.Application.Abstractions.External.Operations.OperationTypes;
+using Closing.Application.Abstractions.External.Operations.TrustOperations;
+using Closing.Application.Abstractions.External.Products.AccumulatedCommissions;
+using Closing.Application.Abstractions.External.Products.Portfolios;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
 using Closing.Application.Closing.Services.Abort;
 using Closing.Application.Closing.Services.OperationTypes;
@@ -16,14 +20,19 @@ using Closing.Application.Closing.Services.Validation;
 using Closing.Application.Closing.Services.Validation.Interfaces;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PostClosing.Services.Orchestation;
-using Closing.Application.PostClosing.Services.PendingTransactionHandler;
-using Closing.Application.PostClosing.Services.PortfolioCommissionEvent;
-using Closing.Application.PostClosing.Services.PortfolioUpdateEvent;
+using Closing.Application.PostClosing.Services.PendingTransactions;
+using Closing.Application.PostClosing.Services.PortfolioCommission;
+using Closing.Application.PostClosing.Services.PortfolioUpdate;
 using Closing.Application.PostClosing.Services.TechnicalSheetEvent;
 using Closing.Application.PostClosing.Services.TrustSync;
-using Closing.Application.PostClosing.Services.TrustYieldEvent;
+using Closing.Application.PostClosing.Services.TrustYield;
 using Closing.Infrastructure.External.DataSync;
+using Closing.Infrastructure.External.Operations.ClientOperations;
 using Closing.Infrastructure.External.Operations.OperationTypes;
+using Closing.Infrastructure.External.Operations.TrustOperations;
+using Closing.Infrastructure.External.Products.Commissions;
+using Closing.Infrastructure.External.Products.Portfolios;
+using Closing.Infrastructure.External.Trusts.Trusts;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -61,13 +70,18 @@ namespace Closing.Infrastructure.Configuration
 
             services.AddScoped<IValidateTrustYieldsDistributionService, ValidateTrustYieldsDistributionService>();
 
-            services.AddScoped<IPostClosingEventsOrchestation, PostClosingEventsOrchestation>();
-            services.AddScoped<IPortfolioUpdatePublisher, PortfolioUpdatePublisher>();
+            services.AddScoped<IPostClosingServicesOrchestation, PostClosingServicesOrchestation>();
+            services.AddScoped<IPortfolioUpdateService, PortfolioUpdateService>();
             services.AddScoped<ITechnicalSheetPublisher, TechnicalSheetPublisher>();
-            services.AddScoped<ITrustYieldPublisher, TrustYieldPublisher>();
-            services.AddScoped<IPortfolioCommissionPublisher, PortfolioCommissionPublisher>();
-            services.AddScoped<IPendingTransactionHandler, PendingTransactionHandler>();
+            services.AddScoped<ITrustYieldProcessor, TrustYieldProcessor>();
+            services.AddScoped<IPortfolioCommissionService, PortfolioCommissionService>();
+            services.AddScoped<IPendingTransactionsService, PendingTransactionsService>();
             services.AddScoped<IDataSyncPostService, DataSyncTrustPostService>();
+            services.AddScoped<IProcessPendingTransactionsRemote, ProcessPendingTransactionsRemote>();
+            services.AddScoped<IUpdatePortfolioFromClosingRemote, UpdatePortfolioFromClosingRemote>();
+            services.AddScoped<IUpsertTrustYieldOperationsRemote, UpsertTrustYieldOperationsRemote>();
+            services.AddScoped<IUpdateTrustRemote, UpdateTrustRemote>();
+            services.AddScoped<IUpdateAccumulatedCommissionRemote, UpdateAccumulatedCommissionRemote>();
 
             services.AddScoped<IWarningCollector, WarningCollector>();
 

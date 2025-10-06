@@ -10,7 +10,7 @@ namespace Closing.Application.Closing.RunClosing;
 
 internal sealed class ConfirmClosingCommandHandler(
     IConfirmClosingOrchestrator orchestrator,
-    IPostClosingEventsOrchestation postClosingEventsOrchestation,
+    IPostClosingServicesOrchestation postClosingServicesOrchestation,
     IUnitOfWork unitOfWork,
     ILogger<ConfirmClosingCommandHandler> logger)
     : ICommandHandler<ConfirmClosingCommand, ConfirmClosingResult>
@@ -60,7 +60,7 @@ internal sealed class ConfirmClosingCommandHandler(
         // -------------------------
         try
         {
-            await postClosingEventsOrchestation.ExecuteAsync(command.PortfolioId, command.ClosingDate, cancellationToken);
+            await postClosingServicesOrchestation.ExecuteAsync(command.PortfolioId, command.ClosingDate, cancellationToken);
         }
         catch (Exception ex)
         {
