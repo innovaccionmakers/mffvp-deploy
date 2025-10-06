@@ -7,10 +7,13 @@ using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Accounting.Presentation.GraphQL
 {
-    public class AccountProcessExperienceMutations(IMediator mediator) : IAccountProcessExperienceMutations
+    public class AccountProcessExperienceMutations(
+        IMediator mediator,
+        ILogger<AccountProcessExperienceMutations> logger) : IAccountProcessExperienceMutations
     {
         public async Task<GraphqlResult<bool>> AccountingFeesProcessAsync(AccountingInput input, IValidator<AccountingInput> validator, CancellationToken cancellationToken = default)
         {
@@ -89,6 +92,7 @@ namespace Accounting.Presentation.GraphQL
         public async Task<GraphqlResult<string>> AccountProcessAsync(AccountingInput input, IValidator<AccountingInput> validator, CancellationToken cancellationToken = default)
         {
             var result = new GraphqlResult<string>();
+
             try
             {
                 var validationResult = await RequestValidator.Validate(input, validator);
@@ -104,17 +108,31 @@ namespace Accounting.Presentation.GraphQL
                     input.ProcessDate
                 );
 
-                var commandResult = await mediator.Send(command, cancellationToken);
-
-                if (!commandResult.IsSuccess)
+                // Crear la tarea en segundo plano
+                _ = Task.Run(async () =>
                 {
-                    result.AddError(commandResult.Error);
-                    return result;
-                }
+                    try
+                    {
+                        logger.LogInformation("Procesando AccountProcessCommand en segundo plano."); 
+                        var result = await mediator.Send(command, cancellationToken);
 
-                var valueCommand = commandResult.Value;
+                        if (result.IsSuccess)
+                        {
+                            logger.LogInformation("Proceso AccountProcess completado exitosamente.");
+                        }
+                        else
+                        {
+                            logger.LogWarning("Proceso AccountProcess completado con errores. Error: {Error}", result.Error?.Description);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error en proceso en segundo plano de AccountProcess.");
+                    }
+                }, cancellationToken);
 
-                result.SetSuccess(new string(valueCommand));
+
+                result.SetSuccess( string.Empty, "Se está generando la información del proceso contable. Sera notificado cuando finalice.");
 
                 return result;
             }
