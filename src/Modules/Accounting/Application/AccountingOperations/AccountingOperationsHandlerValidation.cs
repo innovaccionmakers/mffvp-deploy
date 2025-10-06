@@ -8,6 +8,8 @@ using Customers.Integrations.People.GetPeopleByIdentifications;
 using Microsoft.Extensions.Logging;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
 using System.Collections.Concurrent;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Accounting.Application.AccountingOperations
 {
@@ -78,6 +80,21 @@ namespace Accounting.Application.AccountingOperations
                     peopleByIdentification!.TryGetValue(identification ?? string.Empty, out var person);
                     treasuryByPortfolioId.TryGetValue(operation.PortfolioId, out var debitAccount);
                     passiveTransactionByPortfolioId.TryGetValue(operation.PortfolioId, out var creditAccount);
+                    var natureValue = GetEnumMemberValue(operation.Nature);
+
+                    if (string.IsNullOrWhiteSpace(debitAccount?.DebitAccount))
+                    {
+                        logger.LogWarning("No se encontró un concepto de cuenta de crédito para el portafolio {PortfolioId}", operation.PortfolioId);
+                        errors.Add(AccountingInconsistency.Create(operation.PortfolioId, OperationTypeNames.Commission, "No existe parametrización contable", AccountingActivity.Debit));
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(creditAccount?.CreditAccount))
+                    {
+                        logger.LogWarning("No se encontró un concepto de cuenta de debito para el portafolio {PortfolioId}", operation.PortfolioId);
+                        errors.Add(AccountingInconsistency.Create(operation.PortfolioId, OperationTypeNames.Commission, "No existe parametrización contable", AccountingActivity.Credit));
+                        continue;
+                    }
 
                     var accountingAssistant = AccountingAssistant.Create(
                         identification ?? string.Empty,
@@ -87,7 +104,7 @@ namespace Accounting.Application.AccountingOperations
                         processDate,
                         operation.OperationTypeName,
                         operation.Amount,
-                        operation.Nature.ToString()
+                        natureValue
                     );
 
                     if (accountingAssistant.IsFailure)
@@ -110,6 +127,13 @@ namespace Accounting.Application.AccountingOperations
             }
 
             return (assistants, errors);
+        }
+
+        public static string GetEnumMemberValue(Enum value)
+        {
+            var field = value.GetType().GetField(value.ToString());
+            var attribute = field?.GetCustomAttribute<EnumMemberAttribute>();
+            return attribute?.Value ?? value.ToString();
         }
     }
 }

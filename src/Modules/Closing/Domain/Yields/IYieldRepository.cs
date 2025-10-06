@@ -23,5 +23,11 @@ public interface IYieldRepository
 
     Task<Yield?> GetReadOnlyByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<Yield>> GetByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<Yield>> GetComissionsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds,
+                                                                                    DateTime closingDate,
+                                                                                    CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Yield>> GetYieldsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds,
+                                                                                   DateTime closingDate,
+                                                                                   CancellationToken cancellationToken = default);
 }
