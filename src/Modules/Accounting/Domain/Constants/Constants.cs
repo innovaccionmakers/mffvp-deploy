@@ -18,6 +18,7 @@ public static class OperationTypeNames
 public static class ProcessTypes
 {
     public const string AccountingFees = "AccountingFees";
+    public const string AccountingReturns = "AccountingReturns";
     public const string AccountingOperations = "AccountingOperations";
     public const string AccountingConcepts = "AccountingConcepts";
 }

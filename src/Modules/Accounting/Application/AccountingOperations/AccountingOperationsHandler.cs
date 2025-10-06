@@ -88,6 +88,7 @@ namespace Accounting.Application.AccountingOperations
                     logger.LogInformation("No hay operaciones contables que procesar");
                     return false;
                 }
+
                 await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
 
                 return Result.Success<bool>(true);

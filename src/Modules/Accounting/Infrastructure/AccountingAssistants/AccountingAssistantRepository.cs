@@ -1,5 +1,6 @@
 ﻿using Accounting.Domain.AccountingAssistants;
 using Accounting.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Accounting.Infrastructure.AccountingAssistants;
 
@@ -8,5 +9,10 @@ public sealed class AccountingAssistantRepository(AccountingDbContext context) :
     public async Task AddRangeAsync(IEnumerable<AccountingAssistant> accountingAssistants, CancellationToken cancellationToken = default)
     {
         await context.AccountingAssistants.AddRangeAsync(accountingAssistants, cancellationToken);
+    }
+
+    public async Task DeleteRangeAsync(CancellationToken cancellationToken = default)
+    {
+        await context.AccountingAssistants.ExecuteDeleteAsync(cancellationToken);
     }
 }

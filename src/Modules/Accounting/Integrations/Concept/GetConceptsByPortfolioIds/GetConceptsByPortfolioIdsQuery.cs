@@ -1,4 +1,5 @@
-﻿using Common.SharedKernel.Application.Messaging;
+﻿using Accounting.Integrations.Concept.GetConceptsByPortfolioIds;
+using Common.SharedKernel.Application.Messaging;
 
 namespace Accounting.Integrations.Treasuries.GetConceptsByPortfolioIds
 {
