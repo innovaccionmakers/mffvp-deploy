@@ -2,25 +2,26 @@
 using Closing.Integrations.Yields;
 using Closing.Integrations.Yields.Queries;
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Core.Primitives;  
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
+
 namespace Closing.Application.Yields;
 
-internal sealed class GetAllFeesQueryHandler(
-    ILogger<GetAllFeesQueryHandler> logger,
-    IYieldRepository yieldRepository) : IQueryHandler<GetAllFeesQuery, IReadOnlyCollection<YieldResponse>>
+internal class GetAllReturnsQueryHandler(
+    ILogger<GetAllReturnsQueryHandler> logger,
+    IYieldRepository yieldRepository) : IQueryHandler<GetAllReturnsQuery, IReadOnlyCollection<YieldResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<YieldResponse>>> Handle(GetAllFeesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<YieldResponse>>> Handle(GetAllReturnsQuery request, CancellationToken cancellationToken)
     {
         try
         {
-            var yields = await yieldRepository.GetComissionsByPortfolioIdsAndClosingDateAsync(request.PortfolioIds, request.ClosingDate, cancellationToken);
+            var yields = await yieldRepository.GetYieldsByPortfolioIdsAndClosingDateAsync(request.PortfolioIds, request.ClosingDate, cancellationToken);
 
             if (yields is null || yields.Count == 0)
             {
-                logger.LogWarning("No se encontraron comisiones para los portafolios y fecha de cierre proporcionadas.");
-                return Result.Failure<IReadOnlyCollection<YieldResponse>>(new Error("Error", "No se encontraron comisiones para los portafolios y fecha de cierre proporcionadas.", ErrorType.Validation));
+                logger.LogWarning("No se encontraron rendimientos para los portafolios y fecha de cierre proporcionadas.");
+                return Result.Failure<IReadOnlyCollection<YieldResponse>>(new Error("Error", "No se encontraron rendimientos para los portafolios y fecha de cierre proporcionadas.", ErrorType.Validation));
             }
 
             var yieldResponses = yields.Select(y => new YieldResponse(
@@ -39,10 +40,10 @@ internal sealed class GetAllFeesQueryHandler(
 
             return Result.Success<IReadOnlyCollection<YieldResponse>>(yieldResponses);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             logger.LogError(ex, "Ocurrió un error inesperado al obtener los comisiones.");
             return Result.Failure<IReadOnlyCollection<YieldResponse>>(new Error("Error", "Ocurrió un error inesperado al obtener los comisiones.", ErrorType.Problem));
-        }        
+        }
     }
 }

@@ -14,7 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Accounting.Application.AccountingReturns;
 
-internal sealed class AccountingReturnsCommandHandler(
+public sealed class AccountingReturnsCommandHandler(
     ILogger<AccountingReturnsCommandHandler> logger,
     IPassiveTransactionRepository passiveTransactionRepository,
     IYieldLocator yieldLocator,
@@ -27,7 +27,7 @@ internal sealed class AccountingReturnsCommandHandler(
     {
         try
         {
-            var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken);
+            var yields = await yieldLocator.GetAllReturnsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken);
 
             if (yields.IsFailure)
             {

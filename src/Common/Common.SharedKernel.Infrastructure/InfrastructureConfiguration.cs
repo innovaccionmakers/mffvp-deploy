@@ -96,19 +96,6 @@ public static class InfrastructureConfiguration
             };
         }).AddSubscribeFilter<CapsEventsFilter>();
 
-        services
-            .AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService(serviceName))
-            .WithTracing(tracing =>
-            {
-                tracing
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddEntityFrameworkCoreInstrumentation()
-                    .AddNpgsql();
-
-                tracing.AddOtlpExporter();
-            });
 
         services.AddEndpointsApiExplorer();
 

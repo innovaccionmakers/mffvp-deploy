@@ -5,3 +5,4 @@ public sealed record class GetConceptsByPortfolioIdsResponse(
     string? DebitAccount,
     string? CreditAccount
 );
+
