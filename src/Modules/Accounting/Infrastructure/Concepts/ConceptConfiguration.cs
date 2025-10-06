@@ -23,14 +23,6 @@ internal sealed class ConceptConfiguration : IEntityTypeConfiguration<Concept>
                 .HasMaxLength(100)
                 .IsRequired();
 
-        builder.Property(x => x.ContraDebitAccount)
-                .HasColumnName("cuenta_contra_debito")
-                .HasMaxLength(20);
-
-        builder.Property(x => x.ContraCreditAccount)
-                .HasColumnName("cuenta_contra_credito")
-                .HasMaxLength(20);
-
         builder.Property(x => x.DebitAccount)
                 .HasColumnName("cuenta_debito")
                 .HasMaxLength(20);

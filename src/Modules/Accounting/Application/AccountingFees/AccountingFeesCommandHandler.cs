@@ -27,7 +27,7 @@ public sealed class AccountingFeesCommandHandler(
     {
         try
         {
-            var yields = await yieldLocator.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken);
+            var yields = await yieldLocator.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken);
 
             if (yields.IsFailure)
             {

@@ -4,7 +4,8 @@ namespace Accounting.Application.Abstractions.External;
 
 public interface IYieldLocator
 {
-    Task<Result<IReadOnlyCollection<YieldResponse>>> GetYieldsPortfolioIdsAndClosingDate(IEnumerable<int> portfolioIds, DateTime closingDate, CancellationToken ct);
+    Task<Result<IReadOnlyCollection<YieldResponse>>> GetAllComissionsPortfolioIdsAndClosingDate(IEnumerable<int> portfolioIds, DateTime closingDate, CancellationToken ct);
+    Task<Result<IReadOnlyCollection<YieldResponse>>> GetAllReturnsPortfolioIdsAndClosingDate(IEnumerable<int> portfolioIds, DateTime closingDate, CancellationToken ct);
 }
 
 public sealed record YieldResponse

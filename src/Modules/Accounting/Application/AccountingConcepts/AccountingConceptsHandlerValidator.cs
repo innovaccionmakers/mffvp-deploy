@@ -2,8 +2,8 @@
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Integrations.AccountingConcepts;
+using Accounting.Integrations.Concept.GetConceptsByPortfolioIds;
 using Accounting.Integrations.Treasuries.GetAccountingConceptsTreasuries;
-using Accounting.Integrations.Treasuries.GetConceptsByPortfolioIds;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
