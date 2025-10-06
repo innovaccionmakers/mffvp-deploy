@@ -42,7 +42,7 @@ public class AccountingAssistant : Entity, ICloneable
             Name = name,
             Period = period,
             Account = account,
-            Date = date,
+            Date = date?.ToUniversalTime(),
             Detail = detail,
             Type = type,
             Value = value,
