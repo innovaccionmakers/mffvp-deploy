@@ -19,9 +19,6 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
 
     public async Task<Result> Handle(UpdateTrustFromYieldCommand request, CancellationToken cancellationToken)
     {
-        logger.LogInformation(
-              "{Class} - Inicio. TrustId:{TrustId}, FechaCierre:{ClosingDate}, Rendimiento:{YieldAmount}, Retención:{YieldRetention}, SaldoCierreEsperado:{ClosingBalance}",
-              ClassName, request.TrustId, request.ClosingDate, request.YieldAmount, request.YieldRetention, request.ClosingBalance);
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
@@ -35,18 +32,11 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
             request.ClosingBalance,
             cancellationToken);
 
-        logger.LogInformation(
-            "{Class} - Actualización completada. FilasAfectadas:{AffectedRows}, TrustId:{TrustId} ClosingDate:{ClosingDate}",
-            ClassName, affectedRows, request.TrustId, request.ClosingDate);
-
         if (affectedRows == 1)
         {
             await transaction.CommitAsync(cancellationToken);
-            logger.LogInformation("{Class} - Éxito. Fideicomiso actualizado. TrustId:{TrustId}  ClosingDate:{ClosingDate}", ClassName, request.TrustId, request.ClosingDate);
-           
             return Result.Success();
         }
-        logger.LogInformation("{Class} - No actualizado saldo de Fideicomiso. Posiblemente no cumplió con alguna condición de negocio. TrustId:{TrustId}  ClosingDate:{ClosingDate}", ClassName, request.TrustId, request.ClosingDate);
 
         return Result.Failure(new Error("ERR001", "No se pudo actualizar Fideicomiso.", ErrorType.Validation));
      

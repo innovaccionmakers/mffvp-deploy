@@ -23,17 +23,12 @@ public sealed class TrustYieldOperationAppliedSuscriber(ISender mediator, ILogge
             ["ClosingDate"] = message.ClosingDate.ToString("O")
         }))
         {
-            logger.LogInformation("CAP MessageId:{CapMessageId} Recibido. Preparando envío a MediatR…", msgId);
-
             try
             {
-                logger.LogInformation("CAP Antes de mediator.Send(UpdateTrustFromYieldCommand)");
                 var result = await mediator.Send(new UpdateTrustFromYieldCommand(
                     message.TrustId, message.PortfolioId, message.ClosingDate,
                     message.YieldAmount, message.YieldRetention, message.ClosingBalance
                      ), cancellationToken); 
-
-                logger.LogInformation("CAP Después de mediator.Send. IsFailure={IsFailure}", result.IsFailure);
 
                 if (result.IsFailure)
                 {
@@ -41,7 +36,6 @@ public sealed class TrustYieldOperationAppliedSuscriber(ISender mediator, ILogge
                     return; 
                 }
 
-                logger.LogInformation("CAP Comando aplicado OK.");
             }
             catch (OperationCanceledException)
             {
