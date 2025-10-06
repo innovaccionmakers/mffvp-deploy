@@ -15,7 +15,7 @@ namespace Accounting.Application.AccountProcess
     internal sealed class AccountProcessHandler(
         ISender sender,
         IClosingExecutionStore closingValidator,
-        ICabMessagingService cabMessagingService) : ICommandHandler<AccountProcessCommand, string>
+        ICapMessagingService cabMessagingService) : ICommandHandler<AccountProcessCommand, string>
     {
         public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
         {
