@@ -73,7 +73,7 @@ public class AccountingFeesCommandHandlerTests
             "Name"
         );
 
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
+        _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
 
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
@@ -105,7 +105,7 @@ public class AccountingFeesCommandHandlerTests
         var cancellationToken = CancellationToken.None;
         var error = Error.NotFound("YieldLocator.Error", "No se encontraron yields");
 
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
+        _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Failure<IReadOnlyCollection<YieldResponse>>(error));
 
         // Act
@@ -128,7 +128,7 @@ public class AccountingFeesCommandHandlerTests
         };
         var error = Error.NotFound("OperationLocator.Error", "No se encontró el tipo de operación");
 
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
+        _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
 
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
@@ -154,7 +154,7 @@ public class AccountingFeesCommandHandlerTests
         };
         var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "", "CO");
 
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
+        _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
 
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
@@ -184,7 +184,7 @@ public class AccountingFeesCommandHandlerTests
         var cancellationToken = CancellationToken.None;
         var exception = new InvalidOperationException("Error interno");
 
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
+        _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ThrowsAsync(exception);
 
         // Act
@@ -213,7 +213,7 @@ public class AccountingFeesCommandHandlerTests
         var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "", "CO");
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "123", null, "123", "123"); // Sin cuenta de crédito
 
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
+        _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
 
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
@@ -248,7 +248,7 @@ public class AccountingFeesCommandHandlerTests
         var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "", "CO");
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, null, "123", "123", "123"); // Sin cuenta de débito
 
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
+        _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
 
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
@@ -284,7 +284,7 @@ public class AccountingFeesCommandHandlerTests
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
         var error = Error.NotFound("PortfolioLocator.Error", "No se encontró el portafolio");
 
-        _yieldLocatorMock.Setup(x => x.GetYieldsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
+        _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
 
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))

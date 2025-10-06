@@ -4,7 +4,6 @@ using Common.SharedKernel.Application.Messaging;
 
 namespace Closing.Integrations.PortfolioValuations.Queries;
 
-[AuditLog]
 public sealed record CheckValuationExistsQuery(
     long PortfolioId
 ) : IQuery<CheckValuationExistsResponse>;
