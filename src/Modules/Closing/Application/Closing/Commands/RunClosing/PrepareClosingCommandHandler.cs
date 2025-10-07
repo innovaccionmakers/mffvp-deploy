@@ -37,9 +37,19 @@ internal sealed class PrepareClosingCommandHandler(
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync(cancellationToken);
+            try
+            {
+                await transaction.RollbackAsync(cancellationToken);
+            }
+            catch (Exception rbEx)
+            {
+                logger.LogWarning(rbEx,
+                    "Rollback falló en PrepareClosing para Portafolio {PortfolioId} - Fecha {Date}",
+                    command.PortfolioId, command.ClosingDate);
+            }
+
             await cancelClosingOrchestrator.CancelAsync(command.PortfolioId, command.ClosingDate, cancellationToken);
-            logger?.LogError(ex, "Error en PrepareClosingCommand para Portafolio {PortfolioId} - Fecha {Date}",
+            logger.LogError(ex, "Error en PrepareClosingCommand para Portafolio {PortfolioId} - Fecha {Date}",
                 command.PortfolioId, command.ClosingDate);
             throw;
         }

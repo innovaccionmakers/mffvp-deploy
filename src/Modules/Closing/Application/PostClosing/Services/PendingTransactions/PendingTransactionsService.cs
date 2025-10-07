@@ -29,7 +29,6 @@ public sealed class PendingTransactionsService : IPendingTransactionsService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        // Idempotencia por (portfolioId, fecha)
         var idempotencyKey = $"pendingtx:{portfolioId}:{processDateUtc:yyyyMMdd}";
 
         logger.LogInformation(
@@ -40,12 +39,11 @@ public sealed class PendingTransactionsService : IPendingTransactionsService
             PortfolioId: portfolioId,
             ProcessDateUtc: processDateUtc,
             IdempotencyKey: idempotencyKey,
-            ExecutionId: null // pásalo si lo tienes disponible
+            ExecutionId: null 
         );
 
         var result = await processPendingTransactionsRemote.ExecuteAsync(request, cancellationToken);
 
-        // Error de transporte/infra/validación
         if (result.IsFailure)
         {
             logger.LogError(
@@ -57,7 +55,6 @@ public sealed class PendingTransactionsService : IPendingTransactionsService
 
         var response = result.Value;
 
-        // Éxito funcional: "Processed" o "NothingToProcess"
         var success = response.Succeeded && (response.Status == "Processed" || response.Status == "NothingToProcess");
         if (!success)
         {
