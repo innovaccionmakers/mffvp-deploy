@@ -89,21 +89,6 @@ if (env != "Development")
         var region = builder.Configuration["AWS:SecretsManager:Region"];
         var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
 
-        using (var tempProvider = builder.Services.BuildServiceProvider())
-        {
-            var logger = tempProvider.GetRequiredService<ILogger<Program>>();
-            logger.LogInformation("ILogger is working: environment is {EnvironmentName}", builder.Environment.EnvironmentName);
-
-            if (string.IsNullOrWhiteSpace(response))
-            {
-                logger.LogError("Secret fetched from SecretsManager is empty or null.");
-            }
-            else
-            {
-                logger.LogInformation("Secret fetched from SecretsManager successfully and assigned to configuration.");
-            }
-        }
-
         builder.Configuration["ConnectionStrings:Database"] = response;
         builder.Configuration["ConnectionStrings:CapDatabase"] = response;
     #endif
