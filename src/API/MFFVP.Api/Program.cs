@@ -1,4 +1,3 @@
-using Accounting.Application;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Infrastructure;
@@ -22,8 +21,6 @@ using MFFVP.Api.OpenTelemetry;
 
 using Microsoft.OpenApi.Models;
 
-using Serilog;
-
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,89 +33,67 @@ builder.Configuration
 
 if (env != "Development")
 {
-#if !IS_CI
-    builder.Host.UseSerilog((context, loggerConfig) =>
-        loggerConfig.MinimumLevel.Information().WriteTo.Console());
-
-    var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
-    builder.Services.AddObservabilityServiceExtension(options =>
-    {
-        options.ServiceName = observabilityOptions.ServiceName;
-        options.MeterNames = observabilityOptions.MeterNames;
-        options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
-        options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
-        options.DefaultAttributes = observabilityOptions.DefaultAttributes;
-
-        options.UseSidecarPattern = true;
-        options.SidecarEndpoint = "http://localhost:4317";
-        options.EnablePrometheusExporter = false;
-        options.EnableAspireExport = true;
-
-        options.AutoTracingAssemblyPatterns = new[]
+    #if !IS_CI
+            var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
+        builder.Services.AddObservabilityServiceExtension(options =>
         {
-            "Makers.Funds.*",            // Todos los assemblies Makers.Funds
-            "Core.Makers.Funds.*",       // Core assemblies (para IErrorOperationsBusiness)
-            "Makers.*.Bussines",         // Capas de negocio
-            "Makers.*.Business",         // Por si usan "Business" sin "s"
-            "Makers.*.Data",             // Capas de datos
-            "*.Application",
-            "*.Application.Contracts",
-            "*.Domain",
-            "*.Infrastructure",
-            "*.IntegrationEvents",
-            "*.Integrations",
-            "*.Presentation",
-            "MFFVP.Api"
-        };
+            options.ServiceName = observabilityOptions.ServiceName;
+            options.MeterNames = observabilityOptions.MeterNames;
+            options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
+            options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
+            options.DefaultAttributes = observabilityOptions.DefaultAttributes;
 
-        options.AutoTracingServicePatterns = new[]
-        {
-            "*Business",                 // IErrorOperationsBusiness
-            "*Bussines",                 // IEscrowBussines, IInconsistencyBussines, IClosingLogBussines
-            "*Service",                  // Servicios generales
-            "*Repository",               // Repositorios
-            "*Handler",                  // Handlers
-            "*Manager",                  // Managers
-            "*Processor"                 // Procesadores
-        };
+            options.UseSidecarPattern = true;
+            options.SidecarEndpoint = "http://localhost:4317";
+            options.EnablePrometheusExporter = false;
+            options.EnableAspireExport = true;
 
-        options.AutoTracingExcludePatterns = new[]
-        {
-            "*HealthCheck*",             // Health checks
-            "*Configuration*",           // Configuraciones
-            "*Logger*",                  // Loggers (pueden crear recursi�n)
-            "*.Internal.*"               // Clases internas
-        };
-    });
+            options.AutoTracingAssemblyPatterns = new[]
+            {
+                    "Makers.Funds.*",            // Todos los assemblies Makers.Funds
+                    "Core.Makers.Funds.*",       // Core assemblies (para IErrorOperationsBusiness)
+                    "Makers.*.Bussines",         // Capas de negocio
+                    "Makers.*.Business",         // Por si usan "Business" sin "s"
+                    "Makers.*.Data",             // Capas de datos
+                    "*.Application",
+                    "*.Application.Contracts",
+                    "*.Domain",
+                    "*.Infrastructure",
+                    "*.IntegrationEvents",
+                    "*.Integrations",
+                    "*.Presentation",
+                    "MFFVP.Api"
+            };
 
-    var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
-    var region = builder.Configuration["AWS:SecretsManager:Region"];
-    var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
+            options.AutoTracingServicePatterns = new[]
+            {
+                    "*Business",                 // IErrorOperationsBusiness
+                    "*Bussines",                 // IEscrowBussines, IInconsistencyBussines, IClosingLogBussines
+                    "*Service",                  // Servicios generales
+                    "*Repository",               // Repositorios
+                    "*Handler",                  // Handlers
+                    "*Manager",                  // Managers
+                    "*Processor"                 // Procesadores
+            };
 
-    using (var tempProvider = builder.Services.BuildServiceProvider())
-    {
-        var logger = tempProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation("ILogger is working: environment is {EnvironmentName}", builder.Environment.EnvironmentName);
+            options.AutoTracingExcludePatterns = new[]
+            {
+                    "*HealthCheck*",             // Health checks
+                    "*Configuration*",           // Configuraciones
+                    "*Logger*",                  // Loggers (pueden crear recursi�n)
+                    "*.Internal.*"               // Clases internas
+            };
+        });
 
-        if (string.IsNullOrWhiteSpace(response))
-        {
-            logger.LogError("Secret fetched from SecretsManager is empty or null.");
-        }
-        else
-        {
-            logger.LogInformation("Secret fetched from SecretsManager successfully and assigned to configuration.");
-        }
-    }
+        var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
+        var region = builder.Configuration["AWS:SecretsManager:Region"];
+        var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
 
-    builder.Configuration["ConnectionStrings:Database"] = response;
-    builder.Configuration["ConnectionStrings:CapDatabase"] = response;
-#endif
+        builder.Configuration["ConnectionStrings:Database"] = response;
+        builder.Configuration["ConnectionStrings:CapDatabase"] = response;
+    #endif
 }
-else
-{
-    builder.Host.UseSerilog((context, loggerConfig) =>
-        loggerConfig.ReadFrom.Configuration(context.Configuration));
-}
+
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddTransient(typeof(IValidator<>), typeof(TechnicalValidator<>));
@@ -228,7 +203,7 @@ if (env != "Development")
 
 app.UseInfrastructure();
 
-app.UseLogContext();
+//app.UseLogContext();
 
 var moduleConfigurations = app.Services.GetServices<IModuleConfiguration>();
 
