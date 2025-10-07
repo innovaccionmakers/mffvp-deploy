@@ -15,15 +15,11 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
     ILogger<UpdateTrustFromYieldCommandHandler> logger)
     : ICommandHandler<UpdateTrustFromYieldCommand>
 {
-    private const string ClassName = nameof(UpdateTrustFromYieldCommandHandler);
-
     public async Task<Result> Handle(UpdateTrustFromYieldCommand request, CancellationToken cancellationToken)
     {
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-
-        logger.LogInformation("{Class} - Intentando actualización. TrustId:{TrustId} ClosingDate:{ClosingDate}", ClassName, request.TrustId, request.ClosingDate);
 
         var affectedRows = await trustRepository.TryApplyYieldToBalanceAsync(
             request.TrustId,

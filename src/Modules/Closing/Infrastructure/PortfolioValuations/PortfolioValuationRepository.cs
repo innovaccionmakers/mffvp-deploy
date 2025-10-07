@@ -8,7 +8,10 @@ namespace Closing.Infrastructure.PortfolioValuations
     {
         public async Task<PortfolioValuation?> GetReadOnlyByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
         {
-            return await context.PortfolioValuations.AsNoTracking().Where(x => x.PortfolioId == portfolioId &&
+            return await context.PortfolioValuations
+                .AsNoTracking()
+                .TagWith("PortfolioValuationRepository_GetReadOnlyByPortfolioAndDateAsync")
+                .Where(x => x.PortfolioId == portfolioId &&
                                                 x.ClosingDate == closingDateUtc &&
                                                 x.IsClosed == true)
                 .FirstOrDefaultAsync(cancellationToken);
@@ -16,7 +19,9 @@ namespace Closing.Infrastructure.PortfolioValuations
 
         public async Task<bool> ExistsByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
         {
-            return await context.PortfolioValuations.AsNoTracking()
+            return await context.PortfolioValuations
+                .AsNoTracking()
+                 .TagWith("PortfolioValuationRepository_ExistsByPortfolioAndDateAsync")
                 .AnyAsync(x => x.PortfolioId == portfolioId &&
                                x.ClosingDate == closingDateUtc &&
                                x.IsClosed == true,
@@ -26,6 +31,7 @@ namespace Closing.Infrastructure.PortfolioValuations
         public async Task<bool> ExistsByPortfolioIdAsync(long portfolioId, CancellationToken cancellationToken = default)
         {
             return await context.PortfolioValuations.AsNoTracking()
+                .TagWith("PortfolioValuationRepository_ExistsByPortfolioIdAsync")
                 .AnyAsync(x => x.PortfolioId == portfolioId,
                           cancellationToken);
         }
@@ -38,6 +44,7 @@ namespace Closing.Infrastructure.PortfolioValuations
         public async Task DeleteClosedByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
         {
             await context.PortfolioValuations
+                .TagWith("PortfolioValuationRepository_DeleteClosedByPortfolioAndDateAsync")
                 .Where(v => v.PortfolioId == portfolioId && v.ClosingDate == closingDateUtc && v.IsClosed)
                 .ExecuteDeleteAsync(cancellationToken);
         }
@@ -46,6 +53,7 @@ namespace Closing.Infrastructure.PortfolioValuations
         {
             return await context.PortfolioValuations
                 .AsNoTracking()
+                .TagWith("PortfolioValuationRepository_GetPortfolioValuationsByClosingDateAsync")
                 .Where(v => v.ClosingDate == closingDate && v.IsClosed)
                 .GroupBy(v => v.PortfolioId)
                 .Select(g => g.First())

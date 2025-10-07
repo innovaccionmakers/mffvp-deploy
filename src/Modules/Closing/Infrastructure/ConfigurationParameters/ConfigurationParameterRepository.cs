@@ -23,6 +23,7 @@ internal sealed class ConfigurationParameterRepository :
     )
     {
         return await context.ConfigurationParameters
+            .TagWith("ConfigurationParameterRepository_GetByUuidAsync")
             .SingleOrDefaultAsync(
                 p => p.Uuid == uuid,
                 cancellationToken

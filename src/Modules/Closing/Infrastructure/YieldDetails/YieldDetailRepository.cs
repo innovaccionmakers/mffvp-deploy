@@ -21,6 +21,7 @@ namespace Closing.Infrastructure.YieldDetails
         {
             await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
             var deletedCount = await db.YieldDetails
+               .TagWith($"YieldDetailRepository_DeleteByPortfolioAndDateAsync({portfolioId}, {closingDateUtc:yyyy-MM-dd})")
                .Where(yield => yield.PortfolioId == portfolioId
                              && yield.ClosingDate == closingDateUtc
                              && !yield.IsClosed //Solo se pueden borrar los que no son Cerrados
@@ -36,6 +37,7 @@ namespace Closing.Infrastructure.YieldDetails
         {
             await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
             await db.YieldDetails
+                .TagWith($"YieldDetailRepository_DeleteClosedByPortfolioAndDateAsync({portfolioId}, {closingDateUtc:yyyy-MM-dd})")
                 .Where(yield => yield.PortfolioId == portfolioId
                                 && yield.ClosingDate == closingDateUtc
                                 && yield.IsClosed
@@ -52,6 +54,7 @@ namespace Closing.Infrastructure.YieldDetails
         CancellationToken cancellationToken = default)
         {
             var baseQuery = context.YieldDetails
+            .TagWith($"YieldDetailRepository_GetReadOnlyByPortfolioAndDateAsync({portfolioId}, {closingDateUtc:yyyy-MM-dd})")
             .AsNoTracking()
             .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc);
 
@@ -89,7 +92,6 @@ namespace Closing.Infrastructure.YieldDetails
         {
             if (items is null || items.Count == 0) return 0;
 
-            var sw = Stopwatch.StartNew();
             await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
 
             await db.YieldDetails.AddRangeAsync(items, cancellationToken);

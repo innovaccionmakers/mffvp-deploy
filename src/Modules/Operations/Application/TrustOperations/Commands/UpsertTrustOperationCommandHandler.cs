@@ -1,11 +1,10 @@
-﻿using Common.SharedKernel.Application.EventBus;
-using DotNetCore.CAP;
+﻿using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Operations.Application.Abstractions.Data;
 using Operations.Domain.OperationTypes;
 using Operations.Domain.TrustOperations;
-using Operations.IntegrationEvents.TrustOperations;
 using Operations.Integrations.TrustOperations.Commands;
 
 namespace Operations.Application.TrustOperations.Commands;
@@ -13,58 +12,48 @@ namespace Operations.Application.TrustOperations.Commands;
 internal sealed class UpsertTrustOperationCommandHandler(
     ITrustOperationRepository repository,
     IUnitOfWork unitOfWork,
-    IOperationTypeRepository operationTypeRepository,
-    IEventBus eventBus)
-    : IRequestHandler<UpsertTrustOperationCommand>
+    ILogger<UpsertTrustOperationCommandHandler> logger)
+    : IRequestHandler<UpsertTrustOperationCommand, Result<UpsertTrustOperationResponse>>
 {
     private const string ClassName = nameof(UpsertTrustOperationCommandHandler);
-    public async Task Handle(UpsertTrustOperationCommand request, CancellationToken cancellationToken)
+
+    public async Task<Result<UpsertTrustOperationResponse>> Handle(
+        UpsertTrustOperationCommand request,
+        CancellationToken cancellationToken)
     {
-        
 
-        // 1. Obtener el subtipo "Rendimientos"
-        var subtype = await operationTypeRepository
-            .GetByNameAsync("Rendimientos", cancellationToken);
-        if (subtype is null)
+        await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
         {
-            throw new InvalidOperationException("Tipo de Transacción 'Rendimientos' no encontrada.");
+            var changed = await repository.UpsertAsync(
+                portfolioId: request.PortfolioId,
+                trustId: request.TrustId,
+                processDate: request.ClosingDate,
+                amount: request.Amount,
+                operationTypeId: request.OperationTypeId,
+                clientOperationId: null,
+                cancellationToken: cancellationToken);
+
+            long? operationId = null;
+
+
+            await tx.CommitAsync(cancellationToken);
+
+            return Result.Success(new UpsertTrustOperationResponse(operationId, changed));
         }
+        catch (OperationCanceledException)
+        {
+            try { await tx.RollbackAsync(CancellationToken.None); } catch { }
+            throw;
+        }
+        catch (Exception ex)
+        {
+            try { await tx.RollbackAsync(CancellationToken.None); } catch { }
 
-        var yieldSubtypeId = subtype.OperationTypeId;
+            logger.LogError(ex, "{Class} - Error en upsert de operación fideicomiso {TrustId}.", ClassName, request.TrustId);
 
-        //Definicion: para la tabla operaciones.operaciones_fideicomiso, la fecha de radicación y aplicación es el getdate
-        //y la fecha de proceso es la fecha del último cierre. 
-
-        using (var connection = unitOfWork.GetDbConnection())
-        
-        using (var transaction = connection.BeginTransaction(eventBus.GetCapPublisher(), autoCommit: false))
-        { 
-                // Upsert ExecuteSqlInterpolatedAsync
-            bool changed = await repository.UpsertAsync(
-            portfolioId: request.PortfolioId,
-            trustId: request.TrustId,
-            processDate: request.ClosingDate,
-            amount: request.Amount,
-            operationTypeId: yieldSubtypeId,
-            clientOperationId: null,
-            cancellationToken: cancellationToken);
-
-            if (changed)
-            {
-
-                    var integrationEvent = new TrustYieldOperationAppliedIntegrationEvent(
-                        trustId: request.TrustId,
-                        portfolioId: request.PortfolioId,
-                        closingDate: request.ClosingDate,
-                        yieldAmount: request.Amount,
-                        yieldRetention: request.YieldRetention,
-                        closingBalance: request.ClosingBalance
-                    );
-
-                    await eventBus.PublishAsync(integrationEvent, cancellationToken);
-                }
-
-         await transaction.CommitAsync(cancellationToken);
+            return Result.Failure<UpsertTrustOperationResponse>(
+                Error.Failure("OPS-UPSERT-ERR", ex.Message));
         }
     }
 }
