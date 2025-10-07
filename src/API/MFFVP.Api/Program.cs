@@ -1,4 +1,3 @@
-using Accounting.Application;
 using Common.SharedKernel.Application;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Infrastructure;
@@ -22,8 +21,6 @@ using MFFVP.Api.OpenTelemetry;
 
 using Microsoft.OpenApi.Models;
 
-using Serilog;
-
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,11 +33,8 @@ builder.Configuration
 
 if (env != "Development")
 {
-#if !IS_CI
-    builder.Host.UseSerilog((context, loggerConfig) =>
-        loggerConfig.MinimumLevel.Information().WriteTo.Console());
-
-    var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
+    #if !IS_CI
+        var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
     builder.Services.AddObservabilityServiceExtension(options =>
     {
         options.ServiceName = observabilityOptions.ServiceName;
@@ -56,38 +50,38 @@ if (env != "Development")
 
         options.AutoTracingAssemblyPatterns = new[]
         {
-            "Makers.Funds.*",            // Todos los assemblies Makers.Funds
-            "Core.Makers.Funds.*",       // Core assemblies (para IErrorOperationsBusiness)
-            "Makers.*.Bussines",         // Capas de negocio
-            "Makers.*.Business",         // Por si usan "Business" sin "s"
-            "Makers.*.Data",             // Capas de datos
-            "*.Application",
-            "*.Application.Contracts",
-            "*.Domain",
-            "*.Infrastructure",
-            "*.IntegrationEvents",
-            "*.Integrations",
-            "*.Presentation",
-            "MFFVP.Api"
+                "Makers.Funds.*",            // Todos los assemblies Makers.Funds
+                "Core.Makers.Funds.*",       // Core assemblies (para IErrorOperationsBusiness)
+                "Makers.*.Bussines",         // Capas de negocio
+                "Makers.*.Business",         // Por si usan "Business" sin "s"
+                "Makers.*.Data",             // Capas de datos
+                "*.Application",
+                "*.Application.Contracts",
+                "*.Domain",
+                "*.Infrastructure",
+                "*.IntegrationEvents",
+                "*.Integrations",
+                "*.Presentation",
+                "MFFVP.Api"
         };
 
         options.AutoTracingServicePatterns = new[]
         {
-            "*Business",                 // IErrorOperationsBusiness
-            "*Bussines",                 // IEscrowBussines, IInconsistencyBussines, IClosingLogBussines
-            "*Service",                  // Servicios generales
-            "*Repository",               // Repositorios
-            "*Handler",                  // Handlers
-            "*Manager",                  // Managers
-            "*Processor"                 // Procesadores
+                "*Business",                 // IErrorOperationsBusiness
+                "*Bussines",                 // IEscrowBussines, IInconsistencyBussines, IClosingLogBussines
+                "*Service",                  // Servicios generales
+                "*Repository",               // Repositorios
+                "*Handler",                  // Handlers
+                "*Manager",                  // Managers
+                "*Processor"                 // Procesadores
         };
 
         options.AutoTracingExcludePatterns = new[]
         {
-            "*HealthCheck*",             // Health checks
-            "*Configuration*",           // Configuraciones
-            "*Logger*",                  // Loggers (pueden crear recursi�n)
-            "*.Internal.*"               // Clases internas
+                "*HealthCheck*",             // Health checks
+                "*Configuration*",           // Configuraciones
+                "*Logger*",                  // Loggers (pueden crear recursi�n)
+                "*.Internal.*"               // Clases internas
         };
     });
 
@@ -112,13 +106,9 @@ if (env != "Development")
 
     builder.Configuration["ConnectionStrings:Database"] = response;
     builder.Configuration["ConnectionStrings:CapDatabase"] = response;
-#endif
+    #endif
 }
-else
-{
-    builder.Host.UseSerilog((context, loggerConfig) =>
-        loggerConfig.ReadFrom.Configuration(context.Configuration));
-}
+
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddTransient(typeof(IValidator<>), typeof(TechnicalValidator<>));
@@ -228,7 +218,7 @@ if (env != "Development")
 
 app.UseInfrastructure();
 
-app.UseLogContext();
+//app.UseLogContext();
 
 var moduleConfigurations = app.Services.GetServices<IModuleConfiguration>();
 
