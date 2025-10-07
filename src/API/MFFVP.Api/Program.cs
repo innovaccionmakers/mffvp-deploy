@@ -34,78 +34,78 @@ builder.Configuration
 if (env != "Development")
 {
     #if !IS_CI
-        var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
-    builder.Services.AddObservabilityServiceExtension(options =>
-    {
-        options.ServiceName = observabilityOptions.ServiceName;
-        options.MeterNames = observabilityOptions.MeterNames;
-        options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
-        options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
-        options.DefaultAttributes = observabilityOptions.DefaultAttributes;
-
-        options.UseSidecarPattern = true;
-        options.SidecarEndpoint = "http://localhost:4317";
-        options.EnablePrometheusExporter = false;
-        options.EnableAspireExport = true;
-
-        options.AutoTracingAssemblyPatterns = new[]
+            var observabilityOptions = builder.Configuration.GetSection("Observability").Get<ObservabilityOptions>();
+        builder.Services.AddObservabilityServiceExtension(options =>
         {
-                "Makers.Funds.*",            // Todos los assemblies Makers.Funds
-                "Core.Makers.Funds.*",       // Core assemblies (para IErrorOperationsBusiness)
-                "Makers.*.Bussines",         // Capas de negocio
-                "Makers.*.Business",         // Por si usan "Business" sin "s"
-                "Makers.*.Data",             // Capas de datos
-                "*.Application",
-                "*.Application.Contracts",
-                "*.Domain",
-                "*.Infrastructure",
-                "*.IntegrationEvents",
-                "*.Integrations",
-                "*.Presentation",
-                "MFFVP.Api"
-        };
+            options.ServiceName = observabilityOptions.ServiceName;
+            options.MeterNames = observabilityOptions.MeterNames;
+            options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
+            options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
+            options.DefaultAttributes = observabilityOptions.DefaultAttributes;
 
-        options.AutoTracingServicePatterns = new[]
+            options.UseSidecarPattern = true;
+            options.SidecarEndpoint = "http://localhost:4317";
+            options.EnablePrometheusExporter = false;
+            options.EnableAspireExport = true;
+
+            options.AutoTracingAssemblyPatterns = new[]
+            {
+                    "Makers.Funds.*",            // Todos los assemblies Makers.Funds
+                    "Core.Makers.Funds.*",       // Core assemblies (para IErrorOperationsBusiness)
+                    "Makers.*.Bussines",         // Capas de negocio
+                    "Makers.*.Business",         // Por si usan "Business" sin "s"
+                    "Makers.*.Data",             // Capas de datos
+                    "*.Application",
+                    "*.Application.Contracts",
+                    "*.Domain",
+                    "*.Infrastructure",
+                    "*.IntegrationEvents",
+                    "*.Integrations",
+                    "*.Presentation",
+                    "MFFVP.Api"
+            };
+
+            options.AutoTracingServicePatterns = new[]
+            {
+                    "*Business",                 // IErrorOperationsBusiness
+                    "*Bussines",                 // IEscrowBussines, IInconsistencyBussines, IClosingLogBussines
+                    "*Service",                  // Servicios generales
+                    "*Repository",               // Repositorios
+                    "*Handler",                  // Handlers
+                    "*Manager",                  // Managers
+                    "*Processor"                 // Procesadores
+            };
+
+            options.AutoTracingExcludePatterns = new[]
+            {
+                    "*HealthCheck*",             // Health checks
+                    "*Configuration*",           // Configuraciones
+                    "*Logger*",                  // Loggers (pueden crear recursi�n)
+                    "*.Internal.*"               // Clases internas
+            };
+        });
+
+        var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
+        var region = builder.Configuration["AWS:SecretsManager:Region"];
+        var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
+
+        using (var tempProvider = builder.Services.BuildServiceProvider())
         {
-                "*Business",                 // IErrorOperationsBusiness
-                "*Bussines",                 // IEscrowBussines, IInconsistencyBussines, IClosingLogBussines
-                "*Service",                  // Servicios generales
-                "*Repository",               // Repositorios
-                "*Handler",                  // Handlers
-                "*Manager",                  // Managers
-                "*Processor"                 // Procesadores
-        };
+            var logger = tempProvider.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("ILogger is working: environment is {EnvironmentName}", builder.Environment.EnvironmentName);
 
-        options.AutoTracingExcludePatterns = new[]
-        {
-                "*HealthCheck*",             // Health checks
-                "*Configuration*",           // Configuraciones
-                "*Logger*",                  // Loggers (pueden crear recursi�n)
-                "*.Internal.*"               // Clases internas
-        };
-    });
-
-    var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
-    var region = builder.Configuration["AWS:SecretsManager:Region"];
-    var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
-
-    using (var tempProvider = builder.Services.BuildServiceProvider())
-    {
-        var logger = tempProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation("ILogger is working: environment is {EnvironmentName}", builder.Environment.EnvironmentName);
-
-        if (string.IsNullOrWhiteSpace(response))
-        {
-            logger.LogError("Secret fetched from SecretsManager is empty or null.");
+            if (string.IsNullOrWhiteSpace(response))
+            {
+                logger.LogError("Secret fetched from SecretsManager is empty or null.");
+            }
+            else
+            {
+                logger.LogInformation("Secret fetched from SecretsManager successfully and assigned to configuration.");
+            }
         }
-        else
-        {
-            logger.LogInformation("Secret fetched from SecretsManager successfully and assigned to configuration.");
-        }
-    }
 
-    builder.Configuration["ConnectionStrings:Database"] = response;
-    builder.Configuration["ConnectionStrings:CapDatabase"] = response;
+        builder.Configuration["ConnectionStrings:Database"] = response;
+        builder.Configuration["ConnectionStrings:CapDatabase"] = response;
     #endif
 }
 
