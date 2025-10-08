@@ -1,5 +1,4 @@
-﻿using Closing.Domain.PortfolioValuations;
-using Common.SharedKernel.Application.Messaging;
+﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -26,44 +25,45 @@ internal sealed class SaveTechnicalSheetCommandHandler(
     private const string TechnicalSheetValidationWorkflow = "Products.TechnicalSheets.Validation";
     public async Task<Result<Unit>> Handle(SaveTechnicalSheetCommand request, CancellationToken cancellationToken)
     {
+        
+        var closingDate = request.ClosingDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+
+        var portfolioValuationsResponse = await portfolioValuationLocator.GetPortfolioValuationAsync(closingDate, cancellationToken);
+
+        var portfolioValuations = portfolioValuationsResponse.Value ?? [];
+
+        var validationContext = new
+        {
+            PortfolioValuationsExits = portfolioValuations.Count > 0,
+        };
+
+        var (rulesOk, _, ruleErrors) = await ruleEvaluator
+            .EvaluateAsync(TechnicalSheetValidationWorkflow,
+                validationContext,
+                cancellationToken);
+
+        if (!rulesOk)
+        {
+            var first = ruleErrors.First();
+            return Result.Failure<Unit>(
+                Error.Validation(first.Code, first.Message));
+        }
+
         await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
+
         try
         {
-            var closingDate = request.ClosingDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-
             var existsTechnicalSheets = await technicalSheetRepository.ExistsByDateAsync(closingDate, cancellationToken);
 
             if (existsTechnicalSheets)
                 await technicalSheetRepository.DeleteByDateAsync(closingDate, cancellationToken);
 
-            var portfolioValuationsResponse = await portfolioValuationLocator.GetPortfolioValuationAsync(closingDate, cancellationToken);
-
-            var portfolioValuations = portfolioValuationsResponse.Value ?? [];
-
-            var validationContext = new
-            {
-                PortfolioValuationsExits = portfolioValuations.Count > 0,
-            };
-
-
-            var (rulesOk, _, ruleErrors) = await ruleEvaluator
-                .EvaluateAsync(TechnicalSheetValidationWorkflow,
-                    validationContext,
-                    cancellationToken);
-
-            if (!rulesOk)
-            {
-                var first = ruleErrors.First();
-                return Result.Failure<Unit>(
-                    Error.Validation(first.Code, first.Message));
-            }
-
+            
             var technicalSheets = await CreateRange(portfolioValuations, closingDate, cancellationToken);
 
             if (technicalSheets.Any())
             {
                 await technicalSheetRepository.AddRangeAsync(technicalSheets, cancellationToken);
-
                 await unitOfWork.SaveChangesAsync(cancellationToken);
             }
 
