@@ -31,8 +31,4 @@
         <ProjectReference Include="..\..\Infrastructure\Closing.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Application\Closing\Services\" />
-    </ItemGroup>
-
 </Project>

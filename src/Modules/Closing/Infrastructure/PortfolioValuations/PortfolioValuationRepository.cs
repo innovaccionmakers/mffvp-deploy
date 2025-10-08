@@ -59,5 +59,41 @@ namespace Closing.Infrastructure.PortfolioValuations
                 .Select(g => g.First())
                 .ToListAsync(cancellationToken);
         }
+
+        /// <summary>
+        /// Aplica la diferencia de rendimientos (positiva o negativa) sobre la valoración del portafolio
+        /// del día de cierre indicado, cuando el registro está cerrado. Ajusta:
+        ///   - valor = valor + difference
+        ///   - unidades = (valor + difference) / valor_unidad    (si valor_unidad != 0)
+        ///   - fecha_proceso = NOW()
+        /// Devuelve la cantidad de filas actualizadas (0 o 1).
+        /// </summary>
+        public async Task<int> ApplyAllocationCheckDiffAsync(
+            int portfolioId,
+            DateTime closingDateUtc,
+            decimal difference,
+            CancellationToken cancellationToken)
+        {
+            if (difference == 0m)
+                return 0;
+
+            var rowsAffected = await context.PortfolioValuations
+                .Where(x => x.PortfolioId == portfolioId
+                            && x.ClosingDate == closingDateUtc
+                            && x.IsClosed)
+                .TagWith("[PortfolioValuationRepository_ApplyAllocationCheckDiff_UpdateAmountAndUnits]")
+                .ExecuteUpdateAsync(setters => setters
+                    // valor = valor + difference (suma o resta según el signo)
+                    .SetProperty(p => p.Amount, p => p.Amount + difference)
+                    // unidades = (valor + difference) / valor_unidad, evitando división por cero
+                    .SetProperty(p => p.Units, p => p.UnitValue == 0m
+                                                        ? p.Units
+                                                        : (p.Amount + difference) / p.UnitValue)
+                    // fecha_proceso = NOW()
+                    .SetProperty(p => p.ProcessDate, _ => DateTime.UtcNow),
+                    cancellationToken);
+
+            return rowsAffected;
+        }
     }
 }
