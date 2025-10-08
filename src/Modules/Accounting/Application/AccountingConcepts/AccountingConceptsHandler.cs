@@ -49,23 +49,32 @@ namespace Accounting.Application.AccountingConcepts
                 {
                     logger.LogInformation("Insertar errores en Redis");
                     await inconsistencyHandler.HandleInconsistenciesAsync(accountingAssistants.Errors, command.ProcessDate, ProcessTypes.AccountingConcepts, cancellationToken);
-                    return false;
+                    return Result.Failure<bool>(Error.Problem("Accounting.Concepts", "Se encontraron inconsistencias"));
                 }
 
                 if (!accountingAssistants.SuccessItems.Any())
                 {
                     logger.LogInformation("No hay operaciones contables que procesar");
-                    return false;
+                    return Result.Failure<bool>(Error.Problem("Accounting.Concepts", "No hay operaciones contables que procesar"));
                 }
 
-                await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
+                var accountingFeesSave = await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
+
+                if (accountingFeesSave.IsFailure)
+                {
+                    logger.LogWarning("No se pudieron guardar las operacines contables: {Error}", accountingFeesSave.Error);
+                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "No se pudieron guardar las operaciones contables"));
+                }
 
                 return Result.Success<bool>(true);
             }
             catch (Exception ex)
             {
-
-                throw;
+                logger.LogError(ex, "Error al procesar los conceptos contables para la fecha {ProcessDate} y los Portafolios [{Portfolios}]",
+                    command.ProcessDate,
+                    string.Join(",", command.PortfolioIds)
+                );
+                return Result.Failure<bool>(Error.Problem("Exception", "Ocurrio un error inesperado al procesar los conceptos contables"));
             }
         }
     }

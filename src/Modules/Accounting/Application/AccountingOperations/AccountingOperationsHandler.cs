@@ -80,23 +80,32 @@ namespace Accounting.Application.AccountingOperations
                 {
                     logger.LogInformation("Insertar errores en Redis");
                     await inconsistencyHandler.HandleInconsistenciesAsync(accountingAssistants.Errors, command.ProcessDate, ProcessTypes.AccountingOperations, cancellationToken);
-                    return false;
+                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "Se encontraron inconsistencias"));
                 }
 
                 if (!accountingAssistants.SuccessItems.Any())
                 {
                     logger.LogInformation("No hay operaciones contables que procesar");
-                    return false;
+                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "No hay operaciones contables que procesar"));
                 }
 
-                await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
+                var accountingFeesSave =  await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
 
-                return Result.Success<bool>(true);
+                if (accountingFeesSave.IsFailure)
+                {
+                    logger.LogWarning("No se pudieron guardar las operaciones contables: {Error}", accountingFeesSave.Error);
+                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "No se pudieron guardar las operaciones contables"));
+                }
+
+                return Result.Success(true);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error handling GetAccountingFeesQuery");
-                return false;
+                logger.LogError(ex, "Error al procesar las operaciones contables para la fecha {ProcessDate} y los Portafolios [{Portfolios}]",
+                     command.ProcessDate,
+                     string.Join(",", command.PortfolioIds)
+                 );
+                return Result.Failure<bool>(Error.Problem("Exception", "Ocurrio un error inesperado al procesar las operaciones contables"));
             }
         }
     }
