@@ -100,7 +100,7 @@ internal sealed class SaveTechnicalSheetCommandHandler(
                 portfolioValuation.Expenses,
                 portfolioValuation.CommissionDay,
                 portfolioValuation.CostDay,
-                portfolioValuation.CreditedYields,
+                portfolioValuation.YieldToCredit,//cambiar este
                 portfolioValuation.GrossYieldPerUnit,
                 portfolioValuation.CostPerUnit,
                 portfolioValuation.UnitValue,

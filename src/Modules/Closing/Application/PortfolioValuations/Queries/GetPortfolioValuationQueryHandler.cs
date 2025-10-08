@@ -60,7 +60,7 @@ public class GetPortfolioValuationQueryHandler(
                 yield?.Expenses ?? 0,
                 yield?.Commissions ?? 0,
                 yield?.Costs ?? 0,
-                yield?.CreditedYields ?? 0,
+                yield?.YieldToCredit ?? 0,
                 x.GrossYieldPerUnit,
                 x.CostPerUnit,
                 x.UnitValue,
