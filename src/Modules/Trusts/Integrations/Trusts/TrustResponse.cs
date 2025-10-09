@@ -1,3 +1,5 @@
+using Common.SharedKernel.Core.Primitives;
+
 namespace Trusts.Integrations.Trusts;
 
 public sealed record TrustResponse(
@@ -15,5 +17,5 @@ public sealed record TrustResponse(
     decimal ContingentWithholding,
     decimal EarningsWithholding,
     decimal AvailableAmount,
-    bool Status
+    LifecycleStatus Status
 );

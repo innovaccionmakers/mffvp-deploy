@@ -20,7 +20,7 @@ public struct Description
                                \"ContingentWithholding\": 0,
                                \"EarningsWithholding\": 0,
                                \"AvailableAmount\": 100,
-                               \"Status\": true
+                               \"Status\": 1
                              }
                              ```
                              """,

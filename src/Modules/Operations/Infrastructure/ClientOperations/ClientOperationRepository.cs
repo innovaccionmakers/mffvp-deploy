@@ -1,3 +1,4 @@
+using Common.SharedKernel.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 using Operations.Domain.ClientOperations;
 using Operations.Infrastructure.Database;
@@ -45,7 +46,8 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .Where(op =>
                 op.AffiliateId == affiliateId &&
                 op.ObjectiveId == objectiveId &&
-                op.PortfolioId == portfolioId)
+                op.PortfolioId == portfolioId &&
+                op.Status == LifecycleStatus.Active)
             .Join(context.OperationTypes,
                 op => op.OperationTypeId,
                 st => st.OperationTypeId,
@@ -65,7 +67,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                             : processDate.ToUniversalTime();
 
         var clientOperations = await context.ClientOperations
-            .Where(co => co.ProcessDate == utcProcessDate)
+            .Where(co => co.ProcessDate == utcProcessDate && co.Status == LifecycleStatus.Active)
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
             .ToListAsync(cancellationToken);
@@ -93,6 +95,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         var portfolioIdsSet = new HashSet<int>(portfolioIds);
 
         return await context.ClientOperations
+            .Where(co => co.Status == LifecycleStatus.Active)
             .Where(co => portfolioIdsSet.Contains(co.PortfolioId) && co.ProcessDate == processDate)
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)

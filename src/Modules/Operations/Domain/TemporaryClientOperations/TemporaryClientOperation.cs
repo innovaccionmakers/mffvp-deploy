@@ -1,5 +1,6 @@
 namespace Operations.Domain.TemporaryClientOperations;
 
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Operations.Domain.OperationTypes;
 using Operations.Domain.TemporaryAuxiliaryInformations;
@@ -18,8 +19,9 @@ public sealed class TemporaryClientOperation : Entity
     public bool Processed { get; private set; }
     public long? TrustId { get; private set; }
     public long? LinkedClientOperationId { get; private set; }
-    public int Status { get; private set; }
+    public LifecycleStatus Status { get; private set; }
     public decimal? Units { get; private set; }
+    public int? CauseId { get; private set; }
 
     public OperationType OperationType { get; private set; } = null!;
     public TemporaryAuxiliaryInformation TemporaryAuxiliaryInformation { get; private set; } = null!;
@@ -37,7 +39,8 @@ public sealed class TemporaryClientOperation : Entity
         DateTime processDate,
         long operationTypeId,
         DateTime applicationDate,
-        int status,
+        LifecycleStatus status,
+        int? causeId = null,
         long? trustId = null,
         long? linkedClientOperationId = null,
         decimal? units = null
@@ -56,6 +59,7 @@ public sealed class TemporaryClientOperation : Entity
             ApplicationDate = applicationDate,
             Processed = false,
             Status = status,
+            CauseId = causeId,
             TrustId = trustId,
             LinkedClientOperationId = linkedClientOperationId,
             Units = units
@@ -74,7 +78,8 @@ public sealed class TemporaryClientOperation : Entity
         DateTime newProcessDate,
         long newOperationTypeId,
         DateTime newApplicationDate,
-        int newStatus,
+        LifecycleStatus newStatus,
+        int? newCauseId = null,
         long? newTrustId = null,
         long? newLinkedClientOperationId = null,
         decimal? newUnits = null
@@ -89,6 +94,7 @@ public sealed class TemporaryClientOperation : Entity
         OperationTypeId = newOperationTypeId;
         ApplicationDate = newApplicationDate;
         Status = newStatus;
+        CauseId = newCauseId;
         TrustId = newTrustId;
         LinkedClientOperationId = newLinkedClientOperationId;
         Units = newUnits;
