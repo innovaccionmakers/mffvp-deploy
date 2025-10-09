@@ -420,6 +420,22 @@
     "WorkflowName": "Associate.BalancesByObjective.PaginationValidation",
     "Rules": [
       {
+        "RuleName": "PageNumberRequiredWithRecordsPerPage",
+        "ErrorMessage": "El número de página debe ser mayor a 0 cuando la cantidadRegistrosPorPagina es diferente de 0",
+        "Expression": "!input.RecordsPerPageProvided || input.PageNumberProvided",
+        "Properties": {
+          "errorCode": "96720de5-1aab-41eb-a0af-2ebc6ea79a03"
+        }
+      },
+      {
+        "RuleName": "RecordsPerPageRequiredWithPageNumber",
+        "ErrorMessage": "La cantidadRegistrosPorPagina debe ser mayor a 0 cuando el numero de pagina es diferente de 0",
+        "Expression": "!input.PageNumberProvided || input.RecordsPerPageProvided",
+        "Properties": {
+          "errorCode": "dd86573d-b8f5-49bf-a032-51f11de61363"
+        }
+      },
+      {
         "RuleName": "PageAndRecordsNonNegative",
         "ErrorMessage": "Página y registros por página no pueden ser negativos.",
         "Expression": "input.PageNumber >= 0 && input.RecordsPerPage >= 0",

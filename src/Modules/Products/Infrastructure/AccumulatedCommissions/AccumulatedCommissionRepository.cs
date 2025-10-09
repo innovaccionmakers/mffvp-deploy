@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Products.Domain.AccumulatedCommissions;
 using Products.Infrastructure.Database;
+using System.Data;
 
 namespace Products.Infrastructure.AccumulatedCommissions;
 internal sealed class AccumulatedCommissionRepository(
@@ -27,53 +29,89 @@ internal sealed class AccumulatedCommissionRepository(
         await context.AccumulatedCommissions.AddAsync(commission, cancellationToken);
     }
 
-    /// <summary>
-    /// UPSERT SQL-first para productos.comisiones_acumuladas.
-    /// - dailyAmount: delta del día que llega en el evento (NO el acumulado).
-    /// - Idempotente: sólo actualiza si el closingDateEvent es posterior al almacenado.
-    /// - Requiere UNIQUE (portfolio_id, comisiones_id).
-    /// </summary>
     public async Task<bool> UpsertAsync(
-        int portfolioId,
-        int commissionId,
-        DateTime closingDateEventUtc,
-        decimal dailyAmount,
-        CancellationToken cancellationToken)
+      int portfolioId,
+      int commissionId,
+      DateTime closingDateEventUtc,
+      decimal dailyAmount,
+      CancellationToken cancellationToken)
     {
-
-        var closeTsUtc = closingDateEventUtc.Kind == DateTimeKind.Unspecified
+        // Normaliza a UTC
+        var closeUtc = closingDateEventUtc.Kind == DateTimeKind.Unspecified
             ? DateTime.SpecifyKind(closingDateEventUtc, DateTimeKind.Utc)
             : closingDateEventUtc.ToUniversalTime();
-        
 
-        var rowsAffected = await context.Database.ExecuteSqlInterpolatedAsync($@"
-            INSERT INTO productos.comisiones_acumuladas
-                (portfolio_id, comisiones_id, valor_acumulado, valor_pagado, valor_pendiente,
-                 fecha_cierre, fecha_pago, fecha_proceso)
-            VALUES
-                ({portfolioId}, {commissionId}, {dailyAmount}::numeric(19,2), 0::numeric(19,2),
-                 GREATEST({dailyAmount}::numeric(19,2) - 0::numeric(19,2), 0::numeric(19,2)),
-                 {closeTsUtc}, TIMESTAMPTZ '-infinity', NOW())
-            ON CONFLICT (portfolio_id, comisiones_id)
-            DO UPDATE SET
-                valor_acumulado = CASE
-                    WHEN productos.comisiones_acumuladas.fecha_cierre::date < EXCLUDED.fecha_cierre::date
-                         THEN round(productos.comisiones_acumuladas.valor_acumulado + EXCLUDED.valor_acumulado, 2)
-                    ELSE productos.comisiones_acumuladas.valor_acumulado
-                END,
-                fecha_cierre   = GREATEST(productos.comisiones_acumuladas.fecha_cierre, EXCLUDED.fecha_cierre),
-                fecha_proceso  = NOW(),
-                valor_pendiente = GREATEST(
-                    CASE
-                        WHEN productos.comisiones_acumuladas.fecha_cierre::date < EXCLUDED.fecha_cierre::date
-                             THEN round(productos.comisiones_acumuladas.valor_acumulado + EXCLUDED.valor_acumulado, 2) - productos.comisiones_acumuladas.valor_pagado
-                        ELSE productos.comisiones_acumuladas.valor_acumulado - productos.comisiones_acumuladas.valor_pagado
-                    END,
-                    0::numeric(19,2)
-                )
-            WHERE productos.comisiones_acumuladas.fecha_cierre::date < EXCLUDED.fecha_cierre::date;
-        ", cancellationToken);
-    
-        return rowsAffected > 0;
+        // dailyAmount = Math.Round(dailyAmount, 2, MidpointRounding.AwayFromZero);
+
+        await using var tx = await context.Database.BeginTransactionAsync(
+            IsolationLevel.ReadCommitted, cancellationToken);
+
+        // 1) Exclusión por clave lógica (portfolioId, commissionId) — se libera al commit/rollback
+        await context.Database.ExecuteSqlRawAsync(
+            "SELECT pg_advisory_xact_lock(@p,@c);",
+            new[]
+            {
+            new NpgsqlParameter("p", portfolioId),
+            new NpgsqlParameter("c", commissionId),
+            },
+            cancellationToken);
+
+        // 2) UPDATE set-based solo si la fecha almacenada es menor a la del evento
+        var updatedRows = await context.Set<AccumulatedCommission>()
+            .Where(x => x.PortfolioId == portfolioId
+                     && x.CommissionId == commissionId
+                     && x.CloseDate < closeUtc)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.AccumulatedValue, x => x.AccumulatedValue + dailyAmount)
+                .SetProperty(x => x.PendingValue,
+                             x => EF.Functions.Greatest((x.AccumulatedValue + dailyAmount) - x.PaidValue, 0m))
+                .SetProperty(x => x.CloseDate, x => closeUtc)
+                .SetProperty(x => x.ProcessDate, x => DateTime.UtcNow),
+                cancellationToken);
+
+        if (updatedRows > 0)
+        {
+            await tx.CommitAsync(cancellationToken);
+            return true; // aplicado por UPDATE
+        }
+
+        // 3) Si no actualizó, ¿existe una fila para (portfolio, comisión)?
+        var exists = await context.Set<AccumulatedCommission>()
+            .TagWith("[AccumulatedCommissionRepository_Upsert_UpdateIfNewer]")
+            .AnyAsync(x => x.PortfolioId == portfolioId
+                        && x.CommissionId == commissionId,
+                      cancellationToken);
+
+        if (!exists)
+        {
+            // 4) INSERT
+            // Sentinela para "no pagado":
+            var unpaidSentinelUtc = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+            var nowUtc = DateTime.UtcNow;
+
+            var result = AccumulatedCommission.Create(
+                portfolioId: portfolioId,
+                commissionId: commissionId,
+                accumulatedValue: dailyAmount,
+                paidValue: 0m,
+                pendingValue: dailyAmount,
+                closeDate: closeUtc,
+                paymentDate: unpaidSentinelUtc,
+                processDate: nowUtc
+            );
+
+            if (result.IsFailure)
+                throw new InvalidOperationException($"No se pudo crear AccumulatedCommission: {result.Error}");
+
+            context.Set<AccumulatedCommission>().Add(result.Value);
+            await context.SaveChangesAsync(cancellationToken);
+
+            await tx.CommitAsync(cancellationToken);
+            return true; // aplicado por INSERT
+        }
+
+        // 5) Existe pero el evento no es más reciente → idempotente (sin cambios)
+        await tx.CommitAsync(cancellationToken);
+        return false;
     }
 }

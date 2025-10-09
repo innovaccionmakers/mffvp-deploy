@@ -159,9 +159,13 @@ public class OperationsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>, AccountingOperationsConsumer>();
 
         services.AddScoped<ITrustOperationRepository, TrustOperationRepository>();
-        services.AddScoped<TrustYieldGeneratedSuscriber>();
 
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
+
+        services.AddTransient<IRpcHandler<CreateTrustYieldOperationRequest,CreateTrustYieldOperationResponse>, CreateTrustYieldOperationConsumer>();
+
+        services.AddTransient<IRpcHandler<ProcessPendingTransactionsRequest, ProcessPendingTransactionsResponse>, PendingContributionProcessor>();
+
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

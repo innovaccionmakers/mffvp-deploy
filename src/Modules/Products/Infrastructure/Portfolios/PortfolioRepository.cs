@@ -14,6 +14,7 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
     public async Task<Portfolio?> GetAsync(int portfolioId, CancellationToken cancellationToken = default)
     {
         return await context.Portfolios
+            .TagWith("PortfolioRepository_GetAsync_ById")
             .SingleOrDefaultAsync(x => x.PortfolioId == portfolioId, cancellationToken);
     }
 

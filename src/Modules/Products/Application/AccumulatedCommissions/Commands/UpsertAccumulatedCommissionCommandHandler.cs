@@ -33,14 +33,11 @@ internal sealed class UpsertAccumulatedCommissionCommandHandler :
         CancellationToken cancellationToken)
     {
         logger.LogInformation(
-            "{Class} - Inicio manejo. Portafolio:{PortfolioId} Comisión:{CommissionId} FechaCierreEvento:{CloseDate:yyyy-MM-dd} MontoDiarioEvento:{DailyAmount}",
+            "{Class} - Portafolio:{PortfolioId} Comisión:{CommissionId} FechaCierreEvento:{CloseDate:yyyy-MM-dd} MontoDiarioEvento:{DailyAmount}",
             ClassName, request.PortfolioId, request.CommissionId, request.CloseDate, request.AccumulatedValue);
-
-        await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            // UPSERT SQL-first (diferencia del día); idempotente por fecha de cierre
             var aplicado = await repository.UpsertAsync(
                 portfolioId: request.PortfolioId,
                 commissionId: request.CommissionId,
@@ -48,45 +45,14 @@ internal sealed class UpsertAccumulatedCommissionCommandHandler :
                 dailyAmount: request.AccumulatedValue,
                 cancellationToken: cancellationToken);
 
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            await tx.CommitAsync(cancellationToken);
-
-            var snap = await repository.GetByPortfolioAndCommissionAsync(
-                request.PortfolioId, request.CommissionId, cancellationToken);
-
-            if (snap is not null)
-            {
-                logger.LogInformation(
-                    "{Class} - Fin manejo ({Outcome}). Portafolio:{PortfolioId} Comisión:{CommissionId} FechaCierreAlmacenada:{CloseStored:yyyy-MM-dd} Acumulado:{Accumulated} Pagado:{Paid} Pendiente:{Pending} | FechaCierreEvento:{CloseEvent:yyyy-MM-dd} MontoDiarioEvento:{DailyAmount}",
-                    ClassName,
-                    aplicado ? "aplicado" : "sin cambios",
-                    request.PortfolioId,
-                    request.CommissionId,
-                    snap.CloseDate,
-                    snap.AccumulatedValue,
-                    snap.PaidValue,
-                    snap.PendingValue,
-                    request.CloseDate,
-                    request.AccumulatedValue
-                );
-            }
-            else
-            {
-                logger.LogWarning(
-                    "{Class} - No se encontró snapshot después del upsert. Portafolio:{PortfolioId} Comisión:{CommissionId}",
-                    ClassName, request.PortfolioId, request.CommissionId);
-            }
-
             return Result.Success();
         }
         catch (PostgresException ex)
         {
-            await tx.RollbackAsync(CancellationToken.None);
             logger.LogError(ex,
                 "{Class} - Error de base de datos (SQLSTATE {SqlState}). Portafolio:{PortfolioId} Comisión:{CommissionId}",
                 ClassName, ex.SqlState, request.PortfolioId, request.CommissionId);
 
-            // Código y tipo de error con estructura solicitada
             return Result.Failure(new Error(
                 "PROD-COM-001",
                 $"Error de base de datos (SQLSTATE {ex.SqlState}) al actualizar comisiones acumuladas para el portafolio {request.PortfolioId} y la comisión {request.CommissionId}.",
@@ -94,7 +60,6 @@ internal sealed class UpsertAccumulatedCommissionCommandHandler :
         }
         catch (OperationCanceledException)
         {
-            await tx.RollbackAsync(CancellationToken.None);
             logger.LogWarning(
                 "{Class} - Operación cancelada. Portafolio:{PortfolioId} Comisión:{CommissionId}",
                 ClassName, request.PortfolioId, request.CommissionId);
@@ -102,7 +67,6 @@ internal sealed class UpsertAccumulatedCommissionCommandHandler :
         }
         catch (Exception ex)
         {
-            await tx.RollbackAsync(CancellationToken.None);
             logger.LogError(ex,
                 "{Class} - Error inesperado. Portafolio:{PortfolioId} Comisión:{CommissionId}",
                 ClassName, request.PortfolioId, request.CommissionId);

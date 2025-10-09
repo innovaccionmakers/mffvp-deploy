@@ -28,6 +28,7 @@ public class TreasuryMovementRepository(TreasuryDbContext context) : ITreasuryMo
         var dateUtc = DateTimeConverter.ToUtcDateTime(date);
 
         return await context.TreasuryMovements
+            .TagWith("TreasuryMovementRepository_GetReadOnlyTreasuryMovementsByPortfolioAsync")
             .AsNoTracking()
             .Where(pl => pl.PortfolioId == portfolioId && pl.ClosingDate == dateUtc)
             .Join(context.TreasuryConcepts,

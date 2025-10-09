@@ -12,6 +12,7 @@ using Customers.IntegrationEvents.PersonValidation;
 using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.EntityValidation;
 using Trusts.IntegrationEvents.GetBalances;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Associate.Application.Balances.GetBalancesByObjective;
@@ -24,11 +25,40 @@ internal sealed class GetBalancesByObjectiveHandler(
     : IQueryHandler<GetBalancesByObjectiveQuery, GetBalancesByObjectiveResponse>
 {
     private const string ValidationWorkflow = "Associate.BalancesByObjective.Validation";
+    private const string PaginationValidationWorkflow = "Associate.BalancesByObjective.PaginationValidation";
 
     public async Task<Result<GetBalancesByObjectiveResponse>> Handle(
         GetBalancesByObjectiveQuery request,
         CancellationToken cancellationToken)
     {
+        var pageNumberProvided = request.PageNumber.HasValue;
+        var recordsPerPageProvided = request.RecordsPerPage.HasValue;
+
+        var pageNumber = request.PageNumber ?? 0;
+        var recordsPerPage = request.RecordsPerPage ?? 0;
+
+        var earlyPaginationContext = new
+        {
+            PageNumberProvided = pageNumberProvided,
+            RecordsPerPageProvided = recordsPerPageProvided,
+            PageNumber = pageNumber,
+            RecordsPerPage = recordsPerPage,
+            TotalPages = int.MaxValue
+        };
+
+        var (earlyPaginationValid, _, earlyPaginationErrors) = await ruleEvaluator
+            .EvaluateAsync(
+                PaginationValidationWorkflow,
+                earlyPaginationContext,
+                cancellationToken);
+
+        if (!earlyPaginationValid)
+        {
+            var first = earlyPaginationErrors.First();
+            return Result.Failure<GetBalancesByObjectiveResponse>(
+                Error.Validation(first.Code, first.Message));
+        }
+
         var documentType = await configurationParameterRepository.GetByCodeAndScopeAsync(
             request.DocumentType,
             HomologScope.Of<GetBalancesByObjectiveQuery>(q => q.DocumentType),
@@ -60,8 +90,13 @@ internal sealed class GetBalancesByObjectiveHandler(
                 Error.Validation(first.Code, first.Message));
         }
 
+        var requiredDocumentType = request.DocumentType!;
+        var requiredIdentification = request.Identification!;
+        var requiredEntity = request.Entity!;
+        var requiredActivation = activation!;
+
         var personValidation = await rpcClient.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-            new PersonDataRequestEvent(request.DocumentType, request.Identification),
+            new PersonDataRequestEvent(requiredDocumentType, requiredIdentification),
             cancellationToken);
 
         if (!personValidation.IsValid)
@@ -69,7 +104,7 @@ internal sealed class GetBalancesByObjectiveHandler(
                 Error.Validation(personValidation.Code ?? string.Empty, personValidation.Message ?? string.Empty));
 
         var entityValidation = await rpcClient.CallAsync<ValidateEntityRequest, ValidateEntityResponse>(
-            new ValidateEntityRequest(request.Entity),
+            new ValidateEntityRequest(requiredEntity),
             cancellationToken);
 
         if (!entityValidation.IsValid)
@@ -77,7 +112,7 @@ internal sealed class GetBalancesByObjectiveHandler(
                 Error.Validation(entityValidation.Code ?? string.Empty, entityValidation.Message ?? string.Empty));
 
         var balancesRpc = await rpcClient.CallAsync<GetBalancesRequest, GetBalancesResponse>(
-            new GetBalancesRequest(activation!.ActivateId),
+            new GetBalancesRequest(requiredActivation.ActivateId),
             cancellationToken);
 
         if (!balancesRpc.Succeeded)
@@ -88,71 +123,85 @@ internal sealed class GetBalancesByObjectiveHandler(
             .Where(b => b.TotalBalance > 0)
             .ToArray();
 
+        List<BalanceByObjectiveItem> grouped;
         if (balances.Length == 0)
         {
-            var emptyPage = new PageInfo(0, 0, request.RecordsPerPage);
-            return Result.Success(new GetBalancesByObjectiveResponse(emptyPage, Array.Empty<BalanceByObjectiveItem>()));
+            grouped = new List<BalanceByObjectiveItem>(0);
         }
+        else
+        {
+            var objectivePortfolioPairs = balances.Select(b => (b.ObjectiveId, b.PortfolioId)).ToArray();
+            var additionalInfoRpc = await rpcClient.CallAsync<GetAdditionalInformationRequest, GetAdditionalInformationResponse>(
+                new GetAdditionalInformationRequest(requiredActivation.ActivateId, objectivePortfolioPairs),
+                cancellationToken);
 
-        var objectivePortfolioPairs = balances.Select(b => (b.ObjectiveId, b.PortfolioId)).ToArray();
-        var additionalInfoRpc = await rpcClient.CallAsync<GetAdditionalInformationRequest, GetAdditionalInformationResponse>(
-            new GetAdditionalInformationRequest(activation.ActivateId, objectivePortfolioPairs),
-            cancellationToken);
+            if (!additionalInfoRpc.Succeeded)
+                return Result.Failure<GetBalancesByObjectiveResponse>(
+                    Error.Validation(additionalInfoRpc.Code ?? string.Empty, additionalInfoRpc.Message ?? string.Empty));
 
-        if (!additionalInfoRpc.Succeeded)
-            return Result.Failure<GetBalancesByObjectiveResponse>(
-                Error.Validation(additionalInfoRpc.Code ?? string.Empty, additionalInfoRpc.Message ?? string.Empty));
+            var additionalInfoLookup = additionalInfoRpc.Items.ToDictionary(i => (i.ObjectiveId, i.PortfolioId));
 
-        var additionalInfoLookup = additionalInfoRpc.Items.ToDictionary(i => (i.ObjectiveId, i.PortfolioId));
+            var balancesWithInfo = balances
+                .Where(b => additionalInfoLookup.ContainsKey((b.ObjectiveId, b.PortfolioId)))
+                .ToArray();
 
-        var balancesWithInfo = balances
-            .Where(b => additionalInfoLookup.ContainsKey((b.ObjectiveId, b.PortfolioId)))
-            .ToArray();
+            grouped = balancesWithInfo
+                .GroupBy(b => b.ObjectiveId)
+                .Select(g =>
+                {
+                    var first = g.First();
+                    additionalInfoLookup.TryGetValue((first.ObjectiveId, first.PortfolioId), out var info);
 
-        var grouped = balancesWithInfo
-            .GroupBy(b => b.ObjectiveId)
-            .Select(g =>
-            {
-                var first = g.First();
-                additionalInfoLookup.TryGetValue((first.ObjectiveId, first.PortfolioId), out var info);
-
-                return new BalanceByObjectiveItem(
-                    request.Entity,
-                    info?.FundCode ?? string.Empty,
-                    info?.PortfolioCode ?? string.Empty,
-                    info?.FundName ?? string.Empty,
-                    info?.ObjectiveName ?? string.Empty,
-                    g.Key,
-                    request.Identification,
-                    string.Empty,
-                    Math.Round(g.Sum(x => x.AvailableAmount), 2),
-                    Math.Round(g.Sum(x => x.TotalBalance), 2),
-                    string.Empty,
-                    string.Empty,
-                    string.Empty,
-                    string.Empty,
-                    string.Empty,
-                    string.Empty,
-                    string.Empty,
-                    "N",
-                    "Kit Capital");
-            })
-            .ToList();
+                    return new BalanceByObjectiveItem(
+                        requiredEntity,
+                        info?.FundCode ?? string.Empty,
+                        info?.PortfolioCode ?? string.Empty,
+                        info?.FundName ?? string.Empty,
+                        info?.ObjectiveName ?? string.Empty,
+                        g.Key,
+                        requiredIdentification,
+                        string.Empty,
+                        Math.Round(g.Sum(x => x.AvailableAmount), 2),
+                        Math.Round(g.Sum(x => x.TotalBalance), 2),
+                        string.Empty,
+                        string.Empty,
+                        string.Empty,
+                        string.Empty,
+                        string.Empty,
+                        string.Empty,
+                        string.Empty,
+                        "N",
+                        "Kit Capital");
+                })
+                .ToList();
+        }
         var totalRecords = grouped.Count;
-        var totalPages = request.RecordsPerPage <= 0
+        var noPaginationProvided = !pageNumberProvided && !recordsPerPageProvided;
+
+        var effectivePageNumber = noPaginationProvided
+            ? (totalRecords == 0 ? 0 : 1)
+            : pageNumber;
+
+        var effectiveRecordsPerPage = noPaginationProvided
+            ? (totalRecords == 0 ? 0 : totalRecords)
+            : recordsPerPage;
+
+        var totalPages = effectiveRecordsPerPage <= 0
             ? 0
-            : (int)Math.Ceiling(totalRecords / (double)request.RecordsPerPage);
+            : (int)Math.Ceiling(totalRecords / (double)effectiveRecordsPerPage);
 
         var paginationContext = new
         {
-            request.PageNumber,
-            request.RecordsPerPage,
+            PageNumberProvided = pageNumberProvided,
+            RecordsPerPageProvided = recordsPerPageProvided,
+            PageNumber = effectivePageNumber,
+            RecordsPerPage = effectiveRecordsPerPage,
             TotalPages = totalPages
         };
 
         var (paginationValid, _, paginationErrors) = await ruleEvaluator
             .EvaluateAsync(
-                "Associate.BalancesByObjective.PaginationValidation",
+                PaginationValidationWorkflow,
                 paginationContext,
                 cancellationToken);
 
@@ -163,14 +212,14 @@ internal sealed class GetBalancesByObjectiveHandler(
                 Error.Validation(first.Code, first.Message));
         }
 
-        var itemsPage = request.PageNumber == 0 && request.RecordsPerPage == 0
+        var itemsPage = noPaginationProvided || effectiveRecordsPerPage <= 0
             ? grouped
             : grouped
-                .Skip((request.PageNumber - 1) * request.RecordsPerPage)
-                .Take(request.RecordsPerPage)
+                .Skip((effectivePageNumber - 1) * effectiveRecordsPerPage)
+                .Take(effectiveRecordsPerPage)
                 .ToList();
 
-        var pageInfo = new PageInfo(totalRecords, totalPages, request.RecordsPerPage);
+        var pageInfo = new PageInfo(totalRecords, totalPages, effectiveRecordsPerPage);
         var response = new GetBalancesByObjectiveResponse(pageInfo, itemsPage);
 
         return Result.Success(response);
