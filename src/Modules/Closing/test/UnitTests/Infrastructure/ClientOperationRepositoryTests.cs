@@ -41,6 +41,7 @@ public class ClientOperationRepositoryTests
         typeof(ClientOperation).GetProperty("ProcessDate")?.SetValue(op, processDateUtc);
         typeof(ClientOperation).GetProperty("OperationTypeId")?.SetValue(op, operationTypeId);
         typeof(ClientOperation).GetProperty("Amount")?.SetValue(op, amount);
+        typeof(ClientOperation).GetProperty("Status")?.SetValue(op, Common.SharedKernel.Core.Primitives.LifecycleStatus.Active);
 
         return op;
     }
