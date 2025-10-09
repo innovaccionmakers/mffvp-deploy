@@ -31,7 +31,7 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener datos para el reporte de depósitos. Fecha: {processDate}", processDate.ToString("yyyy-MM-dd"));
+                _logger.LogError(ex, $"Error al obtener datos para el reporte de depósitos. Fecha: {processDate}");
                 errorResult.AddError(new Error("EXCEPTION", $"Error al obtener datos para el reporte de depósitos. Fecha: {processDate}", ErrorType.Failure));                
             }
 

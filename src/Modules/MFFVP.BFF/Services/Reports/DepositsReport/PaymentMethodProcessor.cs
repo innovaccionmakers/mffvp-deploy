@@ -31,8 +31,7 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
                 if (!paymentDetail.TipoCuenta.Equals("Ahorros", StringComparison.OrdinalIgnoreCase) &&
                     !paymentDetail.TipoCuenta.Equals("Corriente", StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogError($"Tipo de cuenta no válido: {paymentDetail.TipoCuenta}. Debe ser 'Ahorros' o 'Corriente' para el numero de cuenta en el titular origen {paymentDetail.IdTitularOrigen}: {paymentDetail.NumeroCuenta}",
-                        paymentDetail.TipoCuenta, paymentDetail.NumeroCuenta, paymentDetail.IdTitularOrigen);
+                    _logger.LogError($"Tipo de cuenta no válido: {paymentDetail.TipoCuenta}. Debe ser 'Ahorros' o 'Corriente' para el numero de cuenta en el titular origen {paymentDetail.IdTitularOrigen}: {paymentDetail.NumeroCuenta}");
 
                     result.AddError(new Error("EXCEPTION", $"Tipo de cuenta no válido: {paymentDetail.TipoCuenta}. Debe ser 'Ahorros' o 'Corriente' en el titular origen {paymentDetail.IdTitularOrigen}", ErrorType.Failure));
                     return result;
@@ -40,7 +39,7 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
 
                 if (string.IsNullOrWhiteSpace(paymentDetail.NumeroCuenta))
                 {
-                    _logger.LogError($"El número de cuenta es requerido para la operación: {operation}", operation); 
+                    _logger.LogError($"El número de cuenta es requerido para la operación: {operation}");
                     result.AddError(new Error("EXCEPTION", "El número de cuenta es requerido", ErrorType.Failure));
                     return result;
                 }
@@ -61,7 +60,7 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
                     Observations = $"{operation.Name} {pensionFunds}",
                     TransactionName = $"{operation.Name} {pensionFunds}",
                     AdditionalInfo = $"{operation.Name} {pensionFunds}",
-                    Branch = "252",
+                    Branch = 252,
                     Reference1 = string.Empty,
                     Reference2 = string.Empty,
                     Reference3 = string.Empty
@@ -79,19 +78,19 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
                     Observations = $"{operation.Name} {pensionFunds}",
                     TransactionName = $"{operation.Name} {pensionFunds}",
                     AdditionalInfo = $"{operation.Name} {pensionFunds}",
-                    Branch = "252",
+                    Branch = 252,
                     Reference1 = string.Empty,
                     Reference2 = string.Empty,
                     Reference3 = string.Empty,
                 };
 
-                _logger.LogDebug($"Registros creados exitosamente para el numero de cuenta: {paymentDetail.NumeroCuenta}", paymentDetail.NumeroCuenta);
+                _logger.LogDebug($"Registros creados exitosamente para el numero de cuenta: {paymentDetail.NumeroCuenta}");
                 result.SetSuccess((debitRecord, creditRecord));
                 return result;
             }
             catch ( Exception ex)
             {
-                _logger.LogError(ex, $"Error al procesar método de pago para operación: {operation}.", operation);
+                _logger.LogError(ex, $"Error al procesar método de pago para operación: {operation}.");
                 result.AddError(new Error("EXCEPTION", $"Error al procesar método de pago para operación: {operation}.", ErrorType.Failure));
                 return result;
             }

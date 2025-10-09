@@ -72,21 +72,29 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .Include(co => co.OperationType)
             .ToListAsync(cancellationToken);
 
+        var categoryIds = clientOperations
+            .Where(op => op.OperationType?.CategoryId.HasValue == true)
+            .Select(op => op.OperationType.CategoryId.Value)
+            .Distinct()
+            .ToList();
+
+        var categories = await context.OperationTypes
+            .Where(ot => categoryIds.Contains(ot.CategoryId.Value))
+            .Select(ot => new { ot.OperationTypeId, ot.Name })
+            .ToDictionaryAsync(ot => ot.OperationTypeId, ot => ot.Name, cancellationToken);
+
         foreach (var operation in clientOperations)
         {
-            if (operation.OperationType?.CategoryId.HasValue == true)
+            if (operation.OperationType?.CategoryId.HasValue == true &&
+                categories.TryGetValue(operation.OperationType.CategoryId.Value, out var categoryName))
             {
-                var categoryName = await context.OperationTypes
-                    .Where(ot => ot.OperationTypeId == operation.OperationType.CategoryId.Value)
-                    .Select(ot => ot.Name)
-                    .FirstOrDefaultAsync(cancellationToken);
-
                 operation.OperationType.Name = categoryName;
             }
         }
 
         return clientOperations;
     }
+
     public async Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken = default)
     {
         if (portfolioIds == null || !portfolioIds.Any())
