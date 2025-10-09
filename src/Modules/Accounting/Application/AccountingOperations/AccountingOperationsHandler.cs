@@ -40,10 +40,20 @@ namespace Accounting.Application.AccountingOperations
                                                                 new GetAccountingOperationsRequestEvents(command.PortfolioIds, command.ProcessDate), cancellationToken);
                 if (!operations.IsValid)
                     return Result.Failure<bool>(Error.Validation(operations.Code ?? string.Empty, operations.Message ?? string.Empty));
+                var operationsByPortfolio = operations.ClientOperations.GroupBy(op => op.PortfolioId).ToDictionary(g => g.Key, g => g.ToList());
 
-                if (!operations.ClientOperations.Any())
+                foreach (var portfolioId in command.PortfolioIds)
                 {
-                    logger.LogInformation("No hay operaciones contables que procesar");
+                    if (!operationsByPortfolio.ContainsKey(portfolioId) || !operationsByPortfolio[portfolioId].Any())
+                    {
+                        logger.LogInformation($"No hay operaciones contables para el PortfolioId: {portfolioId}");
+                        errors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Commission, "No se encontraron operaciones contables para el portfolio", string.Empty));
+                    }
+                }
+
+                if (errors.Any())
+                {
+                    await inconsistencyHandler.HandleInconsistenciesAsync(errors, command.ProcessDate, ProcessTypes.AccountingOperations, cancellationToken);
                     return false;
                 }
 
