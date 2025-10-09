@@ -23,7 +23,7 @@ namespace Trusts.Infrastructure.Database.Migrations
             // Actualizar todos los registros existentes con el valor 1
             migrationBuilder.Sql(
                 @"UPDATE fideicomisos.fideicomisos 
-                  SET estado_temp = 1");
+                  SET estado_temp = 1;");
 
             // Eliminar la columna antigua
             migrationBuilder.DropColumn(
@@ -71,7 +71,7 @@ namespace Trusts.Infrastructure.Database.Migrations
                   SET estado_temp = CASE 
                       WHEN estado > 0 THEN true 
                       ELSE false 
-                  END");
+                  END;");
 
             // Eliminar la columna integer
             migrationBuilder.DropColumn(
