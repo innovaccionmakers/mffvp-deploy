@@ -13,6 +13,7 @@ using Common.SharedKernel.Domain;
 using Customers.IntegrationEvents.PeopleByIdentificationsValidation;
 using Customers.Integrations.People.GetPeopleByIdentifications;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Operations.IntegrationEvents.ClientOperations;
 using System.Collections.Concurrent;
@@ -20,7 +21,7 @@ using System.Collections.Concurrent;
 namespace Accounting.Application.AccountingOperations
 {
     internal sealed class AccountingOperationsHandler(
-        ISender sender,
+        IServiceScopeFactory serviceScopeFactory,
         IRpcClient rpcClient,
         ILogger<AccountingOperationsHandler> logger,
         AccountingOperationsHandlerValidation validator,
@@ -30,12 +31,21 @@ namespace Accounting.Application.AccountingOperations
         {
             try
             {
+                await using var scope = serviceScopeFactory.CreateAsyncScope();
+                var sender = scope.ServiceProvider.GetRequiredService<ISender>();
                 var errors = new ConcurrentBag<AccountingInconsistency>();
+
                 //Operations
                 var operations = await rpcClient.CallAsync<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>(
                                                                 new GetAccountingOperationsRequestEvents(command.PortfolioIds, command.ProcessDate), cancellationToken);
                 if (!operations.IsValid)
                     return Result.Failure<bool>(Error.Validation(operations.Code ?? string.Empty, operations.Message ?? string.Empty));
+
+                if (!operations.ClientOperations.Any())
+                {
+                    logger.LogInformation("No hay operaciones contables que procesar");
+                    return false;
+                }
 
                 //Identifications
                 var activateIds = operations.ClientOperations.GroupBy(x => x.AffiliateId).Select(x => x.Key).ToList();
@@ -80,12 +90,6 @@ namespace Accounting.Application.AccountingOperations
                 {
                     logger.LogInformation("Insertar errores en Redis");
                     await inconsistencyHandler.HandleInconsistenciesAsync(accountingAssistants.Errors, command.ProcessDate, ProcessTypes.AccountingOperations, cancellationToken);
-                    return false;
-                }
-
-                if (!accountingAssistants.SuccessItems.Any())
-                {
-                    logger.LogInformation("No hay operaciones contables que procesar");
                     return false;
                 }
 

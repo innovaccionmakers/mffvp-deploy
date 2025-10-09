@@ -1,6 +1,7 @@
 {
   "ConnectionStrings": {
-    "ReportsDatabase": "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;"
+    //"ReportsDatabase": "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;"
+    "ReportsDatabase": "Host=127.0.0.1;Port=19437;Database=dbfvp;Username=makersdb;Password=gT7!bX9#qLm2;"
   },
   "Reports": {
     "KeywordTransmissionFormat": "CLAVE123456"

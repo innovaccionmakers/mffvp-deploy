@@ -9,13 +9,14 @@ using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Treasury.IntegrationEvents.TreasuryMovements.AccountingConcepts;
 
 namespace Accounting.Application.AccountingConcepts
 {
     internal class AccountingConceptsHandler(
-        ISender sender,
+        IServiceScopeFactory serviceScopeFactory,
         IRpcClient rpcClient,
         AccountingConceptsHandlerValidator validator,
         ILogger<AccountingConceptsHandler> logger,
@@ -25,6 +26,9 @@ namespace Accounting.Application.AccountingConcepts
         {
             try
             {
+                await using var scope = serviceScopeFactory.CreateAsyncScope();
+                var sender = scope.ServiceProvider.GetRequiredService<ISender>();
+
                 //TreasuryMovement
                 var treasuryMovement = await rpcClient.CallAsync<AccountingConceptsRequestEvent, AccountingConceptsResponseEvent>(
                                                                 new AccountingConceptsRequestEvent(command.PortfolioIds, command.ProcessDate), cancellationToken);
