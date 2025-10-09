@@ -47,7 +47,7 @@ public sealed class CreateClientOperationRequestedIntegrationEvent : Integration
     public DateTime ProcessDate { get; init; }
     public long TransactionSubtypeId { get; init; }
     public DateTime ApplicationDate { get; init; }
-    public LifecycleStatus Status { get; init; }z
+    public LifecycleStatus Status { get; init; }
     public int? CauseId { get; init; }
     public long? TrustId { get; init; }
     public long? LinkedClientOperationId { get; init; }
