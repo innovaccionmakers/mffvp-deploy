@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Closing.Integrations.ClientOperations.CreateClientOperation;
 
@@ -12,7 +13,8 @@ public sealed record CreateClientOperationCommand(
     DateTime ProcessDate,
     long TransactionSubtypeId,
     DateTime ApplicationDate,
-    int Status,
+    LifecycleStatus Status,
+    int? CauseId,
     long? TrustId,
     long? LinkedClientOperationId,
     decimal? Units

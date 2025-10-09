@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Trusts.Integrations.Trusts.CreateTrust;
 
@@ -16,5 +17,5 @@ public sealed record CreateTrustCommand(
     decimal ContingentWithholding,
     decimal EarningsWithholding,
     decimal AvailableAmount,
-    bool Status
+    LifecycleStatus Status
 ) : ICommand<TrustResponse>;

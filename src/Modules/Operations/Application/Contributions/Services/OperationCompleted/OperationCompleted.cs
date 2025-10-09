@@ -20,6 +20,7 @@ public sealed class OperationCompleted(IEventBus eventBus) : IOperationCompleted
             operation.OperationTypeId,
             operation.ApplicationDate,
             operation.Status,
+            operation.CauseId,
             operation.TrustId,
             operation.LinkedClientOperationId,
             operation.Units);

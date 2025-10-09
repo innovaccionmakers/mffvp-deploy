@@ -75,6 +75,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                         current.OperationTypeId,
                         DateTime.UtcNow,
                         current.Status,
+                        current.CauseId,
                         current.TrustId,
                         current.LinkedClientOperationId,
                         current.Units).Value;
@@ -139,7 +140,7 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                         op.Amount,
                         0m, op.Amount, 0m,
                         aux.TaxConditionId, aux.ContingentWithholding,
-                        0m, op.Amount, true);
+                        0m, op.Amount, LifecycleStatus.Active);
 
                     await eventBus.PublishAsync(trustEvent, cancellationToken);
 

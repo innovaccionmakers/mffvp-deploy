@@ -21,7 +21,6 @@ using Operations.Application.Abstractions.Services.Cleanup;
 using Operations.Application.Abstractions.Services.Closing;
 using Operations.Application.Abstractions.Services.ContributionService;
 using Operations.Application.Abstractions.Services.OperationCompleted;
-using Operations.Application.Abstractions.Services.OperationState;
 using Operations.Application.Abstractions.Services.Portfolio;
 using Operations.Application.Abstractions.Services.Prevalidation;
 using Operations.Application.Abstractions.Services.QueueTransactions;
@@ -34,7 +33,6 @@ using Operations.Application.Contributions.Services;
 using Operations.Application.Contributions.Services.Cleanup;
 using Operations.Application.Contributions.Services.ClosingValidator;
 using Operations.Application.Contributions.Services.OperationCompleted;
-using Operations.Application.Contributions.Services.OperationState;
 using Operations.Application.Contributions.Services.QueueTransactions;
 using Operations.Application.Contributions.Services.TrustCreation;
 using Operations.Application.Contributions.TransactionControl;
@@ -129,7 +127,6 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IPersonValidator, PersonValidator>();
 
         services.AddScoped<IContributionCatalogResolver, ContributionCatalogResolver>();
-        services.AddScoped<IOperationStateService, OperationStateService>();
         services.AddScoped<ITaxCalculator, TaxCalculator>();
 
         services.AddScoped<IQueueTransactions, QueueTransactions>();

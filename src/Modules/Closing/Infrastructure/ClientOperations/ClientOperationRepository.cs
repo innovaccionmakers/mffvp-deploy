@@ -1,5 +1,6 @@
 using Closing.Domain.ClientOperations;
 using Closing.Infrastructure.Database;
+using Common.SharedKernel.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 
 namespace Closing.Infrastructure.ClientOperations;
@@ -18,7 +19,11 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
     public async Task<bool> ClientOperationsExistsAsync(int portfolioId, DateTime closingDateUtc, long operationTypeId, CancellationToken cancellationToken = default)
     {
         return await context.ClientOperations.AsNoTracking().TagWith("ClientOperationRepository_ClientOperationsExistsAsync")
-            .AnyAsync(co => co.PortfolioId == portfolioId && co.ProcessDate == closingDateUtc && co.OperationTypeId == operationTypeId, cancellationToken);
+            .AnyAsync(co => co.Status == LifecycleStatus.Active
+                            && co.PortfolioId == portfolioId
+                            && co.ProcessDate == closingDateUtc
+                            && co.OperationTypeId == operationTypeId,
+                cancellationToken);
     }
 
     public async Task<decimal> SumByPortfolioAndSubtypesAsync(
@@ -28,7 +33,8 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
        CancellationToken cancellationToken = default)
     {
         return await context.ClientOperations.AsNoTracking().TagWith("ClientOperationRepository_SumByPortfolioAndSubtypesAsync")
-            .Where(op => op.PortfolioId == portfolioId
+            .Where(op => op.Status == LifecycleStatus.Active
+                         && op.PortfolioId == portfolioId
                          && op.ProcessDate.Date == closingDateUtc.Date
                          && subtransactionTypeIds.Contains(op.OperationTypeId))
             .SumAsync(op => (decimal?)op.Amount, cancellationToken) ?? 0m;
