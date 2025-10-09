@@ -43,6 +43,8 @@ if (env != "Development")
             options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
             options.DefaultAttributes = observabilityOptions.DefaultAttributes;
 
+            options.EnableAutoTracingLogging = true;
+
             options.UseSidecarPattern = true;
             options.SidecarEndpoint = "http://localhost:4317";
             options.EnablePrometheusExporter = false;

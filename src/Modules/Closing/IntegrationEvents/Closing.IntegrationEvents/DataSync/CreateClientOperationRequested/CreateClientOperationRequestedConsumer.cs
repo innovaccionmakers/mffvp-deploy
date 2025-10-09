@@ -27,6 +27,7 @@ public sealed class CreateClientOperationRequestedConsumer : ICapSubscribe
                 message.TransactionSubtypeId,
                 message.ApplicationDate,
                 message.Status,
+                message.CauseId,
                 message.TrustId,
                 message.LinkedClientOperationId,
                 message.Units),

@@ -1,7 +1,7 @@
 using System.Text.Json;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions.Data;
-using Operations.Application.Abstractions.Services.OperationState;
 using Operations.Application.Abstractions.Services.Prevalidation;
 using Operations.Application.Abstractions.Services.QueueTransactions;
 using Operations.Domain.TemporaryAuxiliaryInformations;
@@ -15,7 +15,6 @@ public sealed class QueueTransactions(
     ITemporaryClientOperationRepository tempClientOpRepository,
     ITemporaryAuxiliaryInformationRepository tempAuxRepository,
     ITaxCalculator taxCalculator,
-    IOperationStateService operationStateService,
     IUnitOfWork unitOfWork) : IQueueTransactions
 {
     public async Task<Result<ContributionResponse>> ExecuteAsync(
@@ -32,8 +31,6 @@ public sealed class QueueTransactions(
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        var status = await operationStateService.GetActiveStateAsync(cancellationToken);
-
         var tempOp = TemporaryClientOperation.Create(
             DateTime.UtcNow,
             prevalidationResult.RemoteData.AffiliateId,
@@ -43,7 +40,8 @@ public sealed class QueueTransactions(
             DateTime.SpecifyKind(command.ExecutionDate, DateTimeKind.Utc),
             prevalidationResult.Catalogs.Subtype?.OperationTypeId ?? 0,
             DateTime.UtcNow,
-            status).Value;
+            LifecycleStatus.Active,
+            null).Value;
 
         tempClientOpRepository.Insert(tempOp);
         await unitOfWork.SaveChangesAsync(cancellationToken);

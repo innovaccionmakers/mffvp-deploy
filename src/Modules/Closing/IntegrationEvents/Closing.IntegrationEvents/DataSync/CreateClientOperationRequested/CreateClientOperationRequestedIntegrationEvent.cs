@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.EventBus;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Closing.IntegrationEvents.DataSync.CreateClientOperationRequested;
 
@@ -14,7 +15,8 @@ public sealed class CreateClientOperationRequestedIntegrationEvent : Integration
         DateTime processDate,
         long transactionSubtypeId,
         DateTime applicationDate,
-        int status,
+        LifecycleStatus status,
+        int? causeId,
         long? trustId,
         long? linkedClientOperationId,
         decimal? units)
@@ -30,6 +32,7 @@ public sealed class CreateClientOperationRequestedIntegrationEvent : Integration
         TransactionSubtypeId = transactionSubtypeId;
         ApplicationDate = applicationDate;
         Status = status;
+        CauseId = causeId;
         TrustId = trustId;
         LinkedClientOperationId = linkedClientOperationId;
         Units = units;
@@ -44,7 +47,8 @@ public sealed class CreateClientOperationRequestedIntegrationEvent : Integration
     public DateTime ProcessDate { get; init; }
     public long TransactionSubtypeId { get; init; }
     public DateTime ApplicationDate { get; init; }
-    public int Status { get; init; }
+    public LifecycleStatus Status { get; init; }
+    public int? CauseId { get; init; }
     public long? TrustId { get; init; }
     public long? LinkedClientOperationId { get; init; }
     public decimal? Units { get; init; }
