@@ -206,7 +206,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
                     var closingBalance = trustYield.ClosingBalance;
 
                     if (closingBalance == 0)
-                        closingBalance = initialBalance + entry - outflows - yields - sourceWithholding;
+                        closingBalance = initialBalance + entry - outflows + yields - sourceWithholding;
 
                     var response = new BalancesResponse(
                         StartDate: startDate.ToString("yyyy-MM-dd") ?? string.Empty,
