@@ -112,9 +112,9 @@ namespace Accounting.Presentation.GraphQL
                     return result;
                 }
 
-                var valueCommand = commandResult.Value;
+                var valueCommand = commandResult.Description;
 
-                result.SetSuccess(new string(valueCommand));
+                result.SetSuccess(string.Empty, new string(valueCommand));
 
                 return result;
             }
