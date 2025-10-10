@@ -1,4 +1,5 @@
-﻿using DataSync.Application.Abstractions.External.TrustSync;
+using Common.SharedKernel.Core.Primitives;
+using DataSync.Application.Abstractions.External.TrustSync;
 using DataSync.Application.TrustSync.Dto;
 using DataSync.Infrastructure.ConnectionFactory.Interfaces;
 
@@ -13,10 +14,11 @@ public sealed class TrustReader(ITrustConnectionFactory trustConnectionFactory) 
         const string selectSql = @"
             SELECT id, portafolio_id, saldo_total, capital, retencion_contingente
             FROM fideicomisos.fideicomisos
-            WHERE estado = true AND portafolio_id = @p;";
+            WHERE estado = @status AND portafolio_id = @p;";
 
         using var selectCommand = new Npgsql.NpgsqlCommand(selectSql, trustConnection);
         selectCommand.Parameters.AddWithValue("p", portfolioId);
+        selectCommand.Parameters.AddWithValue("status", (int)LifecycleStatus.Active);
 
         var trustRows = new List<TrustRow>();
 

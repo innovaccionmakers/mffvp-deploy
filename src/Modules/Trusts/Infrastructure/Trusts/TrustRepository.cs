@@ -1,3 +1,4 @@
+using Common.SharedKernel.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 using Trusts.Domain.Trusts;
 using Trusts.Domain.Trusts.Balances;
@@ -63,7 +64,7 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
         return await context
             .Set<Trust>()
             .AsNoTracking()
-            .Where(t => t.PortfolioId == portfolioId && t.Status)
+            .Where(t => t.PortfolioId == portfolioId && t.Status == LifecycleStatus.Active)
             .ToListAsync(ct);
     }
 

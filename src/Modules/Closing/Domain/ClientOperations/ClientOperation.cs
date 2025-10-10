@@ -1,3 +1,4 @@
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 
 namespace Closing.Domain.ClientOperations;
@@ -15,8 +16,9 @@ public sealed class ClientOperation : Entity
     public DateTime ApplicationDate { get; private set; }
     public long? TrustId { get; private set; }
     public long? LinkedClientOperationId { get; private set; }
-    public int Status { get; private set; }
+    public LifecycleStatus Status { get; private set; }
     public decimal? Units { get; private set; }
+    public int? CauseId { get; private set; }
 
     private ClientOperation()
     {
@@ -32,7 +34,8 @@ public sealed class ClientOperation : Entity
         DateTime processDate,
         long operationTypeId,
         DateTime applicationDate,
-        int status,
+        LifecycleStatus status,
+        int? causeId = null,
         long? trustId = null,
         long? linkedClientOperationId = null,
         decimal? units = null)
@@ -49,6 +52,7 @@ public sealed class ClientOperation : Entity
             OperationTypeId = operationTypeId,
             ApplicationDate = applicationDate,
             Status = status,
+            CauseId = causeId,
             TrustId = trustId,
             LinkedClientOperationId = linkedClientOperationId,
             Units = units
@@ -66,7 +70,8 @@ public sealed class ClientOperation : Entity
         DateTime processDate,
         long operationTypeId,
         DateTime applicationDate,
-        int status,
+        LifecycleStatus status,
+        int? causeId = null,
         long? trustId = null,
         long? linkedClientOperationId = null,
         decimal? units = null)
@@ -80,6 +85,7 @@ public sealed class ClientOperation : Entity
         OperationTypeId = operationTypeId;
         ApplicationDate = applicationDate;
         Status = status;
+        CauseId = causeId;
         TrustId = trustId;
         LinkedClientOperationId = linkedClientOperationId;
         Units = units;

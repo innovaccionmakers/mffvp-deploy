@@ -31,6 +31,7 @@ internal sealed class CreateClientOperationCommandHandler(
                 request.TransactionSubtypeId,
                 request.ApplicationDate,
                 request.Status,
+                request.CauseId,
                 request.TrustId,
                 request.LinkedClientOperationId,
                 request.Units);
@@ -60,6 +61,7 @@ internal sealed class CreateClientOperationCommandHandler(
             request.TransactionSubtypeId,
             request.ApplicationDate,
             request.Status,
+            request.CauseId,
             request.TrustId,
             request.LinkedClientOperationId,
             request.Units);
@@ -86,6 +88,7 @@ internal sealed class CreateClientOperationCommandHandler(
             entity.OperationTypeId,
             entity.ApplicationDate,
             entity.Status,
+            entity.CauseId,
             entity.TrustId,
             entity.LinkedClientOperationId,
             entity.Units);

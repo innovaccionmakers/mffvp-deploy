@@ -1,3 +1,4 @@
+using Common.SharedKernel.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Trusts.Domain.Trusts;
@@ -45,6 +46,10 @@ internal sealed class TrustConfiguration : IEntityTypeConfiguration<Trust>
             .HasColumnName("disponible")
             .HasColumnType("decimal(19, 2)")
             .HasPrecision(19, 2);
-        builder.Property(x => x.Status).HasColumnName("estado");
+        builder.Property(x => x.Status)
+            .HasColumnName("estado")
+            .HasConversion<int>();
+        builder.Property(x => x.UpdateDate)
+            .HasColumnName("fecha_actualizacion");
     }
 }
