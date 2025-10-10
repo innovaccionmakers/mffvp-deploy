@@ -63,7 +63,7 @@ namespace Accounting.Application.AccountingOperations
                 //PassiveTransaction
                 var operationTypeId = operations.ClientOperations.GroupBy(x => x.OperationTypeId).Select(x => x.Key).ToList();
                 var passiveTransaction = await sender.Send(new GetAccountingOperationsPassiveTransactionQuery(command.PortfolioIds, operationTypeId), cancellationToken);
-                if (!treasury.IsSuccess)
+                if (!passiveTransaction.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, passiveTransaction.Description ?? string.Empty));
                 var passiveTransactionByPortfolioId = passiveTransaction.Value.ToDictionary(x => x.PortfolioId, x => x);
 

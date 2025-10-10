@@ -54,7 +54,7 @@ namespace Accounting.Application.AccountProcess
                 ? $"{operationType} procesado exitosamente"
                 : $"{result.Error?.Description ?? "falló durante el procesamiento"}";
 
-            var resultEvent = new AccountingServiceResultIntegrationEvent(success, message, operationType);
+            var resultEvent = new AccountingServiceResultIntegrationEvent(success, message, operationType, DateTime.Now);
             await eventBus.PublishAsync(resultEvent, cancellationToken);         
         }
     }
