@@ -16,7 +16,7 @@ public sealed record PortfolioValuationResponse(
     decimal Expenses,
     decimal CommissionDay,
     decimal CostDay,
-    decimal CreditedYields,
+    decimal YieldToCredit,
     decimal GrossYieldPerUnit,
     decimal CostPerUnit,
     decimal UnitValue,
