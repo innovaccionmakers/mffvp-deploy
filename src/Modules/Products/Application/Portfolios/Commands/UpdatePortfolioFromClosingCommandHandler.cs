@@ -14,7 +14,7 @@ internal class UpdatePortfolioFromClosingCommandHandler(
         if (existing is null)
             throw new InvalidOperationException($"Portafolio {request.PortfolioId} no encontrado.");
 
-        // 1) Aplica sólo la fecha de cierre
+        // Aplica sólo la fecha de cierre
        existing.UpdateDetails(
             existing.HomologatedCode,
             existing.Name,
@@ -26,8 +26,6 @@ internal class UpdatePortfolioFromClosingCommandHandler(
             existing.Status
         );
 
-       
-        // 2) Marca toda la entidad como modificada
         await repository.UpdateAsync(existing, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }

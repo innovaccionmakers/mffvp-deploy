@@ -15,13 +15,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-
-using Npgsql;
-
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 
 using Savorboard.CAP.InMemoryMessageQueue;
 

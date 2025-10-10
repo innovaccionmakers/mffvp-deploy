@@ -14,19 +14,9 @@
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="15.1.6" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3" />
-    <PackageReference Include="OpenTelemetry" Version="1.9.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.9.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta.12" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
     <PackageReference Include="Polly.Core" Version="8.4.2" />
     <PackageReference Include="Polly.Extensions" Version="8.4.2" />
     <PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="8.2.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
-    <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.1.1" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
   </ItemGroup>
 
@@ -83,9 +73,8 @@
     <DefineConstants>$(DefineConstants);IS_CI</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(IsCI)' != 'true'">
-    <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.6" />
-  </ItemGroup>
-
+    <ItemGroup Condition="'$(IsCI)' != 'true'">
+	    <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.7" />
+    </ItemGroup>
 
 </Project>

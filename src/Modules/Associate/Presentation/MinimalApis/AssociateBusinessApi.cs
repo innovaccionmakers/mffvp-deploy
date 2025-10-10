@@ -218,11 +218,11 @@ public static class AssociateBusinessApi
         group.MapGet(
                 "GetInfoBalancesAccount",
                 async (
-                    [FromQuery(Name = "entidad")] string entity,
-                    [FromQuery(Name = "tipoId")] string documentType,
-                    [FromQuery(Name = "identificacion")] string identification,
-                    [FromQuery(Name = "numeroPagina")] int pageNumber,
-                    [FromQuery(Name = "registrosPorPagina")] int recordsPerPage,
+                    [FromQuery(Name = "entidad")] string? entity,
+                    [FromQuery(Name = "tipoId")] string? documentType,
+                    [FromQuery(Name = "identificacion")] string? identification,
+                    [FromQuery(Name = "numeroPagina")] int? pageNumber,
+                    [FromQuery(Name = "registrosPorPagina")] int? recordsPerPage,
                     ISender sender
                 ) =>
                 {

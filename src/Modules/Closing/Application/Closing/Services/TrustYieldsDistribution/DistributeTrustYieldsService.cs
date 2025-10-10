@@ -175,7 +175,7 @@ public class DistributeTrustYieldsService(
                 yieldRetention
             );
 
-            await Task.CompletedTask; // Para evitar warning del compilador sobre async
+            await Task.CompletedTask;
         });
 
         await trustYieldRepository.SaveChangesAsync(ct);

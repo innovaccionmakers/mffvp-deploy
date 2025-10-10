@@ -205,6 +205,9 @@ namespace Reports.Infrastructure.BalancesAndMovements
                     var sourceWithholding = 0m;
                     var closingBalance = trustYield.ClosingBalance;
 
+                    if (closingBalance == 0)
+                        closingBalance = initialBalance + entry - outflows - yields - sourceWithholding;
+
                     var response = new BalancesResponse(
                         StartDate: startDate.ToString("yyyy-MM-dd") ?? string.Empty,
                         EndDate: endDate.ToString("yyyy-MM-dd") ?? string.Empty,
@@ -262,7 +265,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
                                     LEFT JOIN operaciones.informacion_auxiliar IA ON IA.operacion_cliente_id = OC.id
                                     LEFT JOIN operaciones.parametros_configuracion PC_Tributaria ON PC_Tributaria.id = IA.condicion_tributaria_id
                                     LEFT JOIN operaciones.parametros_configuracion PC_FormaPago ON PC_FormaPago.id = IA.forma_pago_id
-                                    WHERE fecha_aplicacion::date BETWEEN @startDate AND @endDate AND (T.id = 1 OR T.categoria = 1);";
+                                    WHERE OC.fecha_proceso::date BETWEEN @startDate AND @endDate AND (T.id = 1 OR T.categoria = 1);";
 
                 var command = new CommandDefinition(sql, new { startDate, endDate }, cancellationToken: cancellationToken);
                 return await connection.QueryAsync<OperationMovementsRequest>(command);

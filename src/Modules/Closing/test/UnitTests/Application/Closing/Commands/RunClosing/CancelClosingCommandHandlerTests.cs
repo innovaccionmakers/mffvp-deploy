@@ -118,7 +118,7 @@ public class CancelClosingCommandHandlerTests
         // Act
         var result = await sut.Handle(command, CancellationToken.None);
 
-        // Assert (failure se propaga intacto)
+        // Assert 
         Assert.Same(expectedFailure, result);
         Assert.False(result.IsSuccess);
         Assert.True(result.IsFailure);
@@ -172,8 +172,7 @@ public class CancelClosingCommandHandlerTests
     }
 }
 
-// Helper para verificar ILogger<T>
-internal static class LoggerMoqExtensions
+public static class LoggerMoqExtensions
 {
     public static void VerifyLog<T>(this Mock<ILogger<T>> logger, LogLevel level, Times times)
     {

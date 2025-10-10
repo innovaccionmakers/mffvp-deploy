@@ -54,17 +54,16 @@ using Products.Infrastructure.PlanFunds;
 using Products.Infrastructure.Plans;
 using Products.Infrastructure.Portfolios;
 using Products.Infrastructure.TechnicalSheets;
-using Products.IntegrationEvents.AccumulatedCommissions.CommissionProcessed;
+using Products.IntegrationEvents.AccumulatedCommissions;
 using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.EntityValidation;
 using Products.IntegrationEvents.Portfolio;
 using Products.IntegrationEvents.Portfolio.GetPortfolioInformation;
-using Products.IntegrationEvents.Portfolio.PortfolioUpdated;
+using Products.IntegrationEvents.Portfolio.UpdateFromClosing;
 using Products.IntegrationEvents.PortfolioValidation;
 using Products.IntegrationEvents.TechnicalSheet;
-using Products.Integrations.Portfolios;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
 
@@ -143,11 +142,12 @@ public class ProductsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<GetAdditionalInformationRequest, GetAdditionalInformationResponse>, GetAdditionalInformationConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioInformationByIdRequest, GetPortfolioInformationByIdResponse>, GetPortfolioInformationByIdConsumer>();
 
-        services.AddScoped<PortfolioUpdatedSuscriber>();
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
         services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();
-        services.AddScoped<CommissionProcessedSuscriber>();
         services.AddScoped<TechnicalSheetDataBuilderSuscriber>();
+
+        services.AddScoped<IRpcHandler<UpdatePortfolioFromClosingRequest, UpdatePortfolioFromClosingResponse>, UpdatePortfolioFromClosingConsumer>();
+        services.AddScoped<IRpcHandler<UpdateAccumulatedCommissionFromClosingRequest, UpdateAccumulatedCommissionFromClosingResponse>, UpdateAccumulatedCommissionFromClosingConsumer>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ProductsDbContext>());
     }

@@ -7,6 +7,7 @@ using Closing.Application.PreClosing.Services.Yield;
 using Closing.Application.PreClosing.Services.Yield.Constants;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.ConfigurationParameters;
+using Closing.Domain.PortfolioValuations;
 using Closing.Domain.TrustYields;
 using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
@@ -28,6 +29,7 @@ public class ValidateTrustYieldsDistributionService(
     ITimeControlService timeControlService,
     IConfigurationParameterRepository configurationParameterRepository,
     IWarningCollector warnings,
+    IPortfolioValuationRepository portfolioValuationRepository, 
     ILogger<ValidateTrustYieldsDistributionService> logger)
     : IValidateTrustYieldsDistributionService
 {
@@ -45,7 +47,7 @@ public class ValidateTrustYieldsDistributionService(
             return Result.Failure(new Error("001", "No se encontró información de rendimientos para la fecha de cierre.", ErrorType.Failure));
         }
 
-        var trustYields = await trustYieldRepository.GetForUpdateByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
+        var trustYields = await trustYieldRepository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
         if (!trustYields.Any())
         {
             return Result.Failure(new Error("002", "No existen registros de rendimientos distribuidos para fideicomisos.", ErrorType.Failure));
@@ -122,6 +124,9 @@ public class ValidateTrustYieldsDistributionService(
                 new[] { summary }, parameters);
 
             await yieldDetailCreationService.CreateYieldDetailsAsync(buildResult, PersistenceMode.Transactional, cancellationToken);
+
+            //Ajuste al valor del portafolio con los rendimientos abonados
+            await portfolioValuationRepository.ApplyAllocationCheckDiffAsync(portfolioId, closingDate, -difference, cancellationToken);
         }
        
         return Result.Success();

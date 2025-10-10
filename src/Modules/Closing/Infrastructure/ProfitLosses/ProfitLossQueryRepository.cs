@@ -21,6 +21,7 @@ internal sealed class ProfitLossQueryRepository : IProfitLossQueryRepository
         await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
 
         return await db.ProfitLosses
+            .TagWith("ProfitLossQueryRepository.GetReadOnlyConceptSummaryAsync")
             .AsNoTracking()
             .Where(pl => pl.PortfolioId == portfolioId && pl.EffectiveDate == effectiveDateUtc)
             .Join(db.ProfitLossConcepts,
