@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="NewFolder\" />
+    <Folder Include="AccountingInconsistencies\" />
   </ItemGroup>
 
 </Project>

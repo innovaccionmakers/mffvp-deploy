@@ -1,13 +1,11 @@
 ﻿using Accounting.Domain.Constants;
 using Accounting.Integrations.AccountingAssistants.Commands;
-using Accounting.IntegrationEvents.AccountingInconsistencies;
 using Accounting.Integrations.AccountingConcepts;
 using Accounting.Integrations.AccountingFees;
 using Accounting.Integrations.AccountingOperations;
 using Accounting.Integrations.AccountingReturns;
 using Accounting.Integrations.AccountProcess;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
-using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -17,8 +15,7 @@ namespace Accounting.Application.AccountProcess
 {
     internal sealed class AccountProcessHandler(
         ISender sender,
-        IClosingExecutionStore closingValidator,
-        IEventBus eventBus) : ICommandHandler<AccountProcessCommand, string>
+        IClosingExecutionStore closingValidator) : ICommandHandler<AccountProcessCommand, string>
     {
         public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
         {
@@ -54,8 +51,8 @@ namespace Accounting.Application.AccountProcess
                 ? $"{operationType} procesado exitosamente"
                 : $"{result.Error?.Description ?? "falló durante el procesamiento"}";
 
-            var resultEvent = new AccountingServiceResultIntegrationEvent(success, message, operationType, DateTime.Now);
-            await eventBus.PublishAsync(resultEvent, cancellationToken);         
+            //aquí logica
+
         }
     }
 }
