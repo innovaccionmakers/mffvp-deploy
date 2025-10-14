@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace Reports.Application.Reports.Strategies
@@ -15,9 +16,7 @@ namespace Reports.Application.Reports.Strategies
         {
             cell.Value = value switch
             {
-                decimal decimalVal => decimalVal.ToString("0.00", CultureInfo.InvariantCulture),
-                double doubleVal => doubleVal.ToString("0.00", CultureInfo.InvariantCulture),
-                float floatVal => floatVal.ToString("0.00", CultureInfo.InvariantCulture),
+                decimal or double or float => Convert.ToDecimal(value),
                 _ => value?.ToString() ?? string.Empty
             };
 
@@ -25,7 +24,7 @@ namespace Reports.Application.Reports.Strategies
             {
                 decimal or double or float => "0.00",
                 int or long or short or byte => "0",
-                _ => "@"
+                _ => "General"
             };
         }
 
