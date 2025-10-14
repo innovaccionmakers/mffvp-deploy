@@ -49,7 +49,7 @@ public class ClosingExperienceQueries(IMediator mediator) : IClosingExperienceQu
                 x.Expenses,
                 x.CommissionDay,
                 x.CostDay,
-                x.CreditedYields,
+                x.YieldToCredit,
                 x.GrossYieldPerUnit,
                 x.CostPerUnit,
                 x.UnitValue,
