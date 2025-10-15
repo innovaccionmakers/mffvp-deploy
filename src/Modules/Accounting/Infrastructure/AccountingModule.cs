@@ -91,8 +91,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<AccountingConceptsHandlerValidator>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
-        services.AddScoped<IAccountingProcessStore, InMemoryAccountingProcessStore>();
-        
+        services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();
+
 
     }
 
