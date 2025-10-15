@@ -13,7 +13,6 @@ using Common.SharedKernel.Domain;
 using Customers.IntegrationEvents.PeopleByIdentificationsValidation;
 using Customers.Integrations.People.GetPeopleByIdentifications;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Operations.IntegrationEvents.ClientOperations;
 using System.Collections.Concurrent;
@@ -21,8 +20,8 @@ using System.Collections.Concurrent;
 namespace Accounting.Application.AccountingOperations
 {
     internal sealed class AccountingOperationsHandler(
-        IServiceScopeFactory serviceScopeFactory,
         IRpcClient rpcClient,
+        ISender sender,
         ILogger<AccountingOperationsHandler> logger,
         AccountingOperationsHandlerValidation validator,
         IInconsistencyHandler inconsistencyHandler) : ICommandHandler<AccountingOperationsCommand, bool>
@@ -31,8 +30,6 @@ namespace Accounting.Application.AccountingOperations
         {
             try
             {
-                await using var scope = serviceScopeFactory.CreateAsyncScope();
-                var sender = scope.ServiceProvider.GetRequiredService<ISender>();
                 var errors = new ConcurrentBag<AccountingInconsistency>();
 
                 //Operations
@@ -54,7 +51,7 @@ namespace Accounting.Application.AccountingOperations
                 if (errors.Any())
                 {
                     await inconsistencyHandler.HandleInconsistenciesAsync(errors, command.ProcessDate, ProcessTypes.AccountingOperations, cancellationToken);
-                    return false;
+                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "Se encontraron inconsistencias"));
                 }
 
                 //Identifications

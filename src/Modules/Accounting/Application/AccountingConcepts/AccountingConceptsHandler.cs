@@ -16,7 +16,7 @@ using Treasury.IntegrationEvents.TreasuryMovements.AccountingConcepts;
 namespace Accounting.Application.AccountingConcepts
 {
     internal class AccountingConceptsHandler(
-        IServiceScopeFactory serviceScopeFactory,
+        ISender sender,
         IRpcClient rpcClient,
         AccountingConceptsHandlerValidator validator,
         ILogger<AccountingConceptsHandler> logger,
@@ -26,9 +26,6 @@ namespace Accounting.Application.AccountingConcepts
         {
             try
             {
-                await using var scope = serviceScopeFactory.CreateAsyncScope();
-                var sender = scope.ServiceProvider.GetRequiredService<ISender>();
-
                 //TreasuryMovement
                 var treasuryMovement = await rpcClient.CallAsync<AccountingConceptsRequestEvent, AccountingConceptsResponseEvent>(
                                                                 new AccountingConceptsRequestEvent(command.PortfolioIds, command.ProcessDate), cancellationToken);

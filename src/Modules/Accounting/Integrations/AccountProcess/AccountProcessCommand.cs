@@ -1,6 +1,5 @@
 ﻿using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
 using System.Text.Json.Serialization;
 
 namespace Accounting.Integrations.AccountProcess
