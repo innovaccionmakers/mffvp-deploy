@@ -21,6 +21,7 @@ using MFFVP.Api.OpenTelemetry;
 
 using Microsoft.OpenApi.Models;
 
+using System.Diagnostics;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -218,9 +219,27 @@ app.MapEndpoints();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-app.MapGet("/",
-    () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
+//app.MapGet("/",
+//    () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
 
+app.MapGet("/", () =>
+{
+    var sw = Stopwatch.StartNew();
+
+    var asm = Assembly.GetExecutingAssembly().GetName();
+    var name = "Makers.Module.MFFVP";
+    var version = asm.Version?.ToString() ?? "0.0.0.0";
+
+    sw.Stop();
+
+    return Results.Ok(new
+    {
+        status = "Healthy",
+        duration = sw.Elapsed.ToString(@"hh\:mm\:ss\.fffffff"),
+        name,
+        version
+    });
+});
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
 
 Console.WriteLine("Application has reached app.Run()");
