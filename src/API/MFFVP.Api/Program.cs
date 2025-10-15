@@ -219,9 +219,6 @@ app.MapEndpoints();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-//app.MapGet("/",
-//    () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
-
 app.MapGet("/", () =>
 {
     var sw = Stopwatch.StartNew();
