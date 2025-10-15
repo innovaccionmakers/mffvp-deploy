@@ -1,0 +1,20 @@
+using Common.SharedKernel.Application.EventBus;
+
+namespace Accounting.IntegrationEvents.AccountingProcess;
+
+public sealed class AccountingProcessCompletedIntegrationEvent(
+    string processType,
+    bool isSuccess,
+    string? errorMessage,
+    Guid processId,
+    DateTime processDate,
+    IEnumerable<int> portfolioIds)
+    : IntegrationEvent(Guid.NewGuid(), DateTime.UtcNow)
+{
+    public string ProcessType { get; init; } = processType;
+    public bool IsSuccess { get; init; } = isSuccess;
+    public string? ErrorMessage { get; init; } = errorMessage;
+    public Guid ProcessId { get; init; } = processId;
+    public DateTime ProcessDate { get; init; } = processDate;
+    public IEnumerable<int> PortfolioIds { get; init; } = portfolioIds;
+}
