@@ -11,7 +11,7 @@ public sealed class AccountingProcessCoordinatorConsumer(IAccountingProcessStore
     {
         await processStore.RegisterProcessResultAsync(evt.ProcessId, evt.ProcessType, evt.IsSuccess, evt.ErrorMessage, cancellationToken);
 
-        var allProcessesCompleted = await processStore.AreAllProcessesCompletedAsync(evt.ProcessId, cancellationToken);
+        var allProcessesCompleted = await processStore.AllProcessesCompletedAsync(evt.ProcessId, cancellationToken);
 
         if (allProcessesCompleted)
         {

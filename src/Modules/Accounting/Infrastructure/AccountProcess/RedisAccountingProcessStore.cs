@@ -56,7 +56,7 @@ internal sealed class RedisAccountingProcessStore(
         }
     }
 
-    public async Task<bool> AreAllProcessesCompletedAsync(Guid processId, CancellationToken cancellationToken)
+    public async Task<bool> AllProcessesCompletedAsync(Guid processId, CancellationToken cancellationToken)
     {
         try
         {
