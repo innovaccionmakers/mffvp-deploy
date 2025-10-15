@@ -1,32 +1,33 @@
-using Accounting.IntegrationEvents.AccountingProcess;
-using DotNetCore.CAP;
+﻿using Accounting.Application.AccountProcess;
+using Accounting.Integrations.AccountingValidator;
+using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Domain;
+using MediatR;
 
-namespace Accounting.Application.AccountProcess;
+namespace Accounting.Application.AccountingValidator;
 
-public sealed class AccountingProcessCoordinatorConsumer(IAccountingProcessStore processStore) : ICapSubscribe
+internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore processStore) : ICommandHandler<AccountingValidatorCommand, Unit>
 {
-
-    [CapSubscribe(nameof(AccountingProcessCompletedIntegrationEvent))]
-    public async Task HandleAsync(AccountingProcessCompletedIntegrationEvent evt, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(AccountingValidatorCommand request, CancellationToken cancellationToken)
     {
-        await processStore.RegisterProcessResultAsync(evt.ProcessId, evt.ProcessType, evt.IsSuccess, evt.ErrorMessage, cancellationToken);
+        await processStore.RegisterProcessResultAsync(request.ProcessId, request.ProcessType, request.IsSuccess, request.ErrorMessage, cancellationToken);
 
-        var allProcessesCompleted = await processStore.AllProcessesCompletedAsync(evt.ProcessId, cancellationToken);
+        var allProcessesCompleted = await processStore.AllProcessesCompletedAsync(request.ProcessId, cancellationToken);
 
         if (allProcessesCompleted)
         {
-            var results = await processStore.GetAllProcessResultsAsync(evt.ProcessId, cancellationToken);
-
-            // Determinar el estado general
+            var results = await processStore.GetAllProcessResultsAsync(request.ProcessId, cancellationToken);
+            
             var allSuccessful = results.All(r => r.IsSuccess);
             var hasErrors = results.Any(r => !r.IsSuccess);
 
-            // Ejecutar la lógica de finalización
-            await ExecuteFinalizationLogicAsync(evt.ProcessId, evt.ProcessDate, evt.PortfolioIds, results, allSuccessful, hasErrors, cancellationToken);
 
-            // Limpiar el store
-            await processStore.CleanupAsync(evt.ProcessId, cancellationToken);
+            await ExecuteFinalizationLogicAsync(request.ProcessId, request.ProcessDate, request.PortfolioIds, results, allSuccessful, hasErrors, cancellationToken);
+
+            await processStore.CleanupAsync(request.ProcessId, cancellationToken);
         }
+
+        return Unit.Value;
     }
 
     private async Task ExecuteFinalizationLogicAsync(
@@ -65,3 +66,4 @@ public sealed class AccountingProcessCoordinatorConsumer(IAccountingProcessStore
         // - etc.
     }
 }
+
