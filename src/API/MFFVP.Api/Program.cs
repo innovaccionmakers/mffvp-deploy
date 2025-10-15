@@ -225,7 +225,9 @@ app.MapGet("/", () =>
 
     var asm = Assembly.GetExecutingAssembly().GetName();
     var name = "Makers.Module.MFFVP";
-    var version = asm.Version?.ToString() ?? "0.0.0.0";
+    var asmVer = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 1, 0, 0);
+    var displayVer = new Version(22, asmVer.Minor, asmVer.Build, asmVer.Revision).ToString();
+    var version = displayVer;
 
     sw.Stop();
 
