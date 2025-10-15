@@ -8,7 +8,7 @@ using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-using Customers.IntegrationEvents.PersonValidation;
+using Customers.IntegrationEvents.PersonInformation;
 using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.EntityValidation;
 using Trusts.IntegrationEvents.GetBalances;
@@ -95,13 +95,13 @@ internal sealed class GetBalancesByObjectiveHandler(
         var requiredEntity = request.Entity!;
         var requiredActivation = activation!;
 
-        var personValidation = await rpcClient.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-            new PersonDataRequestEvent(requiredDocumentType, requiredIdentification),
+        var personInformation = await rpcClient.CallAsync<GetPersonInformationRequest, GetPersonInformationResponse>(
+            new GetPersonInformationRequest(requiredDocumentType, requiredIdentification),
             cancellationToken);
 
-        if (!personValidation.IsValid)
+        if (!personInformation.IsValid)
             return Result.Failure<GetBalancesByObjectiveResponse>(
-                Error.Validation(personValidation.Code ?? string.Empty, personValidation.Message ?? string.Empty));
+                Error.Validation(personInformation.Code ?? string.Empty, personInformation.Message ?? string.Empty));
 
         var entityValidation = await rpcClient.CallAsync<ValidateEntityRequest, ValidateEntityResponse>(
             new ValidateEntityRequest(requiredEntity),
@@ -160,7 +160,7 @@ internal sealed class GetBalancesByObjectiveHandler(
                         info?.ObjectiveName ?? string.Empty,
                         g.Key,
                         requiredIdentification,
-                        string.Empty,
+                        personInformation.Person?.FullName ?? string.Empty,
                         Math.Round(g.Sum(x => x.AvailableAmount), 2),
                         Math.Round(g.Sum(x => x.TotalBalance), 2),
                         string.Empty,

@@ -13,7 +13,7 @@ using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain.ConfigurationParameters;
-using Customers.IntegrationEvents.PersonValidation;
+using Customers.IntegrationEvents.PersonInformation;
 using Moq;
 using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.EntityValidation;
@@ -63,12 +63,12 @@ public class GetBalancesByObjectiveHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(activation);
 
-        context.RpcClient.Setup(r => r.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-                It.Is<PersonDataRequestEvent>(req =>
+        context.RpcClient.Setup(r => r.CallAsync<GetPersonInformationRequest, GetPersonInformationResponse>(
+                It.Is<GetPersonInformationRequest>(req =>
                     req.DocumentType == documentTypeCode &&
                     req.Identification == activation.Identification),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetPersonValidationResponse(true, null, null));
+            .ReturnsAsync(new GetPersonInformationResponse(true, null, null, CreatePersonInformation("John Doe")));
 
         context.RpcClient.Setup(r => r.CallAsync<ValidateEntityRequest, ValidateEntityResponse>(
                 It.Is<ValidateEntityRequest>(req => req.Entity == "KIT"),
@@ -119,6 +119,7 @@ public class GetBalancesByObjectiveHandlerTests
         Assert.Equal("Objective One", item.ParticipationName);
         Assert.Equal(1, item.ProductNumber);
         Assert.Equal(activation.Identification, item.AffiliateDocument);
+        Assert.Equal("John Doe", item.HolderName);
         Assert.Equal(60.16m, item.AvailableBalance);
         Assert.Equal(175.65m, item.TotalBalance);
 
@@ -146,8 +147,8 @@ public class GetBalancesByObjectiveHandlerTests
             It.IsAny<object>(),
             It.IsAny<CancellationToken>()), Times.Once);
 
-        context.RpcClient.Verify(r => r.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-            It.IsAny<PersonDataRequestEvent>(),
+        context.RpcClient.Verify(r => r.CallAsync<GetPersonInformationRequest, GetPersonInformationResponse>(
+            It.IsAny<GetPersonInformationRequest>(),
             It.IsAny<CancellationToken>()), Times.Once);
 
         context.RpcClient.Verify(r => r.CallAsync<ValidateEntityRequest, ValidateEntityResponse>(
@@ -196,10 +197,10 @@ public class GetBalancesByObjectiveHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(activation);
 
-        context.RpcClient.Setup(r => r.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-                It.IsAny<PersonDataRequestEvent>(),
+        context.RpcClient.Setup(r => r.CallAsync<GetPersonInformationRequest, GetPersonInformationResponse>(
+                It.IsAny<GetPersonInformationRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetPersonValidationResponse(true, null, null));
+            .ReturnsAsync(new GetPersonInformationResponse(true, null, null, CreatePersonInformation("Jane Doe")));
 
         context.RpcClient.Setup(r => r.CallAsync<ValidateEntityRequest, ValidateEntityResponse>(
                 It.IsAny<ValidateEntityRequest>(),
@@ -334,10 +335,10 @@ public class GetBalancesByObjectiveHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(activation);
 
-        context.RpcClient.Setup(r => r.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-                It.IsAny<PersonDataRequestEvent>(),
+        context.RpcClient.Setup(r => r.CallAsync<GetPersonInformationRequest, GetPersonInformationResponse>(
+                It.IsAny<GetPersonInformationRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetPersonValidationResponse(false, "PER_001", "Persona invalida"));
+            .ReturnsAsync(new GetPersonInformationResponse(false, "PER_001", "Persona invalida", null));
 
         var handler = context.Handler;
         var query = new GetBalancesByObjectiveQuery("KIT", documentTypeCode, activation.Identification, null, null);
@@ -387,10 +388,10 @@ public class GetBalancesByObjectiveHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(activation);
 
-        context.RpcClient.Setup(r => r.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-                It.IsAny<PersonDataRequestEvent>(),
+        context.RpcClient.Setup(r => r.CallAsync<GetPersonInformationRequest, GetPersonInformationResponse>(
+                It.IsAny<GetPersonInformationRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetPersonValidationResponse(true, null, null));
+            .ReturnsAsync(new GetPersonInformationResponse(true, null, null, CreatePersonInformation("Jose Perez")));
 
         context.RpcClient.Setup(r => r.CallAsync<ValidateEntityRequest, ValidateEntityResponse>(
                 It.IsAny<ValidateEntityRequest>(),
@@ -445,10 +446,10 @@ public class GetBalancesByObjectiveHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(activation);
 
-        context.RpcClient.Setup(r => r.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-                It.IsAny<PersonDataRequestEvent>(),
+        context.RpcClient.Setup(r => r.CallAsync<GetPersonInformationRequest, GetPersonInformationResponse>(
+                It.IsAny<GetPersonInformationRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetPersonValidationResponse(true, null, null));
+            .ReturnsAsync(new GetPersonInformationResponse(true, null, null, CreatePersonInformation("Jose Perez")));
 
         context.RpcClient.Setup(r => r.CallAsync<ValidateEntityRequest, ValidateEntityResponse>(
                 It.IsAny<ValidateEntityRequest>(),
@@ -508,10 +509,10 @@ public class GetBalancesByObjectiveHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(activation);
 
-        context.RpcClient.Setup(r => r.CallAsync<PersonDataRequestEvent, GetPersonValidationResponse>(
-                It.IsAny<PersonDataRequestEvent>(),
+        context.RpcClient.Setup(r => r.CallAsync<GetPersonInformationRequest, GetPersonInformationResponse>(
+                It.IsAny<GetPersonInformationRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetPersonValidationResponse(true, null, null));
+            .ReturnsAsync(new GetPersonInformationResponse(true, null, null, CreatePersonInformation("Jose Perez")));
 
         context.RpcClient.Setup(r => r.CallAsync<ValidateEntityRequest, ValidateEntityResponse>(
                 It.IsAny<ValidateEntityRequest>(),
@@ -615,7 +616,34 @@ public class GetBalancesByObjectiveHandlerTests
 
     private static (bool Success, IReadOnlyCollection<RuleResultTree> Results, IReadOnlyCollection<RuleValidationError> Errors) SuccessfulRules()
         => (true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>());
-
+    
+    private static PersonInformation CreatePersonInformation(string fullName)
+    {
+        return new PersonInformation(
+            1,
+            Guid.NewGuid(),
+            "CC",
+            "1234567890",
+            "John",
+            "Middle",
+            "Doe",
+            "Smith",
+            new DateTime(1990, 1, 1),
+            "3001234567",
+            fullName,
+            1,
+            57,
+            11,
+            111,
+            "john.doe@example.com",
+            42,
+            Status.Active,
+            "123 Main Street",
+            true,
+            7,
+            9);
+    }
+    
     private sealed record HandlerContext(
         GetBalancesByObjectiveHandler Handler,
         Mock<IActivateRepository> ActivateRepository,
