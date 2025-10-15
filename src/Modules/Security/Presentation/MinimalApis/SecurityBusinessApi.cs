@@ -391,6 +391,66 @@ public static class SecurityBusinessApi
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
+        group.MapPost(
+                "CreateUserWithRoles",
+                async (
+                    [FromBody] CreateUserWithRolesCommand request,
+                    ISender sender
+                ) =>
+                {
+                    var result = await sender.Send(request);
+
+                    if (result.IsFailure)
+                    {
+                        return Results.Problem(
+                            title: result.Error.Code,
+                            detail: result.Error.Description,
+                            statusCode: result.Error.Code switch
+                            {
+                                "User.UserName.Required" => StatusCodes.Status400BadRequest,
+                                "UserRole.EmptyList" => StatusCodes.Status400BadRequest,
+                                "Role.Id.Invalid" => StatusCodes.Status400BadRequest,
+                                "Role.Name.Required" => StatusCodes.Status400BadRequest,
+                                "Role.Exists" => StatusCodes.Status409Conflict,
+                                "User.NotFound" => StatusCodes.Status404NotFound,
+                                "Role.NotFound" => StatusCodes.Status404NotFound,
+                                _ => StatusCodes.Status500InternalServerError
+                            }
+                        );
+                    }
+
+                    return Results.Ok(result.Value);
+                }
+            )
+            .WithName("CreateUserWithRoles")
+            .WithSummary("Crear nuevo usuario con roles")
+            .WithDescription("""
+                             Crea un nuevo usuario, crea roles faltantes y sincroniza los roles del usuario.
+
+                             **Ejemplo de petición (application/json):**
+                             ```json
+                             {
+                               "id": 42,
+                               "userName": "jperez",
+                               "name": "Juan",
+                               "middleName": "Carlos",
+                               "identification": "123456789",
+                               "email": "jperez@email.com",
+                               "displayName": "Juan Pérez",
+                               "roles": [
+                                 { "id": 1, "name": "Admin", "objective": "Administración" },
+                                 { "id": 2, "name": "User", "objective": "Uso general" }
+                               ]
+                             }
+                             ```
+                             """)
+            .Accepts<CreateUserWithRolesCommand>("application/json")
+            .Produces<int>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
         group.MapGet(
                 "RoleExists/{roleId:int}",
                 async (
