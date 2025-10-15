@@ -10,6 +10,6 @@ namespace Accounting.Integrations.AccountProcess
         [property: JsonPropertyName("idsPortafolio")]
         IEnumerable<int> PortfolioIds,
         [property: JsonPropertyName("fechaProceso")]
-        DateTime ProcessDate
+        DateOnly ProcessDate
         ) : ICommand<string>;
 }

@@ -9,15 +9,6 @@ namespace Accounting.Presentation.GraphQL
         Task<GraphqlResult<string>> AccountProcessAsync(
         AccountingInput input,
         IValidator<AccountingInput> validator,
-        CancellationToken cancellationToken = default);
-        Task<GraphqlResult<bool>> AccountingFeesProcessAsync(
-            AccountingInput input,
-            IValidator<AccountingInput> validator,
-            CancellationToken cancellationToken = default);
-
-        Task<GraphqlResult<bool>> AccountingReturnsProcessAsync(
-            AccountingInput input,
-            IValidator<AccountingInput> validator,
-            CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default);       
     }
 }

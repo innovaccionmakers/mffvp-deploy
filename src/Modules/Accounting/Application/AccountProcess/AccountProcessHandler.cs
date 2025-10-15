@@ -20,7 +20,9 @@ namespace Accounting.Application.AccountProcess
         IClosingExecutionStore closingValidator, IEventBus eventBus) : ICommandHandler<AccountProcessCommand, string>
     {
         public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
-        {
+        {            
+            var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+            
             var isActive = await closingValidator.IsClosingActiveAsync(cancellationToken);
             if (isActive)
                 return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
@@ -32,15 +34,15 @@ namespace Accounting.Application.AccountProcess
 
             var processId = Guid.NewGuid();
 
-            var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, command.ProcessDate);
-            var accountingReturnsCommand = new AccountingReturnsCommand(command.PortfolioIds, command.ProcessDate);
-            var acountingOperationsCommand = new AccountingOperationsCommand(command.PortfolioIds, command.ProcessDate);
-            var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, command.ProcessDate);
+            var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, processDate);
+            var accountingReturnsCommand = new AccountingReturnsCommand(command.PortfolioIds, processDate);
+            var acountingOperationsCommand = new AccountingOperationsCommand(command.PortfolioIds, processDate);
+            var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, processDate);
 
-            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingFees, accountingFeesCommand, processId, command.ProcessDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, command.ProcessDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, command.ProcessDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, command.ProcessDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingFees, accountingFeesCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
 
             return Result.Success(string.Empty, "Se está generando la información del proceso contable. Será notificado cuando finalice.");
         }
