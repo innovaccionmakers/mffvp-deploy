@@ -63,6 +63,7 @@ namespace MFFVP.BFF.Services.Reports.Strategies
                             cell.Value = value switch
                             {
                                 decimal or double or float => Convert.ToDecimal(value),
+                                int => Convert.ToInt32(value),
                                 _ => value?.ToString() ?? string.Empty
                             };
 
