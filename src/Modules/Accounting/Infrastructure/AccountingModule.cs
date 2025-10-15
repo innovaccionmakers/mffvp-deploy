@@ -4,6 +4,7 @@ using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
 using Accounting.Application.AccountingConcepts;
 using Accounting.Application.AccountingOperations;
+using Accounting.Application.AccountProcess;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Concepts;
@@ -12,6 +13,7 @@ using Accounting.Domain.PassiveTransactions;
 using Accounting.Domain.Treasuries;
 using Accounting.Infrastructure.AccountingAssistants;
 using Accounting.Infrastructure.AccountingInconsistencies;
+using Accounting.Infrastructure.AccountProcess;
 using Accounting.Infrastructure.Concepts;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
@@ -89,7 +91,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<AccountingConceptsHandlerValidator>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
-        services.AddScoped<ICabMessagingService, CabMessagingService>();
+        services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();
+
 
     }
 

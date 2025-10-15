@@ -22,12 +22,12 @@ internal sealed class AddAccountingEntitiesCommandHandler(ILogger<AddAccountingE
             await unitOfWork.SaveChangesAsync(cancellationToken);
             await tx.CommitAsync(cancellationToken);
 
-            logger.LogInformation("Successfully added {Count} accounting entities", request.AccountingAssistants.Count());
+            logger.LogInformation("Se agregaron con éxito {Count} entidades contables", request.AccountingAssistants.Count());
             return true;
         }
         catch(Exception ex)
         {
-            logger.LogError(ex, "Error handling AddAccountingEntitiesCommand");
+            logger.LogError(ex, "Ocurrio un error Inesperado al guardar la información contable");
             return Result.Failure<bool>(new Error("Exception", ex.Message, ErrorType.Failure));
         }
     }
