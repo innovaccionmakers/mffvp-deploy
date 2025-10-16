@@ -112,8 +112,7 @@ public class AccountingFeesCommandHandlerTests
         var result = await _handler.Handle(command, cancellationToken);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
+        Assert.False(result.IsSuccess);
     }
 
     [Fact]
@@ -138,8 +137,7 @@ public class AccountingFeesCommandHandlerTests
         var result = await _handler.Handle(command, cancellationToken);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
+        Assert.False(result.IsSuccess);
     }
 
     [Fact]
@@ -167,8 +165,7 @@ public class AccountingFeesCommandHandlerTests
         var result = await _handler.Handle(command, cancellationToken);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
+        Assert.False(result.IsSuccess);
         _inconsistencyHandlerMock.Verify(x => x.HandleInconsistenciesAsync(
             It.IsAny<IEnumerable<AccountingInconsistency>>(),
             command.ProcessDate,
@@ -191,8 +188,7 @@ public class AccountingFeesCommandHandlerTests
         var result = await _handler.Handle(command, cancellationToken);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
+        Assert.False(result.IsSuccess);
     }
 
     #endregion
@@ -226,8 +222,7 @@ public class AccountingFeesCommandHandlerTests
         var result = await _handler.Handle(command, cancellationToken);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
+        Assert.False(result.IsSuccess);
         _inconsistencyHandlerMock.Verify(x => x.HandleInconsistenciesAsync(
             It.IsAny<IEnumerable<AccountingInconsistency>>(),
             command.ProcessDate,
@@ -261,8 +256,7 @@ public class AccountingFeesCommandHandlerTests
         var result = await _handler.Handle(command, cancellationToken);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
+        Assert.False(result.IsSuccess);
         _inconsistencyHandlerMock.Verify(x => x.HandleInconsistenciesAsync(
             It.IsAny<IEnumerable<AccountingInconsistency>>(),
             command.ProcessDate,
@@ -299,8 +293,7 @@ public class AccountingFeesCommandHandlerTests
         var result = await _handler.Handle(command, cancellationToken);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.False(result.Value);
+        Assert.False(result.IsSuccess);
         _inconsistencyHandlerMock.Verify(x => x.HandleInconsistenciesAsync(
             It.IsAny<IEnumerable<AccountingInconsistency>>(),
             command.ProcessDate,
