@@ -12,4 +12,10 @@ public interface IOperationsExperienceMutation
         IValidator<CreateContributionInput> validator,
         CancellationToken cancellationToken = default
     );
+
+    public Task<GraphqlResult<DebitNoteMutationResult>> RegisterDebitNoteAsync(
+        CreateDebitNoteInput input,
+        IValidator<CreateDebitNoteInput> validator,
+        CancellationToken cancellationToken = default
+    );
 }

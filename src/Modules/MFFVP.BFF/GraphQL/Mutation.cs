@@ -40,6 +40,16 @@ public class Mutation
         return await operationsMutations.RegisterContributionAsync(contribution, validator, cancellationToken);
     }
 
+    [GraphQLName("crearNotaDebito")]
+    [Authorize(Policy = MakersPermissionsOperations.PolicyExecuteIndividualOperations)]
+    public async Task<GraphqlResult<DebitNoteMutationResult>> RegisterDebitNote([GraphQLName("notaDebito")] CreateDebitNoteInput debitNote,
+                                                                        IValidator<CreateDebitNoteInput> validator,
+                                                                       [Service] IOperationsExperienceMutation operationsMutations,
+                                                                       CancellationToken cancellationToken)
+    {
+        return await operationsMutations.RegisterDebitNoteAsync(debitNote, validator, cancellationToken);
+    }
+
     //Associate mutations
     [GraphQLName("crearActivacion")]
     [Authorize(Policy = MakersPermissionsAffiliates.PolicyActivateAffiliateManagement)]

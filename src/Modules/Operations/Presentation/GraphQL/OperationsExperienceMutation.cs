@@ -7,6 +7,7 @@ using FluentValidation;
 using MediatR;
 
 using Operations.Application.Abstractions.Services.ContributionService;
+using Operations.Integrations.AccountingRecords.CreateDebitNote;
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL.Inputs;
@@ -66,6 +67,52 @@ public class OperationsExperienceMutation(
             );
 
             result.SetSuccess(response, "Genial!, Se ha procesado la transacción de Aporte");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
+    }
+
+    public async Task<GraphqlResult<DebitNoteMutationResult>> RegisterDebitNoteAsync(
+        CreateDebitNoteInput input,
+        IValidator<CreateDebitNoteInput> validator,
+        CancellationToken cancellationToken = default)
+    {
+        var result = new GraphqlResult<DebitNoteMutationResult>();
+
+        try
+        {
+            var validationResult = await RequestValidator.Validate(input, validator);
+
+            if (validationResult is not null)
+            {
+                result.AddError(validationResult.Error);
+                return result;
+            }
+
+            var command = new AccountingRecordsValCommand(
+                input.ClientOperationId,
+                input.Amount,
+                input.CauseId,
+                input.AffiliateId,
+                input.ObjectiveId);
+
+            var commandResult = await mediator.Send(command, cancellationToken);
+
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+
+            var response = new DebitNoteMutationResult(
+                commandResult.Value.DebitNoteId,
+                commandResult.Value.Message);
+
+            result.SetSuccess(response, commandResult.Value.Message);
             return result;
         }
         catch (Exception ex)

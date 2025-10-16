@@ -1,22 +1,23 @@
 using DotNetCore.CAP;
 using MediatR;
-using Closing.Integrations.ClientOperations.CreateClientOperation;
+using Closing.Integrations.ClientOperations.PreClosingTx;
 
-namespace Closing.IntegrationEvents.DataSync.CreateClientOperationRequested;
+namespace Closing.IntegrationEvents.DataSync.PreClosingTxRequested;
 
-public sealed class CreateClientOperationRequestedConsumer : ICapSubscribe
+public sealed class PreClosingTxRequestedConsumer : ICapSubscribe
 {
     private readonly ISender _mediator;
 
-    public CreateClientOperationRequestedConsumer(ISender mediator)
+    public PreClosingTxRequestedConsumer(ISender mediator)
     {
         _mediator = mediator;
     }
 
-    [CapSubscribe(nameof(CreateClientOperationRequestedIntegrationEvent))]
-    public async Task HandleAsync(CreateClientOperationRequestedIntegrationEvent message, CancellationToken cancellationToken)
+    [CapSubscribe(nameof(PreClosingTxRequestedIntegrationEvent))]
+    public async Task HandleAsync(PreClosingTxRequestedIntegrationEvent message, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new CreateClientOperationCommand(
+        await _mediator.Send(
+            new PreClosingTxCommand(
                 message.ClientOperationId,
                 message.FilingDate,
                 message.AffiliateId,

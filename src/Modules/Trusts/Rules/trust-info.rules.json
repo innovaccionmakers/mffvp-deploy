@@ -1,0 +1,25 @@
+[
+  {
+    "WorkflowName": "Trusts.TrustInfo.Validation",
+    "Rules": [
+      {
+        "RuleName": "TrustMustExist",
+        "ErrorMessage": "El fideicomiso asociado a la operación no existe.",
+        "Expression": "input.TrustExists == true",
+        "Properties": { "internalCode": "TRUSTS_001" }
+      },
+      {
+        "RuleName": "TrustMustBeActive",
+        "ErrorMessage": "El fideicomiso asociado a la operación no se encuentra activo.",
+        "Expression": "input.TrustIsActive == true",
+        "Properties": { "internalCode": "TRUSTS_002" }
+      },
+      {
+        "RuleName": "TrustBalanceMustMatchContribution",
+        "ErrorMessage": "El valor del aporte no coincide con el saldo total del fideicomiso.",
+        "Expression": "input.TrustExists == true && input.TrustIsActive == true && input.TrustTotalBalance == input.ContributionValue",
+        "Properties": { "internalCode": "TRUSTS_003" }
+      }
+    ]
+  }
+]

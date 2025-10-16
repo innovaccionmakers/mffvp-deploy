@@ -1,9 +1,9 @@
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 
-namespace Closing.Integrations.ClientOperations.CreateClientOperation;
+namespace Closing.Integrations.ClientOperations.PreClosingTx;
 
-public sealed record CreateClientOperationCommand(
+public sealed record PreClosingTxCommand(
     long ClientOperationId,
     DateTime FilingDate,
     int AffiliateId,
@@ -18,4 +18,4 @@ public sealed record CreateClientOperationCommand(
     long? TrustId,
     long? LinkedClientOperationId,
     decimal? Units
-) : ICommand<ClientOperationResponse>;
+) : ICommand<PreClosingTxResponse>;
