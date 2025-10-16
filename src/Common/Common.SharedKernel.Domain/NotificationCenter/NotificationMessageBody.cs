@@ -29,11 +29,11 @@ public class NotificationMessageBody
     public Dictionary<string, string> Detalle { get; set; }
 
     [JsonPropertyName("EnviaCorreo")]
-    public bool EnviaCorreo { get; set; } = false;
+    public bool? EnviaCorreo { get; set; } = false;
 
     [JsonPropertyName("correoOrigen")]
-    public string CorreoOrigen { get; set; }
+    public string? CorreoOrigen { get; set; }
 
     [JsonPropertyName("Destinatario")]
-    public List<Recipient> Destinatario { get; set; }
+    public List<Recipient>? Destinatario { get; set; }
 }

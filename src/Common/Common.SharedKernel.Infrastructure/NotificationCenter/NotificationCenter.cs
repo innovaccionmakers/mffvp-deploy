@@ -153,9 +153,9 @@ public class NotificationCenter : INotificationCenter
         string status,
         string stepDescription,
         Dictionary<string, string> details,
-        bool sendEmail,
-        string emailFrom,
-        List<Recipient> recipients)
+        bool? sendEmail,
+        string? emailFrom,
+        List<Recipient>? recipients)
     {
         return new NotificationMessageBody
         {

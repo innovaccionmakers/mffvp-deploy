@@ -32,8 +32,8 @@ public sealed class AccountingReturnsCommandHandler(
 
             if (yields.IsFailure)
             {
-                logger.LogError("No se pudieron obtener los yields para los portafolios: {Error}", yields.Error);
-                return Result.Failure<bool>(Error.Problem("Accounting.Returns", "No se pudieron obtener los yields para los portafolios"));
+                logger.LogError("No se pudieron obtener los rendimientos para los portafolios: {Error}", yields.Error);
+                return Result.Success(true);
             }
 
             var operationType = await operationLocator.GetOperationTypeByNameAsync(OperationTypeNames.Yield, cancellationToken);
