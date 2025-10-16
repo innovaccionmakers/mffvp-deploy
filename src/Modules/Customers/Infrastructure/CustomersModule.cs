@@ -22,6 +22,7 @@ using Customers.Infrastructure.EconomicActivities;
 using Customers.Infrastructure.People;
 using Customers.IntegrationEvents.ClientValidation;
 using Customers.IntegrationEvents.PeopleByIdentificationsValidation;
+using Customers.IntegrationEvents.PersonInformation;
 using Customers.IntegrationEvents.PersonValidation;
 using Customers.Presentation.GraphQL;
 using Customers.Presentation.MinimalApis;
@@ -79,6 +80,7 @@ public class CustomersModule : IModuleConfiguration
             (IConfigurationParameterLookupRepository<CustomersModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IErrorCatalog<CustomersModuleMarker>, ErrorCatalog<CustomersModuleMarker>>();
         services.AddTransient<IRpcHandler<PersonDataRequestEvent, GetPersonValidationResponse>, PersonValidationConsumer>();
+        services.AddTransient<IRpcHandler<GetPersonInformationRequest, GetPersonInformationResponse>, PersonInformationConsumer>();
         services.AddTransient<IRpcHandler<ValidatePersonByIdentificationRequest, ValidatePersonByIdentificationResponse>, ClientValidationConsumer>();
         services.AddTransient<IRpcHandler<GetPersonByIdentificationsRequestEvent, GetPeopleByIdentificationsResponseEvent>, PeopleByIdentificationsValidationConsumer>();
         services.AddTransient<PersonCommandHandlerValidation>();
