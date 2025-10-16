@@ -14,7 +14,9 @@
     <ItemGroup>
         <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+        <PackageReference Include="AWSSDK.Core" Version="4.0.1" />
         <PackageReference Include="AWSSDK.SecretsManager" Version="4.0.0.7" />
+        <PackageReference Include="AWSSDK.SQS" Version="4.0.0.7" />
         <PackageReference Include="RulesEngine" Version="5.0.6" />
         <PackageReference Include="DotNetCore.CAP.Dashboard" Version="8.4.0" />
         <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.3.3" />

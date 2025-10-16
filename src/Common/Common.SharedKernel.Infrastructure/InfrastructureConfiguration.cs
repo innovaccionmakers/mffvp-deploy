@@ -137,6 +137,10 @@ public static class InfrastructureConfiguration
             return new DistributedClosingExecutionStore(cache, serializer);
         });
 
+        // Registrar el centro de notificaciones con Amazon SQS
+        services.AddNotificationCenter(configuration.GetSection("Aws:Sqs").Get<SqsConfig>());
+
+
         return services;
     }
 
