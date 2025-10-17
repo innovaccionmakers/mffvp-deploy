@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.Reports;
+using Common.SharedKernel.Application.Reports.Strategies;
 using Microsoft.Extensions.DependencyInjection;
 using Reports.Application.Reports.BalancesAndMovements;
 using Reports.Application.Reports.TransmissionFormat;

@@ -1,11 +1,8 @@
-using Common.SharedKernel.Application.Reports;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Reports.Application.Reports.Strategies;
-using System.IO;
 using System.Text;
 
-namespace Reports.Application.Strategies;
+namespace Common.SharedKernel.Application.Reports.Strategies;
 
 public abstract class TextReportStrategyBase<TStrategy>(ILogger<TStrategy> logger) : IReportStrategy where TStrategy : class
 {

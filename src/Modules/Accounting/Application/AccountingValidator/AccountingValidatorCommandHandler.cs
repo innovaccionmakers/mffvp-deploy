@@ -1,13 +1,21 @@
-﻿using Accounting.Application.AccountProcess;
+﻿using Accounting.Application.AccountingValidator.Reports;
+using Accounting.Application.AccountProcess;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Integrations.AccountingValidator;
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Accounting.Application.AccountingValidator;
 
-internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore processStore, IAccountingInconsistencyRepository accountingInconsistencyRepository) : ICommandHandler<AccountingValidatorCommand, Unit>
+internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore processStore,
+                                                        IAccountingInconsistencyRepository accountingInconsistencyRepository,
+                                                        IFileStorageService fileStorageService,
+                                                        IServiceProvider serviceProvider,
+                                                        ILogger<AccountingValidatorCommandHandler> logger) : ICommandHandler<AccountingValidatorCommand, Unit>
 {
     public async Task<Result<Unit>> Handle(AccountingValidatorCommand request, CancellationToken cancellationToken)
     {
@@ -68,8 +76,16 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                 }
 
             }
-            if(allInconsistencies.Any())
+            if(allInconsistencies.Count != 0)
             {
+                var provider = serviceProvider.GetRequiredService<AccountingInconsistenciesReport>();
+                var request = new AccountingInconsistenciesRequest
+                {
+                    ProcessDate = processDate,
+                    Inconsistencies = allInconsistencies
+                };
+                var file = (await provider!.GetReportDataAsync(request, cancellationToken)).;
+
                 Console.WriteLine($"Se encontraron {allInconsistencies.Count} inconsistencias:");
                 foreach (var inconsistency in allInconsistencies)
                 {
@@ -78,5 +94,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
             }
         }
     }
+
+    
 }
 

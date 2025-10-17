@@ -1,6 +1,6 @@
 ﻿using Common.SharedKernel.Application.Reports;
+using Common.SharedKernel.Application.Reports.Strategies;
 using Microsoft.AspNetCore.Mvc;
-using Reports.Application.Reports.Strategies;
 
 namespace Reports.Presentation.GraphQL
 {

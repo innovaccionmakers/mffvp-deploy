@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="ClosedXML" Version="0.105.0" />
         <PackageReference Include="DotNetCore.CAP" Version="8.4.0" />
         <PackageReference Include="MediatR" Version="12.4.1" />
         <PackageReference Include="RulesEngine" Version="5.0.6" />

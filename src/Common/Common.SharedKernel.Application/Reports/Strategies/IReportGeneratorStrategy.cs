@@ -1,3 +1,4 @@
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Reports;
 
 namespace Reports.Application.Reports.Common.Strategies;

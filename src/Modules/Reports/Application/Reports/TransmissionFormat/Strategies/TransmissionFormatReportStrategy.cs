@@ -1,5 +1,5 @@
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Reports;
-using Reports.Application.Reports.Common;
 using Reports.Application.Reports.Common.Strategies;
 using Reports.Domain.TransmissionFormat.Layout;
 using Reports.Domain.TransmissionFormat.Records;
