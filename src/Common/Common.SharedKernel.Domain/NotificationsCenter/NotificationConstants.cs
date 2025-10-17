@@ -1,4 +1,4 @@
-namespace Common.SharedKernel.Domain.NotificationCenter;
+namespace Common.SharedKernel.Domain.NotificationsCenter;
 
 public static class NotificationConstants
 {

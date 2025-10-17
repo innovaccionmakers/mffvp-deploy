@@ -1,4 +1,4 @@
-namespace Common.SharedKernel.Domain.NotificationCenter;
+namespace Common.SharedKernel.Domain.NotificationsCenter;
 using System.Text.Json.Serialization;
 
 public class Recipient

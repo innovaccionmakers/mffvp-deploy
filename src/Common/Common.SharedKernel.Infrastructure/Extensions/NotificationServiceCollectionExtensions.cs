@@ -1,7 +1,7 @@
 using Amazon.SQS;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Domain.Aws;
-using Common.SharedKernel.Infrastructure.NotificationCenter;
+using Common.SharedKernel.Infrastructure.NotificationsCenter;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

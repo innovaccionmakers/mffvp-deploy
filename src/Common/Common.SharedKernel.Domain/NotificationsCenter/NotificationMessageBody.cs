@@ -1,4 +1,6 @@
-namespace Common.SharedKernel.Domain.NotificationCenter;
+using Common.SharedKernel.Domain.NotificationsCenter;
+
+namespace Common.SharedKernel.Domain.NotificationsCenter;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 

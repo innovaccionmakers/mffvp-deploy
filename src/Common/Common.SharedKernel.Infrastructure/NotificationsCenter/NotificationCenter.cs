@@ -2,35 +2,23 @@
 using Amazon.SQS.Model;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Domain.Aws;
-using Common.SharedKernel.Domain.NotificationCenter;
+using Common.SharedKernel.Domain.NotificationsCenter;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace Common.SharedKernel.Infrastructure.NotificationCenter;
+namespace Common.SharedKernel.Infrastructure.NotificationsCenter;
 
-public class NotificationCenter : INotificationCenter
+public class NotificationCenter(
+    IAmazonSQS sqsClient,
+    IOptions<SqsConfig> sqsConfig,
+    ILogger<NotificationCenter> logger) : INotificationCenter
 {
-    private readonly IAmazonSQS _sqsClient;
-    private readonly SqsConfig _sqsConfig;
-    private readonly ILogger<NotificationCenter> _logger;
-
-    public NotificationCenter(
-        IAmazonSQS sqsClient,
-        IOptions<SqsConfig> sqsConfig,
-        ILogger<NotificationCenter> logger)
-    {
-        _sqsClient = sqsClient ?? throw new ArgumentNullException(nameof(sqsClient));
-        _sqsConfig = sqsConfig?.Value ?? throw new ArgumentNullException(nameof(sqsConfig));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
-
     public async Task SendNotificationAsync(string message, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
-            _logger.LogWarning("Intento de enviar mensaje vacío o nulo");
+            logger.LogWarning("Intento de enviar mensaje vacío o nulo");
             return;
         }
 
@@ -38,18 +26,18 @@ public class NotificationCenter : INotificationCenter
         {
             var request = new SendMessageRequest
             {
-                QueueUrl = _sqsConfig.QueueUrl,
+                QueueUrl = sqsConfig.Value.QueueUrl,
                 MessageBody = message,
                 MessageAttributes = BuildMessageAttributes("origin", "user")
             };
 
-            var response = await _sqsClient.SendMessageAsync(request, cancellationToken);
+            var response = await sqsClient.SendMessageAsync(request, cancellationToken);
 
-            _logger.LogInformation("Mensaje enviado exitosamente a SQS. MessageId: {MessageId}", response.MessageId);
+            logger.LogInformation("Mensaje enviado exitosamente a SQS. MessageId: {MessageId}", response.MessageId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al enviar mensaje a SQS: {Message}", message);
+            logger.LogError(ex, "Error al enviar mensaje a SQS: {Message}", message);
             throw;
         }
     }
@@ -59,7 +47,7 @@ public class NotificationCenter : INotificationCenter
     {
         if (string.IsNullOrWhiteSpace(message))
         {
-            _logger.LogWarning("Intento de enviar mensaje vacío o nulo");
+            logger.LogWarning("Intento de enviar mensaje vacío o nulo");
             return;
         }
 
@@ -79,18 +67,18 @@ public class NotificationCenter : INotificationCenter
 
             var request = new SendMessageRequest
             {
-                QueueUrl = _sqsConfig.QueueUrl,
+                QueueUrl = sqsConfig.Value.QueueUrl,
                 MessageBody = message,
                 MessageAttributes = messageAttributes
             };
 
-            var response = await _sqsClient.SendMessageAsync(request, cancellationToken);
+            var response = await sqsClient.SendMessageAsync(request, cancellationToken);
 
-            _logger.LogInformation("Mensaje con metadatos enviado exitosamente a SQS. MessageId: {MessageId}", response.MessageId);
+            logger.LogInformation("Mensaje con metadatos enviado exitosamente a SQS. MessageId: {MessageId}", response.MessageId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al enviar mensaje con metadatos a SQS: {Message}", message);
+            logger.LogError(ex, "Error al enviar mensaje con metadatos a SQS: {Message}", message);
             throw;
         }
     }
@@ -100,7 +88,7 @@ public class NotificationCenter : INotificationCenter
     {
         if (payload == null)
         {
-            _logger.LogWarning("Intento de enviar payload nulo");
+            logger.LogWarning("Intento de enviar payload nulo");
             return;
         }
 
@@ -115,19 +103,19 @@ public class NotificationCenter : INotificationCenter
 
             var request = new SendMessageRequest
             {
-                QueueUrl = _sqsConfig.QueueUrl,
+                QueueUrl = sqsConfig.Value.QueueUrl,
                 MessageBody = jsonMessage,
                 MessageAttributes = BuildMessageAttributes("origin", "user")
             };
 
-            var response = await _sqsClient.SendMessageAsync(request, cancellationToken);
+            var response = await sqsClient.SendMessageAsync(request, cancellationToken);
 
-            _logger.LogInformation("Objeto {PayloadType} enviado exitosamente a SQS. MessageId: {MessageId}",
+            logger.LogInformation("Objeto {PayloadType} enviado exitosamente a SQS. MessageId: {MessageId}",
                 typeof(T).Name, response.MessageId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al enviar objeto {PayloadType} a SQS", typeof(T).Name);
+            logger.LogError(ex, "Error al enviar objeto {PayloadType} a SQS", typeof(T).Name);
             throw;
         }
     }
