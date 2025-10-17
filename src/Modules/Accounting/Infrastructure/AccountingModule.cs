@@ -24,6 +24,7 @@ using Accounting.Infrastructure.External.Yields;
 using Accounting.Infrastructure.PassiveTransactions;
 using Accounting.Infrastructure.Treasuries;
 using Accounting.IntegrationEvents.AccountingProcess;
+using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.MinimalApis;
 using Common.SharedKernel.Application.Abstractions;
@@ -93,6 +94,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
         services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();
+        services.AddScoped<AccountingInconsistenciesReport>();
         services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();
 
 

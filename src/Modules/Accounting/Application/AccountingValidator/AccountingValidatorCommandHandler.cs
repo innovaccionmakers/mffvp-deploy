@@ -6,6 +6,7 @@ using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -78,23 +79,44 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
             }
             if(allInconsistencies.Count != 0)
             {
-                var provider = serviceProvider.GetRequiredService<AccountingInconsistenciesReport>();
-                var request = new AccountingInconsistenciesRequest
-                {
-                    ProcessDate = processDate,
-                    Inconsistencies = allInconsistencies
-                };
-                var file = (await provider!.GetReportDataAsync(request, cancellationToken)).;
+                var url = await GenerateAccountingInconsistenciesUrl(processDate, allInconsistencies, cancellationToken);
+                
 
-                Console.WriteLine($"Se encontraron {allInconsistencies.Count} inconsistencias:");
-                foreach (var inconsistency in allInconsistencies)
-                {
-                    Console.WriteLine($"- {inconsistency.Inconsistency}");
-                }
             }
         }
     }
 
-    
+    private async Task<string> GenerateAccountingInconsistenciesUrl(DateTime processDate, IEnumerable<AccountingInconsistency> inconsistencies, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var provider = serviceProvider.GetRequiredService<AccountingInconsistenciesReport>();
+            var reportRequest = new AccountingInconsistenciesRequest
+            {
+                ProcessDate = processDate,
+                Inconsistencies = inconsistencies
+            };
+
+            var fileResult = await provider!.GetReportDataAsync(reportRequest, cancellationToken);
+
+            if (fileResult is FileStreamResult fileStreamResult)
+            {
+                using var memoryStream = new MemoryStream();
+                await fileStreamResult.FileStream.CopyToAsync(memoryStream, cancellationToken);
+                var fileBytes = memoryStream.ToArray();
+
+                var fileName = fileStreamResult.FileDownloadName;
+                
+                var filePath = $"reports/inconsistencies/{fileName}";
+                return await fileStorageService.UploadFileAsync(fileBytes, fileName, fileStreamResult.ContentType, filePath, cancellationToken);               
+            }
+            return string.Empty;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error al generar el reporte de inconsistencias");
+            return string.Empty;
+        }
+    }    
 }
 
