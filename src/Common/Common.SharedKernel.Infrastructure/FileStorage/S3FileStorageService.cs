@@ -8,22 +8,11 @@ using System.Text;
 
 namespace Common.SharedKernel.Infrastructure.FileStorage;
 
-public class S3FileStorageService : IFileStorageService
+public class S3FileStorageService(
+    IAmazonS3 s3Client,
+    IOptions<S3Config> s3Config,
+    ILogger<S3FileStorageService> logger) : IFileStorageService
 {
-    private readonly IAmazonS3 _s3Client;
-    private readonly S3Config _s3Config;
-    private readonly ILogger<S3FileStorageService> _logger;
-
-    public S3FileStorageService(
-        IAmazonS3 s3Client,
-        IOptions<S3Config> s3Config,
-        ILogger<S3FileStorageService> logger)
-    {
-        _s3Client = s3Client ?? throw new ArgumentNullException(nameof(s3Client));
-        _s3Config = s3Config?.Value ?? throw new ArgumentNullException(nameof(s3Config));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     public async Task<string> UploadFileAsync(
         byte[] fileContent,
         string fileName,
@@ -43,9 +32,9 @@ public class S3FileStorageService : IFileStorageService
 
         // Validar tamaño del archivo
         var fileSizeMB = fileContent.Length / (1024.0 * 1024.0);
-        if (fileSizeMB > _s3Config.MaxFileSizeMB)
+        if (fileSizeMB > s3Config.Value.MaxFileSizeMB)
         {
-            throw new InvalidOperationException($"El archivo excede el tamaño máximo permitido de {_s3Config.MaxFileSizeMB}MB");
+            throw new InvalidOperationException($"El archivo excede el tamaño máximo permitido de {s3Config.Value.MaxFileSizeMB}MB");
         }
 
         try
@@ -54,7 +43,7 @@ public class S3FileStorageService : IFileStorageService
 
             var request = new PutObjectRequest
             {
-                BucketName = _s3Config.BucketName,
+                BucketName = s3Config.Value.BucketName,
                 Key = fileKey,
                 InputStream = new MemoryStream(fileContent),
                 ContentType = contentType,
@@ -66,18 +55,18 @@ public class S3FileStorageService : IFileStorageService
             request.Metadata.Add("original-filename", fileName);
             request.Metadata.Add("file-size", fileContent.Length.ToString());
 
-            var response = await _s3Client.PutObjectAsync(request, cancellationToken);
+            var response = await s3Client.PutObjectAsync(request, cancellationToken);
 
             var publicUrl = GetPublicUrl(fileKey);
 
-            _logger.LogInformation("Archivo subido exitosamente a S3. Key: {FileKey}, Size: {FileSize} bytes",
+            logger.LogInformation("Archivo subido exitosamente a S3. Key: {FileKey}, Size: {FileSize} bytes",
                 fileKey, fileContent.Length);
 
             return publicUrl;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al subir archivo {FileName} a S3", fileName);
+            logger.LogError(ex, "Error al subir archivo {FileName} a S3", fileName);
             throw;
         }
     }
@@ -105,7 +94,7 @@ public class S3FileStorageService : IFileStorageService
 
             var request = new PutObjectRequest
             {
-                BucketName = _s3Config.BucketName,
+                BucketName = s3Config.Value.BucketName,
                 Key = fileKey,
                 InputStream = fileStream,
                 ContentType = contentType,
@@ -116,17 +105,17 @@ public class S3FileStorageService : IFileStorageService
             request.Metadata.Add("uploaded-at", DateTime.UtcNow.ToString("O"));
             request.Metadata.Add("original-filename", fileName);
 
-            var response = await _s3Client.PutObjectAsync(request, cancellationToken);
+            var response = await s3Client.PutObjectAsync(request, cancellationToken);
 
             var publicUrl = GetPublicUrl(fileKey);
 
-            _logger.LogInformation("Archivo subido exitosamente a S3 desde stream. Key: {FileKey}", fileKey);
+            logger.LogInformation("Archivo subido exitosamente a S3 desde stream. Key: {FileKey}", fileKey);
 
             return publicUrl;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al subir archivo {FileName} a S3 desde stream", fileName);
+            logger.LogError(ex, "Error al subir archivo {FileName} a S3 desde stream", fileName);
             throw;
         }
     }
@@ -162,18 +151,18 @@ public class S3FileStorageService : IFileStorageService
         {
             var request = new DeleteObjectRequest
             {
-                BucketName = _s3Config.BucketName,
+                BucketName = s3Config.Value.BucketName,
                 Key = fileKey
             };
 
-            await _s3Client.DeleteObjectAsync(request, cancellationToken);
+            await s3Client.DeleteObjectAsync(request, cancellationToken);
 
-            _logger.LogInformation("Archivo eliminado exitosamente de S3. Key: {FileKey}", fileKey);
+            logger.LogInformation("Archivo eliminado exitosamente de S3. Key: {FileKey}", fileKey);
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al eliminar archivo {FileKey} de S3", fileKey);
+            logger.LogError(ex, "Error al eliminar archivo {FileKey} de S3", fileKey);
             return false;
         }
     }
@@ -189,11 +178,11 @@ public class S3FileStorageService : IFileStorageService
         {
             var request = new GetObjectMetadataRequest
             {
-                BucketName = _s3Config.BucketName,
+                BucketName = s3Config.Value.BucketName,
                 Key = fileKey
             };
 
-            await _s3Client.GetObjectMetadataAsync(request, cancellationToken);
+            await s3Client.GetObjectMetadataAsync(request, cancellationToken);
             return true;
         }
         catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -202,7 +191,7 @@ public class S3FileStorageService : IFileStorageService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al verificar existencia del archivo {FileKey} en S3", fileKey);
+            logger.LogError(ex, "Error al verificar existencia del archivo {FileKey} en S3", fileKey);
             throw;
         }
     }
@@ -214,17 +203,16 @@ public class S3FileStorageService : IFileStorageService
             throw new ArgumentException("La clave del archivo es requerida", nameof(fileKey));
         }
 
-        // Si se especifica una URL base personalizada (ej: CloudFront), usarla
-        if (!string.IsNullOrWhiteSpace(_s3Config.PublicUrlBase))
+        if (!string.IsNullOrWhiteSpace(s3Config.Value.PublicUrlBase))
         {
-            return $"{_s3Config.PublicUrlBase.TrimEnd('/')}/{fileKey}";
+            return $"{s3Config.Value.PublicUrlBase.TrimEnd('/')}/{fileKey}";
         }
 
         // Generar URL presignada
-        var expiration = expirationHours ?? _s3Config.DefaultExpirationHours;
+        var expiration = expirationHours ?? s3Config.Value.DefaultExpirationHours;
         var request = new GetPreSignedUrlRequest
         {
-            BucketName = _s3Config.BucketName,
+            BucketName = s3Config.Value.BucketName,
             Key = fileKey,
             Expires = DateTime.UtcNow.AddHours(expiration),
             Verb = HttpVerb.GET
@@ -232,25 +220,22 @@ public class S3FileStorageService : IFileStorageService
 
         try
         {
-            return _s3Client.GetPreSignedURL(request);
+            return s3Client.GetPreSignedURL(request);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al generar URL pública para archivo {FileKey}", fileKey);
+            logger.LogError(ex, "Error al generar URL pública para archivo {FileKey}", fileKey);
             throw;
         }
     }
 
-    /// <summary>
-    /// Genera una clave única para el archivo en S3
-    /// </summary>
     private string GenerateFileKey(string fileName, string? folder)
     {
         var timestamp = DateTime.UtcNow.ToString("yyyy/MM/dd");
         var uniqueId = Guid.NewGuid().ToString("N")[..8];
         var sanitizedFileName = SanitizeFileName(fileName);
 
-        var keyParts = new List<string> { _s3Config.BasePrefix, timestamp };
+        var keyParts = new List<string> { s3Config.Value.BasePrefix, timestamp };
 
         if (!string.IsNullOrWhiteSpace(folder))
         {
@@ -262,9 +247,7 @@ public class S3FileStorageService : IFileStorageService
         return string.Join("/", keyParts);
     }
 
-    /// <summary>
-    /// Sanitiza el nombre del archivo para evitar caracteres problemáticos
-    /// </summary>
+
     private static string SanitizeFileName(string fileName)
     {
         var invalidChars = Path.GetInvalidFileNameChars();
@@ -278,9 +261,6 @@ public class S3FileStorageService : IFileStorageService
         return sanitized;
     }
 
-    /// <summary>
-    /// Sanitiza el nombre de la carpeta para evitar caracteres problemáticos
-    /// </summary>
     private static string SanitizeFolderName(string folderName)
     {
         var invalidChars = Path.GetInvalidPathChars();
