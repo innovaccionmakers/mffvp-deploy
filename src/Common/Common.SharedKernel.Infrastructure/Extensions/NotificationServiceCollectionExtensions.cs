@@ -11,7 +11,9 @@ namespace Common.SharedKernel.Infrastructure.Extensions;
 public static class NotificationServiceCollectionExtensions
 {
     public static IServiceCollection AddNotificationCenter(this IServiceCollection services, IConfiguration configuration)
-    {
+    {       
+        services.Configure<SqsConfig>(configuration.GetSection("AWS:Sqs"));
+
         services.AddSingleton<IAmazonSQS>(provider =>
         {
             var sqsConfig = configuration.GetSection("AWS:Sqs").Get<SqsConfig>();
