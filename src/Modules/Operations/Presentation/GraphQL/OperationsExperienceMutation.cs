@@ -8,10 +8,13 @@ using MediatR;
 
 using Operations.Application.Abstractions.Services.ContributionService;
 using Operations.Integrations.AccountingRecords.CreateDebitNote;
+using Operations.Integrations.Voids.RegisterVoidedTransactions;
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL.Inputs;
 
+using System;
+using System.Linq;
 using System.Text.Json;
 
 namespace Operations.Presentation.GraphQL;
@@ -111,6 +114,51 @@ public class OperationsExperienceMutation(
             var response = new DebitNoteMutationResult(
                 commandResult.Value.DebitNoteId,
                 commandResult.Value.Message);
+
+            result.SetSuccess(response, commandResult.Value.Message);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+            return result;
+        }
+    }
+
+    public async Task<GraphqlResult<VoidedTransactionsMutationResult>> RegisterVoidsAsync(
+        CreateVoidsInput input,
+        IValidator<CreateVoidsInput> validator,
+        CancellationToken cancellationToken = default)
+    {
+        var result = new GraphqlResult<VoidedTransactionsMutationResult>();
+
+        try
+        {
+            var validationResult = await RequestValidator.Validate(input, validator);
+
+            if (validationResult is not null)
+            {
+                result.AddError(validationResult.Error);
+                return result;
+            }
+
+            var command = new VoidedTransactionsValCommand(
+                input.Items
+                    .Select(item => new VoidedTransactionItem(item.ClientOperationId, item.Amount))
+                    .ToArray(),
+                input.CauseId,
+                input.AffiliateId,
+                input.ObjectiveId);
+
+            var commandResult = await mediator.Send(command, cancellationToken);
+
+            if (!commandResult.IsSuccess)
+            {
+                result.AddError(commandResult.Error);
+                return result;
+            }
+
+            var response = VoidedTransactionsMutationResult.FromResult(commandResult.Value);
 
             result.SetSuccess(response, commandResult.Value.Message);
             return result;

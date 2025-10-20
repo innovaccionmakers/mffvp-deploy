@@ -8,10 +8,16 @@ namespace Operations.Infrastructure.External.Trusts;
 
 internal sealed class TrustUpdater(IRpcClient rpcClient) : ITrustUpdater
 {
-    public async Task<Result> AnnulByDebitNoteAsync(long clientOperationId, CancellationToken cancellationToken)
+    public async Task<Result> UpdateAsync(TrustUpdate update, CancellationToken cancellationToken)
     {
         var response = await rpcClient.CallAsync<PutTrustRequest, PutTrustResponse>(
-            new PutTrustRequest(clientOperationId),
+            new PutTrustRequest(
+                update.ClientOperationId,
+                update.Status,
+                update.TotalBalance,
+                update.Principal,
+                update.ContingentWithholding,
+                update.UpdateDate),
             cancellationToken);
 
         return response.Succeeded

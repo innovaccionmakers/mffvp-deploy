@@ -9,5 +9,6 @@ public enum ConfigurationParameterType
     MetodoRecaudo,
     FormaPago,
     PorcentajeRetencionContingente,
-    TipoObjetivo
+    TipoObjetivo,
+    CausalesNotaDebito
 }

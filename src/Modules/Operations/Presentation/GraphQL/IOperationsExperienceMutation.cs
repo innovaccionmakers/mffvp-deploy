@@ -18,4 +18,10 @@ public interface IOperationsExperienceMutation
         IValidator<CreateDebitNoteInput> validator,
         CancellationToken cancellationToken = default
     );
+
+    public Task<GraphqlResult<VoidedTransactionsMutationResult>> RegisterVoidsAsync(
+        CreateVoidsInput input,
+        IValidator<CreateVoidsInput> validator,
+        CancellationToken cancellationToken = default
+    );
 }

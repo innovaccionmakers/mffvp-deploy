@@ -171,6 +171,14 @@ public class Query
         return await operationsQueries.GetPaymentMethodsAsync(cancellationToken);
     }
 
+    [GraphQLName("causalesNotaDebito")]
+    public async Task<IReadOnlyCollection<DebitNoteCauseDto>> GetDebitNoteCauses(
+        [Service] IOperationsExperienceQueries operationsQueries,
+        CancellationToken cancellationToken)
+    {
+        return await operationsQueries.GetDebitNoteCausesAsync(cancellationToken);
+    }
+
     [GraphQLName("origen")]
 
     public async Task<IReadOnlyCollection<OriginContributionDto>> GetOriginContributions([Service] IOperationsExperienceQueries operationsQueries,

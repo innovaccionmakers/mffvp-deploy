@@ -1,3 +1,4 @@
+using System;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions.Data;
@@ -87,12 +88,20 @@ public sealed class AccountingRecordsOper(
 
         await transaction.CommitAsync(cancellationToken);
 
-        var trustUpdate = await trustUpdater
-            .AnnulByDebitNoteAsync(original.ClientOperationId, cancellationToken);
+        var update = new TrustUpdate(
+            original.ClientOperationId,
+            LifecycleStatus.AnnulledByDebitNote,
+            0m,
+            0m,
+            0m,
+            DateTime.UtcNow);
 
-        if (trustUpdate.IsFailure)
+        var trustUpdateResult = await trustUpdater
+            .UpdateAsync(update, cancellationToken);
+
+        if (trustUpdateResult.IsFailure)
         {
-            return Result.Failure<AccountingRecordsOperResult>(trustUpdate.Error);
+            return Result.Failure<AccountingRecordsOperResult>(trustUpdateResult.Error);
         }
 
         await operationCompleted.ExecuteAsync(debitNote, cancellationToken);

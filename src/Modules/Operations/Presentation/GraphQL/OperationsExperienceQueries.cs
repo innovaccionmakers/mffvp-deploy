@@ -100,7 +100,7 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         )).ToList();
     }
 
-    public async Task<IReadOnlyCollection<PaymentMethodDto>> GetPaymentMethodsAsync(        
+    public async Task<IReadOnlyCollection<PaymentMethodDto>> GetPaymentMethodsAsync(
         CancellationToken cancellationToken = default
     ){
         var result = await mediator.Send(new GetPaymentMethodsQuery(), cancellationToken);
@@ -119,6 +119,26 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
             x.HomologatedCode
         )).ToList();
 
+    }
+
+    public async Task<IReadOnlyCollection<DebitNoteCauseDto>> GetDebitNoteCausesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetDebitNoteCausesQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve debit note causes.");
+        }
+
+        var debitNoteCauses = result.Value;
+
+        return debitNoteCauses.Select(x => new DebitNoteCauseDto(
+            x.Uuid,
+            x.Name,
+            x.Status,
+            x.HomologatedCode
+        )).ToList();
     }
 
     public async Task<IReadOnlyCollection<OriginContributionDto>> GetOriginContributionsAsync(
