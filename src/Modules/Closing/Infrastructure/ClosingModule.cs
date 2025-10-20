@@ -103,6 +103,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IRpcHandler<GetPortfolioValuationRequest, GetPortfolioValuationResponse>, GetPortfolioValuationConsumer>();
         services.AddScoped<IRpcHandler<GetAllComissionsByPortfolioIdsAndClosingDateRequest, GetAllComissionsByPortfolioIdsAndClosingDateResponse>, GetAllComissionsByPortfolioIdsAndClosingDateConsumer>();
         services.AddScoped<IRpcHandler<GetAllReturnsByPortfolioIdsAndClosingDateRequest, GetAllReturnsByPortfolioIdsAndClosingDateResponse>, GetAllReturnsByPortfolioIdsAndClosingDateConsumer>();
+        services.AddScoped<IRpcHandler<GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerRequest, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerResponse>, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumer>();
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());

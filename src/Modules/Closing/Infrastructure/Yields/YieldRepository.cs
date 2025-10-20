@@ -111,4 +111,14 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
                 && y.YieldToCredit != 0)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<Yield>> GetAllAutConceptsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds,
+                                                                                         DateTime closingDate,
+                                                                                         CancellationToken cancellationToken = default)
+    {
+        return await context.Yields
+            .AsNoTracking()
+            .Where(y => portfolioIds.Contains(y.PortfolioId) && y.ClosingDate == closingDate)
+            .ToListAsync(cancellationToken);
+    }
 }
