@@ -12,7 +12,11 @@ using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Constants;
+using Common.SharedKernel.Infrastructure.NotificationsCenter;
+using Consul;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Accounting.Application.AccountProcess;
@@ -21,12 +25,26 @@ internal sealed class AccountProcessHandler(
     ISender sender,
     IClosingExecutionStore closingValidator,
     IServiceProvider serviceProvider,
-    IUserService userService) : ICommandHandler<AccountProcessCommand, string>
+    INotificationCenter notificationCenter,
+    IUserService userService,
+    IConfiguration configuration) : ICommandHandler<AccountProcessCommand, string>
 {
     public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
     {
+        var user = userService.GetUserName();
+        var processId = Guid.NewGuid();
         var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
+
+        await SendNotificationAsync(
+            user,
+            NotificationStatuses.Initiated,
+            processId.ToString(),
+            new Dictionary<string, string> { { "success", $"Proceso contable {processId} iniciado exitosamente para fecha {processDate:yyyy-MM-dd}" } },
+            cancellationToken
+        );        
+
+        
         var isActive = await closingValidator.IsClosingActiveAsync(cancellationToken);
         if (isActive)
             return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
@@ -35,16 +53,13 @@ internal sealed class AccountProcessHandler(
         var deleteResult = await sender.Send(deleteCommand, cancellationToken);
         if (deleteResult.IsFailure)
             return Result.Failure<string>(deleteResult.Error);
-
-        var processId = Guid.NewGuid();
+        
 
         var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, processDate);
         var accountingReturnsCommand = new AccountingReturnsCommand(command.PortfolioIds, processDate);
         var acountingOperationsCommand = new AccountingOperationsCommand(command.PortfolioIds, processDate);
         var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, processDate);
-
-        var user = userService.GetUserName();        
-
+            
         _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingFees, accountingFeesCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
         _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
         _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
@@ -125,5 +140,22 @@ internal sealed class AccountProcessHandler(
             portfolioIds);
 
         await eventBus.PublishAsync(evt, cancellationToken);
+    }
+
+    private async Task SendNotificationAsync(string user, string status, string processId, object details, CancellationToken cancellationToken)
+    {
+        var administrator = configuration["NotificationSettings:Administrator"] ?? NotificationDefaults.Administrator;
+
+        var buildMessage = NotificationCenter.BuildMessageBody(
+            processId,
+            processId,
+            administrator,
+            NotificationTypes.AccountingReport,
+            NotificationTypes.Report,
+            status,
+            NotificationTypes.ReportGeneration,
+            details
+        );
+        await notificationCenter.SendNotificationAsync(user, buildMessage, cancellationToken);
     }
 }

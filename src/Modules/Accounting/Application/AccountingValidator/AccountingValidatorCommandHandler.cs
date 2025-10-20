@@ -57,7 +57,13 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
     {
         if (!hasErrors)
         {
-            await notificationCenter.SendNotificationAsync(user, $"Proceso contable {processId} completado exitosamente para fecha {processDate:yyyy-MM-dd}", cancellationToken);
+            await SendNotificationAsync(
+                user,
+                NotificationStatuses.Finalized,
+                processId.ToString(),
+                new Dictionary<string, string> { { "success", $"Proceso contable {processId} completado exitosamente para fecha {processDate:yyyy-MM-dd}" } },
+                cancellationToken
+            );
             return;
         }
 
@@ -84,20 +90,20 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         
         if (undefinedErrors.Count > 0)
         {
-            await SendNotification(user, NotificationStatuses.Failure, processId.ToString(), undefinedErrors, cancellationToken);
+            await SendNotificationAsync(user, NotificationStatuses.Failure, processId.ToString(), undefinedErrors, cancellationToken);
             return;
         }
         
         if (allInconsistencies.Count > 0)
         {
             var url = await GenerateAccountingInconsistenciesUrl(processDate, allInconsistencies, cancellationToken);
-            await SendNotification(user, NotificationStatuses.Finalized, processId.ToString(), new Dictionary<string, string> { { "url", url } }, cancellationToken);
+            await SendNotificationAsync(user, NotificationStatuses.Finalized, processId.ToString(), new Dictionary<string, string> { { "url", url } }, cancellationToken);
             return;
         }
     }
 
 
-    private async Task SendNotification(string user, string status, string processId, object details, CancellationToken cancellationToken)
+    private async Task SendNotificationAsync(string user, string status, string processId, object details, CancellationToken cancellationToken)
     {
         var administrator = configuration["NotificationSettings:Administrator"] ?? NotificationDefaults.Administrator;
 
@@ -112,8 +118,8 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
             details
         );
         await notificationCenter.SendNotificationAsync(user, buildMessage, cancellationToken);
-
     }
+
     private async Task<string> GenerateAccountingInconsistenciesUrl(DateTime processDate, IEnumerable<AccountingInconsistency> inconsistencies, CancellationToken cancellationToken)
     {
         try

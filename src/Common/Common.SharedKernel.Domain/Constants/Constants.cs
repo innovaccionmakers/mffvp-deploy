@@ -16,6 +16,7 @@ public static class NotificationDefaults
 
 public static class NotificationStatuses
 {
+    public const string Initiated = "Iniciado";
     public const string Success = "Exitoso";
     public const string Failure = "Fallido";
     public const string Finalized = "Finalizado";
