@@ -1,25 +1,29 @@
-﻿using Accounting.Application.Abstractions.External;
-using Accounting.Domain.Constants;
+﻿using Accounting.Domain.Constants;
+using Accounting.IntegrationEvents.AccountingProcess;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingConcepts;
 using Accounting.Integrations.AccountingFees;
 using Accounting.Integrations.AccountingOperations;
+using Accounting.Integrations.AccountingReturns;
 using Accounting.Integrations.AccountProcess;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
-using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Application.EventBus;
+using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Accounting.Application.AccountProcess
 {
     internal sealed class AccountProcessHandler(
         ISender sender,
         IClosingExecutionStore closingValidator,
-        ICabMessagingService cabMessagingService) : ICommandHandler<AccountProcessCommand, string>
+        IServiceProvider serviceProvider) : ICommandHandler<AccountProcessCommand, string>
     {
         public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
         {
+            var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
             var isActive = await closingValidator.IsClosingActiveAsync(cancellationToken);
             if (isActive)
@@ -30,43 +34,85 @@ namespace Accounting.Application.AccountProcess
             if (deleteResult.IsFailure)
                 return Result.Failure<string>(deleteResult.Error);
 
-            var acountingOperationsCommand = new AccountingOperationsCommand(command.PortfolioIds, command.ProcessDate);
-            var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, command.ProcessDate);
-            var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, command.ProcessDate);
+            var processId = Guid.NewGuid();
 
-            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingOperations, acountingOperationsCommand, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingConcepts, accountingConceptsCommand, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationAsync(ProcessTypes.AccountingFees, accountingFeesCommand, cancellationToken), cancellationToken);
+            var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, processDate);
+            var accountingReturnsCommand = new AccountingReturnsCommand(command.PortfolioIds, processDate);
+            var acountingOperationsCommand = new AccountingOperationsCommand(command.PortfolioIds, processDate);
+            var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, processDate);
 
-            return Result.Success<string>(string.Empty, "Se está generando la información del proceso contable. Será notificado cuando finalice.");
+            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(ProcessTypes.AccountingFees, accountingFeesCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+
+            return Result.Success(string.Empty, "Se está generando la información del proceso contable. Será notificado cuando finalice.");
         }
 
-        private async Task ExecuteAccountingOperationAsync<T>(string operationType, T command, CancellationToken cancellationToken) where T : ICommand<bool>
-        {
+        private async Task ExecuteAccountingOperationWithScopeAsync<T>(
+            string operationType,
+            T command,
+            Guid processId,
+            DateTime processDate,
+            IEnumerable<int> portfolioIds,
+            CancellationToken cancellationToken) where T : ICommand<bool>
+        {            
+            using var scope = serviceProvider.CreateScope();
+            var scopedSender = scope.ServiceProvider.GetRequiredService<ISender>();
+            var scopedEventBus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+
             try
             {
-                var result = await sender.Send(command, cancellationToken);
+                var result = await scopedSender.Send(command, cancellationToken);
 
-                if (result.IsSuccess)
-                {
-                    var success = result.Value;
-                    var message = success
-                        ? $"{operationType} procesado exitosamente"
-                        : $"{operationType} falló durante el procesamiento";
+                var success = result.IsSuccess;
+                var message = success
+                    ? $"{operationType} procesado exitosamente"
+                    : $"{result.Error?.Description ?? "falló durante el procesamiento"}";
 
-                    await cabMessagingService.SendAccountingProcessResultAsync(operationType, success, message, cancellationToken);
-                }
-                else
-                {
-                    await cabMessagingService.SendAccountingProcessResultAsync(operationType, false,
-                        $"{operationType} falló: {result.Error.Description}", cancellationToken);
-                }
+                await PublishProcessCompletedAsync(
+                    operationType,
+                    success,
+                    success ? null : message,
+                    processId,
+                    processDate,
+                    portfolioIds,
+                    scopedEventBus,
+                    cancellationToken);
             }
             catch (Exception ex)
             {
-                await cabMessagingService.SendAccountingProcessResultAsync(operationType, false,
-                    $"{operationType} falló con excepción: {ex.Message}", cancellationToken);
+                await PublishProcessCompletedAsync(
+                    operationType,
+                    false,
+                    $"Excepción durante el procesamiento: {ex.Message}",
+                    processId,
+                    processDate,
+                    portfolioIds,
+                    scopedEventBus,
+                    cancellationToken);
             }
+        }
+
+        private async Task PublishProcessCompletedAsync(
+            string processType,
+            bool isSuccess,
+            string? errorMessage,
+            Guid processId,
+            DateTime processDate,
+            IEnumerable<int> portfolioIds,
+            IEventBus eventBus,
+            CancellationToken cancellationToken)
+        {
+            var evt = new AccountingProcessCompletedIntegrationEvent(
+                processType,
+                isSuccess,
+                errorMessage,
+                processId,
+                processDate,
+                portfolioIds);
+
+            await eventBus.PublishAsync(evt, cancellationToken);
         }
     }
 }

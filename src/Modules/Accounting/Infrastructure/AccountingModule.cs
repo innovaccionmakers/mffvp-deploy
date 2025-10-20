@@ -4,6 +4,7 @@ using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
 using Accounting.Application.AccountingConcepts;
 using Accounting.Application.AccountingOperations;
+using Accounting.Application.AccountProcess;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Concepts;
@@ -12,6 +13,7 @@ using Accounting.Domain.PassiveTransactions;
 using Accounting.Domain.Treasuries;
 using Accounting.Infrastructure.AccountingAssistants;
 using Accounting.Infrastructure.AccountingInconsistencies;
+using Accounting.Infrastructure.AccountProcess;
 using Accounting.Infrastructure.Concepts;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
@@ -21,6 +23,7 @@ using Accounting.Infrastructure.External.Portfolios;
 using Accounting.Infrastructure.External.Yields;
 using Accounting.Infrastructure.PassiveTransactions;
 using Accounting.Infrastructure.Treasuries;
+using Accounting.IntegrationEvents.AccountingProcess;
 using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.MinimalApis;
 using Common.SharedKernel.Application.Abstractions;
@@ -89,7 +92,9 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<AccountingConceptsHandlerValidator>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
-        services.AddScoped<ICabMessagingService, CabMessagingService>();
+        services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();
+        services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();
+
 
     }
 

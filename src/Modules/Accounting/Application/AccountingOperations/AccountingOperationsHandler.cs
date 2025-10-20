@@ -13,7 +13,6 @@ using Common.SharedKernel.Domain;
 using Customers.IntegrationEvents.PeopleByIdentificationsValidation;
 using Customers.Integrations.People.GetPeopleByIdentifications;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Operations.IntegrationEvents.ClientOperations;
 using System.Collections.Concurrent;
@@ -21,8 +20,8 @@ using System.Collections.Concurrent;
 namespace Accounting.Application.AccountingOperations
 {
     internal sealed class AccountingOperationsHandler(
-        IServiceScopeFactory serviceScopeFactory,
         IRpcClient rpcClient,
+        ISender sender,
         ILogger<AccountingOperationsHandler> logger,
         AccountingOperationsHandlerValidation validator,
         IInconsistencyHandler inconsistencyHandler) : ICommandHandler<AccountingOperationsCommand, bool>
@@ -31,8 +30,6 @@ namespace Accounting.Application.AccountingOperations
         {
             try
             {
-                await using var scope = serviceScopeFactory.CreateAsyncScope();
-                var sender = scope.ServiceProvider.GetRequiredService<ISender>();
                 var errors = new ConcurrentBag<AccountingInconsistency>();
 
                 //Operations
@@ -54,7 +51,7 @@ namespace Accounting.Application.AccountingOperations
                 if (errors.Any())
                 {
                     await inconsistencyHandler.HandleInconsistenciesAsync(errors, command.ProcessDate, ProcessTypes.AccountingOperations, cancellationToken);
-                    return false;
+                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "Se encontraron inconsistencias"));
                 }
 
                 //Identifications
@@ -83,7 +80,7 @@ namespace Accounting.Application.AccountingOperations
                 //PassiveTransaction
                 var operationTypeId = operations.ClientOperations.GroupBy(x => x.OperationTypeId).Select(x => x.Key).ToList();
                 var passiveTransaction = await sender.Send(new GetAccountingOperationsPassiveTransactionQuery(command.PortfolioIds, operationTypeId), cancellationToken);
-                if (!treasury.IsSuccess)
+                if (!passiveTransaction.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, passiveTransaction.Description ?? string.Empty));
                 var passiveTransactionByPortfolioId = passiveTransaction.Value.ToDictionary(x => x.PortfolioId, x => x);
 
@@ -100,17 +97,32 @@ namespace Accounting.Application.AccountingOperations
                 {
                     logger.LogInformation("Insertar errores en Redis");
                     await inconsistencyHandler.HandleInconsistenciesAsync(accountingAssistants.Errors, command.ProcessDate, ProcessTypes.AccountingOperations, cancellationToken);
-                    return false;
+                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "Se encontraron inconsistencias"));
                 }
 
-                await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
+                if (!accountingAssistants.SuccessItems.Any())
+                {
+                    logger.LogInformation("No hay operaciones contables que procesar");
+                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "No hay operaciones contables que procesar"));
+                }
 
-                return Result.Success<bool>(true);
+                var accountingFeesSave =  await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
+
+                if (accountingFeesSave.IsFailure)
+                {
+                    logger.LogWarning("No se pudieron guardar las operaciones contables: {Error}", accountingFeesSave.Error);
+                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "No se pudieron guardar las operaciones contables"));
+                }
+
+                return Result.Success(true);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error handling GetAccountingFeesQuery");
-                return false;
+                logger.LogError(ex, "Error al procesar las operaciones contables para la fecha {ProcessDate} y los Portafolios [{Portfolios}]",
+                     command.ProcessDate,
+                     string.Join(",", command.PortfolioIds)
+                 );
+                return Result.Failure<bool>(Error.Problem("Exception", "Ocurrio un error inesperado al procesar las operaciones contables"));
             }
         }
     }

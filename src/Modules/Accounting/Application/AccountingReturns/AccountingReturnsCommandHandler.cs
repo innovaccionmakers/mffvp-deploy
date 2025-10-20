@@ -7,6 +7,7 @@ using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingReturns;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,7 @@ public sealed class AccountingReturnsCommandHandler(
             if (yields.IsFailure)
             {
                 logger.LogError("No se pudieron obtener los yields para los portafolios: {Error}", yields.Error);
-                return false;
+                return Result.Failure<bool>(Error.Problem("Accounting.Returns", "No se pudieron obtener los yields para los portafolios"));
             }
 
             var operationType = await operationLocator.GetOperationTypeByNameAsync(OperationTypeNames.Yield, cancellationToken);
@@ -40,7 +41,7 @@ public sealed class AccountingReturnsCommandHandler(
             if (operationType.IsFailure)
             {
                 logger.LogWarning("No se pudo obtener el tipo de operación '{OperationType}': {Error}", OperationTypeNames.Yield, operationType.Error);
-                return false;
+                return Result.Failure<bool>(Error.Problem("Accounting.Returns", "No se pudo obtener el tipo de operación"));
             }
 
             var accountingReturnsResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, operationType.Value.Nature, cancellationToken);
@@ -48,10 +49,17 @@ public sealed class AccountingReturnsCommandHandler(
             if (!accountingReturnsResult.IsSuccess)
             {
                 await inconsistencyHandler.HandleInconsistenciesAsync(accountingReturnsResult.Errors, command.ProcessDate, ProcessTypes.AccountingReturns, cancellationToken);
-                return false;
+                return Result.Failure<bool>(Error.Problem("Accounting.Returns", "Se encontraron inconsistencias"));
             }
 
-            return await mediator.Send(new AddAccountingEntitiesCommand(accountingReturnsResult.SuccessItems), cancellationToken);
+            var accountingReturnsSave = await mediator.Send(new AddAccountingEntitiesCommand(accountingReturnsResult.SuccessItems), cancellationToken);
+            if (accountingReturnsSave.IsFailure)
+            {
+                logger.LogWarning("No se pudieron guardar los rendimientos contables: {Error}", accountingReturnsSave.Error);
+                return Result.Failure<bool>(Error.Problem("Accounting.Returns", "No se pudieron guardar las rendimientos contables"));
+            }
+
+            return Result.Success(true);
 
         }
         catch (Exception ex)
@@ -62,7 +70,7 @@ public sealed class AccountingReturnsCommandHandler(
                 command.ProcessDate,
                 string.Join(",", command.PortfolioIds)
             );
-            return false;
+            return Result.Failure<bool>(Error.Problem("Exception", "Ocurrio un error inesperado al procesar los rendimientos contables"));
         }
     }
 

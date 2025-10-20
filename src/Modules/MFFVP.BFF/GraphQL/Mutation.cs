@@ -193,23 +193,5 @@ public class Mutation
                                                        CancellationToken cancellationToken)
     {
         return await accountProcessMutations.AccountProcessAsync(input, validator, cancellationToken);
-    }
-
-    [GraphQLName("comisionesContabilidad")]
-    public async Task<GraphqlResult<bool>> AccountingFees([GraphQLName("data")] AccountingInput input,
-                                                          IValidator<AccountingInput> validator,
-                                                          [Service] IAccountProcessExperienceMutations accountProcessExperienceMutations,
-                                                          CancellationToken cancellationToken)
-    {
-        return await accountProcessExperienceMutations.AccountingFeesProcessAsync(input, validator, cancellationToken);
-    }
-
-    [GraphQLName("rendimientosContabilidad")]
-    public async Task<GraphqlResult<bool>> AccountingReturns([GraphQLName("data")] AccountingInput input,
-                                                IValidator<AccountingInput> validator,
-                                                [Service] IAccountProcessExperienceMutations accountProcessExperienceMutations,
-                                                CancellationToken cancellationToken)
-    {
-        return await accountProcessExperienceMutations.AccountingReturnsProcessAsync(input, validator, cancellationToken);
-    }
+    }   
 }
