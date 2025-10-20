@@ -1,0 +1,30 @@
+[
+  {
+    "WorkflowName": "Trusts.PutTrust.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "ClientOperationIdMustBePositive",
+        "ErrorMessage": "El identificador de la operación del cliente es obligatorio.",
+        "Expression": "input.ClientOperationId > 0",
+        "Properties": { "errorCode": "b35d4e2c-b951-4c54-9f80-9f949dc2d54e" }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Trusts.PutTrust.Validation",
+    "Rules": [
+      {
+        "RuleName": "TrustMustExist",
+        "ErrorMessage": "El fideicomiso asociado a la operación no existe.",
+        "Expression": "input.TrustExists == true",
+        "Properties": { "errorCode": "cb5e9e84-76ec-4e91-93fb-68c590afb2ae" }
+      },
+      {
+        "RuleName": "TrustMustNotBeAnnulled",
+        "ErrorMessage": "El fideicomiso ya está anulado por nota débito.",
+        "Expression": "input.AlreadyAnnulled == false",
+        "Properties": { "errorCode": "b6fb4470-a95c-4f20-aa4b-3c7a45cd7327" }
+      }
+    ]
+  }
+]

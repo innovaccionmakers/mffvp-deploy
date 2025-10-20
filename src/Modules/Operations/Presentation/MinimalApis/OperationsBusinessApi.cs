@@ -1,4 +1,4 @@
-﻿using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
@@ -6,7 +6,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Operations.Domain.Routes;
 using Operations.Domain.Routes;
 using Operations.Integrations.Contributions.CreateContribution;
 using Operations.Integrations.OperationTypes;
@@ -46,7 +45,7 @@ public static class OperationsBusinessApi
             .Accepts<CreateContributionCommand>("application/json")
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
-        
+
         group.MapGet(
                 NameEndpoints.GetAllOperationTypes,
                 async (ISender sender) =>

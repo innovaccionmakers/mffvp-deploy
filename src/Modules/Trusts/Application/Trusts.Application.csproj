@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="Contributions.test.UnitTests" />
+        <InternalsVisibleTo Include="Trusts.test.UnitTests" />
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 

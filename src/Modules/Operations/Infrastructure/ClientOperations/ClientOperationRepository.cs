@@ -110,4 +110,17 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .Where(co => co.OperationType != null && (co.OperationType.OperationTypeId == 1 || co.OperationType.CategoryId == 1))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<bool> HasActiveLinkedOperationAsync(
+        long clientOperationId,
+        long operationTypeId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.ClientOperations
+            .AnyAsync(
+                co => co.LinkedClientOperationId == clientOperationId &&
+                      co.OperationTypeId == operationTypeId &&
+                      co.Status == LifecycleStatus.Active,
+                cancellationToken);
+    }
 }

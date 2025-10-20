@@ -1,11 +1,11 @@
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Core.Primitives;
 
-namespace Closing.IntegrationEvents.DataSync.CreateClientOperationRequested;
+namespace Closing.IntegrationEvents.DataSync.PreClosingTxRequested;
 
-public sealed class CreateClientOperationRequestedIntegrationEvent : IntegrationEvent
+public sealed class PreClosingTxRequestedIntegrationEvent : IntegrationEvent
 {
-    public CreateClientOperationRequestedIntegrationEvent(
+    public PreClosingTxRequestedIntegrationEvent(
         long clientOperationId,
         DateTime filingDate,
         int affiliateId,
