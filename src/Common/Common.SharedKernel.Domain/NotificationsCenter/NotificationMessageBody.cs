@@ -28,7 +28,7 @@ public class NotificationMessageBody
     public string Paso { get; set; }
 
     [JsonPropertyName("Detalle")]
-    public Dictionary<string, string> Detalle { get; set; }
+    public object Detalle { get; set; }
 
     [JsonPropertyName("EnviaCorreo")]
     public bool? EnviaCorreo { get; set; } = false;

@@ -1,10 +1,10 @@
 ﻿using Asp.Versioning;
-
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Caching.Closing;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Rpc;
-using Common.SharedKernel.Domain.Aws;
+using Common.SharedKernel.Infrastructure.Auth.User;
 using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Caching.Closing;
 using Common.SharedKernel.Infrastructure.Configuration;
@@ -129,6 +129,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<DatabaseConnectionContext>();
         services.AddInMemoryRpc();
         services.AddScoped<IEventBus, EventBus.EventBus>();
+        services.AddScoped<IUserService, UserService>();
 
         services.AddSingleton<IClosingExecutionSerializer, JsonClosingExecutionSerializer>();
         services.AddScoped<IClosingExecutionStore>(sp =>

@@ -3,6 +3,7 @@ using Common.SharedKernel.Application.EventBus;
 namespace Accounting.IntegrationEvents.AccountingProcess;
 
 public sealed class AccountingProcessCompletedIntegrationEvent(
+    string user,
     string processType,
     bool isSuccess,
     string? errorMessage,
@@ -11,6 +12,7 @@ public sealed class AccountingProcessCompletedIntegrationEvent(
     IEnumerable<int> portfolioIds)
     : IntegrationEvent(Guid.NewGuid(), DateTime.UtcNow)
 {
+    public string User { get; set; } = user;
     public string ProcessType { get; init; } = processType;
     public bool IsSuccess { get; init; } = isSuccess;
     public string? ErrorMessage { get; init; } = errorMessage;

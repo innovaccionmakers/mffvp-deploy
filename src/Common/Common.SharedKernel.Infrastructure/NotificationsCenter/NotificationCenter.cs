@@ -2,7 +2,9 @@
 using Amazon.SQS.Model;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Domain.Aws;
+using Common.SharedKernel.Domain.Constants;
 using Common.SharedKernel.Domain.NotificationsCenter;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -12,9 +14,11 @@ namespace Common.SharedKernel.Infrastructure.NotificationsCenter;
 public class NotificationCenter(
     IAmazonSQS sqsClient,
     IOptions<SqsConfig> sqsConfig,
-    ILogger<NotificationCenter> logger) : INotificationCenter
+    ILogger<NotificationCenter> logger,
+    IConfiguration configuration) : INotificationCenter
 {
-    public async Task SendNotificationAsync(string message, CancellationToken cancellationToken = default)
+    private readonly string origin = configuration["NotificationSettings:Origin"] ?? NotificationDefaults.Origin;
+    public async Task SendNotificationAsync(string user, string message, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -28,7 +32,7 @@ public class NotificationCenter(
             {
                 QueueUrl = sqsConfig.Value.QueueUrl,
                 MessageBody = message,
-                MessageAttributes = BuildMessageAttributes("origin", "user")
+                MessageAttributes = BuildMessageAttributes(origin, user)
             };
 
             var response = await sqsClient.SendMessageAsync(request, cancellationToken);
@@ -43,7 +47,7 @@ public class NotificationCenter(
     }
 
 
-    public async Task SendNotificationAsync(string message, Dictionary<string, string> metadata, CancellationToken cancellationToken = default)
+    public async Task SendNotificationAsync(string user, string message, Dictionary<string, string> metadata, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -53,7 +57,7 @@ public class NotificationCenter(
 
         try
         {
-            var messageAttributes = BuildMessageAttributes("origin", "user");
+            var messageAttributes = BuildMessageAttributes(origin, user);
 
 
             foreach (var (key, value) in metadata)
@@ -84,7 +88,7 @@ public class NotificationCenter(
     }
 
 
-    public async Task SendNotificationAsync<T>(T payload, CancellationToken cancellationToken = default) where T : class
+    public async Task SendNotificationAsync<T>(string user, T payload, CancellationToken cancellationToken = default) where T : class
     {
         if (payload == null)
         {
@@ -105,7 +109,7 @@ public class NotificationCenter(
             {
                 QueueUrl = sqsConfig.Value.QueueUrl,
                 MessageBody = jsonMessage,
-                MessageAttributes = BuildMessageAttributes("origin", "user")
+                MessageAttributes = BuildMessageAttributes(origin, user)
             };
 
             var response = await sqsClient.SendMessageAsync(request, cancellationToken);
@@ -140,10 +144,10 @@ public class NotificationCenter(
         string processType,
         string status,
         string stepDescription,
-        Dictionary<string, string> details,
-        bool? sendEmail,
-        string? emailFrom,
-        List<Recipient>? recipients)
+        object details,
+        bool? sendEmail = null,
+        string? emailFrom = null,
+        List<Recipient>? recipients = null)
     {
         return new NotificationMessageBody
         {
