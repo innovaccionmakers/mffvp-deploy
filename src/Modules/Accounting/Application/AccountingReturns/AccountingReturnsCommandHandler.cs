@@ -115,6 +115,7 @@ public sealed class AccountingReturnsCommandHandler(
             }
 
             var accountingAssistant = AccountingAssistant.Create(
+                yield.PortfolioId,
                 portfolioResult.Value.NitApprovedPortfolio,
                 portfolioResult.Value.VerificationDigit,
                 portfolioResult.Value.Name,
