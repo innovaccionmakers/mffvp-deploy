@@ -6,15 +6,16 @@ using Accounting.Domain.Constants;
 public class AccountingAssistant : Entity, ICloneable
 {
     public long AccountingAssistantId { get; private set; }
+    public int PortfolioId { get; private set; }
     public string Identification { get; private set; }
-    public int? VerificationDigit { get; private set; }
+    public int VerificationDigit { get; private set; }
     public string Name { get; private set; }
-    public string? Period { get; private set; }
+    public string Period { get; private set; }
     public string? Account { get; private set; }
-    public DateTime? Date { get; private set; }
+    public DateTime Date { get; private set; }
     public string? Detail { get; private set; }
     public string Type { get; private set; }
-    public decimal? Value { get; private set; }
+    public decimal Value { get; private set; }
     public string Nature { get; private set; }
     public Guid Identifier { get; private set; }
 
@@ -23,13 +24,14 @@ public class AccountingAssistant : Entity, ICloneable
     }
 
     public static Result<AccountingAssistant> Create(
+        int portfolioId,
         string identification,
-        int? verificationDigit,
+        int verificationDigit,
         string name,
-        string? period,
-        DateTime? date,
+        string period,
+        DateTime date,
         string? detail,
-        decimal? value,
+        decimal value,
         string nature,
         string type = "",
         string? account = "")
@@ -37,12 +39,13 @@ public class AccountingAssistant : Entity, ICloneable
         var accountingAssistant = new AccountingAssistant
         {
             AccountingAssistantId = default,
+            PortfolioId = portfolioId,
             Identification = identification,
             VerificationDigit = verificationDigit,
             Name = name,
             Period = period,
             Account = account,
-            Date = date?.ToUniversalTime(),
+            Date = date.ToUniversalTime(),
             Detail = detail,
             Type = type,
             Value = value,
@@ -60,17 +63,19 @@ public class AccountingAssistant : Entity, ICloneable
     }
 
     public void UpdateDetails(
+        int porfolioId,
         string identification,
-        int? verificationDigit,
+        int verificationDigit,
         string name,
-        string? period,
-        DateTime? date,
+        string period,
+        DateTime date,
         string? detail,
-        decimal? value,
+        decimal value,
         string nature,
         string type = "",
         string? account = "")
     {
+        PortfolioId = porfolioId;
         Identification = identification;
         VerificationDigit = verificationDigit;
         Name = name;
