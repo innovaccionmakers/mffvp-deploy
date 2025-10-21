@@ -14,6 +14,10 @@ internal sealed class AccountingAssistantConfiguration : IEntityTypeConfiguratio
         builder.Property(x => x.AccountingAssistantId)
             .HasColumnName("id");
 
+        builder.Property(x => x.PortfolioId)
+            .HasColumnName("portafolio_id")
+            .IsRequired();
+
         builder.Property(x => x.Identification)
             .HasColumnName("identificacion")
             .HasMaxLength(13)
@@ -21,7 +25,8 @@ internal sealed class AccountingAssistantConfiguration : IEntityTypeConfiguratio
 
 
         builder.Property(x => x.VerificationDigit)
-            .HasColumnName("digito_verificacion");
+            .HasColumnName("digito_verificacion")
+            .IsRequired();
 
         builder.Property(x => x.Name)
             .HasColumnName("nombre")
@@ -30,7 +35,9 @@ internal sealed class AccountingAssistantConfiguration : IEntityTypeConfiguratio
 
         builder.Property(x => x.Period)
             .HasColumnName("periodo")
-            .HasMaxLength(6);
+            .HasMaxLength(6)
+            .IsRequired();
+
 
         builder.Property(x => x.Account)
             .HasColumnName("cuenta")
@@ -38,7 +45,8 @@ internal sealed class AccountingAssistantConfiguration : IEntityTypeConfiguratio
 
         builder.Property(x => x.Date)
             .HasColumnName("fecha")
-            .HasColumnType("timestamp with time zone");
+            .HasColumnType("timestamp with time zone")
+            .IsRequired();
 
         builder.Property(x => x.Detail)
             .HasColumnName("detalle")

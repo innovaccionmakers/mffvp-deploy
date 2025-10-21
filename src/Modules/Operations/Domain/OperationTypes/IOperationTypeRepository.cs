@@ -6,6 +6,10 @@ public interface IOperationTypeRepository
         string homologatedCode,
         CancellationToken cancellationToken = default);
 
+    Task<OperationType?> GetByIdAsync(
+        long operationTypeId,
+        CancellationToken cancellationToken = default);
+
     Task<OperationType?> GetByNameAsync(
         string name,
         CancellationToken cancellationToken = default);

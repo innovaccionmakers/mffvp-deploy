@@ -76,4 +76,13 @@ public sealed class Trust : Entity
         AvailableAmount = newAvailableAmount;
         Status = newStatus;
     }
+
+    public void AnnulByDebitNote(DateTime updateDate)
+    {
+        TotalBalance = 0m;
+        Principal = 0m;
+        ContingentWithholding = 0m;
+        Status = LifecycleStatus.AnnulledByDebitNote;
+        UpdateDate = updateDate;
+    }
 }

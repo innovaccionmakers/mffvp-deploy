@@ -38,7 +38,7 @@ namespace Accounting.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(6)")
                         .HasColumnName("cuenta");
 
-                    b.Property<DateTime?>("Date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha");
 
@@ -70,9 +70,14 @@ namespace Accounting.Infrastructure.Database.Migrations
                         .HasColumnName("naturaleza");
 
                     b.Property<string>("Period")
+                        .IsRequired()
                         .HasMaxLength(6)
                         .HasColumnType("character varying(6)")
                         .HasColumnName("periodo");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portafolio_id");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -87,7 +92,7 @@ namespace Accounting.Infrastructure.Database.Migrations
                         .HasDefaultValue(0m)
                         .HasColumnName("valor");
 
-                    b.Property<int?>("VerificationDigit")
+                    b.Property<int>("VerificationDigit")
                         .HasColumnType("integer")
                         .HasColumnName("digito_verificacion");
 

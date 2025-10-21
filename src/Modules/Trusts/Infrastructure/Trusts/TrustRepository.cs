@@ -67,6 +67,12 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
             .Where(t => t.PortfolioId == portfolioId && t.Status == LifecycleStatus.Active)
             .ToListAsync(ct);
     }
+    
+    public async Task<Trust?> GetByClientOperationIdAsync(long clientOperationId, CancellationToken cancellationToken = default)
+    {
+        return await context.Trusts
+            .SingleOrDefaultAsync(t => t.ClientOperationId == clientOperationId, cancellationToken);
+    }
 
     public async Task<int> GetParticipantAsync(IEnumerable<long> trustIds, CancellationToken cancellationToken = default)
     {

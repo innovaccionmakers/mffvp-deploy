@@ -1,20 +1,21 @@
 using Closing.Application.Abstractions.Data;
 using Closing.Domain.ClientOperations;
-using Closing.Integrations.ClientOperations.CreateClientOperation;
+using Closing.Integrations.ClientOperations.PreClosingTx;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
-namespace Closing.Application.ClientOperations.CreateClientOperation;
+namespace Closing.Application.ClientOperations.PreClosingTx;
 
-internal sealed class CreateClientOperationCommandHandler(
+internal sealed class PreClosingTxCommandHandler(
     IClientOperationRepository repository,
-    ILogger<CreateClientOperationCommandHandler> logger,
+    ILogger<PreClosingTxCommandHandler> logger,
     IUnitOfWork unitOfWork)
-    : ICommandHandler<CreateClientOperationCommand, ClientOperationResponse>
+    : ICommandHandler<PreClosingTxCommand, PreClosingTxResponse>
 {
-    private const string ClassName = nameof(CreateClientOperationCommandHandler);
-    public async Task<Result<ClientOperationResponse>> Handle(CreateClientOperationCommand request, CancellationToken cancellationToken)
+    private const string ClassName = nameof(PreClosingTxCommandHandler);
+
+    public async Task<Result<PreClosingTxResponse>> Handle(PreClosingTxCommand request, CancellationToken cancellationToken)
     {
         var existing = await repository.GetForUpdateByIdAsync(request.ClientOperationId, cancellationToken);
 
@@ -38,13 +39,22 @@ internal sealed class CreateClientOperationCommandHandler(
 
             if (result.IsFailure)
             {
-                logger.LogError("{Class} - Error creating ClientOperation {Id}: {Code} - {Description}", ClassName, request.ClientOperationId, result.Error.Code, result.Error.Description);
-                return Result.Failure<ClientOperationResponse>(result.Error);
+                logger.LogError(
+                    "{Class} - Error creating ClientOperation {Id}: {Code} - {Description}",
+                    ClassName,
+                    request.ClientOperationId,
+                    result.Error.Code,
+                    result.Error.Description);
+
+                return Result.Failure<PreClosingTxResponse>(result.Error);
             }
 
             var clientOperation = result.Value;
             repository.Insert(clientOperation);
-            logger.LogInformation("{Class} - Closing ClientOperation creada e insertada: {@ClientOperation}", ClassName, clientOperation.ClientOperationId);
+            logger.LogInformation(
+                "{Class} - Closing ClientOperation creada e insertada: {@ClientOperation}",
+                ClassName,
+                clientOperation.ClientOperationId);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             logger.LogInformation("{Class} - Cambios guardados en base de datos", ClassName);
 
@@ -67,16 +77,22 @@ internal sealed class CreateClientOperationCommandHandler(
             request.Units);
 
         repository.Update(existing);
-        logger.LogInformation("{Class} - Update ClientOperation {@Entity}", ClassName, existing.ClientOperationId);
+        logger.LogInformation(
+            "{Class} - Update ClientOperation {@Entity}",
+            ClassName,
+            existing.ClientOperationId);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("{Class} - Commit Update para ClientOperationId {Id}", ClassName, existing.ClientOperationId);
+        logger.LogInformation(
+            "{Class} - Commit Update para ClientOperationId {Id}",
+            ClassName,
+            existing.ClientOperationId);
 
         return MapToResponse(existing);
     }
 
-    private static ClientOperationResponse MapToResponse(ClientOperation entity) =>
+    private static PreClosingTxResponse MapToResponse(ClientOperation entity) =>
         new(
             entity.ClientOperationId,
             entity.FilingDate,

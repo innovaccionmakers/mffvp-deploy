@@ -1,8 +1,8 @@
 using Common.SharedKernel.Core.Primitives;
 
-namespace Closing.Integrations.ClientOperations.CreateClientOperation;
+namespace Closing.Integrations.ClientOperations.PreClosingTx;
 
-public sealed record ClientOperationResponse(
+public sealed record PreClosingTxResponse(
     long ClientOperationId,
     DateTime FilingDate,
     int AffiliateId,
