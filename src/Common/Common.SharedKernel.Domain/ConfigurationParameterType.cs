@@ -10,5 +10,5 @@ public enum ConfigurationParameterType
     FormaPago,
     PorcentajeRetencionContingente,
     TipoObjetivo,
-    CausalesNotaDebito
+    CasualNota
 }

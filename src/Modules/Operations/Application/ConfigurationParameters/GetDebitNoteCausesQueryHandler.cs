@@ -15,7 +15,7 @@ public class GetDebitNoteCausesQueryHandler(
     )
     {
         var causes = await repository.GetActiveConfigurationParametersByTypeAsync(
-            ConfigurationParameterType.CausalesNotaDebito,
+            ConfigurationParameterType.CasualNota,
             cancellationToken
         );
 
