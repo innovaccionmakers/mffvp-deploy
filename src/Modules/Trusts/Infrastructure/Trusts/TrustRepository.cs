@@ -41,7 +41,7 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
     {
         return await context.Trusts
             .AsNoTracking()
-            .Where(t => t.AffiliateId == affiliateId)
+            .Where(t => t.AffiliateId == affiliateId && t.Status == LifecycleStatus.Active)
             .GroupBy(t => new { t.ObjectiveId, t.PortfolioId })
             .Select(g => AffiliateBalance.Create(
                 g.Key.ObjectiveId,
