@@ -2,7 +2,6 @@
 using Accounting.Presentation.GraphQL.Inputs;
 using Associate.Presentation.GraphQL;
 using Associate.Presentation.GraphQL.Inputs;
-
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
 using Closing.Presentation.GraphQL.Inputs;

@@ -1,6 +1,5 @@
 ﻿using Associate.Presentation.DTOs;
 using Associate.Presentation.GraphQL;
-using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Presentation.Results;
@@ -29,6 +28,7 @@ using Common.SharedKernel.Application.Reports;
 using Reports.Domain.TechnicalSheet;
 using Common.SharedKernel.Domain.Auth.Permissions;
 using Accounting.Presentation.GraphQL;
+using Closing.Presentation.GraphQL;
 
 namespace MFFVP.BFF.GraphQL;
 
