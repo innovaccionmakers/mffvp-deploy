@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Core.Primitives;
@@ -114,11 +112,8 @@ internal sealed class VoidedTransactionsValCommandHandler(
                 Error.Validation(requiredError.Code, requiredError.Message));
         }
 
-        var causeScope = HomologScope.Of<VoidedTransactionsValCommand>(c => c.CauseId);
-        var causeCode = command.CauseId.ToString(CultureInfo.InvariantCulture);
-
         var causeTask = configurationParameterRepository
-            .GetByCodeAndScopeAsync(causeCode, causeScope, cancellationToken);
+            .GetByIdAsync(command.CauseId, cancellationToken);
 
         var contributionTypeTask = operationTypeRepository
             .GetByNameAsync(ContributionOperationName, cancellationToken);
