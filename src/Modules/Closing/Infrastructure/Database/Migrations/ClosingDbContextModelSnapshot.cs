@@ -42,6 +42,10 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_aplicacion");
 
+                    b.Property<int?>("CauseId")
+                        .HasColumnType("integer")
+                        .HasColumnName("causal_id");
+
                     b.Property<DateTime>("FilingDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_radicacion");

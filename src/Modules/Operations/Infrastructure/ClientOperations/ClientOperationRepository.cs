@@ -1,3 +1,4 @@
+using Common.SharedKernel.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 using Operations.Domain.ClientOperations;
 using Operations.Infrastructure.Database;
@@ -45,7 +46,8 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .Where(op =>
                 op.AffiliateId == affiliateId &&
                 op.ObjectiveId == objectiveId &&
-                op.PortfolioId == portfolioId)
+                op.PortfolioId == portfolioId &&
+                op.Status == LifecycleStatus.Active)
             .Join(context.OperationTypes,
                 op => op.OperationTypeId,
                 st => st.OperationTypeId,
@@ -65,26 +67,34 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                             : processDate.ToUniversalTime();
 
         var clientOperations = await context.ClientOperations
-            .Where(co => co.ProcessDate == utcProcessDate)
+            .Where(co => co.ProcessDate == utcProcessDate && co.Status == LifecycleStatus.Active)
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
             .ToListAsync(cancellationToken);
 
+        var categoryIds = clientOperations
+            .Where(op => op.OperationType?.CategoryId.HasValue == true)
+            .Select(op => op.OperationType.CategoryId.Value)
+            .Distinct()
+            .ToList();
+
+        var categories = await context.OperationTypes
+            .Where(ot => categoryIds.Contains(ot.CategoryId.Value))
+            .Select(ot => new { ot.OperationTypeId, ot.Name })
+            .ToDictionaryAsync(ot => ot.OperationTypeId, ot => ot.Name, cancellationToken);
+
         foreach (var operation in clientOperations)
         {
-            if (operation.OperationType?.CategoryId.HasValue == true)
+            if (operation.OperationType?.CategoryId.HasValue == true &&
+                categories.TryGetValue(operation.OperationType.CategoryId.Value, out var categoryName))
             {
-                var categoryName = await context.OperationTypes
-                    .Where(ot => ot.OperationTypeId == operation.OperationType.CategoryId.Value)
-                    .Select(ot => ot.Name)
-                    .FirstOrDefaultAsync(cancellationToken);
-
                 operation.OperationType.Name = categoryName;
             }
         }
 
         return clientOperations;
     }
+
     public async Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken = default)
     {
         if (portfolioIds == null || !portfolioIds.Any())
@@ -93,10 +103,24 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         var portfolioIdsSet = new HashSet<int>(portfolioIds);
 
         return await context.ClientOperations
+            .Where(co => co.Status == LifecycleStatus.Active)
             .Where(co => portfolioIdsSet.Contains(co.PortfolioId) && co.ProcessDate == processDate)
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
             .Where(co => co.OperationType != null && (co.OperationType.OperationTypeId == 1 || co.OperationType.CategoryId == 1))
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> HasActiveLinkedOperationAsync(
+        long clientOperationId,
+        long operationTypeId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.ClientOperations
+            .AnyAsync(
+                co => co.LinkedClientOperationId == clientOperationId &&
+                      co.OperationTypeId == operationTypeId &&
+                      co.Status == LifecycleStatus.Active,
+                cancellationToken);
     }
 }

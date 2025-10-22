@@ -54,6 +54,7 @@ namespace Accounting.Application.AccountingConcepts
                 var accounts = DetermineAccountingAccounts(movement, accountTreasury, accountConcept);
 
                 var accountingAssistant = AccountingAssistant.Create(
+                    movement.PortfolioId,
                     identification,
                     verificationDigit,
                     name,

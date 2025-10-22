@@ -244,6 +244,10 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_aplicacion");
 
+                    b.Property<int?>("CauseId")
+                        .HasColumnType("integer")
+                        .HasColumnName("causal_id");
+
                     b.Property<long?>("LinkedClientOperationId")
                         .HasColumnType("bigint")
                         .HasColumnName("operaciones_cliente_id");
@@ -515,6 +519,10 @@ namespace Operations.Infrastructure.Database.Migrations
                     b.Property<DateTime>("ApplicationDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_aplicacion");
+
+                    b.Property<int?>("CauseId")
+                        .HasColumnType("integer")
+                        .HasColumnName("causal_id");
 
                     b.Property<long?>("LinkedClientOperationId")
                         .HasColumnType("bigint")

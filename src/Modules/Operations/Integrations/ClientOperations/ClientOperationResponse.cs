@@ -1,3 +1,5 @@
+using Common.SharedKernel.Core.Primitives;
+
 namespace Operations.Integrations.ClientOperations;
 
 public sealed record ClientOperationResponse(
@@ -8,7 +10,8 @@ public sealed record ClientOperationResponse(
     int PortfolioId,
     decimal Amount,
     int OperationTypeId,
-    int Status,
+    LifecycleStatus Status,
+    int? CauseId,
     long? TrustId,
     long? LinkedClientOperationId,
     decimal? Units

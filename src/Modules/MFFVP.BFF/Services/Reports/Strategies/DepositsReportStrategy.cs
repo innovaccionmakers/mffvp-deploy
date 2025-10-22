@@ -3,6 +3,7 @@ using Common.SharedKernel.Application.Reports;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.Services.Reports.DepositsReport.Interfaces;
+using System.Diagnostics;
 using System.Globalization;
 using Error = Common.SharedKernel.Core.Primitives.Error;
 
@@ -31,7 +32,7 @@ namespace MFFVP.BFF.Services.Reports.Strategies
 
             if (request is DateTime processDate)
             {
-                _logger.LogInformation($"Iniciando generación de reporte con fecha: {processDate}", processDate.ToString("yyyy-MM-dd"));
+                _logger.LogInformation($"Iniciando generación de reporte con fecha: {processDate}");
 
                 try
                 {
@@ -61,8 +62,16 @@ namespace MFFVP.BFF.Services.Reports.Strategies
 
                             cell.Value = value switch
                             {
-                                decimal d => d.ToString("0.00", CultureInfo.InvariantCulture),
+                                decimal or double or float => Convert.ToDecimal(value),
+                                int => Convert.ToInt32(value),
                                 _ => value?.ToString() ?? string.Empty
+                            };
+
+                            cell.Style.NumberFormat.Format = value switch
+                            {
+                                decimal or double or float => "0.00",
+                                int or long or short or byte => "0",
+                                _ => "General"
                             };
                         }
                         row++;
@@ -87,14 +96,14 @@ namespace MFFVP.BFF.Services.Reports.Strategies
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Error al generar el reporte con fecha: {processDate}", processDate.ToString("yyyy-MM-dd"));
+                    _logger.LogError(ex, $"Error al generar el reporte con fecha: {processDate}");
                     result.AddError(new Error("EXCEPTION", $"Error al generar el reporte con fecha: {processDate}", ErrorType.Failure));
                     return result;
                 }
             }
             else
             {
-                _logger.LogError($"Tipo de request no válido. Se esperaba DateTime, se recibió: {request}", typeof(TRequest).Name);
+                _logger.LogError($"Tipo de request no válido. Se esperaba DateTime, se recibió: {request}");
                 result.AddError(new Error("EXCEPTION", "El tipo de request no es válido. Se esperaba DateTime.", ErrorType.Failure));
                 return result;
             }

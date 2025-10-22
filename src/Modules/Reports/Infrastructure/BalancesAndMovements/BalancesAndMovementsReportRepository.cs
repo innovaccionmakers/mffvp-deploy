@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Common.SharedKernel.Core.Primitives;
+using Dapper;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using Reports.Application.Reports.DTOs;
@@ -10,6 +11,8 @@ namespace Reports.Infrastructure.BalancesAndMovements
 {
     internal class BalancesAndMovementsReportRepository(IReportsDbConnectionFactory dbConnectionFactory) : IBalancesAndMovementsReportRepository
     {
+        private const int ActiveLifecycleStatus = (int)LifecycleStatus.Active;
+
         public async Task<IEnumerable<BalancesResponse>> GetBalancesAsync(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
             try
@@ -41,7 +44,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
             try
             {
                 using var connection = await dbConnectionFactory.CreateOpenAsync(cancellationToken);
-                var operations = await GetOperationsMovementsAsync(reportRequest.StartDate, reportRequest.EndDate, connection, cancellationToken);
+                var operations = await GetOperationsMovementsAsync(reportRequest.StartDate, reportRequest.EndDate, reportRequest.Identification, connection, cancellationToken);
                 var portfolioIds = operations.Select(x => x.PortfolioId).Distinct();
                 var activateIds = operations.Select(x => x.ActiviteId).Distinct();
                 var objectsId = operations.Select(x => x.ObjectId).Distinct();
@@ -157,17 +160,26 @@ namespace Reports.Infrastructure.BalancesAndMovements
         {
             try
             {
-                const string sql = @"SELECT 
+                const string sql = @"SELECT
                                         OC.portafolio_id AS PortfolioId,
                                         OC.afiliado_id AS ActivitesId,
                                         OC.objetivo_id AS ObjectsId,
-	                                    SUM(OC.valor) AS Entry
+                                            SUM(OC.valor) AS Entry
                                     FROM operaciones.operaciones_clientes OC
                                     INNER JOIN operaciones.tipos_operaciones T ON OC.tipo_operaciones_id = t.id
-                                    WHERE fecha_proceso::date BETWEEN @startDate AND @endDate AND (T.id = 1 OR T.categoria = 1) AND OC.afiliado_id = ANY(@activateIds)
+                                    WHERE fecha_proceso::date BETWEEN @startDate AND @endDate AND (T.id = 1 OR T.categoria = 1) AND OC.afiliado_id = ANY(@activateIds) AND OC.estado = @activeStatus
                                     GROUP BY PortfolioId, ActivitesId, ObjectsId;";
 
-                var command = new CommandDefinition(sql, new { activateIds = activateIds.ToArray(), startDate, endDate }, cancellationToken: cancellationToken);
+                var command = new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        activateIds = activateIds.ToArray(),
+                        startDate,
+                        endDate,
+                        activeStatus = ActiveLifecycleStatus
+                    },
+                    cancellationToken: cancellationToken);
                 return await connection.QueryAsync<OperationBalancesRequest>(command);
 
             }
@@ -206,7 +218,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
                     var closingBalance = trustYield.ClosingBalance;
 
                     if (closingBalance == 0)
-                        closingBalance = initialBalance + entry - outflows - yields - sourceWithholding;
+                        closingBalance = initialBalance + entry - outflows + yields - sourceWithholding;
 
                     var response = new BalancesResponse(
                         StartDate: startDate.ToString("yyyy-MM-dd") ?? string.Empty,
@@ -243,16 +255,16 @@ namespace Reports.Infrastructure.BalancesAndMovements
 
         #region Movements
 
-        private async Task<IEnumerable<OperationMovementsRequest>> GetOperationsMovementsAsync(DateTime startDate, DateTime endDate, NpgsqlConnection connection, CancellationToken cancellationToken)
+        private async Task<IEnumerable<OperationMovementsRequest>> GetOperationsMovementsAsync(DateTime startDate, DateTime endDate, string identification, NpgsqlConnection connection, CancellationToken cancellationToken)
         {
             try
             {
-                const string sql = @"SELECT 
+                const string baseSql = @"SELECT
                                         OC.portafolio_id AS PortfolioId,
                                         OC.afiliado_id AS ActiviteId,
                                         OC.objetivo_id AS ObjectId,
                                         OC.id AS Voucher,
-                                        OC.fecha_proceso AS ProcessDate,    
+                                        OC.fecha_proceso AS ProcessDate,
                                         CONCAT_WS(' - ', T.codigo_homologado, T.nombre) AS TransactionType,
                                         CONCAT_WS(' - ', ST.codigo_homologado, ST.nombre) AS TransactionSubtype,
 	                                    OC.valor AS Value,
@@ -265,9 +277,34 @@ namespace Reports.Infrastructure.BalancesAndMovements
                                     LEFT JOIN operaciones.informacion_auxiliar IA ON IA.operacion_cliente_id = OC.id
                                     LEFT JOIN operaciones.parametros_configuracion PC_Tributaria ON PC_Tributaria.id = IA.condicion_tributaria_id
                                     LEFT JOIN operaciones.parametros_configuracion PC_FormaPago ON PC_FormaPago.id = IA.forma_pago_id
-                                    WHERE OC.fecha_proceso::date BETWEEN @startDate AND @endDate AND (T.id = 1 OR T.categoria = 1);";
+                                    ";
 
-                var command = new CommandDefinition(sql, new { startDate, endDate }, cancellationToken: cancellationToken);
+                string sql = baseSql;
+                object parameters;
+                var hasActivateIds = identification != null && identification.Any();
+
+                if (hasActivateIds)
+                {
+                    var activateId = await GetActivateWhitIdentificationAsync(identification, connection, cancellationToken);
+                    sql += "WHERE OC.fecha_proceso::date BETWEEN @startDate AND @endDate AND afiliado_id = ANY(@activateId) AND (T.id = 1 OR T.categoria = 1);";
+                    parameters = new
+                    {
+                        startDate,
+                        endDate,
+                        activateId = activateId.ToArray()
+                    };
+                }
+                else
+                {
+                    sql += "WHERE OC.fecha_proceso::date BETWEEN @startDate AND @endDate AND (T.id = 1 OR T.categoria = 1);";
+                    parameters = new
+                    {
+                        startDate,
+                        endDate
+                    };
+                }
+
+                var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
                 return await connection.QueryAsync<OperationMovementsRequest>(command);
 
             }

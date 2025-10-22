@@ -1,3 +1,4 @@
+using Common.SharedKernel.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 using Trusts.Domain.Trusts;
 using Trusts.Domain.Trusts.Balances;
@@ -40,7 +41,7 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
     {
         return await context.Trusts
             .AsNoTracking()
-            .Where(t => t.AffiliateId == affiliateId)
+            .Where(t => t.AffiliateId == affiliateId && t.Status == LifecycleStatus.Active)
             .GroupBy(t => new { t.ObjectiveId, t.PortfolioId })
             .Select(g => AffiliateBalance.Create(
                 g.Key.ObjectiveId,
@@ -63,8 +64,14 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
         return await context
             .Set<Trust>()
             .AsNoTracking()
-            .Where(t => t.PortfolioId == portfolioId && t.Status)
+            .Where(t => t.PortfolioId == portfolioId && t.Status == LifecycleStatus.Active)
             .ToListAsync(ct);
+    }
+    
+    public async Task<Trust?> GetByClientOperationIdAsync(long clientOperationId, CancellationToken cancellationToken = default)
+    {
+        return await context.Trusts
+            .SingleOrDefaultAsync(t => t.ClientOperationId == clientOperationId, cancellationToken);
     }
 
     public async Task<int> GetParticipantAsync(IEnumerable<long> trustIds, CancellationToken cancellationToken = default)

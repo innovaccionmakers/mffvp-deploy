@@ -21,7 +21,7 @@ public class TechnicalSheetReport(
         "GASTOS",
         "COMISIÓN DIA",
         "COSTOS DIA",
-        "REND ABONADOS",
+        "REND NETOS",
         "REND BRUTO POR UNIDAD",
         "COSTOS POR UNIDAD",
         "VR UNIDAD",

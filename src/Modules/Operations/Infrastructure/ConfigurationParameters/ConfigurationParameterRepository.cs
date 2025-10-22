@@ -59,6 +59,24 @@ internal sealed class ConfigurationParameterRepository :
                 cancellationToken);
     }
 
+    public async Task<ConfigurationParameter?> GetByIdAsync(
+        long configurationParameterId,
+        CancellationToken cancellationToken = default)
+    {
+        if (configurationParameterId is < int.MinValue or > int.MaxValue)
+        {
+            return null;
+        }
+
+        var id = (int)configurationParameterId;
+
+        return await context.ConfigurationParameters
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                p => p.ConfigurationParameterId == id,
+                cancellationToken);
+    }
+
     public async Task<IReadOnlyDictionary<Guid, ConfigurationParameter>>
         GetByUuidsAsync(IEnumerable<Guid> uuids, CancellationToken cancellationToken)
     {

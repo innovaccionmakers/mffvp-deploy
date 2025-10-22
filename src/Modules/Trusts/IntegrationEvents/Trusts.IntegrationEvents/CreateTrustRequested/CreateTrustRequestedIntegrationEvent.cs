@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.EventBus;
+using Common.SharedKernel.Core.Primitives;
 
 namespace Trusts.IntegrationEvents.CreateTrustRequested;
 
@@ -18,7 +19,7 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
         decimal contingentWithholding,
         decimal earningsWithholding,
         decimal availableAmount,
-        bool status)
+        LifecycleStatus status)
         : base(Guid.NewGuid(), DateTime.UtcNow)
     {
         AffiliateId = affiliateId;
@@ -51,5 +52,5 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
     public decimal EarningsWithholding { get; init; }
     public decimal AvailableAmount { get; init; }
     public decimal AccumulatedEarnings { get; init; }
-    public bool Status { get; init; }
+    public LifecycleStatus Status { get; init; }
 }

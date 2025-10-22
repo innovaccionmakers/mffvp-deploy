@@ -21,6 +21,7 @@ using MFFVP.Api.OpenTelemetry;
 
 using Microsoft.OpenApi.Models;
 
+using System.Diagnostics;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +43,8 @@ if (env != "Development")
             options.OtlpEndpoint = observabilityOptions.OtlpEndpoint;
             options.EnableConsoleExporter = observabilityOptions.EnableConsoleExporter;
             options.DefaultAttributes = observabilityOptions.DefaultAttributes;
+
+            options.EnableAutoTracingLogging = true;
 
             options.UseSidecarPattern = true;
             options.SidecarEndpoint = "http://localhost:4317";
@@ -216,8 +219,47 @@ app.MapEndpoints();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-app.MapGet("/",
-    () => Results.Ok(new { module = "MFFVP", version = $"v.{Assembly.GetExecutingAssembly().GetName().Version}" }));
+app.MapGet("/", () =>
+{
+    var sw = Stopwatch.StartNew();
+
+    var asm = Assembly.GetExecutingAssembly().GetName();
+    var name = "Makers.Module.MFFVP";
+    var asmVer = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 1, 0, 0);
+    var displayVer = new Version(22, asmVer.Minor, asmVer.Build, asmVer.Revision).ToString();
+    var version = displayVer;
+
+    sw.Stop();
+
+    return Results.Ok(new
+    {
+        status = "Healthy",
+        duration = sw.Elapsed.ToString(@"hh\:mm\:ss\.fffffff"),
+        name,
+        version
+    });
+});
+
+app.MapGet("/healthy", () =>
+{
+    var sw = Stopwatch.StartNew();
+
+    var asm = Assembly.GetExecutingAssembly().GetName();
+    var name = "Makers.Module.MFFVP";
+    var asmVer = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 1, 0, 0);
+    var displayVer = new Version(22, asmVer.Minor, asmVer.Build, asmVer.Revision).ToString();
+    var version = displayVer;
+
+    sw.Stop();
+
+    return Results.Ok(new
+    {
+        status = "Healthy",
+        duration = sw.Elapsed.ToString(@"hh\:mm\:ss\.fffffff"),
+        name,
+        version
+    });
+});
 
 AppDomain.CurrentDomain.ProcessExit += (s, e) => Console.WriteLine("Shutting down...");
 

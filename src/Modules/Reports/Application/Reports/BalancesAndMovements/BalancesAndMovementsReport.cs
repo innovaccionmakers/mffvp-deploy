@@ -1,5 +1,4 @@
-﻿using Common.SharedKernel.Application.Reports.Strategies;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Reports.Domain.BalancesAndMovements;
 

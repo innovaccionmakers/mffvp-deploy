@@ -265,4 +265,218 @@
       }
     ]
   }
+  ,
+  {
+    "WorkflowName": "Operations.DebitNote.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "ClientOperationIdRequired",
+        "ErrorMessage": "El operacion_cliente_id es obligatorio.",
+        "Expression": "input.ClientOperationId > 0",
+        "Properties": { "internalCode": "OPS_ACC_REQ_OPERATION" }
+      },
+      {
+        "RuleName": "AmountMustBePositive",
+        "ErrorMessage": "El valor debe ser mayor que cero.",
+        "Expression": "input.Amount > 0",
+        "Properties": { "internalCode": "OPS_ACC_REQ_AMOUNT" }
+      },
+      {
+        "RuleName": "CauseIdRequired",
+        "ErrorMessage": "La causal es obligatoria.",
+        "Expression": "input.CauseId > 0",
+        "Properties": { "internalCode": "OPS_ACC_REQ_CAUSE" }
+      },
+      {
+        "RuleName": "AffiliateIdRequired",
+        "ErrorMessage": "El afiliado es obligatorio.",
+        "Expression": "input.AffiliateId > 0",
+        "Properties": { "internalCode": "OPS_ACC_REQ_AFFILIATE" }
+      },
+      {
+        "RuleName": "ObjectiveIdRequired",
+        "ErrorMessage": "El objetivo es obligatorio.",
+        "Expression": "input.ObjectiveId > 0",
+        "Properties": { "internalCode": "OPS_ACC_REQ_OBJECTIVE" }
+      }
+    ]
+  }
+  ,
+  {
+    "WorkflowName": "Operations.DebitNote.Validation",
+    "Rules": [
+      {
+        "RuleName": "OperationMustExist",
+        "ErrorMessage": "Operación no válida: la operación no existe.",
+        "Expression": "input.OperationExists == true",
+        "Properties": { "internalCode": "OPS_ACC_OPERATION_NOT_FOUND" }
+      },
+      {
+        "RuleName": "OperationTypeMustExist",
+        "ErrorMessage": "No es posible registrar la nota débito: el tipo de operación no está configurado.",
+        "Expression": "input.OperationTypeExists == true",
+        "Properties": { "internalCode": "OPS_ACC_OPERATION_TYPE_NOT_FOUND" }
+      },
+      {
+        "RuleName": "ContributionTypeMustExist",
+        "ErrorMessage": "No es posible registrar la nota débito: el tipo de operación Aporte no está configurado.",
+        "Expression": "input.ContributionTypeExists == true",
+        "Properties": { "internalCode": "OPS_ACC_CONTRIBUTION_TYPE_NOT_FOUND" }
+      },
+      {
+        "RuleName": "OperationMustBeContribution",
+        "ErrorMessage": "La nota débito solo aplica a aportes.",
+        "Expression": "input.OperationIsContribution == true",
+        "Properties": { "internalCode": "OPS_ACC_INVALID_OPERATION_TYPE" }
+      },
+      {
+        "RuleName": "PortfolioMustExist",
+        "ErrorMessage": "No es posible obtener el portafolio asociado a la operación.",
+        "Expression": "input.PortfolioFound == true",
+        "Properties": { "internalCode": "OPS_ACC_PORTFOLIO_NOT_FOUND" }
+      },
+      {
+        "RuleName": "ClosingMustNotBeActive",
+        "ErrorMessage": "No es posible realizar nota débito: proceso de cierre en ejecución.",
+        "Expression": "input.ClosingAvailable == true",
+        "Properties": { "internalCode": "OPS_ACC_CLOSING_ACTIVE" }
+      },
+      {
+        "RuleName": "ProcessDateMustBeValid",
+        "ErrorMessage": "No es posible anular: la fecha de proceso de la operación debe ser menor a la fecha de proceso del portafolio.",
+        "Expression": "input.ProcessDateIsValid == true",
+        "Properties": { "internalCode": "OPS_ACC_PROCESSDATE_IS_VALID" }
+      },
+      {
+        "RuleName": "OperationMustBeActive",
+        "ErrorMessage": "Operación no válida: solo se pueden anular operaciones en estado Activo.",
+        "Expression": "input.OperationIsActive == true",
+        "Properties": { "internalCode": "OPS_ACC_STATUS_INVALID" }
+      },
+      {
+        "RuleName": "DebitNoteTypeMustExist",
+        "ErrorMessage": "No es posible registrar la nota débito: el tipo de operación 'Nota Débito' no está configurado.",
+        "Expression": "input.DebitNoteTypeExists == true",
+        "Properties": { "internalCode": "OPS_ACC_TYPE_NOT_FOUND" }
+      },
+      {
+        "RuleName": "CauseMustExist",
+        "ErrorMessage": "No es posible registrar la nota débito: la causal no está configurada.",
+        "Expression": "input.CauseExists == true",
+        "Properties": { "internalCode": "OPS_ACC_CAUSE_NOT_FOUND" }
+      },
+      {
+        "RuleName": "NoAnnulmentInProgress",
+        "ErrorMessage": "Solo se permite anular una transacción a la vez; hay una anulación en curso.",
+        "Expression": "input.NoPendingAnnulment == true",
+        "Properties": { "internalCode": "OPS_ACC_PENDING_ANNULMENT" }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Operations.Voids.RequiredFields",
+    "Rules": [
+      {
+        "RuleName": "OperationsMustBeProvided",
+        "ErrorMessage": "Debe proporcionar al menos una operación a anular.",
+        "Expression": "input.HasItems == true",
+        "Properties": { "internalCode": "OPS_VOID_REQ_ITEMS" }
+      },
+      {
+        "RuleName": "ClientOperationIdRequired",
+        "ErrorMessage": "El operacion_cliente_id es obligatorio.",
+        "Expression": "input.OperationsProvided == true",
+        "Properties": { "internalCode": "OPS_VOID_REQ_OPERATION" }
+      },
+      {
+        "RuleName": "OperationsMustBeUnique",
+        "ErrorMessage": "No se permiten operaciones repetidas.",
+        "Expression": "input.OperationsAreUnique == true",
+        "Properties": { "internalCode": "OPS_VOID_REQ_DUPLICATED_OPERATION" }
+      },
+      {
+        "RuleName": "AmountMustBePositive",
+        "ErrorMessage": "El valor debe ser mayor que cero.",
+        "Expression": "input.AmountsProvided == true",
+        "Properties": { "internalCode": "OPS_VOID_REQ_AMOUNT" }
+      },
+      {
+        "RuleName": "CauseIdRequired",
+        "ErrorMessage": "La causal es obligatoria.",
+        "Expression": "input.CauseId > 0",
+        "Properties": { "internalCode": "OPS_VOID_REQ_CAUSE" }
+      },
+      {
+        "RuleName": "AffiliateIdRequired",
+        "ErrorMessage": "El afiliado es obligatorio.",
+        "Expression": "input.AffiliateId > 0",
+        "Properties": { "internalCode": "OPS_VOID_REQ_AFFILIATE" }
+      },
+      {
+        "RuleName": "ObjectiveIdRequired",
+        "ErrorMessage": "El objetivo es obligatorio.",
+        "Expression": "input.ObjectiveId > 0",
+        "Properties": { "internalCode": "OPS_VOID_REQ_OBJECTIVE" }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Operations.Voids.Validation",
+    "Rules": [
+      {
+        "RuleName": "OperationMustExist",
+        "ErrorMessage": "Operación no válida: la operación no existe.",
+        "Expression": "input.OperationExists == true",
+        "Properties": { "internalCode": "OPS_VOID_OPERATION_NOT_FOUND" }
+      },
+      {
+        "RuleName": "ContributionTypeMustExist",
+        "ErrorMessage": "No es posible anular: el tipo de operación Aporte no está configurado.",
+        "Expression": "input.ContributionTypeExists == true",
+        "Properties": { "internalCode": "OPS_VOID_CONTRIBUTION_TYPE_NOT_FOUND" }
+      },
+      {
+        "RuleName": "OperationMustBeContribution",
+        "ErrorMessage": "La anulación solo aplica a aportes.",
+        "Expression": "input.OperationIsContribution == true",
+        "Properties": { "internalCode": "OPS_VOID_INVALID_OPERATION_TYPE" }
+      },
+      {
+        "RuleName": "PortfolioMustExist",
+        "ErrorMessage": "No es posible obtener el portafolio asociado a la operación.",
+        "Expression": "input.PortfolioFound == true",
+        "Properties": { "internalCode": "OPS_VOID_PORTFOLIO_NOT_FOUND" }
+      },
+      {
+        "RuleName": "ClosingMustNotBeActive",
+        "ErrorMessage": "No es posible anular: proceso de cierre en ejecución.",
+        "Expression": "input.ClosingAvailable == true",
+        "Properties": { "internalCode": "OPS_VOID_CLOSING_ACTIVE" }
+      },
+      {
+        "RuleName": "ProcessDateMustBeValid",
+        "ErrorMessage": "No es posible anular: la fecha de proceso de la operación debe ser igual a la fecha de proceso del portafolio.",
+        "Expression": "input.ProcessDateIsValid == true",
+        "Properties": { "internalCode": "OPS_VOID_PROCESSDATE_INVALID" }
+      },
+      {
+        "RuleName": "OperationMustBeActive",
+        "ErrorMessage": "Operación no válida: solo se pueden anular operaciones en estado Activo.",
+        "Expression": "input.OperationIsActive == true",
+        "Properties": { "internalCode": "OPS_VOID_STATUS_INVALID" }
+      },
+      {
+        "RuleName": "CauseMustExist",
+        "ErrorMessage": "No es posible registrar la anulación: la causal no está configurada.",
+        "Expression": "input.CauseExists == true",
+        "Properties": { "internalCode": "OPS_VOID_CAUSE_NOT_FOUND" }
+      },
+      {
+        "RuleName": "NoAnnulmentInProgress",
+        "ErrorMessage": "Solo se permite anular una transacción a la vez; hay una anulación en curso.",
+        "Expression": "input.NoPendingAnnulment == true",
+        "Properties": { "internalCode": "OPS_VOID_PENDING_ANNULMENT" }
+      }
+    ]
+  }
 ]

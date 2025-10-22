@@ -15,7 +15,7 @@ using Closing.Infrastructure.External.Portfolios;
 using Closing.Infrastructure.ProfitLossConcepts;
 using Closing.Infrastructure.ProfitLosses;
 using Closing.Infrastructure.TrustYields;
-using Closing.IntegrationEvents.DataSync.CreateClientOperationRequested;
+using Closing.IntegrationEvents.DataSync.PreClosingTxRequested;
 using Closing.IntegrationEvents.DataSync.TrustSync;
 using Closing.IntegrationEvents.PortfolioValuation;
 using Closing.IntegrationEvents.Yields;
@@ -97,12 +97,14 @@ public class ClosingModule : IModuleConfiguration
 
         services.AddScoped<IClosingStepEventPublisher, ClosingStepEventPublisher>();
 
-        services.AddScoped<CreateClientOperationRequestedConsumer>();
+        services.AddScoped<PreClosingTxRequestedConsumer>();
         services.AddScoped<IRpcHandler<TrustSyncRequest, TrustSyncResponse>, TrustSyncConsumer>();
         services.AddScoped<IRpcHandler<CheckPortfolioValuationExistsRequest, CheckPortfolioValuationExistsResponse>, CheckPortfolioValuationExistsConsumer>();
         services.AddScoped<IRpcHandler<GetPortfolioValuationRequest, GetPortfolioValuationResponse>, GetPortfolioValuationConsumer>();
+        services.AddScoped<IRpcHandler<GetPortfolioValuationInfoRequest, GetPortfolioValuationInfoResponse>, GetPortfolioValuationInfoConsumer>();
         services.AddScoped<IRpcHandler<GetAllComissionsByPortfolioIdsAndClosingDateRequest, GetAllComissionsByPortfolioIdsAndClosingDateResponse>, GetAllComissionsByPortfolioIdsAndClosingDateConsumer>();
         services.AddScoped<IRpcHandler<GetAllReturnsByPortfolioIdsAndClosingDateRequest, GetAllReturnsByPortfolioIdsAndClosingDateResponse>, GetAllReturnsByPortfolioIdsAndClosingDateConsumer>();
+        services.AddScoped<IRpcHandler<GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerRequest, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerResponse>, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumer>();
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());

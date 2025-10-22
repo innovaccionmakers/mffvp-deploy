@@ -21,6 +21,7 @@ public static class ProcessTypes
     public const string AccountingReturns = "AccountingReturns";
     public const string AccountingOperations = "AccountingOperations";
     public const string AccountingConcepts = "AccountingConcepts";
+    public const string AutomaticConcepts = "AutomaticConcepts";
 }
 
 public static class AccountingActivity

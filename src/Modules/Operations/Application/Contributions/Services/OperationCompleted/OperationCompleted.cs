@@ -1,4 +1,4 @@
-﻿using Closing.IntegrationEvents.DataSync.CreateClientOperationRequested;
+using Closing.IntegrationEvents.DataSync.PreClosingTxRequested;
 using Common.SharedKernel.Application.EventBus;
 using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Domain.ClientOperations;
@@ -9,7 +9,7 @@ public sealed class OperationCompleted(IEventBus eventBus) : IOperationCompleted
 {
     public async Task ExecuteAsync(ClientOperation operation, CancellationToken cancellationToken)
     {
-        var createClosingEvent = new CreateClientOperationRequestedIntegrationEvent(
+        var preClosingEvent = new PreClosingTxRequestedIntegrationEvent(
             operation.ClientOperationId,
             operation.RegistrationDate,
             operation.AffiliateId,
@@ -20,10 +20,11 @@ public sealed class OperationCompleted(IEventBus eventBus) : IOperationCompleted
             operation.OperationTypeId,
             operation.ApplicationDate,
             operation.Status,
+            operation.CauseId,
             operation.TrustId,
             operation.LinkedClientOperationId,
             operation.Units);
 
-        await eventBus.PublishAsync(createClosingEvent, cancellationToken);
+        await eventBus.PublishAsync(preClosingEvent, cancellationToken);
     }
 }

@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.EventBus;
+using Common.SharedKernel.Core.Primitives;
 using Operations.Application.Abstractions.Data;
 using Operations.Application.Abstractions.Services.TrustCreation;
 using Operations.Domain.ClientOperations;
@@ -29,7 +30,7 @@ public sealed class TrustCreation(IEventBus eventBus) : ITrustCreation
             taxResult.WithheldAmount,
             0m,
             0m,
-            true);
+            LifecycleStatus.Active);
 
         await eventBus.PublishAsync(createTrustEvent, cancellationToken);
     }

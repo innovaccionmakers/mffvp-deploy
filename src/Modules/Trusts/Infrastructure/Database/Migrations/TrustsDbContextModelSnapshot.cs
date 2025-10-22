@@ -109,6 +109,7 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .HasColumnName("afiliado_id");
 
                     b.Property<decimal>("AvailableAmount")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("disponible");
 
@@ -117,6 +118,7 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .HasColumnName("operaciones_cliente_id");
 
                     b.Property<decimal>("ContingentWithholding")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("retencion_contingente");
 
@@ -125,10 +127,12 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .HasColumnName("fecha_creacion");
 
                     b.Property<decimal>("Earnings")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("rendimiento");
 
                     b.Property<decimal>("EarningsWithholding")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("retencion_rendimiento");
 
@@ -141,11 +145,12 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .HasColumnName("portafolio_id");
 
                     b.Property<decimal>("Principal")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("capital");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("boolean")
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
                         .HasColumnName("estado");
 
                     b.Property<int>("TaxCondition")
@@ -153,12 +158,18 @@ namespace Trusts.Infrastructure.Database.Migrations
                         .HasColumnName("condicion_tributaria");
 
                     b.Property<decimal>("TotalBalance")
+                        .HasPrecision(19, 2)
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("saldo_total");
 
                     b.Property<decimal>("TotalUnits")
+                        .HasPrecision(38, 16)
                         .HasColumnType("decimal(38, 16)")
                         .HasColumnName("unidades_totales");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_actualizacion");
 
                     b.HasKey("TrustId");
 

@@ -2,7 +2,7 @@ using Closing.Integrations.PreClosing.RunSimulation;
 using Closing.Integrations.ProfitLosses.ProfitandLossLoad;
 using Closing.Presentation.GraphQL.DTOs;
 using Closing.Presentation.GraphQL.Inputs;
-using Closing.Integrations.Closing.RunClosing;   
+using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;

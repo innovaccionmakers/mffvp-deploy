@@ -17,7 +17,7 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
         public string Reference1 { get; set; }
         public string Reference2 { get; set; }
         public string Reference3 { get; set; }
-        public string Branch { get; set; }
+        public int Branch { get; set; }
 
         public override object[] ToRowData()
         {
@@ -36,7 +36,7 @@ namespace MFFVP.BFF.Services.Reports.DepositsReport
                 Reference1 ?? string.Empty,
                 Reference2 ?? string.Empty,
                 Reference3 ?? string.Empty,
-                Branch ?? string.Empty
+                Branch
             };
         }
     }
