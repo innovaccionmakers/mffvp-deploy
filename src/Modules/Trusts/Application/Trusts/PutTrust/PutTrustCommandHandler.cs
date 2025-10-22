@@ -24,7 +24,8 @@ internal sealed class PutTrustCommandHandler(
     {
         var requiredContext = new
         {
-            request.ClientOperationId
+            request.ClientOperationId,
+            request.UpdateDate
         };
 
         var (requiredOk, _, requiredErrors) = await ruleEvaluator
@@ -42,8 +43,7 @@ internal sealed class PutTrustCommandHandler(
 
         var validationContext = new
         {
-            TrustExists = trust is not null,
-            AlreadyAnnulled = trust?.Status == LifecycleStatus.AnnulledByDebitNote
+            TrustExists = trust is not null
         };
 
         var (validationOk, _, validationErrors) = await ruleEvaluator
@@ -57,7 +57,12 @@ internal sealed class PutTrustCommandHandler(
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        trust!.AnnulByDebitNote(DateTime.UtcNow);
+        trust!.UpdateState(
+            request.TotalBalance,
+            request.Principal,
+            request.ContingentWithholding,
+            request.Status,
+            request.UpdateDate);
         trustRepository.Update(trust);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

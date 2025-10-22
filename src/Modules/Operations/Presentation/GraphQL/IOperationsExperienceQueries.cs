@@ -27,6 +27,9 @@ public interface IOperationsExperienceQueries
     Task<IReadOnlyCollection<PaymentMethodDto>> GetPaymentMethodsAsync(
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyCollection<DebitNoteCauseDto>> GetDebitNoteCausesAsync(
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyCollection<OriginContributionDto>> GetOriginContributionsAsync(
         CancellationToken cancellationToken = default);
 

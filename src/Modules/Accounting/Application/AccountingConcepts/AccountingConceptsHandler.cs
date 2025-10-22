@@ -9,7 +9,6 @@ using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Treasury.IntegrationEvents.TreasuryMovements.AccountingConcepts;
 

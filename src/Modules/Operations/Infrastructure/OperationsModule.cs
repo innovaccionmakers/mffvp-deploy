@@ -21,6 +21,7 @@ using Operations.Application.Abstractions.Services.Cleanup;
 using Operations.Application.Abstractions.Services.Closing;
 using Operations.Application.Abstractions.Services.ContributionService;
 using Operations.Application.Abstractions.Services.AccountingRecords;
+using Operations.Application.Abstractions.Services.Voids;
 using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Application.Abstractions.Services.Portfolio;
 using Operations.Application.Abstractions.Services.Prevalidation;
@@ -38,6 +39,7 @@ using Operations.Application.Contributions.Services.OperationCompleted;
 using Operations.Application.Contributions.Services.QueueTransactions;
 using Operations.Application.Contributions.Services.TrustCreation;
 using Operations.Application.Contributions.TransactionControl;
+using Operations.Application.Voids.Services;
 using Operations.Application.Portfolio.Services;
 using Operations.Application.SalesUser.Services;
 using Operations.Domain.AuxiliaryInformations;
@@ -137,6 +139,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IClosingValidator, ClosingValidator>();
 
         services.AddScoped<IAccountingRecordsOper, AccountingRecordsOper>();
+        services.AddScoped<IVoidsOper, VoidedTransactionsOper>();
 
         services.AddScoped<IPrevalidate, Prevalidate>();
         services.AddScoped<ITransactionControl, TransactionControl>();

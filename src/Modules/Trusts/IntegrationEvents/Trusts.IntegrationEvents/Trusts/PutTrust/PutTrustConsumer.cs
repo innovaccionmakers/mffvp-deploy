@@ -20,7 +20,13 @@ public sealed class PutTrustConsumer : IRpcHandler<PutTrustRequest, PutTrustResp
     {
         try
         {
-            var command = new PutTrustCommand(request.ClientOperationId);
+            var command = new PutTrustCommand(
+                request.ClientOperationId,
+                request.Status,
+                request.TotalBalance,
+                request.Principal,
+                request.ContingentWithholding,
+                request.UpdateDate);
             var result = await mediator.Send(command, cancellationToken);
 
             if (result.IsFailure)

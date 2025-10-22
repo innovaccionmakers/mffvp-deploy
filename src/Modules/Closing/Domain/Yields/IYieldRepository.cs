@@ -30,6 +30,10 @@ public interface IYieldRepository
     Task<IReadOnlyCollection<Yield>> GetYieldsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds,
                                                                                    DateTime closingDate,
                                                                                    CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Yield>> GetAllAutConceptsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds,
+                                                                                   DateTime closingDate,
+                                                                                   CancellationToken cancellationToken = default);
     Task UpdateCreditedYieldsAsync(int portfolioId, DateTime closingDateUtc, decimal distributedTotal, DateTime processDate, CancellationToken cancellationToken = default);
 
     Task<decimal?> GetYieldToCreditAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
