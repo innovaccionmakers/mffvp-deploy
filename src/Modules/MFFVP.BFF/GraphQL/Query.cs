@@ -201,6 +201,27 @@ public class Query
         return await operationsQueries.GetWithholdingContingencyAsync(cancellationToken);
     }
 
+    [GraphQLName("obtenerOperacionesNd")]
+    public async Task<OperationNdPageDto> GetOperationsNd(
+        [GraphQLName("fechaInicio")] DateTime startDate,
+        [GraphQLName("fechaFin")] DateTime endDate,
+        [GraphQLName("idAfiliado")] int affiliateId,
+        [GraphQLName("idObjetivo")] int objectiveId,
+        [GraphQLName("numeroPagina")] int pageNumber,
+        [GraphQLName("tamanoPagina")] int pageSize,
+        [Service] IOperationsExperienceQueries operationsQueries,
+        CancellationToken cancellationToken)
+    {
+        return await operationsQueries.GetOperationsNdAsync(
+            startDate,
+            endDate,
+            affiliateId,
+            objectiveId,
+            pageNumber,
+            pageSize,
+            cancellationToken);
+    }
+
     //Associates Queries
     [GraphQLName("requisitosPension")]
     public async Task<IReadOnlyCollection<PensionRequirementDto>> GetPensionRequirementsByAssociate([GraphQLName("idAfiliado")] int associateId,

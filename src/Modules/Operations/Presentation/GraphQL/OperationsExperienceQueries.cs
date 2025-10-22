@@ -2,6 +2,7 @@ using Common.SharedKernel.Core.Primitives;
 
 using MediatR;
 using Operations.Integrations.ClientOperations.GetClientOperationsByProcessDate;
+using Operations.Integrations.ClientOperations.GetOperationsND;
 using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.OperationTypes;
 using Operations.Integrations.Origins;
@@ -185,5 +186,40 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         .ToList();
 
         return response;
+    }
+
+    public async Task<OperationNdPageDto> GetOperationsNdAsync(
+        DateTime startDate,
+        DateTime endDate,
+        int affiliateId,
+        int objectiveId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(
+            new GetOperationsNDQuery(startDate, endDate, affiliateId, objectiveId, pageNumber, pageSize),
+            cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve ND operations.");
+        }
+
+        var items = result.Value.Items
+            .Select(item => new OperationNdDto(
+                item.ClientOperationId,
+                item.ProcessDate,
+                item.TransactionTypeName,
+                item.Amount,
+                item.ContingentWithholding))
+            .ToList();
+
+        return new OperationNdPageDto(
+            result.Value.PageNumber,
+            result.Value.PageSize,
+            result.Value.TotalCount,
+            result.Value.TotalPages,
+            items);
     }
 }

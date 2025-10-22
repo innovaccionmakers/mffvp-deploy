@@ -46,7 +46,7 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
             .SingleOrDefaultAsync(s => s.Name == name && s.CategoryId == categoryId, ct);
     }
 
-    public async Task<IReadOnlyCollection<OperationType>> GetCategoryIdAsync(int? categoryId, CancellationToken ct = default)
+    public async Task<IReadOnlyCollection<OperationType>> GetTypesByCategoryAsync(int? categoryId, CancellationToken ct = default)
     {
         return await context.OperationTypes
             .AsNoTracking()
