@@ -1,13 +1,10 @@
 ﻿
-
 namespace Trusts.IntegrationEvents.TrustYields;
 
 public sealed record UpdateTrustFromYieldRequest(
-      int PortfolioId,
-      DateTime ClosingDate,
-      long TrustId,
-      decimal YieldAmount,
-      decimal YieldRetention,
-      decimal ClosingBalance
-  // , string? CorrelationId = null
-  );
+    int PortfolioId,
+    DateTime ClosingDate,
+    int BatchIndex,
+    IReadOnlyList<ApplyYieldRowDto> Rows,
+    string? IdempotencyKey = null
+);

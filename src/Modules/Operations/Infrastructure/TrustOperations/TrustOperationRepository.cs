@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
 using Operations.Domain.TrustOperations;
 using Operations.Infrastructure.Database;
 namespace Operations.Infrastructure.TrustOperations;
@@ -62,7 +63,7 @@ internal sealed class TrustOperationRepository(OperationsDbContext context)
             VALUES
                 ({clientOperationId}, {trustId}, {amount}, {operationTypeId},
                  {portfolioId}, NOW(), {processDateOnly}, NOW())
-            ON CONFLICT (portafolio_id, fideicomiso_id, fecha_proceso, tipo_operaciones_id)
+            ON CONFLICT (fideicomiso_id, tipo_operaciones_id, portafolio_id, fecha_proceso )
             DO UPDATE SET
                 valor = EXCLUDED.valor,
                 fecha_aplicacion = NOW()
@@ -73,4 +74,6 @@ internal sealed class TrustOperationRepository(OperationsDbContext context)
 
         return rowsAffected > 0;
     }
+
+   
 }

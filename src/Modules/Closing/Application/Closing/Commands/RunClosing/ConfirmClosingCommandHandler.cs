@@ -50,7 +50,7 @@ internal sealed class ConfirmClosingCommandHandler(
                 }
 
                 logger.LogError(ex,
-                    "ConfirmarCierre: Error en FASE 1 (Cierre) para Portafolio {PortfolioId}", command.PortfolioId);
+                    "ConfirmarCierre: Error en FASE 1 (Cierre - Distribución) para Portafolio {PortfolioId}", command.PortfolioId);
                 throw;
             }
         }

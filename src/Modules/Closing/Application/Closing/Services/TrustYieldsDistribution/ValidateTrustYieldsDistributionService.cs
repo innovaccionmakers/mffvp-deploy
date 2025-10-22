@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 
 
 
+
 namespace Closing.Application.Closing.Services.TrustYieldsDistribution;
 
 public class ValidateTrustYieldsDistributionService(
@@ -41,70 +42,64 @@ public class ValidateTrustYieldsDistributionService(
         // Publicar evento de paso
         await timeControlService.UpdateStepAsync(portfolioId, "ClosingAllocationCheck", now, cancellationToken);
 
-        var yield = await yieldRepository.GetForUpdateByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
-        if (yield is null)
+        var yieldToCredit = await yieldRepository.GetYieldToCreditAsync(portfolioId, closingDate, cancellationToken);
+        if (yieldToCredit is null)
         {
             return Result.Failure(new Error("001", "No se encontró información de rendimientos para la fecha de cierre.", ErrorType.Failure));
         }
 
-        var trustYields = await trustYieldRepository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
-        if (!trustYields.Any())
-        {
-            return Result.Failure(new Error("002", "No existen registros de rendimientos distribuidos para fideicomisos.", ErrorType.Failure));
-        }
-
-        var expectedTotal = MoneyHelper.Round2(yield.YieldToCredit);
-        var distributedTotal = trustYields
-                            .AsEnumerable()
-                            .Sum(t => MoneyHelper.Round2(t.YieldAmount));
+        var expectedTotal = MoneyHelper.Round2(yieldToCredit.Value);
+        var distributedTotal = await trustYieldRepository.GetDistributedTotalRoundedAsync(portfolioId, closingDate, cancellationToken);
         var difference = MoneyHelper.Round2(expectedTotal - distributedTotal);
 
-        yield.UpdateDetails(
-            portfolioId: yield.PortfolioId,
-            income: yield.Income,
-            expenses: yield.Expenses,
-            commissions: yield.Commissions,
-            costs: yield.Costs,
-            yieldToCredit: yield.YieldToCredit,
-            creditedYields: distributedTotal,
-            closingDate: yield.ClosingDate,
-            processDate: DateTime.UtcNow,
-            isClosed: yield.IsClosed
-        );
 
-        await yieldRepository.SaveChangesAsync(cancellationToken);
+        await yieldRepository.UpdateCreditedYieldsAsync(portfolioId, closingDate, distributedTotal, now, cancellationToken);
+
+        //Diferencia > 0 → faltó distribuir(sobra en portafolio) → Ingreso automático para el día siguiente.
+        //Diferencia < 0 → se distribuyó de más(faltante en portafolio) → Gasto automático para el día siguiente.
 
         if (difference != 0m)
         {
-            var toleranceParam = await configurationParameterRepository.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, cancellationToken);
-            if (toleranceParam?.Metadata is null)
-                return Result.Failure(new Error("001", $"No se encontró metadata para 'YieldDifferenceTolerance'.", ErrorType.Failure));
-            var tolerance = JsonDecimalHelper.ExtractDecimal(toleranceParam.Metadata, "valor", isPercentage: false);
+            //Obtener parámetros de configuración necesarios
+            var uuids = new[]
+            {
+                ConfigurationParameterUuids.Closing.YieldDifferenceTolerance,
+                ConfigurationParameterUuids.Closing.YieldAdjustmentIncome,
+                ConfigurationParameterUuids.Closing.YieldAdjustmentExpense
+            };
 
+            var map = await configurationParameterRepository.GetReadOnlyByUuidsAsync(uuids, cancellationToken);
+
+            // Tolerancia
+            if (!map.TryGetValue(ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, out var toleranceParam)
+                || toleranceParam.Metadata is null)
+                return Result.Failure(Error.Failure("001", "No se encontró metadata para 'ToleranciaRendimientos'."));
+
+            var tolerance = JsonDecimalHelper.ExtractDecimal(toleranceParam.Metadata, "valor", isPercentage: false);
             if (tolerance < 0m)
-                return Result.Failure(new Error("001A", "Tolerancia inválida (< 0).", ErrorType.Failure));
+                return Result.Failure(Error.Failure("001A", "Tolerancia inválida (< 0)."));
 
             if (Math.Abs(difference) > tolerance)
             {
                 warnings.Add(WarningCatalog.Adv003YieldDifference(difference, tolerance));
-
             }
 
             var nextClosingDate = closingDate.AddDays(1);
-
             var isIncome = difference > 0m;
-            var uuid = isIncome
-                    ? ConfigurationParameterUuids.Closing.YieldAdjustmentIncome
-                    : ConfigurationParameterUuids.Closing.YieldAdjustmentExpense;
-            var adjustmentParam = await configurationParameterRepository.GetByUuidAsync(uuid, cancellationToken);
-            if (adjustmentParam?.Metadata is null)
-                return Result.Failure(new Error("001",$"No se encontró metadata para '{uuid}'.", ErrorType.Failure));
+
+            // Concepto Automatico según signo
+            var conceptUuid = difference > 0m
+                ? ConfigurationParameterUuids.Closing.YieldAdjustmentIncome
+                : ConfigurationParameterUuids.Closing.YieldAdjustmentExpense;
+
+            if (!map.TryGetValue(conceptUuid, out var adjustmentParam) || adjustmentParam.Metadata is null)
+                return Result.Failure(Error.Failure("001", $"No se encontró metadata para '{conceptUuid}'."));
 
             var conceptId = JsonIntegerHelper.ExtractInt32(adjustmentParam.Metadata, "id", defaultValue: 0);
             var conceptName = JsonStringHelper.ExtractString(adjustmentParam.Metadata, "nombre", defaultValue: string.Empty);
 
             if (conceptId <= 0 || string.IsNullOrWhiteSpace(conceptName))
-                return Result.Failure(new Error("002", $"Metadata inválida para '{uuid}': id/nombre requeridos.", ErrorType.Failure));
+                return Result.Failure(new Error("002", $"Metadata inválida para '{conceptUuid}': id/nombre requeridos.", ErrorType.Failure));
 
             var summary = new AutomaticConceptSummary(
                 ConceptId: conceptId,

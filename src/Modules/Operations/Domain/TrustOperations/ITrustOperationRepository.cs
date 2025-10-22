@@ -26,4 +26,5 @@ public interface ITrustOperationRepository
      long operationTypeId,
      long? clientOperationId,
      CancellationToken cancellationToken);
-    }
+}
+

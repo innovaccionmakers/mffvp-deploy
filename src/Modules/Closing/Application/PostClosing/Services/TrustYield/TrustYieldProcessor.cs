@@ -1,18 +1,17 @@
-﻿using Closing.Application.Abstractions.External.Operations.TrustOperations;
+﻿using System.Collections.Concurrent;
+using Closing.Application.Abstractions.External.Operations.OperationTypes;
+using Closing.Application.Abstractions.External.Operations.TrustOperations;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
-using Closing.Application.Closing.Services.OperationTypes;
 using Closing.Domain.TrustYields;
-using Common.SharedKernel.Domain.OperationTypes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
 
 namespace Closing.Application.PostClosing.Services.TrustYield;
 
 /// <summary>
-/// Processor que coordina las llamadas remotas:
-/// 1) Operations.UpsertYieldOperation
-/// 2) Trusts.UpdateFromYield (solo si 1) fue OK)
+/// Processor que coordina llamadas remotas en BULK con chunking unificado:
+/// 1) Operations.UpsertYieldOperationsBulk (por lotes)
+/// 2) Trusts.UpdateFromYield (por lotes) SOLO para TrustIds cambiados en 1
 /// </summary>
 public sealed class TrustYieldProcessor : ITrustYieldProcessor
 {
@@ -20,133 +19,217 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
     private readonly IUpsertTrustYieldOperationsRemote operationsRemote;
     private readonly IUpdateTrustRemote trustsRemote;
     private readonly ILogger<TrustYieldProcessor> logger;
-    private readonly TrustYieldRpcOptions options;
-    private readonly IOperationTypesService operationTypes;
+    private readonly TrustYieldOptions options;
+    private readonly IOperationTypesLocator operationTypesLocator;
+
+    private const int DefaultChunkSize = 10_000;
+    // Concurrencia acotada. Si necesitas variarlo, cambia aquí (sin appsettings).
+    private const int DefaultMaxConcurrency = 8;
 
     public TrustYieldProcessor(
         ITrustYieldRepository trustYieldRepository,
         IUpsertTrustYieldOperationsRemote operationsRemote,
         IUpdateTrustRemote trustsRemote,
         ILogger<TrustYieldProcessor> logger,
-        IOperationTypesService operationTypes,
-        IOptions<TrustYieldRpcOptions> options)
+        IOperationTypesLocator operationTypesLocator,
+        IOptions<TrustYieldOptions> options)
     {
         this.trustYieldRepository = trustYieldRepository;
         this.operationsRemote = operationsRemote;
         this.trustsRemote = trustsRemote;
         this.logger = logger;
-        this.options = options.Value ?? new TrustYieldRpcOptions();
-        this.operationTypes = operationTypes;
+        this.options = options.Value ?? new TrustYieldOptions();
+        this.operationTypesLocator = operationTypesLocator;
     }
 
-    public async Task ProcessAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
+    public async Task ProcessAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken)
     {
-        logger.LogInformation("{Class} - Inicio (best-effort). Portfolio:{PortfolioId}, ClosingDate:{ClosingDate}, MDOP:{MDOP}, UseEmitFilter:{Filter}",
-            nameof(TrustYieldProcessor), portfolioId, closingDate, options.MaxDegreeOfParallelism, options.UseEmitFilter);
-
-        var subtypeResult = await operationTypes.GetAllAsync(cancellationToken);
-        if (!subtypeResult.IsSuccess)
+        // 0) Tipo operación "Rendimientos"
+        var subtypeResult = await operationTypesLocator.GetOperationTypeByNameAsync("Rendimientos", cancellationToken);
+        if (!subtypeResult.IsSuccess || subtypeResult.Value.OperationTypeId <= 0)
+        {
+            logger.LogWarning("{Class} - Tipo de Operación 'Rendimientos' no disponible: {Error}",
+                nameof(TrustYieldProcessor), subtypeResult.IsSuccess ? "OperationTypeId<=0" : subtypeResult.Error?.Description);
             return;
+        }
+        var yieldOperationTypeId = subtypeResult.Value.OperationTypeId;
 
-        var yieldOperationTypeId = subtypeResult.Value
-            .Where(s => s.Nature == IncomeEgressNature.Income && string.IsNullOrWhiteSpace(s.Category) && s.Name == "Rendimientos")
-            .Select(s => s.OperationTypeId)
-            .SingleOrDefault();
-
+        // 1) Leer TrustYields del día
         var trustYields = await trustYieldRepository
-            .GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, cancellationToken);
+            .GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDateUtc, cancellationToken);
 
         if (trustYields.Count == 0)
         {
-            logger.LogInformation("{Class} - No hay rendimientos para procesar.", nameof(TrustYieldProcessor));
+            logger.LogInformation("{Class} - No hay rendimientos de Fideicomisos para procesar.", nameof(TrustYieldProcessor));
             return;
         }
 
-        var operationsOk = 0;
-        var trustsOk = 0;
-        var skipped = 0;
-        var warnings = new ConcurrentBag<string>();
-
-        var parallelOptions = new ParallelOptions
+        // 2) Filtro de emisión (recomendado dejarlo activo en prod)
+        IEnumerable<Domain.TrustYields.TrustYield> candidatesEnum = trustYields;
+        if (options.UseEmitFilter)
         {
-            MaxDegreeOfParallelism = options.MaxDegreeOfParallelism,
-            CancellationToken = cancellationToken
-        };
+            candidatesEnum = trustYields.Where(t =>
+                   t.YieldAmount != 0m
+                || t.PreClosingBalance != t.ClosingBalance
+                || t.PreClosingBalance == t.Capital);
+        }
 
-        await Parallel.ForEachAsync(trustYields, parallelOptions, async (trustYield, ct) =>
+        var candidates = candidatesEnum as List<Domain.TrustYields.TrustYield> ?? candidatesEnum.ToList();
+        if (candidates.Count == 0)
         {
-            if (options.UseEmitFilter)
-            {
-                var shouldEmit =
-                    trustYield.YieldAmount != 0m ||
-                    trustYield.PreClosingBalance != trustYield.ClosingBalance ||
-                    trustYield.PreClosingBalance == trustYield.Capital;
+            logger.LogInformation("{Class} - Todos los rendimientos fueron omitidos por filtro de emisión.",
+                nameof(TrustYieldProcessor));
+            return;
+        }
 
-                if (!shouldEmit)
-                {
-                    Interlocked.Increment(ref skipped);
-                    logger.LogDebug("{Class} - Skip TrustId:{TrustId} (sin cambios relevantes).",
-                        nameof(TrustYieldProcessor), trustYield.TrustId);
-                    return;
-                }
-            }
+        var idempotencyKeyBase = $"{portfolioId}:{closingDateUtc:yyyyMMdd}";
+        var chunkSize = options.BulkBatchSize > 0 ? options.BulkBatchSize : DefaultChunkSize;
+        var maxConcurrency = DefaultMaxConcurrency;
 
-            // 1) Operations: upsert de operación de rendimiento
-            var opReq = new UpsertTrustYieldOperationRemoteRequest(
-                TrustId: trustYield.TrustId,
-                PortfolioId: trustYield.PortfolioId,
-                ClosingDate: trustYield.ClosingDate,
+        // 3) Operations BULK 
+        var opItems = candidates.Select(t => new TrustYieldOperation(
+            TrustId: t.TrustId,
+            OperationTypeId: yieldOperationTypeId,
+            Amount: t.YieldAmount,
+            ClientOperationId: null,
+            ProcessDateUtc: closingDateUtc
+        )).ToArray();
+
+        var opChunks = ChunkWithIndex(opItems, chunkSize);
+        var changedTrusts = new ConcurrentDictionary<long, byte>();
+        int totalOpsInserted = 0, totalOpsUpdated = 0;
+
+        await ForEachAsyncBounded(opChunks, maxConcurrency, async (batch, batchIndex, cancellationToken) =>
+        {
+            var req = new UpsertTrustYieldOperationsBulkRemoteRequest(
+                PortfolioId: portfolioId,
+                ClosingDateUtc: closingDateUtc,
                 OperationTypeId: yieldOperationTypeId,
-                YieldAmount: trustYield.YieldAmount,
-                YieldRetention: trustYield.YieldRetention,
-                ProcessDate: trustYield.ProcessDate,
-                ClosingBalance: trustYield.ClosingBalance
+                TrustYieldOperations: batch,
+                IdempotencyKey: $"{idempotencyKeyBase}-ops-b{batchIndex}"
             );
 
-            var opRes = await operationsRemote.UpsertYieldOperationAsync(opReq, ct);
-            if (opRes.IsFailure)
+            var res = await operationsRemote.UpsertYieldOperationsBulkAsync(req, cancellationToken);
+            if (res.IsFailure)
             {
-                var msg = $"OPS_FAIL TrustId:{trustYield.TrustId} Code:{opRes.Error.Code} Msg:{opRes.Error.Description}";
-                warnings.Add(msg);
-                logger.LogWarning("{Class} - {Msg}", nameof(TrustYieldProcessor), msg);
-                return; // no intentamos Trusts si falla Operations
-            }
-
-            Interlocked.Increment(ref operationsOk);
-
-            // 2) Trusts: aplicar rendimiento al saldo
-            var trReq = new UpdateTrustFromYieldRemoteRequest(
-                PortfolioId: trustYield.PortfolioId,
-                ClosingDate: trustYield.ClosingDate,
-                TrustId: trustYield.TrustId,
-                YieldAmount: trustYield.YieldAmount,
-                YieldRetention: trustYield.YieldRetention,
-                ClosingBalance: trustYield.ClosingBalance
-            );
-
-            var trRes = await trustsRemote.UpdateFromYieldAsync(trReq, ct);
-            if (trRes.IsFailure)
-            {
-                var msg = $"TRUST_FAIL TrustId:{trustYield.TrustId} Code:{trRes.Error.Code} Msg:{trRes.Error.Description}";
-                warnings.Add(msg);
-                logger.LogWarning("{Class} - {Msg}", nameof(TrustYieldProcessor), msg);
+                logger.LogWarning("{Class} - OPS_BULK_FAIL Lote:{Batch} {Code} {Msg}",
+                    nameof(TrustYieldProcessor), batchIndex, res.Error.Code, res.Error.Description);
                 return;
             }
 
-            Interlocked.Increment(ref trustsOk);
-        });
+            var val = res.Value;
+            Interlocked.Add(ref totalOpsInserted, val.Inserted);
+            Interlocked.Add(ref totalOpsUpdated, val.Updated);
 
-        if (!warnings.IsEmpty)
+            if (val.ChangedTrustIds is { Count: > 0 })
+            {
+                foreach (var id in val.ChangedTrustIds)
+                    changedTrusts.TryAdd(id, 0);
+            }
+
+            logger.LogInformation("{Class} - Operations OK Lote:{Batch}. Inserted:{Inserted} Updated:{Updated} ChangedTrusts:{Changed}",
+                nameof(TrustYieldProcessor), batchIndex, val.Inserted, val.Updated, val.ChangedTrustIds?.Count ?? 0);
+        }, cancellationToken);
+
+        logger.LogInformation("{Class} - Operations COMPLETADO. Total Inserted:{Inserted} Total Updated:{Updated} Total ChangedTrusts:{Changed}",
+            nameof(TrustYieldProcessor), totalOpsInserted, totalOpsUpdated, changedTrusts.Count);
+
+        // 4) Trusts BULK (sólo los que cambiaron)
+        if (changedTrusts.IsEmpty)
         {
-            logger.LogWarning("{Class} - Best-effort con advertencias. Total:{Total}, OpsOK:{OpsOk}, TrustOK:{TrustOk}, Skipped:{Skipped}, Warnings:{WarnCount}. Detalles: {Details}",
-                nameof(TrustYieldProcessor),
-                trustYields.Count, operationsOk, trustsOk, skipped, warnings.Count, string.Join(" | ", warnings));
+            logger.LogInformation("{Class} - No hubo cambios en Operations; no se invoca Trusts.", nameof(TrustYieldProcessor));
+            return;
         }
-        else
+
+        var trustItemsAll = candidates
+            .Where(t => changedTrusts.ContainsKey(t.TrustId))
+            .Select(t => new UpdateTrustFromYieldItem(
+                TrustId: t.TrustId,
+                YieldAmount: t.YieldAmount,
+                YieldRetention: t.YieldRetention,
+                ClosingBalance: t.ClosingBalance
+            ))
+            .ToArray();
+
+        if (trustItemsAll.Length == 0)
         {
-            logger.LogInformation("{Class} - Fin OK. Total:{Total}, OpsOK:{OpsOk}, TrustOK:{TrustOk}, Skipped:{Skipped}",
-                nameof(TrustYieldProcessor),
-                trustYields.Count, operationsOk, trustsOk, skipped);
+            logger.LogInformation("{Class} - No hay fideicomisos para actualizar luego del filtro de cambios en Operations.",
+                nameof(TrustYieldProcessor));
+            return;
         }
+
+        var trChunks = ChunkWithIndex(trustItemsAll, chunkSize);
+        int totalUpdated = 0, totalMissing = 0, totalMismatch = 0;
+
+        await ForEachAsyncBounded(trChunks, maxConcurrency, async (batch, batchIndex, cancellationToken) =>
+        {
+            var req = new UpdateTrustFromYieldBulkRemoteRequest(
+                PortfolioId: portfolioId,
+                ClosingDate: closingDateUtc,
+                BatchIndex: batchIndex,
+                TrustsToUpdate: batch, 
+                IdempotencyKey: $"{idempotencyKeyBase}-tr-b{batchIndex}"
+            );
+
+            var res = await trustsRemote.UpdateFromYieldAsync(req, cancellationToken);
+            if (res.IsFailure)
+            {
+                logger.LogWarning("{Class} - TRUST_BULK_FAIL Lote:{Batch} {Code} {Msg}",
+                    nameof(TrustYieldProcessor), batchIndex, res.Error.Code, res.Error.Description);
+                return;
+            }
+
+            var v = res.Value;
+            Interlocked.Add(ref totalUpdated, v.Updated);
+            Interlocked.Add(ref totalMissing, v.MissingTrustIds?.Count ?? 0);
+            Interlocked.Add(ref totalMismatch, v.ValidationMismatchTrustIds?.Count ?? 0);
+
+            logger.LogInformation("{Class} - Trusts OK Lote:{Batch}. Actualizados:{Updated} Perdidos:{Missing} No coinciden:{Mismatch}",
+                nameof(TrustYieldProcessor),
+                v.BatchIndex, v.Updated, v.MissingTrustIds?.Count ?? 0, v.ValidationMismatchTrustIds?.Count ?? 0);
+        }, cancellationToken);
+
+        logger.LogInformation("{Class} - Trusts COMPLETADO. Total Actualizados:{Updated} Perdidos:{Missing} No coinciden:{Mismatch}",
+            nameof(TrustYieldProcessor), totalUpdated, totalMissing, totalMismatch);
+    }
+
+    // Helpers
+
+    private static (T[] Batch, int Index)[] ChunkWithIndex<T>(T[] source, int chunkSize)
+    {
+        if (source.Length == 0) return Array.Empty<(T[] Batch, int Index)>();
+        var chunks = new List<(T[] Batch, int Index)>(Math.Max(1, (source.Length + chunkSize - 1) / chunkSize));
+        var index = 0;
+        for (int i = 0; i < source.Length; i += chunkSize, index++)
+        {
+            var count = Math.Min(chunkSize, source.Length - i);
+            var slice = new T[count];
+            Array.Copy(source, i, slice, 0, count);
+            chunks.Add((slice, index));
+        }
+        return chunks.ToArray();
+    }
+
+    private static async Task ForEachAsyncBounded<T>(
+        (T[] Batch, int Index)[] items,
+        int maxConcurrency,
+        Func<T[], int, CancellationToken, Task> handler,
+        CancellationToken cancellationToken)
+    {
+        using var gate = new SemaphoreSlim(maxConcurrency, maxConcurrency);
+        var tasks = new List<Task>(items.Length);
+
+        foreach (var (batch, index) in items)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await gate.WaitAsync(cancellationToken);
+            tasks.Add(Task.Run(async () =>
+            {
+                try { await handler(batch, index, cancellationToken); }
+                finally { gate.Release(); }
+            }, cancellationToken));
+        }
+
+        await Task.WhenAll(tasks);
     }
 }

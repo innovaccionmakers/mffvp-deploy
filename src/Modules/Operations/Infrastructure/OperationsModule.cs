@@ -169,9 +169,11 @@ public class OperationsModule: IModuleConfiguration
 
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
 
-        services.AddTransient<IRpcHandler<CreateTrustYieldOperationRequest,CreateTrustYieldOperationResponse>, CreateTrustYieldOperationConsumer>();
+        services.AddTransient<IRpcHandler<CreateTrustYieldOpFromClosingRequest,CreateTrustYieldOpFromClosingResponse>, CreateTrustYieldOpFromClosingConsumer>();
 
         services.AddTransient<IRpcHandler<ProcessPendingTransactionsRequest, ProcessPendingTransactionsResponse>, PendingContributionProcessor>();
+
+        services.AddScoped<ITrustOperationBulkRepository, TrustOperationBulkRepository>();
 
     }
 

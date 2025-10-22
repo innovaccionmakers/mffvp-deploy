@@ -4,6 +4,7 @@ using Trusts.Domain.Trusts;
 using Trusts.Domain.Trusts.Balances;
 using Trusts.Domain.Trusts.TrustYield;
 using Trusts.Infrastructure.Database;
+using EFCore.BulkExtensions;
 
 namespace Trusts.Infrastructure.Trusts;
 
@@ -94,9 +95,9 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
 
         return await context.Trusts
             .Where(t => t.TrustId == trustId)
-            .Where(t => t.TotalBalance + yieldAmount == closingBalance)
-            .Where(t => t.Principal + t.Earnings + yieldAmount == closingBalance)
-            .TagWith("Actualizacion Saldos y Rendimientos de Fideicomiso desde Cierre")
+            //.Where(t => t.TotalBalance + yieldAmount == closingBalance)
+            //.Where(t => t.Principal + t.Earnings + yieldAmount == closingBalance)
+            .TagWith("TrustRepository_TryApplyYieldToBalance")
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(t => t.TotalBalance, t => t.TotalBalance + yieldAmount)
                 .SetProperty(t => t.Earnings, t => t.Earnings + yieldAmount)
@@ -107,32 +108,4 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
                          - t.ContingentWithholding),
                 cancellationToken);
     }
-
-    public async Task<TrustYieldUpdateDiagnostics?> GetYieldUpdateDiagnosticsAsync(
-      long trustId,
-      decimal yieldAmount,
-      decimal closingBalance,
-      CancellationToken cancellationToken = default)
-    {
-        var data = await context.Trusts
-            .AsNoTracking()
-            .Where(t => t.TrustId == trustId)
-            .Select(t => new
-            {
-                NewTotal = Math.Round(t.TotalBalance, 2) + Math.Round(yieldAmount, 2),
-                ExpectedCapPlusYield = t.Principal + yieldAmount
-            })
-            .SingleOrDefaultAsync(cancellationToken);
-
-        if (data is null) return null;
-
-        return new TrustYieldUpdateDiagnostics(
-            data.NewTotal == Math.Round(closingBalance, 2),
-            data.NewTotal == data.ExpectedCapPlusYield,
-            data.NewTotal,
-            data.ExpectedCapPlusYield
-        );
-    }
-
-
 }
