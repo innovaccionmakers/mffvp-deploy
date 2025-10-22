@@ -100,20 +100,14 @@ internal sealed class AccountingRecordsValCommandHandler(
         var causeScope = HomologScope.Of<AccountingRecordsValCommand>(c => c.CauseId);
         var causeHomologationCode = command.CauseId.ToString(CultureInfo.InvariantCulture);
 
-        var causeTask = configurationParameterRepository
+        var causeConfigurationParameter = await configurationParameterRepository
             .GetByCodeAndScopeAsync(causeHomologationCode, causeScope, cancellationToken);
 
-        var operationTask = clientOperationRepository
+        var operation = await clientOperationRepository
             .GetAsync(command.ClientOperationId, cancellationToken);
 
-        var debitNoteTypeTask = operationTypeRepository
+        var debitNoteType = await operationTypeRepository
             .GetByNameAsync(DebitNoteOperationName, cancellationToken);
-
-        await Task.WhenAll(causeTask, operationTask, debitNoteTypeTask);
-
-        var causeConfigurationParameter = await causeTask;
-        var operation = await operationTask;
-        var debitNoteType = await debitNoteTypeTask;
 
         var (operationTypeExists, contributionTypeExists, operationIsContribution) =
             await EvaluateContributionOperationAsync(operation, cancellationToken);
