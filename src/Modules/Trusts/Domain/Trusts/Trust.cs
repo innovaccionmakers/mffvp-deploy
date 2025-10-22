@@ -77,12 +77,17 @@ public sealed class Trust : Entity
         Status = newStatus;
     }
 
-    public void AnnulByDebitNote(DateTime updateDate)
+    public void UpdateState(
+        decimal totalBalance,
+        decimal principal,
+        decimal contingentWithholding,
+        LifecycleStatus status,
+        DateTime updateDate)
     {
-        TotalBalance = 0m;
-        Principal = 0m;
-        ContingentWithholding = 0m;
-        Status = LifecycleStatus.AnnulledByDebitNote;
+        TotalBalance = totalBalance;
+        Principal = principal;
+        ContingentWithholding = contingentWithholding;
+        Status = status;
         UpdateDate = updateDate;
     }
 }

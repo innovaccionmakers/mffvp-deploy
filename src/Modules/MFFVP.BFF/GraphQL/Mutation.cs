@@ -49,6 +49,16 @@ public class Mutation
         return await operationsMutations.RegisterDebitNoteAsync(debitNote, validator, cancellationToken);
     }
 
+    [GraphQLName("registrarAnulaciones")]
+    [Authorize(Policy = MakersPermissionsOperations.PolicyExecuteIndividualOperations)]
+    public async Task<GraphqlResult<VoidedTransactionsMutationResult>> RegisterVoids([GraphQLName("anulacion")] CreateVoidsInput input,
+                                                                        IValidator<CreateVoidsInput> validator,
+                                                                       [Service] IOperationsExperienceMutation operationsMutations,
+                                                                       CancellationToken cancellationToken)
+    {
+        return await operationsMutations.RegisterVoidsAsync(input, validator, cancellationToken);
+    }
+
     //Associate mutations
     [GraphQLName("crearActivacion")]
     [Authorize(Policy = MakersPermissionsAffiliates.PolicyActivateAffiliateManagement)]
