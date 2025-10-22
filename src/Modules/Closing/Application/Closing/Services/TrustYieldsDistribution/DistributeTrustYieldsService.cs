@@ -1,4 +1,5 @@
-﻿using Closing.Application.Closing.Services.TimeControl.Interrfaces;
+﻿
+using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
@@ -13,8 +14,10 @@ using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
 namespace Closing.Application.Closing.Services.TrustYieldsDistribution;
+
 public class DistributeTrustYieldsService(
     ITrustYieldRepository trustYieldRepository,
+    ITrustYieldBulkRepository trustYieldBulkRepository, 
     IYieldRepository yieldRepository,
     IPortfolioValuationRepository portfolioValuationRepository,
     ITimeControlService timeControlService,
@@ -22,7 +25,7 @@ public class DistributeTrustYieldsService(
     ILogger<DistributeTrustYieldsService> logger)
     : IDistributeTrustYieldsService
 {
-    public async Task<Result> RunAsync(int portfolioId, DateTime closingDate, CancellationToken ct)
+    public async Task<Result> RunAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
         using var _ = logger.BeginScope(new Dictionary<string, object>
         {
@@ -32,153 +35,129 @@ public class DistributeTrustYieldsService(
         });
         const string svc = "[DistributeTrustYieldsService]";
 
-        logger.LogInformation("{Svc} Iniciando distribución de rendimientos para portafolio {PortfolioId}", svc, portfolioId);
+        static DateTime ToUtcMidnight(DateTime dt)
+            => (dt.Kind == DateTimeKind.Utc ? dt.Date : DateTime.SpecifyKind(dt.Date, DateTimeKind.Utc));
+        var nowUtc = DateTime.UtcNow;
+        var closingDateUtc = ToUtcMidnight(closingDate);
 
-        var now = DateTime.UtcNow;
+        // Paso de control de tiempo
+        await timeControlService.UpdateStepAsync(portfolioId, "ClosingAllocation", nowUtc, cancellationToken);
 
-        // ⬅️ Se actualiza el paso de cierre - camino feliz
-        await timeControlService.UpdateStepAsync(portfolioId, "ClosingAllocation", now, ct);
-
-        var yield = await yieldRepository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, ct);
+        // Rendmientos a distribuir
+        var yield = await yieldRepository.GetReadOnlyToDistributeByPortfolioAndDateAsync(portfolioId, closingDateUtc, cancellationToken);
         if (yield is null)
-        {
             return Result.Failure(new Error("001", "No se encontró información de rendimientos para la fecha de cierre.", ErrorType.Failure));
-        }
 
-        var portfolioValuation = await portfolioValuationRepository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, ct);
+        var portfolioValuation = await portfolioValuationRepository.GetReadOnlyToDistributePortfolioAndDateAsync(portfolioId, closingDateUtc, cancellationToken);
         if (portfolioValuation is null)
-        {
             return Result.Failure(new Error("002", "No existe valoración del portafolio para la fecha indicada.", ErrorType.Failure));
-        }
 
-        var trustYields = await trustYieldRepository.GetForUpdateByPortfolioAndDateAsync(portfolioId, closingDate, ct);
-        if (!trustYields.Any())
-        {
+        var trustReadOnly = await trustYieldRepository.GetCalcInputsByPortfolioAndDateAsync(portfolioId, closingDateUtc, cancellationToken);
+        if (trustReadOnly.Count == 0)
             return Result.Failure(new Error("003", "No existen registros en rendimientos_fideicomisos para esta fecha. Debe reprocesarse la réplica de datos.", ErrorType.Failure));
-        }
-        logger.LogInformation("{Svc} Se encontraron {Count} registros de rendimientos_fideicomisos para distribuir", svc, trustYields.Count);
 
-        var param = await configurationParameterRepository
-             .GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldRetentionPercentage, ct);
+        logger.LogInformation("{Svc} Se encontraron {Count} registros de rendimientos_fideicomisos para distribuir", svc, trustReadOnly.Count);
 
+        // Parámetro de retención
+        var param = await configurationParameterRepository.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldRetentionPercentage, cancellationToken);
         if (param is null)
-        {
             return Result.Failure(new Error("004", "No se encuentra configurado el parametro de retención de rendimientos.", ErrorType.Failure));
-        }
 
-        var yieldRetentionRate = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "valor", true);
+        var yieldRetentionRate = JsonDecimalHelper.ExtractDecimal(param.Metadata, "valor", true);
         if (yieldRetentionRate <= 0)
-        {
             return Result.Failure(new Error("005", "El parametro de retención de rendimientos no es un valor mayor a 0", ErrorType.Failure));
+
+        // Datos del día previo
+        var previousDateUtc = ToUtcMidnight(closingDateUtc.AddDays(-1));
+        var prevPortfolioValuation = await portfolioValuationRepository.GetReadOnlyToDistributePortfolioAndDateAsync(portfolioId, previousDateUtc, cancellationToken);
+        if (prevPortfolioValuation is null)
+            logger.LogWarning("{Svc} No se encontró valuación previa del portafolio para la fecha {PreviousClosingDate}", svc, previousDateUtc);
+
+        // Precálculos
+        var yToCredit = MoneyHelper.Round2(yield.YieldToCredit);
+        var yIncome = MoneyHelper.Round2(yield.Income);
+        var yExpenses = MoneyHelper.Round2(yield.Expenses);
+        var yFees = MoneyHelper.Round2(yield.Commissions);
+        var yCosts = MoneyHelper.Round2(yield.Costs);
+
+        var hasPrevPV = prevPortfolioValuation is { Amount: > 0m };
+        var hasUnit = portfolioValuation.UnitValue > 0m;
+        var invUnit = hasUnit ? (1m / portfolioValuation.UnitValue) : 0m;
+
+        var rows = new List<TrustYieldUpdateRow>(capacity: Math.Min(trustReadOnly.Count, 4096));
+        var po = new ParallelOptions { MaxDegreeOfParallelism = 8, CancellationToken = cancellationToken };
+
+        Parallel.ForEach(
+            source: trustReadOnly,
+            parallelOptions: po,
+            localInit: () => new List<TrustYieldUpdateRow>(512),
+            body: (trust, state, local) =>
+            {
+                // Participación basada en saldo_pre_cierre / monto portafolio previo
+                decimal participation = 0m;
+                if (hasPrevPV && trust.PreClosingBalance > 0m)
+                    participation = TrustMath.CalculateTrustParticipation(trust.PreClosingBalance, prevPortfolioValuation!.Amount, DecimalPrecision.SixteenDecimals);
+
+                // Prorrateos
+                var yieldAmount16 = TrustMath.ApplyParticipation(yToCredit, participation, DecimalPrecision.SixteenDecimals);
+                var income16 = TrustMath.ApplyParticipation(yIncome, participation, DecimalPrecision.SixteenDecimals);
+                var expenses16 = TrustMath.ApplyParticipation(yExpenses, participation, DecimalPrecision.SixteenDecimals);
+                var commissions16 = TrustMath.ApplyParticipation(yFees, participation, DecimalPrecision.SixteenDecimals);
+                var cost16 = TrustMath.ApplyParticipation(yCosts, participation, DecimalPrecision.SixteenDecimals);
+
+                var yieldAmtR2 = MoneyHelper.Round2(yieldAmount16);
+                var incomeR2 = MoneyHelper.Round2(income16);
+                var expensesR2 = MoneyHelper.Round2(expenses16);
+                var commissionsR2 = MoneyHelper.Round2(commissions16);
+                var costR2 = MoneyHelper.Round2(cost16);
+
+                var pre = MoneyHelper.Round2(trust.PreClosingBalance);
+                var closingBalance = MoneyHelper.Round2(pre + yieldAmtR2);
+
+                decimal units;
+                var balanceChanged = pre != closingBalance;
+                if (!balanceChanged)
+                    units = Math.Round(trust.Units, DecimalPrecision.SixteenDecimals);
+                else
+                    units = hasUnit ? Math.Round((trust.PreClosingBalance + yieldAmount16) * invUnit, DecimalPrecision.SixteenDecimals) : 0m;
+
+                var yieldRetentionR2 = (yToCredit > 0m && yieldAmtR2 > 0m)
+                    ? MoneyHelper.Round2(TrustMath.CalculateYieldRetention(yieldAmtR2, yieldRetentionRate, DecimalPrecision.TwoDecimals))
+                    : 0m;
+
+                    local.Add(new TrustYieldUpdateRow(
+                        TrustId: trust.TrustId,
+                        PortfolioId: trust.PortfolioId,
+                        ClosingDateUtc: closingDateUtc,
+                        Participation: Math.Round(participation, DecimalPrecision.SixteenDecimals),
+                        Units: units,
+                        YieldAmount: yieldAmtR2,
+                        Income: incomeR2,
+                        Expenses: expensesR2,
+                        Commissions: commissionsR2,
+                        Cost: costR2,
+                        ClosingBalance: closingBalance,
+                        YieldRetention: yieldRetentionR2,
+                        ProcessDateUtc: nowUtc
+                    ));
+
+                return local;
+            },
+            localFinally: local =>
+            {
+                if (local.Count == 0) return;
+                lock (rows) rows.AddRange(local); 
+            }
+        );
+
+        if (rows.Count == 0)
+        {
+            logger.LogInformation("{Svc} No hay cambios para aplicar (delta=0).", svc);
+            return Result.Success();
         }
 
-        var previousClosingDate = closingDate.AddDays(-1);
-        var previousPortfolioValuation = await portfolioValuationRepository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, previousClosingDate, ct);
+        await trustYieldBulkRepository.BulkUpdateAsync(rows, cancellationToken);
 
-        if (previousPortfolioValuation is null)
-        {
-            logger.LogError("{Svc} No se encontró valuación previa del portafolio para la fecha {PreviousClosingDate}", svc, previousClosingDate);
-        }
-
-        var previousTrustYields = await trustYieldRepository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, previousClosingDate, ct);
-        var previousTrustYieldByTrustId = new Dictionary<long, TrustYield>();
-
-        foreach (var previousTrustYield in previousTrustYields)
-        {
-            previousTrustYieldByTrustId[previousTrustYield.TrustId] = previousTrustYield;
-        }
-
-        logger.LogInformation("{Svc} Rendimientos previos precargados para {Count} fideicomisos correspondientes al {PreviousClosingDate}",
-            svc,
-            previousTrustYieldByTrustId.Count,
-            previousClosingDate);
-
-        // ⬇️ OPTIMIZACIÓN: Cargar datos previos en batch (reduce de ~30,000 queries a solo 2)
-        logger.LogInformation("{Svc} Cargando datos previos en batch para optimizar performance...", svc);
-        var previousDate = closingDate.AddDays(-1);
-
-        // Obtener prevPortfolioValuation una sola vez
-        var prevPortfolioValuation = await portfolioValuationRepository.GetReadOnlyByPortfolioAndDateAsync(portfolioId, previousDate, ct);
-
-        // Obtener todos los prevTrustYields en una sola query (batch)
-        var trustIds = trustYields.Select(t => t.TrustId).ToList();
-        var prevTrustYieldsDict = await trustYieldRepository.GetReadOnlyByTrustIdsAndDateAsync(trustIds, previousDate, ct);
-
-        logger.LogInformation("{Svc} Datos previos cargados: PrevPortfolioValuationExists={PrevPV}, PrevTrustYieldsCount={PrevTYCount}",
-            svc, prevPortfolioValuation is not null, prevTrustYieldsDict.Count);
-
-        // ⬇️ OPTIMIZACIÓN: Procesamiento paralelo con grado de paralelismo controlado
-        var parallelOptions = new ParallelOptions
-        {
-            MaxDegreeOfParallelism = 8, // Límite para no saturar recursos
-            CancellationToken = ct
-        };
-
-        logger.LogInformation("{Svc} Iniciando procesamiento paralelo de {Count} trusts con MaxDegreeOfParallelism={MaxDegree}...",
-            svc, trustYields.Count, parallelOptions.MaxDegreeOfParallelism);
-
-        await Parallel.ForEachAsync(trustYields, parallelOptions, async (trust, token) =>
-        {
-
-            var participation = 0m;
-            prevTrustYieldsDict.TryGetValue(trust.TrustId, out var prevTrustYield);;
-
-            if (prevTrustYield is not null && prevPortfolioValuation is not null)
-            {
-                participation = TrustMath.CalculateTrustParticipation(prevTrustYield.ClosingBalance, prevPortfolioValuation.Amount, DecimalPrecision.SixteenDecimals);
-            }
-
-
-            var yieldAmount = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.YieldToCredit), participation, DecimalPrecision.SixteenDecimals);
-            var income = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.Income), participation, DecimalPrecision.SixteenDecimals);
-            var expenses = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.Expenses), participation, DecimalPrecision.SixteenDecimals);
-            var commissions = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.Commissions), participation, DecimalPrecision.SixteenDecimals);
-            var cost = TrustMath.ApplyParticipation(MoneyHelper.Round2(yield.Costs), participation, DecimalPrecision.SixteenDecimals);
-            var closingBalance = MoneyHelper.Round2(trust.PreClosingBalance) + MoneyHelper.Round2(yieldAmount);
-
-            decimal units = 0m;
-
-            var balanceChanged = MoneyHelper.Round2(trust.PreClosingBalance) != MoneyHelper.Round2(closingBalance);
-
-            if (!balanceChanged && prevTrustYield is not null)
-            {
-                units = Math.Round(prevTrustYield.Units, DecimalPrecision.SixteenDecimals);
-            }
-            else
-            {
-                units = Math.Round((trust.PreClosingBalance + yieldAmount)
-                                   / portfolioValuation.UnitValue, DecimalPrecision.SixteenDecimals);
-            }
-
-            var yieldRetention = 0m;
-            if ((yield.YieldToCredit > 0))
-            {
-                yieldRetention = TrustMath.CalculateYieldRetention(MoneyHelper.Round2(yieldAmount), yieldRetentionRate, DecimalPrecision.TwoDecimals);
-            }
-
-            trust.UpdateDetails(
-                trust.TrustId,
-                trust.PortfolioId,
-                trust.ClosingDate,
-                participation,
-                units,
-                yieldAmount,
-                trust.PreClosingBalance,
-                closingBalance,
-                income,
-                expenses,
-                commissions,
-                cost,
-                trust.Capital,
-                now,
-                trust.ContingentRetention,
-                yieldRetention
-            );
-
-            await Task.CompletedTask;
-        });
-
-        await trustYieldRepository.SaveChangesAsync(ct);
         return Result.Success();
     }
 }

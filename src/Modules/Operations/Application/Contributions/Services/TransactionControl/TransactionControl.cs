@@ -122,10 +122,8 @@ public sealed class TransactionControl(
 
         auxiliaryInformationRepository.Insert(info);
 
-        logger.LogInformation("{Class} - Informacion auxiliar creada e insertada: {@Aux}", ClassName, info.ClientOperationId);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("{Class} - Cambios guardados despues de insertar informaci�n auxiliar: {@Aux}", ClassName, info.ClientOperationId);
        
     }
 } 

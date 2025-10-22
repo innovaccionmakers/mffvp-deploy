@@ -85,5 +85,10 @@ internal sealed class TrustYieldConfiguration : IEntityTypeConfiguration<TrustYi
                 .HasColumnName("retencion_rendimiento")
                 .HasColumnType("decimal(19, 2)")
                 .HasPrecision(19, 2);
+
+        // Constraint que usa el bulk (como CONSTRAINT, no sólo índice)
+        // La librería BulkExtensions de EF Core requiere que la clave alterna esté definida como CONSTRAINT (no lo reconoce como index) en la base de datos.
+        builder.HasAlternateKey(x => new { x.PortfolioId, x.TrustId, x.ClosingDate })
+               .HasName("ux_rendimientos_fideicomisos_portafolio_fideicomiso_fecha");
     }
 }

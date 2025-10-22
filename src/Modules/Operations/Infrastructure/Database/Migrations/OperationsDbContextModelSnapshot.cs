@@ -612,6 +612,9 @@ namespace Operations.Infrastructure.Database.Migrations
 
                     b.HasKey("TrustOperationId");
 
+                    b.HasAlternateKey("PortfolioId", "TrustId", "ProcessDate", "OperationTypeId")
+                        .HasName("ux_operaciones_fideicomiso_portafolio_fideicomiso_fecha_tipo");
+
                     b.HasIndex("ClientOperationId");
 
                     b.ToTable("operaciones_fideicomiso", "operaciones");

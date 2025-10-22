@@ -313,6 +313,9 @@ namespace Closing.Infrastructure.Database.Migrations
 
                     b.HasKey("TrustYieldId");
 
+                    b.HasAlternateKey("PortfolioId", "TrustId", "ClosingDate")
+                        .HasName("ux_rendimientos_fideicomisos_portafolio_fideicomiso_fecha");
+
                     b.ToTable("rendimientos_fideicomisos", "cierre");
                 });
 

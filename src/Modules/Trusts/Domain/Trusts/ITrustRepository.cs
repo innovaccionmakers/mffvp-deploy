@@ -1,4 +1,4 @@
-using Trusts.Domain.Trusts.TrustYield;
+
 
 namespace Trusts.Domain.Trusts;
 
@@ -20,11 +20,4 @@ public interface ITrustRepository
      decimal yieldRetention,
      decimal closingBalance,
      CancellationToken cancellationToken = default);
-
-
-    Task<TrustYieldUpdateDiagnostics?> GetYieldUpdateDiagnosticsAsync(
-       long trustId,
-       decimal yieldAmount,
-       decimal closingBalance,
-       CancellationToken cancellationToken = default);
 }
