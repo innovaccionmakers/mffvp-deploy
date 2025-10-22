@@ -7,6 +7,7 @@ using Common.SharedKernel.Domain.NotificationsCenter;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace Common.SharedKernel.Infrastructure.NotificationsCenter;
@@ -32,7 +33,9 @@ public class NotificationCenter(
             {
                 QueueUrl = sqsConfig.Value.QueueUrl,
                 MessageBody = message,
-                MessageAttributes = BuildMessageAttributes(origin, user)
+                MessageAttributes = BuildMessageAttributes(origin, user),
+                MessageGroupId = NotificationConstants.MessageGroupId,
+                MessageDeduplicationId = Guid.NewGuid().ToString()
             };
 
             var response = await sqsClient.SendMessageAsync(request, cancellationToken);
@@ -73,7 +76,9 @@ public class NotificationCenter(
             {
                 QueueUrl = sqsConfig.Value.QueueUrl,
                 MessageBody = message,
-                MessageAttributes = messageAttributes
+                MessageAttributes = messageAttributes,
+                MessageGroupId = NotificationConstants.MessageGroupId,
+                MessageDeduplicationId = Guid.NewGuid().ToString()
             };
 
             var response = await sqsClient.SendMessageAsync(request, cancellationToken);
@@ -109,7 +114,9 @@ public class NotificationCenter(
             {
                 QueueUrl = sqsConfig.Value.QueueUrl,
                 MessageBody = jsonMessage,
-                MessageAttributes = BuildMessageAttributes(origin, user)
+                MessageAttributes = BuildMessageAttributes(origin, user),
+                MessageGroupId = NotificationConstants.MessageGroupId,
+                MessageDeduplicationId = Guid.NewGuid().ToString()
             };
 
             var response = await sqsClient.SendMessageAsync(request, cancellationToken);

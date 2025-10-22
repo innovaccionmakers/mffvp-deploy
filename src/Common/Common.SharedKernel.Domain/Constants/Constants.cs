@@ -12,6 +12,7 @@ public static class NotificationDefaults
 {
     public const string Administrator = "Fiduciaria Bancolombia";
     public const string Origin = "MFFVP";
+    public const string MessageGroupId = "1";
 }
 
 public static class NotificationStatuses
