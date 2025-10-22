@@ -43,10 +43,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
         private static DateTime Utc(int y, int m, int d) =>
             DateTime.SpecifyKind(new DateTime(y, m, d), DateTimeKind.Utc);
 
-        /// <summary>
-        /// Crea un TrustYield vía factory Create(...) y devuelve .Value.
-        /// Ajusta portfolioId y closingDate para alinear con la consulta del SUT.
-        /// </summary>
         private static TrustYield BuildTrustYield(
             long trustId,
             int portfolioId,
@@ -88,7 +84,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
             return result.Value;
         }
 
-        // Helpers para Result<T> de los remotos
         private static Result<T> Ok<T>(T value) => Result.Success(value);
         private static Result<T> Fail<T>(string code, string description) => Result.Failure<T>(Error.Validation(code, description));
 
@@ -154,7 +149,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
 
             var yields = new List<TrustYield>
             {
-                // Filter false: YieldAmount==0 AND Pre==Closing AND Pre!=Capital
                 BuildTrustYield(1, portfolioId, date, 0m, 100m, 100m, capital: 50m),
                 BuildTrustYield(2, portfolioId, date, 0m, 200m, 200m, capital: 0m),
             };
@@ -180,7 +174,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
             var date = Utc(2025, 10, 20);
             var portfolioId = 2;
 
-            // 7 yields, chunk size = 3 => 3 batches: [1..3], [4..6], [7]
             var yields = Enumerable.Range(1, 7)
                 .Select(i => BuildTrustYield(
                     trustId: i,
@@ -196,7 +189,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
                 .Setup(r => r.GetReadOnlyByPortfolioAndDateAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(yields);
 
-            // Colecciones thread-safe para capturar requests
             var opRequests = new ConcurrentBag<UpsertTrustYieldOperationsBulkRemoteRequest>();
             operationsRemote
                 .Setup(r => r.UpsertYieldOperationsBulkAsync(
@@ -205,7 +197,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
                 .Callback<UpsertTrustYieldOperationsBulkRemoteRequest, CancellationToken>((req, _) => opRequests.Add(req))
                 .ReturnsAsync((UpsertTrustYieldOperationsBulkRemoteRequest req, CancellationToken _) =>
                 {
-                    // Respuesta determinista por lote según IdempotencyKey
                     if (req.IdempotencyKey.EndsWith("-ops-b0"))
                         return Result.Success(new UpsertTrustYieldOperationsBulkRemoteResponse(
                             Inserted: 3, Updated: 0, ChangedTrustIds: new List<long> { 1, 2 }));
@@ -214,7 +205,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
                         return Result.Success(new UpsertTrustYieldOperationsBulkRemoteResponse(
                             Inserted: 1, Updated: 2, ChangedTrustIds: new List<long> { 5 }));
 
-                    // Lote final "-ops-b2"
                     return Result.Success(new UpsertTrustYieldOperationsBulkRemoteResponse(
                         Inserted: 1, Updated: 0, ChangedTrustIds: new List<long>()));
                 });
@@ -236,7 +226,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
 
             await sut.ProcessAsync(portfolioId, date, CancellationToken.None);
 
-            // ASSERTS (no dependen del orden de llegada)
             operationsRemote.Verify(r => r.UpsertYieldOperationsBulkAsync(
                 It.IsAny<UpsertTrustYieldOperationsBulkRemoteRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
 
@@ -253,7 +242,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
 
             ops.Should().OnlyContain(r => r.OperationTypeId == 77);
 
-            // Trusts: solo {1,2,5} en un lote (chunk=3)
             trustsRemote.Verify(r => r.UpdateFromYieldAsync(
                 It.IsAny<UpdateTrustFromYieldBulkRemoteRequest>(), It.IsAny<CancellationToken>()), Times.Once);
 
@@ -303,7 +291,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
             var date = Utc(2025, 10, 20);
             var portfolioId = 2;
 
-            // 8 yields, chunk 3 ⇒ ops: [1..3],[4..6],[7..8]
             var yields = Enumerable.Range(1, 8)
                 .Select(i => BuildTrustYield(i, portfolioId, date, 1m, 100m, 101m, capital: 50m))
                 .ToList();
@@ -318,7 +305,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
                 .Setup(r => r.UpsertYieldOperationsBulkAsync(It.IsAny<UpsertTrustYieldOperationsBulkRemoteRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UpsertTrustYieldOperationsBulkRemoteRequest req, CancellationToken _) =>
                 {
-                    // ChangedTrustIds = intersección entre el batch y el conjunto 'changed'
                     var ids = req.TrustYieldOperations.Select(o => o.TrustId).Where(id => changed.Contains(id)).ToList();
                     return Result.Success(new UpsertTrustYieldOperationsBulkRemoteResponse(
                         Inserted: req.TrustYieldOperations.Count,
@@ -347,7 +333,6 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
             var trs = trustBatches.ToList();
             trs.Should().HaveCount(2);
 
-            // Busca por IdempotencyKey, no por índice
             var tr0 = trs.Single(r => r.IdempotencyKey.EndsWith("-tr-b0"));
             var tr1 = trs.Single(r => r.IdempotencyKey.EndsWith("-tr-b1"));
 

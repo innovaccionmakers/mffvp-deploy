@@ -1,12 +1,13 @@
 ﻿using Closing.Domain.TrustYields;
 using Closing.Infrastructure.Database;
+using Common.SharedKernel.Application.Constants.Closing;
 using EFCore.BulkExtensions;
 
 namespace Closing.Infrastructure.TrustYields;
 
 internal sealed class TrustYieldBulkRepository(ClosingDbContext context) : ITrustYieldBulkRepository
 {
-    private const int BulkBatchSize = 10_000;
+    private const int BulkBatchSize = ClosingBulkProperties.BulkBatchSize;
 
     public async Task BulkUpdateAsync(
       IReadOnlyCollection<TrustYieldUpdateRow> trustYieldRow,
@@ -19,18 +20,11 @@ internal sealed class TrustYieldBulkRepository(ClosingDbContext context) : ITrus
 
         foreach (var row in trustYieldRow)
         {
-            var closingDateUtc = row.ClosingDateUtc.Kind == DateTimeKind.Utc
-                ? row.ClosingDateUtc
-                : DateTime.SpecifyKind(row.ClosingDateUtc, DateTimeKind.Utc);
-
-            var processDateUtc = row.ProcessDateUtc.Kind == DateTimeKind.Utc
-                ? row.ProcessDateUtc
-                : DateTime.SpecifyKind(row.ProcessDateUtc, DateTimeKind.Utc);
 
             var entity = TrustYield.Create(
                 trustId: row.TrustId,
                 portfolioId: row.PortfolioId,
-                closingDate: closingDateUtc,
+                closingDate: row.ClosingDateUtc,
                 participation: row.Participation,
                 units: row.Units,
                 yieldAmount: row.YieldAmount,
@@ -41,7 +35,7 @@ internal sealed class TrustYieldBulkRepository(ClosingDbContext context) : ITrus
                 commissions: row.Commissions,
                 cost: row.Cost,
                 capital: default,                
-                processDate: processDateUtc,
+                processDate: row.ProcessDateUtc,
                 contingentRetention: default,     
                 yieldRetention: row.YieldRetention
             ).Value;

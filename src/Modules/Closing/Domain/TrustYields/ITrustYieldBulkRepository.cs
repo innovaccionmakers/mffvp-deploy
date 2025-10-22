@@ -1,6 +1,4 @@
-﻿
-
-namespace Closing.Domain.TrustYields;
+﻿namespace Closing.Domain.TrustYields;
 
 public interface ITrustYieldBulkRepository
 {

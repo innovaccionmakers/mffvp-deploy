@@ -1,6 +1,4 @@
-﻿
-
-namespace Operations.Integrations.TrustOperations.Commands;
+﻿namespace Operations.Integrations.TrustOperations.Commands;
 
 public sealed record UpsertTrustOpFromClosingResponse(
     int Inserted,

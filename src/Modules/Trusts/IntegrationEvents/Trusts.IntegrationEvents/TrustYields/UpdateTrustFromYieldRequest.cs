@@ -1,5 +1,4 @@
-﻿
-namespace Trusts.IntegrationEvents.TrustYields;
+﻿namespace Trusts.IntegrationEvents.TrustYields;
 
 public sealed record UpdateTrustFromYieldRequest(
     int PortfolioId,

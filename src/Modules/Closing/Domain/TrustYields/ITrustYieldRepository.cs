@@ -13,5 +13,5 @@ public interface ITrustYieldRepository
     Task<IReadOnlyDictionary<long, TrustYield>> GetReadOnlyByTrustIdsAndDateAsync(IEnumerable<long> trustIds, DateTime closingDateUtc, CancellationToken cancellationToken = default);
     Task<decimal> GetDistributedTotalRoundedAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<TrustYieldCalcInput>> GetCalcInputsByPortfolioAndDateAsync( int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TrustYieldCalcInput>> GetCalcInputsByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
 }

@@ -1,19 +1,13 @@
-﻿using Common.SharedKernel.Core.Primitives;
+﻿
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore.Storage; // Para IDbContextTransaction (ajusta si tu IUnitOfWork devuelve otro tipo)
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Trusts.Application.Abstractions.Data;
 using Trusts.Application.Trusts.Commands;
 using Trusts.Domain.Trusts;
 using Trusts.Domain.Trusts.TrustYield;
 using Trusts.Integrations.TrustYields.Commands;
-using Xunit;
 
 namespace Trusts.test.UnitTests.Application.Trusts.Commands
 {
@@ -55,7 +49,7 @@ namespace Trusts.test.UnitTests.Application.Trusts.Commands
             var handler = CreateSut();
             var request = new UpdateTrustFromYieldCommand(
                 BatchIndex: 7,
-                Rows: new List<ApplyYieldRow>() // <- vacío
+                Rows: new List<ApplyYieldRow>()
             );
 
             var result = await handler.Handle(request, CancellationToken.None);
@@ -78,7 +72,6 @@ namespace Trusts.test.UnitTests.Application.Trusts.Commands
             // Arrange
             var handler = CreateSut();
 
-            // Filas con valores que fuerzan redondeo seguro (evitamos .xx5 para no depender del modo de redondeo)
             var inputRows = new List<ApplyYieldRow>
             {
                 new(TrustId: 101, YieldAmount: 10.234m, YieldRetention: 1.236m, ClosingBalance: 200.234m),
@@ -91,14 +84,13 @@ namespace Trusts.test.UnitTests.Application.Trusts.Commands
                 .Setup(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(transactionMock.Object);
 
-            // Captura de los rows normalizados que llegan al repositorio
             IReadOnlyList<ApplyYieldRow>? captured = null;
 
             trustBulkRepository
                 .Setup(r => r.ApplyYieldToBalanceBulkAsync(
-                    It.IsAny<IReadOnlyList<ApplyYieldRow>>(),  // no uses bloque con llaves aquí
+                    It.IsAny<IReadOnlyList<ApplyYieldRow>>(), 
                     It.IsAny<CancellationToken>()))
-                .Callback((IReadOnlyList<ApplyYieldRow> rows, CancellationToken _) => captured = rows) // captura fuera del árbol de expresión
+                .Callback((IReadOnlyList<ApplyYieldRow> rows, CancellationToken _) => captured = rows) 
                 .ReturnsAsync(new ApplyYieldBulkResult(
                     Updated: 2,
                     MissingTrustIds: Array.Empty<long>(),

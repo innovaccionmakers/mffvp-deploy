@@ -2,9 +2,7 @@ using Common.SharedKernel.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 using Trusts.Domain.Trusts;
 using Trusts.Domain.Trusts.Balances;
-using Trusts.Domain.Trusts.TrustYield;
 using Trusts.Infrastructure.Database;
-using EFCore.BulkExtensions;
 
 namespace Trusts.Infrastructure.Trusts;
 

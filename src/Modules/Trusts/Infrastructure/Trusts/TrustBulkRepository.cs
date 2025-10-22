@@ -1,4 +1,5 @@
-﻿using Common.SharedKernel.Application.Helpers.Money;
+﻿using Common.SharedKernel.Application.Constants.Closing;
+using Common.SharedKernel.Application.Helpers.Money;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using Trusts.Domain.Trusts;
@@ -9,7 +10,7 @@ namespace Trusts.Infrastructure.Trusts;
 
 internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkRepository
 {
-    private const int BulkBatchSize = 10_000;
+    private const int BulkBatchSize = ClosingBulkProperties.BulkBatchSize;
     public async Task<ApplyYieldBulkResult> ApplyYieldToBalanceBulkAsync(
         IReadOnlyList<ApplyYieldRow> rows,
         CancellationToken cancellationToken = default)
@@ -41,7 +42,6 @@ internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkR
                  .AsNoTracking()
                  .TagWith("[TrustBulkRepository_ApplyYieldToBalanceBulk_ReadTrusts]");
 
-            var sql = query.ToQueryString(); // para poder revisarlo en logs
 
             var existingTrusts = await query
              .ToListAsync(cancellationToken);

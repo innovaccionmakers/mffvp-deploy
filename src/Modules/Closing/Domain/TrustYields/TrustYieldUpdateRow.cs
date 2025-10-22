@@ -1,5 +1,4 @@
 ﻿namespace Closing.Domain.TrustYields;
-
 public sealed record TrustYieldUpdateRow(
     long TrustId,
     int PortfolioId,

@@ -55,12 +55,12 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
             yieldRepository.Object,
             trustYieldRepository.Object,
             yieldDetailCreationService.Object,
-            yieldDetailBuilderService!, // null-forgiving: en estos tests no se invoca cuando falta metadata
+            yieldDetailBuilderService!, 
             timeControlService.Object,
             configRepo.Object,
             warnings.Object,
-            portfolioValuationRepository.Object,
-            logger);
+            portfolioValuationRepository.Object
+            );
     }
 
     [Fact]
@@ -145,7 +145,6 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var cfg = new Mock<IConfigurationParameterRepository>();
         var map = Map(
             (ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, CreateConfigParamWithNullMetadata())
-        // Income/Expense no incluidos: bastará con fallar antes por metadata null de tolerancia
         );
         cfg.Setup(x => x.GetReadOnlyByUuidsAsync(
                 It.Is<Guid[]>(ids => ids.Contains(ConfigurationParameterUuids.Closing.YieldDifferenceTolerance)
@@ -228,7 +227,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
                       .ReturnsAsync(495m);
 
         var cfg = new Mock<IConfigurationParameterRepository>();
-        // Solo tolerancia = 1; omitimos metadata de concepto para que falle después del warning
+        // Solo tolerancia = 1; se omite metadata de concepto para que falle después del warning
         var map = Map(
             (ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, CreateConfigParam("""{"valor": 1}"""))
         );
@@ -316,7 +315,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
                       .ReturnsAsync(450m);
 
         var cfg = new Mock<IConfigurationParameterRepository>();
-        // Tolerancia chica para forzar warning; omitimos concepto para que falle por metadata faltante
+        // Tolerancia chica para forzar warning; se omite concepto para que falle por metadata faltante
         var map = Map(
             (ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, CreateConfigParam("""{"valor": 0.01}"""))
         );

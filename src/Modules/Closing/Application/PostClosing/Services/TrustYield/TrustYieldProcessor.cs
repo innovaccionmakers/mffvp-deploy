@@ -3,6 +3,7 @@ using Closing.Application.Abstractions.External.Operations.OperationTypes;
 using Closing.Application.Abstractions.External.Operations.TrustOperations;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
 using Closing.Domain.TrustYields;
+using Common.SharedKernel.Application.Constants.Closing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -22,7 +23,7 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
     private readonly TrustYieldOptions options;
     private readonly IOperationTypesLocator operationTypesLocator;
 
-    private const int DefaultChunkSize = 10_000;
+    private const int DefaultChunkSize = ClosingBulkProperties.BulkBatchSize;
     // Concurrencia acotada. Si necesitas variarlo, cambia aquí (sin appsettings).
     private const int DefaultMaxConcurrency = 8;
 

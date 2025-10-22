@@ -24,5 +24,11 @@ internal sealed class TrustOperationConfiguration : IEntityTypeConfiguration<Tru
             .WithMany(co => co.TrustOperations)
             .HasForeignKey(x => x.ClientOperationId)
             .IsRequired(false);
+
+        // ===== Clave alterna para Upsert del bulk =====
+        // UNIQUE(portafolio_id, fideicomiso_id, fecha_proceso, tipo_operaciones_id)
+        // EFCore.BulkExtensions reconocerá esta Alternate Key como "UpdateByProperties"
+        builder.HasAlternateKey(x => new { x.PortfolioId, x.TrustId, x.ProcessDate, x.OperationTypeId })
+               .HasName("ux_operaciones_fideicomiso_portafolio_fideicomiso_fecha_tipo");
     }
 }

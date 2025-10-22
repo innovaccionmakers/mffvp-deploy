@@ -146,7 +146,7 @@ public class DistributeTrustYieldsService(
             localFinally: local =>
             {
                 if (local.Count == 0) return;
-                lock (rows) rows.AddRange(local); // único lock: merge final
+                lock (rows) rows.AddRange(local); 
             }
         );
 
@@ -156,9 +156,7 @@ public class DistributeTrustYieldsService(
             return Result.Success();
         }
 
-        logger.LogInformation("{Svc} Ejecutando BulkUpdate de {Count} filas", svc, rows.Count);
         await trustYieldBulkRepository.BulkUpdateAsync(rows, cancellationToken);
-        logger.LogInformation("{Svc} BulkUpdate completado para portafolio {PortfolioId} y fecha {Date}", svc, portfolioId, closingDateUtc);
 
         return Result.Success();
     }

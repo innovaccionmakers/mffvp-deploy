@@ -1,6 +1,4 @@
-﻿
-using FluentAssertions;
-
+﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore.Storage; 
 using Microsoft.Extensions.Logging;
 using Moq;

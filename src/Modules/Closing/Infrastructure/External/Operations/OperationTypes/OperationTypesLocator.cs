@@ -59,7 +59,7 @@ internal sealed class OperationTypesLocator(IRpcClient rpcClient) : IOperationTy
         if (operationType is null)
         {
             return Result.Failure<OperationTypeInfo>(
-                Error.Failure("OPTYPE_PAYLOAD_NULL", "RPC succeeded but OperationType payload was null."));
+                Error.Failure("OPTYPE_PAYLOAD_NULL", "Llamada exitosa pero el payload de OperationType fue nulo."));
         }
 
         var info = new OperationTypeInfo(

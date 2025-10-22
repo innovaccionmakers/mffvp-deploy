@@ -1,7 +1,7 @@
 ﻿
 namespace Trusts.Domain.Trusts.TrustYield;
 
-// POCO liviano para BulkRead/BulkUpdate de saldos
+// DTO liviano para BulkRead/BulkUpdate de saldos
 public sealed class TrustBalanceUpdateRow
 {
     public long TrustId { get; set; }               

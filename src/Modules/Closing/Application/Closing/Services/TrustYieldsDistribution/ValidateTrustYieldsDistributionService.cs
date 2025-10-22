@@ -17,9 +17,6 @@ using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
-
-
-
 namespace Closing.Application.Closing.Services.TrustYieldsDistribution;
 
 public class ValidateTrustYieldsDistributionService(
@@ -30,8 +27,8 @@ public class ValidateTrustYieldsDistributionService(
     ITimeControlService timeControlService,
     IConfigurationParameterRepository configurationParameterRepository,
     IWarningCollector warnings,
-    IPortfolioValuationRepository portfolioValuationRepository, 
-    ILogger<ValidateTrustYieldsDistributionService> logger)
+    IPortfolioValuationRepository portfolioValuationRepository
+    )
     : IValidateTrustYieldsDistributionService
 {
     public async Task<Result> RunAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
