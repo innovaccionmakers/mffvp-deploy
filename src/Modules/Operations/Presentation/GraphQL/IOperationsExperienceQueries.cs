@@ -1,4 +1,4 @@
-﻿using Operations.Domain.ClientOperations;
+using Operations.Domain.ClientOperations;
 using Operations.Integrations.ClientOperations;
 using Operations.Presentation.DTOs;
 using Products.Domain.PensionFunds;
@@ -37,6 +37,15 @@ public interface IOperationsExperienceQueries
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<ClientOperationsByProcessDateDto>> GetClientOperationsByProcessDateAsync(
-        DateTime processDate, CancellationToken cancellationToken = default);
+        DateTime processDate,
+        CancellationToken cancellationToken = default);
 
+    Task<OperationNdPageDto> GetOperationsNdAsync(
+        DateTime startDate,
+        DateTime endDate,
+        int affiliateId,
+        int objectiveId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }

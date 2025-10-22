@@ -21,4 +21,12 @@ public interface IClientOperationRepository
         long clientOperationId,
         long operationTypeId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<ClientOperation>> GetContributionOperationsInRangeAsync(
+        IReadOnlyCollection<long> contributionOperationTypeIds,
+        int affiliateId,
+        int objectiveId,
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
 }

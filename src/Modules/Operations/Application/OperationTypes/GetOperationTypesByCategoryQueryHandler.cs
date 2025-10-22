@@ -17,7 +17,7 @@ public class GetOperationTypesByCategoryQueryHandler(IOperationTypeRepository re
 
         if (request.categoryId.HasValue)
         {
-            list = await repository.GetCategoryIdAsync(request.categoryId, cancellationToken);
+            list = await repository.GetTypesByCategoryAsync(request.categoryId, cancellationToken);
         }
         else
         {
