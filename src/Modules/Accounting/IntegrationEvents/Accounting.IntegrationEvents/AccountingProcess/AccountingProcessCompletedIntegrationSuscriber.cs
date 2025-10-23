@@ -10,7 +10,8 @@ public sealed class AccountingProcessCompletedIntegrationSuscriber(ISender sende
     [CapSubscribe(nameof(AccountingProcessCompletedIntegrationEvent))]
     public async Task HandleAsync(AccountingProcessCompletedIntegrationEvent message, CancellationToken cancellationToken)
     {
-        await sender.Send(new AccountingValidatorCommand(message.ProcessType,
+        await sender.Send(new AccountingValidatorCommand(message.User,
+                                                         message.ProcessType,
                                                          message.IsSuccess,
                                                          message.ErrorMessage,
                                                          message.ProcessId,

@@ -1,15 +1,16 @@
 ﻿using Asp.Versioning;
-
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Caching.Closing;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Infrastructure.Auth.User;
 using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Caching.Closing;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
 using Common.SharedKernel.Infrastructure.EventBus;
-
+using Common.SharedKernel.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
@@ -127,7 +128,8 @@ public static class InfrastructureConfiguration
         services.AddScoped<IDatabaseConnectionStrategy, YugaByteConnectionStrategy>();
         services.AddScoped<DatabaseConnectionContext>();
         services.AddInMemoryRpc();
-        services.AddScoped<IEventBus, Common.SharedKernel.Infrastructure.EventBus.EventBus>();
+        services.AddScoped<IEventBus, EventBus.EventBus>();
+        services.AddScoped<IUserService, UserService>();
 
         services.AddSingleton<IClosingExecutionSerializer, JsonClosingExecutionSerializer>();
         services.AddScoped<IClosingExecutionStore>(sp =>
@@ -136,6 +138,9 @@ public static class InfrastructureConfiguration
             var serializer = sp.GetRequiredService<IClosingExecutionSerializer>();
             return new DistributedClosingExecutionStore(cache, serializer);
         });
+
+        services.AddNotificationCenter(configuration);
+        services.AddFileStorageService(configuration);
 
         return services;
     }
