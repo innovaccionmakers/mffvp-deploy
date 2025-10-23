@@ -1,4 +1,5 @@
-﻿using Accounting.Domain.Constants;
+﻿using Accounting.Application.Services;
+using Accounting.Domain.Constants;
 using Accounting.IntegrationEvents.AccountingProcess;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingConcepts;
@@ -11,13 +12,10 @@ using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.Constants;
-using Common.SharedKernel.Infrastructure.NotificationsCenter;
 using Consul;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Accounting.Application.AccountProcess;
@@ -26,37 +24,35 @@ internal sealed class AccountProcessHandler(
     ISender sender,
     IClosingExecutionStore closingValidator,
     IServiceProvider serviceProvider,
-    INotificationCenter notificationCenter,
-    IUserService userService,
-    IConfiguration configuration) : ICommandHandler<AccountProcessCommand, string>
+    IAccountingNotificationService accountingNotificationService,
+    IUserService userService) : ICommandHandler<AccountProcessCommand, string>
 {
+    private const string ProcessIdPrefix = "CONTAFVP";
+
     public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
     {
-        var user = userService.GetUserName();
-        var processId = Guid.NewGuid();
-        var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-
-
-        await SendNotificationAsync(
-            user,
-            NotificationStatuses.Initiated,
-            processId.ToString(),
-            new Dictionary<string, string> { { "success", $"Proceso contable {processId} iniciado exitosamente para fecha {processDate:yyyy-MM-dd}" } },
-            cancellationToken
-        );        
-
-        
         var isActive = await closingValidator.IsClosingActiveAsync(cancellationToken);
-        if (isActive)
-            return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
+        //if (isActive)
+            //return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
 
         var deleteCommand = new DeleteAccountingAssistantsCommand();
         var deleteResult = await sender.Send(deleteCommand, cancellationToken);
         if (deleteResult.IsFailure)
             return Result.Failure<string>(deleteResult.Error);
-        
 
-            var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, processDate);
+        var user = userService.GetUserName();
+        var processId = $"{ProcessIdPrefix}{DateTime.UtcNow:yyyyMMddHHmmss}";
+        var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+
+        await accountingNotificationService.SendProcessStatusAsync(
+           user,
+           processId.ToString(),
+           processDate,
+           NotificationStatuses.Initiated,
+           cancellationToken
+       );
+
+        var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, processDate);
             var accountingReturnsCommand = new AccountingReturnsCommand(command.PortfolioIds, processDate);
             var acountingOperationsCommand = new AccountingOperationsCommand(command.PortfolioIds, processDate);
             var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, processDate);
@@ -75,7 +71,7 @@ internal sealed class AccountProcessHandler(
         string user,
         string operationType,
         T command,
-        Guid processId,
+        string processId,
         DateTime processDate,
         IEnumerable<int> portfolioIds,
         CancellationToken cancellationToken) where T : ICommand<bool>
@@ -127,7 +123,7 @@ internal sealed class AccountProcessHandler(
         string processType,
         bool isSuccess,
         string? errorMessage,
-        Guid processId,
+        string processId,
         DateTime processDate,
         IEnumerable<int> portfolioIds,
         IEventBus eventBus,
@@ -145,20 +141,4 @@ internal sealed class AccountProcessHandler(
         await eventBus.PublishAsync(evt, cancellationToken);
     }
 
-    private async Task SendNotificationAsync(string user, string status, string processId, object details, CancellationToken cancellationToken)
-    {
-        var administrator = configuration["NotificationSettings:Administrator"] ?? NotificationDefaults.Administrator;
-
-        var buildMessage = NotificationCenter.BuildMessageBody(
-            processId,
-            processId,
-            administrator,
-            NotificationTypes.AccountingReport,
-            NotificationTypes.Report,
-            status,
-            NotificationTypes.ReportGeneration,
-            details
-        );
-        await notificationCenter.SendNotificationAsync(user, buildMessage, cancellationToken);
-    }
 }

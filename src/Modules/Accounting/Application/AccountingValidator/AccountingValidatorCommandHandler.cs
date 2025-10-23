@@ -1,17 +1,16 @@
 ﻿using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Application.AccountProcess;
+using Accounting.Application.Services;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Integrations.AccountingValidator;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.Constants;
-using Common.SharedKernel.Infrastructure.NotificationsCenter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 
 namespace Accounting.Application.AccountingValidator;
 
@@ -19,51 +18,49 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                                                         IAccountingInconsistencyRepository accountingInconsistencyRepository,
                                                         IFileStorageService fileStorageService,
                                                         IServiceProvider serviceProvider,
-                                                        INotificationCenter notificationCenter,
-                                                        IConfiguration configuration,
+                                                        IAccountingNotificationService accountingNotificationService,
                                                         ILogger<AccountingValidatorCommandHandler> logger) : ICommandHandler<AccountingValidatorCommand, Unit>
 {
     public async Task<Result<Unit>> Handle(AccountingValidatorCommand request, CancellationToken cancellationToken)
     {
-        await processStore.RegisterProcessResultAsync(request.ProcessId, request.ProcessType, request.IsSuccess, request.ErrorMessage, cancellationToken);
-
-        var allProcessesCompleted = await processStore.AllProcessesCompletedAsync(request.ProcessId, cancellationToken);
-
-        if (allProcessesCompleted)
+        try
         {
-            var results = await processStore.GetAllProcessResultsAsync(request.ProcessId, cancellationToken);
+            await processStore.RegisterProcessResultAsync(request.ProcessId, request.ProcessType, request.IsSuccess, request.ErrorMessage, cancellationToken);
 
-            var allSuccessful = results.All(r => r.IsSuccess);
-            var hasErrors = results.Any(r => !r.IsSuccess);
+            var allProcessesCompleted = await processStore.AllProcessesCompletedAsync(request.ProcessId, cancellationToken);
+
+            if (allProcessesCompleted)
+            {
+                var results = await processStore.GetAllProcessResultsAsync(request.ProcessId, cancellationToken);
+
+                var hasErrors = results.Any(r => !r.IsSuccess);
 
 
-            await ExecuteFinalizationLogicAsync(request.User, request.ProcessId, request.ProcessDate, request.PortfolioIds, results, allSuccessful, hasErrors, cancellationToken);
+                await ExecuteFinalizationLogicAsync(request.User, request.ProcessId, request.ProcessDate, results, hasErrors, cancellationToken);
 
-            await processStore.CleanupAsync(request.ProcessId, cancellationToken);
+                await processStore.CleanupAsync(request.ProcessId, cancellationToken);
+            }
+
+        }catch(Exception ex)
+        {
+            var error = "Ocurrió un error inesperado el completar la validación del proceso contable";
+            logger.LogError(ex, error);
+            await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, error, cancellationToken);
         }
-
         return Unit.Value;
     }
 
     private async Task ExecuteFinalizationLogicAsync(
         string user,
-        Guid processId,
+        string processId,
         DateTime processDate,
-        IEnumerable<int> portfolioIds,
         List<ProcessResult> results,
-        bool allSuccessful,
         bool hasErrors,
         CancellationToken cancellationToken)
     {
         if (!hasErrors)
         {
-            await SendNotificationAsync(
-                user,
-                NotificationStatuses.Finalized,
-                processId.ToString(),
-                new Dictionary<string, string> { { "success", $"Proceso contable {processId} completado exitosamente para fecha {processDate:yyyy-MM-dd}" } },
-                cancellationToken
-            );
+            await accountingNotificationService.SendProcessStatusAsync(user, processId.ToString(), processDate, NotificationStatuses.Finalized, cancellationToken);
             return;
         }
 
@@ -87,37 +84,19 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
 
             allInconsistencies.AddRange(inconsistenciesResult.Value);
         }
-        
+
         if (undefinedErrors.Count > 0)
         {
-            await SendNotificationAsync(user, NotificationStatuses.Failure, processId.ToString(), undefinedErrors, cancellationToken);
+            await accountingNotificationService.SendProcessFailedWithErrorsAsync(user, processId, undefinedErrors, cancellationToken);
             return;
         }
-        
+
         if (allInconsistencies.Count > 0)
         {
             var url = await GenerateAccountingInconsistenciesUrl(processDate, allInconsistencies, cancellationToken);
-            await SendNotificationAsync(user, NotificationStatuses.Finalized, processId.ToString(), new Dictionary<string, string> { { "url", url } }, cancellationToken);
+            await accountingNotificationService.SendProcessFailedWithUrlAsync(user, processId, url, cancellationToken);
             return;
         }
-    }
-
-
-    private async Task SendNotificationAsync(string user, string status, string processId, object details, CancellationToken cancellationToken)
-    {
-        var administrator = configuration["NotificationSettings:Administrator"] ?? NotificationDefaults.Administrator;
-
-        var buildMessage = NotificationCenter.BuildMessageBody(
-            processId,
-            processId,
-            administrator,
-            NotificationTypes.AccountingReport,
-            NotificationTypes.Report,
-            status,
-            NotificationTypes.ReportGeneration,
-            details
-        );
-        await notificationCenter.SendNotificationAsync(user, buildMessage, cancellationToken);
     }
 
     private async Task<string> GenerateAccountingInconsistenciesUrl(DateTime processDate, IEnumerable<AccountingInconsistency> inconsistencies, CancellationToken cancellationToken)
