@@ -1,3 +1,4 @@
+using Accounting.Application.Abstractions;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Domain.Constants;
 using Common.SharedKernel.Infrastructure.NotificationsCenter;
@@ -5,43 +6,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Accounting.Application.Services;
 
-public interface IAccountingNotificationService
-{
-    Task SendNotificationAsync(
-        string user,
-        string status,
-        string processId,
-        string stepDescription,
-        object details,
-        CancellationToken cancellationToken = default);
-
-    Task SendProcessStatusAsync(
-        string user,
-        string processId,
-        DateTime processDate,
-        string status,
-        CancellationToken cancellationToken = default);
-
-    Task SendProcessFailedAsync(
-        string user,
-        string processId,
-        string errorMessage,
-        CancellationToken cancellationToken = default);
-
-    Task SendProcessFailedWithUrlAsync(
-        string user,
-        string processId,
-        string reportUrl,
-        CancellationToken cancellationToken = default);
-
-    Task SendProcessFailedWithErrorsAsync(
-        string user,
-        string processId,
-        IEnumerable<object> errors,
-        CancellationToken cancellationToken = default);
-}
-
-internal sealed class AccountingNotificationService(
+public sealed class AccountingNotificationService(
     INotificationCenter notificationCenter,
     IConfiguration configuration) : IAccountingNotificationService
 {

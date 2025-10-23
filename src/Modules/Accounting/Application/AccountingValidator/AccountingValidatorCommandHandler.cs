@@ -1,6 +1,6 @@
-﻿using Accounting.Application.AccountingValidator.Reports;
+﻿using Accounting.Application.Abstractions;
+using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Application.AccountProcess;
-using Accounting.Application.Services;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Integrations.AccountingValidator;
 using Common.SharedKernel.Application.Abstractions;

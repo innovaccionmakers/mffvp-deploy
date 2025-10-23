@@ -1,4 +1,5 @@
-﻿using Accounting.Application.Services;
+﻿using Accounting.Application.Abstractions;
+using Accounting.Application.Services;
 using Accounting.Domain.Constants;
 using Accounting.IntegrationEvents.AccountingProcess;
 using Accounting.Integrations.AccountingAssistants.Commands;
@@ -14,7 +15,7 @@ using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.Constants;
-using Consul;
+using Common.SharedKernel.Core.Primitives;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,8 +33,8 @@ internal sealed class AccountProcessHandler(
     public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
     {
         var isActive = await closingValidator.IsClosingActiveAsync(cancellationToken);
-        //if (isActive)
-            //return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
+        if (isActive)
+            return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
 
         var deleteCommand = new DeleteAccountingAssistantsCommand();
         var deleteResult = await sender.Send(deleteCommand, cancellationToken);
