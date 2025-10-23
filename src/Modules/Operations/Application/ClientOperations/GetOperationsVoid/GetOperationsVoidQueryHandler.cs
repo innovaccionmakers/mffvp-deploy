@@ -8,39 +8,37 @@ using Common.SharedKernel.Domain;
 using Operations.Application.Abstractions.External;
 using Operations.Domain.ClientOperations;
 using Operations.Domain.OperationTypes;
-using Operations.Integrations.ClientOperations.GetOperationsND;
+using Operations.Integrations.ClientOperations.GetOperationsVoid;
 
-namespace Operations.Application.ClientOperations.GetOperationsND;
+namespace Operations.Application.ClientOperations.GetOperationsVoid;
 
-internal sealed class GetOperationsNDHandler(
+internal sealed class GetOperationsVoidQueryHandler(
     IClientOperationRepository clientOperationRepository,
     IOperationTypeRepository operationTypeRepository,
     IPortfolioLocator portfolioLocator,
     ITrustInfoProvider trustInfoProvider)
-    : IQueryHandler<GetOperationsNDQuery, GetOperationsNDResponse>
+    : IQueryHandler<GetOperationsVoidQuery, GetOperationsVoidResponse>
 {
-    private const string ContributionOperationName = "Aporte";
-
-    public async Task<Result<GetOperationsNDResponse>> Handle(
-        GetOperationsNDQuery request,
+    public async Task<Result<GetOperationsVoidResponse>> Handle(
+        GetOperationsVoidQuery request,
         CancellationToken cancellationToken)
     {
         var (normalizedStart, normalizedEnd) = NormalizeDateRange(request.StartDate, request.EndDate);
 
-        if (request.AffiliateId <= 0 || request.ObjectiveId <= 0)
+        if (request.AffiliateId <= 0 || request.ObjectiveId <= 0 || request.OperationTypeId <= 0)
         {
             return Result.Success(CreateEmptyResponse(request));
         }
 
-        var contributionType = await operationTypeRepository
-            .GetByNameAsync(ContributionOperationName, cancellationToken);
+        var operationType = await operationTypeRepository
+            .GetByIdAsync(request.OperationTypeId, cancellationToken);
 
-        if (contributionType is null)
+        if (operationType is null)
         {
             return Result.Success(CreateEmptyResponse(request));
         }
 
-        var categoryId = checked((int)contributionType.OperationTypeId);
+        var categoryId = checked((int)operationType.OperationTypeId);
 
         var categorizedTypes = await operationTypeRepository
             .GetTypesByCategoryAsync(categoryId, cancellationToken);
@@ -85,7 +83,7 @@ internal sealed class GetOperationsNDHandler(
 
         var eligibleOperations = await FilterByTrustAsync(
             candidates,
-            contributionType.Name,
+            operationType.Name,
             cancellationToken);
 
         if (eligibleOperations.Count == 0)
@@ -120,7 +118,7 @@ internal sealed class GetOperationsNDHandler(
             .Take(pageSize)
             .ToArray();
 
-        var response = new GetOperationsNDResponse(
+        var response = new GetOperationsVoidResponse(
             pageNumber,
             pageSize,
             totalCount,
@@ -203,9 +201,9 @@ internal sealed class GetOperationsNDHandler(
             }
 
             var processDate = NormalizeToUtc(operation.ProcessDate).Date;
-            var portfolioComparisonDate = snapshot.CurrentDate.AddDays(1).Date;
+            var portfolioComparisonDate = snapshot.CurrentDate.Date;
 
-            if (processDate < portfolioComparisonDate)
+            if (processDate == portfolioComparisonDate)
             {
                 filtered.Add((operation, snapshot));
             }
@@ -214,13 +212,13 @@ internal sealed class GetOperationsNDHandler(
         return filtered;
     }
 
-    private async Task<List<OperationNdItem>> FilterByTrustAsync(
+    private async Task<List<OperationVoidItem>> FilterByTrustAsync(
         IReadOnlyCollection<(ClientOperation Operation, PortfolioSnapshot Portfolio)> candidates,
         string transactionTypeName,
         CancellationToken cancellationToken)
     {
         var resolvedTransactionType = string.IsNullOrWhiteSpace(transactionTypeName)
-            ? ContributionOperationName
+            ? string.Empty
             : transactionTypeName;
 
         var tasks = candidates
@@ -235,7 +233,7 @@ internal sealed class GetOperationsNDHandler(
 
         var trustResults = await Task.WhenAll(tasks);
 
-        var eligible = new List<OperationNdItem>();
+        var eligible = new List<OperationVoidItem>();
 
         foreach (var (candidate, trustResult) in trustResults)
         {
@@ -246,10 +244,11 @@ internal sealed class GetOperationsNDHandler(
 
             var (operation, _) = candidate;
 
-            eligible.Add(new OperationNdItem(
+            eligible.Add(new OperationVoidItem(
                 operation.ClientOperationId,
                 NormalizeToUtc(operation.ProcessDate),
                 resolvedTransactionType,
+                operation.OperationTypeId,
                 operation.Amount,
                 operation.AuxiliaryInformation?.ContingentWithholding ?? 0m));
         }
@@ -259,12 +258,12 @@ internal sealed class GetOperationsNDHandler(
 
     private sealed record PortfolioSnapshot(string Name, DateTime CurrentDate);
 
-    private static GetOperationsNDResponse CreateEmptyResponse(GetOperationsNDQuery request)
+    private static GetOperationsVoidResponse CreateEmptyResponse(GetOperationsVoidQuery request)
     {
         var pageNumber = NormalizePageNumber(request.PageNumber);
         var pageSize = NormalizePageSize(request.PageSize, 0);
 
-        return new GetOperationsNDResponse(pageNumber, pageSize, 0, 0, Array.Empty<OperationNdItem>());
+        return new GetOperationsVoidResponse(pageNumber, pageSize, 0, 0, Array.Empty<OperationVoidItem>());
     }
 
     private static int NormalizePageNumber(int pageNumber)

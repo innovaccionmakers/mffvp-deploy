@@ -18,7 +18,7 @@ using Operations.Integrations.ClientOperations.GetOperationsND;
 
 namespace Operations.test.UnitTests.Application.ClientOperations.GetOperationsND;
 
-public class GetOperationsNDHandlerTests
+public class GetOperationsNDQueryHandlerTests
 {
     private static readonly Result<TrustInfoResult> SuccessfulTrustInfo =
         Result.Success(new TrustInfoResult(100));
@@ -94,7 +94,7 @@ public class GetOperationsNDHandlerTests
             .Setup(provider => provider.GetAsync(It.IsAny<long>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(SuccessfulTrustInfo);
 
-        var handler = new GetOperationsNDHandler(
+        var handler = new GetOperationsNDQueryHandler(
             clientOperationRepositoryMock.Object,
             operationTypeRepositoryMock.Object,
             portfolioLocatorMock.Object,
@@ -189,7 +189,7 @@ public class GetOperationsNDHandlerTests
             .Setup(provider => provider.GetAsync(operation.ClientOperationId, operation.Amount, It.IsAny<CancellationToken>()))
             .ReturnsAsync(SuccessfulTrustInfo);
 
-        var handler = new GetOperationsNDHandler(
+        var handler = new GetOperationsNDQueryHandler(
             clientOperationRepositoryMock.Object,
             operationTypeRepositoryMock.Object,
             portfolioLocatorMock.Object,
@@ -291,7 +291,7 @@ public class GetOperationsNDHandlerTests
             .Setup(provider => provider.GetAsync(boundaryOperation.ClientOperationId, boundaryOperation.Amount, It.IsAny<CancellationToken>()))
             .ReturnsAsync(SuccessfulTrustInfo);
 
-        var handler = new GetOperationsNDHandler(
+        var handler = new GetOperationsNDQueryHandler(
             clientOperationRepositoryMock.Object,
             operationTypeRepositoryMock.Object,
             portfolioLocatorMock.Object,
@@ -341,7 +341,7 @@ public class GetOperationsNDHandlerTests
         var portfolioLocatorMock = new Mock<IPortfolioLocator>(MockBehavior.Strict);
         var trustInfoProviderMock = new Mock<ITrustInfoProvider>(MockBehavior.Strict);
 
-        var handler = new GetOperationsNDHandler(
+        var handler = new GetOperationsNDQueryHandler(
             clientOperationRepositoryMock.Object,
             operationTypeRepositoryMock.Object,
             portfolioLocatorMock.Object,
@@ -387,7 +387,7 @@ public class GetOperationsNDHandlerTests
         var portfolioLocatorMock = new Mock<IPortfolioLocator>(MockBehavior.Strict);
         var trustInfoProviderMock = new Mock<ITrustInfoProvider>(MockBehavior.Strict);
 
-        var handler = new GetOperationsNDHandler(
+        var handler = new GetOperationsNDQueryHandler(
             clientOperationRepositoryMock.Object,
             operationTypeRepositoryMock.Object,
             portfolioLocatorMock.Object,
@@ -463,7 +463,7 @@ public class GetOperationsNDHandlerTests
             .Setup(provider => provider.GetAsync(futureProcessDateOperation.ClientOperationId, futureProcessDateOperation.Amount, It.IsAny<CancellationToken>()))
             .ReturnsAsync(SuccessfulTrustInfo);
 
-        var handler = new GetOperationsNDHandler(
+        var handler = new GetOperationsNDQueryHandler(
             clientOperationRepositoryMock.Object,
             operationTypeRepositoryMock.Object,
             portfolioLocatorMock.Object,
@@ -522,7 +522,7 @@ public class GetOperationsNDHandlerTests
         var portfolioLocatorMock = new Mock<IPortfolioLocator>(MockBehavior.Strict);
         var trustInfoProviderMock = new Mock<ITrustInfoProvider>(MockBehavior.Strict);
 
-        var handler = new GetOperationsNDHandler(
+        var handler = new GetOperationsNDQueryHandler(
             clientOperationRepositoryMock.Object,
             operationTypeRepositoryMock.Object,
             portfolioLocatorMock.Object,
