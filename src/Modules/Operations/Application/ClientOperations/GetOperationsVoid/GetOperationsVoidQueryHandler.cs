@@ -23,8 +23,6 @@ internal sealed class GetOperationsVoidQueryHandler(
         GetOperationsVoidQuery request,
         CancellationToken cancellationToken)
     {
-        var (normalizedStart, normalizedEnd) = NormalizeDateRange(request.StartDate, request.EndDate);
-
         if (request.AffiliateId <= 0 || request.ObjectiveId <= 0 || request.OperationTypeId <= 0)
         {
             return Result.Success(CreateEmptyResponse(request));
@@ -54,12 +52,10 @@ internal sealed class GetOperationsVoidQueryHandler(
             .ToArray();
 
         var contributionOperations = await clientOperationRepository
-            .GetContributionOperationsInRangeAsync(
+            .GetContributionOperationsAsync(
                 contributionTypeIds,
                 request.AffiliateId,
                 request.ObjectiveId,
-                normalizedStart,
-                normalizedEnd,
                 cancellationToken);
 
         if (contributionOperations.Count == 0)
@@ -126,16 +122,6 @@ internal sealed class GetOperationsVoidQueryHandler(
             pagedItems);
 
         return Result.Success(response);
-    }
-
-    private static (DateTime Start, DateTime End) NormalizeDateRange(DateTime start, DateTime end)
-    {
-        var normalizedStart = NormalizeToUtc(start).Date;
-        var normalizedEnd = NormalizeToUtc(end).Date;
-
-        return normalizedStart <= normalizedEnd
-            ? (normalizedStart, normalizedEnd)
-            : (normalizedEnd, normalizedStart);
     }
 
     private static DateTime NormalizeToUtc(DateTime value)
