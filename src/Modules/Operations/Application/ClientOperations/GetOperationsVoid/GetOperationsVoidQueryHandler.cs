@@ -187,7 +187,7 @@ internal sealed class GetOperationsVoidQueryHandler(
             }
 
             var processDate = NormalizeToUtc(operation.ProcessDate).Date;
-            var portfolioComparisonDate = snapshot.CurrentDate.Date;
+            var portfolioComparisonDate = snapshot.CurrentDate.Date.AddDays(1);
 
             if (processDate == portfolioComparisonDate)
             {
