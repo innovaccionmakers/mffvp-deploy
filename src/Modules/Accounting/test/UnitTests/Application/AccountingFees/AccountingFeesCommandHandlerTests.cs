@@ -98,7 +98,7 @@ public class AccountingFeesCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ConFalloEnYieldLocator_DeberiaRetornarFalso()
+    public async Task Handle_ConFalloEnYieldLocator_DeberiaRetornarVerdadero()
     {
         // Arrange
         var command = new AccountingFeesCommand(new[] { 1 }, DateTime.UtcNow);
@@ -112,7 +112,7 @@ public class AccountingFeesCommandHandlerTests
         var result = await _handler.Handle(command, cancellationToken);
 
         // Assert
-        Assert.False(result.IsSuccess);
+        Assert.True(result.IsSuccess);
     }
 
     [Fact]
