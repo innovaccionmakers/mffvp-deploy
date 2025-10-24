@@ -125,18 +125,30 @@ internal sealed class VoidedTransactionsValCommandHandler(
         var contributionTypeTask = operationTypeRepository
             .GetByNameAsync(ContributionOperationName, cancellationToken);
 
-        var operationTasks = items
-            .Select(item => clientOperationRepository.GetAsync(item.ClientOperationId, cancellationToken))
-            .ToArray();
+        var operationsCache = new Dictionary<long, ClientOperation?>();
+        var operations = new ClientOperation?[items.Length];
 
-        var operations = await Task.WhenAll(operationTasks);
+        for (var index = 0; index < items.Length; index++)
+        {
+            var operationId = items[index].ClientOperationId;
+
+            if (!operationsCache.TryGetValue(operationId, out var operation))
+            {
+                operation = await clientOperationRepository
+                    .GetAsync(operationId, cancellationToken);
+
+                operationsCache[operationId] = operation;
+            }
+
+            operations[index] = operation;
+        }
         var causeConfigurationParameter = await causeTask;
         var contributionType = await contributionTypeTask;
 
         var causeExists = causeConfigurationParameter is not null;
         var contributionTypeExists = contributionType is not null;
 
-        var operationTypesTasks = new Dictionary<long, Task<OperationType?>>();
+        var operationTypes = new Dictionary<long, OperationType?>();
 
         foreach (var operation in operations)
         {
@@ -145,20 +157,16 @@ internal sealed class VoidedTransactionsValCommandHandler(
                 continue;
             }
 
-            if (operationTypesTasks.ContainsKey(operation.OperationTypeId))
+            if (operationTypes.ContainsKey(operation.OperationTypeId))
             {
                 continue;
             }
 
-            operationTypesTasks[operation.OperationTypeId] = operationTypeRepository
+            var operationType = await operationTypeRepository
                 .GetByIdAsync(operation.OperationTypeId, cancellationToken);
+
+            operationTypes[operation.OperationTypeId] = operationType;
         }
-
-        await Task.WhenAll(operationTypesTasks.Values);
-
-        var operationTypes = operationTypesTasks.ToDictionary(
-            pair => pair.Key,
-            pair => pair.Value.Result);
 
         var portfolioSnapshots = new Dictionary<int, PortfolioSnapshot>();
 
