@@ -32,8 +32,8 @@ public sealed class AccountingFeesCommandHandler(
 
             if (yields.IsFailure)
             {
-                logger.LogError("No se pudieron obtener los yields para los portafolios: {Error}", yields.Error);
-                return Result.Failure<bool>(Error.Problem("Accounting.Fees", "No se pudieron obtener los yields para los portafolios"));
+                logger.LogError("No se pudieron obtener las comisiones para los portafolios: {Error}", yields.Error);
+                return Result.Success(true);
             }
 
             var operationType = await operationLocator.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken);
@@ -126,6 +126,7 @@ public sealed class AccountingFeesCommandHandler(
             }
 
             var accountingAssistant = AccountingAssistant.Create(
+                yield.PortfolioId,
                 portfolioResult.Value.NitApprovedPortfolio,
                 portfolioResult.Value.VerificationDigit,
                 portfolioResult.Value.Name,

@@ -22,6 +22,7 @@ using Reports.Infrastructure.Options;
 using Reports.Infrastructure.TechnicalSheet;
 using Reports.Presentation.GraphQL;
 using Reports.Application.TechnicalSheet;
+using Common.SharedKernel.Application.Reports.Strategies;
 
 namespace Reports.Infrastructure;
 

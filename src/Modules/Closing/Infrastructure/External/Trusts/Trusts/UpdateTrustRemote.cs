@@ -8,44 +8,75 @@ using Trusts.IntegrationEvents.TrustYields;
 
 namespace Closing.Infrastructure.External.Trusts.Trusts;
 
-
-/// <summary>
-/// Implementación Infra del command remoto a Trusts (aplicar rendimiento al saldo).
-/// </summary>
 internal sealed class UpdateTrustRemote(
     IRpcClient rpcClient,
     ILogger<UpdateTrustRemote> logger)
     : IUpdateTrustRemote
 {
-    public async Task<Result<UpdateTrustFromYieldRemoteResponse>> UpdateFromYieldAsync(
-        UpdateTrustFromYieldRemoteRequest request,
+    public async Task<Result<UpdateTrustFromYieldBulkRemoteResponse>> UpdateFromYieldAsync(
+        UpdateTrustFromYieldBulkRemoteRequest request,
         CancellationToken cancellationToken)
     {
+        // Mapeo Closing a Trusts 
+        var rows = (request.TrustsToUpdate ?? Array.Empty<UpdateTrustFromYieldItem>())
+            .Select(x => new ApplyYieldRowDto(
+                TrustId: x.TrustId,
+                YieldAmount: x.YieldAmount,
+                YieldRetention: x.YieldRetention,
+                ClosingBalance: x.ClosingBalance))
+            .ToArray();
+
+
         var rpcRequest = new UpdateTrustFromYieldRequest(
-            TrustId: request.TrustId,
-            YieldAmount: request.YieldAmount,
-            YieldRetention: request.YieldRetention,
-            ClosingBalance: request.ClosingBalance,
             PortfolioId: request.PortfolioId,
-            ClosingDate: request.ClosingDate
-            //ValidateConsistency: request.ValidateConsistency,
-            //Strict: request.Strict,
-            //Tolerance: request.Tolerance,
-            //CorrelationId: request.CorrelationId
+            ClosingDate: request.ClosingDate,
+            BatchIndex: request.BatchIndex,
+            Rows: rows,
+            IdempotencyKey: request.IdempotencyKey
         );
 
-        var rpcResponse = await rpcClient.CallAsync<
-            UpdateTrustFromYieldRequest,
-            UpdateTrustFromYieldResponse>(rpcRequest, cancellationToken);
-
-        if (rpcResponse is null || !rpcResponse.Succeeded)
+        try
         {
-            var code = rpcResponse?.Code ?? "TRU-RPC-FAIL";
-            var message = rpcResponse?.Message ?? "Fallo al actualizar fideicomiso (sin respuesta).";
-            logger.LogWarning("{Class} - {Code} {Message}", nameof(UpdateTrustRemote), code, message);
-            return Result.Failure<UpdateTrustFromYieldRemoteResponse>(Error.Validation(code, message));
-        }
+            var rpcResponse = await rpcClient.CallAsync<
+                UpdateTrustFromYieldRequest,
+                UpdateTrustFromYieldResponse>(rpcRequest, cancellationToken);
 
-        return Result.Success(new UpdateTrustFromYieldRemoteResponse());
+            if (rpcResponse is null || !rpcResponse.Succeeded)
+            {
+                var code = rpcResponse?.Code ?? "TRU-RPC-FAIL";
+                var message = rpcResponse?.Message ?? "Fallo al actualizar fideicomisos";
+
+                logger.LogWarning(
+                    "{Class} - {Code} {Message}. Portafolio {PortfolioId}, Fecha {ClosingDate}, IdemKey {IdemKey}",
+                    nameof(UpdateTrustRemote), code, message, request.PortfolioId, request.ClosingDate, request.IdempotencyKey);
+
+                return Result.Failure<UpdateTrustFromYieldBulkRemoteResponse>(Error.Validation(code, message));
+            }
+
+            var response = new UpdateTrustFromYieldBulkRemoteResponse(
+                BatchIndex: rpcResponse.BatchIndex,
+                Updated: rpcResponse.Updated,
+                MissingTrustIds: rpcResponse.MissingTrustIds,
+                ValidationMismatchTrustIds: rpcResponse.ValidationMismatchTrustIds
+            );
+
+            return Result.Success(response);
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogWarning(
+                "{Class} - Operación cancelada. Portafolio {PortfolioId}, Fecha {ClosingDate}, IdemKey {IdemKey}",
+                nameof(UpdateTrustRemote), request.PortfolioId, request.ClosingDate, request.IdempotencyKey);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,
+                "{Class} - Excepción no controlada. Portafolio {PortfolioId}, Fecha {ClosingDate}, IdemKey {IdemKey}",
+                nameof(UpdateTrustRemote), request.PortfolioId, request.ClosingDate, request.IdempotencyKey);
+
+            return Result.Failure<UpdateTrustFromYieldBulkRemoteResponse>(
+                new Error("TRU-RPC-UNHANDLED", "Error inesperado al invocar el RPC de actualización de fideicomisos.", ErrorType.Failure));
+        }
     }
 }

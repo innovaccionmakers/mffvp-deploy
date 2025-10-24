@@ -4,6 +4,7 @@ using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
 using Accounting.Application.AccountingConcepts;
 using Accounting.Application.AccountingOperations;
+using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Application.AccountProcess;
 using Accounting.Application.AutomaticConcepts;
 using Accounting.Domain.AccountingAssistants;
@@ -18,7 +19,6 @@ using Accounting.Infrastructure.AccountProcess;
 using Accounting.Infrastructure.Concepts;
 using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.Database;
-using Accounting.Infrastructure.External;
 using Accounting.Infrastructure.External.Operations;
 using Accounting.Infrastructure.External.Portfolios;
 using Accounting.Infrastructure.External.Yields;
@@ -95,7 +95,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
         services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();
-        services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();
+        services.AddScoped<AccountingInconsistenciesReport>();
+        services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();        
 
 
     }

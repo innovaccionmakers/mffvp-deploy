@@ -28,6 +28,15 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
             .ToListAsync(ct);
     }
 
+    public async Task<OperationType?> GetByIdAsync(
+        long operationTypeId,
+        CancellationToken ct = default)
+    {
+        return await context.OperationTypes
+            .AsNoTracking()
+            .SingleOrDefaultAsync(s => s.OperationTypeId == operationTypeId, ct);
+    }
+
     public Task<OperationType?> GetByNameAndCategoryAsync(
         string name,
         int? categoryId,
@@ -38,7 +47,7 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
             .SingleOrDefaultAsync(s => s.Name == name && s.CategoryId == categoryId, ct);
     }
 
-    public async Task<IReadOnlyCollection<OperationType>> GetCategoryIdAsync(int? categoryId, CancellationToken ct = default)
+    public async Task<IReadOnlyCollection<OperationType>> GetTypesByCategoryAsync(int? categoryId, CancellationToken ct = default)
     {
         return await context.OperationTypes
             .AsNoTracking()

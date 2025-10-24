@@ -16,4 +16,17 @@ public interface IClientOperationRepository
 
     Task<IEnumerable<ClientOperation>> GetClientOperationsByProcessDateAsync(DateTime processDate, CancellationToken cancellationToken = default);
     Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(IEnumerable<int> PortfolioId, DateTime processDate, CancellationToken cancellationToken = default);
+
+    Task<bool> HasActiveLinkedOperationAsync(
+        long clientOperationId,
+        long operationTypeId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<ClientOperation>> GetContributionOperationsInRangeAsync(
+        IReadOnlyCollection<long> contributionOperationTypeIds,
+        int affiliateId,
+        int objectiveId,
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
 }

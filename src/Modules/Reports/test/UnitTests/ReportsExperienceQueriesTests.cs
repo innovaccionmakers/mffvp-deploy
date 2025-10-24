@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.Reports;
+using Common.SharedKernel.Application.Reports.Strategies;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

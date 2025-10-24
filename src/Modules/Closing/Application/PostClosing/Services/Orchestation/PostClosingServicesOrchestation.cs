@@ -113,14 +113,13 @@ public class PostClosingServicesOrchestation : IPostClosingServicesOrchestation
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Error inesperado en PostClosingServicesOrchestation para Portafolio {PortfolioId} - Fecha {ClosingDateUtc}.",
+                    "Error en PostClosingServicesOrchestation para Portafolio {PortfolioId} - Fecha {ClosingDateUtc}.",
                     portfolioId, closingDate);
                 throw;
             }
         }
     }
 
-    // Helper privado: evita errores de alcance con funciones locales
     private async Task MeasureAsync(
         string stepName,
         int portfolioId,

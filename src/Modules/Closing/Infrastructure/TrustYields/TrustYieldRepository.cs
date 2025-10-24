@@ -86,5 +86,27 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
         return results.ToDictionary(x => x.TrustId, x => x);
     }
 
+    public async Task<decimal> GetDistributedTotalRoundedAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
+    {
+        return await context.TrustYields
+            .Where(t => t.PortfolioId == portfolioId && t.ClosingDate == closingDate)
+            .Select(t => Math.Round(t.YieldAmount, 2)) 
+            .TagWith("TrustYieldRepository_GetDistributedTotalRoundedAsync")
+            .SumAsync(cancellationToken);
+
+    }
+
+    public async Task<IReadOnlyList<TrustYieldCalcInput>> GetCalcInputsByPortfolioAndDateAsync(
+        int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+    {
+        return await context.TrustYields
+            .TagWith("TrustYieldRepository_GetCalcInputsByPortfolioAndDateAsync")
+            .AsNoTracking()
+            .Where(r => r.PortfolioId == portfolioId &&
+                        r.ClosingDate == closingDateUtc)
+            .Select(r => new TrustYieldCalcInput(
+                r.TrustId, r.PortfolioId, r.PreClosingBalance, r.Units))
+            .ToListAsync(cancellationToken);
+    }
 }
 

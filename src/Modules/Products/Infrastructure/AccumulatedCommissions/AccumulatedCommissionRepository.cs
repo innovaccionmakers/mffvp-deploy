@@ -41,12 +41,10 @@ internal sealed class AccumulatedCommissionRepository(
             ? DateTime.SpecifyKind(closingDateEventUtc, DateTimeKind.Utc)
             : closingDateEventUtc.ToUniversalTime();
 
-        // dailyAmount = Math.Round(dailyAmount, 2, MidpointRounding.AwayFromZero);
 
         await using var tx = await context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted, cancellationToken);
 
-        // 1) Exclusión por clave lógica (portfolioId, commissionId) — se libera al commit/rollback
         await context.Database.ExecuteSqlRawAsync(
             "SELECT pg_advisory_xact_lock(@p,@c);",
             new[]
@@ -85,7 +83,6 @@ internal sealed class AccumulatedCommissionRepository(
         if (!exists)
         {
             // 4) INSERT
-            // Sentinela para "no pagado":
             var unpaidSentinelUtc = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
             var nowUtc = DateTime.UtcNow;
 

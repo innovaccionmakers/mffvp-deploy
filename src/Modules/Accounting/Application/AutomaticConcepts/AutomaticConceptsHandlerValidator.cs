@@ -42,12 +42,12 @@ namespace Accounting.Application.AutomaticConcepts
                 var passiveTransaction = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationType.OperationTypeId, cancellationToken);
 
                 var accountingAccounts = new AccountingAccounts(
-                    yield.PortfolioId, 
-                    operationType.OperationTypeId, 
+                    yield.PortfolioId,
+                    operationType.OperationTypeId,
                     passiveTransaction,
                     passiveTransaction?.CreditAccount,
                     passiveTransaction?.DebitAccount,
-                    AccountingActivity.Credit, 
+                    AccountingActivity.Credit,
                     AccountingActivity.Debit
                     );
 
@@ -55,15 +55,16 @@ namespace Accounting.Application.AutomaticConcepts
                     errors.AddRange(accountValidationErrors);
 
                 var accountingAssistant = AccountingAssistant.Create(
-                portfolioResult.Value.NitApprovedPortfolio,
-                portfolioResult.Value.VerificationDigit,
-                portfolioResult.Value.Name,
-                command.ProcessDate.ToString("yyyyMM"),
-                command.ProcessDate,
-                operationType.Name,
-                Math.Abs(value),
-                natureValue
-                );
+                    yield.PortfolioId,
+                    portfolioResult.Value.NitApprovedPortfolio,
+                    portfolioResult.Value.VerificationDigit,
+                    portfolioResult.Value.Name,
+                    command.ProcessDate.ToString("yyyyMM"),
+                    command.ProcessDate,
+                    operationType.Name,
+                    Math.Abs(value),
+                    natureValue
+                    );
 
                 if (accountingAssistant.IsFailure)
                 {
@@ -102,15 +103,16 @@ namespace Accounting.Application.AutomaticConcepts
                     errors.AddRange(accountValidationErrors);
 
                 var accountingAssistant = AccountingAssistant.Create(
-                portfolioResult.Value.NitApprovedPortfolio,
-                portfolioResult.Value.VerificationDigit,
-                portfolioResult.Value.Name,
-                command.ProcessDate.ToString("yyyyMM"),
-                command.ProcessDate,
-                operationType.Name,
-                Math.Abs(value),
-                natureValue
-                );
+                    yield.PortfolioId,
+                    portfolioResult.Value.NitApprovedPortfolio,
+                    portfolioResult.Value.VerificationDigit,
+                    portfolioResult.Value.Name,
+                    command.ProcessDate.ToString("yyyyMM"),
+                    command.ProcessDate,
+                    operationType.Name,
+                    Math.Abs(value),
+                    natureValue
+                    );
 
                 if (accountingAssistant.IsFailure)
                 {
@@ -137,21 +139,21 @@ namespace Accounting.Application.AutomaticConcepts
                 logger.LogWarning("No se encontraron conceptos automáticos para el portafolio {PortfolioId} y el tipo operación {OperationType}", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
                 validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, "No existe parametrización contable", accountingAccounts.Credit));
                 validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, "No existe parametrización contable", accountingAccounts.Debit));
-                isValid = false;
+                return false;
             }
 
             if (accountingAccounts.passiveTransactionCredit.IsNullOrEmpty())
             {
                 logger.LogWarning("El concepto automático para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de crédito", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
                 validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, "No existe cuenta de crédito", accountingAccounts.Credit));
-                isValid = false;
+                return false;
             }
 
             if (accountingAccounts.passiveTransactionDebit.IsNullOrEmpty())
             {
                 logger.LogWarning("El concepto automático para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de débito", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
                 validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, "No existe cuenta de débito", accountingAccounts.Debit));
-                isValid = false;
+                return false;
             }
 
             return isValid;

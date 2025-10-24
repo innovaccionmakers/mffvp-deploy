@@ -1,4 +1,4 @@
-using Reports.Application.Reports.Common;
+using Common.SharedKernel.Application.Abstractions;
 
 namespace Reports.Application.Reports.TransmissionFormat;
 

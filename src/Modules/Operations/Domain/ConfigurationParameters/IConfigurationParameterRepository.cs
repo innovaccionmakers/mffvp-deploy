@@ -15,6 +15,10 @@ public interface IConfigurationParameterRepository : IConfigurationParameterLook
         string scope,
         CancellationToken cancellationToken = default);
 
+    Task<ConfigurationParameter?> GetByIdAsync(
+        long configurationParameterId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyDictionary<Guid, ConfigurationParameter>>
         GetByUuidsAsync(IEnumerable<Guid> uuids, CancellationToken cancellationToken = default);
 

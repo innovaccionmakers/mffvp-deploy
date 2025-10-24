@@ -161,6 +161,7 @@ namespace Accounting.Application.AccountingOperations
             }
 
             var accountingAssistant = AccountingAssistant.Create(
+                operation.PortfolioId,
                 identification ?? string.Empty,
                 0,
                 person?.FullName ?? string.Empty,

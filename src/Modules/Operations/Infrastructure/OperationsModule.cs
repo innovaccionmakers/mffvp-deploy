@@ -20,6 +20,8 @@ using Operations.Application.Abstractions.Services.Channel;
 using Operations.Application.Abstractions.Services.Cleanup;
 using Operations.Application.Abstractions.Services.Closing;
 using Operations.Application.Abstractions.Services.ContributionService;
+using Operations.Application.Abstractions.Services.AccountingRecords;
+using Operations.Application.Abstractions.Services.Voids;
 using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Application.Abstractions.Services.Portfolio;
 using Operations.Application.Abstractions.Services.Prevalidation;
@@ -27,6 +29,7 @@ using Operations.Application.Abstractions.Services.QueueTransactions;
 using Operations.Application.Abstractions.Services.SalesUser;
 using Operations.Application.Abstractions.Services.TransactionControl;
 using Operations.Application.Abstractions.Services.TrustCreation;
+using Operations.Application.AccountingRecords.Services;
 using Operations.Application.ChannelService;
 using Operations.Application.Contributions.Prevalidation;
 using Operations.Application.Contributions.Services;
@@ -36,6 +39,7 @@ using Operations.Application.Contributions.Services.OperationCompleted;
 using Operations.Application.Contributions.Services.QueueTransactions;
 using Operations.Application.Contributions.Services.TrustCreation;
 using Operations.Application.Contributions.TransactionControl;
+using Operations.Application.Voids.Services;
 using Operations.Application.Portfolio.Services;
 using Operations.Application.SalesUser.Services;
 using Operations.Domain.AuxiliaryInformations;
@@ -57,6 +61,8 @@ using Operations.Infrastructure.External.CollectionBankValidation;
 using Operations.Infrastructure.External.ContributionValidation;
 using Operations.Infrastructure.External.Customers;
 using Operations.Infrastructure.External.Portfolio;
+using Operations.Infrastructure.External.PortfolioValuations;
+using Operations.Infrastructure.External.Trusts;
 using Operations.Infrastructure.OperationTypes;
 using Operations.Infrastructure.Origins;
 using Operations.Infrastructure.TemporaryAuxiliaryInformations;
@@ -132,6 +138,9 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IQueueTransactions, QueueTransactions>();
         services.AddScoped<IClosingValidator, ClosingValidator>();
 
+        services.AddScoped<IAccountingRecordsOper, AccountingRecordsOper>();
+        services.AddScoped<IVoidsOper, VoidedTransactionsOper>();
+
         services.AddScoped<IPrevalidate, Prevalidate>();
         services.AddScoped<ITransactionControl, TransactionControl>();
         services.AddScoped<ITrustCreation, TrustCreation>();
@@ -151,6 +160,10 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IPortfolioService, PortfolioService>();
         services.AddScoped<IBuildMissingFieldsContributionService, BuildMissingFieldsContributionService>();
 
+        services.AddScoped<ITrustInfoProvider, TrustInfoProvider>();
+        services.AddScoped<ITrustUpdater, TrustUpdater>();
+        services.AddScoped<IPortfolioValuationProvider, PortfolioValuationProvider>();
+
         services.AddScoped<IRpcHandler<GetAllOperationTypesRequest, GetAllOperationTypesResponse>, GetAllOperationTypesConsumer>();
         services.AddScoped<IRpcHandler<GetOperationTypeByNameRequest, GetOperationTypeByNameResponse>, GetOperationTypeByNameConsumer>();
         services.AddTransient<IRpcHandler<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>, AccountingOperationsConsumer>();
@@ -159,9 +172,11 @@ public class OperationsModule: IModuleConfiguration
 
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
 
-        services.AddTransient<IRpcHandler<CreateTrustYieldOperationRequest,CreateTrustYieldOperationResponse>, CreateTrustYieldOperationConsumer>();
+        services.AddTransient<IRpcHandler<CreateTrustYieldOpFromClosingRequest,CreateTrustYieldOpFromClosingResponse>, CreateTrustYieldOpFromClosingConsumer>();
 
         services.AddTransient<IRpcHandler<ProcessPendingTransactionsRequest, ProcessPendingTransactionsResponse>, PendingContributionProcessor>();
+
+        services.AddScoped<ITrustOperationBulkRepository, TrustOperationBulkRepository>();
 
     }
 

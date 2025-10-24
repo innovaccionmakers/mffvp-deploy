@@ -211,18 +211,18 @@ public class OperationTypeRepositoryTests
         // Arrange
         var emptyList = new List<OperationType>();
         _operationTypeRepositoryMock
-            .Setup(repo => repo.GetCategoryIdAsync(999, It.IsAny<CancellationToken>()))
+            .Setup(repo => repo.GetTypesByCategoryAsync(999, It.IsAny<CancellationToken>()))
             .ReturnsAsync(emptyList);
 
         var repository = _operationTypeRepositoryMock.Object;
 
         // Act
-        var result = await repository.GetCategoryIdAsync(999);
+        var result = await repository.GetTypesByCategoryAsync(999);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
-        _operationTypeRepositoryMock.Verify(repo => repo.GetCategoryIdAsync(999, It.IsAny<CancellationToken>()), Times.Once);
+        _operationTypeRepositoryMock.Verify(repo => repo.GetTypesByCategoryAsync(999, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

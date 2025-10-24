@@ -110,4 +110,81 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<bool> HasActiveLinkedOperationAsync(
+        long clientOperationId,
+        long operationTypeId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.ClientOperations
+            .AnyAsync(
+                co => co.LinkedClientOperationId == clientOperationId &&
+                      co.OperationTypeId == operationTypeId &&
+                      co.Status == LifecycleStatus.Active,
+                cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<ClientOperation>> GetContributionOperationsInRangeAsync(
+        IReadOnlyCollection<long> contributionOperationTypeIds,
+        int affiliateId,
+        int objectiveId,
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        if (contributionOperationTypeIds is null || contributionOperationTypeIds.Count == 0)
+        {
+            return Array.Empty<ClientOperation>();
+        }
+
+        if (affiliateId <= 0 || objectiveId <= 0)
+        {
+            return Array.Empty<ClientOperation>();
+        }
+
+        var contributionTypeIdSet = contributionOperationTypeIds
+            .Where(id => id > 0)
+            .Distinct()
+            .ToArray();
+
+        if (contributionTypeIdSet.Length == 0)
+        {
+            return Array.Empty<ClientOperation>();
+        }
+
+        var utcStartDate = NormalizeToUtc(startDate);
+        var utcEndDate = NormalizeToUtc(endDate);
+
+        if (utcStartDate > utcEndDate)
+        {
+            (utcStartDate, utcEndDate) = (utcEndDate, utcStartDate);
+        }
+
+        var inclusiveStartDate = utcStartDate.Date;
+        var inclusiveEndDate = utcEndDate.Date;
+        var exclusiveEndDate = inclusiveEndDate.AddDays(1);
+
+        var query = context.ClientOperations
+            .AsNoTracking()
+            .Include(operation => operation.AuxiliaryInformation)
+            .Where(operation =>
+                operation.Status == LifecycleStatus.Active &&
+                operation.AffiliateId == affiliateId &&
+                operation.ObjectiveId == objectiveId &&
+                contributionTypeIdSet.Contains(operation.OperationTypeId) &&
+                operation.ProcessDate >= inclusiveStartDate &&
+                operation.ProcessDate < exclusiveEndDate);
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    private static DateTime NormalizeToUtc(DateTime date)
+    {
+        return date.Kind switch
+        {
+            DateTimeKind.Unspecified => DateTime.SpecifyKind(date, DateTimeKind.Utc),
+            DateTimeKind.Local => date.ToUniversalTime(),
+            _ => date
+        };
+    }
 }

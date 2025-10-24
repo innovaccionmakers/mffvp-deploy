@@ -1,5 +1,5 @@
+using Common.SharedKernel.Application.Reports.Strategies;
 using Microsoft.Extensions.Logging;
-using Reports.Application.Strategies;
 using Reports.Domain.TransmissionFormat;
 
 namespace Reports.Application.Reports.TransmissionFormat;
