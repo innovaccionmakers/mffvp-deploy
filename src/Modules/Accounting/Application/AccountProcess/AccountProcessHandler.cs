@@ -1,5 +1,4 @@
 ﻿using Accounting.Application.Abstractions;
-using Accounting.Application.Services;
 using Accounting.Domain.Constants;
 using Accounting.IntegrationEvents.AccountingProcess;
 using Accounting.Integrations.AccountingAssistants.Commands;
@@ -32,9 +31,11 @@ internal sealed class AccountProcessHandler(
 
     public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
     {
+        var startDate = DateTime.UtcNow;
+
         var isActive = await closingValidator.IsClosingActiveAsync(cancellationToken);
-        if (isActive)
-            return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
+        //if (isActive)
+            //return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
 
         var deleteCommand = new DeleteAccountingAssistantsCommand();
         var deleteResult = await sender.Send(deleteCommand, cancellationToken);
@@ -45,11 +46,10 @@ internal sealed class AccountProcessHandler(
         var processId = $"{ProcessIdPrefix}{DateTime.UtcNow:yyyyMMddHHmmss}";
         var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
-        await accountingNotificationService.SendProcessStatusAsync(
+        await accountingNotificationService.SendProcessInitiatedAsync(
            user,
            processId.ToString(),
            processDate,
-           NotificationStatuses.Initiated,
            cancellationToken
        );
 
@@ -59,11 +59,11 @@ internal sealed class AccountProcessHandler(
             var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, processDate);
             var automaticConceptsCommand = new AutomaticConceptsCommand(command.PortfolioIds, processDate);
 
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingFees, accountingFeesCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AutomaticConcepts, automaticConceptsCommand, processId, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingFees, accountingFeesCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AutomaticConcepts, automaticConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
 
         return Result.Success(string.Empty, "Se está generando la información del proceso contable. Será notificado cuando finalice.");
     }
@@ -73,6 +73,7 @@ internal sealed class AccountProcessHandler(
         string operationType,
         T command,
         string processId,
+        DateTime startDate,
         DateTime processDate,
         IEnumerable<int> portfolioIds,
         CancellationToken cancellationToken) where T : ICommand<bool>
@@ -99,6 +100,7 @@ internal sealed class AccountProcessHandler(
                 success,
                 success ? null : message,
                 processId,
+                startDate,
                 processDate,
                 portfolioIds,
                 scopedEventBus,
@@ -112,6 +114,7 @@ internal sealed class AccountProcessHandler(
                 false,
                 $"Excepción durante el procesamiento: {ex.Message}",
                 processId,
+                startDate,
                 processDate,
                 portfolioIds,
                 scopedEventBus,
@@ -125,6 +128,7 @@ internal sealed class AccountProcessHandler(
         bool isSuccess,
         string? errorMessage,
         string processId,
+        DateTime startDate,
         DateTime processDate,
         IEnumerable<int> portfolioIds,
         IEventBus eventBus,
@@ -136,6 +140,7 @@ internal sealed class AccountProcessHandler(
             isSuccess,
             errorMessage,
             processId,
+            startDate,
             processDate,
             portfolioIds);
 

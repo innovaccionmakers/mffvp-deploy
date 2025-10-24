@@ -9,6 +9,7 @@ public sealed record AccountingValidatorCommand(
     bool IsSuccess,
     string? ErrorMessage,
     string ProcessId,
+    DateTime StartDate,
     DateTime ProcessDate,
     IEnumerable<int> PortfolioIds
 ) : ICommand<Unit>;

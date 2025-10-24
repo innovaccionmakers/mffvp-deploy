@@ -64,7 +64,7 @@ public class AccountingModule : IModuleConfiguration
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];
             var region = configuration["AWS:SecretsManager:Region"];
-
+            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
         }
 
         services.AddDbContext<AccountingDbContext>((sp, options) =>

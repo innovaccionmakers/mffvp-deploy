@@ -8,6 +8,7 @@ public sealed class AccountingProcessCompletedIntegrationEvent(
     bool isSuccess,
     string? errorMessage,
     string processId,
+    DateTime startDate,
     DateTime processDate,
     IEnumerable<int> portfolioIds)
     : IntegrationEvent(Guid.NewGuid(), DateTime.UtcNow)
@@ -17,6 +18,7 @@ public sealed class AccountingProcessCompletedIntegrationEvent(
     public bool IsSuccess { get; init; } = isSuccess;
     public string? ErrorMessage { get; init; } = errorMessage;
     public string ProcessId { get; init; } = processId;
+    public DateTime StartDate { get; init; } = startDate;
     public DateTime ProcessDate { get; init; } = processDate;
     public IEnumerable<int> PortfolioIds { get; init; } = portfolioIds;
 }
