@@ -5,6 +5,7 @@ using Accounting.Application.Abstractions.External;
 using Accounting.Application.AccountingConcepts;
 using Accounting.Application.AccountingOperations;
 using Accounting.Application.AccountProcess;
+using Accounting.Application.AutomaticConcepts;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Concepts;
@@ -90,6 +91,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConceptsRepository, ConceptsRepository>();
         services.AddScoped<AccountingOperationsHandlerValidation>();
         services.AddScoped<AccountingConceptsHandlerValidator>();
+        services.AddScoped<AutomaticConceptsHandlerValidator>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
         services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();

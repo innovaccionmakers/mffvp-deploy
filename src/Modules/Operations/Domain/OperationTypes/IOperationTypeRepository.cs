@@ -6,7 +6,7 @@ public interface IOperationTypeRepository
         string homologatedCode,
         CancellationToken cancellationToken = default);
 
-    Task<OperationType?> GetByNameAsync(
+    Task<IReadOnlyCollection<OperationType>> GetByNameAsync(
         string name,
         CancellationToken cancellationToken = default);
 

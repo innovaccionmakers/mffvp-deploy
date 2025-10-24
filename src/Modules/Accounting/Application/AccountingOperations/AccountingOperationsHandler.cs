@@ -106,11 +106,11 @@ namespace Accounting.Application.AccountingOperations
                     return Result.Failure<bool>(Error.Problem("Accounting.Operations", "No hay operaciones contables que procesar"));
                 }
 
-                var accountingFeesSave =  await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
+                var accountingOperationsSave =  await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
 
-                if (accountingFeesSave.IsFailure)
+                if (accountingOperationsSave.IsFailure)
                 {
-                    logger.LogWarning("No se pudieron guardar las operaciones contables: {Error}", accountingFeesSave.Error);
+                    logger.LogWarning("No se pudieron guardar las operaciones contables: {Error}", accountingOperationsSave.Error);
                     return Result.Failure<bool>(Error.Problem("Accounting.Operations", "No se pudieron guardar las operaciones contables"));
                 }
 

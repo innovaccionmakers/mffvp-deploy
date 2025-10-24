@@ -2,10 +2,11 @@
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Operations.IntegrationEvents.ClientOperations;
 using Operations.IntegrationEvents.OperationTypes;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Accounting.Infrastructure.External.Operations;
 
@@ -25,11 +26,19 @@ public class OperationLocator(IRpcClient rpc) : IOperationLocator
 
     public async Task<Result<(long OperationTypeId, string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken)
     {
-        var rc = await rpc.CallAsync<GetOperationTypeByNameRequest, GetOperationTypeByNameResponse>(
+        var rcs = await rpc.CallAsync<GetOperationTypeByNameRequest, GetOperationTypeByNameResponse>(
                                                 new GetOperationTypeByNameRequest(name), cancellationToken);
 
-        return rc.Succeeded
-            ? Result.Success((rc.OperationType!.OperationTypeId, rc.OperationType.Nature.ToString(), rc.OperationType.Name))
-            : Result.Failure<(long OperationTypeId, string Nature, string Name)>(Error.Validation(rc.Code!, rc.Message!));
+        var rc = rcs.OperationType?.FirstOrDefault();
+        return rcs.Succeeded
+            ? Result.Success((rc.OperationTypeId, rc.Nature.ToString(), rc.Name))
+            : Result.Failure<(long OperationTypeId, string Nature, string Name)>(Error.Validation(rcs.Code!, rcs.Message!));
+    }
+
+    public string GetEnumMemberValue(Enum value)
+    {
+        var field = value.GetType().GetField(value.ToString());
+        var attribute = field?.GetCustomAttribute<EnumMemberAttribute>();
+        return attribute?.Value ?? value.ToString();
     }
 }

@@ -201,4 +201,85 @@ public class YieldDetailRepositoryTests
         Assert.Contains(all, y => y.YieldDetailId == 61);
         Assert.Contains(all, y => y.YieldDetailId == 62);
     }
+
+    [Fact]
+    public async Task GetYieldDetailsAutConceptsAsync_ReturnsEmptyWhenNoMatchingPortfolios()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+
+        // Crear automatic concepts para portfolios diferentes
+        ctx.YieldDetails.AddRange(
+            NewYield(111, 200, closingDate, true, YieldsSources.AutomaticConcept, "AUTO_1"),
+            NewYield(112, 201, closingDate, true, YieldsSources.AutomaticConcept, "AUTO_2")
+        );
+        await ctx.SaveChangesAsync();
+
+        // Act - buscar portfolios que no existen
+        var result = await repo.GetYieldDetailsAutConceptsAsync(new[] { 100, 101 }, closingDate, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsAutConceptsAsync_HandlesEmptyPortfolioIdsList()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+
+        // Crear algunos datos
+        ctx.YieldDetails.AddRange(
+            NewYield(131, 100, closingDate, true, YieldsSources.AutomaticConcept, "AUTO_1"),
+            NewYield(132, 101, closingDate, true, YieldsSources.AutomaticConcept, "AUTO_2")
+        );
+        await ctx.SaveChangesAsync();
+
+        // Act - lista vacía de portfolios
+        var result = await repo.GetYieldDetailsAutConceptsAsync(Array.Empty<int>(), closingDate, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsAutConceptsAsync_ReturnsMixedClosedAndOpenAutomaticConcepts()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var portfolioIds = new[] { 100, 101 };
+
+        // Crear automatic concepts tanto cerrados como abiertos
+        ctx.YieldDetails.AddRange(
+            NewYield(141, 100, closingDate, true, YieldsSources.AutomaticConcept, "CLOSED_AUTO"),
+            NewYield(142, 100, closingDate, false, YieldsSources.AutomaticConcept, "OPEN_AUTO"),
+            NewYield(143, 101, closingDate, true, YieldsSources.AutomaticConcept, "CLOSED_AUTO_2"),
+            NewYield(144, 101, closingDate, false, YieldsSources.AutomaticConcept, "OPEN_AUTO_2")
+        );
+        await ctx.SaveChangesAsync();
+
+        // Act
+        var result = await repo.GetYieldDetailsAutConceptsAsync(portfolioIds, closingDate, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(4, result.Count); // Debería retornar todos los automatic concepts independientemente del estado IsClosed
+
+        // Verificar que se incluyen tanto cerrados como abiertos
+        Assert.Contains(result, y => y.PortfolioId == 100 && y.IsClosed);
+        Assert.Contains(result, y => y.PortfolioId == 100 && !y.IsClosed);
+        Assert.Contains(result, y => y.PortfolioId == 101 && y.IsClosed);
+        Assert.Contains(result, y => y.PortfolioId == 101 && !y.IsClosed);
+
+        // Verificar que todos son automatic concepts
+        Assert.All(result, y => Assert.Equal(YieldsSources.AutomaticConcept, y.Source));
+    }
 }

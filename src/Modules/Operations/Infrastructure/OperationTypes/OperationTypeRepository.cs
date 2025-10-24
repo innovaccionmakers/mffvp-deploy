@@ -18,13 +18,14 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
             .SingleOrDefaultAsync(s => s.HomologatedCode == homologatedCode, ct);
     }
 
-    public async Task<OperationType?> GetByNameAsync(
+    public async Task<IReadOnlyCollection<OperationType>> GetByNameAsync(
         string name,
         CancellationToken ct = default)
     {
         return await context.OperationTypes
             .AsNoTracking()
-            .SingleOrDefaultAsync(s => s.Name == name, ct);
+            .Where(s => s.Name == name)
+            .ToListAsync(ct);
     }
 
     public Task<OperationType?> GetByNameAndCategoryAsync(

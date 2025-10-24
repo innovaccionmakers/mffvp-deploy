@@ -11,18 +11,9 @@ public sealed class GetOperationTypeByNameConsumer(ISender mediator) : IRpcHandl
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetOperationTypeByNameQuery(message.Name), cancellationToken);
+
         return result.Match(
-            type => new GetOperationTypeByNameResponse(true, null, null, new
-                        OperationTypeResponse(
-                            result.Value.OperationTypeId,
-                            result.Value.Name,
-                            result.Value.CategoryId.ToString(),
-                            result.Value.Nature,
-                            result.Value.Status,
-                            result.Value.External,
-                            result.Value.HomologatedCode
-                        )
-                    ),
-            err => new GetOperationTypeByNameResponse(false, err.Code, err.Description, null));
+            type => new GetOperationTypeByNameResponse(true, null, null, type),
+            err => new GetOperationTypeByNameResponse(false, err.Code, err.Description, Array.Empty<OperationTypeResponse>()));
     }
 }
