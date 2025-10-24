@@ -2,10 +2,10 @@ namespace Accounting.Application.AccountProcess;
 
 public interface IAccountingProcessStore
 {
-    Task RegisterProcessResultAsync(Guid processId, string processType, bool isSuccess, string? errorMessage, CancellationToken cancellationToken);
-    Task<bool> AllProcessesCompletedAsync(Guid processId, CancellationToken cancellationToken);
-    Task<List<ProcessResult>> GetAllProcessResultsAsync(Guid processId, CancellationToken cancellationToken);
-    Task CleanupAsync(Guid processId, CancellationToken cancellationToken);
+    Task RegisterProcessResultAsync(string processId, string processType, bool isSuccess, string? errorMessage, CancellationToken cancellationToken);
+    Task<bool> AllProcessesCompletedAsync(string processId, CancellationToken cancellationToken);
+    Task<List<ProcessResult>> GetAllProcessResultsAsync(string processId, CancellationToken cancellationToken);
+    Task CleanupAsync(string processId, CancellationToken cancellationToken);
 }
 
 public record ProcessResult(string ProcessType, bool IsSuccess, string? ErrorMessage);
