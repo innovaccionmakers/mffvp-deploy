@@ -245,8 +245,6 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
     }
 
     public async Task<OperationVoidPageDto> GetOperationsVoidAsync(
-        DateTime startDate,
-        DateTime endDate,
         int affiliateId,
         int objectiveId,
         long operationTypeId,
@@ -255,7 +253,7 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(
-            new GetOperationsVoidQuery(startDate, endDate, affiliateId, objectiveId, operationTypeId, pageNumber, pageSize),
+            new GetOperationsVoidQuery(affiliateId, objectiveId, operationTypeId, pageNumber, pageSize),
             cancellationToken);
 
         if (!result.IsSuccess || result.Value == null)

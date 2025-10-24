@@ -47,13 +47,17 @@ internal sealed class VoidedTransactionsValCommandHandler(
         }
 
         var summary = validationResult.Value;
+        var totalProcessed = command.Items.Count;
 
         if (summary.ValidOperations.Count == 0)
         {
             return Result.Success(new VoidedTransactionsValResult(
                 Array.Empty<long>(),
                 string.Empty,
-                summary.FailedOperations));
+                summary.FailedOperations,
+                totalProcessed,
+                0,
+                summary.FailedOperations.Count));
         }
 
         var request = new VoidedTransactionsOperRequest(command.AffiliateId, command.ObjectiveId);
@@ -70,7 +74,10 @@ internal sealed class VoidedTransactionsValCommandHandler(
         return Result.Success(new VoidedTransactionsValResult(
             response.VoidIds,
             response.Message,
-            summary.FailedOperations));
+            summary.FailedOperations,
+            totalProcessed,
+            response.VoidIds.Count,
+            summary.FailedOperations.Count));
     }
 
     private async Task<Result<VoidedTransactionsValidationResult>> ValidateAsync(

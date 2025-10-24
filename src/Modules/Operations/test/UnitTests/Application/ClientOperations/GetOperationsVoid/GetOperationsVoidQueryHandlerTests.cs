@@ -65,12 +65,10 @@ public class GetOperationsVoidQueryHandlerTests
 
         var clientOperationRepositoryMock = new Mock<IClientOperationRepository>();
         clientOperationRepositoryMock
-            .Setup(repository => repository.GetContributionOperationsInRangeAsync(
+            .Setup(repository => repository.GetContributionOperationsAsync(
                 It.Is<IReadOnlyCollection<long>>(ids => ids.SequenceEqual(categorizedTypes.Select(type => type.OperationTypeId))),
                 affiliateId,
                 objectiveId,
-                It.Is<DateTime>(date => date == new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
-                It.Is<DateTime>(date => date == new DateTime(2024, 1, 31, 0, 0, 0, DateTimeKind.Utc)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(operations);
 
@@ -86,10 +84,10 @@ public class GetOperationsVoidQueryHandlerTests
         var portfolioLocatorMock = new Mock<IPortfolioLocator>();
         portfolioLocatorMock
             .Setup(locator => locator.FindByPortfolioIdAsync(10, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success((PortfolioId: 10L, Name: "Portafolio 10", CurrentDate: new DateTime(2024, 1, 15, 7, 0, 0, DateTimeKind.Utc))));
+            .ReturnsAsync(Result.Success((PortfolioId: 10L, Name: "Portafolio 10", CurrentDate: new DateTime(2024, 1, 14, 7, 0, 0, DateTimeKind.Utc))));
         portfolioLocatorMock
             .Setup(locator => locator.FindByPortfolioIdAsync(20, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success((PortfolioId: 20L, Name: "Portafolio 20", CurrentDate: new DateTime(2024, 1, 12, 9, 0, 0, DateTimeKind.Utc))));
+            .ReturnsAsync(Result.Success((PortfolioId: 20L, Name: "Portafolio 20", CurrentDate: new DateTime(2024, 1, 11, 9, 0, 0, DateTimeKind.Utc))));
 
         var trustInfoProviderMock = new Mock<ITrustInfoProvider>();
         trustInfoProviderMock
@@ -103,8 +101,6 @@ public class GetOperationsVoidQueryHandlerTests
             trustInfoProviderMock.Object);
 
         var query = new GetOperationsVoidQuery(
-            new DateTime(2024, 1, 1),
-            new DateTime(2024, 1, 31),
             affiliateId,
             objectiveId,
             operationType.OperationTypeId,
@@ -167,12 +163,10 @@ public class GetOperationsVoidQueryHandlerTests
 
         var clientOperationRepositoryMock = new Mock<IClientOperationRepository>();
         clientOperationRepositoryMock
-            .Setup(repository => repository.GetContributionOperationsInRangeAsync(
+            .Setup(repository => repository.GetContributionOperationsAsync(
                 It.Is<IReadOnlyCollection<long>>(ids => ids.SequenceEqual(categorizedTypes.Select(type => type.OperationTypeId))),
                 affiliateId,
                 objectiveId,
-                It.IsAny<DateTime>(),
-                It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<ClientOperation> { matchingOperation, nonMatchingOperation });
 
@@ -187,7 +181,7 @@ public class GetOperationsVoidQueryHandlerTests
         var portfolioLocatorMock = new Mock<IPortfolioLocator>();
         portfolioLocatorMock
             .Setup(locator => locator.FindByPortfolioIdAsync(10, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success((PortfolioId: 10L, Name: "Portafolio 10", CurrentDate: new DateTime(2024, 1, 31, 8, 0, 0, DateTimeKind.Utc))));
+            .ReturnsAsync(Result.Success((PortfolioId: 10L, Name: "Portafolio 10", CurrentDate: new DateTime(2024, 1, 30, 8, 0, 0, DateTimeKind.Utc))));
 
         var trustInfoProviderMock = new Mock<ITrustInfoProvider>();
         trustInfoProviderMock
@@ -204,8 +198,6 @@ public class GetOperationsVoidQueryHandlerTests
             trustInfoProviderMock.Object);
 
         var query = new GetOperationsVoidQuery(
-            new DateTime(2024, 1, 1),
-            new DateTime(2024, 2, 15),
             affiliateId,
             objectiveId,
             operationType.OperationTypeId,
