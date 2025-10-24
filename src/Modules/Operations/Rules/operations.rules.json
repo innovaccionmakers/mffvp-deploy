@@ -470,12 +470,6 @@
         "ErrorMessage": "No es posible registrar la anulación: la causal no está configurada.",
         "Expression": "input.CauseExists == true",
         "Properties": { "internalCode": "OPS_VOID_CAUSE_NOT_FOUND" }
-      },
-      {
-        "RuleName": "NoAnnulmentInProgress",
-        "ErrorMessage": "Solo se permite anular una transacción a la vez; hay una anulación en curso.",
-        "Expression": "input.NoPendingAnnulment == true",
-        "Properties": { "internalCode": "OPS_VOID_PENDING_ANNULMENT" }
       }
     ]
   }
