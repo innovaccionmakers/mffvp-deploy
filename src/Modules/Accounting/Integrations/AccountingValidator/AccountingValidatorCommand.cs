@@ -8,7 +8,8 @@ public sealed record AccountingValidatorCommand(
     string ProcessType,
     bool IsSuccess,
     string? ErrorMessage,
-    Guid ProcessId,
+    string ProcessId,
+    DateTime StartDate,
     DateTime ProcessDate,
     IEnumerable<int> PortfolioIds
 ) : ICommand<Unit>;

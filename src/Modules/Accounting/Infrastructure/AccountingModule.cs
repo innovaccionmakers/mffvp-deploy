@@ -6,6 +6,7 @@ using Accounting.Application.AccountingConcepts;
 using Accounting.Application.AccountingOperations;
 using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Application.AccountProcess;
+using Accounting.Application.Services;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Concepts;
@@ -63,7 +64,7 @@ public class AccountingModule : IModuleConfiguration
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];
             var region = configuration["AWS:SecretsManager:Region"];
-
+            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
         }
 
         services.AddDbContext<AccountingDbContext>((sp, options) =>
@@ -94,7 +95,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
         services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();
         services.AddScoped<AccountingInconsistenciesReport>();
-        services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();        
+        services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();
+        services.AddScoped<IAccountingNotificationService, AccountingNotificationService>();
 
 
     }

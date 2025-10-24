@@ -5,7 +5,9 @@ public static class NotificationTypes
 {
     public const string AccountingReport = "Informe Contabilidad";
     public const string Report = "Informe";
-    public const string ReportGeneration = "Generacion Informe";
+    public const string ReportGeneration = "Generando Informe";
+    public const string ReportGenerated  = "Informe generado";
+    public const string ReportGeneratedError = "Informe no generado";
 }
 
 public static class NotificationDefaults

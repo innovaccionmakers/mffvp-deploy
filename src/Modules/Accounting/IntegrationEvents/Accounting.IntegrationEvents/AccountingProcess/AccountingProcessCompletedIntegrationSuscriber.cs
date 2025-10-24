@@ -15,6 +15,7 @@ public sealed class AccountingProcessCompletedIntegrationSuscriber(ISender sende
                                                          message.IsSuccess,
                                                          message.ErrorMessage,
                                                          message.ProcessId,
+                                                         message.StartDate,
                                                          message.ProcessDate,
                                                          message.PortfolioIds), cancellationToken);
     }
