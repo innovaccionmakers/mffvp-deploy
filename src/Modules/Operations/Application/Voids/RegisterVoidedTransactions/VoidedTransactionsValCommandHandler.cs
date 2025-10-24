@@ -119,7 +119,7 @@ internal sealed class VoidedTransactionsValCommandHandler(
                 Error.Validation(requiredError.Code, requiredError.Message));
         }
 
-        var causeTask = configurationParameterRepository
+        var causeConfigurationParameter = await configurationParameterRepository
             .GetByIdAsync(command.CauseId, cancellationToken);
 
         var contributionTypeTask = await operationTypeRepository

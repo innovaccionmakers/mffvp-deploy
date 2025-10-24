@@ -13,7 +13,7 @@ internal sealed class RedisAccountingProcessStore(
     private const string ProcessKeyPrefix = "accounting:process";
     private const int DefaultExpirationMinutes = 60;
 
-    public async Task RegisterProcessResultAsync(Guid processId, string processType, bool isSuccess, string? errorMessage, CancellationToken cancellationToken)
+    public async Task RegisterProcessResultAsync(string processId, string processType, bool isSuccess, string? errorMessage, CancellationToken cancellationToken)
     {
         try
         {
@@ -56,7 +56,7 @@ internal sealed class RedisAccountingProcessStore(
         }
     }
 
-    public async Task<bool> AllProcessesCompletedAsync(Guid processId, CancellationToken cancellationToken)
+    public async Task<bool> AllProcessesCompletedAsync(string processId, CancellationToken cancellationToken)
     {
         try
         {
@@ -100,7 +100,7 @@ internal sealed class RedisAccountingProcessStore(
         }
     }
 
-    public async Task<List<ProcessResult>> GetAllProcessResultsAsync(Guid processId, CancellationToken cancellationToken)
+    public async Task<List<ProcessResult>> GetAllProcessResultsAsync(string processId, CancellationToken cancellationToken)
     {
         try
         {
@@ -132,7 +132,7 @@ internal sealed class RedisAccountingProcessStore(
         }
     }
 
-    public async Task CleanupAsync(Guid processId, CancellationToken cancellationToken)
+    public async Task CleanupAsync(string processId, CancellationToken cancellationToken)
     {
         try
         {
@@ -147,10 +147,10 @@ internal sealed class RedisAccountingProcessStore(
         }
     }
 
-    private static string GenerateProcessKey(Guid processId)
+    private static string GenerateProcessKey(string processId)
     {
         return $"{ProcessKeyPrefix}:{processId:N}";
     }
 
-    private record ProcessData(Guid ProcessId, List<ProcessResult> Results);
+    private record ProcessData(string ProcessId, List<ProcessResult> Results);
 }

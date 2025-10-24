@@ -64,7 +64,7 @@ public class AccountingModule : IModuleConfiguration
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];
             var region = configuration["AWS:SecretsManager:Region"];
-
+            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
         }
 
         services.AddDbContext<AccountingDbContext>((sp, options) =>
@@ -96,7 +96,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
         services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();
         services.AddScoped<AccountingInconsistenciesReport>();
-        services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();        
+        services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();
+        services.AddScoped<IAccountingNotificationService, AccountingNotificationService>();
 
 
     }
