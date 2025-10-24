@@ -119,10 +119,10 @@ internal sealed class VoidedTransactionsValCommandHandler(
                 Error.Validation(requiredError.Code, requiredError.Message));
         }
 
-        var causeTask = configurationParameterRepository
+        var causeConfigurationParameter = await configurationParameterRepository
             .GetByIdAsync(command.CauseId, cancellationToken);
 
-        var contributionTypeTask = operationTypeRepository
+        var contributionType = await operationTypeRepository
             .GetByNameAsync(ContributionOperationName, cancellationToken);
 
         var operationsCache = new Dictionary<long, ClientOperation?>();
@@ -142,9 +142,6 @@ internal sealed class VoidedTransactionsValCommandHandler(
 
             operations[index] = operation;
         }
-        var causeConfigurationParameter = await causeTask;
-        var contributionType = await contributionTypeTask;
-
         var causeExists = causeConfigurationParameter is not null;
         var contributionTypeExists = contributionType is not null;
 
