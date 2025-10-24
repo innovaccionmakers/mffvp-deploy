@@ -53,8 +53,6 @@ public interface IOperationsExperienceQueries
         CancellationToken cancellationToken = default);
 
     Task<OperationVoidPageDto> GetOperationsVoidAsync(
-        DateTime startDate,
-        DateTime endDate,
         int affiliateId,
         int objectiveId,
         long operationTypeId,

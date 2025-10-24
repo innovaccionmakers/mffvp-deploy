@@ -132,7 +132,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         DateTime endDate,
         CancellationToken cancellationToken = default)
     {
-        if (contributionOperationTypeIds is null || contributionOperationTypeIds.Count == 0)
+        if (!TryPrepareContributionTypeIds(contributionOperationTypeIds, out var contributionTypeIdSet))
         {
             return Array.Empty<ClientOperation>();
         }
@@ -142,16 +142,37 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             return Array.Empty<ClientOperation>();
         }
 
-        var contributionTypeIdSet = contributionOperationTypeIds
-            .Where(id => id > 0)
-            .Distinct()
-            .ToArray();
+        var (inclusiveStartDate, exclusiveEndDate) = NormalizeDateRange(startDate, endDate);
 
-        if (contributionTypeIdSet.Length == 0)
+        return await BuildContributionOperationsQuery(contributionTypeIdSet, affiliateId, objectiveId)
+            .Where(operation =>
+                operation.ProcessDate >= inclusiveStartDate &&
+                operation.ProcessDate < exclusiveEndDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<ClientOperation>> GetContributionOperationsAsync(
+        IReadOnlyCollection<long> contributionOperationTypeIds,
+        int affiliateId,
+        int objectiveId,
+        CancellationToken cancellationToken = default)
+    {
+        if (!TryPrepareContributionTypeIds(contributionOperationTypeIds, out var contributionTypeIdSet))
         {
             return Array.Empty<ClientOperation>();
         }
 
+        if (affiliateId <= 0 || objectiveId <= 0)
+        {
+            return Array.Empty<ClientOperation>();
+        }
+
+        return await BuildContributionOperationsQuery(contributionTypeIdSet, affiliateId, objectiveId)
+            .ToListAsync(cancellationToken);
+    }
+
+    private static (DateTime InclusiveStart, DateTime ExclusiveEnd) NormalizeDateRange(DateTime startDate, DateTime endDate)
+    {
         var utcStartDate = NormalizeToUtc(startDate);
         var utcEndDate = NormalizeToUtc(endDate);
 
@@ -162,20 +183,41 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
 
         var inclusiveStartDate = utcStartDate.Date;
         var inclusiveEndDate = utcEndDate.Date;
-        var exclusiveEndDate = inclusiveEndDate.AddDays(1);
 
-        var query = context.ClientOperations
+        return (inclusiveStartDate, inclusiveEndDate.AddDays(1));
+    }
+
+    private IQueryable<ClientOperation> BuildContributionOperationsQuery(
+        long[] contributionTypeIdSet,
+        int affiliateId,
+        int objectiveId)
+    {
+        return context.ClientOperations
             .AsNoTracking()
             .Include(operation => operation.AuxiliaryInformation)
             .Where(operation =>
                 operation.Status == LifecycleStatus.Active &&
                 operation.AffiliateId == affiliateId &&
                 operation.ObjectiveId == objectiveId &&
-                contributionTypeIdSet.Contains(operation.OperationTypeId) &&
-                operation.ProcessDate >= inclusiveStartDate &&
-                operation.ProcessDate < exclusiveEndDate);
+                contributionTypeIdSet.Contains(operation.OperationTypeId));
+    }
 
-        return await query.ToListAsync(cancellationToken);
+    private static bool TryPrepareContributionTypeIds(
+        IReadOnlyCollection<long> contributionOperationTypeIds,
+        out long[] contributionTypeIdSet)
+    {
+        if (contributionOperationTypeIds is null || contributionOperationTypeIds.Count == 0)
+        {
+            contributionTypeIdSet = Array.Empty<long>();
+            return false;
+        }
+
+        contributionTypeIdSet = contributionOperationTypeIds
+            .Where(id => id > 0)
+            .Distinct()
+            .ToArray();
+
+        return contributionTypeIdSet.Length > 0;
     }
 
     private static DateTime NormalizeToUtc(DateTime date)

@@ -232,8 +232,6 @@ public class Query
 
     [GraphQLName("obtenerOperacionesAnulacion")]
     public async Task<OperationVoidPageDto> GetOperationsVoid(
-        [GraphQLName("fechaInicio")] DateTime startDate,
-        [GraphQLName("fechaFin")] DateTime endDate,
         [GraphQLName("idAfiliado")] int affiliateId,
         [GraphQLName("idObjetivo")] int objectiveId,
         [GraphQLName("idTipoOperacion")] long operationTypeId,
@@ -243,8 +241,6 @@ public class Query
         CancellationToken cancellationToken)
     {
         return await operationsQueries.GetOperationsVoidAsync(
-            startDate,
-            endDate,
             affiliateId,
             objectiveId,
             operationTypeId,
