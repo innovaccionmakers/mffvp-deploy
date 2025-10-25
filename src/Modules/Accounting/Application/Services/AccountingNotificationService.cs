@@ -55,7 +55,8 @@ public sealed class AccountingNotificationService(
     {
         var details = new Dictionary<string, string>
         {
-            { "Exitoso", $"Proceso contable {processId} iniciado exitosamente para fecha {processDate:yyyy-MM-dd}" }
+            { "Exitoso", $"Proceso contable {processId} iniciado exitosamente." },
+            { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") }
         };
 
         await SendNotificationAsync(
@@ -68,12 +69,11 @@ public sealed class AccountingNotificationService(
         );
     }
 
-    public async Task SendProcessStatusAsync(
+    public async Task SendProcessFinalizedAsync(
         string user,
         string processId,
         DateTime startDate,
         DateTime processDate,
-        string status,
         CancellationToken cancellationToken = default)
     {
         var duration = (DateTime.UtcNow - startDate).TotalSeconds;
@@ -82,12 +82,13 @@ public sealed class AccountingNotificationService(
         var details = new Dictionary<string, string>
         {
             { "Exitoso", message },
-            { "Duracion", FormatDuration(duration) }
+            { "Duracion", FormatDuration(duration) },
+            { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") }
         };
 
         await SendNotificationAsync(
             user,
-            status,
+            NotificationStatuses.Finalized,
             processId,
             NotificationTypes.ReportGeneration,
             details,
@@ -99,6 +100,7 @@ public sealed class AccountingNotificationService(
         string user,
         string processId,
         DateTime startDate,
+        DateTime processDate,
         string errorMessage,
         CancellationToken cancellationToken = default)
     {
@@ -106,7 +108,8 @@ public sealed class AccountingNotificationService(
         var details = new Dictionary<string, string>
         {
             { "Error", errorMessage },
-            { "Duracion", FormatDuration(duration) }
+            { "Duracion", FormatDuration(duration) },
+            { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") },
         };
 
         await SendNotificationAsync(
@@ -123,14 +126,18 @@ public sealed class AccountingNotificationService(
         string user,
         string processId,
         DateTime startDate,
+        DateTime processDate,
         string reportUrl,
+        int totalRecords,
         CancellationToken cancellationToken = default)
     {
         var duration = (DateTime.UtcNow - startDate).TotalSeconds;
         var details = new Dictionary<string, string>
         {
             { "url", reportUrl },
-            { "Duracion", FormatDuration(duration) }
+            { "Duracion", FormatDuration(duration) },
+            { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") },
+            { "Registros Totales", totalRecords.ToString() }
         };
 
         await SendNotificationAsync(
@@ -147,7 +154,9 @@ public sealed class AccountingNotificationService(
         string user,
         string processId,
         DateTime startDate,
+        DateTime processDate,
         IEnumerable<object> errors,
+        int totalRecords,
         CancellationToken cancellationToken = default)
     {
         var duration = (DateTime.UtcNow - startDate).TotalSeconds;
@@ -155,6 +164,8 @@ public sealed class AccountingNotificationService(
         var details = new
         {
             Duracion = FormatDuration(duration),
+            FechaGeneracion = processDate.ToString("yyyy-MM-dd"),
+            RegistrosTotales = totalRecords,
             Errores = errors
         };
 

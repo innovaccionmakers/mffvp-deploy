@@ -2,6 +2,7 @@
 using Accounting.Integrations.AccountingReturns;
 using Accounting.Integrations.AccountProcess;
 using Accounting.Presentation.GraphQL.Inputs;
+using Azure;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
@@ -12,9 +13,9 @@ namespace Accounting.Presentation.GraphQL
 {
     public class AccountProcessExperienceMutations(IMediator mediator) : IAccountProcessExperienceMutations
     {       
-        public async Task<GraphqlResult<string>> AccountProcessAsync(AccountingInput input, IValidator<AccountingInput> validator, CancellationToken cancellationToken = default)
+        public async Task<GraphqlResult<AccountProcessResult>> AccountProcessAsync(AccountingInput input, IValidator<AccountingInput> validator, CancellationToken cancellationToken = default)
         {
-            var result = new GraphqlResult<string>();
+            var result = new GraphqlResult<AccountProcessResult>();
             try
             {
                 var validationResult = await RequestValidator.Validate(input, validator);
@@ -38,11 +39,10 @@ namespace Accounting.Presentation.GraphQL
                     return result;
                 }
 
-                var valueCommand = commandResult.Description;
-
-                result.SetSuccess(string.Empty, new string(valueCommand));
+                result.SetSuccess(commandResult.Value, "Hemos recibido tu solicitud para el Informe de Contabilidad. Te mantendremos informado sobre el progreso através del Centro de notificaciones y tu Correo Electrónico.");
 
                 return result;
+
             }
             catch (Exception ex)
             {

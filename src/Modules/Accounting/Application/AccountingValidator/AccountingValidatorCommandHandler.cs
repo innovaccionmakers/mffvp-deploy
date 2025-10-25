@@ -6,7 +6,6 @@ using Accounting.Integrations.AccountingValidator;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,7 +44,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         {
             var error = "Ocurrió un error inesperado el completar la validación del proceso contable";
             logger.LogError(ex, error);
-            await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.ProcessDate, error, cancellationToken);
+            await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, error, cancellationToken);
         }
         return Unit.Value;
     }
@@ -61,7 +60,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
     {
         if (!hasErrors)
         {
-            await accountingNotificationService.SendProcessStatusAsync(user, processId.ToString(), startDate, processDate, NotificationStatuses.Finalized, cancellationToken);
+            await accountingNotificationService.SendProcessFinalizedAsync(user, processId, processDate, startDate, cancellationToken);
             return;
         }
 
@@ -88,14 +87,30 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
 
         if (undefinedErrors.Count > 0)
         {
-            await accountingNotificationService.SendProcessFailedWithErrorsAsync(user, processId, startDate, undefinedErrors, cancellationToken);
+            await accountingNotificationService.SendProcessFailedWithErrorsAsync(
+                user,
+                processId,
+                startDate,
+                processDate,
+                undefinedErrors,
+                undefinedErrors.Count,
+                cancellationToken
+            );
             return;
         }
 
         if (allInconsistencies.Count > 0)
         {
             var url = await GenerateAccountingInconsistenciesUrl(processDate, allInconsistencies, cancellationToken);
-            await accountingNotificationService.SendProcessFailedWithUrlAsync(user, processId, startDate, url, cancellationToken);
+            await accountingNotificationService.SendProcessFailedWithUrlAsync(
+                user, 
+                processId, 
+                startDate,
+                processDate,
+                url,
+                allInconsistencies.Count,
+                cancellationToken
+            );
             return;
         }
     }

@@ -10,5 +10,5 @@ namespace Accounting.Integrations.AccountProcess
         IEnumerable<int> PortfolioIds,
         [property: JsonPropertyName("fechaProceso")]
         DateOnly ProcessDate
-        ) : ICommand<string>;
+        ) : ICommand<AccountProcessResult>;
 }
