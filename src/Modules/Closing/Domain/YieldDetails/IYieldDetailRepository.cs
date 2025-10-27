@@ -30,5 +30,7 @@ namespace Closing.Domain.YieldDetails
         Task<int> InsertRangeImmediateAsync(
             IReadOnlyList<YieldDetail> items, 
             CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsAutConceptsAsync(IEnumerable<int> portfolioIdIds, DateTime closeDate, CancellationToken cancellationToken = default);
     }
 }

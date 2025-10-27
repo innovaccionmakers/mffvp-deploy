@@ -1,4 +1,5 @@
-﻿using Accounting.Domain.AccountingAssistants;
+﻿using Accounting.Application.Abstractions.External;
+using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Integrations.AccountingConcepts;
@@ -8,14 +9,13 @@ using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 using Products.IntegrationEvents.Portfolio.GetPortfolioInformation;
-using System.Reflection;
-using System.Runtime.Serialization;
 using Treasury.Domain.TreasuryMovements;
 
 namespace Accounting.Application.AccountingConcepts
 {
     public record class AccountingConceptsHandlerValidator(
         IRpcClient rpcClient,
+        IOperationLocator operationLocator,
         ILogger<AccountingConceptsHandlerValidator> logger
         )
     {
@@ -44,7 +44,7 @@ namespace Accounting.Application.AccountingConcepts
                 identification = counterpartyInfo.identification;
                 verificationDigit = counterpartyInfo.verificationDigit;
                 name = counterpartyInfo.name;
-                var natureValue = GetEnumMemberValue(movement.TreasuryConcept?.Nature);
+                var natureValue = operationLocator.GetEnumMemberValue(movement.TreasuryConcept?.Nature);
 
                 // 2. Validar cuentas contables
                 if (!ValidateAccountingAccounts(movement.PortfolioId, accountTreasury, accountConcept, out var accountValidationErrors))
@@ -117,14 +117,14 @@ namespace Accounting.Application.AccountingConcepts
                 if (string.IsNullOrWhiteSpace(accountTreasury?.DebitAccount))
                 {
                     logger.LogWarning("No se encontró un concepto de cuenta de debito de treasury para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Commission, "No existe parametrización contable", AccountingActivity.Debit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Concepts, "No existe parametrización contable", AccountingActivity.Debit));
                     isValid = false;
                 }
 
                 if (string.IsNullOrWhiteSpace(accountTreasury?.CreditAccount))
                 {
                     logger.LogWarning("No se encontró un concepto de cuenta de crédito de treasury para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Commission, "No existe parametrización contable", AccountingActivity.Credit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Concepts, "No existe parametrización contable", AccountingActivity.Credit));
                     isValid = false;
                 }
 
@@ -132,14 +132,14 @@ namespace Accounting.Application.AccountingConcepts
                 if (string.IsNullOrWhiteSpace(accountConcept?.DebitAccount))
                 {
                     logger.LogWarning("No se encontró un concepto de cuenta de crédito para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Commission, "No existe parametrización contable", AccountingActivity.Debit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Concepts, "No existe parametrización contable", AccountingActivity.Debit));
                     isValid = false;
                 }
 
                 if (string.IsNullOrWhiteSpace(accountConcept?.CreditAccount))
                 {
                     logger.LogWarning("No se encontró un concepto de cuenta de debito para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Commission, "No existe parametrización contable", AccountingActivity.Credit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Concepts, "No existe parametrización contable", AccountingActivity.Credit));
                     isValid = false;
                 }
 
@@ -164,13 +164,13 @@ namespace Accounting.Application.AccountingConcepts
 
             if (isTreasuryConceptZero)
             {
-                debitAccount = requiresBankAccount ? accountTreasury?.DebitAccount ?? string.Empty : accountConcept?.DebitAccount ?? string.Empty;
-                creditAccount = accountConcept?.CreditAccount ?? string.Empty;
+                debitAccount = requiresBankAccount ? accountTreasury?.DebitAccount : accountConcept?.DebitAccount;
+                creditAccount = accountConcept?.CreditAccount;
             }
             else
             {
-                debitAccount = accountConcept?.DebitAccount ?? string.Empty;
-                creditAccount = requiresBankAccount ? accountTreasury?.CreditAccount ?? string.Empty : accountConcept?.CreditAccount ?? string.Empty;
+                debitAccount = accountConcept?.DebitAccount;
+                creditAccount = requiresBankAccount ? accountTreasury?.CreditAccount : accountConcept?.CreditAccount;
             }
 
             if (string.IsNullOrWhiteSpace(debitAccount) || string.IsNullOrWhiteSpace(creditAccount))
@@ -180,13 +180,6 @@ namespace Accounting.Application.AccountingConcepts
             }
 
             return (debitAccount, creditAccount);
-        }
-
-        public static string GetEnumMemberValue(Enum value)
-        {
-            var field = value.GetType().GetField(value.ToString());
-            var attribute = field?.GetCustomAttribute<EnumMemberAttribute>();
-            return attribute?.Value ?? value.ToString();
         }
     }
 }

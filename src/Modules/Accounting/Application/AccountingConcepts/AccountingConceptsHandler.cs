@@ -14,7 +14,7 @@ using Treasury.IntegrationEvents.TreasuryMovements.AccountingConcepts;
 
 namespace Accounting.Application.AccountingConcepts
 {
-    internal class AccountingConceptsHandler(
+    public class AccountingConceptsHandler(
         ISender sender,
         IRpcClient rpcClient,
         AccountingConceptsHandlerValidator validator,
@@ -55,15 +55,15 @@ namespace Accounting.Application.AccountingConcepts
                 if (!accountingAssistants.SuccessItems.Any())
                 {
                     logger.LogInformation("No hay operaciones contables que procesar");
-                    return Result.Failure<bool>(Error.Problem("Accounting.Concepts", "No hay operaciones contables que procesar"));
+                    return Result.Failure<bool>(Error.Problem("Accounting.Concepts", "No hay conceptos contables que procesar"));
                 }
 
-                var accountingFeesSave = await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
+                var accountingConceptsSave = await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
 
-                if (accountingFeesSave.IsFailure)
+                if (accountingConceptsSave.IsFailure)
                 {
-                    logger.LogWarning("No se pudieron guardar las operacines contables: {Error}", accountingFeesSave.Error);
-                    return Result.Failure<bool>(Error.Problem("Accounting.Operations", "No se pudieron guardar las operaciones contables"));
+                    logger.LogWarning("No se pudieron guardar las operacines contables: {Error}", accountingConceptsSave.Error);
+                    return Result.Failure<bool>(Error.Problem("Accounting.Concepts", "No se pudieron guardar los conceptos contables"));
                 }
 
                 return Result.Success<bool>(true);

@@ -179,6 +179,14 @@ public class Query
         return await operationsQueries.GetDebitNoteCausesAsync(cancellationToken);
     }
 
+    [GraphQLName("causalesAnulacion")]
+    public async Task<IReadOnlyCollection<CancellationClauseDto>> GetCancellationClauses(
+        [Service] IOperationsExperienceQueries operationsQueries,
+        CancellationToken cancellationToken)
+    {
+        return await operationsQueries.GetCancellationClausesAsync(cancellationToken);
+    }
+
     [GraphQLName("origen")]
 
     public async Task<IReadOnlyCollection<OriginContributionDto>> GetOriginContributions([Service] IOperationsExperienceQueries operationsQueries,
@@ -199,6 +207,46 @@ public class Query
                                                                              CancellationToken cancellationToken)
     {
         return await operationsQueries.GetWithholdingContingencyAsync(cancellationToken);
+    }
+
+    [GraphQLName("obtenerOperacionesNotaDebito")]
+    public async Task<OperationNdPageDto> GetOperationsNd(
+        [GraphQLName("fechaInicio")] DateTime startDate,
+        [GraphQLName("fechaFin")] DateTime endDate,
+        [GraphQLName("idAfiliado")] int affiliateId,
+        [GraphQLName("idObjetivo")] int objectiveId,
+        [GraphQLName("numeroPagina")] int pageNumber,
+        [GraphQLName("tamanoPagina")] int pageSize,
+        [Service] IOperationsExperienceQueries operationsQueries,
+        CancellationToken cancellationToken)
+    {
+        return await operationsQueries.GetOperationsNdAsync(
+            startDate,
+            endDate,
+            affiliateId,
+            objectiveId,
+            pageNumber,
+            pageSize,
+            cancellationToken);
+    }
+
+    [GraphQLName("obtenerOperacionesAnulacion")]
+    public async Task<OperationVoidPageDto> GetOperationsVoid(
+        [GraphQLName("idAfiliado")] int affiliateId,
+        [GraphQLName("idObjetivo")] int objectiveId,
+        [GraphQLName("idTipoOperacion")] long operationTypeId,
+        [GraphQLName("numeroPagina")] int pageNumber,
+        [GraphQLName("tamanoPagina")] int pageSize,
+        [Service] IOperationsExperienceQueries operationsQueries,
+        CancellationToken cancellationToken)
+    {
+        return await operationsQueries.GetOperationsVoidAsync(
+            affiliateId,
+            objectiveId,
+            operationTypeId,
+            pageNumber,
+            pageSize,
+            cancellationToken);
     }
 
     //Associates Queries

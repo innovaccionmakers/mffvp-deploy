@@ -1,10 +1,9 @@
-using Operations.Domain.ConfigurationParameters;
 using Common.SharedKernel.Application.Attributes;
 using Operations.Application.Abstractions.Data;
 using Operations.Domain.Channels;
-using Common.SharedKernel.Domain.ConfigurationParameters;
-using Operations.Domain.Origins;
+using Operations.Domain.ConfigurationParameters;
 using Operations.Domain.OperationTypes;
+using Operations.Domain.Origins;
 using Operations.Integrations.Contributions.CreateContribution;
 
 namespace Operations.Application.Contributions.Services;
@@ -34,7 +33,8 @@ public sealed class ContributionCatalogResolver(
         var collMethod = cfgs.GetValueOrDefault(scopes[1]);
         var payMethod = cfgs.GetValueOrDefault(scopes[2]);
 
-        var contributionType = await operationTypeRepo.GetByNameAsync("Aporte", ct);
+        var contributionTypes = await operationTypeRepo.GetByNameAsync("Aporte", ct);
+        var contributionType = contributionTypes?.FirstOrDefault();
 
         OperationType? subtype;
         if (string.IsNullOrWhiteSpace(cmd.Subtype))

@@ -610,7 +610,15 @@ namespace Operations.Infrastructure.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("fideicomiso_id");
 
+                    b.Property<decimal>("Units")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("numeric(38,16)")
+                        .HasColumnName("unidades");
+
                     b.HasKey("TrustOperationId");
+
+                    b.HasAlternateKey("PortfolioId", "TrustId", "ProcessDate", "OperationTypeId")
+                        .HasName("ux_operaciones_fideicomiso_portafolio_fideicomiso_fecha_tipo");
 
                     b.HasIndex("ClientOperationId");
 

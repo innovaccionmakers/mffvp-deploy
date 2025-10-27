@@ -74,6 +74,8 @@ public class TrustsModule : IModuleConfiguration
         services.AddScoped<ITrustExperienceQueries, TrustExperienceQueries>();
         services.AddTransient<IRpcHandler<UpdateTrustFromYieldRequest, UpdateTrustFromYieldResponse>, UpdateTrustFromYieldConsumer>();
         services.AddTransient<IRpcHandler<PutTrustRequest, PutTrustResponse>, PutTrustConsumer>();
+        services.AddScoped<ITrustBulkRepository, TrustBulkRepository>();
+
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TrustsDbContext>());
 

@@ -11,7 +11,10 @@ public record VoidedTransactionFailureDto(
 public record VoidedTransactionsMutationResult(
     [property: GraphQLName("idsAnulacion")] IReadOnlyCollection<long> VoidIds,
     [property: GraphQLName("mensaje")] string Message,
-    [property: GraphQLName("operacionesFallidas")] IReadOnlyCollection<VoidedTransactionFailureDto> FailedOperations)
+    [property: GraphQLName("operacionesFallidas")] IReadOnlyCollection<VoidedTransactionFailureDto> FailedOperations,
+    [property: GraphQLName("numeroRegistrosProcesados")] int TotalProcessed,
+    [property: GraphQLName("cantidadExitos")] int SuccessCount,
+    [property: GraphQLName("cantidadErrores")] int ErrorCount)
 {
     public static VoidedTransactionsMutationResult FromResult(
         VoidedTransactionsValResult result)
@@ -23,6 +26,12 @@ public record VoidedTransactionsMutationResult(
                 failure.Message))
             .ToArray();
 
-        return new VoidedTransactionsMutationResult(result.VoidIds, result.Message, failures);
+        return new VoidedTransactionsMutationResult(
+            result.VoidIds,
+            result.Message,
+            failures,
+            result.TotalProcessed,
+            result.SuccessCount,
+            result.ErrorCount);
     }
 }

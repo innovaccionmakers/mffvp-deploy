@@ -1,15 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj"/>
-        <ProjectReference Include="..\Application\Trusts.Application.csproj"/>
-        <ProjectReference Include="..\Domain\Trusts.Domain.csproj"/>
+        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
+        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
+        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
+        <ProjectReference Include="..\Application\Trusts.Application.csproj" />
+        <ProjectReference Include="..\Domain\Trusts.Domain.csproj" />
         <ProjectReference Include="..\IntegrationEvents\Trusts.IntegrationEvents\Trusts.IntegrationEvents.csproj" />
-        <ProjectReference Include="..\Presentation\Trusts.Presentation.csproj"/>
-        <EmbeddedResource Include="..\Rules\**\*.json"/>
+        <ProjectReference Include="..\Presentation\Trusts.Presentation.csproj" />
+        <EmbeddedResource Include="..\Rules\**\*.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="EFCore.BulkExtensions.PostgreSql" Version="8.1.3" />
     </ItemGroup>
 
     <PropertyGroup>

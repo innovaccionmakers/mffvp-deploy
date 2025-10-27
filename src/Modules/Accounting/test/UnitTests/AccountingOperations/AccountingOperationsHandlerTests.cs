@@ -1,4 +1,5 @@
-﻿using Accounting.Application.AccountingOperations;
+﻿using Accounting.Application.Abstractions.External;
+using Accounting.Application.AccountingOperations;
 using Accounting.Integrations.PassiveTransaction.GetAccountingOperationsPassiveTransaction;
 using Accounting.Integrations.Treasuries.GetAccountingOperationsTreasuries;
 using Common.SharedKernel.Domain.OperationTypes;
@@ -10,13 +11,14 @@ namespace Accounting.test.UnitTests.AccountingOperations
 {
     public class AccountingOperationsHandlerTests
     {
+        private readonly IOperationLocator _operationLocator;
         private readonly ILogger<AccountingOperationsHandlerValidation> _logger;
         private readonly AccountingOperationsHandlerValidation _handler;
 
         public AccountingOperationsHandlerTests()
         {
             _logger = new MockLogger<AccountingOperationsHandlerValidation>();
-            _handler = new AccountingOperationsHandlerValidation(_logger);
+            _handler = new AccountingOperationsHandlerValidation(_operationLocator, _logger);
         }
 
         [Fact]

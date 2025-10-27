@@ -95,5 +95,16 @@ namespace Closing.Infrastructure.PortfolioValuations
 
             return rowsAffected;
         }
+        public async Task<PortfolioValuationClosing?> GetReadOnlyToDistributePortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken)
+        {
+            return await context.PortfolioValuations
+                .TagWith("PortfolioValuationRepository_GetReadOnlyToDistributePortfolioAndDateAsync")
+                .AsNoTracking()
+                .Where(v => v.PortfolioId == portfolioId &&
+                            v.IsClosed  &&
+                            v.ClosingDate == closingDateUtc)
+                .Select(v => new PortfolioValuationClosing(v.Amount, v.UnitValue))
+                .FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }

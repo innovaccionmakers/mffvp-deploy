@@ -61,6 +61,17 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
             .SingleOrDefaultAsync(cancellationToken);
     }
 
+    public async Task UpdateCreditedYieldsAsync(int portfolioId, DateTime closingDateUtc, decimal distributedTotal, DateTime processDate, CancellationToken cancellationToken = default)
+    {
+        await context.Yields
+        .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc)
+        .TagWith("YieldRepository_UpdateCreditedYieldsAsync")
+        .ExecuteUpdateAsync(setters => setters
+            .SetProperty(y => y.CreditedYields, distributedTotal)
+            .SetProperty(y => y.ProcessDate, processDate),
+        cancellationToken);
+    }
+
     public async Task<Yield?> GetReadOnlyByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
     {
         return await context.Yields
@@ -112,6 +123,27 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<decimal?> GetYieldToCreditAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+    {
+        return await context.Yields
+            .TagWith("YieldRepository_GetForUpdateByPortfolioAndDateAsync")
+            .Where(y => y.PortfolioId == portfolioId && y.ClosingDate.Date == closingDateUtc)
+            .Select(y => y.YieldToCredit)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<YieldToDistribute?> GetReadOnlyToDistributeByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken)
+    {
+        return await context.Yields
+            .AsNoTracking()
+            .TagWith("YieldRepository_GetToDistributeByPortfolioAndDateAsync")
+            .Where(r => r.PortfolioId == portfolioId &&
+                       r.ClosingDate.Date == closingDateUtc)
+            .Select(r => new YieldToDistribute(
+                r.YieldToCredit, r.Income, r.Expenses, r.Commissions, r.Costs))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyCollection<Yield>> GetAllAutConceptsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds,
                                                                                          DateTime closingDate,
                                                                                          CancellationToken cancellationToken = default)
@@ -122,3 +154,4 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
             .ToListAsync(cancellationToken);
     }
 }
+

@@ -2,6 +2,8 @@ using Common.SharedKernel.Core.Primitives;
 
 using MediatR;
 using Operations.Integrations.ClientOperations.GetClientOperationsByProcessDate;
+using Operations.Integrations.ClientOperations.GetOperationsND;
+using Operations.Integrations.ClientOperations.GetOperationsVoid;
 using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.OperationTypes;
 using Operations.Integrations.Origins;
@@ -141,6 +143,26 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         )).ToList();
     }
 
+    public async Task<IReadOnlyCollection<CancellationClauseDto>> GetCancellationClausesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetCancellationClauseQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve cancellation clauses.");
+        }
+
+        var cancellationClauses = result.Value;
+
+        return cancellationClauses.Select(x => new CancellationClauseDto(
+            x.Uuid,
+            x.Name,
+            x.Status,
+            x.HomologationCode
+        )).ToList();
+    }
+
     public async Task<IReadOnlyCollection<OriginContributionDto>> GetOriginContributionsAsync(
         CancellationToken cancellationToken = default)
     {
@@ -185,5 +207,75 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         .ToList();
 
         return response;
+    }
+
+    public async Task<OperationNdPageDto> GetOperationsNdAsync(
+        DateTime startDate,
+        DateTime endDate,
+        int affiliateId,
+        int objectiveId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(
+            new GetOperationsNDQuery(startDate, endDate, affiliateId, objectiveId, pageNumber, pageSize),
+            cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve ND operations.");
+        }
+
+        var items = result.Value.Items
+            .Select(item => new OperationNdDto(
+                item.ClientOperationId,
+                item.ProcessDate,
+                item.TransactionTypeName,
+                item.Amount,
+                item.ContingentWithholding))
+            .ToList();
+
+        return new OperationNdPageDto(
+            result.Value.PageNumber,
+            result.Value.PageSize,
+            result.Value.TotalCount,
+            result.Value.TotalPages,
+            items);
+    }
+
+    public async Task<OperationVoidPageDto> GetOperationsVoidAsync(
+        int affiliateId,
+        int objectiveId,
+        long operationTypeId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(
+            new GetOperationsVoidQuery(affiliateId, objectiveId, operationTypeId, pageNumber, pageSize),
+            cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            throw new InvalidOperationException("Failed to retrieve void operations.");
+        }
+
+        var items = result.Value.Items
+            .Select(item => new OperationVoidDto(
+                item.ClientOperationId,
+                item.ProcessDate,
+                item.TransactionTypeName,
+                item.OperationTypeId,
+                item.Amount,
+                item.ContingentWithholding))
+            .ToList();
+
+        return new OperationVoidPageDto(
+            result.Value.PageNumber,
+            result.Value.PageSize,
+            result.Value.TotalCount,
+            result.Value.TotalPages,
+            items);
     }
 }

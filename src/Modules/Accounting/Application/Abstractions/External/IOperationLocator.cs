@@ -11,4 +11,6 @@ public interface IOperationLocator
                                                                                                     CancellationToken cancellationToken);
 
     Task<Result<(long OperationTypeId, string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken);
+
+    string GetEnumMemberValue(Enum value);
 }

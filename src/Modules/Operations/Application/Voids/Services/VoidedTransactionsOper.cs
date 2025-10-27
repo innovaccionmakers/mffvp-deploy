@@ -58,13 +58,21 @@ public sealed class VoidedTransactionsOper(
 
             await transaction.CommitAsync(cancellationToken);
 
+            var processDate = DateTime.SpecifyKind(
+                operation.PortfolioCurrentDate.AddDays(1),
+                DateTimeKind.Utc);
+
             var update = new TrustUpdate(
                 original.ClientOperationId,
                 LifecycleStatus.Annulled,
                 0m,
                 0m,
                 0m,
-                DateTime.UtcNow);
+                0m,
+                0m,
+                0m,
+                0m,
+                processDate);
 
             var trustUpdateResult = await trustUpdater
                 .UpdateAsync(update, cancellationToken);

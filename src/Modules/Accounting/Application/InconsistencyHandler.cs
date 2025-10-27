@@ -1,4 +1,5 @@
 using Accounting.Application.Abstractions;
+using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +16,15 @@ public sealed class InconsistencyHandler(
     {
         try
         {
+            var automaticConceptErrors = inconsistencies
+                .DistinctBy(e => new {
+                    e.PortfolioId,
+                    e.Transaction,
+                    e.Inconsistency,
+                    e.Activity
+                })
+                .ToList();
+
             logger.LogWarning("Se detectaron inconsistencias en el proceso {ProcessType} para la fecha {ProcessDate}",
                 processType, processDate);
 

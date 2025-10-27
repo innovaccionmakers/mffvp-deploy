@@ -100,6 +100,12 @@ namespace Closing.Infrastructure.YieldDetails
             return inserted;
         }
 
-
+        public async Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsAutConceptsAsync(IEnumerable<int> portfolioIdIds, DateTime closeDate, CancellationToken cancellationToken = default)
+        {
+            return await context.YieldDetails
+                .AsNoTracking()
+                .Where(y => portfolioIdIds.Contains(y.PortfolioId) && y.ClosingDate == closeDate && y.Source == YieldsSources.AutomaticConcept)
+                .ToListAsync(cancellationToken);
+        }
     }
 }
