@@ -15,4 +15,9 @@ public sealed class AccountingAssistantRepository(AccountingDbContext context) :
     {
         await context.AccountingAssistants.ExecuteDeleteAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyCollection<AccountingAssistant>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+       return await context.AccountingAssistants.ToListAsync(cancellationToken);
+    }
 }
