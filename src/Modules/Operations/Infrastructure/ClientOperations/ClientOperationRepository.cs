@@ -103,7 +103,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         return await context.ClientOperations
             .Where(co => co.Status == LifecycleStatus.Active)
             .Where(co => portfolioIds.Contains(co.PortfolioId) && co.ProcessDate == processDate)
-            .Where(co => co.OperationType != null && (co.OperationType.OperationTypeId == 1 || co.OperationType.CategoryId == 1))
+            .Where(co => co.OperationType != null && co.OperationType.Name == "Ninguno")
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
             .AsSplitQuery()
