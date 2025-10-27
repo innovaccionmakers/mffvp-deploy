@@ -1,5 +1,6 @@
 using Accounting.Application.Abstractions;
 using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Domain.Constants;
 using Common.SharedKernel.Infrastructure.NotificationsCenter;
 using Microsoft.Extensions.Configuration;
@@ -10,19 +11,6 @@ public sealed class AccountingNotificationService(
     INotificationCenter notificationCenter,
     IConfiguration configuration) : IAccountingNotificationService
 {
-    private static string FormatDuration(double totalSeconds)
-    {
-        var duration = TimeSpan.FromSeconds(totalSeconds);
-
-        if (duration.TotalDays >= 1)
-            return $"{(int)duration.TotalDays} días";
-        else if (duration.TotalHours >= 1)
-            return $"{(int)duration.TotalHours} horas";
-        else if (duration.TotalMinutes >= 1)
-            return $"{(int)duration.TotalMinutes} minutos";
-        else
-            return $"{(int)totalSeconds} segundos";
-    }
     public async Task SendNotificationAsync(
         string user,
         string status,
@@ -55,7 +43,8 @@ public sealed class AccountingNotificationService(
     {
         var details = new Dictionary<string, string>
         {
-            { "Exitoso", $"Proceso contable {processId} iniciado exitosamente para fecha {processDate:yyyy-MM-dd}" }
+            { "Exitoso", $"Proceso contable {processId} iniciado exitosamente." },
+            { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") }
         };
 
         await SendNotificationAsync(
@@ -68,26 +57,25 @@ public sealed class AccountingNotificationService(
         );
     }
 
-    public async Task SendProcessStatusAsync(
+    public async Task SendProcessFinalizedAsync(
         string user,
         string processId,
         DateTime startDate,
         DateTime processDate,
-        string status,
         CancellationToken cancellationToken = default)
     {
-        var duration = (DateTime.UtcNow - startDate).TotalSeconds;
         var message = $"Proceso contable {processId} completado exitosamente para la fecha {processDate:yyyy-MM-dd}";
 
         var details = new Dictionary<string, string>
         {
             { "Exitoso", message },
-            { "Duracion", FormatDuration(duration) }
+            { "Duración", TimeHelper.GetDuration(startDate, DateTime.UtcNow) },
+            { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") }
         };
 
         await SendNotificationAsync(
             user,
-            status,
+            NotificationStatuses.Finalized,
             processId,
             NotificationTypes.ReportGeneration,
             details,
@@ -99,6 +87,7 @@ public sealed class AccountingNotificationService(
         string user,
         string processId,
         DateTime startDate,
+        DateTime processDate,
         string errorMessage,
         CancellationToken cancellationToken = default)
     {
@@ -106,7 +95,8 @@ public sealed class AccountingNotificationService(
         var details = new Dictionary<string, string>
         {
             { "Error", errorMessage },
-            { "Duracion", FormatDuration(duration) }
+            { "Duración", TimeHelper.GetDuration(startDate, DateTime.UtcNow) },
+            { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") },
         };
 
         await SendNotificationAsync(
@@ -123,14 +113,18 @@ public sealed class AccountingNotificationService(
         string user,
         string processId,
         DateTime startDate,
+        DateTime processDate,
         string reportUrl,
+        int totalRecords,
         CancellationToken cancellationToken = default)
     {
         var duration = (DateTime.UtcNow - startDate).TotalSeconds;
         var details = new Dictionary<string, string>
         {
             { "url", reportUrl },
-            { "Duracion", FormatDuration(duration) }
+            { "Duración", TimeHelper.GetDuration(startDate, DateTime.UtcNow) },
+            { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") },
+            { "Registros Totales", totalRecords.ToString() }
         };
 
         await SendNotificationAsync(
@@ -147,14 +141,18 @@ public sealed class AccountingNotificationService(
         string user,
         string processId,
         DateTime startDate,
+        DateTime processDate,
         IEnumerable<object> errors,
+        int totalRecords,
         CancellationToken cancellationToken = default)
     {
         var duration = (DateTime.UtcNow - startDate).TotalSeconds;
 
         var details = new
         {
-            Duracion = FormatDuration(duration),
+            Duracion = TimeHelper.GetDuration(startDate, DateTime.UtcNow),
+            FechaGeneracion = processDate.ToString("yyyy-MM-dd"),
+            RegistrosTotales = totalRecords,
             Errores = errors
         };
 

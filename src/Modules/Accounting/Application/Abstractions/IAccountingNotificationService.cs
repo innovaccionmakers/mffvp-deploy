@@ -16,33 +16,37 @@ public interface IAccountingNotificationService
      DateTime processDate,
      CancellationToken cancellationToken = default);
 
- Task SendProcessStatusAsync(
+ Task SendProcessFinalizedAsync(
      string user,
      string processId,
      DateTime startDate,
      DateTime processDate,
-     string status,
      CancellationToken cancellationToken = default);
 
- Task SendProcessFailedAsync(
-     string user,
-     string processId,
-     DateTime startDate,
-     string errorMessage,
-     CancellationToken cancellationToken = default);
+Task SendProcessFailedAsync(
+    string user,
+    string processId,
+    DateTime startDate,
+    DateTime processDate,
+    string errorMessage,
+    CancellationToken cancellationToken = default);
 
- Task SendProcessFailedWithUrlAsync(
-     string user,
-     string processId,
-     DateTime startDate,
-     string reportUrl,
-     CancellationToken cancellationToken = default);
+Task SendProcessFailedWithUrlAsync(
+    string user,
+    string processId,
+    DateTime startDate,
+    DateTime processDate,
+    string reportUrl,
+    int totalRecords,
+    CancellationToken cancellationToken = default);
 
- Task SendProcessFailedWithErrorsAsync(
-     string user,
-     string processId,
-     DateTime startDate,
-     IEnumerable<object> errors,
-     CancellationToken cancellationToken = default);
+Task SendProcessFailedWithErrorsAsync(
+    string user,
+    string processId,
+    DateTime startDate,
+    DateTime processDate,
+    IEnumerable<object> errors,
+    int totalRecords,
+    CancellationToken cancellationToken = default);
 }
 

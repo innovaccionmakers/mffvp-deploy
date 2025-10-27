@@ -1,4 +1,5 @@
-﻿using Accounting.Presentation.GraphQL;
+﻿using Accounting.Integrations.AccountProcess;
+using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.GraphQL.Inputs;
 using Associate.Presentation.GraphQL;
 using Associate.Presentation.GraphQL.Inputs;
@@ -206,7 +207,7 @@ public class Mutation
     }
 
     [GraphQLName("procesoCuenta")]
-    public async Task<GraphqlResult<string>> AccountProcess([GraphQLName("cuenta")] AccountingInput input,
+    public async Task<GraphqlResult<AccountProcessResult>> AccountProcess([GraphQLName("cuenta")] AccountingInput input,
                                                        IValidator<AccountingInput> validator,
                                                        [Service] IAccountProcessExperienceMutations accountProcessMutations,
                                                        CancellationToken cancellationToken)

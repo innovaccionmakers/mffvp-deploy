@@ -13,7 +13,6 @@ using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.Constants;
 using Common.SharedKernel.Core.Primitives;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,22 +24,22 @@ internal sealed class AccountProcessHandler(
     IClosingExecutionStore closingValidator,
     IServiceProvider serviceProvider,
     IAccountingNotificationService accountingNotificationService,
-    IUserService userService) : ICommandHandler<AccountProcessCommand, string>
+    IUserService userService) : ICommandHandler<AccountProcessCommand, AccountProcessResult>
 {
     private const string ProcessIdPrefix = "CONTAFVP";
 
-    public async Task<Result<string>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
+    public async Task<Result<AccountProcessResult>> Handle(AccountProcessCommand command, CancellationToken cancellationToken)
     {
         var startDate = DateTime.UtcNow;
 
         var isActive = await closingValidator.IsClosingActiveAsync(cancellationToken);
         if (isActive)
-            return Result.Failure<string>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
+            return Result.Failure<AccountProcessResult>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
 
         var deleteCommand = new DeleteAccountingAssistantsCommand();
         var deleteResult = await sender.Send(deleteCommand, cancellationToken);
         if (deleteResult.IsFailure)
-            return Result.Failure<string>(deleteResult.Error);
+            return Result.Failure<AccountProcessResult>(deleteResult.Error);
 
         var user = userService.GetUserName();
         var processId = $"{ProcessIdPrefix}{DateTime.UtcNow:yyyyMMddHHmmss}";
@@ -65,7 +64,7 @@ internal sealed class AccountProcessHandler(
             _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
             _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AutomaticConcepts, automaticConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
 
-        return Result.Success(string.Empty, "Se está generando la información del proceso contable. Será notificado cuando finalice.");
+        return Result.Success(new AccountProcessResult(processId));
     }
 
     private async Task ExecuteAccountingOperationWithScopeAsync<T>(
