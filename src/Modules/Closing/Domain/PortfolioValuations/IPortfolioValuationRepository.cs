@@ -16,5 +16,7 @@ namespace Closing.Domain.PortfolioValuations
 
         Task<IReadOnlyCollection<PortfolioValuation>> GetPortfolioValuationsByClosingDateAsync(DateTime closingDate, CancellationToken cancellationToken = default);
         Task<int> ApplyAllocationCheckDiffAsync( int portfolioId, DateTime closingDateUtc,decimal difference,CancellationToken cancellationToken = default);
+
+        Task<PortfolioValuationClosing?> GetReadOnlyToDistributePortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
     }
 }

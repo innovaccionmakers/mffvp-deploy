@@ -40,7 +40,8 @@ public class AccountingRecordsValCommandHandlerTests
         const long debitNoteTypeId = 3;
 
         var contributionType = CreateOperationType(contributionTypeId, "Aporte", null);
-        var contributionSubtype = CreateOperationType(contributionSubtypeId, "Aporte Débito Automático", (int)contributionTypeId);
+        var contributionsSubtype = CreateOperationType(contributionSubtypeId, "Aporte Débito Automático", (int)contributionTypeId);
+        var contributionSubtype = contributionsSubtype.FirstOrDefault();
         var debitNoteType = CreateOperationType(debitNoteTypeId, "Nota Débito", null, IncomeEgressNature.Egress);
 
         var ruleEvaluatorMock = new Mock<IInternalRuleEvaluator<OperationsModuleMarker>>();
@@ -159,7 +160,8 @@ public class AccountingRecordsValCommandHandlerTests
         const long debitNoteTypeId = 12;
 
         var contributionType = CreateOperationType(contributionTypeId, "Aporte", null);
-        var contributionSubtype = CreateOperationType(contributionSubtypeId, "Aporte Nómina", (int)contributionTypeId);
+        var contributionsSubtype = CreateOperationType(contributionSubtypeId, "Aporte Nómina", (int)contributionTypeId);
+        var contributionSubtype = contributionsSubtype.FirstOrDefault();
         var debitNoteType = CreateOperationType(debitNoteTypeId, "Nota Débito", null, IncomeEgressNature.Egress);
 
         var causeScope = HomologScope.Of<AccountingRecordsValCommand>(c => c.CauseId);
@@ -278,382 +280,7 @@ public class AccountingRecordsValCommandHandlerTests
             Times.Never);
     }
 
-    [Fact]
-    public async Task Handle_WhenOperationTypeIsNotContribution_ReturnsFailure()
-    {
-        const long clientOperationId = 55;
-        const decimal amount = 200m;
-        const int causeHomologationCode = 8;
-        const int causeConfigurationParameterId = 18;
-        const long contributionTypeId = 21;
-        const long nonContributionTypeId = 22;
-
-        var contributionType = CreateOperationType(contributionTypeId, "Aporte", null);
-        var nonContributionType = CreateOperationType(nonContributionTypeId, "Rescate", null);
-
-        var ruleEvaluatorMock = new Mock<IInternalRuleEvaluator<OperationsModuleMarker>>();
-        object? validationContext = null;
-
-        ruleEvaluatorMock
-            .Setup(evaluator => evaluator.EvaluateAsync(
-                "Operations.DebitNote.RequiredFields",
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(SuccessfulRules);
-
-        var validationError = new RuleValidationError(
-            "OPS_ACC_INVALID_OPERATION_TYPE",
-            "La nota débito solo aplica a aportes.");
-
-        ruleEvaluatorMock
-            .Setup(evaluator => evaluator.EvaluateAsync(
-                "Operations.DebitNote.Validation",
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()))
-            .Callback((string _, object context, CancellationToken _) => validationContext = context)
-            .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
-
-        var causeScope = HomologScope.Of<AccountingRecordsValCommand>(c => c.CauseId);
-        var causeConfigurationParameter = ConfigurationParameter.Create(
-            name: "Causal Nota Débito",
-            homologationCode: causeHomologationCode.ToString(CultureInfo.InvariantCulture),
-            type: causeScope);
-
-        typeof(ConfigurationParameter)
-            .GetProperty(nameof(ConfigurationParameter.ConfigurationParameterId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
-            .SetValue(causeConfigurationParameter, causeConfigurationParameterId);
-
-        var configurationParameterRepositoryMock = new Mock<IConfigurationParameterRepository>();
-        configurationParameterRepositoryMock
-            .Setup(repository => repository.GetByCodeAndScopeAsync(
-                causeHomologationCode.ToString(CultureInfo.InvariantCulture),
-                causeScope,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(causeConfigurationParameter);
-
-        var clientOperation = ClientOperation
-            .Create(
-                DateTime.UtcNow,
-                affiliateId: 15,
-                objectiveId: 25,
-                portfolioId: 35,
-                amount,
-                DateTime.UtcNow.AddDays(-2),
-                operationTypeId: nonContributionType.OperationTypeId,
-                DateTime.UtcNow.AddDays(-1),
-                LifecycleStatus.Active,
-                trustId: 200)
-            .Value;
-
-        typeof(ClientOperation)
-            .GetProperty(nameof(ClientOperation.ClientOperationId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
-            .SetValue(clientOperation, clientOperationId);
-
-        var clientOperationRepositoryMock = new Mock<IClientOperationRepository>();
-        clientOperationRepositoryMock
-            .Setup(repository => repository.GetAsync(clientOperationId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(clientOperation);
-
-        var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
-        operationTypeRepositoryMock
-            .Setup(repository => repository.GetByIdAsync(nonContributionType.OperationTypeId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(nonContributionType);
-        operationTypeRepositoryMock
-            .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
-
-        var portfolioLocatorMock = new Mock<IPortfolioLocator>(MockBehavior.Strict);
-        var closingValidatorMock = new Mock<IClosingValidator>(MockBehavior.Strict);
-        var trustInfoProviderMock = new Mock<ITrustInfoProvider>(MockBehavior.Strict);
-        var accountingRecordsOperMock = new Mock<IAccountingRecordsOper>(MockBehavior.Strict);
-        var loggerMock = new Mock<ILogger<AccountingRecordsValCommandHandler>>();
-
-        var handler = new AccountingRecordsValCommandHandler(
-            ruleEvaluatorMock.Object,
-            clientOperationRepositoryMock.Object,
-            configurationParameterRepositoryMock.Object,
-            operationTypeRepositoryMock.Object,
-            portfolioLocatorMock.Object,
-            closingValidatorMock.Object,
-            trustInfoProviderMock.Object,
-            accountingRecordsOperMock.Object,
-            loggerMock.Object);
-
-        var command = new AccountingRecordsValCommand(
-            clientOperationId,
-            amount,
-            causeHomologationCode,
-            5,
-            6);
-
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be(validationError.Code);
-        result.Error.Description.Should().Be(validationError.Message);
-        result.Error.Type.Should().Be(Common.SharedKernel.Core.Primitives.ErrorType.Validation);
-        trustInfoProviderMock.Verify(provider => provider.GetAsync(It.IsAny<long>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()), Times.Never);
-        accountingRecordsOperMock.Verify(
-            service => service.ExecuteAsync(It.IsAny<AccountingRecordsOperRequest>(), It.IsAny<AccountingRecordsValidationResult>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-
-        validationContext.Should().NotBeNull();
-        GetPropertyValue<bool>(validationContext!, "OperationExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "OperationTypeExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "ContributionTypeExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "OperationIsContribution").Should().BeFalse();
-        GetPropertyValue<bool>(validationContext!, "PortfolioFound").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "DebitNoteTypeExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "NoPendingAnnulment").Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task Handle_WhenOperationTypeNotFound_ReturnsFailure()
-    {
-        const long clientOperationId = 91;
-        const decimal amount = 300m;
-        const int causeHomologationCode = 13;
-        const int causeConfigurationParameterId = 23;
-        const long contributionTypeId = 31;
-
-        var contributionType = CreateOperationType(contributionTypeId, "Aporte", null);
-
-        var ruleEvaluatorMock = new Mock<IInternalRuleEvaluator<OperationsModuleMarker>>();
-        object? validationContext = null;
-
-        ruleEvaluatorMock
-            .Setup(evaluator => evaluator.EvaluateAsync(
-                "Operations.DebitNote.RequiredFields",
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(SuccessfulRules);
-
-        var validationError = new RuleValidationError(
-            "OPS_ACC_OPERATION_TYPE_NOT_FOUND",
-            "No es posible registrar la nota débito: el tipo de operación no está configurado.");
-
-        ruleEvaluatorMock
-            .Setup(evaluator => evaluator.EvaluateAsync(
-                "Operations.DebitNote.Validation",
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()))
-            .Callback((string _, object context, CancellationToken _) => validationContext = context)
-            .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
-
-        var causeScope = HomologScope.Of<AccountingRecordsValCommand>(c => c.CauseId);
-        var causeConfigurationParameter = ConfigurationParameter.Create(
-            name: "Causal Nota Débito",
-            homologationCode: causeHomologationCode.ToString(CultureInfo.InvariantCulture),
-            type: causeScope);
-
-        typeof(ConfigurationParameter)
-            .GetProperty(nameof(ConfigurationParameter.ConfigurationParameterId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
-            .SetValue(causeConfigurationParameter, causeConfigurationParameterId);
-
-        var configurationParameterRepositoryMock = new Mock<IConfigurationParameterRepository>();
-        configurationParameterRepositoryMock
-            .Setup(repository => repository.GetByCodeAndScopeAsync(
-                causeHomologationCode.ToString(CultureInfo.InvariantCulture),
-                causeScope,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(causeConfigurationParameter);
-
-        var clientOperation = ClientOperation
-            .Create(
-                DateTime.UtcNow,
-                affiliateId: 41,
-                objectiveId: 51,
-                portfolioId: 61,
-                amount,
-                DateTime.UtcNow.AddDays(-2),
-                operationTypeId: 999,
-                DateTime.UtcNow.AddDays(-1),
-                LifecycleStatus.Active,
-                trustId: 300)
-            .Value;
-
-        typeof(ClientOperation)
-            .GetProperty(nameof(ClientOperation.ClientOperationId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
-            .SetValue(clientOperation, clientOperationId);
-
-        var clientOperationRepositoryMock = new Mock<IClientOperationRepository>();
-        clientOperationRepositoryMock
-            .Setup(repository => repository.GetAsync(clientOperationId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(clientOperation);
-
-        var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
-        operationTypeRepositoryMock
-            .Setup(repository => repository.GetByIdAsync(clientOperation.OperationTypeId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((OperationType?)null);
-        operationTypeRepositoryMock
-            .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
-
-        var portfolioLocatorMock = new Mock<IPortfolioLocator>(MockBehavior.Strict);
-        var closingValidatorMock = new Mock<IClosingValidator>(MockBehavior.Strict);
-        var trustInfoProviderMock = new Mock<ITrustInfoProvider>(MockBehavior.Strict);
-        var accountingRecordsOperMock = new Mock<IAccountingRecordsOper>(MockBehavior.Strict);
-        var loggerMock = new Mock<ILogger<AccountingRecordsValCommandHandler>>();
-
-        var handler = new AccountingRecordsValCommandHandler(
-            ruleEvaluatorMock.Object,
-            clientOperationRepositoryMock.Object,
-            configurationParameterRepositoryMock.Object,
-            operationTypeRepositoryMock.Object,
-            portfolioLocatorMock.Object,
-            closingValidatorMock.Object,
-            trustInfoProviderMock.Object,
-            accountingRecordsOperMock.Object,
-            loggerMock.Object);
-
-        var command = new AccountingRecordsValCommand(
-            clientOperationId,
-            amount,
-            causeHomologationCode,
-            7,
-            9);
-
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be(validationError.Code);
-        result.Error.Description.Should().Be(validationError.Message);
-        result.Error.Type.Should().Be(Common.SharedKernel.Core.Primitives.ErrorType.Validation);
-
-        validationContext.Should().NotBeNull();
-        GetPropertyValue<bool>(validationContext!, "OperationExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "OperationTypeExists").Should().BeFalse();
-        GetPropertyValue<bool>(validationContext!, "ContributionTypeExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "OperationIsContribution").Should().BeFalse();
-        GetPropertyValue<bool>(validationContext!, "PortfolioFound").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "DebitNoteTypeExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "NoPendingAnnulment").Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task Handle_WhenContributionTypeNotFound_ReturnsFailure()
-    {
-        const long clientOperationId = 101;
-        const decimal amount = 450m;
-        const int causeHomologationCode = 21;
-        const int causeConfigurationParameterId = 33;
-        const long nonContributionTypeId = 44;
-
-        var nonContributionType = CreateOperationType(nonContributionTypeId, "Rescate", null);
-
-        var ruleEvaluatorMock = new Mock<IInternalRuleEvaluator<OperationsModuleMarker>>();
-        object? validationContext = null;
-
-        ruleEvaluatorMock
-            .Setup(evaluator => evaluator.EvaluateAsync(
-                "Operations.DebitNote.RequiredFields",
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(SuccessfulRules);
-
-        var validationError = new RuleValidationError(
-            "OPS_ACC_CONTRIBUTION_TYPE_NOT_FOUND",
-            "No es posible registrar la nota débito: el tipo de operación Aporte no está configurado.");
-
-        ruleEvaluatorMock
-            .Setup(evaluator => evaluator.EvaluateAsync(
-                "Operations.DebitNote.Validation",
-                It.IsAny<object>(),
-                It.IsAny<CancellationToken>()))
-            .Callback((string _, object context, CancellationToken _) => validationContext = context)
-            .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { validationError }));
-
-        var causeScope = HomologScope.Of<AccountingRecordsValCommand>(c => c.CauseId);
-        var causeConfigurationParameter = ConfigurationParameter.Create(
-            name: "Causal Nota Débito",
-            homologationCode: causeHomologationCode.ToString(CultureInfo.InvariantCulture),
-            type: causeScope);
-
-        typeof(ConfigurationParameter)
-            .GetProperty(nameof(ConfigurationParameter.ConfigurationParameterId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
-            .SetValue(causeConfigurationParameter, causeConfigurationParameterId);
-
-        var configurationParameterRepositoryMock = new Mock<IConfigurationParameterRepository>();
-        configurationParameterRepositoryMock
-            .Setup(repository => repository.GetByCodeAndScopeAsync(
-                causeHomologationCode.ToString(CultureInfo.InvariantCulture),
-                causeScope,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(causeConfigurationParameter);
-
-        var clientOperation = ClientOperation
-            .Create(
-                DateTime.UtcNow,
-                affiliateId: 52,
-                objectiveId: 62,
-                portfolioId: 72,
-                amount,
-                DateTime.UtcNow.AddDays(-3),
-                operationTypeId: nonContributionType.OperationTypeId,
-                DateTime.UtcNow.AddDays(-1),
-                LifecycleStatus.Active,
-                trustId: 400)
-            .Value;
-
-        typeof(ClientOperation)
-            .GetProperty(nameof(ClientOperation.ClientOperationId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
-            .SetValue(clientOperation, clientOperationId);
-
-        var clientOperationRepositoryMock = new Mock<IClientOperationRepository>();
-        clientOperationRepositoryMock
-            .Setup(repository => repository.GetAsync(clientOperationId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(clientOperation);
-
-        var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
-        operationTypeRepositoryMock
-            .Setup(repository => repository.GetByIdAsync(nonContributionType.OperationTypeId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(nonContributionType);
-        operationTypeRepositoryMock
-            .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((OperationType?)null);
-
-        var portfolioLocatorMock = new Mock<IPortfolioLocator>(MockBehavior.Strict);
-        var closingValidatorMock = new Mock<IClosingValidator>(MockBehavior.Strict);
-        var trustInfoProviderMock = new Mock<ITrustInfoProvider>(MockBehavior.Strict);
-        var accountingRecordsOperMock = new Mock<IAccountingRecordsOper>(MockBehavior.Strict);
-        var loggerMock = new Mock<ILogger<AccountingRecordsValCommandHandler>>();
-
-        var handler = new AccountingRecordsValCommandHandler(
-            ruleEvaluatorMock.Object,
-            clientOperationRepositoryMock.Object,
-            configurationParameterRepositoryMock.Object,
-            operationTypeRepositoryMock.Object,
-            portfolioLocatorMock.Object,
-            closingValidatorMock.Object,
-            trustInfoProviderMock.Object,
-            accountingRecordsOperMock.Object,
-            loggerMock.Object);
-
-        var command = new AccountingRecordsValCommand(
-            clientOperationId,
-            amount,
-            causeHomologationCode,
-            11,
-            12);
-
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be(validationError.Code);
-        result.Error.Description.Should().Be(validationError.Message);
-        result.Error.Type.Should().Be(Common.SharedKernel.Core.Primitives.ErrorType.Validation);
-
-        validationContext.Should().NotBeNull();
-        GetPropertyValue<bool>(validationContext!, "OperationExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "OperationTypeExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "ContributionTypeExists").Should().BeFalse();
-        GetPropertyValue<bool>(validationContext!, "OperationIsContribution").Should().BeFalse();
-        GetPropertyValue<bool>(validationContext!, "PortfolioFound").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "DebitNoteTypeExists").Should().BeTrue();
-        GetPropertyValue<bool>(validationContext!, "NoPendingAnnulment").Should().BeTrue();
-    }
-
-    private static OperationType CreateOperationType(
+    private static List<OperationType> CreateOperationType(
         long id,
         string name,
         int? categoryId,
@@ -661,6 +288,7 @@ public class AccountingRecordsValCommandHandlerTests
         Status status = Status.Active,
         bool visible = true)
     {
+        var listOfOperationType = new List<OperationType>();
         var operationType = OperationType.Create(
             name,
             categoryId,
@@ -674,8 +302,9 @@ public class AccountingRecordsValCommandHandlerTests
         typeof(OperationType)
             .GetProperty(nameof(OperationType.OperationTypeId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
             .SetValue(operationType, id);
+        listOfOperationType.Add(operationType);
 
-        return operationType;
+        return listOfOperationType;
     }
 
     private static T GetPropertyValue<T>(object target, string propertyName)

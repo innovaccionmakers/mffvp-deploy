@@ -26,6 +26,7 @@ using Closing.Application.PostClosing.Services.PortfolioUpdate;
 using Closing.Application.PostClosing.Services.TechnicalSheetEvent;
 using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYield;
+using Closing.Domain.TrustYields;
 using Closing.Infrastructure.External.DataSync;
 using Closing.Infrastructure.External.Operations.ClientOperations;
 using Closing.Infrastructure.External.Operations.OperationTypes;
@@ -33,6 +34,7 @@ using Closing.Infrastructure.External.Operations.TrustOperations;
 using Closing.Infrastructure.External.Products.Commissions;
 using Closing.Infrastructure.External.Products.Portfolios;
 using Closing.Infrastructure.External.Trusts.Trusts;
+using Closing.Infrastructure.TrustYields;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -53,7 +55,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IAbortPortfolioValuationService, AbortPortfolioValuationService>();
             services.AddScoped<IAbortSimulationService, AbortSimulationService>();
             services.AddScoped<IOperationTypesLocator, OperationTypesLocator>();
-           
+
             services.AddScoped<IOperationTypesService>(sp =>
             {
                 var locator = sp.GetRequiredService<IOperationTypesLocator>();
@@ -82,6 +84,8 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IUpsertTrustYieldOperationsRemote, UpsertTrustYieldOperationsRemote>();
             services.AddScoped<IUpdateTrustRemote, UpdateTrustRemote>();
             services.AddScoped<IUpdateAccumulatedCommissionRemote, UpdateAccumulatedCommissionRemote>();
+            services.AddScoped<ITrustYieldBulkRepository, TrustYieldBulkRepository>();
+
 
             services.AddScoped<IWarningCollector, WarningCollector>();
 

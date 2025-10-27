@@ -6,5 +6,5 @@ namespace Closing.IntegrationEvents.Yields
         bool IsValid,
         string? Code,
         string? Message,
-        IReadOnlyCollection<YieldAutConceptsResponse> Yields);
+        YieldAutConceptsCompleteResponse YieldAutConcepts);
 }

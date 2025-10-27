@@ -29,4 +29,21 @@ internal sealed class ConfigurationParameterRepository :
                 cancellationToken
             );
     }
+
+    public async Task<IReadOnlyDictionary<Guid, ConfigurationParameter>> GetReadOnlyByUuidsAsync(
+    IEnumerable<Guid> uuids,
+    CancellationToken cancellationToken = default)
+    {
+        var ids = uuids?.Distinct().ToArray() ?? Array.Empty<Guid>();
+        if (ids.Length == 0)
+            return new Dictionary<Guid, ConfigurationParameter>();
+
+        var items = await context.ConfigurationParameters
+            .AsNoTracking()
+            .Where(p => ids.Contains(p.Uuid))
+            .TagWith("ConfigurationParameterRepository_GetReadOnlyByUuidsAsync")
+            .ToListAsync(cancellationToken);
+
+        return items.ToDictionary(p => p.Uuid);
+    }
 }

@@ -1,31 +1,33 @@
 ﻿using Common.SharedKernel.Domain;
 
 namespace Closing.Application.Abstractions.External.Operations.TrustOperations;
-public sealed record UpsertTrustYieldOperationRemoteRequest(
+public sealed record TrustYieldOperation(
     long TrustId,
-    int PortfolioId,
-    DateTime ClosingDate,
     long OperationTypeId,
-    decimal YieldAmount,
-    decimal YieldRetention,
-    DateTime ProcessDate,
-    decimal ClosingBalance,
+    decimal Amount,
+    long? ClientOperationId,
+    DateTime ProcessDateUtc
+);
+
+public sealed record UpsertTrustYieldOperationsBulkRemoteRequest(
+    int PortfolioId,
+    DateTime ClosingDateUtc,
+    long OperationTypeId,
+    IReadOnlyList<TrustYieldOperation> TrustYieldOperations,
     string? IdempotencyKey = null
 );
 
-public sealed record UpsertTrustYieldOperationRemoteResponse(
-       bool Succeeded,
-       string? Code,
-       string? Message,
-       long? OperationId = null
-   );
-
+public sealed record UpsertTrustYieldOperationsBulkRemoteResponse(
+    int Inserted,
+    int Updated,
+    IReadOnlyCollection<long> ChangedTrustIds
+);
 /// <summary>
 /// Command remoto al dominio Operations para upsert de operación de rendimientos.
 /// </summary>
 public interface IUpsertTrustYieldOperationsRemote
 {
-    Task<Result<UpsertTrustYieldOperationRemoteResponse>> UpsertYieldOperationAsync(
-        UpsertTrustYieldOperationRemoteRequest request,
+    Task<Result<UpsertTrustYieldOperationsBulkRemoteResponse>> UpsertYieldOperationsBulkAsync(
+        UpsertTrustYieldOperationsBulkRemoteRequest request,
         CancellationToken cancellationToken);
 }

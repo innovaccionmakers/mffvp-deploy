@@ -7,9 +7,9 @@ using Common.SharedKernel.Core.Primitives;
 
 namespace Operations.Application.OperationTypes;
 
-public class GetOperationTypeByNameQueryHandler(IOperationTypeRepository repository, ILogger<GetOperationTypeByNameQueryHandler> logger) : IQueryHandler<GetOperationTypeByNameQuery, OperationType>
+public class GetOperationTypeByNameQueryHandler(IOperationTypeRepository repository, ILogger<GetOperationTypeByNameQueryHandler> logger) : IQueryHandler<GetOperationTypeByNameQuery, IReadOnlyCollection<OperationTypeResponse>>
 {
-    public async Task<Result<OperationType>> Handle(GetOperationTypeByNameQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<OperationTypeResponse>>> Handle(GetOperationTypeByNameQuery request, CancellationToken cancellationToken)
     {
         try
         {
@@ -17,15 +17,27 @@ public class GetOperationTypeByNameQueryHandler(IOperationTypeRepository reposit
             if (operationType is null)
             {
                 logger.LogWarning("No se encontró el tipo de operación con nombre {Name}.", request.Name);
-                return Result.Failure<OperationType>(new Error("Error", $"No se encontró el tipo de operación con nombre {request.Name}.", ErrorType.NotFound));
+                return Result.Failure<IReadOnlyCollection<OperationTypeResponse>>(new Error("Error", $"No se encontró el tipo de operación con nombre {request.Name}.", ErrorType.NotFound));
             }
-            return Result.Success(operationType);
+
+            var listFromCache = operationType
+                    .Select(c => new OperationTypeResponse(
+                        c.OperationTypeId,
+                        c.Name,
+                        c.CategoryId.ToString(),
+                        c.Nature,
+                        c.Status,
+                        c.External,
+                        c.HomologatedCode))
+                    .ToList();
+
+            return Result.Success((IReadOnlyCollection<OperationTypeResponse>)listFromCache);
 
         }
         catch(Exception ex)
         {
             logger.LogError(ex, "Ocurrió un error inesperado al obtener el tipo de operación por nombre.");
-            return Result.Failure<OperationType>(new Error("Error", "Ocurrió un error inesperado al obtener el tipo de operación por nombre.", ErrorType.Problem));
+            return Result.Failure<IReadOnlyCollection<OperationTypeResponse>>(new Error("Error", "Ocurrió un error inesperado al obtener el tipo de operación por nombre.", ErrorType.Problem));
         }     
     }
 }

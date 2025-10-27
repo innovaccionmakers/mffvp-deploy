@@ -6,6 +6,7 @@ using Accounting.Application.AccountingConcepts;
 using Accounting.Application.AccountingOperations;
 using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Application.AccountProcess;
+using Accounting.Application.AutomaticConcepts;
 using Accounting.Application.Services;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
@@ -91,6 +92,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConceptsRepository, ConceptsRepository>();
         services.AddScoped<AccountingOperationsHandlerValidation>();
         services.AddScoped<AccountingConceptsHandlerValidator>();
+        services.AddScoped<AutomaticConceptsHandlerValidator>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
         services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();

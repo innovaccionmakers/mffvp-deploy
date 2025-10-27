@@ -9,6 +9,10 @@ namespace Closing.Application.Abstractions.External.Operations.OperationTypes
     {
         Task<Result<IReadOnlyCollection<OperationTypeInfo>>> GetAllOperationTypesAsync(
             CancellationToken cancellationToken);
+        Task<Result<OperationTypeInfo>> GetOperationTypeByNameAsync(
+             string name,
+             CancellationToken cancellationToken);
+
     }
 
     public sealed record OperationTypeInfo(
@@ -20,4 +24,5 @@ namespace Closing.Application.Abstractions.External.Operations.OperationTypes
         string External,
         string HomologatedCode
     );
+
 }

@@ -100,20 +100,16 @@ internal sealed class AccountingRecordsValCommandHandler(
         var causeScope = HomologScope.Of<AccountingRecordsValCommand>(c => c.CauseId);
         var causeHomologationCode = command.CauseId.ToString(CultureInfo.InvariantCulture);
 
-        var causeTask = configurationParameterRepository
+        var causeConfigurationParameter = await configurationParameterRepository
             .GetByCodeAndScopeAsync(causeHomologationCode, causeScope, cancellationToken);
 
-        var operationTask = clientOperationRepository
+        var operation = await clientOperationRepository
             .GetAsync(command.ClientOperationId, cancellationToken);
 
-        var debitNoteTypeTask = operationTypeRepository
+        var debitNotesType = await operationTypeRepository
             .GetByNameAsync(DebitNoteOperationName, cancellationToken);
 
-        await Task.WhenAll(causeTask, operationTask, debitNoteTypeTask);
-
-        var causeConfigurationParameter = await causeTask;
-        var operation = await operationTask;
-        var debitNoteType = await debitNoteTypeTask;
+        var debitNoteType = debitNotesType.FirstOrDefault();
 
         var (operationTypeExists, contributionTypeExists, operationIsContribution) =
             await EvaluateContributionOperationAsync(operation, cancellationToken);
@@ -288,8 +284,10 @@ internal sealed class AccountingRecordsValCommandHandler(
         var operationType = await operationTypeRepository
             .GetByIdAsync(operation.OperationTypeId, cancellationToken);
 
-        var contributionType = await operationTypeRepository
+        var contributionsType = await operationTypeRepository
             .GetByNameAsync(ContributionOperationName, cancellationToken);
+        
+        var contributionType = contributionsType.FirstOrDefault();
 
         var operationTypeExists = operationType is not null;
         var contributionTypeExists = contributionType is not null;

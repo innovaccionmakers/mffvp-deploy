@@ -286,4 +286,54 @@ public sealed class YieldRepositoryTests
 
         Assert.Contains("ExecuteDelete", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
+
+    [Fact]
+    public async Task GetAllAutConceptsByPortfolioIdsAndClosingDateAsync_ReturnsAllYieldsForPortfoliosAndDate()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var portfolioIds = new[] { 100, 101, 102 };
+
+        // Crear datos de prueba
+        ctx.Yields.AddRange(
+            NewYield(91, 100, closingDate, true, commissions: 10m, yieldToCredit: 50m),
+            NewYield(92, 100, closingDate, false, commissions: 5m, yieldToCredit: 25m),
+            NewYield(93, 101, closingDate, true, commissions: 15m, yieldToCredit: 75m),
+            NewYield(94, 102, closingDate, false, commissions: 0m, yieldToCredit: 0m),
+            NewYield(95, 103, closingDate, true, commissions: 20m, yieldToCredit: 100m), // No incluido en portfolioIds
+            NewYield(96, 100, closingDate.AddDays(1), true, commissions: 30m, yieldToCredit: 150m) // Fecha diferente
+        );
+        await ctx.SaveChangesAsync();
+
+        // Act
+        var result = await repo.GetAllAutConceptsByPortfolioIdsAndClosingDateAsync(portfolioIds, closingDate, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(4, result.Count); // Debería retornar 4 registros
+
+        // Verificar que solo se retornan los yields para los portfolioIds especificados y la fecha correcta
+        var portfolioIdsInResult = result.Select(y => y.PortfolioId).Distinct().OrderBy(id => id).ToArray();
+        Assert.Equal(new[] { 100, 101, 102 }, portfolioIdsInResult);
+
+        // Verificar que todos tienen la fecha de cierre correcta
+        Assert.All(result, y => Assert.Equal(closingDate, y.ClosingDate));
+
+        // Verificar que se incluyen tanto yields cerrados como no cerrados
+        Assert.Contains(result, y => y.PortfolioId == 100 && y.IsClosed);
+        Assert.Contains(result, y => y.PortfolioId == 100 && !y.IsClosed);
+        Assert.Contains(result, y => y.PortfolioId == 101 && y.IsClosed);
+        Assert.Contains(result, y => y.PortfolioId == 102 && !y.IsClosed);
+
+        // Verificar que no se incluyen yields de portfolios no solicitados
+        Assert.DoesNotContain(result, y => y.PortfolioId == 103);
+
+        // Verificar que no se incluyen yields de fechas diferentes
+        Assert.DoesNotContain(result, y => y.ClosingDate == closingDate.AddDays(1));
+
+        // Verificar que las entidades están desacopladas (AsNoTracking)
+        Assert.All(result, y => Assert.Equal(EntityState.Detached, ctx.Entry(y).State));
+    }
 }
