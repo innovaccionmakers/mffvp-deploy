@@ -66,7 +66,16 @@ public class VoidedTransactionsOperTests
         result.Error.Code.Should().Be(trustError.Code);
         result.Error.Description.Should().Be(trustError.Description);
         trustUpdaterMock.Verify(updater => updater.UpdateAsync(
-                It.Is<TrustUpdate>(update => update.ClientOperationId == operation.ClientOperationId && update.Status == LifecycleStatus.Annulled),
+                It.Is<TrustUpdate>(update =>
+                    update.ClientOperationId == operation.ClientOperationId &&
+                    update.Status == LifecycleStatus.Annulled &&
+                    update.TotalBalance == 0m &&
+                    update.TotalUnits == 0m &&
+                    update.Principal == 0m &&
+                    update.Earnings == 0m &&
+                    update.ContingentWithholding == 0m &&
+                    update.EarningsWithholding == 0m &&
+                    update.AvailableAmount == 0m),
                 It.IsAny<CancellationToken>()),
             Times.Once);
         operationCompletedMock.Verify(completed => completed.ExecuteAsync(It.IsAny<ClientOperation>(), It.IsAny<CancellationToken>()), Times.Never);

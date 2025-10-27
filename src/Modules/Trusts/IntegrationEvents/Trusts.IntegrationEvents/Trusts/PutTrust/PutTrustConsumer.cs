@@ -24,8 +24,12 @@ public sealed class PutTrustConsumer : IRpcHandler<PutTrustRequest, PutTrustResp
                 request.ClientOperationId,
                 request.Status,
                 request.TotalBalance,
+                request.TotalUnits,
                 request.Principal,
+                request.Earnings,
                 request.ContingentWithholding,
+                request.EarningsWithholding,
+                request.AvailableAmount,
                 request.UpdateDate);
             var result = await mediator.Send(command, cancellationToken);
 

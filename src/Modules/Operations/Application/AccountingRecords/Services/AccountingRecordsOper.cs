@@ -6,6 +6,7 @@ using Operations.Application.Abstractions.External;
 using Operations.Application.Abstractions.Services.AccountingRecords;
 using Operations.Application.Abstractions.Services.OperationCompleted;
 using Operations.Domain.ClientOperations;
+using Operations.Domain.TrustOperations;
 
 namespace Operations.Application.AccountingRecords.Services;
 
@@ -14,10 +15,11 @@ public sealed class AccountingRecordsOper(
     IClientOperationRepository clientOperationRepository,
     IOperationCompleted operationCompleted,
     ITrustUpdater trustUpdater,
-    IPortfolioValuationProvider portfolioValuationProvider)
+    IPortfolioValuationProvider portfolioValuationProvider,
+    ITrustOperationRepository trustOperationRepository)
     : IAccountingRecordsOper
 {
-    private const string SuccessTemplate = "Nota débito creada correctamente. ND_ID: {0}. Evento publicado y operación en proceso de cierre.";
+    private const string SuccessTemplate = "La nota débito se creó correctamente. ID de la operación: {0}.";
 
     public async Task<Result<AccountingRecordsOperResult>> ExecuteAsync(
         AccountingRecordsOperRequest request,
@@ -86,6 +88,27 @@ public sealed class AccountingRecordsOper(
         clientOperationRepository.Update(original);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        var trustOperationTimestamp = DateTime.UtcNow;
+
+        var trustOperationResult = TrustOperation.Create(
+            debitNote.ClientOperationId,
+            validationResult.TrustId,
+            request.Amount,
+            units,
+            validationResult.TrustAdjustmentOperationTypeId,
+            original.PortfolioId,
+            trustOperationTimestamp,
+            processDate,
+            trustOperationTimestamp);
+
+        if (trustOperationResult.IsFailure)
+        {
+            return Result.Failure<AccountingRecordsOperResult>(trustOperationResult.Error);
+        }
+
+        await trustOperationRepository.AddAsync(trustOperationResult.Value, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
         await transaction.CommitAsync(cancellationToken);
 
         var update = new TrustUpdate(
@@ -94,7 +117,11 @@ public sealed class AccountingRecordsOper(
             0m,
             0m,
             0m,
-            DateTime.UtcNow);
+            0m,
+            0m,
+            0m,
+            0m,
+            processDate);
 
         var trustUpdateResult = await trustUpdater
             .UpdateAsync(update, cancellationToken);
