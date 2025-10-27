@@ -9,13 +9,6 @@ internal sealed class AccountingGenerationCommandHandler() : ICommandHandler<Acc
 {
     public Task<Result<Unit>> Handle(AccountingGenerationCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-
-
-        }catch(Exception ex)
-        {
-
-        }
+        throw new NotImplementedException();
     }
 }

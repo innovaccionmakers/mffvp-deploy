@@ -23,10 +23,22 @@ public static class ProcessTypes
     public const string AccountingOperations = "AccountingOperations";
     public const string AccountingConcepts = "AccountingConcepts";
     public const string AutomaticConcepts = "AutomaticConcepts";
+    
+    public static Dictionary<string, string> ProcessTypesDictionary = new()
+    {
+        { AccountingFees, "Comisiones" },
+        { AccountingReturns, "Rendimientos" },
+        { AccountingOperations, "Operaciones" },
+        { AccountingConcepts, "Conceptos" },
+        { AutomaticConcepts, "Conceptos Automáticos" }
+    };
+
+    public static string GetTranslation(string processType) =>
+        ProcessTypesDictionary.TryGetValue(processType, out var translation) ? translation : processType;
 }
 
 public static class AccountingActivity
-{ 
+{
     public const string Debit = "Débito";
     public const string Credit = "Crédito";
     public const string ContraDebitAccount = "Contra Débito";

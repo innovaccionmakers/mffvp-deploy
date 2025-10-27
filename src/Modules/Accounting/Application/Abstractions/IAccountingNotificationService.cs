@@ -1,5 +1,7 @@
 ﻿namespace Accounting.Application.Abstractions;
 
+public record UndefinedError(string ProcessType, string ErrorDescription);
+
 public interface IAccountingNotificationService
 {
      Task SendNotificationAsync(
@@ -45,7 +47,7 @@ Task SendProcessFailedWithErrorsAsync(
     string processId,
     DateTime startDate,
     DateTime processDate,
-    IEnumerable<object> errors,
+    IEnumerable<UndefinedError> errors,
     int totalRecords,
     CancellationToken cancellationToken = default);
 }
