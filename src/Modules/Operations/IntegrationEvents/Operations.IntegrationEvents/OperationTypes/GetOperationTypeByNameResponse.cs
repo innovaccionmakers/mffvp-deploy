@@ -6,5 +6,5 @@ public sealed record GetOperationTypeByNameResponse(
     bool Succeeded,
     string? Code,
     string? Message,
-    OperationTypeResponse? OperationType
+    IReadOnlyCollection<OperationTypeResponse> OperationType
 );

@@ -10,7 +10,7 @@ public interface IOperationTypeRepository
         long operationTypeId,
         CancellationToken cancellationToken = default);
 
-    Task<OperationType?> GetByNameAsync(
+    Task<IReadOnlyCollection<OperationType>> GetByNameAsync(
         string name,
         CancellationToken cancellationToken = default);
 

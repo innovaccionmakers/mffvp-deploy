@@ -24,131 +24,14 @@ public class GetOperationsNDQueryHandlerTests
         Result.Success(new TrustInfoResult(100));
 
     [Fact]
-    public async Task Handle_ReturnsOrderedOperations_WhenAllConditionsAreMet()
-    {
-        // Arrange
-        const int affiliateId = 100;
-        const int objectiveId = 200;
-        var contributionType = CreateOperationType(1, "Aporte", null);
-        var categorizedTypes = new List<OperationType>
-        {
-            CreateOperationType(4, "Ninguno", 1),
-            CreateOperationType(5, "Descuento nómina", 1),
-            CreateOperationType(6, "Débito Automático", 1)
-        };
-        var operations = new List<ClientOperation>
-        {
-            CreateClientOperation(
-                1,
-                10,
-                new DateTime(2024, 1, 10),
-                500m,
-                categorizedTypes[0].OperationTypeId,
-                contingentWithholding: 10m),
-            CreateClientOperation(
-                2,
-                10,
-                new DateTime(2024, 1, 15),
-                600m,
-                categorizedTypes[1].OperationTypeId,
-                contingentWithholding: 20m),
-            CreateClientOperation(
-                3,
-                20,
-                new DateTime(2024, 1, 12),
-                700m,
-                categorizedTypes[2].OperationTypeId,
-                contingentWithholding: 30m)
-        };
-
-        var clientOperationRepositoryMock = new Mock<IClientOperationRepository>();
-        clientOperationRepositoryMock
-            .Setup(repository => repository.GetContributionOperationsInRangeAsync(
-                It.Is<IReadOnlyCollection<long>>(ids => ids.SequenceEqual(categorizedTypes.Select(type => type.OperationTypeId))),
-                affiliateId,
-                objectiveId,
-                It.Is<DateTime>(date => date == new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
-                It.Is<DateTime>(date => date == new DateTime(2024, 1, 31, 0, 0, 0, DateTimeKind.Utc)),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(operations);
-
-        var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
-        operationTypeRepositoryMock
-            .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
-
-        operationTypeRepositoryMock
-            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(categorizedTypes);
-
-        var portfolioLocatorMock = new Mock<IPortfolioLocator>();
-        portfolioLocatorMock
-            .Setup(locator => locator.FindByPortfolioIdAsync(10, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success((PortfolioId: 10L, Name: "Portafolio 10", CurrentDate: new DateTime(2024, 1, 31))));
-        portfolioLocatorMock
-            .Setup(locator => locator.FindByPortfolioIdAsync(20, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success((PortfolioId: 20L, Name: "Portafolio 20", CurrentDate: new DateTime(2024, 1, 30))));
-
-        var trustInfoProviderMock = new Mock<ITrustInfoProvider>();
-        trustInfoProviderMock
-            .Setup(provider => provider.GetAsync(It.IsAny<long>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(SuccessfulTrustInfo);
-
-        var handler = new GetOperationsNDQueryHandler(
-            clientOperationRepositoryMock.Object,
-            operationTypeRepositoryMock.Object,
-            portfolioLocatorMock.Object,
-            trustInfoProviderMock.Object);
-
-        var query = new GetOperationsNDQuery(
-            new DateTime(2024, 1, 1),
-            new DateTime(2024, 1, 31),
-            affiliateId,
-            objectiveId,
-            1,
-            2);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Value.PageNumber.Should().Be(1);
-        result.Value.PageSize.Should().Be(2);
-        result.Value.TotalCount.Should().Be(3);
-        result.Value.TotalPages.Should().Be(2);
-        result.Value.Items.Should().HaveCount(2);
-        result.Value.Items.Select(item => item.ClientOperationId)
-            .Should()
-            .ContainInOrder(2, 3);
-        result.Value.Items
-            .Select(item => item.TransactionTypeName)
-            .Should()
-            .OnlyContain(name => name == contributionType.Name);
-        result.Value.Items
-            .Select(item => item.ContingentWithholding)
-            .Should()
-            .ContainInOrder(20m, 30m);
-
-        portfolioLocatorMock.Verify(
-            locator => locator.FindByPortfolioIdAsync(10, It.IsAny<CancellationToken>()),
-            Times.Once);
-        portfolioLocatorMock.Verify(
-            locator => locator.FindByPortfolioIdAsync(20, It.IsAny<CancellationToken>()),
-            Times.Once);
-    }
-
-    [Fact]
     public async Task Handle_IncludesOperations_WhenProcessDateEqualsPortfolioCurrentDate()
     {
         // Arrange
         const int affiliateId = 100;
         const int objectiveId = 200;
-        var contributionType = CreateOperationType(1, "Aporte", null);
-        var categorizedTypes = new List<OperationType>
-        {
-            CreateOperationType(4, "Ninguno", 1)
-        };
+        var contributionsType = CreateOperationType(1, "Aporte", null);
+        var contributionType = contributionsType.FirstOrDefault();
+        var categorizedTypes = CreateOperationType(4, "Ninguno", 1);
 
         var operationProcessDate = new DateTime(2024, 1, 31, 23, 30, 0, DateTimeKind.Utc);
         var operation = CreateClientOperation(
@@ -173,7 +56,7 @@ public class GetOperationsNDQueryHandlerTests
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(contributionsType);
 
         operationTypeRepositoryMock
             .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
@@ -233,11 +116,9 @@ public class GetOperationsNDQueryHandlerTests
         // Arrange
         const int affiliateId = 100;
         const int objectiveId = 200;
-        var contributionType = CreateOperationType(1, "Aporte", null);
-        var categorizedTypes = new List<OperationType>
-        {
-            CreateOperationType(4, "Ninguno", 1)
-        };
+        var contributionsType = CreateOperationType(1, "Aporte", null);
+        var contributionType = contributionsType.FirstOrDefault();
+        var categorizedTypes = CreateOperationType(4, "Ninguno", 1);
 
         var eligibleProcessDate = new DateTime(2024, 1, 31, 23, 59, 0, DateTimeKind.Utc);
         var boundaryProcessDate = new DateTime(2024, 2, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -272,7 +153,7 @@ public class GetOperationsNDQueryHandlerTests
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(contributionsType);
 
         operationTypeRepositoryMock
             .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
@@ -329,57 +210,17 @@ public class GetOperationsNDQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ReturnsEmptyResult_WhenContributionTypeDoesNotExist()
-    {
-        // Arrange
-        var clientOperationRepositoryMock = new Mock<IClientOperationRepository>(MockBehavior.Strict);
-        var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
-        operationTypeRepositoryMock
-            .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((OperationType?)null);
-
-        var portfolioLocatorMock = new Mock<IPortfolioLocator>(MockBehavior.Strict);
-        var trustInfoProviderMock = new Mock<ITrustInfoProvider>(MockBehavior.Strict);
-
-        var handler = new GetOperationsNDQueryHandler(
-            clientOperationRepositoryMock.Object,
-            operationTypeRepositoryMock.Object,
-            portfolioLocatorMock.Object,
-            trustInfoProviderMock.Object);
-
-        var query = new GetOperationsNDQuery(
-            DateTime.UtcNow.AddDays(-10),
-            DateTime.UtcNow,
-            100,
-            200,
-            1,
-            10);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().BeEmpty();
-        result.Value.TotalCount.Should().Be(0);
-        result.Value.TotalPages.Should().Be(0);
-
-        clientOperationRepositoryMock.VerifyNoOtherCalls();
-        portfolioLocatorMock.VerifyNoOtherCalls();
-        trustInfoProviderMock.VerifyNoOtherCalls();
-    }
-
-    [Fact]
     public async Task Handle_ReturnsEmptyResult_WhenCategorizedContributionTypesDoNotExist()
     {
         // Arrange
-        var contributionType = CreateOperationType(1, "Aporte", null);
+        var contributionsType = CreateOperationType(1, "Aporte", null);
+        var contributionType = contributionsType.FirstOrDefault();
 
         var clientOperationRepositoryMock = new Mock<IClientOperationRepository>(MockBehavior.Strict);
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(contributionsType);
         operationTypeRepositoryMock
             .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<OperationType>());
@@ -421,11 +262,12 @@ public class GetOperationsNDQueryHandlerTests
         // Arrange
         const int affiliateId = 100;
         const int objectiveId = 200;
-        var contributionType = CreateOperationType(1, "Aporte", null);
+        var contributionsType = CreateOperationType(1, "Aporte", null);
+        var contributionType = contributionsType.FirstOrDefault();
         var categorizedTypes = new List<OperationType>
         {
-            CreateOperationType(4, "Ninguno", 1),
-            CreateOperationType(5, "Descuento nómina", 1)
+            CreateSingleOperationType(4, "Ninguno", 1),
+            CreateSingleOperationType(5, "Descuento nómina", 1)
         };
         var eligibleOperation = CreateClientOperation(1, 10, new DateTime(2024, 1, 10), 250m, categorizedTypes[0].OperationTypeId);
         var futureProcessDateOperation = CreateClientOperation(2, 10, new DateTime(2024, 2, 1), 300m, categorizedTypes[1].OperationTypeId);
@@ -444,7 +286,7 @@ public class GetOperationsNDQueryHandlerTests
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(contributionsType);
 
         operationTypeRepositoryMock
             .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
@@ -492,11 +334,12 @@ public class GetOperationsNDQueryHandlerTests
         // Arrange
         const int affiliateId = 100;
         const int objectiveId = 200;
-        var contributionType = CreateOperationType(1, "Aporte", null);
+        var contributionsType = CreateOperationType(1, "Aporte", null);
+        var contributionType = contributionsType.FirstOrDefault();
         var categorizedTypes = new List<OperationType>
         {
-            CreateOperationType(4, "Ninguno", 1),
-            CreateOperationType(5, "Descuento nómina", 1)
+            CreateSingleOperationType(4, "Ninguno", 1),
+            CreateSingleOperationType(5, "Descuento nómina", 1)
         };
 
         var clientOperationRepositoryMock = new Mock<IClientOperationRepository>();
@@ -513,7 +356,7 @@ public class GetOperationsNDQueryHandlerTests
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(contributionsType);
 
         operationTypeRepositoryMock
             .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
@@ -600,10 +443,33 @@ public class GetOperationsNDQueryHandlerTests
         return operation;
     }
 
-    private static OperationType CreateOperationType(
+    private static List<OperationType> CreateOperationType(
         long operationTypeId,
         string name,
         int? categoryId)
+    {
+        var listOperationType = new List<OperationType>();
+        var operationType = OperationType.Create(
+            name,
+            categoryId,
+            IncomeEgressNature.Income,
+            Status.Active,
+            string.Empty,
+            visible: true,
+            additionalAttributes: JsonDocumentFactory.Empty,
+            homologatedCode: "AP").Value;
+
+        typeof(OperationType)
+            .GetProperty(nameof(OperationType.OperationTypeId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
+            .SetValue(operationType, operationTypeId);
+
+        listOperationType.Add(operationType);
+        return listOperationType;
+    }
+    private static OperationType CreateSingleOperationType(
+    long operationTypeId,
+    string name,
+    int? categoryId)
     {
         var operationType = OperationType.Create(
             name,

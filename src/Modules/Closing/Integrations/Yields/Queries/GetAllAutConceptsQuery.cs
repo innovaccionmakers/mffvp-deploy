@@ -2,5 +2,5 @@
 
 namespace Closing.Integrations.Yields.Queries
 {
-    public sealed record class GetAllAutConceptsQuery(IEnumerable<int> PortfolioIds, DateTime ClosingDate) : IQuery<IReadOnlyCollection<YieldAutConceptsResponse>>;
+    public sealed record class GetAllAutConceptsQuery(IEnumerable<int> PortfolioIds, DateTime ClosingDate) : IQuery<YieldAutConceptsCompleteResponse>;
 }

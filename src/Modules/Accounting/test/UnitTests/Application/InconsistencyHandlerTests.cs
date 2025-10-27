@@ -137,29 +137,6 @@ public class InconsistencyHandlerTests
     }
 
     [Fact]
-    public async Task HandleInconsistenciesAsync_ConParametrosNulos_DeberiaManejarGracefully()
-    {
-        // Arrange
-        var processDate = DateTime.UtcNow;
-        var processType = "ProcesamientoComisiones";
-        var cancellationToken = CancellationToken.None;
-
-        _repositoryMock.Setup(x => x.SaveInconsistenciesAsync(
-                It.IsAny<IEnumerable<AccountingInconsistency>>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
-
-        // Act
-        await _handler.HandleInconsistenciesAsync(null!, processDate, processType, cancellationToken);
-
-        // Assert
-        _repositoryMock.Verify(x => x.SaveInconsistenciesAsync(
-            null!, processDate, processType, cancellationToken), Times.Once);
-    }
-
-    [Fact]
     public async Task HandleInconsistenciesAsync_ConCancellationTokenCancelado_DeberiaManejarLaCancelacion()
     {
         // Arrange

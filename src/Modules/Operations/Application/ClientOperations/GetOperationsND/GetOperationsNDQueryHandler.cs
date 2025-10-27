@@ -32,8 +32,10 @@ internal sealed class GetOperationsNDQueryHandler(
             return Result.Success(CreateEmptyResponse(request));
         }
 
-        var contributionType = await operationTypeRepository
+        var contributionsType = await operationTypeRepository
             .GetByNameAsync(ContributionOperationName, cancellationToken);
+
+        var contributionType = contributionsType.FirstOrDefault();
 
         if (contributionType is null)
         {

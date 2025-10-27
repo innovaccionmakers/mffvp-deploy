@@ -13,6 +13,7 @@ public static class OperationTypeNames
     public const string Yield = "Rendimientos";
     public const string Operation = "Operaciones";
     public const string Concepts = "Conceptos";
+    public const string AutomaticConcepts = "Conceptos Automáticos";
 }
 
 public static class ProcessTypes
@@ -28,5 +29,7 @@ public static class AccountingActivity
 { 
     public const string Debit = "Débito";
     public const string Credit = "Crédito";
+    public const string ContraDebitAccount = "Contra Débito";
+    public const string ContraCreditAccount = "Contra Crédito";
 }
 

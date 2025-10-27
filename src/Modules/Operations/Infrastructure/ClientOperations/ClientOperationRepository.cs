@@ -100,14 +100,14 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         if (portfolioIds == null || !portfolioIds.Any())
             return Enumerable.Empty<ClientOperation>();
 
-        var portfolioIdsSet = new HashSet<int>(portfolioIds);
-
         return await context.ClientOperations
             .Where(co => co.Status == LifecycleStatus.Active)
-            .Where(co => portfolioIdsSet.Contains(co.PortfolioId) && co.ProcessDate == processDate)
+            .Where(co => portfolioIds.Contains(co.PortfolioId) && co.ProcessDate == processDate)
+            .Where(co => co.OperationType != null && (co.OperationType.OperationTypeId == 1 || co.OperationType.CategoryId == 1))
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
-            .Where(co => co.OperationType != null && (co.OperationType.OperationTypeId == 1 || co.OperationType.CategoryId == 1))
+            .AsSplitQuery()
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
 

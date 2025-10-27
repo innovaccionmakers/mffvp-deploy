@@ -55,7 +55,7 @@ internal sealed class OperationTypesLocator(IRpcClient rpcClient) : IOperationTy
                     rpcResponse.Message ?? "No se obtuvo el tipo de operación por Nombre."));
         }
 
-        var operationType = rpcResponse.OperationType;
+        var operationType = rpcResponse.OperationType.FirstOrDefault();
         if (operationType is null)
         {
             return Result.Failure<OperationTypeInfo>(
