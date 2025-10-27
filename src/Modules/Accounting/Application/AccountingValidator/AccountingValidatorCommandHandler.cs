@@ -35,7 +35,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                 var hasErrors = results.Any(r => !r.IsSuccess);
 
 
-                await ExecuteFinalizationLogicAsync(request.User, request.ProcessId, request.ProcessDate, request.ProcessDate, results, hasErrors, cancellationToken);
+                await ExecuteFinalizationLogicAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, results, hasErrors, cancellationToken);
 
                 await processStore.CleanupAsync(request.ProcessId, cancellationToken);
             }
@@ -60,13 +60,13 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
     {
         if (!hasErrors)
         {
-            await accountingNotificationService.SendProcessFinalizedAsync(user, processId, processDate, startDate, cancellationToken);
+            await accountingNotificationService.SendProcessFinalizedAsync(user, processId, startDate, processDate, cancellationToken);
             return;
         }
 
         // Procesar errores
         var allInconsistencies = new List<AccountingInconsistency>();
-        var undefinedErrors = new List<object>();
+        var undefinedErrors = new List<UndefinedError>();
         var failedProcesses = results.Where(r => !r.IsSuccess).ToList();
 
         foreach (var failed in failedProcesses)
@@ -78,7 +78,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
 
             if (!inconsistenciesResult.Value.Any())
             {
-                undefinedErrors.Add(new { failed.ProcessType, ErrorDescription = failed.ErrorMessage });
+                undefinedErrors.Add(new UndefinedError(failed.ProcessType, failed.ErrorMessage ?? "Error desconocido"));
                 continue;
             }
 
@@ -103,8 +103,8 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         {
             var url = await GenerateAccountingInconsistenciesUrl(processDate, allInconsistencies, cancellationToken);
             await accountingNotificationService.SendProcessFailedWithUrlAsync(
-                user, 
-                processId, 
+                user,
+                processId,
                 startDate,
                 processDate,
                 url,

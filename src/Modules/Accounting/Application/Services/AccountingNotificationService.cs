@@ -1,4 +1,5 @@
 using Accounting.Application.Abstractions;
+using Accounting.Domain.Constants;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Domain.Constants;
@@ -142,19 +143,23 @@ public sealed class AccountingNotificationService(
         string processId,
         DateTime startDate,
         DateTime processDate,
-        IEnumerable<object> errors,
+        IEnumerable<UndefinedError> errors,
         int totalRecords,
         CancellationToken cancellationToken = default)
     {
-        var duration = (DateTime.UtcNow - startDate).TotalSeconds;
-
-        var details = new
+        var errorsList = errors.ToList();
+        var details = new Dictionary<string, object>
         {
-            Duracion = TimeHelper.GetDuration(startDate, DateTime.UtcNow),
-            FechaGeneracion = processDate.ToString("yyyy-MM-dd"),
-            RegistrosTotales = totalRecords,
-            Errores = errors
+            { "Duracion", TimeHelper.GetDuration(startDate, DateTime.UtcNow) },
+            { "FechaGeneracion", processDate.ToString("yyyy-MM-dd") },
+            { "RegistrosTotales", totalRecords }
         };
+
+        foreach (var error in errorsList)
+        {
+            var translatedProcessType = ProcessTypes.GetTranslation(error.ProcessType);
+            details[$"Error {translatedProcessType}"] = error.ErrorDescription;
+        }
 
         await SendNotificationAsync(
             user,
