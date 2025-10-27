@@ -495,15 +495,15 @@ public class AccountingRecordsValCommandHandlerTests
 
             OperationTypeRepositoryMock
                 .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => _contributionType);
+                .ReturnsAsync(() => ToCollection(_contributionType));
 
             OperationTypeRepositoryMock
                 .Setup(repository => repository.GetByNameAsync("Nota Débito", It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => _debitNoteType);
+                .ReturnsAsync(() => ToCollection(_debitNoteType));
 
             OperationTypeRepositoryMock
                 .Setup(repository => repository.GetByNameAsync("Ajuste Rendimientos", It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => _trustAdjustmentType);
+                .ReturnsAsync(() => ToCollection(_trustAdjustmentType));
 
             PortfolioLocatorMock
                 .Setup(locator => locator.FindByPortfolioIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -667,6 +667,13 @@ public class AccountingRecordsValCommandHandlerTests
             SetProperty(parameter, nameof(ConfigurationParameter.ConfigurationParameterId), parameterId);
 
             return parameter;
+        }
+
+        private static IReadOnlyCollection<OperationType> ToCollection(OperationType? operationType)
+        {
+            return operationType is null
+                ? Array.Empty<OperationType>()
+                : new[] { operationType };
         }
     }
 }

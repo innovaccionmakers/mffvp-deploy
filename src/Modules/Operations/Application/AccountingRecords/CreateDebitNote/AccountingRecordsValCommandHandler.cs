@@ -110,11 +110,13 @@ internal sealed class AccountingRecordsValCommandHandler(
         var affiliateMatches = operation is not null && operation.AffiliateId == command.AffiliateId;
         var objectiveMatches = operation is not null && operation.ObjectiveId == command.ObjectiveId;
 
-        var debitNoteType = await operationTypeRepository
-            .GetByNameAsync(DebitNoteOperationName, cancellationToken);
+        var debitNoteType = (await operationTypeRepository
+            .GetByNameAsync(DebitNoteOperationName, cancellationToken))
+            .FirstOrDefault();
 
-        var trustAdjustmentType = await operationTypeRepository
-            .GetByNameAsync(TrustAdjustmentOperationName, cancellationToken);
+        var trustAdjustmentType = (await operationTypeRepository
+            .GetByNameAsync(TrustAdjustmentOperationName, cancellationToken))
+            .FirstOrDefault();
 
         var (operationTypeExists, contributionTypeExists, operationIsContribution) =
             await EvaluateContributionOperationAsync(operation, cancellationToken);
@@ -284,8 +286,9 @@ internal sealed class AccountingRecordsValCommandHandler(
     {
         if (operation is null)
         {
-            var contribution = await operationTypeRepository
-                .GetByNameAsync(ContributionOperationName, cancellationToken);
+            var contribution = (await operationTypeRepository
+                .GetByNameAsync(ContributionOperationName, cancellationToken))
+                .FirstOrDefault();
 
             return (OperationTypeExists: false,
                     ContributionTypeExists: contribution is not null,
@@ -295,8 +298,9 @@ internal sealed class AccountingRecordsValCommandHandler(
         var operationType = await operationTypeRepository
             .GetByIdAsync(operation.OperationTypeId, cancellationToken);
 
-        var contributionType = await operationTypeRepository
-            .GetByNameAsync(ContributionOperationName, cancellationToken);
+        var contributionType = (await operationTypeRepository
+            .GetByNameAsync(ContributionOperationName, cancellationToken))
+            .FirstOrDefault();
 
         var operationTypeExists = operationType is not null;
         var contributionTypeExists = contributionType is not null;

@@ -109,7 +109,7 @@ public class VoidedTransactionsValCommandHandlerTests
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(ToCollection(contributionType));
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByIdAsync(contributionTypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(contributionType);
@@ -235,7 +235,7 @@ public class VoidedTransactionsValCommandHandlerTests
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(ToCollection(contributionType));
 
         var mismatchedOperation = CreateClientOperation(
             clientOperationId,
@@ -324,7 +324,7 @@ public class VoidedTransactionsValCommandHandlerTests
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(ToCollection(contributionType));
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByIdAsync(contributionTypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(contributionType);
@@ -448,7 +448,7 @@ public class VoidedTransactionsValCommandHandlerTests
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(ToCollection(contributionType));
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByIdAsync(contributionTypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(contributionType);
@@ -582,7 +582,7 @@ public class VoidedTransactionsValCommandHandlerTests
         var operationTypeRepositoryMock = new Mock<IOperationTypeRepository>();
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contributionType);
+            .ReturnsAsync(ToCollection(contributionType));
         operationTypeRepositoryMock
             .Setup(repository => repository.GetByIdAsync(contributionTypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(contributionType);
@@ -685,6 +685,13 @@ public class VoidedTransactionsValCommandHandlerTests
 
         SetProperty(operationType, nameof(OperationType.OperationTypeId), id);
         return operationType;
+    }
+
+    private static IReadOnlyCollection<OperationType> ToCollection(OperationType? operationType)
+    {
+        return operationType is null
+            ? Array.Empty<OperationType>()
+            : new[] { operationType };
     }
 
     private static ClientOperation CreateClientOperation(
