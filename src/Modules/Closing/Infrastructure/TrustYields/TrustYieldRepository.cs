@@ -97,16 +97,45 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
     }
 
     public async Task<IReadOnlyList<TrustYieldCalcInput>> GetCalcInputsByPortfolioAndDateAsync(
-        int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+      int portfolioId,
+      DateTime closingDateUtc,
+      CancellationToken cancellationToken = default)
     {
-        return await context.TrustYields
-            .TagWith("TrustYieldRepository_GetCalcInputsByPortfolioAndDateAsync")
+        var previousDateUtc = closingDateUtc.AddDays(-1);
+
+        // Yields del día actual
+        var currentDay = context.TrustYields
+            .TagWith("TrustYieldRepository_GetCalcInputsByPortfolioAndDateAsync_Current")
             .AsNoTracking()
-            .Where(r => r.PortfolioId == portfolioId &&
-                        r.ClosingDate == closingDateUtc)
-            .Select(r => new TrustYieldCalcInput(
-                r.TrustId, r.PortfolioId, r.PreClosingBalance, r.Units))
-            .ToListAsync(cancellationToken);
+            .Where(current =>
+                current.PortfolioId == portfolioId &&
+                current.ClosingDate == closingDateUtc);
+
+        // Yields del día anterior
+        var prevDay = context.TrustYields
+            .TagWith("TrustYieldRepository_GetCalcInputsByPortfolioAndDateAsync_Previous")
+            .AsNoTracking()
+            .Where(prev =>
+                prev.PortfolioId == portfolioId &&
+                prev.ClosingDate == previousDateUtc);
+
+        // Left join por (PortfolioId, TrustId)
+        var query =
+           from current in currentDay
+           join prev in prevDay
+               on new { current.PortfolioId, current.TrustId }
+               equals new { prev.PortfolioId, prev.TrustId }
+               into prevGroup
+           from prev in prevGroup.DefaultIfEmpty()
+           select new TrustYieldCalcInput(
+               current.TrustId,
+               current.PortfolioId,
+               current.PreClosingBalance,//Saldo pre cierre del día actual
+               current.Units, //Unidades del día actual
+               prev != null ? prev.ClosingBalance : 0m //Saldo cierre del día anterior, 0 si no existe
+       );
+        return await query.ToListAsync(cancellationToken);
     }
+
 }
 

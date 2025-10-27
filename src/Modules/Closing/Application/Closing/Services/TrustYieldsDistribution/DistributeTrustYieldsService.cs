@@ -94,9 +94,10 @@ public class DistributeTrustYieldsService(
             body: (trust, state, local) =>
             {
                 // Participación basada en saldo_pre_cierre / monto portafolio previo
+
                 decimal participation = 0m;
-                if (hasPrevPV && trust.PreClosingBalance > 0m)
-                    participation = TrustMath.CalculateTrustParticipation(trust.PreClosingBalance, prevPortfolioValuation!.Amount, DecimalPrecision.SixteenDecimals);
+                if (hasPrevPV && trust.prevDayClosingBalance != 0m)
+                    participation = TrustMath.CalculateTrustParticipation(trust.prevDayClosingBalance, prevPortfolioValuation!.Amount, DecimalPrecision.SixteenDecimals);
 
                 // Prorrateos
                 var yieldAmount16 = TrustMath.ApplyParticipation(yToCredit, participation, DecimalPrecision.SixteenDecimals);
