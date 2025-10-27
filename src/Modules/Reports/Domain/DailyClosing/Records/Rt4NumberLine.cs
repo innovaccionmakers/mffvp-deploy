@@ -58,7 +58,7 @@ public static class Rt4Lines
     public static Rt4NumberLine CurrentAmount(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.CurrentAmount, value, 2, SignMode.PlusOnly);
 
     // 4314
-    public static Rt4NumberLine Return30Days(decimal value) => new(TransmissionFormatLayout.Rt4.R4314, TransmissionFormatLayout.Rt4.Return30Days, value, 2, SignMode.PlusOnly);
-    public static Rt4NumberLine Return180Days(decimal value) => new(TransmissionFormatLayout.Rt4.R4314, TransmissionFormatLayout.Rt4.Return180Days, value, 2, SignMode.PlusOnly);
-    public static Rt4NumberLine Return365Days(decimal value) => new(TransmissionFormatLayout.Rt4.R4314, TransmissionFormatLayout.Rt4.Return365Days, value, 2, SignMode.PlusOnly);
+    public static Rt4NumberLine Return30Days(decimal value) => new(TransmissionFormatLayout.Rt4.R4314, TransmissionFormatLayout.Rt4.Return30Days, value, 2, SignMode.Signed);
+    public static Rt4NumberLine Return180Days(decimal value) => new(TransmissionFormatLayout.Rt4.R4314, TransmissionFormatLayout.Rt4.Return180Days, value, 2, SignMode.Signed);
+    public static Rt4NumberLine Return365Days(decimal value) => new(TransmissionFormatLayout.Rt4.R4314, TransmissionFormatLayout.Rt4.Return365Days, value, 2, SignMode.Signed);
 }
