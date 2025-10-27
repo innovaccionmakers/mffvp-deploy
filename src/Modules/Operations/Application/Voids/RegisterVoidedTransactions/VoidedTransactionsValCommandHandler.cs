@@ -34,6 +34,12 @@ internal sealed class VoidedTransactionsValCommandHandler(
     private const string RequiredWorkflow = "Operations.Voids.RequiredFields";
     private const string ValidationWorkflow = "Operations.Voids.Validation";
     private const string ContributionOperationName = "Aporte";
+    private const string AllOperationsVoidedMessage =
+        "Genial!, Se ha realizado exitosamente la anulación de todas las operaciones seleccionadas.";
+    private const string PartialOperationsVoidedMessage =
+        "Atención: Solo algunas de las operaciones seleccionadas fueron anuladas. Revisa el detalle para conocer cuáles siguen pendientes.";
+    private const string NoOperationsVoidedMessage =
+        "Lo sentimos, ninguna de las operaciones seleccionadas pudo ser anulada. Revisa el detalle e inténtalo nuevamente.";
 
     public async Task<Result<VoidedTransactionsValResult>> Handle(
         VoidedTransactionsValCommand command,
@@ -53,7 +59,7 @@ internal sealed class VoidedTransactionsValCommandHandler(
         {
             return Result.Success(new VoidedTransactionsValResult(
                 Array.Empty<long>(),
-                string.Empty,
+                BuildResultMessage(totalProcessed, 0),
                 summary.FailedOperations,
                 totalProcessed,
                 0,
@@ -70,14 +76,31 @@ internal sealed class VoidedTransactionsValCommandHandler(
         }
 
         var response = operationResult.Value;
+        var successCount = response.VoidIds.Count;
+        var resultMessage = BuildResultMessage(totalProcessed, successCount);
 
         return Result.Success(new VoidedTransactionsValResult(
             response.VoidIds,
-            response.Message,
+            resultMessage,
             summary.FailedOperations,
             totalProcessed,
-            response.VoidIds.Count,
+            successCount,
             summary.FailedOperations.Count));
+    }
+
+    private static string BuildResultMessage(int totalProcessed, int successCount)
+    {
+        if (successCount == 0)
+        {
+            return NoOperationsVoidedMessage;
+        }
+
+        if (successCount == totalProcessed)
+        {
+            return AllOperationsVoidedMessage;
+        }
+
+        return PartialOperationsVoidedMessage;
     }
 
     private async Task<Result<VoidedTransactionsValidationResult>> ValidateAsync(
@@ -134,9 +157,17 @@ internal sealed class VoidedTransactionsValCommandHandler(
 
             if (!operationsCache.TryGetValue(operationId, out var operation))
             {
-                operation = await clientOperationRepository
+                var fetchedOperation = await clientOperationRepository
                     .GetAsync(operationId, cancellationToken);
 
+                if (fetchedOperation is not null &&
+                    (fetchedOperation.AffiliateId != command.AffiliateId ||
+                     fetchedOperation.ObjectiveId != command.ObjectiveId))
+                {
+                    fetchedOperation = null;
+                }
+
+                operation = fetchedOperation;
                 operationsCache[operationId] = operation;
             }
 

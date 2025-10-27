@@ -15,8 +15,12 @@ internal sealed class TrustUpdater(IRpcClient rpcClient) : ITrustUpdater
                 update.ClientOperationId,
                 update.Status,
                 update.TotalBalance,
+                update.TotalUnits,
                 update.Principal,
+                update.Earnings,
                 update.ContingentWithholding,
+                update.EarningsWithholding,
+                update.AvailableAmount,
                 update.UpdateDate),
             cancellationToken);
 

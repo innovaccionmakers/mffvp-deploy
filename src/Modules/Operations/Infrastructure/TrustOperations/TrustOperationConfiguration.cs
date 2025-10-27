@@ -14,6 +14,9 @@ internal sealed class TrustOperationConfiguration : IEntityTypeConfiguration<Tru
         builder.Property(x => x.ClientOperationId).HasColumnName("operaciones_clientes_id");
         builder.Property(x => x.TrustId).HasColumnName("fideicomiso_id");
         builder.Property(x => x.Amount).HasColumnName("valor");
+        builder.Property(x => x.Units)
+            .HasColumnName("unidades")
+            .HasPrecision(38, 16);
         builder.Property(x => x.OperationTypeId).HasColumnName("tipo_operaciones_id");
         builder.Property(x => x.PortfolioId).HasColumnName("portafolio_id");
         builder.Property(x => x.RegistrationDate).HasColumnName("fecha_radicacion");
@@ -27,7 +30,7 @@ internal sealed class TrustOperationConfiguration : IEntityTypeConfiguration<Tru
 
         // ===== Clave alterna para Upsert del bulk =====
         // UNIQUE(portafolio_id, fideicomiso_id, fecha_proceso, tipo_operaciones_id)
-        // EFCore.BulkExtensions reconocerá esta Alternate Key como "UpdateByProperties"
+        // EFCore.BulkExtensions reconocerÃ¡ esta Alternate Key como "UpdateByProperties"
         builder.HasAlternateKey(x => new { x.PortfolioId, x.TrustId, x.ProcessDate, x.OperationTypeId })
                .HasName("ux_operaciones_fideicomiso_portafolio_fideicomiso_fecha_tipo");
     }

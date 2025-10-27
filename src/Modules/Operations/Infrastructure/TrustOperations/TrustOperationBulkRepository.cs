@@ -1,4 +1,4 @@
-﻿
+
 using Common.SharedKernel.Application.Constants.Closing;
 using EFCore.BulkExtensions;
 using Operations.Domain.TrustOperations;
@@ -27,6 +27,7 @@ internal sealed class TrustOperationBulkRepository(OperationsDbContext context)
                 clientOperationId: r.ClientOperationId,
                 trustId: r.TrustId,
                 amount: r.Amount,
+                units: 0m,
                 operationTypeId: r.OperationTypeId,
                 portfolioId: portfolioId,
                 registrationDate: nowUtc,
@@ -57,6 +58,7 @@ internal sealed class TrustOperationBulkRepository(OperationsDbContext context)
             PropertiesToIncludeOnUpdate = new List<string>
             {
                 nameof(TrustOperation.Amount),
+                nameof(TrustOperation.Units),
                 nameof(TrustOperation.ApplicationDate)
             },
 

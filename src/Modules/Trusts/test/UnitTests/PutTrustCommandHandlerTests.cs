@@ -25,8 +25,12 @@ public class PutTrustCommandHandlerTests
             ClientOperationId: 10,
             Status: LifecycleStatus.Active,
             TotalBalance: 100m,
+            TotalUnits: 40m,
             Principal: 50m,
+            Earnings: 25m,
             ContingentWithholding: 10m,
+            EarningsWithholding: 5m,
+            AvailableAmount: 15m,
             UpdateDate: DateTime.UtcNow);
 
         var ruleError = new RuleValidationError("TRUST.REQUIRED", "Los campos requeridos son obligatorios");
@@ -61,8 +65,12 @@ public class PutTrustCommandHandlerTests
             ClientOperationId: 20,
             Status: LifecycleStatus.Annulled,
             TotalBalance: 200m,
+            TotalUnits: 80m,
             Principal: 100m,
+            Earnings: 40m,
             ContingentWithholding: 20m,
+            EarningsWithholding: 10m,
+            AvailableAmount: 60m,
             UpdateDate: DateTime.UtcNow);
 
         var ruleEvaluatorMock = new Mock<IInternalRuleEvaluator<TrustsModuleMarker>>();
@@ -108,8 +116,12 @@ public class PutTrustCommandHandlerTests
             ClientOperationId: 30,
             Status: LifecycleStatus.Annulled,
             TotalBalance: 500m,
+            TotalUnits: 250m,
             Principal: 250m,
+            Earnings: 125m,
             ContingentWithholding: 70m,
+            EarningsWithholding: 35m,
+            AvailableAmount: 300m,
             UpdateDate: new DateTime(2024, 01, 10, 12, 0, 0, DateTimeKind.Utc));
 
         var ruleEvaluatorMock = new Mock<IInternalRuleEvaluator<TrustsModuleMarker>>();
@@ -169,8 +181,12 @@ public class PutTrustCommandHandlerTests
 
         result.IsSuccess.Should().BeTrue();
         trust.TotalBalance.Should().Be(command.TotalBalance);
+        trust.TotalUnits.Should().Be(command.TotalUnits);
         trust.Principal.Should().Be(command.Principal);
+        trust.Earnings.Should().Be(command.Earnings);
         trust.ContingentWithholding.Should().Be(command.ContingentWithholding);
+        trust.EarningsWithholding.Should().Be(command.EarningsWithholding);
+        trust.AvailableAmount.Should().Be(command.AvailableAmount);
         trust.Status.Should().Be(command.Status);
         trust.UpdateDate.Should().Be(command.UpdateDate);
         unitOfWorkMock.Verify(work => work.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);

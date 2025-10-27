@@ -59,8 +59,12 @@ internal sealed class PutTrustCommandHandler(
 
         trust!.UpdateState(
             request.TotalBalance,
+            request.TotalUnits,
             request.Principal,
+            request.Earnings,
             request.ContingentWithholding,
+            request.EarningsWithholding,
+            request.AvailableAmount,
             request.Status,
             request.UpdateDate);
         trustRepository.Update(trust);

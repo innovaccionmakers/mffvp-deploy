@@ -33,6 +33,7 @@ internal sealed class AccountingRecordsValCommandHandler(
     private const string ValidationWorkflow = "Operations.DebitNote.Validation";
     private const string DebitNoteOperationName = "Nota Débito";
     private const string ContributionOperationName = "Aporte";
+    private const string TrustAdjustmentOperationName = "Ajuste Rendimientos";
 
     public async Task<Result<AccountingRecordsValResult>> Handle(
         AccountingRecordsValCommand command,
@@ -106,10 +107,16 @@ internal sealed class AccountingRecordsValCommandHandler(
         var operation = await clientOperationRepository
             .GetAsync(command.ClientOperationId, cancellationToken);
 
-        var debitNotesType = await operationTypeRepository
-            .GetByNameAsync(DebitNoteOperationName, cancellationToken);
+        var affiliateMatches = operation is not null && operation.AffiliateId == command.AffiliateId;
+        var objectiveMatches = operation is not null && operation.ObjectiveId == command.ObjectiveId;
 
-        var debitNoteType = debitNotesType.FirstOrDefault();
+        var debitNoteType = (await operationTypeRepository
+            .GetByNameAsync(DebitNoteOperationName, cancellationToken))
+            .FirstOrDefault();
+
+        var trustAdjustmentType = (await operationTypeRepository
+            .GetByNameAsync(TrustAdjustmentOperationName, cancellationToken))
+            .FirstOrDefault();
 
         var (operationTypeExists, contributionTypeExists, operationIsContribution) =
             await EvaluateContributionOperationAsync(operation, cancellationToken);
@@ -118,7 +125,9 @@ internal sealed class AccountingRecordsValCommandHandler(
             operation is not null &&
             operationTypeExists &&
             contributionTypeExists &&
-            operationIsContribution;
+            operationIsContribution &&
+            affiliateMatches &&
+            objectiveMatches;
 
         PortfolioEvaluation portfolioEvaluation;
 
@@ -151,6 +160,8 @@ internal sealed class AccountingRecordsValCommandHandler(
             OperationTypeExists = operationTypeExists,
             ContributionTypeExists = contributionTypeExists,
             OperationIsContribution = operationIsContribution,
+            OperationAffiliateMatches = affiliateMatches,
+            OperationObjectiveMatches = objectiveMatches,
 
             PortfolioFound = portfolioEvaluation.PortfolioFound,
             ClosingAvailable = portfolioEvaluation.ClosingAvailable,
@@ -159,6 +170,7 @@ internal sealed class AccountingRecordsValCommandHandler(
             OperationIsActive = operation?.Status == LifecycleStatus.Active,
             
             DebitNoteTypeExists = shouldEvaluateAdditionalChecks ? debitNoteType is not null : true,
+            TrustAdjustmentTypeExists = trustAdjustmentType is not null,
 
             NoPendingAnnulment = noPendingAnnulment,
             CauseExists = causeConfigurationParameter is not null
@@ -186,6 +198,7 @@ internal sealed class AccountingRecordsValCommandHandler(
         return Result.Success(new AccountingRecordsValidationResult(
             operation,
             debitNoteType!.OperationTypeId,
+            trustAdjustmentType!.OperationTypeId,
             portfolioEvaluation.PortfolioCurrentDate,
             trustId,
             causeConfigurationParameter!.ConfigurationParameterId));
@@ -273,8 +286,9 @@ internal sealed class AccountingRecordsValCommandHandler(
     {
         if (operation is null)
         {
-            var contribution = await operationTypeRepository
-                .GetByNameAsync(ContributionOperationName, cancellationToken);
+            var contribution = (await operationTypeRepository
+                .GetByNameAsync(ContributionOperationName, cancellationToken))
+                .FirstOrDefault();
 
             return (OperationTypeExists: false,
                     ContributionTypeExists: contribution is not null,
@@ -284,10 +298,9 @@ internal sealed class AccountingRecordsValCommandHandler(
         var operationType = await operationTypeRepository
             .GetByIdAsync(operation.OperationTypeId, cancellationToken);
 
-        var contributionsType = await operationTypeRepository
-            .GetByNameAsync(ContributionOperationName, cancellationToken);
-        
-        var contributionType = contributionsType.FirstOrDefault();
+        var contributionType = (await operationTypeRepository
+            .GetByNameAsync(ContributionOperationName, cancellationToken))
+            .FirstOrDefault();
 
         var operationTypeExists = operationType is not null;
         var contributionTypeExists = contributionType is not null;

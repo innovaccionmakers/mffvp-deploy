@@ -1,4 +1,5 @@
-﻿using Accounting.Presentation.GraphQL;
+﻿using Accounting.Integrations.AccountProcess;
+using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.GraphQL.Inputs;
 using Associate.Presentation.GraphQL;
 using Associate.Presentation.GraphQL.Inputs;
@@ -40,7 +41,7 @@ public class Mutation
     }
 
     [GraphQLName("crearNotaDebito")]
-    [Authorize(Policy = MakersPermissionsOperations.PolicyExecuteIndividualOperations)]
+    [Authorize(Policy = MakersPermissionsOperations.PolicyCreateDebitNote)]
     public async Task<GraphqlResult<DebitNoteMutationResult>> RegisterDebitNote([GraphQLName("notaDebito")] CreateDebitNoteInput debitNote,
                                                                         IValidator<CreateDebitNoteInput> validator,
                                                                        [Service] IOperationsExperienceMutation operationsMutations,
@@ -50,7 +51,7 @@ public class Mutation
     }
 
     [GraphQLName("registrarAnulaciones")]
-    [Authorize(Policy = MakersPermissionsOperations.PolicyExecuteIndividualOperations)]
+    [Authorize(Policy = MakersPermissionsOperations.PolicyCancelIndividualOperations)]
     public async Task<GraphqlResult<VoidedTransactionsMutationResult>> RegisterVoids([GraphQLName("anulacion")] CreateVoidsInput input,
                                                                         IValidator<CreateVoidsInput> validator,
                                                                        [Service] IOperationsExperienceMutation operationsMutations,
@@ -207,7 +208,7 @@ public class Mutation
 
     [GraphQLName("procesoCuenta")]
     [Authorize(Policy = MakersPermissionsAccounting.PolicyGenerateGeneration)]
-    public async Task<GraphqlResult<string>> AccountProcess([GraphQLName("cuenta")] AccountingInput input,
+    public async Task<GraphqlResult<AccountProcessResult>> AccountProcess([GraphQLName("cuenta")] AccountingInput input,
                                                        IValidator<AccountingInput> validator,
                                                        [Service] IAccountProcessExperienceMutations accountProcessMutations,
                                                        CancellationToken cancellationToken)
