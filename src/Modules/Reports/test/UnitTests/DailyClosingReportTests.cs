@@ -110,6 +110,71 @@ public class TransmissionFormatReportTests
     }
 
     [Fact]
+    public async Task GetReportDataAsync_ShouldRespectProfitabilitySigns()
+    {
+        var strategies = new IReportGeneratorStrategy[] { new TransmissionFormatReportStrategy() };
+        var strategyBuilder = new ReportStrategyBuilder(strategies);
+
+        var repositoryMock = new Mock<ITransmissionFormatReportRepository>();
+        repositoryMock
+            .Setup(r => r.GetRt1HeaderAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Rt1Header("5", "123456", "CLAVE12345"));
+        repositoryMock
+            .Setup(r => r.GetRt2HeaderAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Rt2Header("1234"));
+        repositoryMock
+            .Setup(r => r.GetUnitValueAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(100.123456m);
+        repositoryMock
+            .Setup(r => r.GetValuationMovementsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Rt4ValuationMovements(
+                1000m,
+                5000m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                0m,
+                1000m,
+                5000m));
+        repositoryMock
+            .Setup(r => r.GetProfitabilitiesAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Rt4Profitabilities(-10.12m, 0m, 30.56m));
+        repositoryMock
+            .Setup(r => r.GetAutomaticConceptAmountsAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AutomaticConceptAmounts(0m, 0m));
+        repositoryMock
+            .Setup(r => r.AnyPortfolioExistsOnOrAfterDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        repositoryMock
+            .Setup(r => r.GetPortfolioIdsWithClosureOnDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<int> { 1 });
+
+        var reportBuilder = new TransmissionFormatReportBuilder(strategyBuilder);
+        var strategy = new TransmissionFormatReport(new NullLogger<TransmissionFormatReport>(), repositoryMock.Object, reportBuilder);
+        var request = new TransmissionFormatReportRequest { GenerationDate = new DateTime(2025, 2, 6) };
+
+        var response = await strategy.GetReportDataAsync(request, CancellationToken.None);
+        var report = ReadReport(response);
+
+        report.Should().Contain("43140101005-00000000000000010.12");
+        report.Should().Contain("43140101010+00000000000000000.00");
+        report.Should().Contain("43140101015+00000000000000030.56");
+    }
+
+    [Fact]
     public async Task GetReportDataAsync_ShouldAddAutomaticConceptToContributions_WhenDifferenceIsNegative()
     {
         var strategies = new IReportGeneratorStrategy[] { new TransmissionFormatReportStrategy() };
