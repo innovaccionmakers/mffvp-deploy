@@ -79,14 +79,22 @@ public sealed class Trust : Entity
 
     public void UpdateState(
         decimal totalBalance,
+        decimal totalUnits,
         decimal principal,
+        decimal earnings,
         decimal contingentWithholding,
+        decimal earningsWithholding,
+        decimal availableAmount,
         LifecycleStatus status,
         DateTime updateDate)
     {
         TotalBalance = totalBalance;
+        TotalUnits = totalUnits;
         Principal = principal;
+        Earnings = earnings;
         ContingentWithholding = contingentWithholding;
+        EarningsWithholding = earningsWithholding;
+        AvailableAmount = availableAmount;
         Status = status;
         UpdateDate = updateDate;
     }
