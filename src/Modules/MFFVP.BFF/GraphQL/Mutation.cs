@@ -206,6 +206,7 @@ public class Mutation
     }
 
     [GraphQLName("procesoCuenta")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyGenerateGeneration)]
     public async Task<GraphqlResult<string>> AccountProcess([GraphQLName("cuenta")] AccountingInput input,
                                                        IValidator<AccountingInput> validator,
                                                        [Service] IAccountProcessExperienceMutations accountProcessMutations,
