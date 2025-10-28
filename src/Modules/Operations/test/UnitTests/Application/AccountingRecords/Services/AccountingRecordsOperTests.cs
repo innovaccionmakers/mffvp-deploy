@@ -77,13 +77,13 @@ public class AccountingRecordsOperTests
         fixture.OriginalOperation.Status.Should().Be(LifecycleStatus.AnnulledByDebitNote);
 
         var expectedTrustOperationUnits = decimal.Round(
-            fixture.TrustEarnings / fixture.UnitValue,
+            Math.Abs(fixture.TrustEarnings) / fixture.UnitValue,
             16,
             MidpointRounding.AwayFromZero);
         fixture.AddedTrustOperation.Should().NotBeNull();
         fixture.AddedTrustOperation!.ClientOperationId.Should().Be(fixture.GeneratedDebitNoteId);
         fixture.AddedTrustOperation.TrustId.Should().Be(fixture.ValidationResult.TrustId);
-        fixture.AddedTrustOperation.Amount.Should().Be(fixture.Request.Amount);
+        fixture.AddedTrustOperation.Amount.Should().Be(-fixture.TrustEarnings);
         fixture.AddedTrustOperation.Units.Should().Be(expectedTrustOperationUnits);
         fixture.AddedTrustOperation.OperationTypeId.Should().Be(fixture.ValidationResult.TrustAdjustmentOperationTypeId);
         fixture.AddedTrustOperation.PortfolioId.Should().Be(fixture.OriginalOperation.PortfolioId);

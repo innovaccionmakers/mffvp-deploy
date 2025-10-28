@@ -100,14 +100,14 @@ public sealed class AccountingRecordsOper(
         var trustOperationTimestamp = DateTime.UtcNow;
 
         var trustOperationUnits = decimal.Round(
-            trustDetailsResult.Value.Earnings / unitValue,
+            Math.Abs(trustDetailsResult.Value.Earnings) / unitValue,
             16,
             MidpointRounding.AwayFromZero);
 
         var trustOperationResult = TrustOperation.Create(
             debitNote.ClientOperationId,
             validationResult.TrustId,
-            request.Amount,
+            -trustDetailsResult.Value.Earnings,
             trustOperationUnits,
             validationResult.TrustAdjustmentOperationTypeId,
             original.PortfolioId,
