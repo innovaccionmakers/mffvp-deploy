@@ -17,7 +17,7 @@
       {
         "RuleName": "TrustBalanceMustMatchContribution",
         "ErrorMessage": "El valor del aporte no coincide con el saldo total del fideicomiso.",
-        "Expression": "input.TrustExists == true && input.TrustIsActive == true && input.TrustTotalBalance == input.ContributionValue",
+        "Expression": "input.TrustExists == true && input.TrustIsActive == true && input.TrustPrincipal == input.ContributionValue",
         "Properties": { "internalCode": "TRUSTS_003" }
       }
     ]
