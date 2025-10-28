@@ -177,6 +177,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<ProcessPendingTransactionsRequest, ProcessPendingTransactionsResponse>, PendingContributionProcessor>();
 
         services.AddScoped<ITrustOperationBulkRepository, TrustOperationBulkRepository>();
+        services.AddScoped<IPendingTransactionsReaderRepository, PendingTransactionsReaderRepository>();
 
     }
 
