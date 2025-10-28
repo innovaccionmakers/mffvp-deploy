@@ -75,7 +75,7 @@ public class AccountingRecordsOperIntegrationTests
         var addedTrustOperation = fixture.TrustOperationRepository.AddedOperations.Single();
         Assert.Equal(fixture.GeneratedDebitNoteId, addedTrustOperation.ClientOperationId);
         Assert.Equal(fixture.ValidationResult.TrustId, addedTrustOperation.TrustId);
-        Assert.Equal(fixture.Request.Amount, addedTrustOperation.Amount);
+        Assert.Equal(-fixture.TrustEarnings, addedTrustOperation.Amount);
         Assert.Equal(fixture.ValidationResult.TrustAdjustmentOperationTypeId, addedTrustOperation.OperationTypeId);
         Assert.Equal(fixture.OriginalOperation.PortfolioId, addedTrustOperation.PortfolioId);
         Assert.Equal(fixture.ExpectedProcessDate, addedTrustOperation.ProcessDate);
