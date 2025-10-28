@@ -16,7 +16,8 @@ public sealed class AccountingRecordsOper(
     IOperationCompleted operationCompleted,
     ITrustUpdater trustUpdater,
     IPortfolioValuationProvider portfolioValuationProvider,
-    ITrustOperationRepository trustOperationRepository)
+    ITrustOperationRepository trustOperationRepository,
+    ITrustDetailsProvider trustDetailsProvider)
     : IAccountingRecordsOper
 {
     private const string SuccessTemplate = "La nota débito se creó correctamente. ID de la operación: {0}.";
@@ -88,13 +89,26 @@ public sealed class AccountingRecordsOper(
         clientOperationRepository.Update(original);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        var trustDetailsResult = await trustDetailsProvider
+            .GetAsync(validationResult.TrustId, cancellationToken);
+
+        if (trustDetailsResult.IsFailure)
+        {
+            return Result.Failure<AccountingRecordsOperResult>(trustDetailsResult.Error);
+        }
+
         var trustOperationTimestamp = DateTime.UtcNow;
+
+        var trustOperationUnits = decimal.Round(
+            trustDetailsResult.Value.Earnings / unitValue,
+            16,
+            MidpointRounding.AwayFromZero);
 
         var trustOperationResult = TrustOperation.Create(
             debitNote.ClientOperationId,
             validationResult.TrustId,
             request.Amount,
-            units,
+            trustOperationUnits,
             validationResult.TrustAdjustmentOperationTypeId,
             original.PortfolioId,
             trustOperationTimestamp,
