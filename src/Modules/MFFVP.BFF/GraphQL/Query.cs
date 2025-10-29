@@ -410,14 +410,30 @@ public class Query
     public async Task<GraphqlResult<ReportResponseDto>> GenerateTransmissionFormatReportAsync(
         [GraphQLName("fechaGeneracion")] DateTime generationDate,
         [Service] ReportOrchestrator reportOrchestrator,
+        [Service] ILogger<Query> logger,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation("[TransmissionFormat] Iniciando generación de reporte. FechaGeneracion: {GenerationDate}", generationDate.ToString("yyyy-MM-dd"));
+        logger.LogDebug("Fecha de generación: {GenerationDate}", generationDate.ToString("yyyy-MM-dd"));
         var request = new TransmissionFormatReportRequest
         {
             GenerationDate = generationDate
         };
 
-        return await reportOrchestrator.GetReportData(request, ReportType.TransmissionFormat, cancellationToken);
+        var result = await reportOrchestrator.GetReportData(request, ReportType.TransmissionFormat, cancellationToken);
+        
+        if (result.Data != null)
+        {
+            logger.LogInformation("[TransmissionFormat] Reporte generado exitosamente. Archivo: {FileName}, Tamaño: {FileSize} bytes", 
+                result.Data.FileName, 
+                result.Data.FileContent?.Length ?? 0);
+        }
+        else
+        {
+            logger.LogWarning("[TransmissionFormat] Reporte finalizado sin datos. Errores: {ErrorCount}", result.Errors?.Count ?? 0);
+        }
+        
+        return result;
     }
 
     //Trust Queries
