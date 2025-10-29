@@ -1,14 +1,23 @@
-﻿using Accounting.Integrations.AccountingGeneration;
+﻿using Accounting.Domain.AccountingAssistants;
+using Accounting.Integrations.AccountingGeneration;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using MediatR;
 
 namespace Accounting.Application.AccountingGeneration;
 
-internal sealed class AccountingGenerationCommandHandler() : ICommandHandler<AccountingGenerationCommand, Unit>
+internal sealed class AccountingGenerationCommandHandler( IAccountingAssistantRepository accountingAssistantRepository) : ICommandHandler<AccountingGenerationCommand, Unit>
 {
-    public Task<Result<Unit>> Handle(AccountingGenerationCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(AccountingGenerationCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var accountingAssistants = await accountingAssistantRepository.GetAllAsync(cancellationToken);
+
+        }catch(Exception ex)
+        {
+
+        }
+        return Result.Success(Unit.Value);
     }
 }
