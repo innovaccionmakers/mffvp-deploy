@@ -2,7 +2,6 @@
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.ConsecutiveFiles;
 using Common.SharedKernel.Application.Reports.Strategies;
-using Common.SharedKernel.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -11,18 +10,32 @@ namespace Accounting.Application.AccountingGeneration.Reports;
 public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logger,
                                         IAccountingAssistantRepository accountingAssistantRepository,
                                         IConsecutiveFileRepository consecutiveFileRepository,
-                                        IUnitOfWork unitOfWork) : ExcelReportStrategyBase(logger)
+                                        IUnitOfWork unitOfWork) : TextReportStrategyBase(logger)
 {
     public override string ReportName => "E";
 
-    public override string[] ColumnHeaders => throw new NotImplementedException();
+    public override string[] ColumnHeaders => [
+        "ID Auxiliar",
+        "Portafolio",
+        "Identificación",
+        "Dígito Verificación",
+        "Nombre",
+        "Periodo",
+        "Cuenta",
+        "Fecha",
+        "Detalle",
+        "Tipo",
+        "Valor",
+        "Naturaleza",
+        "Identificador"
+    ];
 
     public async override Task<IActionResult> GetReportDataAsync<TRequest>(TRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            return await GenerateExcelReportAsync(
-                   ct => GetWorksheetDataAsync(cancellationToken),
+            return await GenerateTextReportAsync(
+                   ct => GetTextReportDataAsync(ct),
                    await GenerateReportFileNameAsync(cancellationToken),
                    cancellationToken);
 
@@ -34,9 +47,9 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         }
     }
 
-    private async Task<List<WorksheetData>> GetWorksheetDataAsync(CancellationToken cancellationToken)
+    private async Task<List<TextReportData>> GetTextReportDataAsync(CancellationToken cancellationToken)
     {
-        var worksheetDataList = new List<WorksheetData>();
+        var textReportDataList = new List<TextReportData>();
 
         var data = await accountingAssistantRepository.GetAllAsync(cancellationToken);
 
@@ -55,29 +68,29 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             x.Value,
             x.Nature,
             x.Identifier,
-
         }).ToList();
 
-        var result = new WorksheetData
+        var result = new TextReportData
         {
-            WorksheetName = WorksheetNames.Accounting,
+            SectionTitle = string.Empty,
             ColumnHeaders = ColumnHeaders,
+            IncludeHeaders = true,
             Rows = rows ?? []
         };
 
-        worksheetDataList.Add(result);
+        textReportDataList.Add(result);
 
-        return worksheetDataList;
+        return textReportDataList;
     }
 
     private async Task<string> GenerateReportFileNameAsync(CancellationToken cancellationToken)
     {
         var today = DateTime.Today;
 
-        
+
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-       
+
         var consecutiveFile = await consecutiveFileRepository.GetByGenerationDateAsync(today, cancellationToken);
         int consecutive = 1;
 
@@ -99,8 +112,8 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        
-        string fileName = $"{ReportName}{today:ddMMyyyy}{consecutive:D3}.xlsx";
+
+        string fileName = $"{ReportName}{today:ddMMyyyy}{consecutive:D3}.txt";
         return fileName;
     }
 }
