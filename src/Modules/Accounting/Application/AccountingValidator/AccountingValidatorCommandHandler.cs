@@ -121,7 +121,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         {
             var provider = serviceProvider.GetRequiredService<AccountingInconsistenciesReport>();
 
-            var fileStreamResult = await provider!.GenerateFromDataAsync(processDate, inconsistencies, cancellationToken);
+            var fileStreamResult = await provider.GenerateFromDataAsync(processDate, inconsistencies, cancellationToken);
 
             using var memoryStream = new MemoryStream();
             await fileStreamResult.FileStream.CopyToAsync(memoryStream, cancellationToken);
