@@ -146,7 +146,7 @@ namespace Accounting.Application.AccountingOperations
             {
                 return (null, AccountingInconsistency.Create(
                     operation.PortfolioId,
-                    OperationTypeNames.Commission,
+                    OperationTypeNames.Operation,
                     "No existe parametrización contable",
                     AccountingActivity.Debit));
             }
@@ -155,7 +155,7 @@ namespace Accounting.Application.AccountingOperations
             {
                 return (null, AccountingInconsistency.Create(
                     operation.PortfolioId,
-                    OperationTypeNames.Commission,
+                    OperationTypeNames.Operation,
                     "No existe parametrización contable",
                     AccountingActivity.Credit));
             }

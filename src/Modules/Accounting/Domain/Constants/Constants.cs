@@ -12,7 +12,7 @@ public static class OperationTypeNames
     public const string Commission = "Comisión";
     public const string Yield = "Rendimientos";
     public const string Operation = "Operaciones";
-    public const string Concepts = "Conceptos";
+    public const string Concepts = "Conceptos de Tesoreria";
     public const string AutomaticConcepts = "Conceptos Automáticos";
 }
 
@@ -29,7 +29,7 @@ public static class ProcessTypes
         { AccountingFees, "Comisiones" },
         { AccountingReturns, "Rendimientos" },
         { AccountingOperations, "Operaciones" },
-        { AccountingConcepts, "Conceptos" },
+        { AccountingConcepts, "Conceptos de Tesoreria" },
         { AutomaticConcepts, "Conceptos Automáticos" }
     };
 
