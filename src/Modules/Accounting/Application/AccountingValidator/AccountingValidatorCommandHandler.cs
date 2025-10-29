@@ -120,26 +120,17 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         try
         {
             var provider = serviceProvider.GetRequiredService<AccountingInconsistenciesReport>();
-            var reportRequest = new AccountingInconsistenciesRequest
-            {
-                ProcessDate = processDate,
-                Inconsistencies = inconsistencies
-            };
 
-            var fileResult = await provider!.GetReportDataAsync(reportRequest, cancellationToken);
+            var fileStreamResult = await provider!.GenerateFromDataAsync(processDate, inconsistencies, cancellationToken);
 
-            if (fileResult is FileStreamResult fileStreamResult)
-            {
-                using var memoryStream = new MemoryStream();
-                await fileStreamResult.FileStream.CopyToAsync(memoryStream, cancellationToken);
-                var fileBytes = memoryStream.ToArray();
+            using var memoryStream = new MemoryStream();
+            await fileStreamResult.FileStream.CopyToAsync(memoryStream, cancellationToken);
+            var fileBytes = memoryStream.ToArray();
 
-                var fileName = fileStreamResult.FileDownloadName;
+            var fileName = fileStreamResult.FileDownloadName;
 
-                var filePath = $"reports/inconsistencies/{fileName}";
-                return await fileStorageService.UploadFileAsync(fileBytes, fileName, fileStreamResult.ContentType, filePath, cancellationToken);
-            }
-            return string.Empty;
+            var filePath = $"reports/inconsistencies/{fileName}";
+            return await fileStorageService.UploadFileAsync(fileBytes, fileName, fileStreamResult.ContentType, filePath, cancellationToken);
         }
         catch (Exception ex)
         {

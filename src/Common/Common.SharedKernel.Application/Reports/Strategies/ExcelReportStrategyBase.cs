@@ -44,46 +44,66 @@ public abstract class ExcelReportStrategyBase(
     {
         try
         {
-            using var workbook = new XLWorkbook();
-
             var worksheetDataList = await dataProvider(cancellationToken);
-
-            foreach (var worksheetData in worksheetDataList)
-            {
-                var worksheet = workbook.Worksheets.Add(worksheetData.WorksheetName);
-
-                SetupHeaders(worksheet, worksheetData.ColumnHeaders);
-
-                int row = 2;
-                foreach (var dataRow in worksheetData.Rows)
-                {
-                    for (int col = 0; col < dataRow.Length; col++)
-                    {
-                        var value = dataRow[col];
-                        var cell = worksheet.Cell(row, col + 1);
-                        ApplyCellFormatting(cell, value);
-                    }
-                    row++;
-                }
-
-                worksheet.Columns().AdjustToContents();
-            }
-
-            using var memoryStream = new MemoryStream();
-            workbook.SaveAs(memoryStream);
-            memoryStream.Position = 0;
-            var fileBytes = memoryStream.ToArray();
-
-            return new FileStreamResult(new MemoryStream(fileBytes), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-            {
-                FileDownloadName = fileName
-            };
+            return BuildExcelFile(worksheetDataList, fileName);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error al generar el reporte Excel");
             throw new Exception($"Error al generar el reporte: {ex.Message}", ex);
         }
+    }
+
+    protected virtual Task<FileStreamResult> GenerateExcelReportAsync(
+        List<WorksheetData> worksheetDataList,
+        string fileName,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Task.FromResult(BuildExcelFile(worksheetDataList, fileName));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error al generar el reporte Excel (datos externos)");
+            throw new Exception($"Error al generar el reporte: {ex.Message}", ex);
+        }
+    }
+
+    private FileStreamResult BuildExcelFile(List<WorksheetData> worksheetDataList, string fileName)
+    {
+        using var workbook = new XLWorkbook();
+
+        foreach (var worksheetData in worksheetDataList)
+        {
+            var worksheet = workbook.Worksheets.Add(worksheetData.WorksheetName);
+
+            SetupHeaders(worksheet, worksheetData.ColumnHeaders);
+
+            int row = 2;
+            foreach (var dataRow in worksheetData.Rows)
+            {
+                for (int col = 0; col < dataRow.Length; col++)
+                {
+                    var value = dataRow[col];
+                    var cell = worksheet.Cell(row, col + 1);
+                    ApplyCellFormatting(cell, value);
+                }
+                row++;
+            }
+
+            worksheet.Columns().AdjustToContents();
+        }
+
+        using var memoryStream = new MemoryStream();
+        workbook.SaveAs(memoryStream);
+        memoryStream.Position = 0;
+        var fileBytes = memoryStream.ToArray();
+
+        return new FileStreamResult(new MemoryStream(fileBytes), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        {
+            FileDownloadName = fileName
+        };
     }
 
     public abstract Task<IActionResult> GetReportDataAsync<TRequest>(
