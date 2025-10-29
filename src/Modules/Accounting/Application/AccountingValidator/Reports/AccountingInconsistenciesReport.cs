@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Application.Reports.Strategies;
+using Common.SharedKernel.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -48,7 +49,7 @@ public class AccountingInconsistenciesReport(ILogger<AccountingInconsistenciesRe
 
         var result = new WorksheetData
         {
-            WorksheetName = "InconsistenciasContables",
+            WorksheetName = WorksheetNames.AccountingInconsistencies,
             ColumnHeaders = ColumnHeaders,
             Rows = rows ?? []
         };

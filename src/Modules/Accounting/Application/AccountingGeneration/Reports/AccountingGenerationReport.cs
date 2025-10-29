@@ -2,7 +2,7 @@
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.ConsecutiveFiles;
 using Common.SharedKernel.Application.Reports.Strategies;
-using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -36,7 +36,38 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
     private async Task<List<WorksheetData>> GetWorksheetDataAsync(CancellationToken cancellationToken)
     {
-        return new List<WorksheetData>();
+        var worksheetDataList = new List<WorksheetData>();
+
+        var data = await accountingAssistantRepository.GetAllAsync(cancellationToken);
+
+        var rows = data?.Select(x => new object[]
+        {
+            x.AccountingAssistantId,
+            x.PortfolioId,
+            x.Identification,
+            x.VerificationDigit,
+            x.Name,
+            x.Period,
+            x.Account ?? "",
+            x.Date,
+            x.Detail ?? "",
+            x.Type,
+            x.Value,
+            x.Nature,
+            x.Identifier,
+
+        }).ToList();
+
+        var result = new WorksheetData
+        {
+            WorksheetName = WorksheetNames.Accounting,
+            ColumnHeaders = ColumnHeaders,
+            Rows = rows ?? []
+        };
+
+        worksheetDataList.Add(result);
+
+        return worksheetDataList;
     }
 
     private async Task<string> GenerateReportFileNameAsync(CancellationToken cancellationToken)

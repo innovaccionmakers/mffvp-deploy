@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Application.Reports.Strategies;
+using Common.SharedKernel.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Reports.Domain.BalancesAndMovements;
@@ -105,7 +106,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
             // Hoja 1: Saldos
             var saldosData = new WorksheetData
             {
-                WorksheetName = WorksheetName.Balances.GetDescription(),
+                WorksheetName = WorksheetNames.Balances,
                 ColumnHeaders = _saldosHeaders,
                 Rows = await GetSaldosData(reportRequest, cancellationToken)
             };
@@ -114,7 +115,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
             // Hoja 2: Movimientos
             var movimientosData = new WorksheetData
             {
-                WorksheetName = WorksheetName.Movements.GetDescription(),
+                WorksheetName = WorksheetNames.Movements,
                 ColumnHeaders = _movimientosHeaders,
                 Rows = await GetMovimientosData(reportRequest, cancellationToken)
             };

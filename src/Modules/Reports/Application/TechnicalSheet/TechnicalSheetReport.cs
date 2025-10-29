@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Application.Reports.Strategies;
+using Common.SharedKernel.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Reports.Domain.BalancesAndMovements;
@@ -87,16 +88,16 @@ public class TechnicalSheetReport(
             x.Participants
         }).ToList();
 
-        var saldosData = new WorksheetData
+        var result = new WorksheetData
         {
-            WorksheetName = WorksheetName.TechnicalSheet.GetDescription(),
+            WorksheetName = WorksheetNames.TechnicalSheet,
             ColumnHeaders = ColumnHeaders,
             Rows = rows ?? []
         };
-        worksheetDataList.Add(saldosData);
+        worksheetDataList.Add(result);
 
 
-        return await Task.FromResult(worksheetDataList);
+        return worksheetDataList;
     }
 
     private string GenerateReportFileName(TechnicalSheetReportRequest reportRequest)

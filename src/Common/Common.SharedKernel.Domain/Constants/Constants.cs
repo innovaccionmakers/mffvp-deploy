@@ -1,4 +1,6 @@
-﻿namespace Common.SharedKernel.Domain.Constants;
+﻿using System.ComponentModel;
+
+namespace Common.SharedKernel.Domain.Constants;
 
 
 public static class NotificationTypes
@@ -23,4 +25,13 @@ public static class NotificationStatuses
     public const string Success = "Exitoso";
     public const string Failure = "Fallido";
     public const string Finalized = "Finalizado";
+}
+
+public static class WorksheetNames
+{
+    public const string Balances = "Saldos";
+    public const string Movements = "Movimientos";
+    public const string TechnicalSheet = "Ficha Técnica";
+    public const string AccountingInconsistencies = "Inconsistencias Contables";
+    public const string Accounting = "Contabilidad";
 }
