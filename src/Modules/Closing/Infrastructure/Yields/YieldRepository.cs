@@ -132,14 +132,14 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
             .SingleOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<YieldToDistribute?> GetReadOnlyToDistributeByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken)
+    public async Task<YieldToDistributeDto?> GetReadOnlyToDistributeByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken)
     {
         return await context.Yields
             .AsNoTracking()
             .TagWith("YieldRepository_GetToDistributeByPortfolioAndDateAsync")
             .Where(r => r.PortfolioId == portfolioId &&
                        r.ClosingDate.Date == closingDateUtc)
-            .Select(r => new YieldToDistribute(
+            .Select(r => new YieldToDistributeDto(
                 r.YieldToCredit, r.Income, r.Expenses, r.Commissions, r.Costs))
             .FirstOrDefaultAsync(cancellationToken);
     }
