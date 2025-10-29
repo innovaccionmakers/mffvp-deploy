@@ -29,6 +29,8 @@ using Reports.Domain.TechnicalSheet;
 using Common.SharedKernel.Domain.Auth.Permissions;
 using Accounting.Presentation.GraphQL;
 using Closing.Presentation.GraphQL;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -182,9 +184,19 @@ public class Query
     [GraphQLName("causalesAnulacion")]
     public async Task<IReadOnlyCollection<CancellationClauseDto>> GetCancellationClauses(
         [Service] IOperationsExperienceQueries operationsQueries,
+        [Service] ILogger<Query> logger,
         CancellationToken cancellationToken)
     {
-        return await operationsQueries.GetCancellationClausesAsync(cancellationToken);
+        logger.LogInformation("GetCancellationClauses - Iniciando petición. Parámetros recibidos: cancellationToken.IsCancellationRequested={CancellationRequested}",
+            cancellationToken.IsCancellationRequested);
+
+        var result = await operationsQueries.GetCancellationClausesAsync(cancellationToken);
+
+        logger.LogInformation("GetCancellationClauses - Respuesta obtenida. Cantidad de causales: {Count}. Detalles: {Details}",
+            result.Count,
+            JsonSerializer.Serialize(result));
+
+        return result;
     }
 
     [GraphQLName("origen")]

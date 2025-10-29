@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Linq;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
@@ -98,11 +97,8 @@ internal sealed class AccountingRecordsValCommandHandler(
                 Error.Validation(requiredError.Code, requiredError.Message));
         }
 
-        var causeScope = HomologScope.Of<AccountingRecordsValCommand>(c => c.CauseId);
-        var causeHomologationCode = command.CauseId.ToString(CultureInfo.InvariantCulture);
-
         var causeConfigurationParameter = await configurationParameterRepository
-            .GetByCodeAndScopeAsync(causeHomologationCode, causeScope, cancellationToken);
+            .GetByIdAsync(command.CauseId, cancellationToken);
 
         var operation = await clientOperationRepository
             .GetAsync(command.ClientOperationId, cancellationToken);
