@@ -1,8 +1,10 @@
+using Common.SharedKernel.Application.Attributes;
 using System.Collections.Generic;
 using Common.SharedKernel.Application.Messaging;
 
 namespace Operations.Integrations.Voids.RegisterVoidedTransactions;
 
+[AuditLog]
 public sealed record VoidedTransactionsValCommand(
     IReadOnlyCollection<VoidedTransactionItem> Items,
     long CauseId,
