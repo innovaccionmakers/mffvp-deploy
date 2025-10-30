@@ -46,6 +46,7 @@ namespace Accounting.Application.AccountingConcepts
                 verificationDigit = counterpartyInfo.verificationDigit;
                 name = counterpartyInfo.name;
                 var natureValue = EnumHelper.GetEnumMemberValue(movement.TreasuryConcept?.Nature);
+                var concept = movement.TreasuryConcept?.Concept ?? string.Empty;
 
                 // 2. Validar cuentas contables
                 if (!ValidateAccountingAccounts(movement.PortfolioId, concept, accountTreasury, accountConcept, out var accountValidationErrors))
