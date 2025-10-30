@@ -113,7 +113,8 @@ public class OperationsExperienceMutation(
 
             var response = new DebitNoteMutationResult(
                 commandResult.Value.DebitNoteId,
-                commandResult.Value.Message);
+                commandResult.Value.Message,
+                "Nota Débito");
 
             result.SetSuccess(response, commandResult.Value.Message);
             return result;
