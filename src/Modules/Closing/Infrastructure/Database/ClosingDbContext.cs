@@ -11,6 +11,7 @@ using Closing.Infrastructure.PortfolioValuations;
 using Closing.Infrastructure.ProfitLossConcepts;
 using Closing.Infrastructure.ProfitLosses;
 using Closing.Infrastructure.TrustYields;
+using Closing.Infrastructure.YieldsToDistribute;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,7 @@ public sealed class ClosingDbContext(DbContextOptions<ClosingDbContext> options)
         modelBuilder.ApplyConfiguration(new ClientOperationConfiguration());
         modelBuilder.ApplyConfiguration(new PortfolioValuationConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.Closing));
+        modelBuilder.ApplyConfiguration(new YieldToDistributeConfiguration());
     }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
