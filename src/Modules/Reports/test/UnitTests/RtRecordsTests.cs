@@ -115,15 +115,15 @@ public class RtRecordsTests
     }
 
     [Fact]
-    public void Rt4_314_Returns_Negative_Should_Still_Show_Plus_And_Abs()
+    public void Rt4_314_Returns_Negative_Should_Show_Minus_And_Value()
     {
         var line30 = Rt4Lines.Return30Days(-10.12m).ToLine(20);
         var line180 = Rt4Lines.Return180Days(-20.34m).ToLine(21);
         var line365 = Rt4Lines.Return365Days(-30.56m).ToLine(22);
 
-        line30.Should().Be("00020" + "4314" + "0101005" + "+" + "00000000000000010.12");
-        line180.Should().Be("00021" + "4314" + "0101010" + "+" + "00000000000000020.34");
-        line365.Should().Be("00022" + "4314" + "0101015" + "+" + "00000000000000030.56");
+        line30.Should().Be("00020" + "4314" + "0101005" + "-" + "00000000000000010.12");
+        line180.Should().Be("00021" + "4314" + "0101010" + "-" + "00000000000000020.34");
+        line365.Should().Be("00022" + "4314" + "0101015" + "-" + "00000000000000030.56");
     }
     
     [Theory]

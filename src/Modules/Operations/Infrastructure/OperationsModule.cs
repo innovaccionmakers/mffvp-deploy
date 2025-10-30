@@ -161,6 +161,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IBuildMissingFieldsContributionService, BuildMissingFieldsContributionService>();
 
         services.AddScoped<ITrustInfoProvider, TrustInfoProvider>();
+        services.AddScoped<ITrustDetailsProvider, TrustDetailsProvider>();
         services.AddScoped<ITrustUpdater, TrustUpdater>();
         services.AddScoped<IPortfolioValuationProvider, PortfolioValuationProvider>();
 
@@ -177,6 +178,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<ProcessPendingTransactionsRequest, ProcessPendingTransactionsResponse>, PendingContributionProcessor>();
 
         services.AddScoped<ITrustOperationBulkRepository, TrustOperationBulkRepository>();
+        services.AddScoped<IPendingTransactionsReaderRepository, PendingTransactionsReaderRepository>();
 
     }
 

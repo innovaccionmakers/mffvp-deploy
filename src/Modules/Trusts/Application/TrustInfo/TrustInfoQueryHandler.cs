@@ -25,14 +25,14 @@ internal sealed class TrustInfoQueryHandler(
         var trust = await trustRepository
             .GetByClientOperationIdAsync(request.ClientOperationId, cancellationToken);
 
-        var normalizedBalance = decimal.Round(trust?.TotalBalance ?? 0m, 2, MidpointRounding.AwayFromZero);
+        var normalizedPrincipal = decimal.Round(trust?.Principal ?? 0m, 2, MidpointRounding.AwayFromZero);
         var normalizedContribution = decimal.Round(request.ContributionValue, 2, MidpointRounding.AwayFromZero);
 
         var ruleContext = new
         {
             TrustExists = trust is not null,
             TrustIsActive = trust?.Status == LifecycleStatus.Active,
-            TrustTotalBalance = normalizedBalance,
+            TrustPrincipal = normalizedPrincipal,
             ContributionValue = normalizedContribution
         };
 

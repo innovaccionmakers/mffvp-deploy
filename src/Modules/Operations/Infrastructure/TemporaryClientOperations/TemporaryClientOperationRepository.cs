@@ -92,7 +92,7 @@ internal sealed class TemporaryClientOperationRepository(OperationsDbContext con
                 cancellationToken);
     }
 
-    public Task<int> MarkProcessedIfPendingAsync(
+    public Task<int> MarkProcessedBulkIfPendingAsync(
     IReadOnlyCollection<long> tempIds, CancellationToken cancellationToken = default)
     {
         return context.TemporaryClientOperations

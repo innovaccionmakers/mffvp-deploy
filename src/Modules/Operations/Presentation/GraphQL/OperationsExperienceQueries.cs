@@ -136,6 +136,7 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         var debitNoteCauses = result.Value;
 
         return debitNoteCauses.Select(x => new DebitNoteCauseDto(
+            x.Id,
             x.Uuid,
             x.Name,
             x.Status,
@@ -156,6 +157,7 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         var cancellationClauses = result.Value;
 
         return cancellationClauses.Select(x => new CancellationClauseDto(
+            x.ConfigurationParameterId,
             x.Uuid,
             x.Name,
             x.Status,

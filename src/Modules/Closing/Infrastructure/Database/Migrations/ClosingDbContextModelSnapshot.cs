@@ -426,6 +426,55 @@ namespace Closing.Infrastructure.Database.Migrations
                     b.ToTable("rendimientos", "cierre");
                 });
 
+            modelBuilder.Entity("Closing.Domain.YieldsToDistribute.YieldToDistribute", b =>
+                {
+                    b.Property<long>("YieldToDistributeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("YieldToDistributeId"));
+
+                    b.Property<DateTime>("ApplicationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_aplicacion");
+
+                    b.Property<DateTime>("ClosingDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_cierre");
+
+                    b.Property<JsonDocument>("Concept")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("concepto");
+
+                    b.Property<decimal>("Participation")
+                        .HasPrecision(38, 16)
+                        .HasColumnType("decimal(38, 16)")
+                        .HasColumnName("participacion");
+
+                    b.Property<int>("PortfolioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("portafolio_id");
+
+                    b.Property<DateTime>("ProcessDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_proceso");
+
+                    b.Property<long>("TrustId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("fideicomiso_id");
+
+                    b.Property<decimal>("YieldAmount")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("decimal(19, 2)")
+                        .HasColumnName("rendimientos");
+
+                    b.HasKey("YieldToDistributeId");
+
+                    b.ToTable("rendimientos_por_distribuir", "cierre");
+                });
+
             modelBuilder.Entity("Common.SharedKernel.Domain.ConfigurationParameters.ConfigurationParameter", b =>
                 {
                     b.Property<int>("ConfigurationParameterId")

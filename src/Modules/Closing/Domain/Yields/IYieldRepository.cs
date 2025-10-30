@@ -38,5 +38,5 @@ public interface IYieldRepository
 
     Task<decimal?> GetYieldToCreditAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
 
-    Task<YieldToDistribute?> GetReadOnlyToDistributeByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken);
+    Task<YieldToDistributeDto?> GetReadOnlyToDistributeByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken);
 }
