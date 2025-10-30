@@ -30,6 +30,9 @@ namespace Accounting.Application.AccountingConcepts
                                                                 new AccountingConceptsRequestEvent(command.PortfolioIds, command.ProcessDate), cancellationToken);
                 if (!treasuryMovement.IsValid)
                     return Result.Failure<bool>(Error.Validation(treasuryMovement.Code ?? string.Empty, treasuryMovement.Message ?? string.Empty));
+                
+                if (treasuryMovement.movements.Count == 0)
+                    return Result.Success(true);
 
                 //Treasury
                 var treasury = await sender.Send(new GetAccountingConceptsTreasuriesQuery(command.PortfolioIds), cancellationToken);

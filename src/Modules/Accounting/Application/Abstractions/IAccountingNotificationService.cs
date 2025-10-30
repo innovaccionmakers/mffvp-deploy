@@ -49,7 +49,6 @@ Task SendProcessFailedWithErrorsAsync(
     DateTime startDate,
     DateTime processDate,
     IEnumerable<UndefinedError> errors,
-    int totalRecords,
     CancellationToken cancellationToken = default);
 }
 

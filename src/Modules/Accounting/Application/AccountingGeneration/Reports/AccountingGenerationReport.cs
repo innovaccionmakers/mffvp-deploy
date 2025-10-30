@@ -32,18 +32,27 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
     public async override Task<IActionResult> GetReportDataAsync<TRequest>(TRequest request, CancellationToken cancellationToken)
     {
-        try
+        if (request is DateTime processDate)
         {
-            return await GenerateTextReportAsync(
-                   ct => GetTextReportDataAsync(ct),
-                   await GenerateReportFileNameAsync(cancellationToken),
-                   cancellationToken);
+            try
+            {
+                return await GenerateTextReportAsync(
+                       ct => GetTextReportDataAsync(ct),
+                       await GenerateReportFileNameAsync(processDate, cancellationToken),
+                       cancellationToken);
 
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error al generar el reporte de generación contable");
+                throw;
+            }
         }
-        catch (Exception ex)
+        else
         {
-            logger.LogError(ex, "Error al generar el reporte de generación contable");
-            throw;
+            logger.LogError("Tipo de request no válido. Se esperaba DateTime, se recibió: {RequestType}",
+                typeof(TRequest).Name);
+            throw new ArgumentException("El tipo de request no es válido. Se esperaba DateTime.");
         }
     }
 
@@ -83,15 +92,14 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         return textReportDataList;
     }
 
-    private async Task<string> GenerateReportFileNameAsync(CancellationToken cancellationToken)
+    private async Task<string> GenerateReportFileNameAsync(DateTime processDate, CancellationToken cancellationToken)
     {
-        var today = DateTime.Today;
-
+        var today = DateTime.UtcNow;
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
 
-        var consecutiveFile = await consecutiveFileRepository.GetByGenerationDateAsync(today, cancellationToken);
+        var consecutiveFile = await consecutiveFileRepository.GetByGenerationDateAsync(processDate, cancellationToken);
         int consecutive = 1;
 
         if (consecutiveFile is not null)
@@ -102,9 +110,9 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         }
         else
         {
-            var newConsecutive = ConsecutiveFile.Create(today, 1, DateTime.Now);
+            var newConsecutive = ConsecutiveFile.Create(processDate, 1, today);
             if (newConsecutive.IsFailure)
-                throw new Exception($"Error al crear el consecutivo para la fecha {today:yyyy-MM-dd}");
+                throw new Exception($"Error al crear el consecutivo para la fecha {processDate:yyyy-MM-dd}");
 
             consecutive = newConsecutive.Value.Consecutive;
             await consecutiveFileRepository.AddAsync(newConsecutive.Value, cancellationToken);
@@ -113,7 +121,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        string fileName = $"{ReportName}{today:ddMMyyyy}{consecutive:D3}.txt";
+        string fileName = $"{ReportName}{processDate:ddMMyyyy}{consecutive:D3}.txt";
         return fileName;
     }
 }

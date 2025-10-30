@@ -145,7 +145,6 @@ public sealed class AccountingNotificationService(
         DateTime startDate,
         DateTime processDate,
         IEnumerable<UndefinedError> errors,
-        int totalRecords,
         CancellationToken cancellationToken = default)
     {
         var errorsList = errors.ToList();
@@ -153,7 +152,6 @@ public sealed class AccountingNotificationService(
         {
             { "Duracion", TimeHelper.GetDuration(startDate, DateTime.UtcNow) },
             { "FechaGeneracion", processDate.ToString("yyyy-MM-dd") },
-            { "RegistrosTotales", totalRecords }
         };
 
         foreach (var error in errorsList)

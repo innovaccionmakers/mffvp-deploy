@@ -94,7 +94,6 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                 startDate,
                 processDate,
                 undefinedErrors,
-                undefinedErrors.Count,
                 cancellationToken
             );
             return;

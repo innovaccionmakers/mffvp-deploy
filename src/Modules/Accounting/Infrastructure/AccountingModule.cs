@@ -3,6 +3,7 @@ using Accounting.Application.Abstractions;
 using Accounting.Application.Abstractions.Data;
 using Accounting.Application.Abstractions.External;
 using Accounting.Application.AccountingConcepts;
+using Accounting.Application.AccountingGeneration.Reports;
 using Accounting.Application.AccountingOperations;
 using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Application.AccountProcess;
@@ -100,6 +101,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
         services.AddScoped<IAccountingProcessStore, RedisAccountingProcessStore>();
         services.AddScoped<AccountingInconsistenciesReport>();
+        services.AddScoped<AccountingGenerationReport>();
         services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();
         services.AddScoped<IAccountingNotificationService, AccountingNotificationService>();
 

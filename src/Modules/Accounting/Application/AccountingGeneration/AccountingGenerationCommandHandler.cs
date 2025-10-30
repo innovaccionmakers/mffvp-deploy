@@ -1,10 +1,7 @@
 ﻿using Accounting.Application.Abstractions;
 using Accounting.Application.AccountingGeneration.Reports;
-using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Domain.AccountingAssistants;
-using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Integrations.AccountingGeneration;
-using Azure.Core;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
@@ -53,14 +50,13 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
             }
 
             byte[] fileBytes;
-            string fileName = fileResult.FileDownloadName ?? $"reporte-{processDate:yyyyMMddHHmmss}.txt";
-            string contentType = fileResult.ContentType ?? "application/octet-stream";
+            string fileName = fileResult.FileDownloadName;
+            string contentType = fileResult.ContentType;
 
             switch (actionResult)
             {
                 case FileStreamResult fsr:
-                {
-                    // Garantizar posición al inicio antes de copiar
+                {                    
                     if (fsr.FileStream.CanSeek)
                     {
                         fsr.FileStream.Seek(0, SeekOrigin.Begin);
@@ -82,7 +78,7 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
                 }
             }
 
-            var filePath = $"reports/inconsistencies/{fileName}";
+            var filePath = $"reports/accounting/{fileName}";
             return await fileStorageService.UploadFileAsync(fileBytes, fileName, contentType, filePath, cancellationToken);
         }
         catch (Exception ex)
