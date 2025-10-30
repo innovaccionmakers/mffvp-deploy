@@ -29,7 +29,7 @@ public sealed class InconsistencyHandler(
                 processType, processDate);
 
             var result = await accountingInconsistencyRepository.SaveInconsistenciesAsync(
-                inconsistencies, processDate, processType, cancellationToken);
+                automaticConceptErrors, processDate, processType, cancellationToken);
 
             if (result.IsFailure)
             {
