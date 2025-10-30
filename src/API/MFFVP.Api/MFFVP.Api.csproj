@@ -74,7 +74,7 @@
   </PropertyGroup>
 
     <ItemGroup Condition="'$(IsCI)' != 'true'">
-	    <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.7" />
+	    <PackageReference Include="Makers.Adp.Telemetry" Version="0.2.8" />
     </ItemGroup>
 
 </Project>
