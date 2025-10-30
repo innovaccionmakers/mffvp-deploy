@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Accounting.Application.AccountingGeneration;
 
@@ -24,8 +25,15 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
         {
             var url = await GenerateAccountingInterfaceUrl(request.ProcessDate, cancellationToken);
 
+            if(url.IsNullOrEmpty())
+            {
+                await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, "Hubo un error al generar la interfaz contable.", cancellationToken);
+                return Unit.Value;
+            }
+
+            await accountingNotificationService.SendProcessFinalizedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, url, cancellationToken);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             var error = "Ocurrio un error inesperado al generar la interface contable";
             logger.LogError(ex, error);
