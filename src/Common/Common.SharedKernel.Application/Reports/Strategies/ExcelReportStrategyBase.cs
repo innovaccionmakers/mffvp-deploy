@@ -15,10 +15,16 @@ public abstract class ExcelReportStrategyBase(
     {
         cell.Value = value switch
         {
-            decimal d => d.ToString("0.00", CultureInfo.InvariantCulture),
-            double doubleVal => doubleVal.ToString("0.00", CultureInfo.InvariantCulture),
-            float floatVal => floatVal.ToString("0.00", CultureInfo.InvariantCulture),
+            decimal or double or float => Convert.ToDecimal(value),
+            int => Convert.ToInt32(value),
             _ => value?.ToString() ?? string.Empty
+        };
+
+        cell.Style.NumberFormat.Format = value switch
+        {
+            decimal or double or float => "0.00",
+            int or long or short or byte => "0",
+            _ => "General"
         };
     }
 

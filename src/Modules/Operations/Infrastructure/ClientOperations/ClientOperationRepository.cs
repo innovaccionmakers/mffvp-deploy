@@ -67,7 +67,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                             : processDate.ToUniversalTime();
 
         var clientOperations = await context.ClientOperations
-            .Where(co => co.ProcessDate == utcProcessDate && co.Status == LifecycleStatus.Active)
+            .Where(co => co.ProcessDate.Date == utcProcessDate.Date && co.Status == LifecycleStatus.Active)
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
             .ToListAsync(cancellationToken);

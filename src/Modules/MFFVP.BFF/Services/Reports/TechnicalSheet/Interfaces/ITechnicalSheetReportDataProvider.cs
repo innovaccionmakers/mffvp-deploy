@@ -1,5 +1,5 @@
 ﻿using Common.SharedKernel.Presentation.Results;
-using MFFVP.BFF.Services.Reports.DepositsReport.Interfaces;
+using MFFVP.BFF.Services.Reports.Interfaces;
 
 namespace MFFVP.BFF.Services.Reports.TechnicalSheet.Interfaces;
 

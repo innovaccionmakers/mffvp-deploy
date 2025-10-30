@@ -5,7 +5,6 @@ using Common.SharedKernel.Core.Primitives;
 using HotChocolate;
 
 using MediatR;
-using Operations.Integrations.ClientOperations.GetClientOperationsByProcessDate;
 using Products.Integrations.Alternatives;
 using Products.Integrations.Commercials;
 using Products.Integrations.ConfigurationParameters.DocumentTypes;

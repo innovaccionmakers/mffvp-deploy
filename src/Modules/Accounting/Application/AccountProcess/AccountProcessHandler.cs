@@ -53,16 +53,16 @@ internal sealed class AccountProcessHandler(
        );
 
         var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, processDate);
-            var accountingReturnsCommand = new AccountingReturnsCommand(command.PortfolioIds, processDate);
-            var acountingOperationsCommand = new AccountingOperationsCommand(command.PortfolioIds, processDate);
-            var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, processDate);
-            var automaticConceptsCommand = new AutomaticConceptsCommand(command.PortfolioIds, processDate);
+        var accountingReturnsCommand = new AccountingReturnsCommand(command.PortfolioIds, processDate);
+        var acountingOperationsCommand = new AccountingOperationsCommand(command.PortfolioIds, processDate);
+        var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, processDate);
+        var automaticConceptsCommand = new AutomaticConceptsCommand(command.PortfolioIds, processDate);
 
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingFees, accountingFeesCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-            _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AutomaticConcepts, automaticConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingFees, accountingFeesCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AutomaticConcepts, automaticConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
 
         return Result.Success(new AccountProcessResult(processId));
     }
