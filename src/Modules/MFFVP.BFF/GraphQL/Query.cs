@@ -29,6 +29,8 @@ using Reports.Domain.TechnicalSheet;
 using Common.SharedKernel.Domain.Auth.Permissions;
 using Accounting.Presentation.GraphQL;
 using Closing.Presentation.GraphQL;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -182,9 +184,19 @@ public class Query
     [GraphQLName("causalesAnulacion")]
     public async Task<IReadOnlyCollection<CancellationClauseDto>> GetCancellationClauses(
         [Service] IOperationsExperienceQueries operationsQueries,
+        [Service] ILogger<Query> logger,
         CancellationToken cancellationToken)
     {
-        return await operationsQueries.GetCancellationClausesAsync(cancellationToken);
+        logger.LogInformation("GetCancellationClauses - Iniciando petición. Parámetros recibidos: cancellationToken.IsCancellationRequested={CancellationRequested}",
+            cancellationToken.IsCancellationRequested);
+
+        var result = await operationsQueries.GetCancellationClausesAsync(cancellationToken);
+
+        logger.LogInformation("GetCancellationClauses - Respuesta obtenida. Cantidad de causales: {Count}. Detalles: {Details}",
+            result.Count,
+            JsonSerializer.Serialize(result));
+
+        return result;
     }
 
     [GraphQLName("origen")]
@@ -398,14 +410,30 @@ public class Query
     public async Task<GraphqlResult<ReportResponseDto>> GenerateTransmissionFormatReportAsync(
         [GraphQLName("fechaGeneracion")] DateTime generationDate,
         [Service] ReportOrchestrator reportOrchestrator,
+        [Service] ILogger<Query> logger,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation("[TransmissionFormat] Iniciando generación de reporte. FechaGeneracion: {GenerationDate}", generationDate.ToString("yyyy-MM-dd"));
+        logger.LogDebug("Fecha de generación: {GenerationDate}", generationDate.ToString("yyyy-MM-dd"));
         var request = new TransmissionFormatReportRequest
         {
             GenerationDate = generationDate
         };
 
-        return await reportOrchestrator.GetReportData(request, ReportType.TransmissionFormat, cancellationToken);
+        var result = await reportOrchestrator.GetReportData(request, ReportType.TransmissionFormat, cancellationToken);
+        
+        if (result.Data != null)
+        {
+            logger.LogInformation("[TransmissionFormat] Reporte generado exitosamente. Archivo: {FileName}, Tamaño: {FileSize} bytes", 
+                result.Data.FileName, 
+                result.Data.FileContent?.Length ?? 0);
+        }
+        else
+        {
+            logger.LogWarning("[TransmissionFormat] Reporte finalizado sin datos. Errores: {ErrorCount}", result.Errors?.Count ?? 0);
+        }
+        
+        return result;
     }
 
     //Trust Queries

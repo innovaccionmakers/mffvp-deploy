@@ -203,9 +203,8 @@ public class AccountingRecordsValCommandHandlerTests
         result.Error.Code.Should().Be(validationError.Code);
         result.Error.Description.Should().Be(validationError.Message);
         fixture.ConfigurationParameterRepositoryMock.Verify(
-            repository => repository.GetByCodeAndScopeAsync(
-                fixture.CauseHomologationCode,
-                fixture.CauseScope,
+            repository => repository.GetByIdAsync(
+                fixture.CauseId,
                 It.IsAny<CancellationToken>()),
             Times.Once);
         fixture.AccountingRecordsOperMock.Verify(
@@ -368,10 +367,8 @@ public class AccountingRecordsValCommandHandlerTests
     {
         private const long DefaultClientOperationId = 100;
         private const decimal DefaultAmount = 1_000m;
-        private const int DefaultCauseHomologationCode = 10;
+        private const int DefaultCauseId = 10;
         private const int DefaultCauseConfigurationParameterId = 20;
-
-        private readonly string _causeScope = HomologScope.Of<AccountingRecordsValCommand>(c => c.CauseId);
 
         private ConfigurationParameter? _causeParameter;
         private OperationType? _operationType;
@@ -408,9 +405,8 @@ public class AccountingRecordsValCommandHandlerTests
             _validationResult = SuccessfulRules;
 
             _causeParameter = CreateConfigurationParameter(
-                DefaultCauseHomologationCode,
-                DefaultCauseConfigurationParameterId,
-                _causeScope);
+                DefaultCauseId,
+                DefaultCauseConfigurationParameterId);
 
             _contributionType = CreateOperationType(200, "Aporte", null);
             _operationType = CreateOperationType(201, "Aporte Nómina", (int)_contributionType.OperationTypeId);
@@ -447,8 +443,7 @@ public class AccountingRecordsValCommandHandlerTests
         public decimal Amount => DefaultAmount;
         public int AffiliateId => _affiliateId;
         public int ObjectiveId => _objectiveId;
-        public string CauseScope => _causeScope;
-        public string CauseHomologationCode => DefaultCauseHomologationCode.ToString(CultureInfo.InvariantCulture);
+        public int CauseId => DefaultCauseId;
         public DateTime PortfolioCurrentDate { get; private set; }
         public object? ValidationContext { get; private set; }
 
@@ -470,9 +465,8 @@ public class AccountingRecordsValCommandHandlerTests
                 .ReturnsAsync(() => _validationResult);
 
             ConfigurationParameterRepositoryMock
-                .Setup(repository => repository.GetByCodeAndScopeAsync(
-                    It.Is<string>(code => code == CauseHomologationCode),
-                    _causeScope,
+                .Setup(repository => repository.GetByIdAsync(
+                    It.Is<int>(id => id == DefaultCauseId),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => _causeParameter);
 
@@ -531,7 +525,7 @@ public class AccountingRecordsValCommandHandlerTests
             return new AccountingRecordsValCommand(
                 clientOperationId ?? DefaultClientOperationId,
                 amount ?? DefaultAmount,
-                causeId ?? DefaultCauseHomologationCode,
+                causeId ?? DefaultCauseId,
                 affiliateId ?? _affiliateId,
                 objectiveId ?? _objectiveId);
         }
@@ -655,14 +649,13 @@ public class AccountingRecordsValCommandHandlerTests
         }
 
         private static ConfigurationParameter CreateConfigurationParameter(
-            int homologationCode,
-            int parameterId,
-            string scope)
+            int causeId,
+            int parameterId)
         {
             var parameter = ConfigurationParameter.Create(
                 "Causal Nota Débito",
-                homologationCode.ToString(CultureInfo.InvariantCulture),
-                scope);
+                causeId.ToString(CultureInfo.InvariantCulture),
+                "CauseScope");
 
             SetProperty(parameter, nameof(ConfigurationParameter.ConfigurationParameterId), parameterId);
 

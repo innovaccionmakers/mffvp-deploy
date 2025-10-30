@@ -30,7 +30,7 @@ public class GetOperationsNDQueryHandlerTests
         const int affiliateId = 100;
         const int objectiveId = 200;
         var contributionsType = CreateOperationType(1, "Aporte", null);
-        var contributionType = contributionsType.FirstOrDefault();
+        var contributionType = contributionsType.Single();
         var categorizedTypes = CreateOperationType(4, "Ninguno", 1);
 
         var operationProcessDate = new DateTime(2024, 1, 31, 23, 30, 0, DateTimeKind.Utc);

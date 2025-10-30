@@ -45,9 +45,10 @@ namespace Accounting.Application.AccountingConcepts
                 verificationDigit = counterpartyInfo.verificationDigit;
                 name = counterpartyInfo.name;
                 var natureValue = operationLocator.GetEnumMemberValue(movement.TreasuryConcept?.Nature);
+                var concept = movement.TreasuryConcept?.Concept ?? string.Empty;
 
                 // 2. Validar cuentas contables
-                if (!ValidateAccountingAccounts(movement.PortfolioId, accountTreasury, accountConcept, out var accountValidationErrors))
+                if (!ValidateAccountingAccounts(movement.PortfolioId, concept, accountTreasury, accountConcept, out var accountValidationErrors))
                     errors.AddRange(accountValidationErrors);
 
                 // 3. Determinar cuentas débito/crédito
@@ -69,7 +70,7 @@ namespace Accounting.Application.AccountingConcepts
                 {
                     logger.LogError("Error al crear el AccountingAssistant para el portafolio {PortfolioId}: {Error}",
                         movement.PortfolioId, accountingAssistant.Error);
-                    errors.Add(AccountingInconsistency.Create(movement.PortfolioId, OperationTypeNames.Concepts, accountingAssistant.Error.Description));
+                    errors.Add(AccountingInconsistency.Create(movement.PortfolioId, $"{OperationTypeNames.Concepts} - {concept}", accountingAssistant.Error.Description));
                     continue;
                 }
 
@@ -104,6 +105,7 @@ namespace Accounting.Application.AccountingConcepts
 
         private bool ValidateAccountingAccounts(
             int portfolioId,
+            string concept,
             GetAccountingConceptsTreasuriesResponse accountTreasury,
             GetConceptsByPortfolioIdsResponse accountConcept,
             out List<AccountingInconsistency> validationErrors)
@@ -117,14 +119,14 @@ namespace Accounting.Application.AccountingConcepts
                 if (string.IsNullOrWhiteSpace(accountTreasury?.DebitAccount))
                 {
                     logger.LogWarning("No se encontró un concepto de cuenta de debito de treasury para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Concepts, "No existe parametrización contable", AccountingActivity.Debit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable", AccountingActivity.Debit));
                     isValid = false;
                 }
 
                 if (string.IsNullOrWhiteSpace(accountTreasury?.CreditAccount))
                 {
                     logger.LogWarning("No se encontró un concepto de cuenta de crédito de treasury para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Concepts, "No existe parametrización contable", AccountingActivity.Credit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable", AccountingActivity.Credit));
                     isValid = false;
                 }
 
@@ -132,14 +134,14 @@ namespace Accounting.Application.AccountingConcepts
                 if (string.IsNullOrWhiteSpace(accountConcept?.DebitAccount))
                 {
                     logger.LogWarning("No se encontró un concepto de cuenta de crédito para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Concepts, "No existe parametrización contable", AccountingActivity.Debit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable", AccountingActivity.Debit));
                     isValid = false;
                 }
 
                 if (string.IsNullOrWhiteSpace(accountConcept?.CreditAccount))
                 {
                     logger.LogWarning("No se encontró un concepto de cuenta de debito para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Concepts, "No existe parametrización contable", AccountingActivity.Credit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable", AccountingActivity.Credit));
                     isValid = false;
                 }
 

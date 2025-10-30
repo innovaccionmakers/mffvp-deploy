@@ -23,6 +23,7 @@ using Trusts.Infrastructure.Trusts;
 using Trusts.IntegrationEvents.CreateTrustRequested;
 using Trusts.IntegrationEvents.GetBalances;
 using Trusts.IntegrationEvents.ObjectiveTrustValidation;
+using Trusts.IntegrationEvents.Trusts.GetTrustById;
 using Trusts.IntegrationEvents.Trusts.PutTrust;
 using Trusts.IntegrationEvents.TrustInfo;
 using Trusts.IntegrationEvents.TrustYields;
@@ -69,6 +70,7 @@ public class TrustsModule : IModuleConfiguration
         services.AddScoped<IRpcHandler<ValidateObjectiveTrustRequest, ValidateObjectiveTrustResponse>, ValidateObjectiveTrustConsumer>();
         services.AddTransient<IRpcHandler<GetBalancesRequest, GetBalancesResponse>, GetBalancesConsumer>();
         services.AddTransient<IRpcHandler<TrustInfoRequest, TrustInfoResponse>, TrustInfoConsumer>();
+        services.AddTransient<IRpcHandler<GetTrustByIdRequest, GetTrustByIdResponse>, GetTrustByIdConsumer>();
 
         services.AddTransient<IRpcHandler<GetTrustParticipantRequest, GetTrustParticipantResponse>, GetTrustParticipantConsumer>();
         services.AddScoped<ITrustExperienceQueries, TrustExperienceQueries>();

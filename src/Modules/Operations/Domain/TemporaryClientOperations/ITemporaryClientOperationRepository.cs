@@ -20,4 +20,7 @@ public interface ITemporaryClientOperationRepository
     Task<int> MarkProcessedIfPendingAsync(
     long temporaryClientOperationId,
     CancellationToken cancellationToken = default);
+
+    Task<int> MarkProcessedBulkIfPendingAsync(
+    IReadOnlyCollection<long> tempIds, CancellationToken cancellationToken = default);
 }

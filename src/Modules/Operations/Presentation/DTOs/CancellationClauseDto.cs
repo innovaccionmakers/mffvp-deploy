@@ -4,6 +4,7 @@ namespace Operations.Presentation.DTOs;
 
 [GraphQLName("CasualAnulacion")]
 public record CancellationClauseDto(
+    [property: GraphQLName("id")] string Id,
     [property: GraphQLName("uuid")] Guid Uuid,
     [property: GraphQLName("nombre")] string Name,
     [property: GraphQLName("estado")] bool Status,
