@@ -23,6 +23,7 @@ public interface IAccountingNotificationService
      string processId,
      DateTime startDate,
      DateTime processDate,
+     string reportUrl,
      CancellationToken cancellationToken = default);
 
 Task SendProcessFailedAsync(

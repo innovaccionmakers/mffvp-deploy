@@ -5,6 +5,7 @@ using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AutomaticConcepts;
 using Closing.IntegrationEvents.Yields;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ namespace Accounting.Application.AutomaticConcepts
                 var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
                 IncomeEgressNature naturalezaFiltro = value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
                 var operationType = operationsType.OperationType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
-                var natureValue = operationLocator.GetEnumMemberValue(operationType!.Nature);
+                var natureValue = EnumHelper.GetEnumMemberValue(operationType!.Nature);
                 var passiveTransaction = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationType.OperationTypeId, cancellationToken);
 
                 var accountingAccounts = new AccountingAccounts(
@@ -86,7 +87,7 @@ namespace Accounting.Application.AutomaticConcepts
                 var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
                 IncomeEgressNature naturalezaFiltro = value > 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
                 var operationType = operationsType.OperationType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
-                var natureValue = operationLocator.GetEnumMemberValue(value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress);
+                var natureValue = EnumHelper.GetEnumMemberValue(value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress);
                 var passiveTransaction = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationType.OperationTypeId, cancellationToken);
 
                 var accountingAccounts = new AccountingAccounts(

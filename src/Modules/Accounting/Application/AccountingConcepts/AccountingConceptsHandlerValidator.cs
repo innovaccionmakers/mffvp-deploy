@@ -5,6 +5,7 @@ using Accounting.Domain.Constants;
 using Accounting.Integrations.AccountingConcepts;
 using Accounting.Integrations.Concept.GetConceptsByPortfolioIds;
 using Accounting.Integrations.Treasuries.GetAccountingConceptsTreasuries;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
@@ -44,7 +45,7 @@ namespace Accounting.Application.AccountingConcepts
                 identification = counterpartyInfo.identification;
                 verificationDigit = counterpartyInfo.verificationDigit;
                 name = counterpartyInfo.name;
-                var natureValue = operationLocator.GetEnumMemberValue(movement.TreasuryConcept?.Nature);
+                var natureValue = EnumHelper.GetEnumMemberValue(movement.TreasuryConcept?.Nature);
 
                 // 2. Validar cuentas contables
                 if (!ValidateAccountingAccounts(movement.PortfolioId, accountTreasury, accountConcept, out var accountValidationErrors))

@@ -34,11 +34,4 @@ public class OperationLocator(IRpcClient rpc) : IOperationLocator
             ? Result.Success((rc.OperationTypeId, rc.Nature.ToString(), rc.Name))
             : Result.Failure<(long OperationTypeId, string Nature, string Name)>(Error.Validation(rcs.Code!, rcs.Message!));
     }
-
-    public string GetEnumMemberValue(Enum value)
-    {
-        var field = value.GetType().GetField(value.ToString());
-        var attribute = field?.GetCustomAttribute<EnumMemberAttribute>();
-        return attribute?.Value ?? value.ToString();
-    }
 }

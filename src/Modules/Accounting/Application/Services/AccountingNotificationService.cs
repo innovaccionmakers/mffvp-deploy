@@ -4,6 +4,7 @@ using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Domain.Constants;
 using Common.SharedKernel.Infrastructure.NotificationsCenter;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.Extensions.Configuration;
 
 namespace Accounting.Application.Services;
@@ -63,12 +64,14 @@ public sealed class AccountingNotificationService(
         string processId,
         DateTime startDate,
         DateTime processDate,
+        string reportUrl,
         CancellationToken cancellationToken = default)
     {
         var message = $"Proceso contable {processId} completado exitosamente para la fecha {processDate:yyyy-MM-dd}";
 
         var details = new Dictionary<string, string>
         {
+            { "url", reportUrl },
             { "Exitoso", message },
             { "Duración", TimeHelper.GetDuration(startDate, DateTime.UtcNow) },
             { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") }
@@ -91,8 +94,7 @@ public sealed class AccountingNotificationService(
         DateTime processDate,
         string errorMessage,
         CancellationToken cancellationToken = default)
-    {
-        var duration = (DateTime.UtcNow - startDate).TotalSeconds;
+    {        
         var details = new Dictionary<string, string>
         {
             { "Error", errorMessage },
@@ -118,8 +120,7 @@ public sealed class AccountingNotificationService(
         string reportUrl,
         int totalRecords,
         CancellationToken cancellationToken = default)
-    {
-        var duration = (DateTime.UtcNow - startDate).TotalSeconds;
+    {        
         var details = new Dictionary<string, string>
         {
             { "url", reportUrl },

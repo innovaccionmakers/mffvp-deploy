@@ -35,8 +35,7 @@ public class AccountingInconsistenciesReport(ILogger<AccountingInconsistenciesRe
 
         var worksheetDataList = new List<WorksheetData>
         {
-            new WorksheetData
-            {
+            new() {
                 WorksheetName = WorksheetNames.AccountingInconsistencies,
                 ColumnHeaders = ColumnHeaders,
                 Rows = rows
