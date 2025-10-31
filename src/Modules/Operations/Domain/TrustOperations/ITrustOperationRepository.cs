@@ -18,5 +18,11 @@ public interface ITrustOperationRepository
       DateTime closingDate,
       CancellationToken cancellationToken);
 
+    Task<IReadOnlyCollection<TrustOperation>> GetByPortfolioProcessDateAndOperationTypeAsync(
+        int portfolioId,
+        DateTime processDate,
+        long operationTypeId,
+        CancellationToken cancellationToken);
+
 }
 

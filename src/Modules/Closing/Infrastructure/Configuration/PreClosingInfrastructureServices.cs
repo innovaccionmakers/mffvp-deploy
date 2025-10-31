@@ -1,8 +1,11 @@
 ﻿using Closing.Application.Abstractions.External.Operations.OperationTypes;
+using Closing.Application.Abstractions.External.Operations.TrustOperations;
 using Closing.Application.Abstractions.External.Products.Commissions;
 using Closing.Application.Abstractions.External.Treasury.TreasuryMovements;
 using Closing.Application.PreClosing.Services.Commission;
 using Closing.Application.PreClosing.Services.Commission.Interfaces;
+using Closing.Application.PreClosing.Services.ExtraReturns;
+using Closing.Application.PreClosing.Services.ExtraReturns.Interfaces;
 using Closing.Application.PreClosing.Services.Orchestation;
 using Closing.Application.PreClosing.Services.ProfitAndLoss;
 using Closing.Application.PreClosing.Services.TreasuryConcepts;
@@ -15,6 +18,7 @@ using Closing.Domain.ProfitLosses;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Closing.Infrastructure.External.Operations.OperationTypes;
+using Closing.Infrastructure.External.Operations.TrustOperations;
 using Closing.Infrastructure.External.Products.Commissions;
 using Closing.Infrastructure.External.Treasury.TreasuryMovements;
 using Closing.Infrastructure.PortfolioValuations;
@@ -46,6 +50,8 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<ICommissionCalculationService, CommissionCalculationService>();
             services.AddScoped<IMovementsConsolidationService, MovementsConsolidationService>();
             services.AddScoped<ITreasuryMovementsLocator, TreasuryMovementsLocator>();
+            services.AddScoped<ITrustOperationsLocator, TrustOperationsLocator>();
+            services.AddScoped<IExtraReturnConsolidationService, ExtraReturnConsolidationService>();
             services.AddScoped<IBusinessValidator<RunSimulationCommand>, RunSimulationBusinessValidator>();
             services.AddScoped<IRunSimulationValidationReader, RunSimulationBusinessValidator>();
             services.AddScoped<IOperationTypesLocator, OperationTypesLocator>();
@@ -61,6 +67,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IYieldDetailBuilder, ProfitLossYieldDetailBuilder>();
             services.AddScoped<IYieldDetailBuilder, TreasuryYieldDetailBuilder>();
             services.AddScoped<IYieldDetailBuilder, AutomaticConceptYieldDetailBuilder>();
+            services.AddScoped<IYieldDetailBuilder, ExtraReturnYieldDetailBuilder>();
 
             services.AddScoped<YieldDetailBuilderService>();
 
