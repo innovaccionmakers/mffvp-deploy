@@ -13,7 +13,7 @@ public abstract class TextReportStrategyBase(
 
     protected virtual string FormatValue(object value)
     {
-        return value switch
+        var formattedValue = value switch
         {
             decimal d => d.ToString("0.00", CultureInfo.InvariantCulture),
             double doubleVal => doubleVal.ToString("0.00", CultureInfo.InvariantCulture),
@@ -21,11 +21,48 @@ public abstract class TextReportStrategyBase(
             DateTime dateTime => dateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
             _ => value?.ToString() ?? string.Empty
         };
+
+        return NormalizeText(formattedValue);
     }
 
     protected virtual string GetFieldSeparator() => "|";
 
     protected virtual string GetRecordSeparator() => Environment.NewLine;
+
+
+    protected virtual string NormalizeText(string text)
+    {
+        return text;
+    }
+
+    protected string RemoveAccentsAndNormalize(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        var normalizedString = text.Normalize(NormalizationForm.FormD);
+        var stringBuilder = new StringBuilder();
+
+        foreach (var c in normalizedString)
+        {
+            var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+            {
+                if (c == 'ñ' || c == 'Ñ')
+                {
+                    stringBuilder.Append(c == 'ñ' ? 'n' : 'N');
+                }
+                else
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+        }
+
+        return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    protected virtual Encoding GetEncoding() => Encoding.UTF8;
 
     protected virtual async Task<FileStreamResult> GenerateTextReportAsync(
         Func<CancellationToken, Task<List<TextReportData>>> dataProvider,
@@ -62,7 +99,8 @@ public abstract class TextReportStrategyBase(
 
     protected virtual FileStreamResult BuildTextFileFromContent(string content, string fileName)
     {
-        var bytes = Encoding.UTF8.GetBytes(content);
+        var encoding = GetEncoding();
+        var bytes = encoding.GetBytes(content);
         var memoryStream = new MemoryStream(bytes);
 
         return new FileStreamResult(memoryStream, "text/plain")
@@ -81,12 +119,13 @@ public abstract class TextReportStrategyBase(
         {
             if (!string.IsNullOrWhiteSpace(textReportData.SectionTitle))
             {
-                stringBuilder.AppendLine(textReportData.SectionTitle);
+                stringBuilder.AppendLine(NormalizeText(textReportData.SectionTitle));
             }
 
             if (textReportData.IncludeHeaders && textReportData.ColumnHeaders.Length > 0)
             {
-                stringBuilder.AppendLine(string.Join(separator, textReportData.ColumnHeaders));
+                var normalizedHeaders = textReportData.ColumnHeaders.Select(NormalizeText).ToArray();
+                stringBuilder.AppendLine(string.Join(separator, normalizedHeaders));
             }
 
             foreach (var dataRow in textReportData.Rows)

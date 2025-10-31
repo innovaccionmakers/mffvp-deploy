@@ -14,21 +14,14 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 {
     public override string ReportName => "E";
 
-    public override string[] ColumnHeaders => [
-        "ID Auxiliar",
-        "Portafolio",
-        "Identificación",
-        "Dígito Verificación",
-        "Nombre",
-        "Periodo",
-        "Cuenta",
-        "Fecha",
-        "Detalle",
-        "Tipo",
-        "Valor",
-        "Naturaleza",
-        "Identificador"
-    ];
+    public override string[] ColumnHeaders => [];
+
+    protected override string GetFieldSeparator() => " ";
+
+    protected override string NormalizeText(string text)
+    {
+        return RemoveAccentsAndNormalize(text);
+    }
 
     public async override Task<IActionResult> GetReportDataAsync<TRequest>(TRequest request, CancellationToken cancellationToken)
     {
