@@ -6,6 +6,7 @@ using Closing.Domain.ProfitLosses;
 using Closing.Domain.TrustYields;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
+using Closing.Domain.YieldsToDistribute;
 using Closing.Infrastructure.ClientOperations;
 using Closing.Infrastructure.PortfolioValuations;
 using Closing.Infrastructure.ProfitLossConcepts;
@@ -28,6 +29,7 @@ public sealed class ClosingDbContext(DbContextOptions<ClosingDbContext> options)
     internal DbSet<Yield> Yields { get; set; }
     internal DbSet<YieldDetail> YieldDetails { get; set; }
     internal DbSet<TrustYield> TrustYields { get; set; }
+    internal DbSet<YieldToDistribute> YieldsToDistribute { get; set; }
     internal DbSet<ClientOperation> ClientOperations { get; set; }
     internal DbSet<PortfolioValuation> PortfolioValuations { get; set; }
     internal DbSet<ConfigurationParameter> ConfigurationParameters { get; set; }

@@ -1,3 +1,8 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.SharedKernel.Core.Primitives;
+
 namespace Closing.Domain.ClientOperations;
 
 public interface IClientOperationRepository
@@ -14,4 +19,9 @@ public interface IClientOperationRepository
        CancellationToken cancellationToken = default);
 
     Task<ClientOperation?> GetForUpdateByIdAsync(long id, CancellationToken cancellationToken = default);
-} 
+    Task<IReadOnlyCollection<long>> GetTrustIdsByStatusAndProcessDateAsync(
+        IEnumerable<long> trustIds,
+        DateTime processDateUtc,
+        LifecycleStatus status,
+        CancellationToken cancellationToken = default);
+}

@@ -5,6 +5,8 @@ using Closing.Application.Abstractions.External.Products.AccumulatedCommissions;
 using Closing.Application.Abstractions.External.Products.Portfolios;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
 using Closing.Application.Closing.Services.Abort;
+using Closing.Application.Closing.Services.DistributableReturns;
+using Closing.Application.Closing.Services.DistributableReturns.Interfaces;
 using Closing.Application.Closing.Services.OperationTypes;
 using Closing.Application.Closing.Services.Orchestation;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
@@ -27,6 +29,7 @@ using Closing.Application.PostClosing.Services.TechnicalSheetEvent;
 using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYield;
 using Closing.Domain.TrustYields;
+using Closing.Domain.YieldsToDistribute;
 using Closing.Infrastructure.External.DataSync;
 using Closing.Infrastructure.External.Operations.ClientOperations;
 using Closing.Infrastructure.External.Operations.OperationTypes;
@@ -35,6 +38,7 @@ using Closing.Infrastructure.External.Products.Commissions;
 using Closing.Infrastructure.External.Products.Portfolios;
 using Closing.Infrastructure.External.Trusts.Trusts;
 using Closing.Infrastructure.TrustYields;
+using Closing.Infrastructure.YieldsToDistribute;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -55,6 +59,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IAbortPortfolioValuationService, AbortPortfolioValuationService>();
             services.AddScoped<IAbortSimulationService, AbortSimulationService>();
             services.AddScoped<IOperationTypesLocator, OperationTypesLocator>();
+            services.AddScoped<IDistributableReturnsService, DistributableReturnsService>();
 
             services.AddScoped<IOperationTypesService>(sp =>
             {
@@ -85,6 +90,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IUpdateTrustRemote, UpdateTrustRemote>();
             services.AddScoped<IUpdateAccumulatedCommissionRemote, UpdateAccumulatedCommissionRemote>();
             services.AddScoped<ITrustYieldBulkRepository, TrustYieldBulkRepository>();
+            services.AddScoped<IYieldToDistributeRepository, YieldToDistributeRepository>();
 
 
             services.AddScoped<IWarningCollector, WarningCollector>();

@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Closing.Domain.ClientOperations;
 using Closing.Infrastructure.Database;
 using Common.SharedKernel.Core.Primitives;
@@ -46,5 +51,32 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
             .TagWith("ClientOperationRepository_GetForUpdateByIdAsync")
             .AsNoTracking()
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<long>> GetTrustIdsByStatusAndProcessDateAsync(
+        IEnumerable<long> trustIds,
+        DateTime processDateUtc,
+        LifecycleStatus status,
+        CancellationToken cancellationToken = default)
+    {
+        var ids = trustIds?.Distinct().ToArray() ?? Array.Empty<long>();
+        if (ids.Length == 0)
+        {
+            return Array.Empty<long>();
+        }
+
+        var matches = await context.ClientOperations
+            .AsNoTracking()
+            .TagWith("ClientOperationRepository_GetTrustIdsByStatusAndProcessDateAsync")
+            .Where(co =>
+                co.Status == status &&
+                co.ProcessDate == processDateUtc &&
+                co.TrustId != null &&
+                ids.Contains(co.TrustId.Value))
+            .Select(co => co.TrustId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        return matches;
     }
 }
