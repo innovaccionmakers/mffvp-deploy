@@ -83,7 +83,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         {
             SectionTitle = string.Empty,
             ColumnHeaders = ColumnHeaders,
-            IncludeHeaders = true,
+            IncludeHeaders = false,
             Rows = rows ?? []
         };
 
