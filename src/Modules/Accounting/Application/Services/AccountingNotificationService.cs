@@ -19,13 +19,14 @@ public sealed class AccountingNotificationService(
         string processId,
         string stepDescription,
         object details,
+        string stepId,
         CancellationToken cancellationToken = default)
     {
         var administrator = configuration["NotificationSettings:Administrator"] ?? NotificationDefaults.Administrator;
 
         var buildMessage = NotificationCenter.BuildMessageBody(
             processId,
-            Guid.NewGuid().ToString(),
+            stepId,
             administrator,
             NotificationTypes.AccountingReport,
             NotificationTypes.Report,
@@ -40,8 +41,9 @@ public sealed class AccountingNotificationService(
     public async Task SendProcessInitiatedAsync(
         string user,
         string processId,
-        DateTime processDate,
-        CancellationToken cancellationToken = default)
+        DateTime processDate,        
+        CancellationToken cancellationToken = default,
+        string stepId = "1")
     {
         var details = new Dictionary<string, string>
         {
@@ -55,6 +57,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneration,
             details,
+            stepId,
             cancellationToken
         );
     }
@@ -64,8 +67,9 @@ public sealed class AccountingNotificationService(
         string processId,
         DateTime startDate,
         DateTime processDate,
-        string reportUrl,
-        CancellationToken cancellationToken = default)
+        string reportUrl,        
+        CancellationToken cancellationToken = default,
+        string stepId = "2")
     {
         var message = $"Proceso contable {processId} completado exitosamente para la fecha {processDate:yyyy-MM-dd}";
 
@@ -83,6 +87,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneration,
             details,
+            stepId,
             cancellationToken
         );
     }
@@ -93,7 +98,8 @@ public sealed class AccountingNotificationService(
         DateTime startDate,
         DateTime processDate,
         string errorMessage,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string stepId = "2")
     {        
         var details = new Dictionary<string, string>
         {
@@ -108,6 +114,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneratedError,
             details,
+            stepId,
             cancellationToken
         );
     }
@@ -118,8 +125,9 @@ public sealed class AccountingNotificationService(
         DateTime startDate,
         DateTime processDate,
         string reportUrl,
-        int totalRecords,
-        CancellationToken cancellationToken = default)
+        int totalRecords,        
+        CancellationToken cancellationToken = default,
+        string stepId = "2")
     {        
         var details = new Dictionary<string, string>
         {
@@ -135,6 +143,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneratedError,
             details,
+            stepId,
             cancellationToken
         );
     }
@@ -144,8 +153,9 @@ public sealed class AccountingNotificationService(
         string processId,
         DateTime startDate,
         DateTime processDate,
-        IEnumerable<UndefinedError> errors,
-        CancellationToken cancellationToken = default)
+        IEnumerable<UndefinedError> errors,        
+        CancellationToken cancellationToken = default,
+        string stepId = "2")
     {
         var errorsList = errors.ToList();
         var details = new Dictionary<string, object>
@@ -166,6 +176,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneratedError,
             details,
+            stepId,
             cancellationToken
         );
     }

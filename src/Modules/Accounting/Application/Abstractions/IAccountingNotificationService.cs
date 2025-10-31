@@ -10,13 +10,15 @@ public interface IAccountingNotificationService
      string processId,
      string stepDescription,
      object details,
+     string stepId,
      CancellationToken cancellationToken = default);
 
  Task SendProcessInitiatedAsync(
      string user,
      string processId,
      DateTime processDate,
-     CancellationToken cancellationToken = default);
+     CancellationToken cancellationToken = default,
+     string stepId = "1");
 
  Task SendProcessFinalizedAsync(
      string user,
@@ -24,7 +26,8 @@ public interface IAccountingNotificationService
      DateTime startDate,
      DateTime processDate,
      string reportUrl,
-     CancellationToken cancellationToken = default);
+     CancellationToken cancellationToken = default,
+     string stepId = "2");
 
 Task SendProcessFailedAsync(
     string user,
@@ -32,7 +35,8 @@ Task SendProcessFailedAsync(
     DateTime startDate,
     DateTime processDate,
     string errorMessage,
-    CancellationToken cancellationToken = default);
+    CancellationToken cancellationToken = default,
+    string stepId = "2");
 
 Task SendProcessFailedWithUrlAsync(
     string user,
@@ -41,7 +45,8 @@ Task SendProcessFailedWithUrlAsync(
     DateTime processDate,
     string reportUrl,
     int totalRecords,
-    CancellationToken cancellationToken = default);
+    CancellationToken cancellationToken = default,
+    string stepId = "2");
 
 Task SendProcessFailedWithErrorsAsync(
     string user,
@@ -49,6 +54,7 @@ Task SendProcessFailedWithErrorsAsync(
     DateTime startDate,
     DateTime processDate,
     IEnumerable<UndefinedError> errors,
-    CancellationToken cancellationToken = default);
+    CancellationToken cancellationToken = default,
+    string stepId = "2");
 }
 
