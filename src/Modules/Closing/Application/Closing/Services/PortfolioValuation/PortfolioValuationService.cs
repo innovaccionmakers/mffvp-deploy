@@ -174,6 +174,7 @@ public class PortfolioValuationService(
             portfolioId,
             closingDate,
             Math.Round(newValue, 2),
+            Math.Round(newValue, 2),
             newUnits,
             newUnitValue,
             grossYieldPerUnit,

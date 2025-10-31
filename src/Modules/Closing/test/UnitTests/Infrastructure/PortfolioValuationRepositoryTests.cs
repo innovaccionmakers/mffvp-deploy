@@ -67,6 +67,7 @@ public sealed class PortfolioValuationRepositoryTests
 
         SetIfExists("ProcessDate", DateTime.UtcNow);
         SetIfExists("Value", 0m);
+        SetIfExists("InitialValue", 0m);
         SetIfExists("UnitValue", 1m);
         SetIfExists("Units", 0m);
 

@@ -8,6 +8,7 @@ public sealed class PortfolioValuation : Entity
     public int PortfolioId { get; private set; }
     public DateTime ClosingDate { get; private set; }
     public decimal Amount { get; private set; }
+    public decimal InitialValue { get; private set; }
     public decimal Units { get; private set; }
     public decimal UnitValue { get; private set; }
     public decimal GrossYieldPerUnit { get; private set; }
@@ -26,6 +27,7 @@ public sealed class PortfolioValuation : Entity
         int portfolioId,
         DateTime closingDate,
         decimal amount,
+        decimal initialValue,
         decimal units,
         decimal unitValue,
         decimal grossYieldPerUnit,
@@ -42,6 +44,7 @@ public sealed class PortfolioValuation : Entity
             PortfolioId = portfolioId,
             ClosingDate = closingDate,
             Amount = amount,
+            InitialValue = initialValue,
             Units = units,
             UnitValue = unitValue,
             GrossYieldPerUnit = grossYieldPerUnit,
@@ -60,6 +63,7 @@ public sealed class PortfolioValuation : Entity
         int portfolioId,
         DateTime closingDate,
         decimal amount,
+        decimal initialValue,
         decimal units,
         decimal unitValue,
         decimal grossYieldPerUnit,
@@ -73,6 +77,7 @@ public sealed class PortfolioValuation : Entity
         PortfolioId = portfolioId;
         ClosingDate = closingDate;
         Amount = amount;
+        InitialValue = initialValue;
         Units = units;
         UnitValue = unitValue;
         GrossYieldPerUnit = grossYieldPerUnit;
