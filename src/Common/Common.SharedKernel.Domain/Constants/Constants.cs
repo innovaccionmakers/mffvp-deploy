@@ -34,4 +34,5 @@ public static class WorksheetNames
     public const string TechnicalSheet = "Ficha Técnica";
     public const string AccountingInconsistencies = "Inconsistencias Contables";
     public const string Accounting = "Contabilidad";
+    public const string ManualFormat = "Formato Manual";
 }
