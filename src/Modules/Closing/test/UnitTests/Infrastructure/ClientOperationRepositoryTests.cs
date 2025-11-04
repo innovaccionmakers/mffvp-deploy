@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Closing.Domain.ClientOperations;
 using Closing.Infrastructure.ClientOperations;
 using Closing.Infrastructure.Database;
@@ -141,7 +142,7 @@ public class ClientOperationRepositoryTests
 
         var subtypes = new long[] { 1, 2 };
 
-        var total = await repo.SumByPortfolioAndSubtypesAsync(5, date, subtypes, CancellationToken.None);
+        var total = await repo.SumByPortfolioAndSubtypesAsync(5, date, subtypes, new[] { LifecycleStatus.Active }, CancellationToken.None);
 
         Assert.Equal(15.5m, total);
     }
@@ -160,9 +161,34 @@ public class ClientOperationRepositoryTests
         );
         await ctx.SaveChangesAsync();
 
-        var total = await repo.SumByPortfolioAndSubtypesAsync(1, date, new long[] { 2 }, CancellationToken.None);
+        var total = await repo.SumByPortfolioAndSubtypesAsync(1, date, new long[] { 2 }, new[] { LifecycleStatus.Active }, CancellationToken.None);
 
         Assert.Equal(0m, total);
+    }
+
+    [Fact]
+    public async Task SumByPortfolioAndSubtypesAsyncIncludesAnnulledByDebitNoteWhenAllowed()
+    {
+        using var ctx = CreateContext();
+        var repo = new ClientOperationRepository(ctx);
+
+        var date = new DateTime(2025, 10, 6, 0, 0, 0, DateTimeKind.Utc);
+
+        ctx.ClientOperations.AddRange(
+            NewOp(321, 1, date, 2, 10m, LifecycleStatus.Active),
+            NewOp(322, 1, date, 2, 5m, LifecycleStatus.AnnulledByDebitNote),
+            NewOp(323, 1, date, 2, 7m, LifecycleStatus.Annulled)
+        );
+        await ctx.SaveChangesAsync();
+
+        var total = await repo.SumByPortfolioAndSubtypesAsync(
+            1,
+            date,
+            new long[] { 2 },
+            new[] { LifecycleStatus.Active, LifecycleStatus.AnnulledByDebitNote },
+            CancellationToken.None);
+
+        Assert.Equal(15m, total);
     }
 
     [Fact]

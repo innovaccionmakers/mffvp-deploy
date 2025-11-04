@@ -89,9 +89,10 @@ public class PortfolioValuationService(
 
         // 5. Sumar operaciones de entrada y salida del día
         var incoming = Math.Round(await clientOperationRepository
-            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, incomeSubs, cancellationToken), DecimalPrecision.TwoDecimals);
+            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, incomeSubs, new[] { LifecycleStatus.Active }, cancellationToken), DecimalPrecision.TwoDecimals);
         var outgoing = Math.Round(await clientOperationRepository
-            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressSubs, cancellationToken), DecimalPrecision.TwoDecimals);
+            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressSubs, new[] { LifecycleStatus.Active, LifecycleStatus.AnnulledByDebitNote }, cancellationToken), DecimalPrecision.TwoDecimals);
+
 
         // 6. Si es el primer día de cierre, calcular units y unitValue iniciales
         if (previous == null)

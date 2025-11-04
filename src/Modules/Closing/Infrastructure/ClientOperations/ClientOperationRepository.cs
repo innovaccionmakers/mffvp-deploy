@@ -35,15 +35,17 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
        int portfolioId,
        DateTime closingDateUtc,
        IEnumerable<long> subtransactionTypeIds,
+       IEnumerable<LifecycleStatus> allowedStatuses,
        CancellationToken cancellationToken = default)
     {
         return await context.ClientOperations.AsNoTracking().TagWith("ClientOperationRepository_SumByPortfolioAndSubtypesAsync")
-            .Where(op => op.Status == LifecycleStatus.Active
+            .Where(op => allowedStatuses.Contains(op.Status)
                          && op.PortfolioId == portfolioId
                          && op.ProcessDate.Date == closingDateUtc.Date
                          && subtransactionTypeIds.Contains(op.OperationTypeId))
             .SumAsync(op => (decimal?)op.Amount, cancellationToken) ?? 0m;
     }
+    
     public async Task<ClientOperation?> GetForUpdateByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await context.ClientOperations

@@ -16,6 +16,7 @@ public interface IClientOperationRepository
        int portfolioId,
        DateTime closingDateUtc,
        IEnumerable<long> subtransactionTypeIds,
+       IEnumerable<LifecycleStatus> allowedStatuses,
        CancellationToken cancellationToken = default);
 
     Task<ClientOperation?> GetForUpdateByIdAsync(long id, CancellationToken cancellationToken = default);
