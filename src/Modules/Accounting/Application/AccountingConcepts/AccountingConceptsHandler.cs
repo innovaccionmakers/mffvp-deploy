@@ -38,15 +38,13 @@ namespace Accounting.Application.AccountingConcepts
                 var treasury = await sender.Send(new GetAccountingConceptsTreasuriesQuery(command.PortfolioIds), cancellationToken);
                 if (!treasury.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, treasury.Description ?? string.Empty));
-                var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioId, x => x);
 
                 //Concept
                 var concept = await sender.Send(new GetConceptsByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
                 if (!concept.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener los conceptos" ?? string.Empty, concept.Description ?? string.Empty));
-                var conceptByPortfolioId = concept.Value.ToDictionary(x => x.PortfolioId, x => x);
                 
-                var accountingAssistants = await validator.AccountingConceptsValidator(command, treasuryMovement.movements, treasuryByPortfolioId, conceptByPortfolioId, cancellationToken);
+                var accountingAssistants = await validator.AccountingConceptsValidator(command, treasuryMovement.movements, treasury.Value, concept.Value, cancellationToken);
 
                 if (!accountingAssistants.IsSuccess)
                 {
