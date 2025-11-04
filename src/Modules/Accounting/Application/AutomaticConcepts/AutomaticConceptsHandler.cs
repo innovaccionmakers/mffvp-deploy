@@ -49,7 +49,7 @@ namespace Accounting.Application.AutomaticConcepts
 
                 if (!automaticConcepts.SuccessItems.Any())
                 {
-                    logger.LogInformation("No hay operaciones contables que procesar");
+                    logger.LogInformation("No hay conceptos automáticos que procesar");
                     return Result.Failure<bool>(Error.Problem("Automatic.Concepts", "No hay conceptos automáticos que procesar"));
                 }
 
@@ -57,7 +57,7 @@ namespace Accounting.Application.AutomaticConcepts
 
                 if (automaticConceptsSave.IsFailure)
                 {
-                    logger.LogWarning("No se pudieron guardar las operacines contables: {Error}", automaticConceptsSave.Error);
+                    logger.LogWarning("No se pudieron guardar los conceptos automáticos: {Error}", automaticConceptsSave.Error);
                     return Result.Failure<bool>(Error.Problem("Automatic.Concepts", "No se pudieron guardar los conceptos automáticos"));
                 }
 
@@ -65,12 +65,11 @@ namespace Accounting.Application.AutomaticConcepts
             }
             catch (Exception ex)
             {
-
-                logger.LogError(ex, "Error al procesar los conceptos automaticos contables para la fecha {ProcessDate} y los Portafolios [{Portfolios}]",
-                    command.ProcessDate,
-                    string.Join(",", command.PortfolioIds)
-                );
-                return Result.Failure<bool>(Error.Problem("Exception", "Ocurrio un error inesperado al procesar los conceptos automaticos contables"));
+                logger.LogError(ex, "Error al procesar los conceptos automáticos para la fecha {ProcessDate} y los Portafolios [{Portfolios}]",
+                     command.ProcessDate,
+                     string.Join(",", command.PortfolioIds)
+                 );
+                return Result.Failure<bool>(Error.Problem("Exception", "Ocurrio un error inesperado al procesar los conceptos automáticos"));
             }
         }
     }
