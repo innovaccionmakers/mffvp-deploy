@@ -23,37 +23,37 @@ namespace Accounting.Application.AccountingConcepts
         public async Task<ProcessingResult<AccountingAssistant, AccountingInconsistency>> AccountingConceptsValidator(
             AccountingConceptsCommand command,
             IReadOnlyCollection<TreasuryMovement> movements,
-            Dictionary<int, GetAccountingConceptsTreasuriesResponse> treasuryByPortfolioId,
-            Dictionary<int, GetConceptsByPortfolioIdsResponse> conceptByPortfolioId,
+            IReadOnlyCollection<GetAccountingConceptsTreasuriesResponse> treasuryByPortfolioId,
+            IReadOnlyCollection<GetConceptsByPortfolioIdsResponse> conceptByPortfolioId,
             CancellationToken cancellationToken)
         {
             var accountingAssistants = new List<AccountingAssistant>();
             var errors = new List<AccountingInconsistency>();
-            var identification = string.Empty;
-            int verificationDigit = 0;
-            string name = string.Empty;
-            string debitAccount = string.Empty;
-            string creditAccount = string.Empty;
 
             foreach (var movement in movements)
             {
-                var accountTreasury = treasuryByPortfolioId.GetValueOrDefault(movement.PortfolioId);
-                var accountConcept = conceptByPortfolioId.GetValueOrDefault(movement.PortfolioId);
+                var accountTreasuries = treasuryByPortfolioId?
+                    .Where(x => x.PortfolioId == movement.PortfolioId)
+                    .ToList() ?? new List<GetAccountingConceptsTreasuriesResponse>();
+
+                var accountConcepts = conceptByPortfolioId?
+                    .Where(x => x.PortfolioId == movement.PortfolioId)
+                    .ToList() ?? new List<GetConceptsByPortfolioIdsResponse>();
 
                 // 1. Obtener información del contraparte
                 var counterpartyInfo = await GetCounterpartyInfoAsync(movement, cancellationToken);
-                identification = counterpartyInfo.identification;
-                verificationDigit = counterpartyInfo.verificationDigit;
-                name = counterpartyInfo.name;
+                var identification = counterpartyInfo.identification;
+                var verificationDigit = counterpartyInfo.verificationDigit;
+                var name = counterpartyInfo.name;
                 var natureValue = EnumHelper.GetEnumMemberValue(movement.TreasuryConcept?.Nature);
                 var concept = movement.TreasuryConcept?.Concept ?? string.Empty;
 
-                // 2. Validar cuentas contables
-                if (!ValidateAccountingAccounts(movement.PortfolioId, concept, accountTreasury, accountConcept, out var accountValidationErrors))
+                // 2. Validar cuentas contables para todas las cuentas del portafolio
+                if (!ValidateAccountingAccounts(movement.PortfolioId, concept, accountTreasuries, accountConcepts, out var accountValidationErrors))
                     errors.AddRange(accountValidationErrors);
 
-                // 3. Determinar cuentas débito/crédito
-                var accounts = DetermineAccountingAccounts(movement, accountTreasury, accountConcept);
+                // 3. Determinar cuentas débito/crédito para todas las cuentas
+                var accounts = DetermineAccountingAccounts(movement, accountTreasuries, accountConcepts);
 
                 var accountingAssistant = AccountingAssistant.Create(
                     movement.PortfolioId,
@@ -63,7 +63,7 @@ namespace Accounting.Application.AccountingConcepts
                     command.ProcessDate.ToString("yyyyMM"),
                     command.ProcessDate,
                     movement.TreasuryConcept?.Observations ?? string.Empty,
-                    movement.Value, 
+                    movement.Value,
                     natureValue
                 );
 
@@ -107,8 +107,8 @@ namespace Accounting.Application.AccountingConcepts
         private bool ValidateAccountingAccounts(
             int portfolioId,
             string concept,
-            GetAccountingConceptsTreasuriesResponse accountTreasury,
-            GetConceptsByPortfolioIdsResponse accountConcept,
+            IReadOnlyCollection<GetAccountingConceptsTreasuriesResponse> accountTreasuries,
+            IReadOnlyCollection<GetConceptsByPortfolioIdsResponse> accountConcepts,
             out List<AccountingInconsistency> validationErrors)
         {
             try
@@ -116,73 +116,124 @@ namespace Accounting.Application.AccountingConcepts
                 validationErrors = new List<AccountingInconsistency>();
                 bool isValid = true;
 
-                // Validar cuentas del treasury
-                if (string.IsNullOrWhiteSpace(accountTreasury?.DebitAccount))
+                // Validar que existan cuentas de treasury para el portafolio
+                if (accountTreasuries == null || !accountTreasuries.Any())
                 {
-                    logger.LogWarning("No se encontró un concepto de cuenta de debito de treasury para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable", AccountingActivity.Debit));
+                    logger.LogWarning("No se encontraron conceptos de cuentas de treasury para el portafolio {PortfolioId}", portfolioId);
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable de treasury", AccountingActivity.Debit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable de treasury", AccountingActivity.Credit));
                     isValid = false;
                 }
-
-                if (string.IsNullOrWhiteSpace(accountTreasury?.CreditAccount))
+                else
                 {
-                    logger.LogWarning("No se encontró un concepto de cuenta de crédito de treasury para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable", AccountingActivity.Credit));
-                    isValid = false;
+                    // Validar cada cuenta de treasury
+                    foreach (var accountTreasury in accountTreasuries)
+                    {
+                        if (string.IsNullOrWhiteSpace(accountTreasury.DebitAccount))
+                        {
+                            logger.LogWarning("No se encontró cuenta de débito de treasury para el portafolio {PortfolioId}", portfolioId);
+                            validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe cuenta de débito de treasury", AccountingActivity.Debit));
+                            isValid = false;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(accountTreasury.CreditAccount))
+                        {
+                            logger.LogWarning("No se encontró cuenta de crédito de treasury para el portafolio {PortfolioId}", portfolioId);
+                            validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe cuenta de crédito de treasury", AccountingActivity.Credit));
+                            isValid = false;
+                        }
+                    }
                 }
 
-                // Validar cuentas del concepto
-                if (string.IsNullOrWhiteSpace(accountConcept?.DebitAccount))
+                // Validar que existan cuentas de concepto para el portafolio
+                if (accountConcepts == null || !accountConcepts.Any())
                 {
-                    logger.LogWarning("No se encontró un concepto de cuenta de crédito para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable", AccountingActivity.Debit));
+                    logger.LogWarning("No se encontraron conceptos de cuentas para el portafolio {PortfolioId}", portfolioId);
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable de conceptos", AccountingActivity.Debit));
+                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable de conceptos", AccountingActivity.Credit));
                     isValid = false;
                 }
-
-                if (string.IsNullOrWhiteSpace(accountConcept?.CreditAccount))
+                else
                 {
-                    logger.LogWarning("No se encontró un concepto de cuenta de debito para el portafolio {PortfolioId}", portfolioId);
-                    validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe parametrización contable", AccountingActivity.Credit));
-                    isValid = false;
+                    // Validar cada cuenta de concepto
+                    foreach (var accountConcept in accountConcepts)
+                    {
+                        if (string.IsNullOrWhiteSpace(accountConcept.DebitAccount))
+                        {
+                            logger.LogWarning("No se encontró cuenta de débito de concepto para el portafolio {PortfolioId}", portfolioId);
+                            validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe cuenta de débito de concepto", AccountingActivity.Debit));
+                            isValid = false;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(accountConcept.CreditAccount))
+                        {
+                            logger.LogWarning("No se encontró cuenta de crédito de concepto para el portafolio {PortfolioId}", portfolioId);
+                            validationErrors.Add(AccountingInconsistency.Create(portfolioId, $"{OperationTypeNames.Concepts} - {concept}", "No existe cuenta de crédito de concepto", AccountingActivity.Credit));
+                            isValid = false;
+                        }
+                    }
                 }
 
                 return isValid;
             }
             catch (Exception ex)
             {
-
-                throw;
+                logger.LogError(ex, "Error al validar cuentas contables para el portafolio {PortfolioId}", portfolioId);
+                validationErrors = new List<AccountingInconsistency>();
+                return false;
             }
         }
 
         private (string debitAccount, string creditAccount) DetermineAccountingAccounts(
             TreasuryMovement movement,
-            GetAccountingConceptsTreasuriesResponse accountTreasury,
-            GetConceptsByPortfolioIdsResponse accountConcept)
+            IReadOnlyCollection<GetAccountingConceptsTreasuriesResponse> accountTreasuries,
+            IReadOnlyCollection<GetConceptsByPortfolioIdsResponse> accountConcepts)
         {
-            bool isTreasuryConceptZero = movement.TreasuryConceptId == 0;
-            bool requiresBankAccount = movement.TreasuryConcept?.RequiresBankAccount == true;
-
-            string debitAccount, creditAccount;
-
-            if (isTreasuryConceptZero)
+            try
             {
-                debitAccount = requiresBankAccount ? accountTreasury?.DebitAccount : accountConcept?.DebitAccount;
-                creditAccount = accountConcept?.CreditAccount;
-            }
-            else
-            {
-                debitAccount = accountConcept?.DebitAccount;
-                creditAccount = requiresBankAccount ? accountTreasury?.CreditAccount : accountConcept?.CreditAccount;
-            }
+                bool isTreasuryConceptZero = movement.TreasuryConceptId == 0;
+                bool requiresBankAccount = movement.TreasuryConcept?.RequiresBankAccount == true;
 
-            if (string.IsNullOrWhiteSpace(debitAccount) || string.IsNullOrWhiteSpace(creditAccount))
-            {
-                logger.LogError("Cuentas contables inválidas para el portafolio {PortfolioId}. Débito: {DebitAccount}, Crédito: {CreditAccount}",
-                    movement.PortfolioId, debitAccount, creditAccount);
-            }
+                string debitAccount = string.Empty;
+                string creditAccount = string.Empty;
 
-            return (debitAccount, creditAccount);
+                // Obtener la primera cuenta válida de cada lista
+                var validTreasuryAccount = accountTreasuries?.FirstOrDefault(x =>
+                    !string.IsNullOrWhiteSpace(x.DebitAccount) && !string.IsNullOrWhiteSpace(x.CreditAccount));
+
+                var validConceptAccount = accountConcepts?.FirstOrDefault(x =>
+                    !string.IsNullOrWhiteSpace(x.DebitAccount) && !string.IsNullOrWhiteSpace(x.CreditAccount));
+
+                if (isTreasuryConceptZero)
+                {
+                    debitAccount = requiresBankAccount ?
+                        validTreasuryAccount?.DebitAccount ?? string.Empty :
+                        validConceptAccount?.DebitAccount ?? string.Empty;
+
+                    creditAccount = validConceptAccount?.CreditAccount ?? string.Empty;
+                }
+                else
+                {
+                    debitAccount = validConceptAccount?.DebitAccount ?? string.Empty;
+                    creditAccount = requiresBankAccount ?
+                        validTreasuryAccount?.CreditAccount ?? string.Empty :
+                        validConceptAccount?.CreditAccount ?? string.Empty;
+                }
+
+                // Validar que las cuentas no sean nulas o vacías
+                if (string.IsNullOrWhiteSpace(debitAccount) || string.IsNullOrWhiteSpace(creditAccount))
+                {
+                    logger.LogError("Cuentas contables inválidas para el portafolio {PortfolioId}. Débito: {DebitAccount}, Crédito: {CreditAccount}",
+                        movement.PortfolioId, debitAccount ?? "null", creditAccount ?? "null");
+                }
+
+                return (debitAccount ?? string.Empty, creditAccount ?? string.Empty);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error al determinar cuentas contables para el movimiento {MovementId}", movement.Id);
+                return (string.Empty, string.Empty);
+            }
         }
     }
 }
