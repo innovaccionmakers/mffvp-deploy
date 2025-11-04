@@ -87,29 +87,11 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
     private async Task<string> GenerateReportFileNameAsync(DateTime processDate, CancellationToken cancellationToken)
     {
-        var today = DateTime.UtcNow;
-
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-
-        var consecutiveFile = await consecutiveFileRepository.GetByGenerationDateAsync(processDate, cancellationToken);
-        int consecutive = 1;
-
-        if (consecutiveFile is not null)
-        {
-            consecutiveFile.Increment();
-            consecutive = consecutiveFile.Consecutive;
-            await consecutiveFileRepository.UpdateAsync(consecutiveFile);
-        }
-        else
-        {
-            var newConsecutive = ConsecutiveFile.Create(processDate, 1, today);
-            if (newConsecutive.IsFailure)
-                throw new Exception($"Error al crear el consecutivo para la fecha {processDate:yyyy-MM-dd}");
-
-            consecutive = newConsecutive.Value.Consecutive;
-            await consecutiveFileRepository.AddAsync(newConsecutive.Value, cancellationToken);
-        }
+        var (_, consecutive) = await consecutiveFileRepository.GetOrCreateNextConsecutiveForTodayAsync(
+            processDate,
+            cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
