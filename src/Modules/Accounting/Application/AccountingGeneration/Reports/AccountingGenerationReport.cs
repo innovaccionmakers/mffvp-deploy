@@ -1,9 +1,12 @@
 ﻿using Accounting.Application.Abstractions.Data;
 using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.ConsecutiveFiles;
 using Common.SharedKernel.Application.Reports.Strategies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration.Reports;
 
@@ -25,37 +28,15 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
     public async override Task<IActionResult> GetReportDataAsync<TRequest>(TRequest request, CancellationToken cancellationToken)
     {
-        if (request is DateTime processDate)
-        {
-            try
-            {
-                return await GenerateTextReportAsync(
-                       ct => GetTextReportDataAsync(ct),
-                       await GenerateReportFileNameAsync(processDate, cancellationToken),
-                       cancellationToken);
+        throw new NotImplementedException();
 
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error al generar el reporte de generación contable");
-                throw;
-            }
-        }
-        else
-        {
-            logger.LogError("Tipo de request no válido. Se esperaba DateTime, se recibió: {RequestType}",
-                typeof(TRequest).Name);
-            throw new ArgumentException("El tipo de request no es válido. Se esperaba DateTime.");
-        }
     }
 
-    private async Task<List<TextReportData>> GetTextReportDataAsync(CancellationToken cancellationToken)
+    public async Task<FileStreamResult> GenerateReportAsync(DateTime processDate,
+                                                     IEnumerable<AccountingAssistant> accountingAssistants,
+                                                     CancellationToken cancellationToken)
     {
-        var textReportDataList = new List<TextReportData>();
-
-        var data = await accountingAssistantRepository.GetAllAsync(cancellationToken);
-
-        var rows = data?.Select(x => new object[]
+        var rows = accountingAssistants.Select(x => new object[]
         {
             x.AccountingAssistantId,
             x.PortfolioId,
@@ -72,18 +53,24 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             x.Identifier,
         }).ToList();
 
-        var result = new TextReportData
+        var fileName = await GenerateReportFileNameAsync(processDate, cancellationToken);
+
+        var textReportDataList = new List<TextReportData>
         {
-            SectionTitle = string.Empty,
-            ColumnHeaders = ColumnHeaders,
-            IncludeHeaders = false,
-            Rows = rows ?? []
+            new()
+            {
+
+                SectionTitle = string.Empty,
+                ColumnHeaders = ColumnHeaders,
+                IncludeHeaders = false,
+                Rows = rows ?? []
+            }
         };
 
-        textReportDataList.Add(result);
-
-        return textReportDataList;
+        return await GenerateTextReportAsync(textReportDataList, fileName, cancellationToken);
     }
+
+
 
     private async Task<string> GenerateReportFileNameAsync(DateTime processDate, CancellationToken cancellationToken)
     {
@@ -99,4 +86,6 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         string fileName = $"{ReportName}{processDate:ddMMyyyy}{consecutive:D3}.txt";
         return fileName;
     }
+
+
 }
