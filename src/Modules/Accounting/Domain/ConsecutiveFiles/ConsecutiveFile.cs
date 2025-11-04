@@ -37,5 +37,7 @@ public class ConsecutiveFile : Entity
         Consecutive = consecutive;
         CurrentDate = currentDate;
     }
+
+    public void Increment() => Consecutive++;
 }
 

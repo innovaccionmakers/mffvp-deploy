@@ -1,5 +1,4 @@
 ﻿using Common.SharedKernel.Domain;
-using Operations.IntegrationEvents.ClientOperations;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
 
 namespace Accounting.Application.Abstractions.External;
@@ -10,7 +9,5 @@ public interface IOperationLocator
                                                                                                     DateTime processDate,
                                                                                                     CancellationToken cancellationToken);
 
-    Task<Result<(long OperationTypeId, string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken);
-
-    string GetEnumMemberValue(Enum value);
+    Task<Result<(long OperationTypeId, string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken);    
 }

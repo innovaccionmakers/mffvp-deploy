@@ -4,6 +4,7 @@ using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Integrations.PassiveTransaction.GetAccountingOperationsPassiveTransaction;
 using Accounting.Integrations.Treasuries.GetAccountingOperationsTreasuries;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Domain;
 using Customers.Integrations.People.GetPeopleByIdentifications;
 using Microsoft.Extensions.Logging;
@@ -139,7 +140,7 @@ namespace Accounting.Application.AccountingOperations
             treasuryByPortfolioId.TryGetValue(operation.PortfolioId, out var debitAccount);
             passiveTransactionByPortfolioId.TryGetValue(operation.PortfolioId, out var creditAccount);
 
-            var natureValue = operationLocator.GetEnumMemberValue(operation.Nature);
+            var natureValue = EnumHelper.GetEnumMemberValue(operation.Nature);
 
             // Validaciones optimizadas
             if (string.IsNullOrWhiteSpace(debitAccount?.DebitAccount))

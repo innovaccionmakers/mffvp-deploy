@@ -37,6 +37,10 @@ namespace Accounting.Application.AccountingOperations
                                                                 new GetAccountingOperationsRequestEvents(command.PortfolioIds, command.ProcessDate), cancellationToken);
                 if (!operations.IsValid)
                     return Result.Failure<bool>(Error.Validation(operations.Code ?? string.Empty, operations.Message ?? string.Empty));
+
+                if (operations.ClientOperations.Count == 0)
+                    return Result.Success(true);
+
                 var operationsByPortfolio = operations.ClientOperations.GroupBy(op => op.PortfolioId).ToDictionary(g => g.Key, g => g.ToList());
 
                 foreach (var portfolioId in command.PortfolioIds)

@@ -30,7 +30,7 @@ namespace Accounting.Application.AutomaticConcepts
                 var yieldResult = await rpcClient.CallAsync<GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerRequest, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerResponse>(
                                                                 new GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerRequest(command.PortfolioIds, command.ProcessDate), cancellationToken);
                 if (!yieldResult.IsValid)
-                    return Result.Failure<bool>(Error.Validation(yieldResult.Code ?? string.Empty, yieldResult.Message ?? string.Empty));
+                    return Result.Success(true);                
 
                 //OperationType
                 var operationsType = await rpcClient.CallAsync<GetOperationTypeByNameRequest, GetOperationTypeByNameResponse>(
@@ -61,7 +61,7 @@ namespace Accounting.Application.AutomaticConcepts
                     return Result.Failure<bool>(Error.Problem("Automatic.Concepts", "No se pudieron guardar los conceptos automáticos"));
                 }
 
-                return Result<bool>.Success(true);
+                return Result.Success(true);
             }
             catch (Exception ex)
             {

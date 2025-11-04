@@ -1,13 +1,11 @@
 ﻿using Accounting.Application.Abstractions.External;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Operations.IntegrationEvents.ClientOperations;
 using Operations.IntegrationEvents.OperationTypes;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
-using System.Reflection;
-using System.Runtime.Serialization;
-
 namespace Accounting.Infrastructure.External.Operations;
 
 public class OperationLocator(IRpcClient rpc) : IOperationLocator
@@ -31,14 +29,7 @@ public class OperationLocator(IRpcClient rpc) : IOperationLocator
 
         var rc = rcs.OperationType?.FirstOrDefault();
         return rcs.Succeeded
-            ? Result.Success((rc.OperationTypeId, rc.Nature.ToString(), rc.Name))
+            ? Result.Success((rc.OperationTypeId, EnumHelper.GetEnumMemberValue(rc.Nature), rc.Name))
             : Result.Failure<(long OperationTypeId, string Nature, string Name)>(Error.Validation(rcs.Code!, rcs.Message!));
-    }
-
-    public string GetEnumMemberValue(Enum value)
-    {
-        var field = value.GetType().GetField(value.ToString());
-        var attribute = field?.GetCustomAttribute<EnumMemberAttribute>();
-        return attribute?.Value ?? value.ToString();
     }
 }

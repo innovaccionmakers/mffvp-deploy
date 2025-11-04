@@ -4,6 +4,7 @@ using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Domain.Constants;
 using Common.SharedKernel.Infrastructure.NotificationsCenter;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.Extensions.Configuration;
 
 namespace Accounting.Application.Services;
@@ -18,13 +19,14 @@ public sealed class AccountingNotificationService(
         string processId,
         string stepDescription,
         object details,
+        string stepId,
         CancellationToken cancellationToken = default)
     {
         var administrator = configuration["NotificationSettings:Administrator"] ?? NotificationDefaults.Administrator;
 
         var buildMessage = NotificationCenter.BuildMessageBody(
             processId,
-            Guid.NewGuid().ToString(),
+            stepId,
             administrator,
             NotificationTypes.AccountingReport,
             NotificationTypes.Report,
@@ -39,8 +41,9 @@ public sealed class AccountingNotificationService(
     public async Task SendProcessInitiatedAsync(
         string user,
         string processId,
-        DateTime processDate,
-        CancellationToken cancellationToken = default)
+        DateTime processDate,        
+        CancellationToken cancellationToken = default,
+        string stepId = "1")
     {
         var details = new Dictionary<string, string>
         {
@@ -54,6 +57,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneration,
             details,
+            stepId,
             cancellationToken
         );
     }
@@ -63,12 +67,15 @@ public sealed class AccountingNotificationService(
         string processId,
         DateTime startDate,
         DateTime processDate,
-        CancellationToken cancellationToken = default)
+        string reportUrl,        
+        CancellationToken cancellationToken = default,
+        string stepId = "2")
     {
         var message = $"Proceso contable {processId} completado exitosamente para la fecha {processDate:yyyy-MM-dd}";
 
         var details = new Dictionary<string, string>
         {
+            { "url", reportUrl },
             { "Exitoso", message },
             { "Duración", TimeHelper.GetDuration(startDate, DateTime.UtcNow) },
             { "Fecha Generacion", processDate.ToString("yyyy-MM-dd") }
@@ -80,6 +87,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneration,
             details,
+            stepId,
             cancellationToken
         );
     }
@@ -90,9 +98,9 @@ public sealed class AccountingNotificationService(
         DateTime startDate,
         DateTime processDate,
         string errorMessage,
-        CancellationToken cancellationToken = default)
-    {
-        var duration = (DateTime.UtcNow - startDate).TotalSeconds;
+        CancellationToken cancellationToken = default,
+        string stepId = "2")
+    {        
         var details = new Dictionary<string, string>
         {
             { "Error", errorMessage },
@@ -106,6 +114,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneratedError,
             details,
+            stepId,
             cancellationToken
         );
     }
@@ -116,10 +125,10 @@ public sealed class AccountingNotificationService(
         DateTime startDate,
         DateTime processDate,
         string reportUrl,
-        int totalRecords,
-        CancellationToken cancellationToken = default)
-    {
-        var duration = (DateTime.UtcNow - startDate).TotalSeconds;
+        int totalRecords,        
+        CancellationToken cancellationToken = default,
+        string stepId = "2")
+    {        
         var details = new Dictionary<string, string>
         {
             { "url", reportUrl },
@@ -134,6 +143,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneratedError,
             details,
+            stepId,
             cancellationToken
         );
     }
@@ -143,16 +153,15 @@ public sealed class AccountingNotificationService(
         string processId,
         DateTime startDate,
         DateTime processDate,
-        IEnumerable<UndefinedError> errors,
-        int totalRecords,
-        CancellationToken cancellationToken = default)
+        IEnumerable<UndefinedError> errors,        
+        CancellationToken cancellationToken = default,
+        string stepId = "2")
     {
         var errorsList = errors.ToList();
         var details = new Dictionary<string, object>
         {
             { "Duracion", TimeHelper.GetDuration(startDate, DateTime.UtcNow) },
             { "FechaGeneracion", processDate.ToString("yyyy-MM-dd") },
-            { "RegistrosTotales", totalRecords }
         };
 
         foreach (var error in errorsList)
@@ -167,6 +176,7 @@ public sealed class AccountingNotificationService(
             processId,
             NotificationTypes.ReportGeneratedError,
             details,
+            stepId,
             cancellationToken
         );
     }

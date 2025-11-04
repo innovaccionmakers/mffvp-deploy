@@ -2,12 +2,12 @@
 using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Application.AccountProcess;
 using Accounting.Domain.AccountingInconsistencies;
+using Accounting.Integrations.AccountingGeneration;
 using Accounting.Integrations.AccountingValidator;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -18,6 +18,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                                                         IFileStorageService fileStorageService,
                                                         IServiceProvider serviceProvider,
                                                         IAccountingNotificationService accountingNotificationService,
+                                                        IMediator mediator,
                                                         ILogger<AccountingValidatorCommandHandler> logger) : ICommandHandler<AccountingValidatorCommand, Unit>
 {
     public async Task<Result<Unit>> Handle(AccountingValidatorCommand request, CancellationToken cancellationToken)
@@ -42,7 +43,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
 
         }catch(Exception ex)
         {
-            var error = "Ocurrió un error inesperado el completar la validación del proceso contable";
+            var error = "Ocurrió un error inesperado al completar la validación del proceso contable";
             logger.LogError(ex, error);
             await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, error, cancellationToken);
         }
@@ -60,7 +61,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
     {
         if (!hasErrors)
         {
-            await accountingNotificationService.SendProcessFinalizedAsync(user, processId, startDate, processDate, cancellationToken);
+            await mediator.Send(new AccountingGenerationCommand(user, processId, startDate, processDate), cancellationToken);
             return;
         }
 
@@ -93,7 +94,6 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                 startDate,
                 processDate,
                 undefinedErrors,
-                undefinedErrors.Count,
                 cancellationToken
             );
             return;
@@ -120,26 +120,17 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         try
         {
             var provider = serviceProvider.GetRequiredService<AccountingInconsistenciesReport>();
-            var reportRequest = new AccountingInconsistenciesRequest
-            {
-                ProcessDate = processDate,
-                Inconsistencies = inconsistencies
-            };
 
-            var fileResult = await provider!.GetReportDataAsync(reportRequest, cancellationToken);
+            var fileStreamResult = await provider.GenerateFromDataAsync(processDate, inconsistencies, cancellationToken);
 
-            if (fileResult is FileStreamResult fileStreamResult)
-            {
-                using var memoryStream = new MemoryStream();
-                await fileStreamResult.FileStream.CopyToAsync(memoryStream, cancellationToken);
-                var fileBytes = memoryStream.ToArray();
+            using var memoryStream = new MemoryStream();
+            await fileStreamResult.FileStream.CopyToAsync(memoryStream, cancellationToken);
+            var fileBytes = memoryStream.ToArray();
 
-                var fileName = fileStreamResult.FileDownloadName;
+            var fileName = fileStreamResult.FileDownloadName;
 
-                var filePath = $"reports/inconsistencies/{fileName}";
-                return await fileStorageService.UploadFileAsync(fileBytes, fileName, fileStreamResult.ContentType, filePath, cancellationToken);
-            }
-            return string.Empty;
+            var filePath = $"reports/inconsistencies/{fileName}";
+            return await fileStorageService.UploadFileAsync(fileBytes, fileName, fileStreamResult.ContentType, filePath, cancellationToken);
         }
         catch (Exception ex)
         {

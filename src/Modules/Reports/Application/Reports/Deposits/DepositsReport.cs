@@ -1,7 +1,7 @@
 ﻿using Common.SharedKernel.Application.Reports.Strategies;
+using Common.SharedKernel.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Reports.Domain.BalancesAndMovements;
 using Reports.Domain.Deposits;
 
 namespace Reports.Application.Reports.Deposits
@@ -67,7 +67,7 @@ namespace Reports.Application.Reports.Deposits
 
             var depositsData = new WorksheetData
             {
-                WorksheetName = WorksheetName.ManualFormat.GetDescription(),
+                WorksheetName = WorksheetNames.ManualFormat,
                 ColumnHeaders = _manualFormat,
                 Rows = await GetDepositsData(reportRequest, cancellationToken)
             };
