@@ -1,11 +1,12 @@
 ﻿using Accounting.Application.Abstractions.Data;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
+using Accounting.Domain.Constants;
 using Accounting.Domain.ConsecutiveFiles;
+using Accounting.Domain.Consecutives;
 using Common.SharedKernel.Application.Reports.Strategies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration.Reports;
@@ -34,23 +35,58 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
     public async Task<FileStreamResult> GenerateReportAsync(DateTime processDate,
                                                      IEnumerable<AccountingAssistant> accountingAssistants,
+                                                     IEnumerable<Consecutive> consecutives,
                                                      CancellationToken cancellationToken)
     {
-        var rows = accountingAssistants.Select(x => new object[]
+        var consecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c);
+
+        var rows = accountingAssistants.Select(x =>
         {
-            x.AccountingAssistantId,
-            x.PortfolioId,
-            x.Identification,
-            x.VerificationDigit,
-            x.Name,
-            x.Period,
-            x.Account ?? "",
-            x.Date,
-            x.Detail ?? "",
-            x.Type,
-            x.Value,
-            x.Nature,
-            x.Identifier,
+            var consecutiveNature = x.Nature == NatureTypes.Expense ? NatureTypes.Egress : NatureTypes.Income;
+
+            var consecutive = consecutiveByNature.GetValueOrDefault(consecutiveNature);
+
+            var sourceDocument = consecutive?.SourceDocument ?? "";
+            var consecutiveNumber = consecutive?.Number ?? 0;
+
+            return new object[]
+            {
+                sourceDocument,
+                consecutiveNumber,
+                AccountingReportConstants.FORINT,
+                x.Date.ToString("yyyymmdd"),
+                "TODO",
+                AccountingReportConstants.CENINT,
+                x.Identification,
+                x.VerificationDigit,
+                x.Name,
+                "TODO",
+                AccountingReportConstants.VBAINT,
+                AccountingReportConstants.NVBINT,
+                AccountingReportConstants.FEMINT,
+                AccountingReportConstants.FVEINT,
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO VALOR",
+                "TODO",
+                x.Detail ?? "",
+                " ",
+                AccountingReportConstants.NDOINT,
+            };
         }).ToList();
 
         var fileName = await GenerateReportFileNameAsync(processDate, cancellationToken);

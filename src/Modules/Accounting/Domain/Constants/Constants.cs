@@ -23,7 +23,7 @@ public static class ProcessTypes
     public const string AccountingOperations = "AccountingOperations";
     public const string AccountingConcepts = "AccountingConcepts";
     public const string AutomaticConcepts = "AutomaticConcepts";
-    
+
     public static Dictionary<string, string> ProcessTypesDictionary = new()
     {
         { AccountingFees, "Comisiones" },
@@ -45,3 +45,24 @@ public static class AccountingActivity
     public const string ContraCreditAccount = "Contra Crédito";
 }
 
+public static class NatureTypes
+{
+    public const string Income = "Ingreso";
+    public const string Egress = "Egreso";
+    public const string Expense = "Gasto";
+}
+
+
+public static class AccountingReportConstants
+{
+    public const string FORINT = "FA";
+    public const string CENINT = "001010010252";
+    public const string NBAINT = "0000000000";
+    public const string VBAINT = "0";
+    public const string NVBINT = "0";
+    public const string FEMINT = "0";
+    public const string FVEINT = "0";
+    public const string POINT = ".";
+    public const string NDOINT = "0";
+    public const int MaxConsecutiveNumber = 9999999;
+}

@@ -1,6 +1,8 @@
 ﻿using Accounting.Application.Abstractions;
 using Accounting.Application.AccountingGeneration.Reports;
 using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.Consecutives;
+using Accounting.Domain.Constants;
 using Accounting.Integrations.AccountingGeneration;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Messaging;
@@ -9,10 +11,13 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration;
 
 internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRepository accountingAssistantRepository,
+                                                         IConsecutiveRepository consecutiveRepository,
                                                          ILogger<AccountingGenerationCommandHandler> logger,
                                                          IFileStorageService fileStorageService,
                                                          IServiceProvider serviceProvider,
@@ -29,9 +34,23 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
                 return Unit.Value;
             }
 
+            var validationError = AccountingGenerationValidator.ValidateNatureRecordLimits(accountingAssistants);
+            if (validationError is not null)
+            {
+                await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, validationError, cancellationToken);
+                return Unit.Value;
+            }
 
+            var consecutives = await consecutiveRepository.GetAllAsync(cancellationToken);
 
-            var url = await GenerateAccountingInterfaceUrl(request.ProcessDate, accountingAssistants, cancellationToken);
+            var consecutiveValidationError = AccountingGenerationValidator.ValidateConsecutivesExist(consecutives);
+            if (consecutiveValidationError is not null)
+            {
+                await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, consecutiveValidationError, cancellationToken);
+                return Unit.Value;
+            }
+
+            var url = await GenerateAccountingInterfaceUrl(request.ProcessDate, accountingAssistants, consecutives, cancellationToken);
 
             if(url.IsNullOrEmpty())
             {
@@ -51,18 +70,18 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
         return Result.Success(Unit.Value);
     }
 
-    private async Task<string> GenerateAccountingInterfaceUrl(DateTime processDate, IEnumerable<AccountingAssistant> accountingAssistants, CancellationToken cancellationToken)
+    private async Task<string> GenerateAccountingInterfaceUrl(DateTime processDate, IEnumerable<AccountingAssistant> accountingAssistants, IEnumerable<Consecutive> consecutives, CancellationToken cancellationToken)
     {
         try
         {
             var report = serviceProvider.GetRequiredService<AccountingGenerationReport>();
 
-            var fileStreamResult = await report.GenerateReportAsync(processDate, accountingAssistants, cancellationToken);
+            var fileStreamResult = await report.GenerateReportAsync(processDate, accountingAssistants, consecutives, cancellationToken);
 
             using var memoryStream = new MemoryStream();
             await fileStreamResult.FileStream.CopyToAsync(memoryStream, cancellationToken);
             var fileBytes = memoryStream.ToArray();
-            
+
 
             string fileName = fileStreamResult.FileDownloadName;
 
