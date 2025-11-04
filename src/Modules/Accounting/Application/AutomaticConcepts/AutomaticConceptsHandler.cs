@@ -66,7 +66,11 @@ namespace Accounting.Application.AutomaticConcepts
             catch (Exception ex)
             {
 
-                throw;
+                logger.LogError(ex, "Error al procesar los conceptos automaticos contables para la fecha {ProcessDate} y los Portafolios [{Portfolios}]",
+                    command.ProcessDate,
+                    string.Join(",", command.PortfolioIds)
+                );
+                return Result.Failure<bool>(Error.Problem("Exception", "Ocurrio un error inesperado al procesar los conceptos automaticos contables"));
             }
         }
     }

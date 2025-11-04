@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace Common.SharedKernel.Domain.Constants;
+﻿namespace Common.SharedKernel.Domain.Constants;
 
 
 public static class NotificationTypes
