@@ -2,8 +2,6 @@ using Common.SharedKernel.Application.Abstractions;
 using MFFVP.BFF.GraphQL;
 using MFFVP.BFF.Services;
 using MFFVP.BFF.Services.Reports;
-using MFFVP.BFF.Services.Reports.DepositsReport;
-using MFFVP.BFF.Services.Reports.DepositsReport.Interfaces;
 using MFFVP.BFF.Services.Reports.Interfaces;
 using MFFVP.BFF.Services.Reports.Strategies;
 using MFFVP.BFF.Services.Reports.TechnicalSheet;
@@ -21,15 +19,11 @@ public class ModuleConfiguration : IModuleConfiguration
 
         services.AddScoped<ExperienceOrchestrator>();
         services.AddScoped<ReportOrchestrator>();
-        services.AddScoped<PaymentMethodProcessor>();
         services.AddScoped<IExcelReportService, ExcelReportService>();
 
         // Registrar todas las estrategias de reportes
-        services.AddScoped<DepositsReportStrategy>();
         services.AddScoped<TechnicalSheetStrategy>();
         services.AddScoped<IReportStrategyFactory, ReportStrategyFactory>();
-
-        services.AddScoped<IDepositsReportDataProvider, DepositsReportDataProvider>();
         services.AddScoped<ITechnicalSheetReportDataProvider, TechnicalSheetReportDataProvider>();
 
         // Add GraphQL Schema Stitching

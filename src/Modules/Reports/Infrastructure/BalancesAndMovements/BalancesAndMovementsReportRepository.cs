@@ -137,7 +137,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
             try
             {
                 var sql = @"SELECT 
-	                            id afiliado_id
+	                            id ActiviteId
                             FROM afiliados.activacion_afiliados
                             WHERE identificacion = @identification;";
 

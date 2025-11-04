@@ -2,6 +2,7 @@ using Common.SharedKernel.Application.Reports;
 using Common.SharedKernel.Application.Reports.Strategies;
 using Microsoft.Extensions.DependencyInjection;
 using Reports.Application.Reports.BalancesAndMovements;
+using Reports.Application.Reports.Deposits;
 using Reports.Application.Reports.TransmissionFormat;
 using Reports.Application.TechnicalSheet;
 
@@ -23,6 +24,7 @@ namespace Reports.Application.Reports.Strategies
                 ReportType.TransmissionFormat => _serviceProvider.GetRequiredService<TransmissionFormatReport>(),
                 ReportType.Balances => _serviceProvider.GetRequiredService<BalancesAndMovementsReport>(),
                 ReportType.TechnicalSheet => _serviceProvider.GetRequiredService<TechnicalSheetReport>(),
+                ReportType.Deposits => _serviceProvider.GetRequiredService<DepositsReport>(),
                 _ => throw new ArgumentException($"Tipo de reporte no soportado: {reportType}")
             };
         }

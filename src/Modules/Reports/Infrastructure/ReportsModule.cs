@@ -1,28 +1,31 @@
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Helpers.Finance;
+using Common.SharedKernel.Application.Reports.Strategies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reports.Application.Reports.BalancesAndMovements;
 using Reports.Application.Reports.Common.Strategies;
+using Reports.Application.Reports.Deposits;
+using Reports.Application.Reports.Strategies;
 using Reports.Application.Reports.TransmissionFormat;
 using Reports.Application.Reports.TransmissionFormat.Strategies;
-using Reports.Application.Reports.Strategies;
+using Reports.Application.TechnicalSheet;
 using Reports.Domain.BalancesAndMovements;
-using Reports.Domain.TransmissionFormat;
+using Reports.Domain.Deposits;
 using Reports.Domain.Health;
-using Reports.Infrastructure.BalancesAndMovements;
 using Reports.Domain.TechnicalSheet;
+using Reports.Domain.TransmissionFormat;
+using Reports.Infrastructure.BalancesAndMovements;
 using Reports.Infrastructure.ConnectionFactory;
 using Reports.Infrastructure.ConnectionFactory.Interfaces;
-using Reports.Infrastructure.TransmissionFormat;
+using Reports.Infrastructure.Deposits;
 using Reports.Infrastructure.Health;
 using Reports.Infrastructure.Options;
 using Reports.Infrastructure.TechnicalSheet;
+using Reports.Infrastructure.TransmissionFormat;
 using Reports.Presentation.GraphQL;
-using Reports.Application.TechnicalSheet;
-using Common.SharedKernel.Application.Reports.Strategies;
 
 namespace Reports.Infrastructure;
 
@@ -52,6 +55,10 @@ public class ReportsModule : IModuleConfiguration
         services.AddScoped<BalancesAndMovementsReport>();
         services.AddScoped<IBalancesAndMovementsReportRepository, BalancesAndMovementsReportRepository>();
         services.AddScoped<IReportStrategy, BalancesAndMovementsReport>();
+        services.AddScoped<DepositsReport>();
+        services.AddScoped<IDepositsRepository, DepositsRepository>();
+        services.AddScoped<IReportStrategy, DepositsReport>();
+
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

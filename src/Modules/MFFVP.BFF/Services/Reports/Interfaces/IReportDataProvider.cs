@@ -1,7 +1,7 @@
 ﻿using Common.SharedKernel.Presentation.Results;
 using MFFVP.BFF.Services.Reports.Models;
 
-namespace MFFVP.BFF.Services.Reports.DepositsReport.Interfaces
+namespace MFFVP.BFF.Services.Reports.Interfaces
 {
     public interface IReportDataProvider<T> where T : ReportModelBase
     {

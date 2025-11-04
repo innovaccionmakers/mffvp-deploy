@@ -15,7 +15,6 @@ namespace MFFVP.BFF.Services.Reports.Strategies
         {
             return reportType switch
             {
-                ReportType.Deposits => _serviceProvider.GetRequiredService<DepositsReportStrategy>(),
                 ReportType.TechnicalSheet => _serviceProvider.GetRequiredService<TechnicalSheetStrategy>(),
                 _ => throw new ArgumentException($"Tipo de reporte no soportado: {reportType}")
             };

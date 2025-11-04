@@ -13,7 +13,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
         public override string ReportName => "Informe de Saldos y Movimientos";
 
         // Headers para la hoja de Saldos
-        private readonly string[] _saldosHeaders = new[]
+        private readonly string[] _balancesHeaders = new[]
         {
             "Fecha Inicial", 
             "Fecha Final", 
@@ -30,11 +30,12 @@ namespace Reports.Application.Reports.BalancesAndMovements
             "Entradas", 
             "Salidas",
             "Rendimientos", 
-            "Retefuente", "Saldo Final"
+            "Retefuente", 
+            "Saldo Final"
         };
 
         // Headers para la hoja de Movimientos
-        private readonly string[] _movimientosHeaders = new[]
+        private readonly string[] _movementsHeaders = new[]
         {
             "Fecha",
             "Tipo Identificacion",
@@ -55,7 +56,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
             "Forma de Pago",
         };
 
-        public override string[] ColumnHeaders => _saldosHeaders; // Por defecto retorna los headers de saldos
+        public override string[] ColumnHeaders => _balancesHeaders; // Por defecto retorna los headers de saldos
 
         public override async Task<IActionResult> GetReportDataAsync<TRequest>(
             TRequest request,
@@ -104,27 +105,27 @@ namespace Reports.Application.Reports.BalancesAndMovements
             var worksheetDataList = new List<WorksheetData>();
 
             // Hoja 1: Saldos
-            var saldosData = new WorksheetData
+            var balancesData = new WorksheetData
             {
-                WorksheetName = WorksheetNames.Balances,
-                ColumnHeaders = _saldosHeaders,
-                Rows = await GetSaldosData(reportRequest, cancellationToken)
+                WorksheetName = WorksheetName.Balances.GetDescription(),
+                ColumnHeaders = _balancesHeaders,
+                Rows = await GetBalancesData(reportRequest, cancellationToken)
             };
-            worksheetDataList.Add(saldosData);
+            worksheetDataList.Add(balancesData);
 
             // Hoja 2: Movimientos
-            var movimientosData = new WorksheetData
+            var movementsData = new WorksheetData
             {
-                WorksheetName = WorksheetNames.Movements,
-                ColumnHeaders = _movimientosHeaders,
-                Rows = await GetMovimientosData(reportRequest, cancellationToken)
+                WorksheetName = WorksheetName.Movements.GetDescription(),
+                ColumnHeaders = _movementsHeaders,
+                Rows = await GetMovementsData(reportRequest, cancellationToken)
             };
-            worksheetDataList.Add(movimientosData);
+            worksheetDataList.Add(movementsData);
 
             return await Task.FromResult(worksheetDataList);
         }
 
-        private async Task<List<object[]>> GetSaldosData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
+        private async Task<List<object[]>> GetBalancesData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
             var dataList = new List<object[]>();
 
@@ -157,7 +158,7 @@ namespace Reports.Application.Reports.BalancesAndMovements
             return dataList;
         }
 
-        private async Task<List<object[]>> GetMovimientosData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
+        private async Task<List<object[]>> GetMovementsData(BalancesAndMovementsReportRequest reportRequest, CancellationToken cancellationToken)
         {
             var dataList = new List<object[]>();
 
