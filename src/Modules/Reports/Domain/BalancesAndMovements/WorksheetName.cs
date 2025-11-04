@@ -11,7 +11,10 @@ namespace Reports.Domain.BalancesAndMovements
         Movements,
 
         [Description("Ficha Técnica")]
-        TechnicalSheet
+        TechnicalSheet,
+
+        [Description("Formato Mvto Manual")]
+        ManualFormat
     }
 
     public static class WorksheetNameExtensions

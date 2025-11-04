@@ -39,10 +39,6 @@ public interface IOperationsExperienceQueries
     Task<string> GetWithholdingContingencyAsync(
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<ClientOperationsByProcessDateDto>> GetClientOperationsByProcessDateAsync(
-        DateTime processDate,
-        CancellationToken cancellationToken = default);
-
     Task<OperationNdPageDto> GetOperationsNdAsync(
         DateTime startDate,
         DateTime endDate,

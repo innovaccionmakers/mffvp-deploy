@@ -376,7 +376,7 @@ public class Query
                                                                    [Service] ReportOrchestrator reportOrchestrator,
                                                                    CancellationToken cancellationToken)
     {
-        return await reportOrchestrator.GetReportDataAsync(processDate, ReportType.Deposits, cancellationToken);
+        return await reportOrchestrator.GetReportData(processDate, ReportType.Deposits, cancellationToken);
     }
 
     [GraphQLName("generarReporteFichaTecnica")]

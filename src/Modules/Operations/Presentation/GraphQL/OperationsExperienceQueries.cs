@@ -1,7 +1,6 @@
 using Common.SharedKernel.Core.Primitives;
 
 using MediatR;
-using Operations.Integrations.ClientOperations.GetClientOperationsByProcessDate;
 using Operations.Integrations.ClientOperations.GetOperationsND;
 using Operations.Integrations.ClientOperations.GetOperationsVoid;
 using Operations.Integrations.ConfigurationParameters;
@@ -191,24 +190,6 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
         }
 
         return result.Value;
-    }
-
-    public async Task<IReadOnlyCollection<ClientOperationsByProcessDateDto>> GetClientOperationsByProcessDateAsync(DateTime processDate, CancellationToken cancellationToken = default)
-    {
-        var result = await mediator.Send(new GetClientOperationsByProcessDateQuery(processDate), cancellationToken);
-
-        if (!result.IsSuccess || result.Value == null)
-            throw new InvalidOperationException("Failed to retrieve client operations.");
-
-        var response = result.Value
-        .Select(c => new ClientOperationsByProcessDateDto(
-            c.Amount,
-            c.CollectionAccount,
-            c.PaymentMethodDetail,
-            c.Name))
-        .ToList();
-
-        return response;
     }
 
     public async Task<OperationNdPageDto> GetOperationsNdAsync(
