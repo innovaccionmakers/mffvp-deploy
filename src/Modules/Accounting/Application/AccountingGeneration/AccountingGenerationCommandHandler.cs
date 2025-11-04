@@ -2,7 +2,6 @@
 using Accounting.Application.AccountingGeneration.Reports;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.Consecutives;
-using Accounting.Domain.Constants;
 using Accounting.Integrations.AccountingGeneration;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Messaging;
@@ -11,8 +10,6 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration;
 
@@ -30,14 +27,14 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
             var accountingAssistants = await accountingAssistantRepository.GetAllAsync(cancellationToken);
             if(accountingAssistants.Count == 0)
             {
-                await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, "No existen registros contables para generar.", cancellationToken);
+                await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, "No existen registros contables para generar.", cancellationToken);
                 return Unit.Value;
             }
 
             var validationError = AccountingGenerationValidator.ValidateNatureRecordLimits(accountingAssistants);
             if (validationError is not null)
             {
-                await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, validationError, cancellationToken);
+                await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, validationError, cancellationToken);
                 return Unit.Value;
             }
 
@@ -46,7 +43,7 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
             var consecutiveValidationError = AccountingGenerationValidator.ValidateConsecutivesExist(consecutives);
             if (consecutiveValidationError is not null)
             {
-                await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, consecutiveValidationError, cancellationToken);
+                await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, consecutiveValidationError, cancellationToken);
                 return Unit.Value;
             }
 
@@ -54,17 +51,17 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
 
             if(url.IsNullOrEmpty())
             {
-                await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, "Hubo un error al generar la interfaz contable.", cancellationToken);
+                await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, "Hubo un error al generar la interfaz contable.", cancellationToken);
                 return Unit.Value;
             }
 
-            await accountingNotificationService.SendProcessFinalizedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, url, cancellationToken);
+            await accountingNotificationService.SendProcessFinalizedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, url, cancellationToken);
         }
         catch (Exception ex)
         {
             var error = "Ocurrio un error inesperado al generar la interface contable";
             logger.LogError(ex, error);
-            await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, error, cancellationToken);
+            await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, error, cancellationToken);
 
         }
         return Result.Success(Unit.Value);

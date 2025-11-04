@@ -16,6 +16,7 @@ using Common.SharedKernel.Domain;
 using Common.SharedKernel.Core.Primitives;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Accounting.Application.Abstractions.External;
 
 namespace Accounting.Application.AccountProcess;
 
@@ -24,6 +25,7 @@ internal sealed class AccountProcessHandler(
     IClosingExecutionStore closingValidator,
     IServiceProvider serviceProvider,
     IAccountingNotificationService accountingNotificationService,
+    IUserLocator userLocator,
     IUserService userService) : ICommandHandler<AccountProcessCommand, AccountProcessResult>
 {
     private const string ProcessIdPrefix = "CONTAFVP";
@@ -41,12 +43,15 @@ internal sealed class AccountProcessHandler(
         if (deleteResult.IsFailure)
             return Result.Failure<AccountProcessResult>(deleteResult.Error);
 
-        var user = userService.GetUserName();
+        var username = userService.GetUserName();
+        var email = (await userLocator.GetEmailUserAsync(username, cancellationToken))?.Value;
+        
         var processId = $"{ProcessIdPrefix}{DateTime.UtcNow:yyyyMMddHHmmss}";
         var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         await accountingNotificationService.SendProcessInitiatedAsync(
-           user,
+           username,
+           email,
            processId.ToString(),
            processDate,
            cancellationToken
@@ -58,17 +63,18 @@ internal sealed class AccountProcessHandler(
         var accountingConceptsCommand = new AccountingConceptsCommand(command.PortfolioIds, processDate);
         var automaticConceptsCommand = new AutomaticConceptsCommand(command.PortfolioIds, processDate);
 
-        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingFees, accountingFeesCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
-        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(user, ProcessTypes.AutomaticConcepts, automaticConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(username, email, ProcessTypes.AccountingFees, accountingFeesCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(username, email, ProcessTypes.AccountingReturns, accountingReturnsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(username, email, ProcessTypes.AccountingOperations, acountingOperationsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(username, email, ProcessTypes.AccountingConcepts, accountingConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
+        _ = Task.Run(async () => await ExecuteAccountingOperationWithScopeAsync(username, email, ProcessTypes.AutomaticConcepts, automaticConceptsCommand, processId, startDate, processDate, command.PortfolioIds, cancellationToken), cancellationToken);
 
         return Result.Success(new AccountProcessResult(processId));
     }
 
     private async Task ExecuteAccountingOperationWithScopeAsync<T>(
         string user,
+        string? email,
         string operationType,
         T command,
         string processId,
@@ -95,6 +101,7 @@ internal sealed class AccountProcessHandler(
 
             await PublishProcessCompletedAsync(
                 user,
+                email,
                 operationType,
                 success,
                 success ? null : message,
@@ -109,6 +116,7 @@ internal sealed class AccountProcessHandler(
         {
             await PublishProcessCompletedAsync(
                 user,
+                email,
                 operationType,
                 false,
                 $"Excepción durante el procesamiento: {ex.Message}",
@@ -123,6 +131,7 @@ internal sealed class AccountProcessHandler(
 
     private async Task PublishProcessCompletedAsync(
         string user,
+        string email,
         string processType,
         bool isSuccess,
         string? errorMessage,
@@ -135,6 +144,7 @@ internal sealed class AccountProcessHandler(
     {
         var evt = new AccountingProcessCompletedIntegrationEvent(
             user,
+            email,
             processType,
             isSuccess,
             errorMessage,

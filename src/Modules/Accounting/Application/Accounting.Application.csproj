@@ -16,6 +16,7 @@
     <ProjectReference Include="..\..\Customers\IntegrationEvents\Customers.IntegrationEvents\Customers.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\Operations\IntegrationEvents\Operations.IntegrationEvents\Operations.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\Products\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\Security\IntegrationEvents\Security.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\Treasury\IntegrationEvents\Treasury.IntegrationEvents.csproj" />
     <ProjectReference Include="..\IntegrationEvents\Accounting.IntegrationEvents\Accounting.IntegrationEvents.csproj" />
     <ProjectReference Include="..\Domain\Accounting.Domain.csproj" />

@@ -15,6 +15,7 @@ public static class NotificationDefaults
     public const string Administrator = "Fiduciaria Bancolombia";
     public const string Origin = "MFFVP";
     public const string MessageGroupId = "1";
+    public const string EmailFrom = "NotificacionesMakersFunds@somosmakers.co";
 }
 
 public static class NotificationStatuses

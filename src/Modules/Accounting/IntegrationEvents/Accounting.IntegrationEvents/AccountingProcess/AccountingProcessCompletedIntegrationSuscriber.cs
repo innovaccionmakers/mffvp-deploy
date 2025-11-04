@@ -11,6 +11,7 @@ public sealed class AccountingProcessCompletedIntegrationSuscriber(ISender sende
     public async Task HandleAsync(AccountingProcessCompletedIntegrationEvent message, CancellationToken cancellationToken)
     {
         await sender.Send(new AccountingValidatorCommand(message.User,
+                                                         message.Email,
                                                          message.ProcessType,
                                                          message.IsSuccess,
                                                          message.ErrorMessage,
