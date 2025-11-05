@@ -31,19 +31,19 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
                 return Unit.Value;
             }
 
-            var validationError = AccountingGenerationValidator.ValidateNatureRecordLimits(accountingAssistants);
-            if (validationError is not null)
-            {
-                await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, validationError, cancellationToken);
-                return Unit.Value;
-            }
-
             var consecutives = await consecutiveRepository.GetAllAsync(cancellationToken);
 
             var consecutiveValidationError = AccountingGenerationValidator.ValidateConsecutivesExist(consecutives);
             if (consecutiveValidationError is not null)
             {
                 await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, consecutiveValidationError, cancellationToken);
+                return Unit.Value;
+            }
+
+            var validationError = AccountingGenerationValidator.ValidateNatureRecordLimits(accountingAssistants, consecutives);
+            if (validationError is not null)
+            {
+                await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, validationError, cancellationToken);
                 return Unit.Value;
             }
 

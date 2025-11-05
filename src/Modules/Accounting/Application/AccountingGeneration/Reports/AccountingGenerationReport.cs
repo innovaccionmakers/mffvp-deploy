@@ -127,8 +127,6 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         return await GenerateTextReportAsync(textReportDataList, fileName, cancellationToken);
     }
 
-
-
     private async Task UpdateConsecutivesInDatabaseAsync(Dictionary<string, int> consecutiveNumbersByNature, CancellationToken cancellationToken)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
