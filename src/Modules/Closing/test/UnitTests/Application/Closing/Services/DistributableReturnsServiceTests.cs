@@ -197,13 +197,13 @@ public sealed class DistributableReturnsServiceTests
             .ReturnsAsync(new long[] { 2001 });
 
         configRepo.Setup(x => x.GetReadOnlyByUuidsAsync(
-                It.Is<IEnumerable<Guid>>(uuids => uuids.Contains(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome)
-                    && uuids.Contains(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense)),
+                It.Is<IEnumerable<Guid>>(uuids =>
+                    uuids.Count() == 1
+                        && uuids.First() == ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<Guid, ConfigurationParameter>
             {
-                [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome] = CreateParameter("{\"id\": 3, \"nombre\": \"Ajuste Rendimiento NC Ingreso\"}"),
-                [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense] = CreateParameter("{\"id\": 4, \"nombre\": \"Ajuste Rendimiento NC Gasto\"}")
+                [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote] = CreateParameter("{\"id\": 5, \"nombre\": \"Ajuste Rendimiento Nota Contable\"}")
             });
 
         List<YieldToDistribute>? captured = null;
@@ -225,15 +225,15 @@ public sealed class DistributableReturnsServiceTests
         Assert.Equal(closingDate, item.ApplicationDate);
         Assert.Equal(0.1m, item.Participation);
         Assert.Equal(20m, item.YieldAmount);
-        Assert.Equal(3, item.Concept.RootElement.GetProperty("id").GetInt32());
-        Assert.Equal("Ajuste Rendimiento NC Ingreso", item.Concept.RootElement.GetProperty("nombre").GetString());
+        Assert.Equal(5, item.Concept.RootElement.GetProperty("id").GetInt32());
+        Assert.Equal("Ajuste Rendimiento Nota Contable", item.Concept.RootElement.GetProperty("nombre").GetString());
         Assert.NotNull(deletedIds);
         Assert.Equal(new[] { 100L }, deletedIds!);
         ytdRepo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task UsesExpenseConceptWhenYieldAmountIsNegative()
+    public async Task UsesAdjustmentConceptWhenYieldAmountIsNegative()
     {
         var trustYieldRepo = new Mock<ITrustYieldRepository>();
         var clientOpRepo = new Mock<IClientOperationRepository>();
@@ -264,13 +264,13 @@ public sealed class DistributableReturnsServiceTests
             .ReturnsAsync(new long[] { 3001 });
 
         configRepo.Setup(x => x.GetReadOnlyByUuidsAsync(
-                It.Is<IEnumerable<Guid>>(uuids => uuids.Contains(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome)
-                    && uuids.Contains(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense)),
+                It.Is<IEnumerable<Guid>>(uuids =>
+                    uuids.Count() == 1
+                        && uuids.First() == ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<Guid, ConfigurationParameter>
             {
-                [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome] = CreateParameter("{\"id\": 3, \"nombre\": \"Ajuste Rendimiento NC Ingreso\"}"),
-                [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense] = CreateParameter("{\"id\": 4, \"nombre\": \"Ajuste Rendimiento NC Gasto\"}")
+                [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote] = CreateParameter("{\"id\": 5, \"nombre\": \"Ajuste Rendimiento Nota Contable\"}")
             });
 
         List<YieldToDistribute>? captured = null;
@@ -289,8 +289,8 @@ public sealed class DistributableReturnsServiceTests
         Assert.True(result.IsSuccess);
         Assert.NotNull(captured);
         var item = Assert.Single(captured!);
-        Assert.Equal(4, item.Concept.RootElement.GetProperty("id").GetInt32());
-        Assert.Equal("Ajuste Rendimiento NC Gasto", item.Concept.RootElement.GetProperty("nombre").GetString());
+        Assert.Equal(5, item.Concept.RootElement.GetProperty("id").GetInt32());
+        Assert.Equal("Ajuste Rendimiento Nota Contable", item.Concept.RootElement.GetProperty("nombre").GetString());
         Assert.True(item.YieldAmount < 0m);
     }
 }

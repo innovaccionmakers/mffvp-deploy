@@ -105,36 +105,24 @@ public class DistributableReturnsService(
 
         var conceptUuids = new[]
         {
-            ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome,
-            ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense
+            ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote
         };
 
         var concepts = await configurationParameterRepository.GetReadOnlyByUuidsAsync(
             conceptUuids,
             cancellationToken);
 
-        var incomeConceptResult = ValidateConcept(
+        var adjustmentConceptResult = ValidateConcept(
             concepts,
-            ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome,
-            "Ajuste Rendimiento NC Ingreso");
+            ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote,
+            "Ajuste Rendimiento Nota Contable");
 
-        if (incomeConceptResult.IsFailure)
+        if (adjustmentConceptResult.IsFailure)
         {
-            return Result.Failure(incomeConceptResult.Error);
+            return Result.Failure(adjustmentConceptResult.Error);
         }
 
-        var expenseConceptResult = ValidateConcept(
-            concepts,
-            ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense,
-            "Ajuste Rendimiento NC Gasto");
-
-        if (expenseConceptResult.IsFailure)
-        {
-            return Result.Failure(expenseConceptResult.Error);
-        }
-
-        var incomeConceptJson = incomeConceptResult.Value;
-        var expenseConceptJson = expenseConceptResult.Value;
+        var adjustmentConceptJson = adjustmentConceptResult.Value;
         var annulledSet = new HashSet<long>(annulledTrustIds);
         var applicationDateUtc = closingDateUtc;
 
@@ -160,8 +148,7 @@ public class DistributableReturnsService(
 
             var yieldAmount = MoneyHelper.Round2(yieldAmountRaw);
 
-            var conceptJson = yieldAmount >= 0m ? incomeConceptJson : expenseConceptJson;
-            var concept = JsonDocument.Parse(conceptJson);
+            var concept = JsonDocument.Parse(adjustmentConceptJson);
             var entityResult = YieldToDistribute.Create(
                 trustYield.TrustId,
                 portfolioId,

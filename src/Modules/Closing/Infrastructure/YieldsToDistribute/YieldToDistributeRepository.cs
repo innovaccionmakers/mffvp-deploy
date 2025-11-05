@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Closing.Domain.YieldsToDistribute;
@@ -17,5 +18,16 @@ internal sealed class YieldToDistributeRepository(ClosingDbContext context) : IY
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<YieldToDistribute>> GetReadOnlyByPortfolioAndDateAsync(
+        int portfolioId,
+        DateTime closingDateUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.Set<YieldToDistribute>()
+            .AsNoTracking()
+            .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc)
+            .ToListAsync(cancellationToken);
     }
 }

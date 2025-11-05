@@ -15,6 +15,8 @@ using Closing.Application.Closing.Services.PortfolioValuation;
 using Closing.Application.Closing.Services.Telemetry;
 using Closing.Application.Closing.Services.TimeControl;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
+using Closing.Application.Closing.Services.ReturnsOperations;
+using Closing.Application.Closing.Services.ReturnsOperations.Interfaces;
 using Closing.Application.Closing.Services.TrustSync;
 using Closing.Application.Closing.Services.TrustYieldsDistribution;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
@@ -60,6 +62,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IAbortSimulationService, AbortSimulationService>();
             services.AddScoped<IOperationTypesLocator, OperationTypesLocator>();
             services.AddScoped<IDistributableReturnsService, DistributableReturnsService>();
+            services.AddScoped<IReturnsOperationsService, ReturnsOperationsService>();
 
             services.AddScoped<IOperationTypesService>(sp =>
             {
