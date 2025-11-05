@@ -109,32 +109,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             }
         }
 
-        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-
-        try
-        {
-            foreach (var kvp in lastShownConsecutiveByNature)
-            {
-                var nature = kvp.Key;
-                var newConsecutiveNumber = kvp.Value;
-
-                var consecutive = consecutiveByNature[nature];
-                consecutive.UpdateDetails(
-                    consecutive.Nature,
-                    consecutive.SourceDocument,
-                    newConsecutiveNumber);
-
-                await consecutiveRepository.UpdateAsync(consecutive, cancellationToken);
-            }
-
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-        }
-        catch
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
-        }
+        await UpdateConsecutivesInDatabaseAsync(lastShownConsecutiveByNature, cancellationToken);
 
         var fileName = await GenerateReportFileNameAsync(processDate, cancellationToken);
 
@@ -153,6 +128,24 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
     }
 
 
+
+    private async Task UpdateConsecutivesInDatabaseAsync(Dictionary<string, int> consecutiveNumbersByNature, CancellationToken cancellationToken)
+    {
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            await consecutiveRepository.UpdateConsecutivesByNatureAsync(consecutiveNumbersByNature, cancellationToken);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
 
     private async Task<string> GenerateReportFileNameAsync(DateTime processDate, CancellationToken cancellationToken)
     {
