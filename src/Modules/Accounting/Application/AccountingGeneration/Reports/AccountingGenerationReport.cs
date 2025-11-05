@@ -42,9 +42,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
         var rows = accountingAssistants.Select(x =>
         {
-            var consecutiveNature = x.Nature == NatureTypes.Expense ? NatureTypes.Egress : NatureTypes.Income;
-
-            var consecutive = consecutiveByNature.GetValueOrDefault(consecutiveNature);
+            var consecutive = consecutiveByNature.GetValueOrDefault(x.Nature);
 
             var sourceDocument = consecutive?.SourceDocument ?? "";
             var consecutiveNumber = consecutive?.Number ?? 0;

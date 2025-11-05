@@ -10,7 +10,7 @@ internal sealed class AccountingGenerationValidator
     public static string? ValidateNatureRecordLimits(IReadOnlyCollection<AccountingAssistant> accountingAssistants)
     {
         var natureCounts = accountingAssistants
-            .GroupBy(aa => aa.Nature == NatureTypes.Expense ? NatureTypes.Egress : NatureTypes.Income)
+            .GroupBy(aa => aa.Nature)
             .Select(g => new { Nature = g.Key, Count = g.Count() })
             .ToList();
 
