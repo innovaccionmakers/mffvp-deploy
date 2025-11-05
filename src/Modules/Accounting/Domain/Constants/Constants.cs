@@ -48,9 +48,7 @@ public static class AccountingActivity
 public static class NatureTypes
 {
     public const string Income = "Ingreso";
-    public const string IncomeInitials = "I";
     public const string Egress = "Egreso";
-    public const string EgressInitials = "E";
     public const string Expense = "Gasto";
 }
 

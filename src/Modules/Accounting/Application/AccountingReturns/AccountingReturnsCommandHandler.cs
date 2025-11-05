@@ -130,7 +130,7 @@ public sealed class AccountingReturnsCommandHandler(
                 processDate,
                 operationTypeName,
                 yield.YieldToCredit,
-                yield.YieldToCredit > 0 ? NatureTypes.IncomeInitials : NatureTypes.Egress
+                yield.YieldToCredit > 0 ? NatureTypes.Income : NatureTypes.Egress
             );
 
             if (accountingAssistant.IsFailure)
