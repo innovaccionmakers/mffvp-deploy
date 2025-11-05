@@ -36,7 +36,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                 var hasErrors = results.Any(r => !r.IsSuccess);
 
 
-                await ExecuteFinalizationLogicAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, results, hasErrors, cancellationToken);
+                await ExecuteFinalizationLogicAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, results, hasErrors, cancellationToken);
 
                 await processStore.CleanupAsync(request.ProcessId, cancellationToken);
             }
@@ -45,13 +45,14 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         {
             var error = "Ocurrió un error inesperado al completar la validación del proceso contable";
             logger.LogError(ex, error);
-            await accountingNotificationService.SendProcessFailedAsync(request.User, request.ProcessId, request.StartDate, request.ProcessDate, error, cancellationToken);
+            await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, error, cancellationToken);
         }
         return Unit.Value;
     }
 
     private async Task ExecuteFinalizationLogicAsync(
         string user,
+        string email,
         string processId,
         DateTime startDate,
         DateTime processDate,
@@ -61,7 +62,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
     {
         if (!hasErrors)
         {
-            await mediator.Send(new AccountingGenerationCommand(user, processId, startDate, processDate), cancellationToken);
+            await mediator.Send(new AccountingGenerationCommand(user, email, processId, startDate, processDate), cancellationToken);
             return;
         }
 
@@ -90,6 +91,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         {
             await accountingNotificationService.SendProcessFailedWithErrorsAsync(
                 user,
+                email,
                 processId,
                 startDate,
                 processDate,
@@ -104,6 +106,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
             var url = await GenerateAccountingInconsistenciesUrl(processDate, allInconsistencies, cancellationToken);
             await accountingNotificationService.SendProcessFailedWithUrlAsync(
                 user,
+                email,
                 processId,
                 startDate,
                 processDate,

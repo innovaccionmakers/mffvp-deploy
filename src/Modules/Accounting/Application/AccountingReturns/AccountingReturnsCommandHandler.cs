@@ -44,7 +44,7 @@ public sealed class AccountingReturnsCommandHandler(
                 return Result.Failure<bool>(Error.Problem("Accounting.Returns", "No se pudo obtener el tipo de operación"));
             }
 
-            var accountingReturnsResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, operationType.Value.Nature, cancellationToken);
+            var accountingReturnsResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, cancellationToken);
 
             if (!accountingReturnsResult.IsSuccess)
             {
@@ -78,7 +78,6 @@ public sealed class AccountingReturnsCommandHandler(
                                                                                                  DateTime processDate,
                                                                                                  long operationTypeId,
                                                                                                  string operationTypeName,
-                                                                                                 string operationTypeNature,
                                                                                                  CancellationToken cancellationToken)
     {
         var accountingAssistants = new List<AccountingAssistant>();
@@ -131,7 +130,7 @@ public sealed class AccountingReturnsCommandHandler(
                 processDate,
                 operationTypeName,
                 yield.YieldToCredit,
-                operationTypeNature
+                yield.YieldToCredit > 0 ? NatureTypes.Income : NatureTypes.Egress
             );
 
             if (accountingAssistant.IsFailure)

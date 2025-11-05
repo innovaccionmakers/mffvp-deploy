@@ -3,8 +3,8 @@ using Accounting.Domain.Constants;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Domain.Constants;
+using Common.SharedKernel.Domain.NotificationsCenter;
 using Common.SharedKernel.Infrastructure.NotificationsCenter;
-using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.Extensions.Configuration;
 
 namespace Accounting.Application.Services;
@@ -15,6 +15,7 @@ public sealed class AccountingNotificationService(
 {
     public async Task SendNotificationAsync(
         string user,
+        string? email,
         string status,
         string processId,
         string stepDescription,
@@ -23,6 +24,17 @@ public sealed class AccountingNotificationService(
         CancellationToken cancellationToken = default)
     {
         var administrator = configuration["NotificationSettings:Administrator"] ?? NotificationDefaults.Administrator;
+        var emailFrom = configuration["NotificationSettings:EmailFrom"] ?? NotificationDefaults.EmailFrom;
+
+        var recipients = new List<Recipient>();
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            recipients.Add(new Recipient
+            {
+                Email = email,
+                Usuario = user
+            });
+        }
 
         var buildMessage = NotificationCenter.BuildMessageBody(
             processId,
@@ -32,7 +44,10 @@ public sealed class AccountingNotificationService(
             NotificationTypes.Report,
             status,
             stepDescription,
-            details
+            details,
+            true,
+            emailFrom,
+            recipients
         );
 
         await notificationCenter.SendNotificationAsync(user, buildMessage, cancellationToken);
@@ -40,8 +55,9 @@ public sealed class AccountingNotificationService(
 
     public async Task SendProcessInitiatedAsync(
         string user,
+        string? email,
         string processId,
-        DateTime processDate,        
+        DateTime processDate,
         CancellationToken cancellationToken = default,
         string stepId = "1")
     {
@@ -53,6 +69,7 @@ public sealed class AccountingNotificationService(
 
         await SendNotificationAsync(
             user,
+            email,
             NotificationStatuses.Initiated,
             processId,
             NotificationTypes.ReportGeneration,
@@ -64,10 +81,11 @@ public sealed class AccountingNotificationService(
 
     public async Task SendProcessFinalizedAsync(
         string user,
+        string email,
         string processId,
         DateTime startDate,
         DateTime processDate,
-        string reportUrl,        
+        string reportUrl,
         CancellationToken cancellationToken = default,
         string stepId = "2")
     {
@@ -83,6 +101,7 @@ public sealed class AccountingNotificationService(
 
         await SendNotificationAsync(
             user,
+            email,
             NotificationStatuses.Finalized,
             processId,
             NotificationTypes.ReportGeneration,
@@ -94,13 +113,14 @@ public sealed class AccountingNotificationService(
 
     public async Task SendProcessFailedAsync(
         string user,
+        string email,
         string processId,
         DateTime startDate,
         DateTime processDate,
         string errorMessage,
         CancellationToken cancellationToken = default,
         string stepId = "2")
-    {        
+    {
         var details = new Dictionary<string, string>
         {
             { "Error", errorMessage },
@@ -110,6 +130,7 @@ public sealed class AccountingNotificationService(
 
         await SendNotificationAsync(
             user,
+            email,
             NotificationStatuses.Failure,
             processId,
             NotificationTypes.ReportGeneratedError,
@@ -121,14 +142,15 @@ public sealed class AccountingNotificationService(
 
     public async Task SendProcessFailedWithUrlAsync(
         string user,
+        string email,
         string processId,
         DateTime startDate,
         DateTime processDate,
         string reportUrl,
-        int totalRecords,        
+        int totalRecords,
         CancellationToken cancellationToken = default,
         string stepId = "2")
-    {        
+    {
         var details = new Dictionary<string, string>
         {
             { "url", reportUrl },
@@ -139,6 +161,7 @@ public sealed class AccountingNotificationService(
 
         await SendNotificationAsync(
             user,
+            email,
             NotificationStatuses.Failure,
             processId,
             NotificationTypes.ReportGeneratedError,
@@ -150,10 +173,11 @@ public sealed class AccountingNotificationService(
 
     public async Task SendProcessFailedWithErrorsAsync(
         string user,
+        string email,
         string processId,
         DateTime startDate,
         DateTime processDate,
-        IEnumerable<UndefinedError> errors,        
+        IEnumerable<UndefinedError> errors,
         CancellationToken cancellationToken = default,
         string stepId = "2")
     {
@@ -172,6 +196,7 @@ public sealed class AccountingNotificationService(
 
         await SendNotificationAsync(
             user,
+            email,
             NotificationStatuses.Failure,
             processId,
             NotificationTypes.ReportGeneratedError,

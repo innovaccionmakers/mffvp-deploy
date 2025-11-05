@@ -6,6 +6,7 @@ public interface IAccountingNotificationService
 {
      Task SendNotificationAsync(
      string user,
+     string email,
      string status,
      string processId,
      string stepDescription,
@@ -15,6 +16,7 @@ public interface IAccountingNotificationService
 
  Task SendProcessInitiatedAsync(
      string user,
+     string? email,
      string processId,
      DateTime processDate,
      CancellationToken cancellationToken = default,
@@ -22,6 +24,7 @@ public interface IAccountingNotificationService
 
  Task SendProcessFinalizedAsync(
      string user,
+     string? email,
      string processId,
      DateTime startDate,
      DateTime processDate,
@@ -31,6 +34,7 @@ public interface IAccountingNotificationService
 
 Task SendProcessFailedAsync(
     string user,
+    string? email,
     string processId,
     DateTime startDate,
     DateTime processDate,
@@ -39,7 +43,8 @@ Task SendProcessFailedAsync(
     string stepId = "2");
 
 Task SendProcessFailedWithUrlAsync(
-    string user,
+    string? user,
+    string email,
     string processId,
     DateTime startDate,
     DateTime processDate,
@@ -50,6 +55,7 @@ Task SendProcessFailedWithUrlAsync(
 
 Task SendProcessFailedWithErrorsAsync(
     string user,
+    string? email,
     string processId,
     DateTime startDate,
     DateTime processDate,

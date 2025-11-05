@@ -1,7 +1,9 @@
 ﻿using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Infrastructure.Auth.Policy;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Database.Interceptors;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,28 +11,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 using Security.Application.Abstractions.Data;
+using Security.Application.Abstractions.Services.Auditing;
+using Security.Application.Auditing;
 using Security.Application.Auth;
 using Security.Application.Contracts.Auth;
+using Security.Domain.Logs;
 using Security.Domain.RolePermissions;
 using Security.Domain.Roles;
 using Security.Domain.UserPermissions;
 using Security.Domain.UserRoles;
 using Security.Domain.Users;
-using Security.Domain.Logs;
-using MediatR;
-using Security.Application.Auditing;
-using Security.Application.Abstractions.Services.Auditing;
 using Security.Infrastructure.Auditing;
 using Security.Infrastructure.Auth;
 using Security.Infrastructure.Database;
+using Security.Infrastructure.Logs;
 using Security.Infrastructure.RolePermissions;
 using Security.Infrastructure.Roles;
 using Security.Infrastructure.UserPermissions;
 using Security.Infrastructure.UserRoles;
 using Security.Infrastructure.Users;
-using Security.Infrastructure.Logs;
+using Security.IntegrationEvents.Users.GetByUsername;
 using Security.Presentation.MinimalApis;
 
 namespace Security.Infrastructure;
@@ -81,6 +82,9 @@ public class SecurityModule: IModuleConfiguration
         services.AddHttpContextAccessor();
         services.AddScoped<IAuthorizationHandler, PermissionHandler>();
         services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
+
+        services.AddTransient<IRpcHandler<GetUserByUsernameRequest, GetUserByUsernameResponse>, GetUserByUsernameConsumer>();
+
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
