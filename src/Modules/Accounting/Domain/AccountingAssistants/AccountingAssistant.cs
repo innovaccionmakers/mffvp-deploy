@@ -48,7 +48,7 @@ public class AccountingAssistant : Entity, ICloneable
             Date = date.ToUniversalTime(),
             Detail = detail,
             Type = type,
-            Value = value,
+            Value = Math.Abs(value),
             Nature = nature,
             Identifier = Guid.NewGuid()
         };
@@ -84,7 +84,7 @@ public class AccountingAssistant : Entity, ICloneable
         Date = date;
         Detail = detail;
         Type = type;
-        Value = value;
+        Value = Math.Abs(value);
         Nature = nature;
     }
 
