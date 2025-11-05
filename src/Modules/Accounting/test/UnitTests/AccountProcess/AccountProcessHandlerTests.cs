@@ -1,4 +1,5 @@
 ﻿using Accounting.Application.Abstractions;
+using Accounting.Application.Abstractions.External;
 using Accounting.Integrations.AccountProcess;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
@@ -15,6 +16,7 @@ namespace Accounting.test.UnitTests.AccountProcess
         private readonly Mock<IClosingExecutionStore> _closingValidatorMock;
         private readonly Mock<IServiceProvider> _serviceProviderMock;
         private readonly Mock<IAccountingNotificationService> _accountingNotificationServiceMock;
+        private readonly Mock<IUserLocator> _userLocatorMock;
         private readonly Mock<IUserService> _userServiceMock;
         private readonly object _handler;
         private readonly MethodInfo _handleMethod;
@@ -25,6 +27,7 @@ namespace Accounting.test.UnitTests.AccountProcess
             _closingValidatorMock = new Mock<IClosingExecutionStore>();
             _serviceProviderMock = new Mock<IServiceProvider>();
             _accountingNotificationServiceMock = new Mock<IAccountingNotificationService>();
+            _userLocatorMock = new Mock<IUserLocator>();
             _userServiceMock = new Mock<IUserService>();
 
             // Crear instancia usando reflection
@@ -36,6 +39,7 @@ namespace Accounting.test.UnitTests.AccountProcess
                 _closingValidatorMock.Object,
                 _serviceProviderMock.Object,
                 _accountingNotificationServiceMock.Object,
+                _userLocatorMock.Object,
                 _userServiceMock.Object);
 
             _handleMethod = handlerType.GetMethod("Handle");
