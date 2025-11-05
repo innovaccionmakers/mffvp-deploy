@@ -17,4 +17,10 @@ public class ConsecutiveRepository(AccountingDbContext dbContext) : IConsecutive
             .Where(x => x.Nature == nature)
             .FirstOrDefaultAsync();
     }
+
+    public async Task UpdateAsync(Consecutive consecutive, CancellationToken cancellationToken = default)
+    {
+        dbContext.Consecutives.Update(consecutive);
+        await Task.CompletedTask;
+    }
 }

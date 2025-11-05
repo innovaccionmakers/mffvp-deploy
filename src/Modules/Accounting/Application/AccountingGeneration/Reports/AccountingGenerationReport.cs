@@ -14,6 +14,7 @@ namespace Accounting.Application.AccountingGeneration.Reports;
 public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logger,
                                         IAccountingAssistantRepository accountingAssistantRepository,
                                         IConsecutiveFileRepository consecutiveFileRepository,
+                                        IConsecutiveRepository consecutiveRepository,
                                         IUnitOfWork unitOfWork) : TextReportStrategyBase(logger)
 {
     public override string ReportName => "E";
@@ -40,52 +41,100 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
     {
         var consecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c);
 
-        var rows = accountingAssistants.Select(x =>
+        var currentConsecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c.Number);
+
+        var lastShownConsecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c.Number);
+
+        var groupedByNature = accountingAssistants.GroupBy(x => x.Nature).OrderBy(g => g.Key);
+
+        var rows = new List<object[]>();
+
+        foreach (var natureGroup in groupedByNature)
         {
-            var consecutive = consecutiveByNature.GetValueOrDefault(x.Nature);
+            var nature = natureGroup.Key;
+            var consecutive = consecutiveByNature.GetValueOrDefault(nature);
 
-            var sourceDocument = consecutive?.SourceDocument ?? "";
-            var consecutiveNumber = consecutive?.Number ?? 0;
+            if (consecutive == null)
+                continue;
 
-            return new object[]
+            var sourceDocument = consecutive.SourceDocument;
+
+            foreach (var accountingAssistant in natureGroup)
             {
-                sourceDocument,
-                consecutiveNumber,
-                AccountingReportConstants.FORINT,
-                x.Date.ToString("yyyymmdd"),
-                "TODO",
-                AccountingReportConstants.CENINT,
-                x.Identification,
-                x.VerificationDigit,
-                x.Name,
-                "TODO",
-                AccountingReportConstants.VBAINT,
-                AccountingReportConstants.NVBINT,
-                AccountingReportConstants.FEMINT,
-                AccountingReportConstants.FVEINT,
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO",
-                x.Detail ?? "",
-                " ",
-                AccountingReportConstants.NDOINT,
-            };
-        }).ToList();
+                var currentConsecutive = currentConsecutiveByNature[nature];
+
+                rows.Add(new object[]
+                {
+                    sourceDocument,
+                    currentConsecutive,
+                    AccountingReportConstants.FORINT,
+                    accountingAssistant.Date.ToString("yyyymmdd"),
+                    "TODO",
+                    AccountingReportConstants.CENINT,
+                    accountingAssistant.Identification,
+                    accountingAssistant.VerificationDigit,
+                    accountingAssistant.Name,
+                    "TODO",
+                    AccountingReportConstants.VBAINT,
+                    AccountingReportConstants.NVBINT,
+                    AccountingReportConstants.FEMINT,
+                    AccountingReportConstants.FVEINT,
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO VALOR",
+                    "TODO",
+                    accountingAssistant.Detail ?? "",
+                    " ",
+                    AccountingReportConstants.NDOINT,
+                });
+
+                lastShownConsecutiveByNature[nature] = currentConsecutive;
+
+                currentConsecutiveByNature[nature] = currentConsecutive + 1;
+            }
+        }
+
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            foreach (var kvp in lastShownConsecutiveByNature)
+            {
+                var nature = kvp.Key;
+                var newConsecutiveNumber = kvp.Value;
+
+                var consecutive = consecutiveByNature[nature];
+                consecutive.UpdateDetails(
+                    consecutive.Nature,
+                    consecutive.SourceDocument,
+                    newConsecutiveNumber);
+
+                await consecutiveRepository.UpdateAsync(consecutive, cancellationToken);
+            }
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
 
         var fileName = await GenerateReportFileNameAsync(processDate, cancellationToken);
 
@@ -93,11 +142,10 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         {
             new()
             {
-
                 SectionTitle = string.Empty,
                 ColumnHeaders = ColumnHeaders,
                 IncludeHeaders = false,
-                Rows = rows ?? []
+                Rows = rows
             }
         };
 
