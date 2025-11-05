@@ -35,81 +35,58 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
     }
 
     public async Task<FileStreamResult> GenerateReportAsync(DateTime processDate,
-                                                     IEnumerable<AccountingAssistant> accountingAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> incomeAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> egressAssistants,
                                                      IEnumerable<Consecutive> consecutives,
                                                      CancellationToken cancellationToken)
     {
-        var consecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c);
+        // Obtener consecutivos de Ingreso y Egreso
+        var incomeConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Income);
+        var egressConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Egress);
 
-        var currentConsecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c.Number);
+        // Calcular últimos consecutivos: consecutivo actual + total de registros - 1
+        var lastIncomeConsecutive = incomeConsecutive != null && incomeAssistants.Count > 0
+            ? incomeConsecutive.Number + (incomeAssistants.Count - 1)
+            : incomeConsecutive?.Number ?? 0;
 
-        var lastShownConsecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c.Number);
-
-        var groupedByNature = accountingAssistants.GroupBy(x => x.Nature).OrderBy(g => g.Key);
+        var lastEgressConsecutive = egressConsecutive != null && egressAssistants.Count > 0
+            ? egressConsecutive.Number + (egressAssistants.Count - 1)
+            : egressConsecutive?.Number ?? 0;
 
         var rows = new List<object[]>();
 
-        foreach (var natureGroup in groupedByNature)
+        // Procesar registros de Ingreso
+        if (incomeConsecutive != null && incomeAssistants.Count > 0)
         {
-            var nature = natureGroup.Key;
-            var consecutive = consecutiveByNature.GetValueOrDefault(nature);
+            var currentConsecutive = incomeConsecutive.Number;
+            var sourceDocument = incomeConsecutive.SourceDocument;
 
-            if (consecutive == null)
-                continue;
-
-            var sourceDocument = consecutive.SourceDocument;
-
-            foreach (var accountingAssistant in natureGroup)
+            for (int i = 0; i < incomeAssistants.Count; i++)
             {
-                var currentConsecutive = currentConsecutiveByNature[nature];
+                var accountingAssistant = incomeAssistants[i];
+                var consecutiveNumber = currentConsecutive + i;
 
-                rows.Add(new object[]
-                {
-                    sourceDocument,
-                    currentConsecutive,
-                    AccountingReportConstants.FORINT,
-                    accountingAssistant.Date.ToString("yyyymmdd"),
-                    "TODO",
-                    AccountingReportConstants.CENINT,
-                    accountingAssistant.Identification,
-                    accountingAssistant.VerificationDigit,
-                    accountingAssistant.Name,
-                    "TODO",
-                    AccountingReportConstants.VBAINT,
-                    AccountingReportConstants.NVBINT,
-                    AccountingReportConstants.FEMINT,
-                    AccountingReportConstants.FVEINT,
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO VALOR",
-                    "TODO",
-                    accountingAssistant.Detail ?? "",
-                    " ",
-                    AccountingReportConstants.NDOINT,
-                });
-
-                lastShownConsecutiveByNature[nature] = currentConsecutive;
-
-                currentConsecutiveByNature[nature] = currentConsecutive + 1;
+                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant));
             }
         }
 
-        await UpdateConsecutivesInDatabaseAsync(lastShownConsecutiveByNature, cancellationToken);
+        // Procesar registros de Egreso
+        if (egressConsecutive != null && egressAssistants.Count > 0)
+        {
+            var currentConsecutive = egressConsecutive.Number;
+            var sourceDocument = egressConsecutive.SourceDocument;
+
+            for (int i = 0; i < egressAssistants.Count; i++)
+            {
+                var accountingAssistant = egressAssistants[i];
+                var consecutiveNumber = currentConsecutive + i;
+
+                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant));
+            }
+        }
+
+        // Actualizar consecutivos en BD
+        await UpdateConsecutivesInDatabaseAsync(lastIncomeConsecutive, lastEgressConsecutive, cancellationToken);
 
         var fileName = await GenerateReportFileNameAsync(processDate, cancellationToken);
 
@@ -127,15 +104,61 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         return await GenerateTextReportAsync(textReportDataList, fileName, cancellationToken);
     }
 
-    private async Task UpdateConsecutivesInDatabaseAsync(Dictionary<string, int> consecutiveNumbersByNature, CancellationToken cancellationToken)
+    private object[] CreateRow(string sourceDocument, int consecutiveNumber, AccountingAssistant accountingAssistant)
+    {
+        return new object[]
+        {
+            sourceDocument,
+            consecutiveNumber,
+            AccountingReportConstants.FORINT,
+            accountingAssistant.Date.ToString("yyyymmdd"),
+            "TODO",
+            AccountingReportConstants.CENINT,
+            accountingAssistant.Identification,
+            accountingAssistant.VerificationDigit,
+            accountingAssistant.Name,
+            "TODO",
+            AccountingReportConstants.VBAINT,
+            AccountingReportConstants.NVBINT,
+            AccountingReportConstants.FEMINT,
+            AccountingReportConstants.FVEINT,
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO VALOR",
+            "TODO",
+            accountingAssistant.Detail ?? "",
+            " ",
+            AccountingReportConstants.NDOINT,
+        };
+    }
+
+    private async Task UpdateConsecutivesInDatabaseAsync(int lastIncomeConsecutive, int lastEgressConsecutive, CancellationToken cancellationToken)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            await consecutiveRepository.UpdateConsecutivesByNatureAsync(consecutiveNumbersByNature, cancellationToken);
+            // Actualizar consecutivo de Ingreso
+            await consecutiveRepository.UpdateIncomeConsecutiveAsync(lastIncomeConsecutive, cancellationToken);
 
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            // Actualizar consecutivo de Egreso
+            await consecutiveRepository.UpdateEgressConsecutiveAsync(lastEgressConsecutive, cancellationToken);
+
             await transaction.CommitAsync(cancellationToken);
         }
         catch

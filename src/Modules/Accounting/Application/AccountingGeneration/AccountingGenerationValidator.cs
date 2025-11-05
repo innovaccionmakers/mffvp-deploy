@@ -1,38 +1,39 @@
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.Constants;
 using Accounting.Domain.Consecutives;
-using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration;
 
 internal sealed class AccountingGenerationValidator
 {
-    public static string? ValidateNatureRecordLimits(IReadOnlyCollection<AccountingAssistant> accountingAssistants, IReadOnlyCollection<Consecutive> consecutives)
+    public static string? ValidateNatureRecordLimits(IReadOnlyCollection<AccountingAssistant> incomeAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> egressAssistants,
+                                                     IReadOnlyCollection<Consecutive> consecutives)
     {
         var consecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c.Number);
+        var exceededNatures = new List<string>();
 
-        var natureCounts = accountingAssistants
-            .GroupBy(aa => aa.Nature)
-            .Select(g => new
-            {
-                Nature = g.Key,
-                Count = g.Count(),
-                CurrentConsecutive = consecutiveByNature.GetValueOrDefault(g.Key, 0)
-            })
-            .ToList();
+        if (incomeAssistants.Count > 0)
+        {
+            var incomeConsecutive = consecutiveByNature.GetValueOrDefault(NatureTypes.Income, 0);
+            var lastIncomeConsecutive = incomeConsecutive + (incomeAssistants.Count - 1);
 
-        var exceededNatures = natureCounts
-            .Where(nc =>
+            if (lastIncomeConsecutive > AccountingReportConstants.MaxConsecutiveNumber)
             {
-                var lastConsecutive = nc.CurrentConsecutive + (nc.Count - 1);
-                return lastConsecutive > AccountingReportConstants.MaxConsecutiveNumber;
-            })
-            .Select(nc =>
+                exceededNatures.Add($"{NatureTypes.Income} (consecutivo actual: {incomeConsecutive}, último consecutivo: {lastIncomeConsecutive:N0}, máximo permitido: {AccountingReportConstants.MaxConsecutiveNumber:N0})");
+            }
+        }
+
+        if (egressAssistants.Count > 0)
+        {
+            var egressConsecutive = consecutiveByNature.GetValueOrDefault(NatureTypes.Egress, 0);
+            var lastEgressConsecutive = egressConsecutive + (egressAssistants.Count - 1);
+
+            if (lastEgressConsecutive > AccountingReportConstants.MaxConsecutiveNumber)
             {
-                var lastConsecutive = nc.CurrentConsecutive + (nc.Count - 1);
-                return $"{nc.Nature} (consecutivo actual: {nc.CurrentConsecutive}, último consecutivo: {lastConsecutive:N0}, máximo permitido: {AccountingReportConstants.MaxConsecutiveNumber:N0})";
-            })
-            .ToList();
+                exceededNatures.Add($"{NatureTypes.Egress} (consecutivo actual: {egressConsecutive}, último consecutivo: {lastEgressConsecutive:N0}, máximo permitido: {AccountingReportConstants.MaxConsecutiveNumber:N0})");
+            }
+        }
 
         if (exceededNatures.Count != 0)
         {

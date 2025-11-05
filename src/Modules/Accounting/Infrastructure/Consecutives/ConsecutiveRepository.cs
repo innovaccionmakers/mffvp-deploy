@@ -1,4 +1,5 @@
-﻿using Accounting.Domain.Consecutives;
+﻿using Accounting.Domain.Constants;
+using Accounting.Domain.Consecutives;
 using Accounting.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,25 +25,21 @@ public class ConsecutiveRepository(AccountingDbContext dbContext) : IConsecutive
         await Task.CompletedTask;
     }
 
-    public async Task UpdateConsecutivesByNatureAsync(Dictionary<string, int> consecutiveNumbersByNature, CancellationToken cancellationToken = default)
+    public async Task UpdateIncomeConsecutiveAsync(int newConsecutiveNumber, CancellationToken cancellationToken = default)
     {
-        foreach (var kvp in consecutiveNumbersByNature)
-        {
-            var nature = kvp.Key;
-            var newConsecutiveNumber = kvp.Value;
+        await dbContext.Consecutives
+            .Where(c => c.Nature == NatureTypes.Income)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(c => c.Number, newConsecutiveNumber),
+            cancellationToken);
+    }
 
-            var consecutive = await GetConsecutiveByNatureAsync(nature);
-            if (consecutive != null)
-            {
-                consecutive.UpdateDetails(
-                    consecutive.Nature,
-                    consecutive.SourceDocument,
-                    newConsecutiveNumber);
-
-                dbContext.Consecutives.Update(consecutive);
-            }
-        }
-
-        await Task.CompletedTask;
+    public async Task UpdateEgressConsecutiveAsync(int newConsecutiveNumber, CancellationToken cancellationToken = default)
+    {
+        await dbContext.Consecutives
+            .Where(c => c.Nature == NatureTypes.Egress)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(c => c.Number, newConsecutiveNumber),
+            cancellationToken);
     }
 }
