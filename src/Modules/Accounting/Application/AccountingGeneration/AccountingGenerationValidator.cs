@@ -24,10 +24,6 @@ internal sealed class AccountingGenerationValidator
         var exceededNatures = natureCounts
             .Where(nc =>
             {
-                // El último consecutivo sería: consecutivo actual + cantidad de registros - 1
-                // Por ejemplo: si actual es 0 y hay 3 registros, mostrará 0, 1, 2 (último = 2)
-                // Pero si actual es 0 y hay 3 registros, el último consecutivo mostrado será 2
-                // Entonces: currentConsecutive + (count - 1) debe ser <= MaxConsecutiveNumber
                 var lastConsecutive = nc.CurrentConsecutive + (nc.Count - 1);
                 return lastConsecutive > AccountingReportConstants.MaxConsecutiveNumber;
             })
