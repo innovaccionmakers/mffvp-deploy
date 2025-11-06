@@ -48,8 +48,8 @@ public class AccountingAssistant : Entity, ICloneable
             Date = date.ToUniversalTime(),
             Detail = detail,
             Type = type,
-            Value = value,
-            Nature = nature,
+            Value = Math.Abs(value),
+            Nature = NormalizeNature(nature),
             Identifier = Guid.NewGuid()
         };
 
@@ -84,8 +84,8 @@ public class AccountingAssistant : Entity, ICloneable
         Date = date;
         Detail = detail;
         Type = type;
-        Value = value;
-        Nature = nature;
+        Value = Math.Abs(value);
+        Nature = NormalizeNature(nature);
     }
 
     public AccountingAssistant DuplicateWithType(string type, string? account = null)
@@ -132,6 +132,20 @@ public class AccountingAssistant : Entity, ICloneable
         }
 
         return Result.Success(true);
+    }
+
+    private static string NormalizeNature(string nature)
+    {
+        if (string.IsNullOrWhiteSpace(nature))
+            return nature;
+
+        return nature.Trim() switch
+        {
+            "Ingreso" => NatureTypes.Income,
+            "Gasto" => NatureTypes.Egress,
+            "Egreso" => NatureTypes.Egress,
+            _ => nature.Trim()
+        };
     }
 
     public object Clone()

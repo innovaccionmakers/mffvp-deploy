@@ -5,6 +5,7 @@ namespace Accounting.Integrations.AccountingGeneration;
 
 public sealed record AccountingGenerationCommand(
     string User,
+    string Email,
     string ProcessId,
     DateTime StartDate,
     DateTime ProcessDate

@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
     <ProjectReference Include="..\Application\Security.Application.csproj" />
+    <ProjectReference Include="..\IntegrationEvents\Security.IntegrationEvents.csproj" />
     <ProjectReference Include="..\Presentation\Security.Presentation.csproj" />
   </ItemGroup>
 

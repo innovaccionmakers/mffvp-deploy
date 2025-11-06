@@ -5,6 +5,7 @@ namespace Accounting.Integrations.AccountingValidator;
 
 public sealed record AccountingValidatorCommand(
     string User,
+    string Email,
     string ProcessType,
     bool IsSuccess,
     string? ErrorMessage,

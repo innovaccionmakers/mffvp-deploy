@@ -7,6 +7,8 @@ namespace Accounting.Infrastructure.ConsecutiveFiles;
 
 public class ConsecutiveFileRepository(AccountingDbContext context) : IConsecutiveFileRepository
 {
+    private const int Consecutive = 1;
+
     public async Task AddAsync(ConsecutiveFile consecutiveFile, CancellationToken cancellationToken)
     {
         await context.ConsecutiveFiles.AddAsync(consecutiveFile, cancellationToken);
@@ -49,8 +51,13 @@ public class ConsecutiveFileRepository(AccountingDbContext context) : IConsecuti
         var today = DateTime.UtcNow;
         var todayDate = today.Date;
 
-        var consecutiveFile = await GetByCurrentDateAsync(todayDate, cancellationToken);
-        int consecutive = 1;
+        var existingRecord = await GetByCurrentDateAsync(todayDate, cancellationToken);
+
+        if (existingRecord is null)
+            await DeleteAllAsync(cancellationToken);
+
+        var consecutiveFile = await GetByGenerationDateAsync(generationDate.Date, cancellationToken);
+        int consecutive = Consecutive;
 
         if (consecutiveFile is not null)
         {
@@ -60,8 +67,6 @@ public class ConsecutiveFileRepository(AccountingDbContext context) : IConsecuti
         }
         else
         {
-            await DeleteAllAsync(cancellationToken);
-
             var newConsecutive = ConsecutiveFile.Create(generationDate, 1, today);
             if (newConsecutive.IsFailure)
                 throw new Exception($"Error al crear el consecutivo para la fecha {generationDate:yyyy-MM-dd}");
