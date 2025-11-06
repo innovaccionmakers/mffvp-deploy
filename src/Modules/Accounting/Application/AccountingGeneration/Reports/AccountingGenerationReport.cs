@@ -8,7 +8,6 @@ using Common.SharedKernel.Application.Reports.Strategies;
 using Common.SharedKernel.Core.Formatting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration.Reports;
 
@@ -80,8 +79,6 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             {
                 var group = incomeGroups[i];
                 var consecutiveNumber = currentConsecutive + i;
-
-                // Todos los registros del mismo grupo comparten el mismo consecutivo
                 foreach (var accountingAssistant in group)
                 {
                     var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
@@ -100,8 +97,6 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             {
                 var group = egressGroups[i];
                 var consecutiveNumber = currentConsecutive + i;
-
-                // Todos los registros del mismo grupo comparten el mismo consecutivo
                 foreach (var accountingAssistant in group)
                 {
                     var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
