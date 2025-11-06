@@ -18,4 +18,6 @@ public interface ITreasuryExperienceQueries
     Task<IReadOnlyCollection<TreasuryMovementDto>> GetTreasuryMovementsByPortfolioIdsAsync(
         IEnumerable<long> portfolioIds,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<AccountTypeDto>> GetAccountTypesAsync(CancellationToken cancellationToken = default);
 }

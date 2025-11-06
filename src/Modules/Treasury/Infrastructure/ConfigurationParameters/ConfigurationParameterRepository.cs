@@ -1,4 +1,5 @@
-﻿using Common.SharedKernel.Domain.ConfigurationParameters;
+﻿using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Microsoft.EntityFrameworkCore;
 using Treasury.Application.Abstractions;
 using Treasury.Domain.ConfigurationParameters;
@@ -21,5 +22,14 @@ public class ConfigurationParameterRepository(TreasuryDbContext context) : IConf
                 p => p.Uuid == uuid,
                 cancellationToken
             );
+    }
+
+    public async Task<IReadOnlyCollection<ConfigurationParameter>> GetActiveConfigurationParametersByTypeAsync(
+        ConfigurationParameterType type,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.ConfigurationParameters
+            .Where(cp => cp.Type == type.ToString() && cp.Status)
+            .ToListAsync(cancellationToken);
     }
 }

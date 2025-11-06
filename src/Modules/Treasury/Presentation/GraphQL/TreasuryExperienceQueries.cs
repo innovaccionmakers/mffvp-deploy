@@ -3,6 +3,7 @@ using MediatR;
 using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolio;
 using Treasury.Integrations.BankAccounts.GetBankAccountsByPortfolioAndIssuer;
 using Treasury.Integrations.Banks;
+using Treasury.Integrations.ConfigurationParameters.AccountTypes;
 using Treasury.Integrations.Issuers.GetIssuers;
 using Treasury.Integrations.TreasuryConcepts.GetTreasuryConcepts;
 using Treasury.Integrations.TreasuryMovements.Queries;
@@ -167,6 +168,25 @@ public class TreasuryExperienceQueries(IMediator mediator) : ITreasuryExperience
              x.BankAccount?.AccountNumber,
              x.Counterparty?.Description,
              x.Value
+        )).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<AccountTypeDto>> GetAccountTypesAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetAccountTypesQuery(), cancellationToken);
+
+        if (!result.IsSuccess || result.Value == null)
+        {
+            return [];
+        }
+
+        var accountTypes = result.Value;
+
+        return accountTypes.Select(x => new AccountTypeDto(
+            x.ConfigurationParameterId,
+            x.Uuid,
+            x.Name,
+            x.HomologationCode
         )).ToList();
     }
 }

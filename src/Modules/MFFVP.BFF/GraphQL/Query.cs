@@ -371,6 +371,13 @@ public class Query
         return await treasuryQueries.GetBankAccountsByPortfolioAndIssuerAsync(portfolioId, issuerId, cancellationToken);
     }
 
+    [GraphQLName("tipoCuenta")]
+    public async Task<IReadOnlyCollection<AccountTypeDto>> GetAccountTypes([Service] ITreasuryExperienceQueries treasuryQueries,
+                                                                           CancellationToken cancellationToken)
+    {
+        return await treasuryQueries.GetAccountTypesAsync(cancellationToken);
+    }
+
     [GraphQLName("generarReporteDepositos")]
     public async Task<GraphqlResult<ReportResponseDto>> GenerateDepositsReportAsync([GraphQLName("processDate")] DateTime processDate,
                                                                    [Service] ReportOrchestrator reportOrchestrator,
@@ -401,7 +408,7 @@ public class Query
                                                                                     [Service] ReportOrchestrator reportOrchestrator,
                                                                                     CancellationToken cancellationToken,
                                                                                     [GraphQLName("identificacion")] string? identificationId = null)
-    {      
+    {
         return await reportOrchestrator.GetReportData((startDate, endDate, identificationId), ReportType.Balances, cancellationToken);
     }
 
@@ -421,18 +428,18 @@ public class Query
         };
 
         var result = await reportOrchestrator.GetReportData(request, ReportType.TransmissionFormat, cancellationToken);
-        
+
         if (result.Data != null)
         {
-            logger.LogInformation("[TransmissionFormat] Reporte generado exitosamente. Archivo: {FileName}, Tamaño: {FileSize} bytes", 
-                result.Data.FileName, 
+            logger.LogInformation("[TransmissionFormat] Reporte generado exitosamente. Archivo: {FileName}, Tamaño: {FileSize} bytes",
+                result.Data.FileName,
                 result.Data.FileContent?.Length ?? 0);
         }
         else
         {
             logger.LogWarning("[TransmissionFormat] Reporte finalizado sin datos. Errores: {ErrorCount}", result.Errors?.Count ?? 0);
         }
-        
+
         return result;
     }
 
