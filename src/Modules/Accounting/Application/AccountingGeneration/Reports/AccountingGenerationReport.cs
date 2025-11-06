@@ -8,6 +8,7 @@ using Common.SharedKernel.Application.Reports.Strategies;
 using Common.SharedKernel.Core.Formatting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration.Reports;
 
@@ -40,54 +41,72 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
                                                      IEnumerable<GeneralConfiguration> generalConfigurations,
                                                      CancellationToken cancellationToken)
     {
-        var incomeAssistantsList = incomeAssistants.ToList();
-        var egressAssistantsList = egressAssistants.ToList();
-
         var configurationByPortfolioId = generalConfigurations
             .ToDictionary(gc => gc.PortfolioId, gc => gc.AccountingCode);
 
         var incomeConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Income);
         var egressConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Egress);
 
-        var lastIncomeConsecutive = incomeConsecutive != null && incomeAssistantsList.Count > 0
-            ? incomeConsecutive.Number + (incomeAssistantsList.Count - 1)
+        var incomeGroups = incomeAssistants
+            .GroupBy(a => a.Identifier)
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        var egressGroups = egressAssistants
+            .GroupBy(a => a.Identifier)
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        var uniqueIncomeCount = incomeGroups.Count;
+        var uniqueEgressCount = egressGroups.Count;
+
+        var lastIncomeConsecutive = incomeConsecutive != null && uniqueIncomeCount > 0
+            ? incomeConsecutive.Number + (uniqueIncomeCount - 1)
             : incomeConsecutive?.Number ?? 0;
 
-        var lastEgressConsecutive = egressConsecutive != null && egressAssistantsList.Count > 0
-            ? egressConsecutive.Number + (egressAssistantsList.Count - 1)
+        var lastEgressConsecutive = egressConsecutive != null && uniqueEgressCount > 0
+            ? egressConsecutive.Number + (uniqueEgressCount - 1)
             : egressConsecutive?.Number ?? 0;
 
         var rows = new List<object[]>();
 
-        // Procesar registros de Ingreso
-        if (incomeConsecutive != null && incomeAssistantsList.Count > 0)
+        // Procesar registros de Ingreso agrupados por Identifier
+        if (incomeConsecutive != null && incomeGroups.Count > 0)
         {
             var currentConsecutive = incomeConsecutive.Number;
             var sourceDocument = incomeConsecutive.SourceDocument;
 
-            for (int i = 0; i < incomeAssistantsList.Count; i++)
+            for (int i = 0; i < incomeGroups.Count; i++)
             {
-                var accountingAssistant = incomeAssistantsList[i];
+                var group = incomeGroups[i];
                 var consecutiveNumber = currentConsecutive + i;
-                var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
 
-                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
+                // Todos los registros del mismo grupo comparten el mismo consecutivo
+                foreach (var accountingAssistant in group)
+                {
+                    var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+                    rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
+                }
             }
         }
 
-        // Procesar registros de Egreso
-        if (egressConsecutive != null && egressAssistantsList.Count > 0)
+        // Procesar registros de Egreso agrupados por Identifier
+        if (egressConsecutive != null && egressGroups.Count > 0)
         {
             var currentConsecutive = egressConsecutive.Number;
             var sourceDocument = egressConsecutive.SourceDocument;
 
-            for (int i = 0; i < egressAssistantsList.Count; i++)
+            for (int i = 0; i < egressGroups.Count; i++)
             {
-                var accountingAssistant = egressAssistantsList[i];
+                var group = egressGroups[i];
                 var consecutiveNumber = currentConsecutive + i;
-                var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
 
-                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
+                // Todos los registros del mismo grupo comparten el mismo consecutivo
+                foreach (var accountingAssistant in group)
+                {
+                    var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+                    rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
+                }
             }
         }
 

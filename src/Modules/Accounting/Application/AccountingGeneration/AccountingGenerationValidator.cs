@@ -1,6 +1,7 @@
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.Constants;
 using Accounting.Domain.Consecutives;
+using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration;
 
@@ -13,10 +14,14 @@ internal sealed class AccountingGenerationValidator
         var consecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c.Number);
         var exceededNatures = new List<string>();
 
-        if (incomeAssistants.Count > 0)
+        // Contar grupos únicos por Identifier (los duplicados comparten consecutivo)
+        var uniqueIncomeCount = incomeAssistants.GroupBy(a => a.Identifier).Count();
+        var uniqueEgressCount = egressAssistants.GroupBy(a => a.Identifier).Count();
+
+        if (uniqueIncomeCount > 0)
         {
             var incomeConsecutive = consecutiveByNature.GetValueOrDefault(NatureTypes.Income, 0);
-            var lastIncomeConsecutive = incomeConsecutive + (incomeAssistants.Count - 1);
+            var lastIncomeConsecutive = incomeConsecutive + (uniqueIncomeCount - 1);
 
             if (lastIncomeConsecutive > AccountingReportConstants.MaxConsecutiveNumber)
             {
@@ -24,10 +29,10 @@ internal sealed class AccountingGenerationValidator
             }
         }
 
-        if (egressAssistants.Count > 0)
+        if (uniqueEgressCount > 0)
         {
             var egressConsecutive = consecutiveByNature.GetValueOrDefault(NatureTypes.Egress, 0);
-            var lastEgressConsecutive = egressConsecutive + (egressAssistants.Count - 1);
+            var lastEgressConsecutive = egressConsecutive + (uniqueEgressCount - 1);
 
             if (lastEgressConsecutive > AccountingReportConstants.MaxConsecutiveNumber)
             {
