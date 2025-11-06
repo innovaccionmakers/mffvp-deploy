@@ -17,18 +17,22 @@ public class TrustReader(ITrustConnectionFactory trustConnectionFactory) : ITrus
         const string selectSql = """
             SELECT id, portafolio_id, saldo_total, capital, retencion_contingente
             FROM fideicomisos.fideicomisos
-            WHERE estado = ANY(@statuses) AND portafolio_id = @p AND fecha_actualizacion = @closingDate;
+            WHERE portafolio_id = @p
+              AND estado = @active
+            UNION ALL
+            SELECT id, portafolio_id, saldo_total, capital, retencion_contingente
+            FROM fideicomisos.fideicomisos
+            WHERE portafolio_id = @p
+              AND estado = @annulledByDebitNote
+              AND fecha_actualizacion = @closingDate;
             """;
 
         var truncatedClosingDate = closingDate.Date;
 
         await using var selectCommand = CreateCommand(trustConnection, selectSql);
-        selectCommand.Parameters.AddWithValue("p", portfolioId);
-        selectCommand.Parameters.AddWithValue("statuses", NpgsqlDbType.Array | NpgsqlDbType.Integer, new[]
-        {
-            (int)LifecycleStatus.Active,
-            (int)LifecycleStatus.AnnulledByDebitNote
-        });
+        selectCommand.Parameters.AddWithValue("p", NpgsqlDbType.Integer, portfolioId);
+        selectCommand.Parameters.AddWithValue("active", NpgsqlDbType.Integer, (int)LifecycleStatus.Active);
+        selectCommand.Parameters.AddWithValue("annulledByDebitNote", NpgsqlDbType.Integer, (int)LifecycleStatus.AnnulledByDebitNote);
         selectCommand.Parameters.AddWithValue("closingDate", NpgsqlDbType.Date, truncatedClosingDate);
 
         var trustRows = new List<TrustRow>();
