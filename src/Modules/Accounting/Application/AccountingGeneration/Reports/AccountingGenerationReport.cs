@@ -1,5 +1,6 @@
 ﻿using Accounting.Application.Abstractions.Data;
 using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.ConfigurationGenerals;
 using Accounting.Domain.Constants;
 using Accounting.Domain.ConsecutiveFiles;
 using Accounting.Domain.Consecutives;
@@ -36,10 +37,14 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
                                                      IReadOnlyCollection<AccountingAssistant> incomeAssistants,
                                                      IReadOnlyCollection<AccountingAssistant> egressAssistants,
                                                      IEnumerable<Consecutive> consecutives,
+                                                     IEnumerable<GeneralConfiguration> generalConfigurations,
                                                      CancellationToken cancellationToken)
     {
         var incomeAssistantsList = incomeAssistants.ToList();
         var egressAssistantsList = egressAssistants.ToList();
+
+        var configurationByPortfolioId = generalConfigurations
+            .ToDictionary(gc => gc.PortfolioId, gc => gc.AccountingCode);
 
         var incomeConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Income);
         var egressConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Egress);
@@ -64,8 +69,9 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             {
                 var accountingAssistant = incomeAssistantsList[i];
                 var consecutiveNumber = currentConsecutive + i;
+                var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
 
-                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant));
+                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
             }
         }
 
@@ -79,8 +85,9 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             {
                 var accountingAssistant = egressAssistantsList[i];
                 var consecutiveNumber = currentConsecutive + i;
+                var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
 
-                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant));
+                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
             }
         }
 
@@ -133,7 +140,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         };
     }
 
-    private object[] CreateRow(string sourceDocument, int consecutiveNumber, AccountingAssistant accountingAssistant)
+    private object[] CreateRow(string sourceDocument, int consecutiveNumber, AccountingAssistant accountingAssistant, string accountingCode)
     {
         var DBAINT = string.Empty;
         if (accountingAssistant.Detail != OperationTypeNames.Yield)
@@ -171,7 +178,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             debitValue,
             AccountingReportConstants.ZeroValue,
             AccountingReportConstants.ZeroValue,
-            "todo",
+            accountingCode,
             accountingAssistant.Detail ?? "",
             AccountingReportConstants.NDOINT,
         ];

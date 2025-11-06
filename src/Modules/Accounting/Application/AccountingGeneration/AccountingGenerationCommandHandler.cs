@@ -1,6 +1,7 @@
 ﻿using Accounting.Application.Abstractions;
 using Accounting.Application.AccountingGeneration.Reports;
 using Accounting.Domain.AccountingAssistants;
+using Accounting.Domain.ConfigurationGenerals;
 using Accounting.Domain.Constants;
 using Accounting.Domain.Consecutives;
 using Accounting.Integrations.AccountingGeneration;
@@ -16,6 +17,7 @@ namespace Accounting.Application.AccountingGeneration;
 
 internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRepository accountingAssistantRepository,
                                                          IConsecutiveRepository consecutiveRepository,
+                                                         IGeneralConfigurationRepository generalConfigurationRepository,
                                                          ILogger<AccountingGenerationCommandHandler> logger,
                                                          IFileStorageService fileStorageService,
                                                          IServiceProvider serviceProvider,
@@ -41,7 +43,6 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
                 return Unit.Value;
             }
 
-            // Agrupar una sola vez por naturaleza
             var incomeAssistants = accountingAssistants.Where(a => a.Nature == NatureTypes.Income).ToList();
             var egressAssistants = accountingAssistants.Where(a => a.Nature == NatureTypes.Egress).ToList();
 
@@ -52,7 +53,15 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
                 return Unit.Value;
             }
 
-            var url = await GenerateAccountingInterfaceUrl(request.ProcessDate, incomeAssistants, egressAssistants, consecutives, cancellationToken);
+            var allPortfolioIds = accountingAssistants
+                .Select(a => a.PortfolioId)
+                .Distinct()
+                .ToList();
+
+            var generalConfigurations = await generalConfigurationRepository
+                .GetGeneralConfigurationsByPortfolioIdsAsync(allPortfolioIds, cancellationToken);
+
+            var url = await GenerateAccountingInterfaceUrl(request.ProcessDate, incomeAssistants, egressAssistants, consecutives, generalConfigurations, cancellationToken);
 
             if(url.IsNullOrEmpty())
             {
@@ -76,13 +85,14 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
                                                                IReadOnlyCollection<AccountingAssistant> incomeAssistants,
                                                                IReadOnlyCollection<AccountingAssistant> egressAssistants,
                                                                IEnumerable<Consecutive> consecutives,
+                                                               IEnumerable<GeneralConfiguration> generalConfigurations,
                                                                CancellationToken cancellationToken)
     {
         try
         {
             var report = serviceProvider.GetRequiredService<AccountingGenerationReport>();
 
-            var fileStreamResult = await report.GenerateReportAsync(processDate, incomeAssistants, egressAssistants, consecutives, cancellationToken);
+            var fileStreamResult = await report.GenerateReportAsync(processDate, incomeAssistants, egressAssistants, consecutives, generalConfigurations, cancellationToken);
 
             using var memoryStream = new MemoryStream();
             await fileStreamResult.FileStream.CopyToAsync(memoryStream, cancellationToken);
