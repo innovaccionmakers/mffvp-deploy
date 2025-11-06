@@ -6,7 +6,7 @@ namespace Accounting.Infrastructure.Treasuries
 {
     internal class TreasuryRepository(AccountingDbContext context) : ITreasuryRepository
     {
-        public async Task<IEnumerable<Domain.Treasuries.Treasury>> GetAccountingConceptsTreasuriesAsync(IEnumerable<int> PortfolioIds, CancellationToken CancellationToken)
+        public async Task<IEnumerable<Domain.Treasuries.Treasury>> GetAccountingConceptsTreasuriesAsync(IEnumerable<int> PortfolioIds, IEnumerable<string> AccountNumbers, CancellationToken CancellationToken)
         {
             try
             {
@@ -16,7 +16,7 @@ namespace Accounting.Infrastructure.Treasuries
                 var portfolioIdsSet = new HashSet<int>(PortfolioIds);
 
                 return await context.Treasuries
-                    .Where(co => portfolioIdsSet.Contains(co.PortfolioId))
+                    .Where(co => portfolioIdsSet.Contains(co.PortfolioId) && AccountNumbers.Contains(co.BankAccount))
                     .ToListAsync(CancellationToken);
             }
             catch (Exception ex)

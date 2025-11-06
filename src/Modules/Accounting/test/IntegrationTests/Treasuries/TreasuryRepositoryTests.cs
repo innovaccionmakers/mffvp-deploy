@@ -18,21 +18,23 @@ namespace Accounting.test.IntegrationTests.Treasuries
         {
             // Arrange
             var emptyPortfolioIds = Enumerable.Empty<int>();
+            var emptyAccountNumbers = Enumerable.Empty<string>();
             var expectedEmptyCollection = Enumerable.Empty<Treasury>();
 
             _repository.Setup(x => x.GetAccountingConceptsTreasuriesAsync(
                 It.Is<IEnumerable<int>>(ids => !ids.Any()),
+                It.Is<IEnumerable<string>>(accountNumber => !accountNumber.Any()),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedEmptyCollection);
 
             // Act
-            var result = await _repository.Object.GetAccountingConceptsTreasuriesAsync(emptyPortfolioIds, CancellationToken.None);
+            var result = await _repository.Object.GetAccountingConceptsTreasuriesAsync(emptyPortfolioIds, emptyAccountNumbers, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
             result.Should().BeEmpty();
             _repository.Verify(x => x.GetAccountingConceptsTreasuriesAsync(
-                emptyPortfolioIds, It.IsAny<CancellationToken>()), Times.Once);
+                emptyPortfolioIds, emptyAccountNumbers, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -40,21 +42,23 @@ namespace Accounting.test.IntegrationTests.Treasuries
         {
             // Arrange
             IEnumerable<int> nullPortfolioIds = null;
+            IEnumerable<string> nullAccountNumbers = null;
             var expectedEmptyCollection = Enumerable.Empty<Treasury>();
 
             _repository.Setup(x => x.GetAccountingConceptsTreasuriesAsync(
                 It.Is<IEnumerable<int>>(ids => ids == null || !ids.Any()),
+                It.Is<IEnumerable<string>>(accountNumber => accountNumber == null || !accountNumber.Any()),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedEmptyCollection);
 
             // Act
-            var result = await _repository.Object.GetAccountingConceptsTreasuriesAsync(nullPortfolioIds, CancellationToken.None);
+            var result = await _repository.Object.GetAccountingConceptsTreasuriesAsync(nullPortfolioIds, nullAccountNumbers, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
             result.Should().BeEmpty();
             _repository.Verify(x => x.GetAccountingConceptsTreasuriesAsync(
-                nullPortfolioIds, It.IsAny<CancellationToken>()), Times.Once);
+                nullPortfolioIds, nullAccountNumbers, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -62,21 +66,23 @@ namespace Accounting.test.IntegrationTests.Treasuries
         {
             // Arrange
             var portfolioIds = new List<int> { 99, 100 };
+            var accountNumber = new List<string> { "2806052369", "6846052685" } ;
             var expectedEmptyCollection = Enumerable.Empty<Treasury>();
 
             _repository.Setup(x => x.GetAccountingConceptsTreasuriesAsync(
                 It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(portfolioIds)),
+                It.Is<IEnumerable<string>>(accountNumber => accountNumber.SequenceEqual(accountNumber)),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedEmptyCollection);
 
             // Act
-            var result = await _repository.Object.GetAccountingConceptsTreasuriesAsync(portfolioIds, CancellationToken.None);
+            var result = await _repository.Object.GetAccountingConceptsTreasuriesAsync(portfolioIds, accountNumber, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
             result.Should().BeEmpty();
             _repository.Verify(x => x.GetAccountingConceptsTreasuriesAsync(
-                portfolioIds, It.IsAny<CancellationToken>()), Times.Once);
+                portfolioIds, accountNumber, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]

@@ -71,7 +71,7 @@ namespace Accounting.Application.AutomaticConcepts
                 {
 
                     logger.LogError($"Error procesando los conceptos automáticos para portfolio {yield.PortfolioId}", yield.PortfolioId);
-                    errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Operation, accountingAssistant.Error.Description));
+                    errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.AutomaticConcepts, accountingAssistant.Error.Description));
                     continue;
                 }
 
@@ -119,7 +119,7 @@ namespace Accounting.Application.AutomaticConcepts
                 {
 
                     logger.LogError($"Error procesando los conceptos automáticos para portfolio {yield.PortfolioId}", yield.PortfolioId);
-                    errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.Operation, accountingAssistant.Error.Description));
+                    errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.AutomaticConcepts, accountingAssistant.Error.Description));
                     continue;
                 }
 
@@ -133,27 +133,27 @@ namespace Accounting.Application.AutomaticConcepts
         {
             validationErrors = new List<AccountingInconsistency>();
             bool isValid = true;
-
+            string message = "No existe parametrización contable";
 
             if (accountingAccounts.passiveTransaction == null)
             {
                 logger.LogWarning("No se encontraron conceptos automáticos para el portafolio {PortfolioId} y el tipo operación {OperationType}", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
-                validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, "No existe parametrización contable", accountingAccounts.Credit));
-                validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, "No existe parametrización contable", accountingAccounts.Debit));
+                validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, message, accountingAccounts.Credit));
+                validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, message, accountingAccounts.Debit));
                 return false;
             }
 
             if (accountingAccounts.passiveTransactionCredit.IsNullOrEmpty())
             {
                 logger.LogWarning("El concepto automático para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de crédito", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
-                validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, "No existe cuenta de crédito", accountingAccounts.Credit));
+                validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, message, accountingAccounts.Credit));
                 return false;
             }
 
             if (accountingAccounts.passiveTransactionDebit.IsNullOrEmpty())
             {
                 logger.LogWarning("El concepto automático para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de débito", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
-                validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, "No existe cuenta de débito", accountingAccounts.Debit));
+                validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, message, accountingAccounts.Debit));
                 return false;
             }
 

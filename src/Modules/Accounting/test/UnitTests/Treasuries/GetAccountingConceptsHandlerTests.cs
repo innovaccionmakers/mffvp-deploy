@@ -9,11 +9,12 @@ namespace Accounting.test.UnitTests.Treasuries
         {
             // Arrange
             var portfolioId = new int();
+            var accountNumber = "2806052369";
             var debitAccount = "DEBIT-12345";
             var creditAccount = "CREDIT-12345";
 
             // Act
-            var response = new GetAccountingConceptsTreasuriesResponse(portfolioId, debitAccount, creditAccount);
+            var response = new GetAccountingConceptsTreasuriesResponse(portfolioId, accountNumber, debitAccount, creditAccount);
 
             // Assert
             Assert.Equal(portfolioId, response.PortfolioId);
@@ -24,7 +25,7 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingConceptsTreasuriesResponse_WithNullDebitAccount_AllowsNull()
         {
             // Arrange & Act
-            var response = new GetAccountingConceptsTreasuriesResponse(new int(), null, null);
+            var response = new GetAccountingConceptsTreasuriesResponse(new int(), null, null, null);
 
             // Assert
             Assert.Null(response.DebitAccount);
@@ -34,7 +35,7 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingConceptsTreasuriesResponse_WithEmptyDebitAccount_AllowsEmptyString()
         {
             // Arrange & Act
-            var response = new GetAccountingConceptsTreasuriesResponse(new int(), string.Empty, string.Empty);
+            var response = new GetAccountingConceptsTreasuriesResponse(new int(), string.Empty, string.Empty, string.Empty);
 
             // Assert
             Assert.Equal(string.Empty, response.DebitAccount);
@@ -44,7 +45,7 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingConceptsTreasuriesResponse_WithMinGuid_HandlesCorrectly()
         {
             // Arrange & Act
-            var response = new GetAccountingConceptsTreasuriesResponse(new int(), "DEBIT-001", "CREDIT-001");
+            var response = new GetAccountingConceptsTreasuriesResponse(new int(), "2806052369", "DEBIT-001", "CREDIT-001");
 
             // Assert
             Assert.Equal(new int(), response.PortfolioId);
@@ -54,11 +55,12 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingConceptsTreasuriesResponse_WithLongConceptAccount_HandlesCorrectly()
         {
             // Arrange
+            var longAccountNumber = new string("2806052369"); 
             var longDebitAccount = new string('D', 500); 
             var longCreditAccount = new string('C', 500);            
 
             // Act
-            var response = new GetAccountingConceptsTreasuriesResponse(new int(), longDebitAccount, longDebitAccount);
+            var response = new GetAccountingConceptsTreasuriesResponse(new int(), longAccountNumber, longDebitAccount, longDebitAccount);
 
             // Assert
             Assert.Equal(500, response.DebitAccount.Length);
@@ -68,11 +70,12 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingConceptsTreasuriesResponse_WithFinancialConceptFormat_HandlesCorrectly()
         {
             // Arrange
+            var accountNumber = "2806052369";
             var debitAccount = "4.1.1.01.001";
             var creditAccount = "4.1.1.01.001";
 
             // Act
-            var response = new GetAccountingConceptsTreasuriesResponse(new int(), debitAccount, creditAccount);
+            var response = new GetAccountingConceptsTreasuriesResponse(new int(), accountNumber, debitAccount, creditAccount);
 
             // Assert
             Assert.Equal(debitAccount, response.DebitAccount);

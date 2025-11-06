@@ -65,7 +65,7 @@ public class TreasuryMovementRepository(TreasuryDbContext context) : ITreasuryMo
     {
         return await context.TreasuryMovements
             .AsNoTracking()
-            .Where(tm => portfolioIds.Contains(tm.PortfolioId))
+            .Where(tm => portfolioIds.Contains(tm.PortfolioId) && tm.ClosingDate == ProcessDate)
             .Include(tm => tm.TreasuryConcept)
             .Include(b => b.BankAccount)
             .Include(c => c.Counterparty)

@@ -7,7 +7,7 @@ namespace Accounting.Infrastructure.Concepts
 {
     internal class ConceptsRepository(AccountingDbContext context) : IConceptsRepository
     {
-        public async Task<IEnumerable<Concept>> GetConceptsByPortfolioIdsAsync(IEnumerable<int> PortfolioIds, CancellationToken CancellationToken)
+        public async Task<IEnumerable<Concept>> GetConceptsByPortfolioIdsAsync(IEnumerable<int> PortfolioIds, IEnumerable<string> Concepts, CancellationToken CancellationToken)
         {
             try
             {
@@ -17,7 +17,7 @@ namespace Accounting.Infrastructure.Concepts
                 var portfolioIdsSet = new HashSet<int>(PortfolioIds);
 
                 return await context.Concepts
-                    .Where(co => portfolioIdsSet.Contains(co.PortfolioId))
+                    .Where(co => portfolioIdsSet.Contains(co.PortfolioId) && Concepts.Contains(co.Name))
                     .ToListAsync(CancellationToken);
             }
             catch (Exception ex)
