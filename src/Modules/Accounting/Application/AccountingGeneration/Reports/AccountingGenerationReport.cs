@@ -1,19 +1,19 @@
 ﻿using Accounting.Application.Abstractions.Data;
 using Accounting.Domain.AccountingAssistants;
-using Accounting.Domain.AccountingInconsistencies;
+using Accounting.Domain.ConfigurationGenerals;
 using Accounting.Domain.Constants;
 using Accounting.Domain.ConsecutiveFiles;
 using Accounting.Domain.Consecutives;
 using Common.SharedKernel.Application.Reports.Strategies;
+using Common.SharedKernel.Core.Formatting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration.Reports;
 
 public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logger,
-                                        IAccountingAssistantRepository accountingAssistantRepository,
                                         IConsecutiveFileRepository consecutiveFileRepository,
+                                        IConsecutiveRepository consecutiveRepository,
                                         IUnitOfWork unitOfWork) : TextReportStrategyBase(logger)
 {
     public override string ReportName => "E";
@@ -34,77 +34,174 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
     }
 
     public async Task<FileStreamResult> GenerateReportAsync(DateTime processDate,
-                                                     IEnumerable<AccountingAssistant> accountingAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> incomeAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> egressAssistants,
                                                      IEnumerable<Consecutive> consecutives,
+                                                     IEnumerable<GeneralConfiguration> generalConfigurations,
                                                      CancellationToken cancellationToken)
     {
-        var consecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c);
+        var incomeAssistantsList = incomeAssistants.ToList();
+        var egressAssistantsList = egressAssistants.ToList();
 
-        var rows = accountingAssistants.Select(x =>
+        var configurationByPortfolioId = generalConfigurations
+            .ToDictionary(gc => gc.PortfolioId, gc => gc.AccountingCode);
+
+        var incomeConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Income);
+        var egressConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Egress);
+
+        var lastIncomeConsecutive = incomeConsecutive != null && incomeAssistantsList.Count > 0
+            ? incomeConsecutive.Number + (incomeAssistantsList.Count - 1)
+            : incomeConsecutive?.Number ?? 0;
+
+        var lastEgressConsecutive = egressConsecutive != null && egressAssistantsList.Count > 0
+            ? egressConsecutive.Number + (egressAssistantsList.Count - 1)
+            : egressConsecutive?.Number ?? 0;
+
+        var rows = new List<object[]>();
+
+        // Procesar registros de Ingreso
+        if (incomeConsecutive != null && incomeAssistantsList.Count > 0)
         {
-            var consecutive = consecutiveByNature.GetValueOrDefault(x.Nature);
+            var currentConsecutive = incomeConsecutive.Number;
+            var sourceDocument = incomeConsecutive.SourceDocument;
 
-            var sourceDocument = consecutive?.SourceDocument ?? "";
-            var consecutiveNumber = consecutive?.Number ?? 0;
-
-            return new object[]
+            for (int i = 0; i < incomeAssistantsList.Count; i++)
             {
-                sourceDocument,
-                consecutiveNumber,
-                AccountingReportConstants.FORINT,
-                x.Date.ToString("yyyymmdd"),
-                "TODO",
-                AccountingReportConstants.CENINT,
-                x.Identification,
-                x.VerificationDigit,
-                x.Name,
-                "TODO",
-                AccountingReportConstants.VBAINT,
-                AccountingReportConstants.NVBINT,
-                AccountingReportConstants.FEMINT,
-                AccountingReportConstants.FVEINT,
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO VALOR",
-                "TODO",
-                x.Detail ?? "",
-                " ",
-                AccountingReportConstants.NDOINT,
-            };
-        }).ToList();
+                var accountingAssistant = incomeAssistantsList[i];
+                var consecutiveNumber = currentConsecutive + i;
+                var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+
+                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
+            }
+        }
+
+        // Procesar registros de Egreso
+        if (egressConsecutive != null && egressAssistantsList.Count > 0)
+        {
+            var currentConsecutive = egressConsecutive.Number;
+            var sourceDocument = egressConsecutive.SourceDocument;
+
+            for (int i = 0; i < egressAssistantsList.Count; i++)
+            {
+                var accountingAssistant = egressAssistantsList[i];
+                var consecutiveNumber = currentConsecutive + i;
+                var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+
+                rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
+            }
+        }
+
+        await UpdateConsecutivesInDatabaseAsync(lastIncomeConsecutive, lastEgressConsecutive, cancellationToken);
 
         var fileName = await GenerateReportFileNameAsync(processDate, cancellationToken);
+
+        var columnConfigurations = GetColumnConfigurations();
 
         var textReportDataList = new List<TextReportData>
         {
             new()
             {
-
                 SectionTitle = string.Empty,
                 ColumnHeaders = ColumnHeaders,
                 IncludeHeaders = false,
-                Rows = rows ?? []
+                Rows = rows,
+                ColumnConfigurations = columnConfigurations
             }
         };
 
         return await GenerateTextReportAsync(textReportDataList, fileName, cancellationToken);
     }
 
+    private List<ColumnConfiguration> GetColumnConfigurations()
+    {
+        return new List<ColumnConfiguration>
+        {
+            new(4, ColumnAlignment.Center),
+            new(7, ColumnAlignment.Left, ' '),
+            new(2, ColumnAlignment.Center),
+            new(8, ColumnAlignment.Center),
+            new(12, ColumnAlignment.Center),
+            new(12, ColumnAlignment.Center),
+            new(13, ColumnAlignment.Left, ' '),
+            new(1, ColumnAlignment.Center),
+            new(50, ColumnAlignment.Left, ' '),
+            new(4, ColumnAlignment.Left, ' '),
+            new(10, ColumnAlignment.Center),
+            new(2, ColumnAlignment.Left, ' '),
+            new(2, ColumnAlignment.Left, ' '),
+            new(8, ColumnAlignment.Left, ' '),
+            new(8, ColumnAlignment.Left, ' '),
+            new(18, ColumnAlignment.Right, '0'),
+            new(18, ColumnAlignment.Right, '0'),
+            new(10, ColumnAlignment.Left, '0'),
+            new(60, ColumnAlignment.Right, '0'),
+            new(1, ColumnAlignment.Center),
+            new(19, ColumnAlignment.Left, ' '),
+        };
+    }
 
+    private object[] CreateRow(string sourceDocument, int consecutiveNumber, AccountingAssistant accountingAssistant, string accountingCode)
+    {
+        var DBAINT = string.Empty;
+        if (accountingAssistant.Detail != OperationTypeNames.Yield)
+        {
+            DBAINT = accountingAssistant.Nature == NatureTypes.Income
+                ? AccountingReportConstants.IncomeCode
+                : AccountingReportConstants.EgressCode;
+        }
+
+        var creditValue = accountingAssistant.Type == AccountingTypes.Credit
+            ? FixedWidthTextFormatter.FormatNumber(accountingAssistant.Value, 18, 2)
+            : AccountingReportConstants.ZeroValue;
+
+        var debitValue = accountingAssistant.Type == AccountingTypes.Debit
+            ? FixedWidthTextFormatter.FormatNumber(accountingAssistant.Value, 18, 2)
+            : AccountingReportConstants.ZeroValue;
+
+        return
+        [
+            sourceDocument,
+            consecutiveNumber,
+            AccountingReportConstants.FORINT,
+            accountingAssistant.Date.ToString("yyyymmdd"),
+            accountingAssistant.Account ?? "",
+            AccountingReportConstants.CENINT,
+            accountingAssistant.Identification,
+            accountingAssistant.VerificationDigit,
+            accountingAssistant.Name,
+            DBAINT,
+            AccountingReportConstants.VBAINT,
+            AccountingReportConstants.NVBINT,
+            AccountingReportConstants.FEMINT,
+            AccountingReportConstants.FVEINT,
+            creditValue,
+            debitValue,
+            AccountingReportConstants.ZeroValue,
+            AccountingReportConstants.ZeroValue,
+            accountingCode,
+            accountingAssistant.Detail ?? "",
+            AccountingReportConstants.NDOINT,
+        ];
+    }
+
+    private async Task UpdateConsecutivesInDatabaseAsync(int lastIncomeConsecutive, int lastEgressConsecutive, CancellationToken cancellationToken)
+    {
+        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            await consecutiveRepository.UpdateIncomeConsecutiveAsync(lastIncomeConsecutive, cancellationToken);
+
+            await consecutiveRepository.UpdateEgressConsecutiveAsync(lastEgressConsecutive, cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
 
     private async Task<string> GenerateReportFileNameAsync(DateTime processDate, CancellationToken cancellationToken)
     {

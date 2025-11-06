@@ -1,28 +1,44 @@
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.Constants;
 using Accounting.Domain.Consecutives;
-using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration;
 
 internal sealed class AccountingGenerationValidator
 {
-    public static string? ValidateNatureRecordLimits(IReadOnlyCollection<AccountingAssistant> accountingAssistants)
+    public static string? ValidateNatureRecordLimits(IReadOnlyCollection<AccountingAssistant> incomeAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> egressAssistants,
+                                                     IReadOnlyCollection<Consecutive> consecutives)
     {
-        var natureCounts = accountingAssistants
-            .GroupBy(aa => aa.Nature)
-            .Select(g => new { Nature = g.Key, Count = g.Count() })
-            .ToList();
+        var consecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c.Number);
+        var exceededNatures = new List<string>();
 
-        var exceededNatures = natureCounts
-            .Where(nc => nc.Count > AccountingReportConstants.MaxConsecutiveNumber)
-            .Select(nc => $"{nc.Nature} ({nc.Count:N0} registros)")
-            .ToList();
+        if (incomeAssistants.Count > 0)
+        {
+            var incomeConsecutive = consecutiveByNature.GetValueOrDefault(NatureTypes.Income, 0);
+            var lastIncomeConsecutive = incomeConsecutive + (incomeAssistants.Count - 1);
+
+            if (lastIncomeConsecutive > AccountingReportConstants.MaxConsecutiveNumber)
+            {
+                exceededNatures.Add($"{NatureTypes.Income} (consecutivo actual: {incomeConsecutive}, último consecutivo: {lastIncomeConsecutive:N0}, máximo permitido: {AccountingReportConstants.MaxConsecutiveNumber:N0})");
+            }
+        }
+
+        if (egressAssistants.Count > 0)
+        {
+            var egressConsecutive = consecutiveByNature.GetValueOrDefault(NatureTypes.Egress, 0);
+            var lastEgressConsecutive = egressConsecutive + (egressAssistants.Count - 1);
+
+            if (lastEgressConsecutive > AccountingReportConstants.MaxConsecutiveNumber)
+            {
+                exceededNatures.Add($"{NatureTypes.Egress} (consecutivo actual: {egressConsecutive}, último consecutivo: {lastEgressConsecutive:N0}, máximo permitido: {AccountingReportConstants.MaxConsecutiveNumber:N0})");
+            }
+        }
 
         if (exceededNatures.Count != 0)
         {
-            return $"Se superó el límite máximo de {AccountingReportConstants.MaxConsecutiveNumber:N0} registros por naturaleza. " +
-                $"Naturalezas excedidas: {string.Join(", ", exceededNatures)}";
+            return $"Se superó el límite máximo de consecutivos ({AccountingReportConstants.MaxConsecutiveNumber:N0}). " +
+                $"Naturalezas excedidas: {string.Join("; ", exceededNatures)}";
         }
 
         return null;
