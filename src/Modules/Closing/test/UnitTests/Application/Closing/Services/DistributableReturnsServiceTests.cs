@@ -104,7 +104,7 @@ public sealed class DistributableReturnsServiceTests
         var result = await service.RunAsync(1, new DateTime(2025, 10, 7), CancellationToken.None);
 
         Assert.False(result.IsSuccess);
-        timeCtrl.Verify(t => t.UpdateStepAsync(1, "Closing/DistributableReturns", It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
+        timeCtrl.Verify(t => t.UpdateStepAsync(1, "DistributableReturns", It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -225,8 +225,8 @@ public sealed class DistributableReturnsServiceTests
         Assert.Equal(closingDate, item.ApplicationDate);
         Assert.Equal(0.1m, item.Participation);
         Assert.Equal(20m, item.YieldAmount);
-        Assert.Equal(5, item.Concept.RootElement.GetProperty("id").GetInt32());
-        Assert.Equal("Ajuste Rendimiento Nota Contable", item.Concept.RootElement.GetProperty("nombre").GetString());
+        Assert.Equal("5", item.Concept.RootElement.GetProperty("EntityId").GetString());
+        Assert.Equal("Ajuste Rendimiento Nota Contable", item.Concept.RootElement.GetProperty("EntityValue").GetString());
         Assert.NotNull(deletedIds);
         Assert.Equal(new[] { 100L }, deletedIds!);
         ytdRepo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -289,8 +289,8 @@ public sealed class DistributableReturnsServiceTests
         Assert.True(result.IsSuccess);
         Assert.NotNull(captured);
         var item = Assert.Single(captured!);
-        Assert.Equal(5, item.Concept.RootElement.GetProperty("id").GetInt32());
-        Assert.Equal("Ajuste Rendimiento Nota Contable", item.Concept.RootElement.GetProperty("nombre").GetString());
+        Assert.Equal("5", item.Concept.RootElement.GetProperty("EntityId").GetString());
+        Assert.Equal("Ajuste Rendimiento Nota Contable", item.Concept.RootElement.GetProperty("EntityValue").GetString());
         Assert.True(item.YieldAmount < 0m);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Closing.Application.Abstractions.Data;
 using Closing.Application.Closing.Services.Abort;
+using Closing.Application.Closing.Services.DistributableReturns.Interfaces;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
+using Closing.Application.Closing.Services.ReturnsOperations.Interfaces;
 using Closing.Application.Closing.Services.Telemetry;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
 using Closing.Application.Closing.Services.Warnings;
@@ -14,7 +16,9 @@ namespace Closing.Application.Closing.Services.Orchestration;
 
 public class ConfirmClosingOrchestrator(
     IDistributeTrustYieldsService trustYieldsDistribution,
+    IDistributableReturnsService distributableReturnsService,
     IValidateTrustYieldsDistributionService trustYieldsValidation,
+    IReturnsOperationsService returnsOperationsService,
      IWarningCollector warningCollector,
     IAbortClosingService abortClosingService,
     IUnitOfWork unitOfWork,
@@ -41,13 +45,47 @@ public class ConfirmClosingOrchestrator(
             }
 
             cancellationToken.ThrowIfCancellationRequested();
+
+            using (stepTimer.Track("ConfirmClosingOrchestrator.DistributableReturns", portfolioId, closingDate))
+            {
+                var distributableReturnsResult = await distributableReturnsService.RunAsync(portfolioId, closingDate, cancellationToken);
+                if (distributableReturnsResult.IsFailure)
+                {
+                    logger.LogWarning(
+                        "Falló proceso de rendimientos distribuibles para portafolio {PortfolioId}: {Error}",
+                        portfolioId,
+                        distributableReturnsResult.Error.Description);
+                    return Result.Failure<ConfirmClosingResult>(distributableReturnsResult.Error);
+                }
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
             // Paso 2: Validar rendimientos distribuidos
             using (stepTimer.Track("ConfirmClosingOrchestrator.ValidateTrustYields", portfolioId, closingDate))
+            using (stepTimer.Track("ConfirmClosingOrchestrator.ReturnsOperations", portfolioId, closingDate))
             {
-                var validationResult = await trustYieldsValidation.RunAsync(portfolioId, closingDate, cancellationToken);
+                var validationTask = trustYieldsValidation.RunAsync(portfolioId, closingDate, cancellationToken);
+                var returnsOperationsTask = returnsOperationsService.RunAsync(portfolioId, closingDate, isInternalProcess: true, cancellationToken);
+
+                await Task.WhenAll(validationTask, returnsOperationsTask);
+
+                var returnsOperationsResult = await returnsOperationsTask;
+                if (returnsOperationsResult.IsFailure)
+                {
+                    logger.LogWarning(
+                        "Falló operaciones de rendimientos para portafolio {PortfolioId}: {Error}",
+                        portfolioId,
+                        returnsOperationsResult.Error.Description);
+                    return Result.Failure<ConfirmClosingResult>(returnsOperationsResult.Error);
+                }
+
+                var validationResult = await validationTask;
                 if (validationResult.IsFailure)
                 {
-                    logger.LogWarning("Falló validación de distribución de rendimientos para portafolio {PortfolioId}: {Error}", portfolioId, validationResult.Error.Description);
+                    logger.LogWarning(
+                        "Falló validación de distribución de rendimientos para portafolio {PortfolioId}: {Error}",
+                        portfolioId,
+                        validationResult.Error.Description);
                     return Result.Failure<ConfirmClosingResult>(validationResult.Error);
                 }
             }

@@ -5,23 +5,28 @@ using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.AutomaticConcepts.Dto;
 using Closing.Application.PreClosing.Services.Yield;
 using Closing.Application.PreClosing.Services.Yield.Constants;
+using Closing.Application.PreClosing.Services.Yield.Dto;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.TrustYields;
 using Closing.Domain.Yields;
+using Closing.Domain.YieldsToDistribute;
 using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Helpers.Money;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Closing.Application.Closing.Services.TrustYieldsDistribution;
 
 public class ValidateTrustYieldsDistributionService(
     IYieldRepository yieldRepository,
     ITrustYieldRepository trustYieldRepository,
+    IYieldToDistributeRepository yieldToDistributeRepository,
     IYieldDetailCreationService yieldDetailCreationService,
     YieldDetailBuilderService yieldDetailBuilderService,
     ITimeControlService timeControlService,
@@ -46,9 +51,45 @@ public class ValidateTrustYieldsDistributionService(
         }
 
         var expectedTotal = MoneyHelper.Round2(yieldToCredit.Value);
+        
+        // Obtener rendimientos abonados actuales (puede ser null si es la primera vez)
+        var currentCreditedYields = await yieldRepository.GetCreditedYieldsAsync(portfolioId, closingDate, cancellationToken);
+        var creditedYields = MoneyHelper.Round2(currentCreditedYields ?? 0m);
+        
+        // Obtener el parámetro de configuración del concepto para filtrar rendimientos_por_distribuir
+        var adjustmentConceptParam = await configurationParameterRepository.GetByUuidAsync(
+            ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, 
+            cancellationToken);
+        
+        string? conceptJson = null;
+        if (adjustmentConceptParam?.Metadata != null)
+        {
+            // Transformar el formato del metadata {"id": 3, "nombre": "..."} a {"EntityId": "3", "EntityValue": "..."}
+            var conceptId = JsonIntegerHelper.ExtractInt32(adjustmentConceptParam.Metadata, "id", defaultValue: 0);
+            var conceptName = JsonStringHelper.ExtractString(adjustmentConceptParam.Metadata, "nombre", defaultValue: string.Empty);
+            
+            if (conceptId > 0 && !string.IsNullOrWhiteSpace(conceptName))
+            {
+                var conceptDto = new StringEntityDto(conceptId.ToString(), conceptName);
+                conceptJson = JsonSerializer.Serialize(conceptDto);
+            }
+        }
+        
+        // Obtener suma de rendimientos por distribuir filtrados por concepto
+        var pendingToDistribute = await yieldToDistributeRepository.GetTotalYieldAmountRoundedAsync(
+            portfolioId, 
+            closingDate, 
+            conceptJson, 
+            cancellationToken);
+        
+        // Calcular el total distribuido (suma de rendimientos_fideicomisos)
         var distributedTotal = await trustYieldRepository.GetDistributedTotalRoundedAsync(portfolioId, closingDate, cancellationToken);
-        var difference = MoneyHelper.Round2(expectedTotal - distributedTotal);
 
+        // Calcular diferencia: rendimientos_abonar - (rendimientos_abonados + rendimientos_por_distribuir)
+        var totalAlreadyProcessed = MoneyHelper.Round2(creditedYields + pendingToDistribute);
+        var difference = MoneyHelper.Round2(expectedTotal - totalAlreadyProcessed);
+        
+        var differenceOrigin = MoneyHelper.Round2(expectedTotal - distributedTotal);
 
         await yieldRepository.UpdateCreditedYieldsAsync(portfolioId, closingDate, distributedTotal, now, cancellationToken);
 
@@ -118,7 +159,7 @@ public class ValidateTrustYieldsDistributionService(
             await yieldDetailCreationService.CreateYieldDetailsAsync(buildResult, PersistenceMode.Transactional, cancellationToken);
 
             //Ajuste al valor del portafolio con los rendimientos abonados
-            await portfolioValuationRepository.ApplyAllocationCheckDiffAsync(portfolioId, closingDate, -difference, cancellationToken);
+            await portfolioValuationRepository.ApplyAllocationCheckDiffAsync(portfolioId, closingDate, -differenceOrigin, cancellationToken);
         }
        
         return Result.Success();

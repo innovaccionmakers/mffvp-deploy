@@ -2,12 +2,15 @@
 using Closing.Application.Closing.Services.TrustYieldsDistribution;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.Yield;
+using Closing.Application.PreClosing.Services.Yield.Constants;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.TrustYields;
 using Closing.Domain.Yields;
+using Closing.Domain.YieldsToDistribute;
 using Closing.Integrations.Common;
+using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -43,6 +46,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
     private static ValidateTrustYieldsDistributionService CreateService(
         Mock<IYieldRepository> yieldRepository,
         Mock<ITrustYieldRepository> trustYieldRepository,
+        Mock<IYieldToDistributeRepository> yieldToDistributeRepository,
         Mock<IYieldDetailCreationService> yieldDetailCreationService,
         YieldDetailBuilderService? yieldDetailBuilderService,
         Mock<ITimeControlService> timeControlService,
@@ -54,6 +58,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         return new ValidateTrustYieldsDistributionService(
             yieldRepository.Object,
             trustYieldRepository.Object,
+            yieldToDistributeRepository.Object,
             yieldDetailCreationService.Object,
             yieldDetailBuilderService!, 
             timeControlService.Object,
@@ -74,6 +79,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
                  .ReturnsAsync((decimal?)null);
 
         var trustYieldRepo = new Mock<ITrustYieldRepository>();
+        var yieldToDistributeRepo = new Mock<IYieldToDistributeRepository>();
         var creation = new Mock<IYieldDetailCreationService>();
         YieldDetailBuilderService? builder = null;
         var timeCtrl = new Mock<ITimeControlService>();
@@ -81,7 +87,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var warnings = new Mock<IWarningCollector>();
         var pvRepo = new Mock<IPortfolioValuationRepository>();
 
-        var svc = CreateService(yieldRepo, trustYieldRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
+        var svc = CreateService(yieldRepo, trustYieldRepo, yieldToDistributeRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
 
         var result = await svc.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
@@ -100,6 +106,8 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var yieldRepo = new Mock<IYieldRepository>();
         yieldRepo.Setup(x => x.GetYieldToCreditAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                  .ReturnsAsync(500m);
+        yieldRepo.Setup(x => x.GetCreditedYieldsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(200m);
         yieldRepo.Setup(x => x.UpdateCreditedYieldsAsync(portfolioId, closingDate, 500m, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
                  .Returns(Task.CompletedTask);
 
@@ -107,14 +115,20 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         trustYieldRepo.Setup(x => x.GetDistributedTotalRoundedAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(500m);
 
+        var yieldToDistributeRepo = new Mock<IYieldToDistributeRepository>();
+        yieldToDistributeRepo.Setup(x => x.GetTotalYieldAmountRoundedAsync(portfolioId, closingDate, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                             .ReturnsAsync(300m);
+
         var creation = new Mock<IYieldDetailCreationService>();
         YieldDetailBuilderService? builder = null;
         var timeCtrl = new Mock<ITimeControlService>();
         var cfg = new Mock<IConfigurationParameterRepository>();
+        cfg.Setup(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(CreateConfigParam("""{"id": 1, "nombre": "Ajuste Rendimiento Nota Contable"}"""));
         var warnings = new Mock<IWarningCollector>();
         var pvRepo = new Mock<IPortfolioValuationRepository>();
 
-        var svc = CreateService(yieldRepo, trustYieldRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
+        var svc = CreateService(yieldRepo, trustYieldRepo, yieldToDistributeRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
 
         var result = await svc.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
@@ -122,6 +136,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         timeCtrl.Verify(t => t.UpdateStepAsync(portfolioId, "ClosingAllocationCheck", It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         yieldRepo.Verify(y => y.UpdateCreditedYieldsAsync(portfolioId, closingDate, 500m, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         cfg.Verify(x => x.GetReadOnlyByUuidsAsync(It.IsAny<Guid[]>(), It.IsAny<CancellationToken>()), Times.Never);
+        cfg.Verify(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()), Times.Once);
         warnings.Verify(w => w.Add(It.IsAny<WarningItem>()), Times.Never);
         pvRepo.Verify(p => p.ApplyAllocationCheckDiffAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -135,6 +150,8 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var yieldRepo = new Mock<IYieldRepository>();
         yieldRepo.Setup(x => x.GetYieldToCreditAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                  .ReturnsAsync(500m);
+        yieldRepo.Setup(x => x.GetCreditedYieldsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(200m);
         yieldRepo.Setup(x => x.UpdateCreditedYieldsAsync(portfolioId, closingDate, 450m, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
                  .Returns(Task.CompletedTask);
 
@@ -142,7 +159,13 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         trustYieldRepo.Setup(x => x.GetDistributedTotalRoundedAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(450m);
 
+        var yieldToDistributeRepo = new Mock<IYieldToDistributeRepository>();
+        yieldToDistributeRepo.Setup(x => x.GetTotalYieldAmountRoundedAsync(portfolioId, closingDate, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                             .ReturnsAsync(250m);
+
         var cfg = new Mock<IConfigurationParameterRepository>();
+        cfg.Setup(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(CreateConfigParam("""{"id": 1, "nombre": "Ajuste Rendimiento Nota Contable"}"""));
         var map = Map(
             (ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, CreateConfigParamWithNullMetadata())
         );
@@ -159,7 +182,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var warnings = new Mock<IWarningCollector>();
         var pvRepo = new Mock<IPortfolioValuationRepository>();
 
-        var svc = CreateService(yieldRepo, trustYieldRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
+        var svc = CreateService(yieldRepo, trustYieldRepo, yieldToDistributeRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
 
         var result = await svc.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
@@ -177,6 +200,8 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var yieldRepo = new Mock<IYieldRepository>();
         yieldRepo.Setup(x => x.GetYieldToCreditAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                  .ReturnsAsync(500m);
+        yieldRepo.Setup(x => x.GetCreditedYieldsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(200m);
         yieldRepo.Setup(x => x.UpdateCreditedYieldsAsync(portfolioId, closingDate, 450m, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
                  .Returns(Task.CompletedTask);
 
@@ -184,7 +209,13 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         trustYieldRepo.Setup(x => x.GetDistributedTotalRoundedAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(450m);
 
+        var yieldToDistributeRepo = new Mock<IYieldToDistributeRepository>();
+        yieldToDistributeRepo.Setup(x => x.GetTotalYieldAmountRoundedAsync(portfolioId, closingDate, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                             .ReturnsAsync(250m);
+
         var cfg = new Mock<IConfigurationParameterRepository>();
+        cfg.Setup(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(CreateConfigParam("""{"id": 1, "nombre": "Ajuste Rendimiento Nota Contable"}"""));
         var map = Map(
             (ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, CreateConfigParam("""{"valor": -0.01}"""))
         );
@@ -201,7 +232,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var warnings = new Mock<IWarningCollector>();
         var pvRepo = new Mock<IPortfolioValuationRepository>();
 
-        var svc = CreateService(yieldRepo, trustYieldRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
+        var svc = CreateService(yieldRepo, trustYieldRepo, yieldToDistributeRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
 
         var result = await svc.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
@@ -219,6 +250,8 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var yieldRepo = new Mock<IYieldRepository>();
         yieldRepo.Setup(x => x.GetYieldToCreditAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                  .ReturnsAsync(500m);
+        yieldRepo.Setup(x => x.GetCreditedYieldsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(200m);
         yieldRepo.Setup(x => x.UpdateCreditedYieldsAsync(portfolioId, closingDate, 495m, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
                  .Returns(Task.CompletedTask);
 
@@ -226,7 +259,13 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         trustYieldRepo.Setup(x => x.GetDistributedTotalRoundedAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(495m);
 
+        var yieldToDistributeRepo = new Mock<IYieldToDistributeRepository>();
+        yieldToDistributeRepo.Setup(x => x.GetTotalYieldAmountRoundedAsync(portfolioId, closingDate, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                             .ReturnsAsync(295m);
+
         var cfg = new Mock<IConfigurationParameterRepository>();
+        cfg.Setup(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(CreateConfigParam("""{"id": 1, "nombre": "Ajuste Rendimiento Nota Contable"}"""));
         // Solo tolerancia = 1; se omite metadata de concepto para que falle después del warning
         var map = Map(
             (ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, CreateConfigParam("""{"valor": 1}"""))
@@ -244,7 +283,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var warnings = new Mock<IWarningCollector>();
         var pvRepo = new Mock<IPortfolioValuationRepository>();
 
-        var svc = CreateService(yieldRepo, trustYieldRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
+        var svc = CreateService(yieldRepo, trustYieldRepo, yieldToDistributeRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
 
         var result = await svc.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
@@ -263,6 +302,8 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var yieldRepo = new Mock<IYieldRepository>();
         yieldRepo.Setup(x => x.GetYieldToCreditAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                  .ReturnsAsync(500m);
+        yieldRepo.Setup(x => x.GetCreditedYieldsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(200m);
         yieldRepo.Setup(x => x.UpdateCreditedYieldsAsync(portfolioId, closingDate, 499.5m, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
                  .Returns(Task.CompletedTask);
 
@@ -270,7 +311,13 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         trustYieldRepo.Setup(x => x.GetDistributedTotalRoundedAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(499.5m);
 
+        var yieldToDistributeRepo = new Mock<IYieldToDistributeRepository>();
+        yieldToDistributeRepo.Setup(x => x.GetTotalYieldAmountRoundedAsync(portfolioId, closingDate, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                             .ReturnsAsync(299.5m);
+
         var cfg = new Mock<IConfigurationParameterRepository>();
+        cfg.Setup(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(CreateConfigParam("""{"id": 1, "nombre": "Ajuste Rendimiento Nota Contable"}"""));
         // Tolerancia 1 y concepto con metadata inválida para provocar Failure sin warning
         var map = Map(
             (ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, CreateConfigParam("""{"valor": 1}""")),
@@ -289,7 +336,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var warnings = new Mock<IWarningCollector>();
         var pvRepo = new Mock<IPortfolioValuationRepository>();
 
-        var svc = CreateService(yieldRepo, trustYieldRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
+        var svc = CreateService(yieldRepo, trustYieldRepo, yieldToDistributeRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
 
         var result = await svc.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
@@ -307,6 +354,8 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var yieldRepo = new Mock<IYieldRepository>();
         yieldRepo.Setup(x => x.GetYieldToCreditAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                  .ReturnsAsync(500m);
+        yieldRepo.Setup(x => x.GetCreditedYieldsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(200m);
         yieldRepo.Setup(x => x.UpdateCreditedYieldsAsync(portfolioId, closingDate, 450m, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
                  .Returns(Task.CompletedTask);
 
@@ -314,7 +363,13 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         trustYieldRepo.Setup(x => x.GetDistributedTotalRoundedAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(450m);
 
+        var yieldToDistributeRepo = new Mock<IYieldToDistributeRepository>();
+        yieldToDistributeRepo.Setup(x => x.GetTotalYieldAmountRoundedAsync(portfolioId, closingDate, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                             .ReturnsAsync(250m);
+
         var cfg = new Mock<IConfigurationParameterRepository>();
+        cfg.Setup(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(CreateConfigParam("""{"id": 1, "nombre": "Ajuste Rendimiento Nota Contable"}"""));
         // Tolerancia chica para forzar warning; se omite concepto para que falle por metadata faltante
         var map = Map(
             (ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, CreateConfigParam("""{"valor": 0.01}"""))
@@ -332,7 +387,7 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var warnings = new Mock<IWarningCollector>();
         var pvRepo = new Mock<IPortfolioValuationRepository>();
 
-        var svc = CreateService(yieldRepo, trustYieldRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
+        var svc = CreateService(yieldRepo, trustYieldRepo, yieldToDistributeRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
 
         var result = await svc.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
@@ -350,6 +405,8 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var yieldRepo = new Mock<IYieldRepository>();
         yieldRepo.Setup(x => x.GetYieldToCreditAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                  .ReturnsAsync(500m);
+        yieldRepo.Setup(x => x.GetCreditedYieldsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(200m);
         yieldRepo.Setup(x => x.UpdateCreditedYieldsAsync(portfolioId, closingDate, 450m, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
                  .Returns(Task.CompletedTask);
 
@@ -357,7 +414,13 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         trustYieldRepo.Setup(x => x.GetDistributedTotalRoundedAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(450m);
 
+        var yieldToDistributeRepo = new Mock<IYieldToDistributeRepository>();
+        yieldToDistributeRepo.Setup(x => x.GetTotalYieldAmountRoundedAsync(portfolioId, closingDate, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                             .ReturnsAsync(250m);
+
         var cfg = new Mock<IConfigurationParameterRepository>();
+        cfg.Setup(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(CreateConfigParam("""{"id": 1, "nombre": "Ajuste Rendimiento Nota Contable"}"""));
         // Tolerancia pequeña y concepto inválido para disparar warning + failure
         var map = Map(
             (ConfigurationParameterUuids.Closing.YieldDifferenceTolerance, CreateConfigParam("""{"valor": 0.01}""")),
@@ -376,12 +439,54 @@ public sealed class ValidateTrustYieldsDistributionServiceTests
         var warnings = new Mock<IWarningCollector>();
         var pvRepo = new Mock<IPortfolioValuationRepository>();
 
-        var svc = CreateService(yieldRepo, trustYieldRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
+        var svc = CreateService(yieldRepo, trustYieldRepo, yieldToDistributeRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
 
         var result = await svc.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
         Assert.False(result.IsSuccess);
         warnings.Verify(w => w.Add(It.IsAny<WarningItem>()), Times.Once);
+        pvRepo.Verify(p => p.ApplyAllocationCheckDiffAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CallsNewRepositoryMethodsForCreditedYieldsAndPendingDistribution()
+    {
+        var portfolioId = 1;
+        var closingDate = new DateTime(2025, 10, 7);
+
+        var yieldRepo = new Mock<IYieldRepository>();
+        yieldRepo.Setup(x => x.GetYieldToCreditAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(500m);
+        yieldRepo.Setup(x => x.GetCreditedYieldsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(200m);
+        yieldRepo.Setup(x => x.UpdateCreditedYieldsAsync(portfolioId, closingDate, 500m, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+                 .Returns(Task.CompletedTask);
+
+        var trustYieldRepo = new Mock<ITrustYieldRepository>();
+        trustYieldRepo.Setup(x => x.GetDistributedTotalRoundedAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+                      .ReturnsAsync(500m);
+
+        var yieldToDistributeRepo = new Mock<IYieldToDistributeRepository>();
+        yieldToDistributeRepo.Setup(x => x.GetTotalYieldAmountRoundedAsync(portfolioId, closingDate, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                             .ReturnsAsync(300m);
+
+        var creation = new Mock<IYieldDetailCreationService>();
+        YieldDetailBuilderService? builder = null;
+        var timeCtrl = new Mock<ITimeControlService>();
+        var cfg = new Mock<IConfigurationParameterRepository>();
+        cfg.Setup(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(CreateConfigParam("""{"id": 1, "nombre": "Ajuste Rendimiento Nota Contable"}"""));
+        var warnings = new Mock<IWarningCollector>();
+        var pvRepo = new Mock<IPortfolioValuationRepository>();
+
+        var svc = CreateService(yieldRepo, trustYieldRepo, yieldToDistributeRepo, creation, builder, timeCtrl, cfg, warnings, pvRepo);
+
+        var result = await svc.RunAsync(portfolioId, closingDate, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        yieldRepo.Verify(y => y.GetCreditedYieldsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()), Times.Once);
+        yieldToDistributeRepo.Verify(y => y.GetTotalYieldAmountRoundedAsync(portfolioId, closingDate, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        cfg.Verify(x => x.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, It.IsAny<CancellationToken>()), Times.Once);
         pvRepo.Verify(p => p.ApplyAllocationCheckDiffAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

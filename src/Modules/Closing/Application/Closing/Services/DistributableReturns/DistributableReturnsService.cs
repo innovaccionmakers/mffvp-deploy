@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Closing.Application.Closing.Services.DistributableReturns.Interfaces;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
+using Closing.Application.PreClosing.Services.Yield.Dto;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
@@ -46,7 +47,7 @@ public class DistributableReturnsService(
         static DateTime ToUtcMidnight(DateTime date)
             => date.Kind == DateTimeKind.Utc ? date.Date : DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
 
-        const string stepName = "Closing/DistributableReturns";
+        const string stepName = "DistributableReturns";
         var nowUtc = DateTime.UtcNow;
         var closingDateUtc = ToUtcMidnight(closingDate);
 
@@ -122,7 +123,7 @@ public class DistributableReturnsService(
             return Result.Failure(adjustmentConceptResult.Error);
         }
 
-        var adjustmentConceptJson = adjustmentConceptResult.Value;
+        var adjustmentConcept = adjustmentConceptResult.Value;
         var annulledSet = new HashSet<long>(annulledTrustIds);
         var applicationDateUtc = closingDateUtc;
 
@@ -148,7 +149,6 @@ public class DistributableReturnsService(
 
             var yieldAmount = MoneyHelper.Round2(yieldAmountRaw);
 
-            var concept = JsonDocument.Parse(adjustmentConceptJson);
             var entityResult = YieldToDistribute.Create(
                 trustYield.TrustId,
                 portfolioId,
@@ -156,7 +156,7 @@ public class DistributableReturnsService(
                 applicationDateUtc,
                 participation,
                 yieldAmount,
-                concept,
+                adjustmentConcept,
                 nowUtc);
 
             if (entityResult.IsFailure)
@@ -183,14 +183,14 @@ public class DistributableReturnsService(
         return Result.Success();
     }
 
-    private static Result<string> ValidateConcept(
+    private static Result<JsonDocument> ValidateConcept(
         IReadOnlyDictionary<Guid, ConfigurationParameter> concepts,
         Guid conceptUuid,
         string conceptDisplayName)
     {
         if (!concepts.TryGetValue(conceptUuid, out var parameter) || parameter.Metadata is null)
         {
-            return Result.Failure<string>(new Error(
+            return Result.Failure<JsonDocument>(new Error(
                 "DR004",
                 $"No se encontró la configuración del concepto {conceptDisplayName}.",
                 ErrorType.Failure));
@@ -201,12 +201,14 @@ public class DistributableReturnsService(
 
         if (conceptId <= 0 || string.IsNullOrWhiteSpace(conceptName))
         {
-            return Result.Failure<string>(new Error(
+            return Result.Failure<JsonDocument>(new Error(
                 "DR005",
                 $"La metadata del concepto {conceptDisplayName} es inválida.",
                 ErrorType.Failure));
         }
 
-        return Result.Success<string>(parameter.Metadata.RootElement.GetRawText());
+        var conceptDto = new StringEntityDto(conceptId.ToString(), conceptName);
+        var json = JsonSerializer.Serialize(conceptDto);
+        return Result.Success(JsonDocument.Parse(json));
     }
 }

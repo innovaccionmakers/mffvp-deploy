@@ -29,7 +29,7 @@ public sealed class ReturnsOperationsService(
     ILogger<ReturnsOperationsService> logger)
     : IReturnsOperationsService
 {
-    private const string StepName = "Closing/ReturnsOperations";
+    private const string StepName = "ReturnsOperations";
 
     public async Task<Result> RunAsync(
         int portfolioId,
@@ -175,8 +175,8 @@ public sealed class ReturnsOperationsService(
         var uuids = new[]
         {
             ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote,
-            ConfigurationParameterUuids.Closing.YieldAdjustmentIncome,
-            ConfigurationParameterUuids.Closing.YieldAdjustmentExpense
+            ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome,
+            ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense
         };
 
         var map = await repository.GetReadOnlyByUuidsAsync(uuids, cancellationToken);

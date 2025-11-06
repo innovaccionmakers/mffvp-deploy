@@ -30,4 +30,26 @@ internal sealed class YieldToDistributeRepository(ClosingDbContext context) : IY
             .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<decimal> GetTotalYieldAmountRoundedAsync(
+        int portfolioId,
+        DateTime closingDateUtc,
+        string? conceptJson = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.Set<YieldToDistribute>()
+            .AsNoTracking()
+            .Where(y => y.PortfolioId == portfolioId && y.ClosingDate == closingDateUtc);
+
+        // Filtrar por concepto JSONB completo si se proporciona
+        if (!string.IsNullOrEmpty(conceptJson))
+        {
+            query = query.Where(y => EF.Functions.JsonContained(y.Concept, conceptJson));
+        }
+
+        return await query
+            .Select(y => Math.Round(y.YieldAmount, 2))
+            .TagWith("YieldToDistributeRepository_GetTotalYieldAmountRoundedAsync")
+            .SumAsync(cancellationToken);
+    }
 }

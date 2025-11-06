@@ -70,7 +70,7 @@ public sealed class ReturnsOperationsServiceTests
 
         Assert.True(result.IsSuccess);
         detailCreation.Verify(d => d.CreateYieldDetailsAsync(It.IsAny<IEnumerable<YieldDetail>>(), It.IsAny<PersistenceMode>(), It.IsAny<CancellationToken>()), Times.Never);
-        timeControl.Verify(t => t.UpdateStepAsync(1, "Closing/ReturnsOperations", It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
+        timeControl.Verify(t => t.UpdateStepAsync(1, "ReturnsOperations", It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         trustYieldRepo.Verify(r => r.DeleteByIdsAsync(It.IsAny<IEnumerable<long>>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 

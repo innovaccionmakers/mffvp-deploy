@@ -11,4 +11,10 @@ public interface IYieldToDistributeRepository
         int portfolioId,
         DateTime closingDateUtc,
         CancellationToken cancellationToken = default);
+    
+    Task<decimal> GetTotalYieldAmountRoundedAsync(
+        int portfolioId,
+        DateTime closingDateUtc,
+        string? conceptJson = null,
+        CancellationToken cancellationToken = default);
 }
