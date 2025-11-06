@@ -143,7 +143,6 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             debitValue,
             AccountingReportConstants.ZeroValue,
             AccountingReportConstants.ZeroValue,
-
             accountingAssistant.Detail ?? "",
             AccountingReportConstants.NDOINT,
         };
