@@ -116,11 +116,7 @@ public class DistributeTrustYieldsService(
                 var closingBalance = MoneyHelper.Round2(pre + yieldAmtR2);
 
                 decimal units;
-                var balanceChanged = pre != closingBalance;
-                if (!balanceChanged)
-                    units = Math.Round(trust.Units, DecimalPrecision.SixteenDecimals);
-                else
-                    units = hasUnit ? Math.Round((trust.PreClosingBalance + yieldAmount16) * invUnit, DecimalPrecision.SixteenDecimals) : 0m;
+                units = hasUnit ? Math.Round((trust.PreClosingBalance + yieldAmount16) * invUnit, DecimalPrecision.SixteenDecimals) : 0m;
 
                 var yieldRetentionR2 = (yToCredit > 0m && yieldAmtR2 > 0m)
                     ? MoneyHelper.Round2(TrustMath.CalculateYieldRetention(yieldAmtR2, yieldRetentionRate, DecimalPrecision.TwoDecimals))
