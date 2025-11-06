@@ -128,8 +128,8 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
     private List<ColumnConfiguration> GetColumnConfigurations()
     {
-        return new List<ColumnConfiguration>
-        {
+        return
+        [
             new(4, ColumnAlignment.Center),
             new(7, ColumnAlignment.Left, ' '),
             new(2, ColumnAlignment.Center),
@@ -151,7 +151,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             new(60, ColumnAlignment.Right, '0'),
             new(1, ColumnAlignment.Center),
             new(19, ColumnAlignment.Left, ' '),
-        };
+        ];
     }
 
     private object[] CreateRow(string sourceDocument, int consecutiveNumber, AccountingAssistant accountingAssistant, string accountingCode)
