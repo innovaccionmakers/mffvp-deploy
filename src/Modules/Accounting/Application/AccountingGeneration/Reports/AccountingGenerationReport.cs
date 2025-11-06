@@ -1,6 +1,5 @@
 ﻿using Accounting.Application.Abstractions.Data;
 using Accounting.Domain.AccountingAssistants;
-using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Domain.ConsecutiveFiles;
 using Accounting.Domain.Consecutives;
@@ -8,12 +7,10 @@ using Common.SharedKernel.Application.Reports.Strategies;
 using Common.SharedKernel.Core.Formatting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace Accounting.Application.AccountingGeneration.Reports;
 
 public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logger,
-                                        IAccountingAssistantRepository accountingAssistantRepository,
                                         IConsecutiveFileRepository consecutiveFileRepository,
                                         IConsecutiveRepository consecutiveRepository,
                                         IUnitOfWork unitOfWork) : TextReportStrategyBase(logger)
@@ -91,6 +88,8 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
         var fileName = await GenerateReportFileNameAsync(processDate, cancellationToken);
 
+        var columnConfigurations = GetColumnConfigurations();
+
         var textReportDataList = new List<TextReportData>
         {
             new()
@@ -98,11 +97,40 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
                 SectionTitle = string.Empty,
                 ColumnHeaders = ColumnHeaders,
                 IncludeHeaders = false,
-                Rows = rows
+                Rows = rows,
+                ColumnConfigurations = columnConfigurations
             }
         };
 
         return await GenerateTextReportAsync(textReportDataList, fileName, cancellationToken);
+    }
+
+    private List<ColumnConfiguration> GetColumnConfigurations()
+    {
+        return new List<ColumnConfiguration>
+        {
+            new(4, ColumnAlignment.Center),
+            new(7, ColumnAlignment.Left, ' '),
+            new(2, ColumnAlignment.Center),
+            new(8, ColumnAlignment.Center),
+            new(12, ColumnAlignment.Center),
+            new(12, ColumnAlignment.Center),
+            new(13, ColumnAlignment.Left, ' '),
+            new(1, ColumnAlignment.Center),
+            new(50, ColumnAlignment.Left, ' '),
+            new(4, ColumnAlignment.Left, ' '),
+            new(10, ColumnAlignment.Center),
+            new(2, ColumnAlignment.Left, ' '),
+            new(2, ColumnAlignment.Left, ' '),
+            new(8, ColumnAlignment.Left, ' '),
+            new(8, ColumnAlignment.Left, ' '),
+            new(18, ColumnAlignment.Right, '0'),
+            new(18, ColumnAlignment.Right, '0'),
+            new(10, ColumnAlignment.Left, '0'),
+            new(60, ColumnAlignment.Right, '0'),
+            new(1, ColumnAlignment.Center),
+            new(19, ColumnAlignment.Left, ' '),
+        };
     }
 
     private object[] CreateRow(string sourceDocument, int consecutiveNumber, AccountingAssistant accountingAssistant)
@@ -123,8 +151,8 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             ? FixedWidthTextFormatter.FormatNumber(accountingAssistant.Value, 18, 2)
             : AccountingReportConstants.ZeroValue;
 
-        return new object[]
-        {
+        return
+        [
             sourceDocument,
             consecutiveNumber,
             AccountingReportConstants.FORINT,
@@ -143,9 +171,10 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             debitValue,
             AccountingReportConstants.ZeroValue,
             AccountingReportConstants.ZeroValue,
+            "todo",
             accountingAssistant.Detail ?? "",
             AccountingReportConstants.NDOINT,
-        };
+        ];
     }
 
     private async Task UpdateConsecutivesInDatabaseAsync(int lastIncomeConsecutive, int lastEgressConsecutive, CancellationToken cancellationToken)
