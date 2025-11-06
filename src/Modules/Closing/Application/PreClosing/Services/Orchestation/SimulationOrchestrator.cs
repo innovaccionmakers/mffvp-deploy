@@ -2,6 +2,7 @@
 using Closing.Application.Abstractions.External;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.Commission.Interfaces;
+using Closing.Application.PreClosing.Services.ExtraReturns.Interfaces;
 using Closing.Application.PreClosing.Services.ProfitAndLoss;
 using Closing.Application.PreClosing.Services.TreasuryConcepts;
 using Closing.Application.PreClosing.Services.Validation;
@@ -23,6 +24,7 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProfitAndLossConsolidationService _profitAndLossConsolidationService;
     private readonly ICommissionCalculationService _commissionCalculationService;
+    private readonly IExtraReturnConsolidationService _extraReturnConsolidationService;
     private readonly IMovementsConsolidationService _movementsConsolidationService;
     private readonly IYieldDetailCreationService _yieldDetailCreationService;
     private readonly YieldDetailBuilderService _yieldDetailBuilderService;
@@ -40,6 +42,7 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         IProfitAndLossConsolidationService profitAndLossConsolidationService,
         ICommissionCalculationService commissionCalculationService,
         IMovementsConsolidationService movementsConsolidationService,
+        IExtraReturnConsolidationService extraReturnConsolidationService,
         IYieldDetailCreationService yieldDetailCreationService,
         YieldDetailBuilderService yieldDetailBuilderService,
         IYieldPersistenceService yieldPersistenceService,
@@ -49,12 +52,13 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         IYieldRepository yieldRepository,
         IPortfolioValidator portfolioValidator,
         IWarningCollector warningCollector,
-         IPreclosingCleanupService preclosingCleanupService)
+        IPreclosingCleanupService preclosingCleanupService)
     {
         _unitOfWork = unitOfWork;
         _profitAndLossConsolidationService = profitAndLossConsolidationService;
         _commissionCalculationService = commissionCalculationService;
         _movementsConsolidationService = movementsConsolidationService;
+        _extraReturnConsolidationService = extraReturnConsolidationService;
         _yieldDetailCreationService = yieldDetailCreationService;
         _yieldDetailBuilderService = yieldDetailBuilderService;
         _yieldPersistenceService = yieldPersistenceService;
@@ -141,10 +145,11 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         var profitAndLossTask = ExecuteProfitAndLossSimulationAsync(parameters, cancellationToken);
         var commissionsTask = ExecuteCommissionSimulationAsync(parameters, cancellationToken);
         var treasuryTask = ExecuteTreasurySimulationAsync(parameters, cancellationToken);
+        var extraReturnsTask = ExecuteExtraReturnsSimulationAsync(parameters, cancellationToken);
 
         try
         {
-            await Task.WhenAll(profitAndLossTask, commissionsTask, treasuryTask);
+            await Task.WhenAll(profitAndLossTask, commissionsTask, treasuryTask, extraReturnsTask);
             return Result.Success(Unit.Value);
         }
         catch (Exception ex)
@@ -198,5 +203,27 @@ public class SimulationOrchestrator : ISimulationOrchestrator
             .Build(summary, parameters);
 
         await _yieldDetailCreationService.CreateYieldDetailsAsync(yieldDetails, Yield.Constants.PersistenceMode.Immediate, cancellationToken);
+    }
+
+    private async Task ExecuteExtraReturnsSimulationAsync(RunSimulationParameters parameters, CancellationToken cancellationToken)
+    {
+        if (parameters.IsFirstClosingDay) return;
+
+        var summariesResult = await _extraReturnConsolidationService
+            .GetExtraReturnSummariesAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
+
+        if (summariesResult.IsFailure || summariesResult.Value.Count == 0)
+        {
+            _warnings.Add(WarningCatalog.Adv006ExtraReturnMissing());
+            return;
+        }
+
+        var yieldDetails = _yieldDetailBuilderService
+            .Build(summariesResult.Value, parameters);
+
+        await _yieldDetailCreationService.CreateYieldDetailsAsync(
+            yieldDetails,
+            Yield.Constants.PersistenceMode.Immediate,
+            cancellationToken);
     }
 }

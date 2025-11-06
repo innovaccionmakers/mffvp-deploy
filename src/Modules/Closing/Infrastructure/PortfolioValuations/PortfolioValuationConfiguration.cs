@@ -24,6 +24,10 @@ internal sealed class PortfolioValuationConfiguration : IEntityTypeConfiguration
                .HasColumnName("valor")
                .HasPrecision(19, 2);
 
+        builder.Property(x => x.InitialValue)
+               .HasColumnName("valor_inicial")
+               .HasPrecision(19, 2);
+
         builder.Property(x => x.Units)
                .HasColumnName("unidades")
                .HasPrecision(38, 16);

@@ -125,6 +125,11 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnType("numeric(19,2)")
                         .HasColumnName("operaciones_entrada");
 
+                    b.Property<decimal>("InitialValue")
+                        .HasPrecision(19, 2)
+                        .HasColumnType("numeric(19,2)")
+                        .HasColumnName("valor_inicial");
+
                     b.Property<bool>("IsClosed")
                         .HasColumnType("boolean")
                         .HasColumnName("cerrado");

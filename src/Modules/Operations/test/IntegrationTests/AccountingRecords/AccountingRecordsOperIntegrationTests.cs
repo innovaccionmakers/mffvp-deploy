@@ -440,6 +440,13 @@ public class AccountingRecordsOperIntegrationTests
             DateTime closingDate,
             CancellationToken cancellationToken) =>
             throw new NotSupportedException();
+
+        public Task<IReadOnlyCollection<TrustOperation>> GetByPortfolioProcessDateAndOperationTypeAsync(
+            int portfolioId,
+            DateTime processDate,
+            long operationTypeId,
+            CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
     }
 
     private sealed class FakeOperationCompleted : IOperationCompleted
