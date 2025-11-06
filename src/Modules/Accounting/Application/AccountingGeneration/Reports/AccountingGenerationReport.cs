@@ -5,6 +5,7 @@ using Accounting.Domain.Constants;
 using Accounting.Domain.ConsecutiveFiles;
 using Accounting.Domain.Consecutives;
 using Common.SharedKernel.Application.Reports.Strategies;
+using Common.SharedKernel.Core.Formatting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Linq;
@@ -40,30 +41,31 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
                                                      IEnumerable<Consecutive> consecutives,
                                                      CancellationToken cancellationToken)
     {
-        // Obtener consecutivos de Ingreso y Egreso
+        var incomeAssistantsList = incomeAssistants.ToList();
+        var egressAssistantsList = egressAssistants.ToList();
+
         var incomeConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Income);
         var egressConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Egress);
 
-        // Calcular últimos consecutivos: consecutivo actual + total de registros - 1
-        var lastIncomeConsecutive = incomeConsecutive != null && incomeAssistants.Count > 0
-            ? incomeConsecutive.Number + (incomeAssistants.Count - 1)
+        var lastIncomeConsecutive = incomeConsecutive != null && incomeAssistantsList.Count > 0
+            ? incomeConsecutive.Number + (incomeAssistantsList.Count - 1)
             : incomeConsecutive?.Number ?? 0;
 
-        var lastEgressConsecutive = egressConsecutive != null && egressAssistants.Count > 0
-            ? egressConsecutive.Number + (egressAssistants.Count - 1)
+        var lastEgressConsecutive = egressConsecutive != null && egressAssistantsList.Count > 0
+            ? egressConsecutive.Number + (egressAssistantsList.Count - 1)
             : egressConsecutive?.Number ?? 0;
 
         var rows = new List<object[]>();
 
         // Procesar registros de Ingreso
-        if (incomeConsecutive != null && incomeAssistants.Count > 0)
+        if (incomeConsecutive != null && incomeAssistantsList.Count > 0)
         {
             var currentConsecutive = incomeConsecutive.Number;
             var sourceDocument = incomeConsecutive.SourceDocument;
 
-            for (int i = 0; i < incomeAssistants.Count; i++)
+            for (int i = 0; i < incomeAssistantsList.Count; i++)
             {
-                var accountingAssistant = incomeAssistants[i];
+                var accountingAssistant = incomeAssistantsList[i];
                 var consecutiveNumber = currentConsecutive + i;
 
                 rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant));
@@ -71,21 +73,20 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         }
 
         // Procesar registros de Egreso
-        if (egressConsecutive != null && egressAssistants.Count > 0)
+        if (egressConsecutive != null && egressAssistantsList.Count > 0)
         {
             var currentConsecutive = egressConsecutive.Number;
             var sourceDocument = egressConsecutive.SourceDocument;
 
-            for (int i = 0; i < egressAssistants.Count; i++)
+            for (int i = 0; i < egressAssistantsList.Count; i++)
             {
-                var accountingAssistant = egressAssistants[i];
+                var accountingAssistant = egressAssistantsList[i];
                 var consecutiveNumber = currentConsecutive + i;
 
                 rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant));
             }
         }
 
-        // Actualizar consecutivos en BD
         await UpdateConsecutivesInDatabaseAsync(lastIncomeConsecutive, lastEgressConsecutive, cancellationToken);
 
         var fileName = await GenerateReportFileNameAsync(processDate, cancellationToken);
@@ -106,43 +107,44 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
     private object[] CreateRow(string sourceDocument, int consecutiveNumber, AccountingAssistant accountingAssistant)
     {
+        var DBAINT = string.Empty;
+        if (accountingAssistant.Detail != OperationTypeNames.Yield)
+        {
+            DBAINT = accountingAssistant.Nature == NatureTypes.Income
+                ? AccountingReportConstants.IncomeCode
+                : AccountingReportConstants.EgressCode;
+        }
+
+        var creditValue = accountingAssistant.Type == AccountingTypes.Credit
+            ? FixedWidthTextFormatter.FormatNumber(accountingAssistant.Value, 18, 2)
+            : AccountingReportConstants.ZeroValue;
+
+        var debitValue = accountingAssistant.Type == AccountingTypes.Debit
+            ? FixedWidthTextFormatter.FormatNumber(accountingAssistant.Value, 18, 2)
+            : AccountingReportConstants.ZeroValue;
+
         return new object[]
         {
             sourceDocument,
             consecutiveNumber,
             AccountingReportConstants.FORINT,
             accountingAssistant.Date.ToString("yyyymmdd"),
-            "TODO",
+            accountingAssistant.Account ?? "",
             AccountingReportConstants.CENINT,
             accountingAssistant.Identification,
             accountingAssistant.VerificationDigit,
             accountingAssistant.Name,
-            "TODO",
+            DBAINT,
             AccountingReportConstants.VBAINT,
             AccountingReportConstants.NVBINT,
             AccountingReportConstants.FEMINT,
             AccountingReportConstants.FVEINT,
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO VALOR",
-            "TODO",
+            creditValue,
+            debitValue,
+            AccountingReportConstants.ZeroValue,
+            AccountingReportConstants.ZeroValue,
+
             accountingAssistant.Detail ?? "",
-            " ",
             AccountingReportConstants.NDOINT,
         };
     }
@@ -153,10 +155,8 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
         try
         {
-            // Actualizar consecutivo de Ingreso
             await consecutiveRepository.UpdateIncomeConsecutiveAsync(lastIncomeConsecutive, cancellationToken);
 
-            // Actualizar consecutivo de Egreso
             await consecutiveRepository.UpdateEgressConsecutiveAsync(lastEgressConsecutive, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
