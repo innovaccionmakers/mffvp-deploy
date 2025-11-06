@@ -60,11 +60,11 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         var uniqueEgressCount = egressGroups.Count;
 
         var lastIncomeConsecutive = incomeConsecutive != null && uniqueIncomeCount > 0
-            ? incomeConsecutive.Number + (uniqueIncomeCount - 1)
+            ? incomeConsecutive.Number + uniqueIncomeCount
             : incomeConsecutive?.Number ?? 0;
 
         var lastEgressConsecutive = egressConsecutive != null && uniqueEgressCount > 0
-            ? egressConsecutive.Number + (uniqueEgressCount - 1)
+            ? egressConsecutive.Number + uniqueEgressCount
             : egressConsecutive?.Number ?? 0;
 
         var rows = new List<object[]>();
@@ -72,13 +72,13 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         // Procesar registros de Ingreso agrupados por Identifier
         if (incomeConsecutive != null && incomeGroups.Count > 0)
         {
-            var currentConsecutive = incomeConsecutive.Number;
+            var startConsecutive = incomeConsecutive.Number;
             var sourceDocument = incomeConsecutive.SourceDocument;
 
             for (int i = 0; i < incomeGroups.Count; i++)
             {
                 var group = incomeGroups[i];
-                var consecutiveNumber = currentConsecutive + i;
+                var consecutiveNumber = startConsecutive + (i + 1);
                 foreach (var accountingAssistant in group)
                 {
                     var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
@@ -90,13 +90,13 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         // Procesar registros de Egreso agrupados por Identifier
         if (egressConsecutive != null && egressGroups.Count > 0)
         {
-            var currentConsecutive = egressConsecutive.Number;
+            var startConsecutive = egressConsecutive.Number;
             var sourceDocument = egressConsecutive.SourceDocument;
 
             for (int i = 0; i < egressGroups.Count; i++)
             {
                 var group = egressGroups[i];
-                var consecutiveNumber = currentConsecutive + i;
+                var consecutiveNumber = startConsecutive + (i + 1);
                 foreach (var accountingAssistant in group)
                 {
                     var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
