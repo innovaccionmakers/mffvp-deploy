@@ -30,20 +30,30 @@ namespace Accounting.Application.AccountingConcepts
                                                                 new AccountingConceptsRequestEvent(command.PortfolioIds, command.ProcessDate), cancellationToken);
                 if (!treasuryMovement.IsValid)
                     return Result.Failure<bool>(Error.Validation(treasuryMovement.Code ?? string.Empty, treasuryMovement.Message ?? string.Empty));
-                
+
                 if (treasuryMovement.movements.Count == 0)
                     return Result.Success(true);
 
+                var accountNumbers = treasuryMovement?.movements?
+                    .Where(m => m?.BankAccount?.AccountNumber != null)
+                    .Select(m => m.BankAccount.AccountNumber)
+                    .ToList() ?? new List<string>();
+
                 //Treasury
-                var treasury = await sender.Send(new GetAccountingConceptsTreasuriesQuery(command.PortfolioIds), cancellationToken);
+                var treasury = await sender.Send(new GetAccountingConceptsTreasuriesQuery(command.PortfolioIds, accountNumbers), cancellationToken);
                 if (!treasury.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, treasury.Description ?? string.Empty));
 
+                var concepts = treasuryMovement?.movements?
+                    .Where(m => m?.TreasuryConcept?.Concept!= null)
+                    .Select(m => m.TreasuryConcept.Concept)
+                    .ToList() ?? new List<string>();
+
                 //Concept
-                var concept = await sender.Send(new GetConceptsByPortfolioIdsQuery(command.PortfolioIds), cancellationToken);
+                var concept = await sender.Send(new GetConceptsByPortfolioIdsQuery(command.PortfolioIds, concepts), cancellationToken);
                 if (!concept.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener los conceptos" ?? string.Empty, concept.Description ?? string.Empty));
-                
+
                 var accountingAssistants = await validator.AccountingConceptsValidator(command, treasuryMovement.movements, treasury.Value, concept.Value, cancellationToken);
 
                 if (!accountingAssistants.IsSuccess)

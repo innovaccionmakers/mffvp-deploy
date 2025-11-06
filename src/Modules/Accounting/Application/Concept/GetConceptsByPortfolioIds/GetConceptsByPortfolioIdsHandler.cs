@@ -12,13 +12,14 @@ namespace Accounting.Application.Treasuries.GetConceptsByPortfolioIds
             GetConceptsByPortfolioIdsQuery query,
             CancellationToken cancellationToken)
         { 
-            var concept = await conceptsRepository.GetConceptsByPortfolioIdsAsync(query.PortfolioIds, cancellationToken);
+            var concept = await conceptsRepository.GetConceptsByPortfolioIdsAsync(query.PortfolioIds, query.Concepts, cancellationToken);
 
             var response = concept
             .Select(c => new GetConceptsByPortfolioIdsResponse(
                 c.PortfolioId,
-                c.CreditAccount,
-                c.DebitAccount
+                c.Name,
+                c.DebitAccount,
+                c.CreditAccount
                 ))
             .ToList();
 

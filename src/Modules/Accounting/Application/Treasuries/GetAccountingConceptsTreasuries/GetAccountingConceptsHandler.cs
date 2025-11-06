@@ -12,11 +12,12 @@ namespace Accounting.Application.Treasuries.GetAccountingConceptsTreasuries
             GetAccountingConceptsTreasuriesQuery query,
             CancellationToken cancellationToken)
         { 
-            var treasury = await treasuryRepository.GetAccountingConceptsTreasuriesAsync(query.PortfolioIds, cancellationToken);
+            var treasury = await treasuryRepository.GetAccountingConceptsTreasuriesAsync(query.PortfolioIds, query.AccountNumbers, cancellationToken);
 
             var response = treasury
             .Select(t => new GetAccountingConceptsTreasuriesResponse(
                 t.PortfolioId,
+                t.BankAccount,
                 t.DebitAccount,
                 t.CreditAccount))
             .ToList();

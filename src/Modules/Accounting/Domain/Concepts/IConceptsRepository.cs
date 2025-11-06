@@ -8,6 +8,6 @@ namespace Accounting.Domain.Concepts
 {
     public interface IConceptsRepository
     {
-        Task<IEnumerable<Concept>> GetConceptsByPortfolioIdsAsync(IEnumerable<int> PortfolioIds, CancellationToken CancellationToken);
+        Task<IEnumerable<Concept>> GetConceptsByPortfolioIdsAsync(IEnumerable<int> PortfolioIds, IEnumerable<string> Concepts, CancellationToken CancellationToken);
     }
 }

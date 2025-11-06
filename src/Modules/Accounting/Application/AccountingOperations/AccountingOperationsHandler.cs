@@ -48,7 +48,7 @@ namespace Accounting.Application.AccountingOperations
                     if (!operationsByPortfolio.ContainsKey(portfolioId) || !operationsByPortfolio[portfolioId].Any())
                     {
                         logger.LogInformation($"No hay operaciones contables para el PortfolioId: {portfolioId}");
-                        errors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Commission, "No se encontraron operaciones contables para el portfolio", string.Empty));
+                        errors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Operation, "No se encontraron operaciones contables para el portfolio", string.Empty));
                     }
                 }
 
