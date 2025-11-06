@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
@@ -22,7 +23,8 @@ public class TrustReaderTests
             new FakeTrustRecord(2, 77, closingDate.Date, 2, 2000m, 1200m, 800m),
             new FakeTrustRecord(3, 77, closingDate.Date.AddDays(-1), 1, 3000m, 1800m, 1200m),
             new FakeTrustRecord(4, 77, closingDate.Date, 3, 4000m, 2400m, 1600m),
-            new FakeTrustRecord(5, 80, closingDate.Date, 1, 5000m, 3000m, 2000m)
+            new FakeTrustRecord(5, 80, closingDate.Date, 1, 5000m, 3000m, 2000m),
+            new FakeTrustRecord(6, 77, closingDate.Date.AddDays(-1), 2, 6000m, 3600m, 2400m)
         };
 
         var factory = new FakeTrustConnectionFactory();
@@ -32,12 +34,13 @@ public class TrustReaderTests
         var result = await reader.ReadActiveAsync(77, closingDate, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Count);
         Assert.All(result, row => Assert.Equal(closingDate.Date, row.ClosingDate));
 
         var ordered = result.OrderBy(row => row.TrustId).ToArray();
         Assert.Equal(1, ordered[0].TrustId);
         Assert.Equal(2, ordered[1].TrustId);
+        Assert.Equal(3, ordered[2].TrustId);
     }
 
     private sealed record FakeTrustRecord(
@@ -67,13 +70,14 @@ public class TrustReaderTests
         protected override Task<DbDataReader> ExecuteReaderAsync(NpgsqlCommand command, CancellationToken cancellationToken)
         {
             var portfolioId = (int)command.Parameters["p"].Value!;
-            var statuses = ToIntArray(command.Parameters["statuses"].Value!);
             var closingDate = ((DateTime)command.Parameters["closingDate"].Value!).Date;
+            var activeStatus = Convert.ToInt32(command.Parameters["active"].Value!);
+            var annulledStatus = Convert.ToInt32(command.Parameters["annulledByDebitNote"].Value!);
 
             var rows = _records
                 .Where(record => record.PortfolioId == portfolioId)
-                .Where(record => statuses.Contains(record.Estado))
-                .Where(record => record.FechaActualizacion.Date == closingDate)
+                .Where(record => record.Estado == activeStatus ||
+                                 (record.Estado == annulledStatus && record.FechaActualizacion.Date == closingDate))
                 .Select(record => new object[]
                 {
                     record.Id,
@@ -85,17 +89,6 @@ public class TrustReaderTests
                 .ToList();
 
             return Task.FromResult<DbDataReader>(new FakeDataReader(rows));
-        }
-
-        private static int[] ToIntArray(object value)
-        {
-            return value switch
-            {
-                int[] array => array,
-                Array array => array.Cast<int>().ToArray(),
-                IEnumerable<int> enumerable => enumerable.ToArray(),
-                _ => Array.Empty<int>()
-            };
         }
     }
 
