@@ -66,7 +66,8 @@ public class AccountingFeesCommandHandlerTests
         };
 
         var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "1", "CO");
-        var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
+        var passiveTransaction1 = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
+        var passiveTransaction2 = Domain.PassiveTransactions.PassiveTransaction.Create(2, 1, "1234", "5678", "123", "123");
         var portfolioInfo = new PortfolioResponse(
             "1232",
             1,
@@ -79,8 +80,8 @@ public class AccountingFeesCommandHandlerTests
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
             .ReturnsAsync(Result.Success<(long OperationTypeId, string Nature, string Name)>((operationType.OperationTypeId, operationType.Nature.ToString(), operationType.Name)));
 
-        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(It.IsAny<int>(), It.IsAny<long>(), cancellationToken))
-            .ReturnsAsync(passiveTransaction.Value);
+        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdsAndOperationTypeAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<long>(), cancellationToken))
+            .ReturnsAsync(new[] { passiveTransaction1.Value, passiveTransaction2.Value });
 
         _portfolioLocatorMock.Setup(x => x.GetPortfolioInformationAsync(It.IsAny<int>(), cancellationToken))
             .ReturnsAsync(Result.Success(portfolioInfo));
@@ -158,8 +159,8 @@ public class AccountingFeesCommandHandlerTests
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
             .ReturnsAsync(Result.Success<(long OperationTypeId, string Nature, string Name)>((operationType.OperationTypeId, operationType.Nature.ToString(), operationType.Name)));
 
-        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(It.IsAny<int>(), It.IsAny<long>(), cancellationToken))
-            .ReturnsAsync((Domain.PassiveTransactions.PassiveTransaction?)null); // Simular que no existe transacción pasiva
+        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdsAndOperationTypeAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<long>(), cancellationToken))
+            .ReturnsAsync(Enumerable.Empty<Domain.PassiveTransactions.PassiveTransaction>()); // Simular que no existe transacción pasiva
 
         // Act
         var result = await _handler.Handle(command, cancellationToken);
@@ -215,8 +216,8 @@ public class AccountingFeesCommandHandlerTests
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
             .ReturnsAsync(Result.Success<(long OperationTypeId, string Nature, string Name)>((operationType.OperationTypeId, operationType.Nature.ToString(), operationType.Name)));
 
-        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(It.IsAny<int>(), It.IsAny<long>(), cancellationToken))
-            .ReturnsAsync(passiveTransaction.Value);
+        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdsAndOperationTypeAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<long>(), cancellationToken))
+            .ReturnsAsync(new[] { passiveTransaction.Value });
 
         // Act
         var result = await _handler.Handle(command, cancellationToken);
@@ -249,8 +250,8 @@ public class AccountingFeesCommandHandlerTests
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
             .ReturnsAsync(Result.Success<(long OperationTypeId, string Nature, string Name)>((operationType.OperationTypeId, operationType.Nature.ToString(), operationType.Name)));
 
-        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(It.IsAny<int>(), It.IsAny<long>(), cancellationToken))
-            .ReturnsAsync(passiveTransaction.Value);
+        _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdsAndOperationTypeAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<long>(), cancellationToken))
+            .ReturnsAsync(new[] { passiveTransaction.Value });
 
         // Act
         var result = await _handler.Handle(command, cancellationToken);
@@ -284,7 +285,8 @@ public class AccountingFeesCommandHandlerTests
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken))
             .ReturnsAsync(Result.Success<(long OperationTypeId, string Nature, string Name)>((operationType.OperationTypeId, operationType.Nature.ToString(), operationType.Name)));
 
-         _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(It.IsAny<int>(), It.IsAny<long>(), cancellationToken)).ReturnsAsync(passiveTransaction.Value);
+         _passiveTransactionRepositoryMock.Setup(x => x.GetByPortfolioIdsAndOperationTypeAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<long>(), cancellationToken))
+            .ReturnsAsync(new[] { passiveTransaction.Value });
 
         _portfolioLocatorMock.Setup(x => x.GetPortfolioInformationAsync(It.IsAny<int>(), cancellationToken))
             .ReturnsAsync(Result.Failure<PortfolioResponse>(error));
