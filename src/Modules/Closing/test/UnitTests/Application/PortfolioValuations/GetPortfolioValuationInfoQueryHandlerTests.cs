@@ -32,6 +32,7 @@ public class GetPortfolioValuationInfoQueryHandlerTests
             1,
             new DateTime(2024, 05, 15),
             1000m,
+            1000m,
             100m,
             10m,
             0.5m,
@@ -112,6 +113,7 @@ public class GetPortfolioValuationInfoQueryHandlerTests
         var valuation = PortfolioValuation.Create(
             1,
             new DateTime(2024, 05, 15),
+            1000m,
             1000m,
             100m,
             0m,

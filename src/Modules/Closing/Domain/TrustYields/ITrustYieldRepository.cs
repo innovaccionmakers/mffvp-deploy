@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Closing.Domain.TrustYields;
 
 public interface ITrustYieldRepository
@@ -14,4 +18,5 @@ public interface ITrustYieldRepository
     Task<decimal> GetDistributedTotalRoundedAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<TrustYieldCalcInput>> GetCalcInputsByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
+    Task<int> DeleteByIdsAsync(IEnumerable<long> trustYieldIds, CancellationToken cancellationToken = default);
 }

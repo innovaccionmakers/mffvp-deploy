@@ -1,8 +1,13 @@
 ﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Closing.Domain.ClientOperations;
 using Closing.Infrastructure.ClientOperations;
 using Closing.Infrastructure.Database;
 using Closing.test.UnitTests.Infrastructure.Helpers;
+using Common.SharedKernel.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -31,7 +36,9 @@ public class ClientOperationRepositoryTests
         int portfolioId,
         DateTime processDateUtc,
         long operationTypeId,
-        decimal amount)
+        decimal amount,
+        LifecycleStatus status = LifecycleStatus.Active,
+        long? trustId = null)
     {
 
         var op = (ClientOperation)Activator.CreateInstance(typeof(ClientOperation), nonPublic: true)!;
@@ -41,7 +48,8 @@ public class ClientOperationRepositoryTests
         typeof(ClientOperation).GetProperty("ProcessDate")?.SetValue(op, processDateUtc);
         typeof(ClientOperation).GetProperty("OperationTypeId")?.SetValue(op, operationTypeId);
         typeof(ClientOperation).GetProperty("Amount")?.SetValue(op, amount);
-        typeof(ClientOperation).GetProperty("Status")?.SetValue(op, Common.SharedKernel.Core.Primitives.LifecycleStatus.Active);
+        typeof(ClientOperation).GetProperty("Status")?.SetValue(op, status);
+        typeof(ClientOperation).GetProperty("TrustId")?.SetValue(op, trustId);
 
         return op;
     }
@@ -134,7 +142,7 @@ public class ClientOperationRepositoryTests
 
         var subtypes = new long[] { 1, 2 };
 
-        var total = await repo.SumByPortfolioAndSubtypesAsync(5, date, subtypes, CancellationToken.None);
+        var total = await repo.SumByPortfolioAndSubtypesAsync(5, date, subtypes, new[] { LifecycleStatus.Active }, CancellationToken.None);
 
         Assert.Equal(15.5m, total);
     }
@@ -153,9 +161,34 @@ public class ClientOperationRepositoryTests
         );
         await ctx.SaveChangesAsync();
 
-        var total = await repo.SumByPortfolioAndSubtypesAsync(1, date, new long[] { 2 }, CancellationToken.None);
+        var total = await repo.SumByPortfolioAndSubtypesAsync(1, date, new long[] { 2 }, new[] { LifecycleStatus.Active }, CancellationToken.None);
 
         Assert.Equal(0m, total);
+    }
+
+    [Fact]
+    public async Task SumByPortfolioAndSubtypesAsyncIncludesAnnulledByDebitNoteWhenAllowed()
+    {
+        using var ctx = CreateContext();
+        var repo = new ClientOperationRepository(ctx);
+
+        var date = new DateTime(2025, 10, 6, 0, 0, 0, DateTimeKind.Utc);
+
+        ctx.ClientOperations.AddRange(
+            NewOp(321, 1, date, 2, 10m, LifecycleStatus.Active),
+            NewOp(322, 1, date, 2, 5m, LifecycleStatus.AnnulledByDebitNote),
+            NewOp(323, 1, date, 2, 7m, LifecycleStatus.Annulled)
+        );
+        await ctx.SaveChangesAsync();
+
+        var total = await repo.SumByPortfolioAndSubtypesAsync(
+            1,
+            date,
+            new long[] { 2 },
+            new[] { LifecycleStatus.Active, LifecycleStatus.AnnulledByDebitNote },
+            CancellationToken.None);
+
+        Assert.Equal(15m, total);
     }
 
     [Fact]
@@ -184,5 +217,45 @@ public class ClientOperationRepositoryTests
         var found = await repo.GetForUpdateByIdAsync(999999, CancellationToken.None);
 
         Assert.Null(found);
+    }
+
+    [Fact]
+    public async Task GetTrustIdsByStatusAndProcessDateAsyncReturnsMatches()
+    {
+        using var ctx = CreateContext();
+        var repo = new ClientOperationRepository(ctx);
+
+        var processDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+
+        ctx.ClientOperations.AddRange(
+            NewOp(501, 1, processDate, 1, 5m, LifecycleStatus.AnnulledByDebitNote, 1001),
+            NewOp(502, 1, processDate, 1, 5m, LifecycleStatus.AnnulledByDebitNote, 1002),
+            NewOp(503, 1, processDate.AddDays(1), 1, 5m, LifecycleStatus.AnnulledByDebitNote, 1003),
+            NewOp(504, 1, processDate, 1, 5m, LifecycleStatus.Active, 1001),
+            NewOp(505, 1, processDate, 1, 5m, LifecycleStatus.AnnulledByDebitNote, null)
+        );
+        await ctx.SaveChangesAsync();
+
+        var trustIds = new long[] { 1001, 1002, 1004 };
+
+        var matches = await repo.GetTrustIdsByStatusAndProcessDateAsync(trustIds, processDate, LifecycleStatus.AnnulledByDebitNote, CancellationToken.None);
+
+        Assert.Equal(new[] { 1001L, 1002L }, matches.OrderBy(x => x).ToArray());
+    }
+
+    [Fact]
+    public async Task GetTrustIdsByStatusAndProcessDateAsyncReturnsEmptyWhenNoCandidates()
+    {
+        using var ctx = CreateContext();
+        var repo = new ClientOperationRepository(ctx);
+
+        var processDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+
+        ctx.ClientOperations.Add(NewOp(601, 1, processDate, 1, 5m, LifecycleStatus.AnnulledByDebitNote, 2001));
+        await ctx.SaveChangesAsync();
+
+        var matches = await repo.GetTrustIdsByStatusAndProcessDateAsync(Array.Empty<long>(), processDate, LifecycleStatus.AnnulledByDebitNote, CancellationToken.None);
+
+        Assert.Empty(matches);
     }
 }

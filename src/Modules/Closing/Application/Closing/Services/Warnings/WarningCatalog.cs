@@ -78,6 +78,14 @@ public static class WarningCatalog
             Priority = 2
         };
 
+    public static WarningItem Adv006ExtraReturnMissing() => new()
+    {
+        Code = "ADV006",
+        Description = "No se encontraron rendimientos extras para procesar",
+        Severity = "Leve",
+        Priority = 2
+    };
+
     public static WarningItem Ctrl001Participation() => new()
     {
         Code = "CTRL001",

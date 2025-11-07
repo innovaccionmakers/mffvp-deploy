@@ -37,6 +37,8 @@ public interface IYieldRepository
     Task UpdateCreditedYieldsAsync(int portfolioId, DateTime closingDateUtc, decimal distributedTotal, DateTime processDate, CancellationToken cancellationToken = default);
 
     Task<decimal?> GetYieldToCreditAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
+    
+    Task<decimal?> GetCreditedYieldsAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default);
 
     Task<YieldToDistributeDto?> GetReadOnlyToDistributeByPortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken);
 }

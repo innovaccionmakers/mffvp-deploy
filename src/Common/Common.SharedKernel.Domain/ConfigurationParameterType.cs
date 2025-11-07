@@ -11,5 +11,6 @@ public enum ConfigurationParameterType
     PorcentajeRetencionContingente,
     TipoObjetivo,
     CasualNota,
-    CasualAnulacion
+    CasualAnulacion,
+    TipoCuenta
 }

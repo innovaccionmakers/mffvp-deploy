@@ -109,6 +109,52 @@ public abstract class TextReportStrategyBase(
         };
     }
 
+    protected virtual string FormatColumnValue(object value, ColumnConfiguration? columnConfig)
+    {
+        if (columnConfig == null)
+        {
+            return FormatValue(value);
+        }
+
+        var formattedValue = FormatValue(value);
+        return ApplyColumnFormatting(formattedValue, columnConfig);
+    }
+
+    protected virtual string ApplyColumnFormatting(string value, ColumnConfiguration columnConfig)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            value = string.Empty;
+        }
+
+        // Truncar si excede el ancho
+        if (value.Length > columnConfig.Width)
+        {
+            value = value.Substring(0, columnConfig.Width);
+        }
+
+        // Aplicar alineación y relleno
+        return columnConfig.Alignment switch
+        {
+            ColumnAlignment.Left => value.PadRight(columnConfig.Width, columnConfig.PaddingChar),
+            ColumnAlignment.Right => value.PadLeft(columnConfig.Width, columnConfig.PaddingChar),
+            ColumnAlignment.Center => CenterAlign(value, columnConfig.Width, columnConfig.PaddingChar),
+            _ => value.PadRight(columnConfig.Width, columnConfig.PaddingChar)
+        };
+    }
+
+    private static string CenterAlign(string value, int width, char paddingChar)
+    {
+        if (value.Length >= width)
+            return value.Substring(0, width);
+
+        var totalPadding = width - value.Length;
+        var leftPadding = totalPadding / 2;
+        var rightPadding = totalPadding - leftPadding;
+
+        return new string(paddingChar, leftPadding) + value + new string(paddingChar, rightPadding);
+    }
+
     private FileStreamResult BuildTextFile(List<TextReportData> textReportDataList, string fileName)
     {
         var stringBuilder = new StringBuilder();
@@ -124,13 +170,27 @@ public abstract class TextReportStrategyBase(
 
             if (textReportData.IncludeHeaders && textReportData.ColumnHeaders.Length > 0)
             {
-                var normalizedHeaders = textReportData.ColumnHeaders.Select(NormalizeText).ToArray();
-                stringBuilder.AppendLine(string.Join(separator, normalizedHeaders));
+                var normalizedHeaders = textReportData.ColumnHeaders.Select((header, index) =>
+                {
+                    var normalized = NormalizeText(header);
+                    var columnConfig = textReportData.ColumnConfigurations?.Count > index
+                        ? textReportData.ColumnConfigurations[index]
+                        : null;
+                    return columnConfig != null ? ApplyColumnFormatting(normalized, columnConfig) : normalized;
+                }).ToArray();
+                stringBuilder.Append(string.Join(separator, normalizedHeaders));
+                stringBuilder.Append(recordSeparator);
             }
 
             foreach (var dataRow in textReportData.Rows)
             {
-                var formattedValues = dataRow.Select(FormatValue).ToArray();
+                var formattedValues = dataRow.Select((value, index) =>
+                {
+                    var columnConfig = textReportData.ColumnConfigurations?.Count > index
+                        ? textReportData.ColumnConfigurations[index]
+                        : null;
+                    return FormatColumnValue(value, columnConfig);
+                }).ToArray();
                 stringBuilder.Append(string.Join(separator, formattedValues));
                 stringBuilder.Append(recordSeparator);
             }
@@ -156,4 +216,5 @@ public class TextReportData
     public string[] ColumnHeaders { get; set; } = Array.Empty<string>();
     public bool IncludeHeaders { get; set; } = true;
     public List<object[]> Rows { get; set; } = new List<object[]>();
+    public List<ColumnConfiguration>? ColumnConfigurations { get; set; }
 }

@@ -19,4 +19,34 @@ public sealed class YieldToDistribute : Entity
     public JsonDocument Concept { get; private set; } = null!;
 
     public DateTime ProcessDate { get; private set; }
+
+    private YieldToDistribute()
+    {
+    }
+
+    public static Result<YieldToDistribute> Create(
+        long trustId,
+        int portfolioId,
+        DateTime closingDate,
+        DateTime applicationDate,
+        decimal participation,
+        decimal yieldAmount,
+        JsonDocument concept,
+        DateTime processDate)
+    {
+        var entity = new YieldToDistribute
+        {
+            YieldToDistributeId = default,
+            TrustId = trustId,
+            PortfolioId = portfolioId,
+            ClosingDate = closingDate,
+            ApplicationDate = applicationDate,
+            Participation = participation,
+            YieldAmount = yieldAmount,
+            Concept = concept,
+            ProcessDate = processDate
+        };
+
+        return Result.Success(entity);
+    }
 }

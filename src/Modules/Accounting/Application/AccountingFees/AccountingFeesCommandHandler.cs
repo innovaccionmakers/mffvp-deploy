@@ -87,11 +87,17 @@ public sealed class AccountingFeesCommandHandler(
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<AccountingInconsistency>();
 
+        var portfolioIds = yields.Select(y => y.PortfolioId).Distinct().ToList();
+        var passiveTransactions = await passiveTransactionRepository
+            .GetByPortfolioIdsAndOperationTypeAsync(portfolioIds, operationTypeId, cancellationToken);
+
+        var passiveTransactionsDict = passiveTransactions
+            .GroupBy(pt => pt.PortfolioId)
+            .ToDictionary(g => g.Key, g => g.First());
+
         foreach (var yield in yields)
         {
-
-            var passiveTransaction = await passiveTransactionRepository
-                .GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationTypeId, cancellationToken);
+            passiveTransactionsDict.TryGetValue(yield.PortfolioId, out var passiveTransaction);
 
             if (passiveTransaction == null)
             {
@@ -130,7 +136,7 @@ public sealed class AccountingFeesCommandHandler(
                 portfolioResult.Value.NitApprovedPortfolio,
                 portfolioResult.Value.VerificationDigit,
                 portfolioResult.Value.Name,
-                processDate.ToString("yyyyMM"),                
+                processDate.ToString("yyyyMM"),
                 processDate,
                 operationTypeName,
                 yield.Commissions,

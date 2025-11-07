@@ -126,9 +126,18 @@ internal sealed class YieldRepository(ClosingDbContext context, IDbContextFactor
     public async Task<decimal?> GetYieldToCreditAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
     {
         return await context.Yields
-            .TagWith("YieldRepository_GetForUpdateByPortfolioAndDateAsync")
+            .TagWith("YieldRepository_GetYieldToCreditAsync")
             .Where(y => y.PortfolioId == portfolioId && y.ClosingDate.Date == closingDateUtc)
             .Select(y => y.YieldToCredit)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<decimal?> GetCreditedYieldsAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken = default)
+    {
+        return await context.Yields
+            .TagWith("YieldRepository_GetCreditedYieldsAsync")
+            .Where(y => y.PortfolioId == portfolioId && y.ClosingDate.Date == closingDateUtc)
+            .Select(y => y.CreditedYields)
             .SingleOrDefaultAsync(cancellationToken);
     }
 

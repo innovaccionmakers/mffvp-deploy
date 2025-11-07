@@ -5,7 +5,8 @@ public struct YieldsSources
         ProfitAndLoss = "CargaExterna",
         Commission = "Comisión",
         Treasury = "Tesorería",
-        AutomaticConcept = "Concepto Automático"
+        AutomaticConcept = "Concepto Automático",
+        ExtraReturn = "Rendimiento Extra"
         ;
 }
 

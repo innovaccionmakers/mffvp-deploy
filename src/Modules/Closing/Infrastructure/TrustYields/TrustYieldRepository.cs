@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Closing.Domain.TrustYields;
 using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -103,7 +108,7 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
     {
         var previousDateUtc = closingDateUtc.AddDays(-1);
 
-        // Yields del día actual
+        // Yields del dÃ­a actual
         var currentDay = context.TrustYields
             .TagWith("TrustYieldRepository_GetCalcInputsByPortfolioAndDateAsync_Current")
             .AsNoTracking()
@@ -111,7 +116,7 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
                 current.PortfolioId == portfolioId &&
                 current.ClosingDate == closingDateUtc);
 
-        // Yields del día anterior
+        // Yields del dÃ­a anterior
         var prevDay = context.TrustYields
             .TagWith("TrustYieldRepository_GetCalcInputsByPortfolioAndDateAsync_Previous")
             .AsNoTracking()
@@ -130,11 +135,25 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
            select new TrustYieldCalcInput(
                current.TrustId,
                current.PortfolioId,
-               current.PreClosingBalance,//Saldo pre cierre del día actual
-               current.Units, //Unidades del día actual
-               prev != null ? prev.ClosingBalance : 0m //Saldo cierre del día anterior, 0 si no existe
+               current.PreClosingBalance,//Saldo pre cierre del dÃ­a actual
+               current.Units, //Unidades del dÃ­a actual
+               prev != null ? prev.ClosingBalance : 0m //Saldo cierre del dÃ­a anterior, 0 si no existe
        );
         return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> DeleteByIdsAsync(IEnumerable<long> trustYieldIds, CancellationToken cancellationToken = default)
+    {
+        var ids = trustYieldIds?.Distinct().ToArray() ?? Array.Empty<long>();
+        if (ids.Length == 0)
+        {
+            return 0;
+        }
+
+        return await context.TrustYields
+            .TagWith("TrustYieldRepository_DeleteByIdsAsync")
+            .Where(t => ids.Contains(t.TrustYieldId))
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
 }
