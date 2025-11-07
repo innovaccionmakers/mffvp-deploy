@@ -186,8 +186,8 @@ public sealed class ReturnsOperationsServiceTests
             .ReturnsAsync(new Dictionary<Guid, ConfigurationParameter>
             {
                 [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote] = CreateParameter("{\"id\":5,\"nombre\":\"Ajuste Rendimiento Nota Contable\"}"),
-                [ConfigurationParameterUuids.Closing.YieldAdjustmentIncome] = CreateParameter("{\"id\":10,\"nombre\":\"Ajuste Rendimiento NC Ingreso\"}"),
-                [ConfigurationParameterUuids.Closing.YieldAdjustmentExpense] = CreateParameter("{\"id\":11,\"nombre\":\"Ajuste Rendimiento NC Gasto\"}")
+                [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome] = CreateParameter("{\"id\":10,\"nombre\":\"Ajuste Rendimiento NC Ingreso\"}"),
+                [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense] = CreateParameter("{\"id\":11,\"nombre\":\"Ajuste Rendimiento NC Gasto\"}")
             });
 
         return configRepo;
