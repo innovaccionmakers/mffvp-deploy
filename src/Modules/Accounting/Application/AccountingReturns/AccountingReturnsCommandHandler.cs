@@ -83,11 +83,17 @@ public sealed class AccountingReturnsCommandHandler(
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<AccountingInconsistency>();
 
+        var portfolioIds = yields.Select(y => y.PortfolioId).Distinct().ToList();
+        var passiveTransactions = await passiveTransactionRepository
+            .GetByPortfolioIdsAndOperationTypeAsync(portfolioIds, operationTypeId, cancellationToken);
+
+        var passiveTransactionsDict = passiveTransactions
+            .GroupBy(pt => pt.PortfolioId)
+            .ToDictionary(g => g.Key, g => g.First());
+
         foreach (var yield in yields)
         {
-
-            var passiveTransaction = await passiveTransactionRepository
-                .GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationTypeId, cancellationToken);
+            passiveTransactionsDict.TryGetValue(yield.PortfolioId, out var passiveTransaction);
 
             if (passiveTransaction == null)
             {
