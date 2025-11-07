@@ -135,9 +135,11 @@ internal sealed class TrustYieldRepository(ClosingDbContext context) : ITrustYie
            select new TrustYieldCalcInput(
                current.TrustId,
                current.PortfolioId,
-               current.PreClosingBalance,//Saldo pre cierre del día actual
+               current.PreClosingBalance, //Saldo pre cierre del día actual
                current.Units, //Unidades del día actual
-               prev != null ? prev.ClosingBalance : 0m //Saldo cierre del día anterior, 0 si no existe
+               prev == null, //isFirstTrustClosingDay: Es el primer dia de cierre del fideicomiso si no hay registro previo
+               prev != null ? prev.ClosingBalance : 0,
+               prev != null ? prev.Units :0 
        );
         return await query.ToListAsync(cancellationToken);
     }

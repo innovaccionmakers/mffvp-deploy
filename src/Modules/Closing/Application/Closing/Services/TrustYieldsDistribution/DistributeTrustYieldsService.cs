@@ -69,10 +69,12 @@ public class DistributeTrustYieldsService(
 
         // Datos del día previo
         var previousDateUtc = ToUtcMidnight(closingDateUtc.AddDays(-1));
-        var prevPortfolioValuation = await portfolioValuationRepository.GetReadOnlyToDistributePortfolioAndDateAsync(portfolioId, previousDateUtc, cancellationToken);
-        if (prevPortfolioValuation is null)
+        var prevDayPortfolioValuation = await portfolioValuationRepository.GetReadOnlyToDistributePortfolioAndDateAsync(portfolioId, previousDateUtc, cancellationToken);
+        var hasPrevPV = true;
+        if (prevDayPortfolioValuation is null) {
+            hasPrevPV = false;
             logger.LogWarning("{Svc} No se encontró valuación previa del portafolio para la fecha {PreviousClosingDate}", svc, previousDateUtc);
-
+         }
         // Precálculos
         var yToCredit = MoneyHelper.Round2(yield.YieldToCredit);
         var yIncome = MoneyHelper.Round2(yield.Income);
@@ -80,9 +82,8 @@ public class DistributeTrustYieldsService(
         var yFees = MoneyHelper.Round2(yield.Commissions);
         var yCosts = MoneyHelper.Round2(yield.Costs);
 
-        var hasPrevPV = prevPortfolioValuation is { Amount: > 0m };
-        var hasUnit = portfolioValuation.UnitValue > 0m;
-        var invUnit = hasUnit ? (1m / portfolioValuation.UnitValue) : 0m;
+        var hasUnitValue = portfolioValuation.UnitValue > 0m;
+        var invUnitValue = hasUnitValue ? (1m / portfolioValuation.UnitValue) : 0m;
 
         var rows = new List<TrustYieldUpdateRow>(capacity: Math.Min(trustReadOnly.Count, 4096));
         var po = new ParallelOptions { MaxDegreeOfParallelism = 8, CancellationToken = cancellationToken };
@@ -94,10 +95,9 @@ public class DistributeTrustYieldsService(
             body: (trust, state, local) =>
             {
                 // Participación basada en saldo_pre_cierre / monto portafolio previo
-
                 decimal participation = 0m;
-                if (hasPrevPV && trust.prevDayClosingBalance != 0m)
-                    participation = TrustMath.CalculateTrustParticipation(trust.prevDayClosingBalance, prevPortfolioValuation!.Amount, DecimalPrecision.SixteenDecimals);
+                if (hasPrevPV && !trust.isFirstTrustClosingDay)
+                    participation = TrustMath.CalculateTrustParticipation(trust.PrevDayClosingBalance, prevDayPortfolioValuation!.Amount, DecimalPrecision.SixteenDecimals);
 
                 // Prorrateos
                 var yieldAmount16 = TrustMath.ApplyParticipation(yToCredit, participation, DecimalPrecision.SixteenDecimals);
@@ -112,12 +112,19 @@ public class DistributeTrustYieldsService(
                 var commissionsR2 = MoneyHelper.Round2(commissions16);
                 var costR2 = MoneyHelper.Round2(cost16);
 
-                var pre = MoneyHelper.Round2(trust.PreClosingBalance);
-                var closingBalance = MoneyHelper.Round2(pre + yieldAmtR2);
+                var preClosingBalance = MoneyHelper.Round2(trust.PreClosingBalance);
+                var closingBalance = MoneyHelper.Round2(preClosingBalance + yieldAmtR2);
 
                 decimal units;
-                units = hasUnit ? Math.Round((trust.PreClosingBalance + yieldAmount16) * invUnit, DecimalPrecision.SixteenDecimals) : 0m;
+                //se calculan  sólo sí valor del saldo del día anterior(Saldo_cierre dia anterior)
+                //sea diferente al valor del saldo pre-cierre y para el primer día de cierre del Fideicomiso
+                //Si no, se conservan las unidades del día anterior
+                bool shouldCalculateUnits =
+                    (trust.isFirstTrustClosingDay ||
+                     trust.PrevDayClosingBalance != preClosingBalance);
+                units = shouldCalculateUnits ? Math.Round((closingBalance) * invUnitValue, DecimalPrecision.SixteenDecimals) : trust.PrevDayUnits;
 
+                //Sólo se calcula retención cuando los valores de rendimientos son positivos
                 var yieldRetentionR2 = (yToCredit > 0m && yieldAmtR2 > 0m)
                     ? MoneyHelper.Round2(TrustMath.CalculateYieldRetention(yieldAmtR2, yieldRetentionRate, DecimalPrecision.TwoDecimals))
                     : 0m;
