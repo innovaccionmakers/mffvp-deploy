@@ -17,7 +17,7 @@ namespace Accounting.Application.PassiveTransaction.GetAccountingOperationsPassi
             var response = treasury
             .Select(t => new GetAccountingOperationsPassiveTransactionResponse(
                 t.PortfolioId,
-                t.DebitAccount))
+                t.CreditAccount))
             .ToList();
 
             return Result.Success<IReadOnlyCollection<GetAccountingOperationsPassiveTransactionResponse>>(response);
