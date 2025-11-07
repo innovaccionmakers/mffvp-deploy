@@ -51,11 +51,7 @@ public class ValidateTrustYieldsDistributionService(
         }
 
         var expectedTotal = MoneyHelper.Round2(yieldToCredit.Value);
-        
-        // Obtener rendimientos abonados actuales (puede ser null si es la primera vez)
-        var currentCreditedYields = await yieldRepository.GetCreditedYieldsAsync(portfolioId, closingDate, cancellationToken);
-        var creditedYields = MoneyHelper.Round2(currentCreditedYields ?? 0m);
-        
+
         // Obtener el parámetro de configuración del concepto para filtrar rendimientos_por_distribuir
         var adjustmentConceptParam = await configurationParameterRepository.GetByUuidAsync(
             ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote, 
@@ -86,7 +82,7 @@ public class ValidateTrustYieldsDistributionService(
         var distributedTotal = await trustYieldRepository.GetDistributedTotalRoundedAsync(portfolioId, closingDate, cancellationToken);
 
         // Calcular diferencia: rendimientos_abonar - (rendimientos_abonados + rendimientos_por_distribuir)
-        var totalAlreadyProcessed = MoneyHelper.Round2(creditedYields + pendingToDistribute);
+        var totalAlreadyProcessed = MoneyHelper.Round2(distributedTotal + pendingToDistribute);
         var difference = MoneyHelper.Round2(expectedTotal - totalAlreadyProcessed);
         
         var differenceOrigin = MoneyHelper.Round2(expectedTotal - distributedTotal);
