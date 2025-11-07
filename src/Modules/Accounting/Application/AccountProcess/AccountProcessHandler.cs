@@ -45,16 +45,15 @@ internal sealed class AccountProcessHandler(
 
         var username = userService.GetUserName();
         var email = (await userLocator.GetEmailUserAsync(username, cancellationToken))?.Value;
-        
         var processId = $"{ProcessIdPrefix}{DateTime.UtcNow:yyyyMMddHHmmss}";
         var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         await accountingNotificationService.SendProcessInitiatedAsync(
-           username,
-           email,
-           processId.ToString(),
-           processDate,
-           cancellationToken
+            username,
+            email,
+            processId.ToString(),
+            processDate,
+            cancellationToken
        );
 
         var accountingFeesCommand = new AccountingFeesCommand(command.PortfolioIds, processDate);
