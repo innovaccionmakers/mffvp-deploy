@@ -5,5 +5,5 @@ namespace Closing.Application.Closing.Services.Orchestation.Interfaces;
 
 public interface IConfirmClosingOrchestrator
 {
-    Task<Result<ConfirmClosingResult>> ConfirmAsync(int portfolioId, DateTime closingDate, CancellationToken ct);
+    Task<Result<ConfirmClosingResult>> ConfirmAsync(int portfolioId, DateTime closingDate, bool isFirstClosingDay, CancellationToken ct);
 }
