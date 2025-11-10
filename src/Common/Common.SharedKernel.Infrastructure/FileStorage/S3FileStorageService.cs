@@ -222,7 +222,6 @@ public class S3FileStorageService(
             Verb = HttpVerb.GET
         };
 
-        // Si se proporciona el fileName, establecer el Content-Disposition en la respuesta
         if (!string.IsNullOrWhiteSpace(fileName))
         {
             request.ResponseHeaderOverrides = new ResponseHeaderOverrides
