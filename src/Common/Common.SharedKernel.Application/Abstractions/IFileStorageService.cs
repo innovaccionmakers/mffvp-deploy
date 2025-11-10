@@ -21,5 +21,5 @@ public interface IFileStorageService
         CancellationToken cancellationToken = default);
     Task<bool> DeleteFileAsync(string fileKey, CancellationToken cancellationToken = default);
     Task<bool> FileExistsAsync(string fileKey, CancellationToken cancellationToken = default);
-    string GetPublicUrl(string fileKey, int? expirationHours = null);
+    string GetPublicUrl(string fileKey, int? expirationHours = null, string? fileName = null);
 }

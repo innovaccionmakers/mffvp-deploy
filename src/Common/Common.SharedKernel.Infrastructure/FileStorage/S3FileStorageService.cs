@@ -58,7 +58,7 @@ public class S3FileStorageService(
 
             var response = await s3Client.PutObjectAsync(request, cancellationToken);
 
-            var publicUrl = GetPublicUrl(fileKey);
+            var publicUrl = GetPublicUrl(fileKey, fileName: fileName);
 
             logger.LogInformation("Archivo subido exitosamente a S3. Key: {FileKey}, Size: {FileSize} bytes",
                 fileKey, fileContent.Length);
@@ -111,7 +111,7 @@ public class S3FileStorageService(
 
             var response = await s3Client.PutObjectAsync(request, cancellationToken);
 
-            var publicUrl = GetPublicUrl(fileKey);
+            var publicUrl = GetPublicUrl(fileKey, fileName: fileName);
 
             logger.LogInformation("Archivo subido exitosamente a S3 desde stream. Key: {FileKey}", fileKey);
 
@@ -200,7 +200,7 @@ public class S3FileStorageService(
         }
     }
 
-    public string GetPublicUrl(string fileKey, int? expirationHours = null)
+    public string GetPublicUrl(string fileKey, int? expirationHours = null, string? fileName = null)
     {
         if (string.IsNullOrWhiteSpace(fileKey))
         {
@@ -221,6 +221,15 @@ public class S3FileStorageService(
             Expires = DateTime.UtcNow.AddHours(expiration),
             Verb = HttpVerb.GET
         };
+
+        // Si se proporciona el fileName, establecer el Content-Disposition en la respuesta
+        if (!string.IsNullOrWhiteSpace(fileName))
+        {
+            request.ResponseHeaderOverrides = new ResponseHeaderOverrides
+            {
+                ContentDisposition = $"attachment; filename=\"{fileName}\""
+            };
+        }
 
         try
         {
