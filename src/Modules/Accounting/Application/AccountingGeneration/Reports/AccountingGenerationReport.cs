@@ -20,7 +20,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
     public override string[] ColumnHeaders => [];
 
-    protected override string GetFieldSeparator() => " ";
+    protected override string GetFieldSeparator() => "";
 
     protected override string NormalizeText(string text)
     {
@@ -131,25 +131,44 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         return
         [
             new(4, ColumnAlignment.Center),
+            new(1, ColumnAlignment.Center),
             new(7, ColumnAlignment.Left, ' '),
             new(2, ColumnAlignment.Center),
+            new(1, ColumnAlignment.Center),
             new(8, ColumnAlignment.Center),
             new(12, ColumnAlignment.Center),
             new(12, ColumnAlignment.Center),
+            new(1, ColumnAlignment.Center),
             new(13, ColumnAlignment.Left, ' '),
+            new(1, ColumnAlignment.Center),
             new(1, ColumnAlignment.Center),
             new(50, ColumnAlignment.Left, ' '),
             new(4, ColumnAlignment.Left, ' '),
             new(10, ColumnAlignment.Center),
+            new(1, ColumnAlignment.Center),
             new(2, ColumnAlignment.Left, ' '),
+            new(1, ColumnAlignment.Center),
             new(2, ColumnAlignment.Left, ' '),
+            new(1, ColumnAlignment.Center),
             new(8, ColumnAlignment.Left, ' '),
+            new(1, ColumnAlignment.Center),
             new(8, ColumnAlignment.Left, ' '),
+            new(1, ColumnAlignment.Center),
             new(18, ColumnAlignment.Right, '0'),
+            new(1, ColumnAlignment.Center),
             new(18, ColumnAlignment.Right, '0'),
+            new(1, ColumnAlignment.Center),
+            new(18, ColumnAlignment.Right, '0'),
+            new(4, ColumnAlignment.Center),
+            new(1, ColumnAlignment.Center),
+            new(18, ColumnAlignment.Center),
+            new(4, ColumnAlignment.Center),
             new(10, ColumnAlignment.Left, '0'),
             new(60, ColumnAlignment.Right, '0'),
+            new(4, ColumnAlignment.Center),
             new(1, ColumnAlignment.Center),
+            new(10, ColumnAlignment.Center),
+            new(4, ColumnAlignment.Center),
             new(19, ColumnAlignment.Left, ' '),
         ];
     }
@@ -175,25 +194,44 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         return
         [
             sourceDocument,
+            AccountingReportConstants.BlankSpace,
             consecutiveNumber,
             AccountingReportConstants.FORINT,
+            AccountingReportConstants.BlankSpace,
             accountingAssistant.Date.ToString("yyyymmdd"),
             accountingAssistant.Account ?? "",
             AccountingReportConstants.CENINT,
+            AccountingReportConstants.BlankSpace,
             accountingAssistant.Identification,
+            AccountingReportConstants.BlankSpace,
             accountingAssistant.VerificationDigit,
             accountingAssistant.Name,
             DBAINT,
+            AccountingReportConstants.NBAINT,
+            AccountingReportConstants.BlankSpace,
             AccountingReportConstants.VBAINT,
+            AccountingReportConstants.BlankSpace,
             AccountingReportConstants.NVBINT,
+            AccountingReportConstants.BlankSpace,
             AccountingReportConstants.FEMINT,
+            AccountingReportConstants.BlankSpace,
             AccountingReportConstants.FVEINT,
+            AccountingReportConstants.BlankSpace,
             creditValue,
+            AccountingReportConstants.BlankSpace,
             debitValue,
+            AccountingReportConstants.BlankSpace,
             AccountingReportConstants.ZeroValue,
+            new string(AccountingReportConstants.BlankSpace, 4),
+            AccountingReportConstants.BlankSpace,
             AccountingReportConstants.ZeroValue,
+            new string(AccountingReportConstants.BlankSpace, 4),
             accountingCode,
             accountingAssistant.Detail ?? "",
+            AccountingReportConstants.BlankSpace,
+            AccountingReportConstants.ESTINT,
+            new string(AccountingReportConstants.BlankSpace, 10),
+            new string(AccountingReportConstants.BlankSpace, 4),
             AccountingReportConstants.NDOINT,
         ];
     }

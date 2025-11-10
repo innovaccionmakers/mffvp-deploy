@@ -1,5 +1,4 @@
 ﻿namespace Common.SharedKernel.Domain;
-using Common.SharedKernel.Core.Primitives;
 
 public class ProcessingResult<T, E>
 {

@@ -63,6 +63,7 @@ public static class AccountingReportConstants
     public const string FVEINT = "0";
     public const string POINT = ".";
     public const string NDOINT = "0";
+    public const char ESTINT = ' ';
     public const string IncomeCode = "CO";
     public const string EgressCode = "CH";
     public const string ZeroValue = "000000000000000.00";
