@@ -66,5 +66,6 @@ public static class AccountingReportConstants
     public const string IncomeCode = "CO";
     public const string EgressCode = "CH";
     public const string ZeroValue = "000000000000000.00";
+    public const char BlankSpace = ' ';
     public const int MaxConsecutiveNumber = 9999999;
 }
