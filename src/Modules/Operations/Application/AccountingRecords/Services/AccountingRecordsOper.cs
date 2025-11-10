@@ -81,7 +81,7 @@ public sealed class AccountingRecordsOper(
             original.OperationTypeId,
             original.ApplicationDate,
             LifecycleStatus.AnnulledByDebitNote,
-            original.CauseId,
+        request.CauseId,
             original.TrustId,
             original.LinkedClientOperationId,
             original.Units);
