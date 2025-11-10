@@ -30,7 +30,6 @@ public class S3FileStorageService(
             throw new ArgumentException("El nombre del archivo es requerido", nameof(fileName));
         }
 
-        // Validar tamaño del archivo
         var fileSizeMB = fileContent.Length / (1024.0 * 1024.0);
         if (fileSizeMB > s3Config.Value.MaxFileSizeMB)
         {
@@ -50,14 +49,16 @@ public class S3FileStorageService(
                 ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
             };
 
-            // Agregar metadatos
+            request.Headers.ContentDisposition = $"attachment; filename=\"{fileName}\"";
+
+
             request.Metadata.Add("uploaded-at", DateTime.UtcNow.ToString("O"));
             request.Metadata.Add("original-filename", fileName);
             request.Metadata.Add("file-size", fileContent.Length.ToString());
 
             var response = await s3Client.PutObjectAsync(request, cancellationToken);
 
-            var publicUrl = GetPublicUrl(fileKey);
+            var publicUrl = GetPublicUrl(fileKey, fileName: fileName);
 
             logger.LogInformation("Archivo subido exitosamente a S3. Key: {FileKey}, Size: {FileSize} bytes",
                 fileKey, fileContent.Length);
@@ -101,13 +102,16 @@ public class S3FileStorageService(
                 ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
             };
 
+            // Agregar Content-Disposition para forzar descarga
+            request.Headers.ContentDisposition = $"attachment; filename=\"{fileName}\"";
+
             // Agregar metadatos
             request.Metadata.Add("uploaded-at", DateTime.UtcNow.ToString("O"));
             request.Metadata.Add("original-filename", fileName);
 
             var response = await s3Client.PutObjectAsync(request, cancellationToken);
 
-            var publicUrl = GetPublicUrl(fileKey);
+            var publicUrl = GetPublicUrl(fileKey, fileName: fileName);
 
             logger.LogInformation("Archivo subido exitosamente a S3 desde stream. Key: {FileKey}", fileKey);
 
@@ -196,7 +200,7 @@ public class S3FileStorageService(
         }
     }
 
-    public string GetPublicUrl(string fileKey, int? expirationHours = null)
+    public string GetPublicUrl(string fileKey, int? expirationHours = null, string? fileName = null)
     {
         if (string.IsNullOrWhiteSpace(fileKey))
         {
@@ -217,6 +221,14 @@ public class S3FileStorageService(
             Expires = DateTime.UtcNow.AddHours(expiration),
             Verb = HttpVerb.GET
         };
+
+        if (!string.IsNullOrWhiteSpace(fileName))
+        {
+            request.ResponseHeaderOverrides = new ResponseHeaderOverrides
+            {
+                ContentDisposition = $"attachment; filename=\"{fileName}\""
+            };
+        }
 
         try
         {

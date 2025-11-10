@@ -81,7 +81,7 @@ public sealed class AccountingNotificationService(
 
     public async Task SendProcessFinalizedAsync(
         string user,
-        string email,
+        string? email,
         string processId,
         DateTime startDate,
         DateTime processDate,
@@ -89,7 +89,7 @@ public sealed class AccountingNotificationService(
         CancellationToken cancellationToken = default,
         string stepId = "2")
     {
-        var message = $"Proceso contable {processId} completado exitosamente para la fecha {processDate:yyyy-MM-dd}";
+        var message = $"Se proceso exitosamente la solicitud {processId}";
 
         var details = new Dictionary<string, string>
         {
@@ -113,7 +113,7 @@ public sealed class AccountingNotificationService(
 
     public async Task SendProcessFailedAsync(
         string user,
-        string email,
+        string? email,
         string processId,
         DateTime startDate,
         DateTime processDate,
@@ -173,7 +173,7 @@ public sealed class AccountingNotificationService(
 
     public async Task SendProcessFailedWithErrorsAsync(
         string user,
-        string email,
+        string? email,
         string processId,
         DateTime startDate,
         DateTime processDate,
