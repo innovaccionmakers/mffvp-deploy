@@ -90,7 +90,7 @@ namespace Accounting.Application.AccountingConcepts
                     new GetPortfolioInformationByIdRequest(movement.PortfolioId), cancellationToken);
 
                 return (
-                    portfolio.PortfolioInformation?.PortfolioNIT ?? string.Empty,
+                    portfolio.PortfolioInformation?.NitApprovedPortfolio ?? string.Empty,
                     portfolio.PortfolioInformation?.VerificationDigit ?? 0,
                     portfolio.PortfolioInformation?.Name ?? string.Empty
                 );

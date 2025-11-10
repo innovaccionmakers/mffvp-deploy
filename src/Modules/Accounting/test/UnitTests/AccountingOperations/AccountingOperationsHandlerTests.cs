@@ -1,24 +1,41 @@
 ﻿using Accounting.Application.Abstractions.External;
 using Accounting.Application.AccountingOperations;
-using Accounting.Integrations.PassiveTransaction.GetAccountingOperationsPassiveTransaction;
+using Accounting.Integrations.AccountingOperations;
 using Accounting.Integrations.Treasuries.GetAccountingOperationsTreasuries;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain.OperationTypes;
-using Customers.Integrations.People.GetPeopleByIdentifications;
+using MediatR;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
 
 namespace Accounting.test.UnitTests.AccountingOperations
 {
     public class AccountingOperationsHandlerTests
     {
-        private readonly IOperationLocator _operationLocator;
-        private readonly ILogger<AccountingOperationsHandlerValidation> _logger;
+        private readonly Mock<IOperationLocator> _operationLocatorMock;
+        private readonly Mock<IRpcClient> _rpcClientMock;
+        private readonly Mock<ISender> _senderMock;
+        private readonly Mock<ILogger<AccountingOperationsHandlerValidation>> _loggerMock;
         private readonly AccountingOperationsHandlerValidation _handler;
+        private readonly AccountingOperationsCommand _command;
 
         public AccountingOperationsHandlerTests()
         {
-            _logger = new MockLogger<AccountingOperationsHandlerValidation>();
-            _handler = new AccountingOperationsHandlerValidation(_operationLocator, _logger);
+            _operationLocatorMock = new Mock<IOperationLocator>();
+            _rpcClientMock = new Mock<IRpcClient>();
+            _senderMock = new Mock<ISender>();
+            _loggerMock = new Mock<ILogger<AccountingOperationsHandlerValidation>>();
+
+            _handler = new AccountingOperationsHandlerValidation(
+                _operationLocatorMock.Object,
+                _rpcClientMock.Object,
+                _senderMock.Object,  // Make sure this line is present and correct
+                _loggerMock.Object);
+
+            _command = new AccountingOperationsCommand(
+                new List<int> { 1, 2, 3 },
+                DateTime.Now.Date);
         }
 
         [Fact]
@@ -26,28 +43,18 @@ namespace Accounting.test.UnitTests.AccountingOperations
         {
             // Arrange
             var operations = GenerateMockOperations(1000); // Reducido para debugging
-            var identificationByActivateId = GenerateMockIdentifications(operations);
-            var peopleByIdentification = GenerateMockPeople(identificationByActivateId.Values);
             var treasuryByPortfolioId = GenerateMockTreasuries(operations);
-            var passiveTransactionByPortfolioId = GenerateMockPassiveTransactions(operations);
-            var processDate = DateTime.Now;
             var cancellationToken = CancellationToken.None;
 
             // Debug: Verificar datos de entrada
             Console.WriteLine($"Operaciones generadas: {operations.Count}");
-            Console.WriteLine($"Identificaciones: {identificationByActivateId.Count}");
-            Console.WriteLine($"Personas: {peopleByIdentification.Count}");
             Console.WriteLine($"Treasuries: {treasuryByPortfolioId.Count}");
-            Console.WriteLine($"Passive Transactions: {passiveTransactionByPortfolioId.Count}");
 
             // Act
             var result = await _handler.ProcessOperationsInParallel(
                 operations,
-                identificationByActivateId,
-                peopleByIdentification,
                 treasuryByPortfolioId,
-                passiveTransactionByPortfolioId,
-                processDate,
+                _command,
                 cancellationToken);
 
             // Assert
@@ -59,20 +66,13 @@ namespace Accounting.test.UnitTests.AccountingOperations
         {
             // Arrange - Datos con missing values intencionales pero algunos válidos
             var operations = GenerateMockOperationsWithSomeValidData(1000);
-            var identificationByActivateId = GeneratePartialIdentifications(operations);
-            var peopleByIdentification = GenerateMockPeople(identificationByActivateId.Values);
             var treasuryByPortfolioId = GeneratePartialTreasuries(operations);
-            var passiveTransactionByPortfolioId = GeneratePartialPassiveTransactions(operations);
-            var processDate = DateTime.Now;
 
             // Act
             var result = await _handler.ProcessOperationsInParallel(
                 operations,
-                identificationByActivateId,
-                peopleByIdentification,
                 treasuryByPortfolioId,
-                passiveTransactionByPortfolioId,
-                processDate,
+                _command,
                 CancellationToken.None);
 
             // Assert
@@ -85,20 +85,13 @@ namespace Accounting.test.UnitTests.AccountingOperations
         {
             // Arrange
             var operations = GenerateValidMockOperations(1000);
-            var identificationByActivateId = GenerateMockIdentifications(operations);
-            var peopleByIdentification = GenerateMockPeople(identificationByActivateId.Values);
             var treasuryByPortfolioId = GenerateMockTreasuries(operations);
-            var passiveTransactionByPortfolioId = GenerateMockPassiveTransactions(operations);
-            var processDate = DateTime.Now;
 
             // Act
             var result = await _handler.ProcessOperationsInParallel(
                 operations,
-                identificationByActivateId,
-                peopleByIdentification,
                 treasuryByPortfolioId,
-                passiveTransactionByPortfolioId,
-                processDate,
+                _command,
                 CancellationToken.None);
 
             // Assert
@@ -110,20 +103,14 @@ namespace Accounting.test.UnitTests.AccountingOperations
         {
             // Arrange
             var operations = GenerateMixedValidityOperations(1000);
-            var identificationByActivateId = GenerateMockIdentifications(operations);
-            var peopleByIdentification = GenerateMockPeople(identificationByActivateId.Values);
             var treasuryByPortfolioId = GenerateMockTreasuries(operations);
-            var passiveTransactionByPortfolioId = GenerateMockPassiveTransactions(operations);
             var processDate = DateTime.Now;
 
             // Act
             var result = await _handler.ProcessOperationsInParallel(
                 operations,
-                identificationByActivateId,
-                peopleByIdentification,
                 treasuryByPortfolioId,
-                passiveTransactionByPortfolioId,
-                processDate,
+                _command,
                 CancellationToken.None);
 
             // Assert
@@ -132,86 +119,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
             Console.WriteLine($"Asistentes generados: {result}");
         }
 
-        [Fact]
-        public async Task ProcessOperationsInParallel_WithAllValidData_ShouldGenerateAssistants()
-        {
-            // Arrange - Solo datos válidos
-            var operations = GenerateAllValidOperations(100);
-            var identificationByActivateId = GenerateCompleteIdentifications(operations);
-            var peopleByIdentification = GenerateMockPeople(identificationByActivateId.Values);
-            var treasuryByPortfolioId = GenerateCompleteTreasuries(operations);
-            var passiveTransactionByPortfolioId = GenerateCompletePassiveTransactions(operations);
-            var processDate = DateTime.Now;
-
-            // Debug info
-            Console.WriteLine("=== PRUEBA CON DATOS COMPLETAMENTE VÁLIDOS ===");
-            Console.WriteLine($"Operaciones: {operations.Count}");
-            Console.WriteLine($"Todas tienen AffiliateId > 0: {operations.All(o => o.AffiliateId > 0)}");
-            Console.WriteLine($"Todas tienen PortfolioId válido: {operations.All(o => o.PortfolioId > 0 && o.PortfolioId < 1000)}");
-            Console.WriteLine($"Montos válidos: {operations.All(o => o.Amount > 0)}");
-
-            // Act
-            var result = await _handler.ProcessOperationsInParallel(
-                operations,
-                identificationByActivateId,
-                peopleByIdentification,
-                treasuryByPortfolioId,
-                passiveTransactionByPortfolioId,
-                processDate,
-                CancellationToken.None);
-
-            // Assert
-            Assert.NotNull(result);
-        }
-
-        #region Helper Methods Mejorados
-
-        // Método para debug
-        private async Task DebugAccountingAssistantCreation()
-        {
-            Console.WriteLine("=== DEBUG ACCOUNTING ASSISTANT CREATION ===");
-
-            // Crear datos mínimos válidos
-            var minimalOperation = new GetAccountingOperationsResponse(
-                PortfolioId: 1,
-                AffiliateId: 1,
-                Amount: 100.50m,
-                OperationTypeName: "DEPOSIT",
-                Nature: IncomeEgressNature.Income,
-                OperationTypeId: 1,
-                CollectionAccount: "ACC001"
-            );
-
-            var minimalIdentifications = new Dictionary<int, string> { { 1, "ID0000000001" } };
-            var minimalPeople = new Dictionary<string, GetPeopleByIdentificationsResponse>
-            {
-                { "ID0000000001", new GetPeopleByIdentificationsResponse("ID0000000001", "John Smith") }
-            };
-            var minimalTreasuries = new Dictionary<int, GetAccountingOperationsTreasuriesResponse>
-            {
-                { 1, new GetAccountingOperationsTreasuriesResponse(1, "1001001001") }
-            };
-            var minimalPassiveTransactions = new Dictionary<int, GetAccountingOperationsPassiveTransactionResponse>
-            {
-                { 1, new GetAccountingOperationsPassiveTransactionResponse(1, "2002002001") }
-            };
-
-            try
-            {
-                var result = await _handler.ProcessOperationsInParallel(
-                    new List<GetAccountingOperationsResponse> { minimalOperation },
-                    minimalIdentifications,
-                    minimalPeople,
-                    minimalTreasuries,
-                    minimalPassiveTransactions,
-                    DateTime.Now,
-                    CancellationToken.None);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error en debug: {ex.Message}");
-            }
-        }
 
         private IReadOnlyCollection<GetAccountingOperationsResponse> GenerateMockOperations(int count)
         {
@@ -249,27 +156,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
                     PortfolioId: random.Next(1, 50), // Rango pequeño para asegurar matches
                     AffiliateId: random.Next(1, 500),
                     Amount: (decimal)(random.NextDouble() * 5000) + 10, // Mínimo 10
-                    OperationTypeName: "DEPOSIT",
-                    Nature: IncomeEgressNature.Income,
-                    OperationTypeId: 1,
-                    CollectionAccount: "ACC001"
-                ));
-            }
-
-            return operations;
-        }
-
-        private IReadOnlyCollection<GetAccountingOperationsResponse> GenerateAllValidOperations(int count)
-        {
-            var operations = new List<GetAccountingOperationsResponse>();
-            var random = new Random();
-
-            for (int i = 0; i < count; i++)
-            {
-                operations.Add(new GetAccountingOperationsResponse(
-                    PortfolioId: random.Next(1, 10), // Rango muy pequeño para garantizar matches
-                    AffiliateId: random.Next(1, 100),
-                    Amount: 100.00m, // Monto fijo válido
                     OperationTypeName: "DEPOSIT",
                     Nature: IncomeEgressNature.Income,
                     OperationTypeId: 1,
@@ -333,70 +219,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
             return operations;
         }
 
-        private Dictionary<int, string> GenerateMockIdentifications(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
-        {
-            var identifications = new Dictionary<int, string>();
-            var distinctAffiliateIds = operations.Select(o => o.AffiliateId).Distinct().Where(id => id > 0);
-
-            foreach (var affiliateId in distinctAffiliateIds)
-            {
-                identifications[affiliateId] = $"ID{affiliateId:D10}";
-            }
-
-            return identifications;
-        }
-
-        private Dictionary<int, string> GenerateCompleteIdentifications(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
-        {
-            var identifications = new Dictionary<int, string>();
-            var distinctAffiliateIds = operations.Select(o => o.AffiliateId).Distinct();
-
-            foreach (var affiliateId in distinctAffiliateIds)
-            {
-                identifications[affiliateId] = $"ID{affiliateId:D10}";
-            }
-
-            return identifications;
-        }
-
-        private Dictionary<int, string> GeneratePartialIdentifications(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
-        {
-            var identifications = new Dictionary<int, string>();
-            var distinctAffiliateIds = operations.Select(o => o.AffiliateId).Distinct().Where(id => id > 0);
-            var random = new Random();
-
-            foreach (var affiliateId in distinctAffiliateIds)
-            {
-                // Solo el 80% de los affiliateIds tendrán identificación
-                if (random.Next(10) > 2)
-                {
-                    identifications[affiliateId] = $"ID{affiliateId:D10}";
-                }
-            }
-
-            return identifications;
-        }
-
-        private Dictionary<string, GetPeopleByIdentificationsResponse> GenerateMockPeople(ICollection<string> identifications)
-        {
-            var people = new Dictionary<string, GetPeopleByIdentificationsResponse>();
-            var names = new[] { "John", "Jane", "Robert", "Maria" };
-            var lastNames = new[] { "Smith", "Johnson", "Garcia", "Brown" };
-            var random = new Random();
-
-            foreach (var identification in identifications)
-            {
-                var firstName = names[random.Next(names.Length)];
-                var lastName = lastNames[random.Next(lastNames.Length)];
-                people[identification] = new GetPeopleByIdentificationsResponse(
-                    Identification: identification,
-                    FullName: $"{firstName} {lastName}"
-                );
-            }
-
-            return people;
-        }
-
         private Dictionary<int, GetAccountingOperationsTreasuriesResponse> GenerateMockTreasuries(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
         {
             var treasuries = new Dictionary<int, GetAccountingOperationsTreasuriesResponse>();
@@ -409,22 +231,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 treasuries[portfolioId] = new GetAccountingOperationsTreasuriesResponse(
                     PortfolioId: portfolioId,
                     DebitAccount: debitAccounts[random.Next(debitAccounts.Length)]
-                );
-            }
-
-            return treasuries;
-        }
-
-        private Dictionary<int, GetAccountingOperationsTreasuriesResponse> GenerateCompleteTreasuries(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
-        {
-            var treasuries = new Dictionary<int, GetAccountingOperationsTreasuriesResponse>();
-            var distinctPortfolioIds = operations.Select(o => o.PortfolioId).Distinct();
-
-            foreach (var portfolioId in distinctPortfolioIds)
-            {
-                treasuries[portfolioId] = new GetAccountingOperationsTreasuriesResponse(
-                    PortfolioId: portfolioId,
-                    DebitAccount: "1001001001"
                 );
             }
 
@@ -451,77 +257,6 @@ namespace Accounting.test.UnitTests.AccountingOperations
             }
 
             return treasuries;
-        }
-
-        private Dictionary<int, GetAccountingOperationsPassiveTransactionResponse> GenerateMockPassiveTransactions(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
-        {
-            var passiveTransactions = new Dictionary<int, GetAccountingOperationsPassiveTransactionResponse>();
-            var creditAccounts = new[] { "2002002001", "2002002002", "2002002003" };
-            var random = new Random();
-            var distinctPortfolioIds = operations.Select(o => o.PortfolioId).Distinct().Where(id => id > 0 && id < 1000);
-
-            foreach (var portfolioId in distinctPortfolioIds)
-            {
-                passiveTransactions[portfolioId] = new GetAccountingOperationsPassiveTransactionResponse(
-                    PortfolioId: portfolioId,
-                    CreditAccount: creditAccounts[random.Next(creditAccounts.Length)]
-                );
-            }
-
-            return passiveTransactions;
-        }
-
-        private Dictionary<int, GetAccountingOperationsPassiveTransactionResponse> GenerateCompletePassiveTransactions(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
-        {
-            var passiveTransactions = new Dictionary<int, GetAccountingOperationsPassiveTransactionResponse>();
-            var distinctPortfolioIds = operations.Select(o => o.PortfolioId).Distinct();
-
-            foreach (var portfolioId in distinctPortfolioIds)
-            {
-                passiveTransactions[portfolioId] = new GetAccountingOperationsPassiveTransactionResponse(
-                    PortfolioId: portfolioId,
-                    CreditAccount: "2002002001"
-                );
-            }
-
-            return passiveTransactions;
-        }
-
-        private Dictionary<int, GetAccountingOperationsPassiveTransactionResponse> GeneratePartialPassiveTransactions(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
-        {
-            var passiveTransactions = new Dictionary<int, GetAccountingOperationsPassiveTransactionResponse>();
-            var creditAccounts = new[] { "2002002001", "2002002002" };
-            var random = new Random();
-            var distinctPortfolioIds = operations.Select(o => o.PortfolioId).Distinct().Where(id => id > 0 && id < 1000);
-
-            foreach (var portfolioId in distinctPortfolioIds)
-            {
-                // Solo el 75% de los portfolios tendrán passive transaction
-                if (random.Next(10) > 2)
-                {
-                    passiveTransactions[portfolioId] = new GetAccountingOperationsPassiveTransactionResponse(
-                        PortfolioId: portfolioId,
-                        CreditAccount: creditAccounts[random.Next(creditAccounts.Length)]
-                    );
-                }
-            }
-
-            return passiveTransactions;
-        }
-
-        #endregion
-    }
-
-    // Mock Logger para pruebas
-    public class MockLogger<T> : ILogger<T>
-    {
-        public IDisposable BeginScope<TState>(TState state) => null;
-        public bool IsEnabled(LogLevel logLevel) => true;
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            // Log everything for debugging
-            Console.WriteLine($"{logLevel}: {formatter(state, exception)}");
         }
     }
 }
