@@ -30,7 +30,6 @@ public class S3FileStorageService(
             throw new ArgumentException("El nombre del archivo es requerido", nameof(fileName));
         }
 
-        // Validar tamaño del archivo
         var fileSizeMB = fileContent.Length / (1024.0 * 1024.0);
         if (fileSizeMB > s3Config.Value.MaxFileSizeMB)
         {
@@ -50,7 +49,9 @@ public class S3FileStorageService(
                 ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
             };
 
-            // Agregar metadatos
+            request.Headers.ContentDisposition = $"attachment; filename=\"{fileName}\"";
+
+
             request.Metadata.Add("uploaded-at", DateTime.UtcNow.ToString("O"));
             request.Metadata.Add("original-filename", fileName);
             request.Metadata.Add("file-size", fileContent.Length.ToString());
@@ -100,6 +101,9 @@ public class S3FileStorageService(
                 ContentType = contentType,
                 ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
             };
+
+            // Agregar Content-Disposition para forzar descarga
+            request.Headers.ContentDisposition = $"attachment; filename=\"{fileName}\"";
 
             // Agregar metadatos
             request.Metadata.Add("uploaded-at", DateTime.UtcNow.ToString("O"));
