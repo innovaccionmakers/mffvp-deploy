@@ -130,7 +130,7 @@ internal sealed class AccountProcessHandler(
 
     private async Task PublishProcessCompletedAsync(
         string user,
-        string email,
+        string? email,
         string processType,
         bool isSuccess,
         string? errorMessage,

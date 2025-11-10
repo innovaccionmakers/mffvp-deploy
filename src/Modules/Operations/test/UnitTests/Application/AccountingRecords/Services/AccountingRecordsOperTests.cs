@@ -75,6 +75,7 @@ public class AccountingRecordsOperTests
         fixture.InsertedDebitNote.ProcessDate.Should().Be(fixture.ExpectedProcessDate);
 
         fixture.OriginalOperation.Status.Should().Be(LifecycleStatus.AnnulledByDebitNote);
+        fixture.OriginalOperation.CauseId.Should().Be(fixture.Request.CauseId);
 
         var expectedTrustOperationUnits = decimal.Round(
             Math.Abs(fixture.TrustEarnings) / fixture.UnitValue,

@@ -4,7 +4,7 @@ namespace Accounting.IntegrationEvents.AccountingProcess;
 
 public sealed class AccountingProcessCompletedIntegrationEvent(
     string user,
-    string email,
+    string? email,
     string processType,
     bool isSuccess,
     string? errorMessage,
@@ -15,7 +15,7 @@ public sealed class AccountingProcessCompletedIntegrationEvent(
     : IntegrationEvent(Guid.NewGuid(), DateTime.UtcNow)
 {
     public string User { get; set; } = user;
-    public string Email { get; set; } = email;
+    public string? Email { get; set; } = email;
     public string ProcessType { get; init; } = processType;
     public bool IsSuccess { get; init; } = isSuccess;
     public string? ErrorMessage { get; init; } = errorMessage;
