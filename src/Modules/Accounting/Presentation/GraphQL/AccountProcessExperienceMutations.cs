@@ -39,7 +39,7 @@ namespace Accounting.Presentation.GraphQL
                     return result;
                 }
 
-                result.SetSuccess(commandResult.Value, "Hemos recibido tu solicitud para el Informe de Contabilidad. Te mantendremos informado sobre el progreso através del Centro de notificaciones y tu Correo Electrónico.");
+                result.SetSuccess(commandResult.Value, "Hemos recibido tu solicitud para el Informe de Contabilidad. Te mantendremos informado sobre el progreso a través del Centro de notificaciones y tu correo electrónico.");
 
                 return result;
 
