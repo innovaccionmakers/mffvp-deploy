@@ -127,19 +127,37 @@ public abstract class TextReportStrategyBase(
             value = string.Empty;
         }
 
-        // Truncar si excede el ancho
         if (value.Length > columnConfig.Width)
         {
             value = value.Substring(0, columnConfig.Width);
         }
 
-        // Aplicar alineación y relleno
         return columnConfig.Alignment switch
         {
-            ColumnAlignment.Left => value.PadRight(columnConfig.Width, columnConfig.PaddingChar),
-            ColumnAlignment.Right => value.PadLeft(columnConfig.Width, columnConfig.PaddingChar),
+            ColumnAlignment.Left => ApplyPaddingForLeftAlignment(value, columnConfig),
+            ColumnAlignment.Right => ApplyPaddingForRightAlignment(value, columnConfig),
             ColumnAlignment.Center => CenterAlign(value, columnConfig.Width, columnConfig.PaddingChar),
+            _ => ApplyPaddingForLeftAlignment(value, columnConfig)
+        };
+    }
+
+    private string ApplyPaddingForLeftAlignment(string value, ColumnConfiguration columnConfig)
+    {
+        return columnConfig.PaddingSide switch
+        {
+            PaddingSide.Right => value.PadRight(columnConfig.Width, columnConfig.PaddingChar),
+            PaddingSide.Left => value.PadLeft(columnConfig.Width, columnConfig.PaddingChar),
             _ => value.PadRight(columnConfig.Width, columnConfig.PaddingChar)
+        };
+    }
+
+    private string ApplyPaddingForRightAlignment(string value, ColumnConfiguration columnConfig)
+    {
+       return columnConfig.PaddingSide switch
+        {
+            PaddingSide.Left => value.PadLeft(columnConfig.Width, columnConfig.PaddingChar),
+            PaddingSide.Right => value.PadRight(columnConfig.Width, columnConfig.PaddingChar),
+            _ => value.PadLeft(columnConfig.Width, columnConfig.PaddingChar)
         };
     }
 
