@@ -164,7 +164,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             new(18, ColumnAlignment.Center),
             new(4, ColumnAlignment.Center),
             new(10, ColumnAlignment.Left, '0'),
-            new(60, ColumnAlignment.Right, '0'),
+            new(60, ColumnAlignment.Right, ' '),
             new(4, ColumnAlignment.Center),
             new(1, ColumnAlignment.Center),
             new(10, ColumnAlignment.Center),
