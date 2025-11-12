@@ -5,7 +5,7 @@ using FluentValidation;
 
 namespace Accounting.Presentation.GraphQL
 {
-    public interface IAccountProcessExperienceMutations
+    public interface IAccountingExperienceMutations
     {
         Task<GraphqlResult<AccountProcessResult>> AccountProcessAsync(
         AccountingInput input,

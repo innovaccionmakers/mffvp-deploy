@@ -33,7 +33,7 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
     internal DbSet<Consecutive> Consecutives { get; set; }
     internal DbSet<GeneralConfiguration> GeneralConfigurations { get; set; }
     internal DbSet<ConsecutiveFile> ConsecutiveFiles { get; set; }
-    internal DbSet<AccountingAccount> AccountingAccount { get; set; }
+    internal DbSet<AccountingAccount> AccountingAccounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -210,7 +210,7 @@ public class Mutation
     [Authorize(Policy = MakersPermissionsAccounting.PolicyGenerateGeneration)]
     public async Task<GraphqlResult<AccountProcessResult>> AccountProcess([GraphQLName("cuenta")] AccountingInput input,
                                                        IValidator<AccountingInput> validator,
-                                                       [Service] IAccountProcessExperienceMutations accountProcessMutations,
+                                                       [Service] IAccountingExperienceMutations accountProcessMutations,
                                                        CancellationToken cancellationToken)
     {
         return await accountProcessMutations.AccountProcessAsync(input, validator, cancellationToken);

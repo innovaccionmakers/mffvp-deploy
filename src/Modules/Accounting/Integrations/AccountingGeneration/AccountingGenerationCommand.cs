@@ -1,4 +1,5 @@
-﻿using Common.SharedKernel.Application.Messaging;
+﻿using Common.SharedKernel.Application.Attributes;
+using Common.SharedKernel.Application.Messaging;
 using MediatR;
 
 namespace Accounting.Integrations.AccountingGeneration;

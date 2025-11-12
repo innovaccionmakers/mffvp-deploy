@@ -23,4 +23,8 @@
     <ProjectReference Include="..\Integrations\Accounting.Integrations.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="Accounting.test.UnitTests" />
+	</ItemGroup>
+
 </Project>

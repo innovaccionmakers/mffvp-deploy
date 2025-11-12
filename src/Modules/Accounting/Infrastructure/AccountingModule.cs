@@ -9,6 +9,7 @@ using Accounting.Application.AccountingValidator.Reports;
 using Accounting.Application.AccountProcess;
 using Accounting.Application.AutomaticConcepts;
 using Accounting.Application.Services;
+using Accounting.Domain.AccountingAccounts;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Concepts;
@@ -18,6 +19,7 @@ using Accounting.Domain.ConsecutiveFiles;
 using Accounting.Domain.Consecutives;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Domain.Treasuries;
+using Accounting.Infrastructure.AccountingAccounts;
 using Accounting.Infrastructure.AccountingAssistants;
 using Accounting.Infrastructure.AccountingInconsistencies;
 using Accounting.Infrastructure.AccountProcess;
@@ -96,7 +98,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IPassiveTransactionRepository, PassiveTransactionRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AccountingDbContext>());
         services.AddScoped<IAccountingAssistantRepository, AccountingAssistantRepository>();
-        services.AddScoped<IAccountProcessExperienceMutations, AccountProcessExperienceMutations>();
+        services.AddScoped<IAccountingExperienceMutations, AccountingExperienceMutations>();
         services.AddScoped<ITreasuryRepository, TreasuryRepository>();
         services.AddScoped<IConceptsRepository, ConceptsRepository>();
         services.AddScoped<IGeneralConfigurationRepository, GeneralConfigurationRepository>();
@@ -112,8 +114,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<AccountingGenerationReport>();
         services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();
         services.AddScoped<IAccountingNotificationService, AccountingNotificationService>();
-
-
+        services.AddScoped<IAccountingAccountRepository, AccountingAccountRepository>();
+        services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
