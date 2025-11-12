@@ -82,7 +82,7 @@ internal sealed class RedisAccountingProcessStore(
                 ProcessTypes.AccountingReturns,
                 ProcessTypes.AccountingOperations,
                 ProcessTypes.AccountingConcepts,
-                //ProcessTypes.AutomaticConcepts
+                ProcessTypes.AutomaticConcepts
             };
 
             var allCompleted = requiredProcessTypes.All(type =>
