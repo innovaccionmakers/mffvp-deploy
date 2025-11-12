@@ -3,6 +3,7 @@ using Accounting.Application.Abstractions.External;
 using Accounting.Integrations.AccountProcess;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
+using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Domain;
 using MediatR;
 using Moq;
@@ -14,10 +15,10 @@ namespace Accounting.test.UnitTests.AccountProcess
     {
         private readonly Mock<ISender> _senderMock;
         private readonly Mock<IClosingExecutionStore> _closingValidatorMock;
-        private readonly Mock<IServiceProvider> _serviceProviderMock;
         private readonly Mock<IAccountingNotificationService> _accountingNotificationServiceMock;
         private readonly Mock<IUserLocator> _userLocatorMock;
         private readonly Mock<IUserService> _userServiceMock;
+        private readonly Mock<IEventBus> _eventBusMock;
         private readonly object _handler;
         private readonly MethodInfo _handleMethod;
 
@@ -25,10 +26,10 @@ namespace Accounting.test.UnitTests.AccountProcess
         {
             _senderMock = new Mock<ISender>();
             _closingValidatorMock = new Mock<IClosingExecutionStore>();
-            _serviceProviderMock = new Mock<IServiceProvider>();
             _accountingNotificationServiceMock = new Mock<IAccountingNotificationService>();
             _userLocatorMock = new Mock<IUserLocator>();
             _userServiceMock = new Mock<IUserService>();
+            _eventBusMock = new Mock<IEventBus>();
 
             // Crear instancia usando reflection
             var handlerType = Assembly.Load("Accounting.Application")
@@ -37,10 +38,10 @@ namespace Accounting.test.UnitTests.AccountProcess
             _handler = Activator.CreateInstance(handlerType,
                 _senderMock.Object,
                 _closingValidatorMock.Object,
-                _serviceProviderMock.Object,
                 _accountingNotificationServiceMock.Object,
                 _userLocatorMock.Object,
-                _userServiceMock.Object);
+                _userServiceMock.Object,
+                _eventBusMock.Object);
 
             _handleMethod = handlerType.GetMethod("Handle");
         }
