@@ -26,7 +26,7 @@ public class ConfirmClosingOrchestrator(
     ILogger<ConfirmClosingOrchestrator> logger)
     : IConfirmClosingOrchestrator
 {
-    public async Task<Result<ConfirmClosingResult>> ConfirmAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
+    public async Task<Result<ConfirmClosingResult>> ConfirmAsync(int portfolioId, DateTime closingDate, bool isFirstClosingDay, CancellationToken cancellationToken)
     {
         closingDate = DateTimeConverter.ToUtcDateTime(closingDate);
         cancellationToken.ThrowIfCancellationRequested();
@@ -46,40 +46,28 @@ public class ConfirmClosingOrchestrator(
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (stepTimer.Track("ConfirmClosingOrchestrator.DistributableReturns", portfolioId, closingDate))
+            if (!isFirstClosingDay)
             {
-                var distributableReturnsResult = await distributableReturnsService.RunAsync(portfolioId, closingDate, cancellationToken);
-                if (distributableReturnsResult.IsFailure)
+                using (stepTimer.Track("ConfirmClosingOrchestrator.DistributableReturns", portfolioId, closingDate))
                 {
-                    logger.LogWarning(
-                        "Falló proceso de rendimientos distribuibles para portafolio {PortfolioId}: {Error}",
-                        portfolioId,
-                        distributableReturnsResult.Error.Description);
-                    return Result.Failure<ConfirmClosingResult>(distributableReturnsResult.Error);
+                    var distributableReturnsResult = await distributableReturnsService.RunAsync(portfolioId, closingDate, cancellationToken);
+                    if (distributableReturnsResult.IsFailure)
+                    {
+                        logger.LogWarning(
+                            "Falló proceso de rendimientos distribuibles para portafolio {PortfolioId}: {Error}",
+                            portfolioId,
+                            distributableReturnsResult.Error.Description);
+                        return Result.Failure<ConfirmClosingResult>(distributableReturnsResult.Error);
+                    }
                 }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
+            
             // Paso 2: Validar rendimientos distribuidos
             using (stepTimer.Track("ConfirmClosingOrchestrator.ValidateTrustYields", portfolioId, closingDate))
-            using (stepTimer.Track("ConfirmClosingOrchestrator.ReturnsOperations", portfolioId, closingDate))
             {
-                var validationTask = trustYieldsValidation.RunAsync(portfolioId, closingDate, cancellationToken);
-                var returnsOperationsTask = returnsOperationsService.RunAsync(portfolioId, closingDate, isInternalProcess: true, cancellationToken);
-
-                await Task.WhenAll(validationTask, returnsOperationsTask);
-
-                var returnsOperationsResult = await returnsOperationsTask;
-                if (returnsOperationsResult.IsFailure)
-                {
-                    logger.LogWarning(
-                        "Falló operaciones de rendimientos para portafolio {PortfolioId}: {Error}",
-                        portfolioId,
-                        returnsOperationsResult.Error.Description);
-                    return Result.Failure<ConfirmClosingResult>(returnsOperationsResult.Error);
-                }
-
-                var validationResult = await validationTask;
+                var validationResult = await trustYieldsValidation.RunAsync(portfolioId, closingDate, cancellationToken);
                 if (validationResult.IsFailure)
                 {
                     logger.LogWarning(
@@ -92,7 +80,26 @@ public class ConfirmClosingOrchestrator(
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            //Paso 3: Guardar todo en base de datos
+            // Paso 3: Operaciones de rendimientos (solo si no es el primer día de cierre)
+            if (!isFirstClosingDay)
+            {
+                using (stepTimer.Track("ConfirmClosingOrchestrator.ReturnsOperations", portfolioId, closingDate))
+                {
+                    var returnsOperationsResult = await returnsOperationsService.RunAsync(portfolioId, closingDate, isInternalProcess: true, cancellationToken);
+                    if (returnsOperationsResult.IsFailure)
+                    {
+                        logger.LogWarning(
+                            "Falló operaciones de rendimientos para portafolio {PortfolioId}: {Error}",
+                            portfolioId,
+                            returnsOperationsResult.Error.Description);
+                        return Result.Failure<ConfirmClosingResult>(returnsOperationsResult.Error);
+                    }
+                }
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            //Paso 4: Guardar todo en base de datos
             using (stepTimer.Track("ConfirmClosingOrchestrator.UnitOfWork.SaveChanges", portfolioId, closingDate))
             {
                 await unitOfWork.SaveChangesAsync(cancellationToken);

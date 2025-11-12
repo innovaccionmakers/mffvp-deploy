@@ -1,11 +1,8 @@
-﻿using Common.SharedKernel.Application.Attributes;
-using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Application.Messaging;
 using System.Text.Json.Serialization;
 
 namespace Accounting.Integrations.AccountingConcepts
 {
-    [AuditLog]
     public sealed record AccountingConceptsCommand(
         [property: JsonPropertyName("idsPortafolio")]
         IEnumerable<int> PortfolioIds,

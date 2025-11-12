@@ -1,11 +1,12 @@
 ﻿using Accounting.Application.Abstractions.Data;
+using Accounting.Domain.AccountingAccounts;
 using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.Concepts;
 using Accounting.Domain.ConfigurationGenerals;
 using Accounting.Domain.ConsecutiveFiles;
 using Accounting.Domain.Consecutives;
 using Accounting.Domain.PassiveTransactions;
-using Accounting.Domain.Treasuries;
+using Accounting.Infrastructure.AccountingAccounts;
 using Accounting.Infrastructure.AccountingAssistants;
 using Accounting.Infrastructure.Concepts;
 using Accounting.Infrastructure.ConfigurationGenerals;
@@ -32,6 +33,7 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
     internal DbSet<Consecutive> Consecutives { get; set; }
     internal DbSet<GeneralConfiguration> GeneralConfigurations { get; set; }
     internal DbSet<ConsecutiveFile> ConsecutiveFiles { get; set; }
+    internal DbSet<AccountingAccount> AccountingAccount { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,6 +46,7 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
         modelBuilder.ApplyConfiguration(new ConsecutiveConfiguration());
         modelBuilder.ApplyConfiguration(new GeneralConfigurationConfiguration());
         modelBuilder.ApplyConfiguration(new ConsecutiveFileConfiguration());
+        modelBuilder.ApplyConfiguration(new AccountingAccountConfiguration());
         modelBuilder.ApplyConfiguration(new ConfigurationParameterConfiguration(Schemas.Accounting));
 
     }

@@ -111,7 +111,7 @@ public sealed class ConfirmClosingOrchestratorTests
             stepTimer.Object,
             Mock.Of<ILogger<ConfirmClosingOrchestrator>>());
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(portfolioId, result.Value.PortfolioId);
@@ -160,7 +160,7 @@ public sealed class ConfirmClosingOrchestratorTests
             unitOfWork,
             timer);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal(failure.Code, result.Error.Code);
@@ -213,7 +213,7 @@ public sealed class ConfirmClosingOrchestratorTests
             unitOfWork,
             timer);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal(failure.Code, result.Error.Code);
@@ -266,12 +266,13 @@ public sealed class ConfirmClosingOrchestratorTests
             unitOfWork,
             timer);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal(validationFailure.Code, result.Error.Code);
 
-        returnsOperations.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), true, It.IsAny<CancellationToken>()), Times.Once);
+        // Como la ejecución es secuencial, si validation falla, returnsOperations no se ejecuta
+        returnsOperations.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), true, It.IsAny<CancellationToken>()), Times.Never);
         unitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -310,7 +311,7 @@ public sealed class ConfirmClosingOrchestratorTests
             unitOfWork,
             timer);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal("001", result.Error.Code);
@@ -319,6 +320,64 @@ public sealed class ConfirmClosingOrchestratorTests
         unitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         returnsOperations.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
         validation.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ConfirmAsync_WhenIsFirstClosingDay_SkipsDistributableReturnsAndReturnsOperations()
+    {
+        const int portfolioId = 61;
+        var closingDate = new DateTime(2024, 6, 30);
+
+        var distributeTrustYieldsService = new Mock<IDistributeTrustYieldsService>();
+        distributeTrustYieldsService
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var distributableReturnsService = new Mock<IDistributableReturnsService>();
+        var validateTrustYieldsDistributionService = new Mock<IValidateTrustYieldsDistributionService>();
+        validateTrustYieldsDistributionService
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var returnsOperationsService = new Mock<IReturnsOperationsService>();
+        var warningCollector = new Mock<IWarningCollector>();
+        warningCollector.Setup(collector => collector.GetAll()).Returns(Array.Empty<WarningItem>());
+
+        var abortClosingService = new Mock<IAbortClosingService>();
+        var unitOfWork = new Mock<IUnitOfWork>();
+        unitOfWork
+            .Setup(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        var stepTimer = new Mock<IClosingStepTimer>();
+        stepTimer
+            .Setup(timer => timer.Track(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<string?>()))
+            .Returns(Mock.Of<IDisposable>());
+
+        var orchestrator = new ConfirmClosingOrchestrator(
+            distributeTrustYieldsService.Object,
+            distributableReturnsService.Object,
+            validateTrustYieldsDistributionService.Object,
+            returnsOperationsService.Object,
+            warningCollector.Object,
+            abortClosingService.Object,
+            unitOfWork.Object,
+            stepTimer.Object,
+            Mock.Of<ILogger<ConfirmClosingOrchestrator>>());
+
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: true, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(portfolioId, result.Value.PortfolioId);
+
+        // Verificar que se ejecutan los servicios esperados
+        distributeTrustYieldsService.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
+        validateTrustYieldsDistributionService.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+
+        // Verificar que NO se ejecutan DistributableReturns y ReturnsOperations
+        distributableReturnsService.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
+        returnsOperationsService.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
 

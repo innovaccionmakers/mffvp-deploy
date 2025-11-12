@@ -188,14 +188,14 @@ public sealed class ReturnsOperationsService(
             return Result.Failure<ConceptMetadataCollection>(creditNoteResult.Error);
         }
 
-        var incomeResult = ExtractConcept(map, ConfigurationParameterUuids.Closing.YieldAdjustmentIncome, "RO002",
+        var incomeResult = ExtractConcept(map, ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome, "RO002",
             "No se encontró la configuración del concepto 'Ajuste Rendimiento NC Ingreso'.");
         if (incomeResult.IsFailure)
         {
             return Result.Failure<ConceptMetadataCollection>(incomeResult.Error);
         }
 
-        var expenseResult = ExtractConcept(map, ConfigurationParameterUuids.Closing.YieldAdjustmentExpense, "RO003",
+        var expenseResult = ExtractConcept(map, ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense, "RO003",
             "No se encontró la configuración del concepto 'Ajuste Rendimiento NC Gasto'.");
         if (expenseResult.IsFailure)
         {

@@ -1,19 +1,26 @@
 ﻿using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Operations.Domain.ClientOperations;
+using Operations.Domain.OperationTypes;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
 
 namespace Operations.Application.ClientOperations.GetAccountingOperations
 {
     internal class GetAccountingOperationsQueryHandler(
-        IClientOperationRepository repository)
+        IClientOperationRepository repository,
+        IOperationTypeRepository operationTypeRepository)
         : IQueryHandler<GetAccountingOperationsQuery, IReadOnlyCollection<GetAccountingOperationsResponse>>
     {
+        private readonly string Name = "Aporte";
         public async Task<Result<IReadOnlyCollection<GetAccountingOperationsResponse>>> Handle(GetAccountingOperationsQuery request, CancellationToken cancellationToken)
         {
             var utcProcessDate = request.ProcessDate.Kind == DateTimeKind.Unspecified
                                 ? DateTime.SpecifyKind(request.ProcessDate, DateTimeKind.Utc)
                                 : request.ProcessDate.ToUniversalTime();
+
+            var operationType = await operationTypeRepository.GetByNameAsync(Name, cancellationToken);
+            var listOperationType = operationType.Select(c => (c.Name, c.Nature)).FirstOrDefault();
 
             var clientOperations = await repository.GetAccountingOperationsAsync(request.PortfolioId, utcProcessDate, cancellationToken);
 
@@ -22,8 +29,8 @@ namespace Operations.Application.ClientOperations.GetAccountingOperations
                 c.PortfolioId,
                 c.AffiliateId,
                 c.Amount,
-                c.OperationType.Name,
-                c.OperationType.Nature,
+                listOperationType.Name,
+                listOperationType.Nature,
                 c.OperationTypeId,
                 c.AuxiliaryInformation.CollectionAccount))
             .ToList();

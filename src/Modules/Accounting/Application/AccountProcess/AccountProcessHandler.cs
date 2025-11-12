@@ -44,11 +44,11 @@ internal sealed class AccountProcessHandler(
         var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         await accountingNotificationService.SendProcessInitiatedAsync(
-           username,
-           email,
-           processId.ToString(),
-           processDate,
-           cancellationToken
+            username,
+            email,
+            processId.ToString(),
+            processDate,
+            cancellationToken
        );
         var capPublisher = eventBus.GetCapPublisher();
 
