@@ -220,7 +220,7 @@ public class ClientOperationRepositoryTests
     }
 
     [Fact]
-    public async Task GetTrustIdsByStatusAndProcessDateAsyncReturnsMatches()
+    public async Task GetTrustIdsByOperationTypeAndProcessDateAsyncReturnsMatches()
     {
         using var ctx = CreateContext();
         var repo = new ClientOperationRepository(ctx);
@@ -232,19 +232,24 @@ public class ClientOperationRepositoryTests
             NewOp(502, 1, processDate, 1, 5m, LifecycleStatus.AnnulledByDebitNote, 1002),
             NewOp(503, 1, processDate.AddDays(1), 1, 5m, LifecycleStatus.AnnulledByDebitNote, 1003),
             NewOp(504, 1, processDate, 1, 5m, LifecycleStatus.Active, 1001),
-            NewOp(505, 1, processDate, 1, 5m, LifecycleStatus.AnnulledByDebitNote, null)
+            NewOp(505, 1, processDate, 1, 5m, LifecycleStatus.AnnulledByDebitNote, null),
+            NewOp(506, 1, processDate, 2, 5m, LifecycleStatus.AnnulledByDebitNote, 1004)
         );
         await ctx.SaveChangesAsync();
 
         var trustIds = new long[] { 1001, 1002, 1004 };
 
-        var matches = await repo.GetTrustIdsByStatusAndProcessDateAsync(trustIds, processDate, LifecycleStatus.AnnulledByDebitNote, CancellationToken.None);
+        var matches = await repo.GetTrustIdsByOperationTypeAndProcessDateAsync(
+            trustIds,
+            processDate,
+            1,
+            CancellationToken.None);
 
         Assert.Equal(new[] { 1001L, 1002L }, matches.OrderBy(x => x).ToArray());
     }
 
     [Fact]
-    public async Task GetTrustIdsByStatusAndProcessDateAsyncReturnsEmptyWhenNoCandidates()
+    public async Task GetTrustIdsByOperationTypeAndProcessDateAsyncReturnsEmptyWhenNoCandidates()
     {
         using var ctx = CreateContext();
         var repo = new ClientOperationRepository(ctx);
@@ -254,7 +259,11 @@ public class ClientOperationRepositoryTests
         ctx.ClientOperations.Add(NewOp(601, 1, processDate, 1, 5m, LifecycleStatus.AnnulledByDebitNote, 2001));
         await ctx.SaveChangesAsync();
 
-        var matches = await repo.GetTrustIdsByStatusAndProcessDateAsync(Array.Empty<long>(), processDate, LifecycleStatus.AnnulledByDebitNote, CancellationToken.None);
+        var matches = await repo.GetTrustIdsByOperationTypeAndProcessDateAsync(
+            Array.Empty<long>(),
+            processDate,
+            1,
+            CancellationToken.None);
 
         Assert.Empty(matches);
     }

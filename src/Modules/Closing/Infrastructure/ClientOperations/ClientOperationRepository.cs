@@ -55,24 +55,24 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<long>> GetTrustIdsByStatusAndProcessDateAsync(
+    public async Task<IReadOnlyCollection<long>> GetTrustIdsByOperationTypeAndProcessDateAsync(
         IEnumerable<long> trustIds,
         DateTime processDateUtc,
-        LifecycleStatus status,
+        long operationTypeId,
         CancellationToken cancellationToken = default)
     {
         var ids = trustIds?.Distinct().ToArray() ?? Array.Empty<long>();
-        if (ids.Length == 0)
+        if (ids.Length == 0 || operationTypeId <= 0)
         {
             return Array.Empty<long>();
         }
 
         var matches = await context.ClientOperations
             .AsNoTracking()
-            .TagWith("ClientOperationRepository_GetTrustIdsByStatusAndProcessDateAsync")
+            .TagWith("ClientOperationRepository_GetTrustIdsByOperationTypeAndProcessDateAsync")
             .Where(co =>
-                co.Status == status &&
                 co.ProcessDate == processDateUtc &&
+                co.OperationTypeId == operationTypeId &&
                 co.TrustId != null &&
                 ids.Contains(co.TrustId.Value))
             .Select(co => co.TrustId!.Value)

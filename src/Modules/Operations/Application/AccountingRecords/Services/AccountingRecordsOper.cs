@@ -89,6 +89,8 @@ public sealed class AccountingRecordsOper(
         clientOperationRepository.Update(original);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        await operationCompleted.ExecuteAsync(original, cancellationToken);
+
         var trustDetailsResult = await trustDetailsProvider
             .GetAsync(validationResult.TrustId, cancellationToken);
 
