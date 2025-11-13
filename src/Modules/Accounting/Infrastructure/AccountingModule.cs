@@ -111,6 +111,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<AccountingInconsistenciesReport>();
         services.AddScoped<AccountingGenerationReport>();
         services.AddScoped<AccountingProcessCompletedIntegrationSuscriber>();
+        services.AddScoped<AccountingOperationRequestedSubscriber>();
         services.AddScoped<IAccountingNotificationService, AccountingNotificationService>();
 
 
