@@ -3,4 +3,4 @@ using Operations.Domain.OperationTypes;
 
 namespace Operations.Integrations.OperationTypes;
 
-public sealed record class GetTransactionTypesQuery : IQuery<IReadOnlyCollection<OperationType>>;
+public sealed record class GetTransactionTypesQuery(IEnumerable<string>? groupLists = null, bool? visible = true) : IQuery<IReadOnlyCollection<OperationType>>;

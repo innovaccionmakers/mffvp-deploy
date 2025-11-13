@@ -12,7 +12,9 @@ public interface IOperationsExperienceQueries
 
     Task<IReadOnlyCollection<OperationTypeDto>> GetOperationTypesAsync(
         int? categoryId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        IEnumerable<string>? groupLists = null,
+        bool? visible = true);
 
     Task<IReadOnlyCollection<CertificationStatusDto>> GetCertificationStatusesAsync(
         CancellationToken cancellationToken = default);

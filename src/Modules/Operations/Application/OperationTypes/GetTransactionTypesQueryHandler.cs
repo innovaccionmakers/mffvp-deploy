@@ -11,7 +11,7 @@ public class GetTransactionTypesQueryHandler(
 {
     public async Task<Result<IReadOnlyCollection<OperationType>>> Handle(GetTransactionTypesQuery request, CancellationToken cancellationToken)
     {
-        var list = await repository.GetTypesByCategoryAsync(null, cancellationToken);
+        var list = await repository.GetTypesByCategoryAsync(null, cancellationToken, request.groupLists, request.visible);
         return Result.Success(list);
     }
 }

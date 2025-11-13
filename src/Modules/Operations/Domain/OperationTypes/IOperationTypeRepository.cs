@@ -21,7 +21,9 @@ public interface IOperationTypeRepository
 
     Task<IReadOnlyCollection<OperationType>> GetTypesByCategoryAsync(
         int? categoryId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+         IEnumerable<string>? groupLists = null,
+         bool? visible = true);
 
     Task<IReadOnlyCollection<OperationType>> GetAllAsync(
         CancellationToken cancellationToken = default);
