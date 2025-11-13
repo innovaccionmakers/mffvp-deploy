@@ -59,7 +59,7 @@ public class GetOperationsNDQueryHandlerTests
             .ReturnsAsync(contributionsType);
 
         operationTypeRepositoryMock
-            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>(), null, true))
             .ReturnsAsync(categorizedTypes);
 
         var portfolioLocatorMock = new Mock<IPortfolioLocator>();
@@ -156,7 +156,7 @@ public class GetOperationsNDQueryHandlerTests
             .ReturnsAsync(contributionsType);
 
         operationTypeRepositoryMock
-            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>(), null, true))
             .ReturnsAsync(categorizedTypes);
 
         var portfolioLocatorMock = new Mock<IPortfolioLocator>();
@@ -222,7 +222,7 @@ public class GetOperationsNDQueryHandlerTests
             .Setup(repository => repository.GetByNameAsync("Aporte", It.IsAny<CancellationToken>()))
             .ReturnsAsync(contributionsType);
         operationTypeRepositoryMock
-            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>(), null, true))
             .ReturnsAsync(Array.Empty<OperationType>());
 
         var portfolioLocatorMock = new Mock<IPortfolioLocator>(MockBehavior.Strict);
@@ -289,7 +289,7 @@ public class GetOperationsNDQueryHandlerTests
             .ReturnsAsync(contributionsType);
 
         operationTypeRepositoryMock
-            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>(), null, true))
             .ReturnsAsync(categorizedTypes);
 
         var portfolioLocatorMock = new Mock<IPortfolioLocator>();
@@ -359,7 +359,7 @@ public class GetOperationsNDQueryHandlerTests
             .ReturnsAsync(contributionsType);
 
         operationTypeRepositoryMock
-            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetTypesByCategoryAsync((int?)contributionType.OperationTypeId, It.IsAny<CancellationToken>(), null, true))
             .ReturnsAsync(categorizedTypes);
 
         var portfolioLocatorMock = new Mock<IPortfolioLocator>(MockBehavior.Strict);

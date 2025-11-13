@@ -2,8 +2,6 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Operations.Domain.OperationTypes;
 using Operations.Integrations.OperationTypes;
-using System.Linq;
-
 namespace Operations.Application.OperationTypes;
 
 public class GetOperationTypesByCategoryQueryHandler(IOperationTypeRepository repository)
@@ -15,15 +13,15 @@ public class GetOperationTypesByCategoryQueryHandler(IOperationTypeRepository re
     {
         IReadOnlyCollection<OperationType> list;
 
-        if (request.categoryId.HasValue)
-        {
-            list = await repository.GetTypesByCategoryAsync(request.categoryId, cancellationToken);
-        }
-        else
+        if (request.categoryId is null && request.groupLists is null && request.visible is null)
         {
             list = (await repository.GetAllAsync(cancellationToken))
                 .Where(x => x.CategoryId.HasValue)
-                .ToList();
+                .ToList(); 
+        }
+        else
+        {
+            list = await repository.GetTypesByCategoryAsync(request.categoryId, cancellationToken, request.groupLists, request.visible);
         }
 
         return Result.Success(list);

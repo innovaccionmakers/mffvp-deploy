@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Operations.Domain.OperationTypes;
 using Operations.Infrastructure.Database;
+using System.Text.Json;
 
 namespace Operations.Infrastructure.OperationTypes;
 
@@ -47,11 +48,39 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
             .SingleOrDefaultAsync(s => s.Name == name && s.CategoryId == categoryId, ct);
     }
 
-    public async Task<IReadOnlyCollection<OperationType>> GetTypesByCategoryAsync(int? categoryId, CancellationToken ct = default)
+    public async Task<IReadOnlyCollection<OperationType>> GetTypesByCategoryAsync(int? categoryId, CancellationToken ct = default,
+         IEnumerable<string>? groupLists = null,
+         bool? visible = true)
     {
-        return await context.OperationTypes
-            .AsNoTracking()
-            .Where(s => s.CategoryId == categoryId && s.Status == Status.Active && s.Visible)
+        var query = context.OperationTypes
+        .AsNoTracking()
+        .Where(t => t.CategoryId == categoryId &&
+                    t.Status == Status.Active);
+
+        // Visible: solo se aplica si viene valor
+        if (visible.HasValue)
+            query = query.Where(t => t.Visible == visible.Value);
+
+        // GrupoLista: 0, 1 o muchos
+        if (groupLists is not null)
+        {
+            var normalized = groupLists
+                .Where(g => !string.IsNullOrWhiteSpace(g))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                // Construye {"GrupoLista":"..."} para usar @> (containment)
+                .Select(g => JsonSerializer.Serialize(new { GrupoLista = g }))
+                .ToArray();
+
+            if (normalized.Length > 0)
+            {
+                query = query.Where(t =>
+                    normalized.Any(j => EF.Functions.JsonContains(t.AdditionalAttributes, j)));
+            }
+        }
+
+        return await query
+            .TagWith("OperationTypeRepository_GetTypesByCategoryAsync")
+            .OrderBy(t => t.Name)
             .ToListAsync(ct);
     }
 
@@ -59,7 +88,7 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
     {
         return await context.OperationTypes
             .AsNoTracking()
-            .Where(s => s.Status == Status.Active && s.Visible)
+            .Where(s => s.Status == Status.Active )
             .ToListAsync(ct);
     }
 }
