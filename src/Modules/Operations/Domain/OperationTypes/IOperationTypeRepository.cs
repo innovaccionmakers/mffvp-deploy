@@ -27,4 +27,7 @@ public interface IOperationTypeRepository
 
     Task<IReadOnlyCollection<OperationType>> GetAllAsync(
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<OperationType>> GetAccTransactionTypesAsync(
+        CancellationToken cancellationToken = default);
 }

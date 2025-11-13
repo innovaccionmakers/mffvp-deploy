@@ -8,6 +8,7 @@ using Operations.Integrations.ConfigurationParameters;
 using Operations.Integrations.OperationTypes;
 using Operations.Integrations.Origins;
 using Operations.Presentation.DTOs;
+using System.Text.Json;
 
 namespace Operations.Presentation.GraphQL;
     
@@ -266,4 +267,25 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
             result.Value.TotalPages,
             items);
     }
+
+    public async Task<IReadOnlyCollection<AccTransactionTypesDto>> GetAccTransactionTypesAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await mediator.Send(new GetAccTransactionTypesQuery(), cancellationToken);
+        if (!result.IsSuccess || result.Value == null)
+            throw new InvalidOperationException("Failed to retrieve operation types.");
+
+        var operationTypes = result.Value;
+        return operationTypes.Select(x => new AccTransactionTypesDto(
+            x.OperationTypeId,
+            x.Name,
+            x.CategoryId,
+            x.Nature,
+            x.Status,
+            x.External,
+            x.Visible,
+            x.AdditionalAttributes,
+            x.HomologatedCode
+        )).ToList();
+    }
+
 }

@@ -58,4 +58,6 @@ public interface IOperationsExperienceQueries
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<AccTransactionTypesDto>> GetAccTransactionTypesAsync(CancellationToken cancellationToken = default);
 }

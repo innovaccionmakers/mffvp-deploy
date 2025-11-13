@@ -278,4 +278,104 @@ public class OperationTypeRepositoryTests
 
         _operationTypeRepositoryMock.Verify(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task GetAccTransactionTypesAsync_ReturnsOperationTypesWithNullCategoryAndVisible()
+    {
+        // Arrange
+        var expectedOperationTypes = new List<OperationType>
+    {
+        CreateOperationType(1, "Transacción Contable 1", "ACC_001", null, IncomeEgressNature.Income, Status.Active, "EXT_ACC1", true),
+        CreateOperationType(2, "Transacción Contable 2", "ACC_002", null, IncomeEgressNature.Egress, Status.Active, "EXT_ACC2", true)
+    };
+
+        _operationTypeRepositoryMock
+            .Setup(repo => repo.GetAccTransactionTypesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedOperationTypes);
+
+        var repository = _operationTypeRepositoryMock.Object;
+
+        // Act
+        var result = await repository.GetAccTransactionTypesAsync();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.All(result, ot =>
+        {
+            Assert.Null(ot.CategoryId);
+            Assert.True(ot.Visible);
+        });
+        _operationTypeRepositoryMock.Verify(repo => repo.GetAccTransactionTypesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAccTransactionTypesAsync_ReturnsEmptyWhenNoAccTransactionTypes()
+    {
+        // Arrange
+        var emptyList = new List<OperationType>();
+        _operationTypeRepositoryMock
+            .Setup(repo => repo.GetAccTransactionTypesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(emptyList);
+
+        var repository = _operationTypeRepositoryMock.Object;
+
+        // Act
+        var result = await repository.GetAccTransactionTypesAsync();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
+        _operationTypeRepositoryMock.Verify(repo => repo.GetAccTransactionTypesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAccTransactionTypesAsync_ReturnsOnlyVisibleOperationTypes()
+    {
+        // Arrange
+        var expectedOperationTypes = new List<OperationType>
+    {
+        CreateOperationType(1, "Transacción Visible", "ACC_VIS", null, IncomeEgressNature.Income, Status.Active, "EXT_VIS", true)
+    };
+
+        _operationTypeRepositoryMock
+            .Setup(repo => repo.GetAccTransactionTypesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedOperationTypes);
+
+        var repository = _operationTypeRepositoryMock.Object;
+
+        // Act
+        var result = await repository.GetAccTransactionTypesAsync();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.All(result, ot => Assert.True(ot.Visible));
+        _operationTypeRepositoryMock.Verify(repo => repo.GetAccTransactionTypesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAccTransactionTypesAsync_ExcludesOperationTypesWithCategory()
+    {
+        // Arrange
+        var expectedOperationTypes = new List<OperationType>
+    {
+        CreateOperationType(1, "Sin Categoría", "ACC_NO_CAT", null, IncomeEgressNature.Income, Status.Active, "EXT_NO_CAT", true)
+    };
+
+        _operationTypeRepositoryMock
+            .Setup(repo => repo.GetAccTransactionTypesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedOperationTypes);
+
+        var repository = _operationTypeRepositoryMock.Object;
+
+        // Act
+        var result = await repository.GetAccTransactionTypesAsync();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.All(result, ot => Assert.Null(ot.CategoryId));
+        _operationTypeRepositoryMock.Verify(repo => repo.GetAccTransactionTypesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
 }

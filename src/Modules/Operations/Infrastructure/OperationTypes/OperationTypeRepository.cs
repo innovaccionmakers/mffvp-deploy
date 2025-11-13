@@ -91,4 +91,12 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
             .Where(s => s.Status == Status.Active )
             .ToListAsync(ct);
     }
+
+    public async Task<IReadOnlyCollection<OperationType>> GetAccTransactionTypesAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.OperationTypes
+            .AsNoTracking()
+            .Where(s => s.CategoryId == null && s.Visible)
+            .ToListAsync(cancellationToken);
+    }
 }

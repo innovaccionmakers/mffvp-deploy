@@ -1,8 +1,5 @@
-﻿using Accounting.Integrations.AccountingFees;
-using Accounting.Integrations.AccountingReturns;
-using Accounting.Integrations.AccountProcess;
+﻿using Accounting.Integrations.AccountProcess;
 using Accounting.Presentation.GraphQL.Inputs;
-using Azure;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
@@ -11,7 +8,7 @@ using MediatR;
 
 namespace Accounting.Presentation.GraphQL
 {
-    public class AccountProcessExperienceMutations(IMediator mediator) : IAccountProcessExperienceMutations
+    public class AccountingExperienceMutations(IMediator mediator) : IAccountingExperienceMutations
     {       
         public async Task<GraphqlResult<AccountProcessResult>> AccountProcessAsync(AccountingInput input, IValidator<AccountingInput> validator, CancellationToken cancellationToken = default)
         {

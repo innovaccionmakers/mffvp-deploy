@@ -1,36 +1,32 @@
-﻿using Associate.Presentation.DTOs;
+﻿using Accounting.Presentation.DTOs;
+using Accounting.Presentation.GraphQL;
+using Associate.Presentation.DTOs;
 using Associate.Presentation.GraphQL;
+using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
+using Common.SharedKernel.Application.Reports;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Results;
-
 using Customers.Presentation.DTOs;
 using Customers.Presentation.GraphQL;
-
 using HotChocolate.Authorization;
-
 using MFFVP.BFF.DTOs;
 using MFFVP.BFF.Services;
 using MFFVP.BFF.Services.Reports;
-
+using Microsoft.Extensions.Logging;
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
-
 using Products.Integrations.Objectives.GetObjectives;
 using Products.Presentation.DTOs;
 using Products.Presentation.DTOs.PlanFund;
 using Products.Presentation.GraphQL;
+using Reports.Domain.TechnicalSheet;
+using Reports.Domain.TransmissionFormat;
+using System.Text.Json;
 using Treasury.Presentation.DTOs;
 using Treasury.Presentation.GraphQL;
 using Trusts.Presentation.GraphQL;
-using Reports.Domain.TransmissionFormat;
-using Common.SharedKernel.Application.Reports;
-using Reports.Domain.TechnicalSheet;
-using Common.SharedKernel.Domain.Auth.Permissions;
-using Accounting.Presentation.GraphQL;
-using Closing.Presentation.GraphQL;
-using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace MFFVP.BFF.GraphQL;
 
@@ -451,5 +447,19 @@ public class Query
     public async Task<int> GetParticipant([GraphQLName("fideicomisoIds")] IEnumerable<long> trustIds, [Service] ITrustExperienceQueries trustQueries)
     {
         return await trustQueries.GetParticipantAsync(trustIds);
+    }
+
+    [GraphQLName("cuentasContables")]
+    public async Task<IReadOnlyCollection<AccountingAccountsDto>> GetAccountList([Service] IAccountingExperienceQueries accountingQueries,
+                                                                      CancellationToken cancellationToken = default)
+    {
+        return await accountingQueries.GetAccountListAsync(cancellationToken);
+    }
+
+    [GraphQLName("tiposOperaciones")]
+    public async Task<IReadOnlyCollection<AccTransactionTypesDto>> GetAccTransactionTypes([Service] IOperationsExperienceQueries operationsQueries,
+                                                                                     CancellationToken cancellationToken)
+    {
+        return await operationsQueries.GetAccTransactionTypesAsync(cancellationToken);
     }
 }

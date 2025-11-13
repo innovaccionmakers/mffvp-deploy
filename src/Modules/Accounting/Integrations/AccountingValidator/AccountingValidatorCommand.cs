@@ -4,7 +4,6 @@ using MediatR;
 
 namespace Accounting.Integrations.AccountingValidator;
 
-[AuditLog]
 public sealed record AccountingValidatorCommand(
     string User,
     string Email,
