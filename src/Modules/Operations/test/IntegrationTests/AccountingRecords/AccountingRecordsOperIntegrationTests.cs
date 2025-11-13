@@ -92,8 +92,10 @@ public class AccountingRecordsOperIntegrationTests
         Assert.Equal(LifecycleStatus.AnnulledByDebitNote, sentUpdate.Status);
         Assert.Equal(fixture.ExpectedProcessDate, sentUpdate.UpdateDate);
 
-        var completedOperation = fixture.OperationCompleted.ExecutedOperation;
-        Assert.Same(debitNote, completedOperation);
+        Assert.Equal(2, fixture.OperationCompleted.ExecutedOperations.Count);
+        Assert.Same(fixture.OriginalOperation, fixture.OperationCompleted.ExecutedOperations[0]);
+        Assert.Same(debitNote, fixture.OperationCompleted.ExecutedOperations[1]);
+        Assert.Same(debitNote, fixture.OperationCompleted.ExecutedOperation);
     }
 
     [Fact]
@@ -118,7 +120,10 @@ public class AccountingRecordsOperIntegrationTests
         Assert.True(fixture.UnitOfWork.Transaction?.IsDisposed);
         Assert.Empty(fixture.TrustOperationRepository.AddedOperations);
         Assert.Null(fixture.TrustUpdater.LastUpdate);
-        Assert.Null(fixture.OperationCompleted.ExecutedOperation);
+        Assert.Single(fixture.OperationCompleted.ExecutedOperations);
+        Assert.Same(fixture.OriginalOperation, fixture.OperationCompleted.ExecutedOperations[0]);
+        Assert.NotNull(fixture.ClientOperationRepository.InsertedDebitNote);
+        Assert.NotSame(fixture.ClientOperationRepository.InsertedDebitNote, fixture.OperationCompleted.ExecutedOperation);
     }
 
     [Fact]
@@ -142,7 +147,10 @@ public class AccountingRecordsOperIntegrationTests
         Assert.True(fixture.UnitOfWork.Transaction?.HasCommitted);
         Assert.True(fixture.UnitOfWork.Transaction?.IsDisposed);
         Assert.NotNull(fixture.TrustUpdater.LastUpdate);
-        Assert.Null(fixture.OperationCompleted.ExecutedOperation);
+        Assert.Single(fixture.OperationCompleted.ExecutedOperations);
+        Assert.Same(fixture.OriginalOperation, fixture.OperationCompleted.ExecutedOperations[0]);
+        Assert.NotNull(fixture.ClientOperationRepository.InsertedDebitNote);
+        Assert.NotSame(fixture.ClientOperationRepository.InsertedDebitNote, fixture.OperationCompleted.ExecutedOperation);
     }
 
     private sealed class AccountingRecordsOperIntegrationTestFixture
@@ -451,11 +459,13 @@ public class AccountingRecordsOperIntegrationTests
 
     private sealed class FakeOperationCompleted : IOperationCompleted
     {
-        public ClientOperation? ExecutedOperation { get; private set; }
+        public ClientOperation? ExecutedOperation => ExecutedOperations.LastOrDefault();
+
+        public List<ClientOperation> ExecutedOperations { get; } = new();
 
         public Task ExecuteAsync(ClientOperation operation, CancellationToken cancellationToken)
         {
-            ExecutedOperation = operation;
+            ExecutedOperations.Add(operation);
             return Task.CompletedTask;
         }
     }
