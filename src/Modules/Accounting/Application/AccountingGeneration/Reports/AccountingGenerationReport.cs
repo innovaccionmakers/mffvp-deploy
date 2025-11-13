@@ -130,7 +130,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
     {
         return
         [
-            new(4, ColumnAlignment.Center),
+            new(4, ColumnAlignment.Left, ' '),
             new(1, ColumnAlignment.Center),
             new(7, ColumnAlignment.Left, ' '),
             new(2, ColumnAlignment.Center),

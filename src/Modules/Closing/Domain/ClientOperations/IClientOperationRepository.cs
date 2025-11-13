@@ -20,9 +20,9 @@ public interface IClientOperationRepository
        CancellationToken cancellationToken = default);
 
     Task<ClientOperation?> GetForUpdateByIdAsync(long id, CancellationToken cancellationToken = default);
-    Task<IReadOnlyCollection<long>> GetTrustIdsByStatusAndProcessDateAsync(
+    Task<IReadOnlyCollection<long>> GetTrustIdsByOperationTypeAndProcessDateAsync(
         IEnumerable<long> trustIds,
         DateTime processDateUtc,
-        LifecycleStatus status,
+        long operationTypeId,
         CancellationToken cancellationToken = default);
 }

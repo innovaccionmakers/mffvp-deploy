@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Closing.Application.Closing.Services.DistributableReturns;
+using Closing.Application.Closing.Services.OperationTypes;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
@@ -15,10 +16,12 @@ using Closing.Domain.YieldsToDistribute;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.ConfigurationParameters;
+using Common.SharedKernel.Domain.OperationTypes;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Closing.Application.Abstractions.External.Operations.OperationTypes;
 
 namespace Closing.test.UnitTests.Application.Closing.Services;
 
@@ -31,7 +34,8 @@ public sealed class DistributableReturnsServiceTests
         Mock<IPortfolioValuationRepository> portfolioValuationRepository,
         Mock<IConfigurationParameterRepository> configurationParameterRepository,
         Mock<IYieldToDistributeRepository> yieldToDistributeRepository,
-        Mock<ITimeControlService> timeControlService)
+        Mock<ITimeControlService> timeControlService,
+        Mock<IOperationTypesService> operationTypesService)
     {
         var logger = Mock.Of<ILogger<DistributableReturnsService>>();
         return new DistributableReturnsService(
@@ -42,7 +46,81 @@ public sealed class DistributableReturnsServiceTests
             configurationParameterRepository.Object,
             yieldToDistributeRepository.Object,
             timeControlService.Object,
+            operationTypesService.Object,
             logger);
+    }
+
+    private static Mock<IOperationTypesService> CreateOperationTypesServiceMock(long operationTypeId = 901)
+    {
+        var mock = new Mock<IOperationTypesService>();
+        var debitNoteType = new OperationTypeInfo(
+            OperationTypeId: operationTypeId,
+            Name: "Nota Débito",
+            Category: "Notas",
+            Nature: IncomeEgressNature.Egress,
+            Status: Status.Active,
+            External: "false",
+            HomologatedCode: "ND");
+
+        mock.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success((IReadOnlyCollection<OperationTypeInfo>)new[] { debitNoteType }));
+
+        return mock;
+    }
+
+    [Fact]
+    public async Task ReturnsFailureWhenDebitNoteOperationTypeMissing()
+    {
+        var trustYieldRepo = new Mock<ITrustYieldRepository>();
+        var clientOpRepo = new Mock<IClientOperationRepository>();
+        var yieldRepo = new Mock<IYieldRepository>();
+        var pvRepo = new Mock<IPortfolioValuationRepository>();
+        var configRepo = new Mock<IConfigurationParameterRepository>();
+        var ytdRepo = new Mock<IYieldToDistributeRepository>();
+        var timeCtrl = new Mock<ITimeControlService>();
+
+        var portfolioId = 9;
+        var closingDate = new DateTime(2025, 10, 9, 0, 0, 0, DateTimeKind.Utc);
+
+        var trustYields = new[]
+        {
+            CreateTrustYield(300, 4001, portfolioId, closingDate, closingBalance: 120m, preClosingBalance: 0m)
+        };
+
+        trustYieldRepo.Setup(x => x.GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trustYields);
+
+        yieldRepo.Setup(x => x.GetReadOnlyToDistributeByPortfolioAndDateAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new YieldToDistributeDto(250m, 0m, 0m, 0m, 0m));
+
+        pvRepo.Setup(x => x.GetReadOnlyToDistributePortfolioAndDateAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PortfolioValuationClosing(1000m, 10m));
+
+        var operationTypesService = new Mock<IOperationTypesService>();
+        var otherType = new OperationTypeInfo(
+            OperationTypeId: 500,
+            Name: "Nota Crédito",
+            Category: "Notas",
+            Nature: IncomeEgressNature.Income,
+            Status: Status.Active,
+            External: "false",
+            HomologatedCode: "NC");
+
+        operationTypesService.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success((IReadOnlyCollection<OperationTypeInfo>)new[] { otherType }));
+
+        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl, operationTypesService);
+
+        var result = await service.RunAsync(portfolioId, closingDate, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("DR006", result.Error.Code);
+        clientOpRepo.Verify(x => x.GetTrustIdsByOperationTypeAndProcessDateAsync(
+            It.IsAny<IEnumerable<long>>(),
+            It.IsAny<DateTime>(),
+            It.IsAny<long>(),
+            It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private static ConfigurationParameter CreateParameter(string json)
@@ -98,8 +176,9 @@ public sealed class DistributableReturnsServiceTests
         var configRepo = new Mock<IConfigurationParameterRepository>();
         var ytdRepo = new Mock<IYieldToDistributeRepository>();
         var timeCtrl = new Mock<ITimeControlService>();
+        var operationTypesService = CreateOperationTypesServiceMock();
 
-        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl);
+        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl, operationTypesService);
 
         var result = await service.RunAsync(1, new DateTime(2025, 10, 7), CancellationToken.None);
 
@@ -123,8 +202,9 @@ public sealed class DistributableReturnsServiceTests
         var configRepo = new Mock<IConfigurationParameterRepository>();
         var ytdRepo = new Mock<IYieldToDistributeRepository>();
         var timeCtrl = new Mock<ITimeControlService>();
+        var operationTypesService = CreateOperationTypesServiceMock();
 
-        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl);
+        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl, operationTypesService);
 
         var result = await service.RunAsync(2, new DateTime(2025, 10, 7), CancellationToken.None);
 
@@ -150,8 +230,9 @@ public sealed class DistributableReturnsServiceTests
         var configRepo = new Mock<IConfigurationParameterRepository>();
         var ytdRepo = new Mock<IYieldToDistributeRepository>();
         var timeCtrl = new Mock<ITimeControlService>();
+        var operationTypesService = CreateOperationTypesServiceMock();
 
-        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl);
+        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl, operationTypesService);
 
         var result = await service.RunAsync(3, new DateTime(2025, 10, 7), CancellationToken.None);
 
@@ -169,6 +250,7 @@ public sealed class DistributableReturnsServiceTests
         var configRepo = new Mock<IConfigurationParameterRepository>();
         var ytdRepo = new Mock<IYieldToDistributeRepository>();
         var timeCtrl = new Mock<ITimeControlService>();
+        var operationTypesService = CreateOperationTypesServiceMock();
 
         var portfolioId = 5;
         var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
@@ -193,7 +275,11 @@ public sealed class DistributableReturnsServiceTests
         pvRepo.Setup(x => x.GetReadOnlyToDistributePortfolioAndDateAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PortfolioValuationClosing(1000m, 10m));
 
-        clientOpRepo.Setup(x => x.GetTrustIdsByStatusAndProcessDateAsync(It.IsAny<IEnumerable<long>>(), closingDate, LifecycleStatus.AnnulledByDebitNote, It.IsAny<CancellationToken>()))
+        clientOpRepo.Setup(x => x.GetTrustIdsByOperationTypeAndProcessDateAsync(
+                It.IsAny<IEnumerable<long>>(),
+                closingDate,
+                It.Is<long>(id => id == 901),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new long[] { 2001 });
 
         configRepo.Setup(x => x.GetReadOnlyByUuidsAsync(
@@ -212,7 +298,7 @@ public sealed class DistributableReturnsServiceTests
             .Returns(Task.CompletedTask);
         ytdRepo.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl);
+        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl, operationTypesService);
 
         var result = await service.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
@@ -230,6 +316,7 @@ public sealed class DistributableReturnsServiceTests
         Assert.NotNull(deletedIds);
         Assert.Equal(new[] { 100L }, deletedIds!);
         ytdRepo.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        operationTypesService.Verify(x => x.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -242,6 +329,7 @@ public sealed class DistributableReturnsServiceTests
         var configRepo = new Mock<IConfigurationParameterRepository>();
         var ytdRepo = new Mock<IYieldToDistributeRepository>();
         var timeCtrl = new Mock<ITimeControlService>();
+        var operationTypesService = CreateOperationTypesServiceMock();
 
         var portfolioId = 6;
         var closingDate = new DateTime(2025, 10, 8, 0, 0, 0, DateTimeKind.Utc);
@@ -260,7 +348,11 @@ public sealed class DistributableReturnsServiceTests
         pvRepo.Setup(x => x.GetReadOnlyToDistributePortfolioAndDateAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PortfolioValuationClosing(200m, 10m));
 
-        clientOpRepo.Setup(x => x.GetTrustIdsByStatusAndProcessDateAsync(It.IsAny<IEnumerable<long>>(), closingDate, LifecycleStatus.AnnulledByDebitNote, It.IsAny<CancellationToken>()))
+        clientOpRepo.Setup(x => x.GetTrustIdsByOperationTypeAndProcessDateAsync(
+                It.IsAny<IEnumerable<long>>(),
+                closingDate,
+                It.Is<long>(id => id == 901),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new long[] { 3001 });
 
         configRepo.Setup(x => x.GetReadOnlyByUuidsAsync(
@@ -282,7 +374,7 @@ public sealed class DistributableReturnsServiceTests
         trustYieldRepo.Setup(x => x.DeleteByIdsAsync(It.IsAny<IEnumerable<long>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
-        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl);
+        var service = CreateService(trustYieldRepo, clientOpRepo, yieldRepo, pvRepo, configRepo, ytdRepo, timeCtrl, operationTypesService);
 
         var result = await service.RunAsync(portfolioId, closingDate, CancellationToken.None);
 
@@ -292,5 +384,6 @@ public sealed class DistributableReturnsServiceTests
         Assert.Equal("5", item.Concept.RootElement.GetProperty("EntityId").GetString());
         Assert.Equal("Ajuste Rendimiento Nota Contable", item.Concept.RootElement.GetProperty("EntityValue").GetString());
         Assert.True(item.YieldAmount < 0m);
+        operationTypesService.Verify(x => x.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

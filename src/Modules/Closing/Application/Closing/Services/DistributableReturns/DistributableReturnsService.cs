@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Closing.Application.Abstractions.External.Operations.OperationTypes;
 using Closing.Application.Closing.Services.DistributableReturns.Interfaces;
+using Closing.Application.Closing.Services.OperationTypes;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.PreClosing.Services.Yield.Dto;
 using Closing.Domain.ClientOperations;
@@ -32,9 +35,14 @@ public class DistributableReturnsService(
     IConfigurationParameterRepository configurationParameterRepository,
     IYieldToDistributeRepository yieldToDistributeRepository,
     ITimeControlService timeControlService,
+    IOperationTypesService operationTypesService,
     ILogger<DistributableReturnsService> logger)
     : IDistributableReturnsService
 {
+    private const string DebitNoteOperationName = "Nota Débito";
+
+    private static readonly CompareInfo DebitNoteCompareInfo = CultureInfo.InvariantCulture.CompareInfo;
+
     public async Task<Result> RunAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
         using var scope = logger.BeginScope(new Dictionary<string, object>
@@ -92,10 +100,25 @@ public class DistributableReturnsService(
             .Distinct()
             .ToArray();
 
-        var annulledTrustIds = await clientOperationRepository.GetTrustIdsByStatusAndProcessDateAsync(
+        var operationTypeIdResult = await GetDebitNoteOperationTypeIdAsync(operationTypesService, cancellationToken);
+        if (operationTypeIdResult.IsFailure)
+        {
+            logger.LogError(
+                "[{Service}] No se pudo resolver el tipo de operación {OperationTypeName}: {ErrorCode} - {ErrorMessage}.",
+                nameof(DistributableReturnsService),
+                DebitNoteOperationName,
+                operationTypeIdResult.Error.Code,
+                operationTypeIdResult.Error.Description);
+
+            return Result.Failure(operationTypeIdResult.Error);
+        }
+
+        var debitNoteOperationTypeId = operationTypeIdResult.Value;
+
+        var annulledTrustIds = await clientOperationRepository.GetTrustIdsByOperationTypeAndProcessDateAsync(
             trustIds,
             closingDateUtc,
-            LifecycleStatus.AnnulledByDebitNote,
+            debitNoteOperationTypeId,
             cancellationToken);
 
         if (annulledTrustIds.Count == 0)
@@ -210,5 +233,34 @@ public class DistributableReturnsService(
         var conceptDto = new StringEntityDto(conceptId.ToString(), conceptName);
         var json = JsonSerializer.Serialize(conceptDto);
         return Result.Success(JsonDocument.Parse(json));
+    }
+
+    private static Result<long> ResolveDebitNoteOperationTypeId(IReadOnlyCollection<OperationTypeInfo> operationTypes)
+    {
+        var debitNoteType = operationTypes.FirstOrDefault(t =>
+            DebitNoteCompareInfo.Compare(t.Name, DebitNoteOperationName, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) == 0);
+
+        if (debitNoteType is null || debitNoteType.OperationTypeId <= 0)
+        {
+            return Result.Failure<long>(new Error(
+                "DR006",
+                "No se encontró el tipo de operación 'Nota Débito' configurado.",
+                ErrorType.Failure));
+        }
+
+        return Result.Success(debitNoteType.OperationTypeId);
+    }
+
+    private static async Task<Result<long>> GetDebitNoteOperationTypeIdAsync(
+        IOperationTypesService operationTypesService,
+        CancellationToken cancellationToken)
+    {
+        var operationTypesResult = await operationTypesService.GetAllAsync(cancellationToken);
+        if (operationTypesResult.IsFailure)
+        {
+            return Result.Failure<long>(operationTypesResult.Error);
+        }
+
+        return ResolveDebitNoteOperationTypeId(operationTypesResult.Value);
     }
 }

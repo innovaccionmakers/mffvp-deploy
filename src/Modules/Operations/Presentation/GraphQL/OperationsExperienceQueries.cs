@@ -1,6 +1,7 @@
 using Common.SharedKernel.Core.Primitives;
 
 using MediatR;
+using Operations.Domain.OperationTypes;
 using Operations.Integrations.ClientOperations.GetOperationsND;
 using Operations.Integrations.ClientOperations.GetOperationsVoid;
 using Operations.Integrations.ConfigurationParameters;
@@ -13,10 +14,11 @@ namespace Operations.Presentation.GraphQL;
     
 public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperienceQueries
 {
-    public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(        
+    public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(
+        IEnumerable<string>? groupLists = null, bool? visible = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await mediator.Send(new GetTransactionTypesQuery(), cancellationToken);
+        var result = await mediator.Send(new GetTransactionTypesQuery(groupLists, visible), cancellationToken);
 
         if (!result.IsSuccess || result.Value == null)
         {
@@ -35,9 +37,12 @@ public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperi
 
     public async Task<IReadOnlyCollection<OperationTypeDto>> GetOperationTypesAsync(
         int? categoryId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IEnumerable<string>? groupLists = null,
+        bool? visible = true
+        )
     {
-        var result = await mediator.Send(new GetOperationTypesByCategoryQuery(categoryId), cancellationToken);
+        var result = await mediator.Send(new GetOperationTypesByCategoryQuery(categoryId, groupLists, visible), cancellationToken);
         if (!result.IsSuccess || result.Value == null)
         {
             throw new InvalidOperationException("Failed to retrieve operation types.");

@@ -53,6 +53,11 @@ public class AccountingRecordsOperTests
             Times.Once);
         fixture.OperationCompletedMock.Verify(
             operationCompleted => operationCompleted.ExecuteAsync(
+                fixture.OriginalOperation,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        fixture.OperationCompletedMock.Verify(
+            operationCompleted => operationCompleted.ExecuteAsync(
                 fixture.InsertedDebitNote!,
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -186,7 +191,14 @@ public class AccountingRecordsOperTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
         fixture.OperationCompletedMock.Verify(
-            operationCompleted => operationCompleted.ExecuteAsync(It.IsAny<ClientOperation>(), It.IsAny<CancellationToken>()),
+            operationCompleted => operationCompleted.ExecuteAsync(
+                fixture.OriginalOperation,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        fixture.OperationCompletedMock.Verify(
+            operationCompleted => operationCompleted.ExecuteAsync(
+                fixture.InsertedDebitNote!,
+                It.IsAny<CancellationToken>()),
             Times.Never);
         fixture.TransactionMock.Verify(
             transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()),
