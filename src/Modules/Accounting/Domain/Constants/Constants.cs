@@ -35,6 +35,15 @@ public static class ProcessTypes
 
     public static string GetTranslation(string processType) =>
         ProcessTypesDictionary.TryGetValue(processType, out var translation) ? translation : processType;
+
+    public static readonly string[] Process =
+    {
+        AccountingFees,
+        AccountingReturns,
+        AccountingOperations,
+        AccountingConcepts,
+        AutomaticConcepts
+    };
 }
 
 public static class AccountingActivity
@@ -62,7 +71,7 @@ public static class AccountingReportConstants
     public const string FEMINT = "0";
     public const string FVEINT = "0";
     public const string POINT = ".";
-    public const string NDOINT = "0";
+    public const string NDOINT = "00";
     public const char ESTINT = ' ';
     public const string IncomeCode = "CO";
     public const string EgressCode = "CH";
