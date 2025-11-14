@@ -1,4 +1,5 @@
-﻿using Closing.Application.Closing.Services.OperationTypes;
+﻿using Closing.Application.Abstractions.External.Operations.OperationTypes;
+using Closing.Application.Closing.Services.OperationTypes;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
@@ -23,8 +24,8 @@ public class PortfolioValuationService(
     IOperationTypesService operationTypes,
     IConfigurationParameterRepository configurationParameterRepository,
     ITimeControlService timeControlService,
-    //IUnitOfWork unitOfWork,
-    ILogger<PortfolioValuationService> logger)
+    ILogger<PortfolioValuationService> logger,
+    IOperationTypesLocator operationTypesLocator)
     : IPortfolioValuationService
 {
     public async Task<Result<PrepareClosingResult>> CalculateAndPersistValuationAsync(
@@ -73,20 +74,61 @@ public class PortfolioValuationService(
         decimal yieldToCredit = Math.Round(yield?.YieldToCredit ?? 0m, DecimalPrecision.TwoDecimals);   // para "RendimientosAbonar"
         decimal yieldCosts = Math.Round(yield?.Costs ?? 0m, DecimalPrecision.TwoDecimals);   // para "Costos"
 
-        // 4. Obtener y clasificar subtipos de transacción
+        // 4. Obtener y clasificar los tipos de operación
+
         var subtypeResult = await operationTypes.GetAllAsync(cancellationToken);
+
         if (!subtypeResult.IsSuccess)
             return Result.Failure<PrepareClosingResult>(subtypeResult.Error!);
 
-        var incomeSubs = subtypeResult.Value
-            .Where(s => s.Nature == IncomeEgressNature.Income && !string.IsNullOrWhiteSpace(s.Category))
-            .Select(s => s.OperationTypeId)
-            .ToList();
-        var egressSubs = subtypeResult.Value
-            .Where(s => s.Nature == IncomeEgressNature.Egress && !string.IsNullOrWhiteSpace(s.Category))
-            .Select(s => s.OperationTypeId)
+        var groupFilter = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            OperationTypeAttributes.GroupList.ClientOperations,
+            OperationTypeAttributes.GroupList.AccountingNotes
+        };
+
+        var allOperationTypes = subtypeResult.Value;
+
+        var operationsInGroups = allOperationTypes
+        .Where(operationType =>
+        {
+            var groupList = operationType.GetGroupList();
+            return !string.IsNullOrWhiteSpace(groupList)
+                   && groupFilter.Contains(groupList);
+        })
+        .ToList();
+
+        // Ids de los tipos base que pertenecen a los grupos indicados
+        var parentIdsFromGroups = new HashSet<string>(
+            operationsInGroups.Select(operationType => operationType.Name)
+        );
+
+        // Hijos: tipos cuya Category (padre) está en ese conjunto
+        var childrenOfGroupedParents = allOperationTypes
+            .Where(operationType =>
+                !string.IsNullOrWhiteSpace(operationType.Category) &&
+                parentIdsFromGroups.Contains(operationType.Category))
             .ToList();
 
+        var closingOperations = operationsInGroups
+            .Concat(childrenOfGroupedParents)
+            .GroupBy(operationType => operationType.OperationTypeId)
+            .Select(group => group.First())
+            .ToList();
+        //Obtener solo los tipos de operacion que se catalogan como operaciones de entrada o salida 
+        var typesById = subtypeResult.Value
+            .ToDictionary(t => t.OperationTypeId);
+
+        var incomeSubs = closingOperations
+      .Where(operationType => operationType.Nature == IncomeEgressNature.Income)
+      .Select(operationType => operationType.OperationTypeId)
+      .ToList();
+
+        var egressSubs = closingOperations
+            .Where(operationType => operationType.Nature == IncomeEgressNature.Egress)
+            .Select(operationType => operationType.OperationTypeId)
+            .ToList();
+      
         // 5. Sumar operaciones de entrada y salida del día
         var incoming = Math.Round(await clientOperationRepository
             .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, incomeSubs, new[] { LifecycleStatus.Active }, cancellationToken), DecimalPrecision.TwoDecimals);

@@ -24,7 +24,6 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
     private readonly IOperationTypesLocator operationTypesLocator;
 
     private const int DefaultChunkSize = ClosingBulkProperties.BulkBatchSize;
-    // Concurrencia acotada. Si necesitas variarlo, cambia aquí (sin appsettings).
     private const int DefaultMaxConcurrency = 8;
 
     public TrustYieldProcessor(

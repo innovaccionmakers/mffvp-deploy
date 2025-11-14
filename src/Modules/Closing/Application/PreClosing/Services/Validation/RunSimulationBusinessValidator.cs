@@ -172,7 +172,7 @@ public class RunSimulationBusinessValidator(
                 }
             }
 
-            // --- Subtipos de transacción ---
+            // --- Tipos de Operación---
             var otResult = await operationTypesLocator.GetAllOperationTypesAsync(cancellationToken);
             if (!otResult.IsSuccess)
             {

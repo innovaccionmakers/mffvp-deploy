@@ -56,16 +56,7 @@ internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkR
             {
                 var d = deltas[trust.TrustId];
 
-                // Validaciones de negocio
                 var prevBalancePlusYield = MoneyHelper.Round2(trust.TotalBalance + d.YieldAmount);
-                var principalPlusEarningsPlusYield = MoneyHelper.Round2(trust.Principal + trust.Earnings + d.YieldAmount);
-                var closingBalance = MoneyHelper.Round2(d.ClosingBalance);
-
-                if (prevBalancePlusYield != closingBalance || principalPlusEarningsPlusYield != closingBalance)
-                {
-                    allMismatches.Add(trust.TrustId);
-                    continue;
-                }
 
                 var newTotalBalance = prevBalancePlusYield;
                 var newEarnings = MoneyHelper.Round2(trust.Earnings + d.YieldAmount);

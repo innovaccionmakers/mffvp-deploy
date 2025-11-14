@@ -13,6 +13,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Operations.Integrations.OperationTypes;
+using System.Text.Json;
 
 namespace Accounting.test.UnitTests.Application.AccountingReturns;
 
@@ -65,7 +66,11 @@ public class AccountingReturnsCommandHandlerTests
             new(2, 2, 2000, 200, 100, 50, 1750, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
 
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE");
+        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
         var passiveTransaction1 = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "910", "112"); // Con cuentas contra
         var passiveTransaction2 = Domain.PassiveTransactions.PassiveTransaction.Create(2, 1, "1234", "5678", "910", "112"); // Con cuentas contra
         var portfolioInfo = new PortfolioResponse(
@@ -151,7 +156,11 @@ public class AccountingReturnsCommandHandlerTests
         {
             new(1, 1, 1000, 100, 50, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE");
+        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
 
         _yieldLocatorMock.Setup(x => x.GetAllReturnsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
@@ -207,7 +216,11 @@ public class AccountingReturnsCommandHandlerTests
             new(1, 1, 1000, 100, 50, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
 
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE");
+        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "123", null, "123", "123"); // Sin cuenta de crédito
 
         _yieldLocatorMock.Setup(x => x.GetAllReturnsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
@@ -241,7 +254,11 @@ public class AccountingReturnsCommandHandlerTests
         {
             new(1, 1, 1000, 100, 50, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE");
+        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, null, "123", "123", "123"); // Sin cuenta de débito
 
         _yieldLocatorMock.Setup(x => x.GetAllReturnsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
@@ -275,7 +292,11 @@ public class AccountingReturnsCommandHandlerTests
         {
             new(1, 1, 1000, 100, 50, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE");
+        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "910", "112"); // Con cuentas contra
         var error = Error.NotFound("PortfolioLocator.Error", "No se encontró el portafolio");
 
@@ -313,7 +334,11 @@ public class AccountingReturnsCommandHandlerTests
         {
             new(1, 1, 1000, 100, 50, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE");
+        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", null, null); // Sin cuentas contra
 
         _yieldLocatorMock.Setup(x => x.GetAllReturnsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
@@ -357,7 +382,11 @@ public class AccountingReturnsCommandHandlerTests
             new(1, 1, 1000, 100, 50, 100, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true) // YieldToCredit = 100 (positivo)
         };
 
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE");
+        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "910", "112"); // Débito normal, Crédito normal, Contra débito, Contra crédito
         var portfolioInfo = new PortfolioResponse(
             "1232",
@@ -405,7 +434,11 @@ public class AccountingReturnsCommandHandlerTests
             new(1, 1, 1000, 100, 50, -100, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true) // YieldToCredit = -100 (negativo)
         };
 
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE");
+        var operationType = new OperationTypeResponse(1, OperationTypeNames.Yield, null, IncomeEgressNature.Income, Status.Active, "", "RE",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "910", "112"); // Débito normal, Crédito normal, Contra débito, Contra crédito
         var portfolioInfo = new PortfolioResponse(
             "1232",

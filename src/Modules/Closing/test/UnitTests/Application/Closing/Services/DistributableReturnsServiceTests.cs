@@ -60,7 +60,11 @@ public sealed class DistributableReturnsServiceTests
             Nature: IncomeEgressNature.Egress,
             Status: Status.Active,
             External: "false",
-            HomologatedCode: "ND");
+            HomologatedCode: "ND",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
 
         mock.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success((IReadOnlyCollection<OperationTypeInfo>)new[] { debitNoteType }));
@@ -104,7 +108,11 @@ public sealed class DistributableReturnsServiceTests
             Nature: IncomeEgressNature.Income,
             Status: Status.Active,
             External: "false",
-            HomologatedCode: "NC");
+            HomologatedCode: "NC",
+            JsonSerializer.SerializeToDocument(new
+            {
+                GrupoLista = "OperacionesClientes"
+            }));
 
         operationTypesService.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success((IReadOnlyCollection<OperationTypeInfo>)new[] { otherType }));

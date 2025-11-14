@@ -1,5 +1,6 @@
 ﻿using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
+using Closing.Application.Closing.Services.Validation;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.Commission.Interfaces;
 using Closing.Application.PreClosing.Services.ExtraReturns.Interfaces;
@@ -16,6 +17,7 @@ using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using MediatR;
+
 
 namespace Closing.Application.PreClosing.Services.Orchestation;
 
@@ -36,6 +38,7 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private readonly IPortfolioValidator _portfolioValidator;
     private readonly IWarningCollector _warnings;
     private readonly IPreclosingCleanupService _preclosingCleanupService;
+    private readonly IClosingBusinessRules _closingBusinessRules;
 
     public SimulationOrchestrator(
         IUnitOfWork unitOfWork,
@@ -52,7 +55,9 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         IYieldRepository yieldRepository,
         IPortfolioValidator portfolioValidator,
         IWarningCollector warningCollector,
-        IPreclosingCleanupService preclosingCleanupService)
+        IPreclosingCleanupService preclosingCleanupService,
+        IClosingBusinessRules closingBusinessRules
+        )
     {
         _unitOfWork = unitOfWork;
         _profitAndLossConsolidationService = profitAndLossConsolidationService;
@@ -69,12 +74,13 @@ public class SimulationOrchestrator : ISimulationOrchestrator
         _portfolioValidator = portfolioValidator;
         _warnings = warningCollector;
         _preclosingCleanupService = preclosingCleanupService;
+        _closingBusinessRules = closingBusinessRules;
     }
     public async Task<Result<SimulatedYieldResult>> RunSimulationAsync(RunSimulationCommand parameters, CancellationToken cancellationToken)
     {
         var normalizedParams = NormalizeParameters(parameters);
         var isFirstClosingDay = false;
-
+        var hasDebitNotes = false;
         if (!normalizedParams.IsClosing)  //Cuando es Cierre, se valida en el orquestador de cierre
         {
             var validation = await _businessValidator.ValidateAndDescribeAsync(normalizedParams, cancellationToken);
@@ -88,13 +94,20 @@ public class SimulationOrchestrator : ISimulationOrchestrator
                 return Result.Failure<SimulatedYieldResult>(firstDayResult.Error!);
 
             isFirstClosingDay = firstDayResult.Value;
-        } 
+        }
+        if (!isFirstClosingDay)
+        {
+            var hasDebitNotesResult = await _closingBusinessRules.HasDebitNotesAsync(normalizedParams.PortfolioId, normalizedParams.ClosingDate, cancellationToken);
+            if (hasDebitNotesResult.IsFailure) return Result.Failure<SimulatedYieldResult>(hasDebitNotesResult.Error);
+            hasDebitNotes = hasDebitNotesResult.Value;
+        }
 
         var localParameters = new RunSimulationParameters(
             normalizedParams.PortfolioId,
             normalizedParams.ClosingDate,
             normalizedParams.IsClosing,
-            isFirstClosingDay);
+            isFirstClosingDay,
+            hasDebitNotes);
 
         var simulationResult = await ExecuteSimulationsAsync(localParameters, cancellationToken);
         if (simulationResult.IsFailure)
@@ -137,7 +150,6 @@ public class SimulationOrchestrator : ISimulationOrchestrator
 
         return Result.Success(!exists);
     }
-
     private async Task<Result<Unit>> ExecuteSimulationsAsync(RunSimulationParameters parameters, CancellationToken cancellationToken)
     {
         await _preclosingCleanupService.CleanAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);
@@ -208,6 +220,8 @@ public class SimulationOrchestrator : ISimulationOrchestrator
     private async Task ExecuteExtraReturnsSimulationAsync(RunSimulationParameters parameters, CancellationToken cancellationToken)
     {
         if (parameters.IsFirstClosingDay) return;
+
+        if (!parameters.HasDebitNotes) return;
 
         var summariesResult = await _extraReturnConsolidationService
             .GetExtraReturnSummariesAsync(parameters.PortfolioId, parameters.ClosingDate, cancellationToken);

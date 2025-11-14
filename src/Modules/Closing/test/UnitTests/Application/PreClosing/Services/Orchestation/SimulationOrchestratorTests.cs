@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Closing.Application.Abstractions;
 using Closing.Application.Abstractions.Data;
 using Closing.Application.Abstractions.External;
+using Closing.Application.Closing.Services.Validation;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.Commission.Dto;
 using Closing.Application.PreClosing.Services.Commission.Interfaces;
@@ -52,6 +46,14 @@ public class SimulationOrchestratorTests
         var closingDateUtc = new DateTime(2024, 9, 30, 0, 0, 0, DateTimeKind.Utc);
         var context = new SimulationOrchestratorTestContext();
         context.ConfigureClosingPortfolio(portfolioId, closingDateUtc, isFirstClosingDay: false);
+
+        // 👇 Nuevo: siempre hay ND para este escenario
+        context.ClosingBusinessRulesMock
+            .Setup(rules => rules.HasDebitNotesAsync(
+                portfolioId,
+                closingDateUtc,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(true));
 
         var profitTaskSource = new TaskCompletionSource<IReadOnlyList<ProfitLossConceptSummary>>(TaskCreationOptions.RunContinuationsAsynchronously);
         context.ProfitLossServiceMock
@@ -98,7 +100,8 @@ public class SimulationOrchestratorTests
         var sut = context.BuildSut();
         var runTask = sut.RunSimulationAsync(new RunSimulationCommand(portfolioId, closingDateUtc, true), CancellationToken.None);
 
-        await extraReturnsStarted.Task;
+        // 👇 Nuevo: evitamos que la prueba se quede colgada para siempre
+        await extraReturnsStarted.Task.WaitAsync(System.TimeSpan.FromSeconds(5));
 
         var persistenceResult = await persistenceCapture.Task;
         persistenceResult.Mode.Should().Be(PersistenceMode.Immediate);
@@ -138,6 +141,14 @@ public class SimulationOrchestratorTests
         {
             context.ConfigureFrontValidation(isFirstClosingDay: false);
         }
+
+        // 👇 Nuevo: aseguramos que haya ND para que se ejecute ExtraReturns
+        context.ClosingBusinessRulesMock
+            .Setup(rules => rules.HasDebitNotesAsync(
+                portfolioId,
+                closingDateUtc,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(true));
 
         context.ProfitLossServiceMock
             .Setup(service => service.GetProfitAndLossSummaryAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
@@ -193,6 +204,14 @@ public class SimulationOrchestratorTests
         var context = new SimulationOrchestratorTestContext();
         context.ConfigureClosingPortfolio(portfolioId, closingDateUtc, isFirstClosingDay: false);
 
+        // 👇 Nuevo: hay ND, así que se ejecuta el flujo de ExtraReturns y se genera la advertencia
+        context.ClosingBusinessRulesMock
+            .Setup(rules => rules.HasDebitNotesAsync(
+                portfolioId,
+                closingDateUtc,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(true));
+
         context.ProfitLossServiceMock
             .Setup(service => service.GetProfitAndLossSummaryAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<ProfitLossConceptSummary>());
@@ -233,6 +252,87 @@ public class SimulationOrchestratorTests
             Times.Once);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task RunSimulationAsyncHasDebitNotesFalseSkipsExtraReturnSimulation(bool isClosing)
+    {
+        // Arrange
+        var portfolioId = 303;
+        var closingDateUtc = new DateTime(2024, 12, 5, 0, 0, 0, DateTimeKind.Utc);
+        var context = new SimulationOrchestratorTestContext();
+
+        if (isClosing)
+        {
+            // Escenario cierre: usa el validador de portafolio + existencia de valoración
+            context.ConfigureClosingPortfolio(portfolioId, closingDateUtc, isFirstClosingDay: false);
+        }
+        else
+        {
+            // Escenario front: usa el validador de front con IsFirstClosingDay = false
+            context.ConfigureFrontValidation(isFirstClosingDay: false);
+        }
+
+        // HasDebitNotes = false -> no debe ejecutarse la simulación de ExtraReturns
+        context.ClosingBusinessRulesMock
+            .Setup(rules => rules.HasDebitNotesAsync(
+                portfolioId,
+                closingDateUtc,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(false));
+
+        // El resto de consolidaciones no nos interesan en este test, las dejamos vacías
+        context.ProfitLossServiceMock
+            .Setup(service => service.GetProfitAndLossSummaryAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ProfitLossConceptSummary>());
+
+        context.CommissionServiceMock
+            .Setup(service => service.CalculateAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<CommissionConceptSummary>());
+
+        context.MovementsServiceMock
+            .Setup(service => service.GetMovementsSummaryAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<TreasuryMovementSummary>());
+
+        var sut = context.BuildSut();
+
+        // Act
+        var result = await sut.RunSimulationAsync(
+            new RunSimulationCommand(portfolioId, closingDateUtc, isClosing),
+            CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+
+        // No debe llamarse el servicio de ExtraReturn porque HasDebitNotes = false
+        context.ExtraReturnServiceMock.Verify(service => service.GetExtraReturnSummariesAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        // No debe persistirse ningún detalle de ExtraReturn
+        context.YieldDetailCreationServiceMock.Verify(service => service.CreateYieldDetailsAsync(
+                It.IsAny<IEnumerable<YieldDetail>>(),
+                PersistenceMode.Immediate,
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        // Tampoco debe generarse la advertencia ADV006 (solo aplica cuando sí esperamos ExtraReturns)
+        context.WarningCollectorMock.Verify(collector => collector.Add(
+                It.Is<WarningItem>(w => w.Code == "ADV006")),
+            Times.Never);
+    }
+
     private sealed class SimulationOrchestratorTestContext
     {
         public Mock<IUnitOfWork> UnitOfWorkMock { get; } = new();
@@ -250,6 +350,8 @@ public class SimulationOrchestratorTests
         public Mock<IWarningCollector> WarningCollectorMock { get; } = new();
         public Mock<IPreclosingCleanupService> PreclosingCleanupServiceMock { get; } = new();
         public YieldDetailBuilderService YieldDetailBuilderService { get; }
+
+        public Mock<IClosingBusinessRules> ClosingBusinessRulesMock { get; } = new();
 
         public SimulationOrchestratorTestContext()
         {
@@ -312,7 +414,9 @@ public class SimulationOrchestratorTests
             YieldRepositoryMock.Object,
             PortfolioValidatorMock.Object,
             WarningCollectorMock.Object,
-            PreclosingCleanupServiceMock.Object);
+            PreclosingCleanupServiceMock.Object,
+            ClosingBusinessRulesMock.Object
+            );
 
         public void ConfigureClosingPortfolio(int portfolioId, DateTime currentDateUtc, bool isFirstClosingDay)
         {

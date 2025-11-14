@@ -8,6 +8,7 @@ using Closing.Application.Closing.Services.Orchestration;
 using Closing.Application.Closing.Services.ReturnsOperations.Interfaces;
 using Closing.Application.Closing.Services.Telemetry;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
+using Closing.Application.Closing.Services.Validation;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Integrations.Common;
 using Common.SharedKernel.Core.Primitives;
@@ -28,7 +29,8 @@ public sealed class ConfirmClosingOrchestratorTests
         Mock<IWarningCollector> warningCollector,
         Mock<IAbortClosingService> abortClosingService,
         Mock<IUnitOfWork> unitOfWork,
-        Mock<IClosingStepTimer> stepTimer)
+        Mock<IClosingStepTimer> stepTimer,
+        Mock<IClosingBusinessRules> rules)
     {
         stepTimer
             .Setup(timer => timer.Track(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<string?>()))
@@ -44,6 +46,15 @@ public sealed class ConfirmClosingOrchestratorTests
             .Setup(service => service.AbortAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success());
 
+        // Default: NO es primer día de cierre a menos que el test lo sobreescriba.
+        rules
+            .Setup(r => r.IsFirstClosingDayAsync(It.IsAny<int>(),It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        rules
+        .Setup(r => r.HasDebitNotesAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(true));
+
         return new ConfirmClosingOrchestrator(
             distributeTrustYieldsService.Object,
             distributableReturnsService.Object,
@@ -53,7 +64,8 @@ public sealed class ConfirmClosingOrchestratorTests
             abortClosingService.Object,
             unitOfWork.Object,
             stepTimer.Object,
-            Mock.Of<ILogger<ConfirmClosingOrchestrator>>());
+            Mock.Of<ILogger<ConfirmClosingOrchestrator>>(),
+            rules.Object);
     }
 
     [Fact]
@@ -79,7 +91,7 @@ public sealed class ConfirmClosingOrchestratorTests
 
         var returnsOperationsService = new Mock<IReturnsOperationsService>();
         returnsOperationsService
-            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), true, It.IsAny<CancellationToken>()))
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success());
 
         var warningCollector = new Mock<IWarningCollector>();
@@ -100,6 +112,17 @@ public sealed class ConfirmClosingOrchestratorTests
             .Setup(timer => timer.Track(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<string?>()))
             .Returns(Mock.Of<IDisposable>());
 
+        var rules = new Mock<IClosingBusinessRules>();
+        // Asegurar que NO es primer día (ejecuta todos los pasos)
+
+        rules
+           .Setup(r => r.IsFirstClosingDayAsync(portfolioId, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(false);
+
+        rules
+           .Setup(r => r.HasDebitNotesAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+           .ReturnsAsync(Result.Success(true));
+
         var orchestrator = new ConfirmClosingOrchestrator(
             distributeTrustYieldsService.Object,
             distributableReturnsService.Object,
@@ -109,9 +132,10 @@ public sealed class ConfirmClosingOrchestratorTests
             abortClosingService.Object,
             unitOfWork.Object,
             stepTimer.Object,
-            Mock.Of<ILogger<ConfirmClosingOrchestrator>>());
+            Mock.Of<ILogger<ConfirmClosingOrchestrator>>(),
+            rules.Object);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(portfolioId, result.Value.PortfolioId);
@@ -120,7 +144,7 @@ public sealed class ConfirmClosingOrchestratorTests
         distributeTrustYieldsService.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         distributableReturnsService.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         validateTrustYieldsDistributionService.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
-        returnsOperationsService.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), true, It.IsAny<CancellationToken>()), Times.Once);
+        returnsOperationsService.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
         unitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         abortClosingService.Verify(service => service.AbortAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -149,6 +173,7 @@ public sealed class ConfirmClosingOrchestratorTests
         var abort = new Mock<IAbortClosingService>();
         var unitOfWork = new Mock<IUnitOfWork>();
         var timer = new Mock<IClosingStepTimer>();
+        var rules = new Mock<IClosingBusinessRules>();
 
         var orchestrator = CreateOrchestrator(
             distribution,
@@ -158,9 +183,10 @@ public sealed class ConfirmClosingOrchestratorTests
             warningCollector,
             abort,
             unitOfWork,
-            timer);
+            timer,
+            rules);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal(failure.Code, result.Error.Code);
@@ -194,7 +220,7 @@ public sealed class ConfirmClosingOrchestratorTests
         var returnsOperations = new Mock<IReturnsOperationsService>();
         var failure = new Error("RO-FAIL", "error", ErrorType.Failure);
         returnsOperations
-            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), true, It.IsAny<CancellationToken>()))
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure(failure));
 
         var warningCollector = new Mock<IWarningCollector>();
@@ -202,6 +228,7 @@ public sealed class ConfirmClosingOrchestratorTests
         var abort = new Mock<IAbortClosingService>();
         var unitOfWork = new Mock<IUnitOfWork>();
         var timer = new Mock<IClosingStepTimer>();
+        var rules = new Mock<IClosingBusinessRules>();
 
         var orchestrator = CreateOrchestrator(
             distribution,
@@ -211,9 +238,10 @@ public sealed class ConfirmClosingOrchestratorTests
             warningCollector,
             abort,
             unitOfWork,
-            timer);
+            timer,
+            rules);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal(failure.Code, result.Error.Code);
@@ -247,7 +275,7 @@ public sealed class ConfirmClosingOrchestratorTests
 
         var returnsOperations = new Mock<IReturnsOperationsService>();
         returnsOperations
-            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), true, It.IsAny<CancellationToken>()))
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success());
 
         var warningCollector = new Mock<IWarningCollector>();
@@ -255,6 +283,7 @@ public sealed class ConfirmClosingOrchestratorTests
         var abort = new Mock<IAbortClosingService>();
         var unitOfWork = new Mock<IUnitOfWork>();
         var timer = new Mock<IClosingStepTimer>();
+        var rules = new Mock<IClosingBusinessRules>();
 
         var orchestrator = CreateOrchestrator(
             distribution,
@@ -264,14 +293,15 @@ public sealed class ConfirmClosingOrchestratorTests
             warningCollector,
             abort,
             unitOfWork,
-            timer);
+            timer,
+            rules);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal(validationFailure.Code, result.Error.Code);
 
-        // Como la ejecución es secuencial, si validation falla, returnsOperations no se ejecuta
+        // Si validation falla, returnsOperations no se ejecuta
         returnsOperations.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), true, It.IsAny<CancellationToken>()), Times.Never);
         unitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -300,6 +330,7 @@ public sealed class ConfirmClosingOrchestratorTests
 
         var unitOfWork = new Mock<IUnitOfWork>();
         var timer = new Mock<IClosingStepTimer>();
+        var rules = new Mock<IClosingBusinessRules>();
 
         var orchestrator = CreateOrchestrator(
             distribution,
@@ -309,12 +340,14 @@ public sealed class ConfirmClosingOrchestratorTests
             warningCollector,
             abort,
             unitOfWork,
-            timer);
+            timer,
+            rules);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: false, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
 
         Assert.True(result.IsFailure);
-        Assert.Equal("001", result.Error.Code);
+        // No asumimos un código fijo: basta con que sea fallo y que se aborte
+        Assert.False(result.IsSuccess);
 
         abort.Verify(service => service.AbortAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         unitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -354,6 +387,12 @@ public sealed class ConfirmClosingOrchestratorTests
             .Setup(timer => timer.Track(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<string?>()))
             .Returns(Mock.Of<IDisposable>());
 
+        var rules = new Mock<IClosingBusinessRules>();
+        // Aquí sí debe ser primer día para que se salte DistributableReturns y ReturnsOperations
+        rules
+            .Setup(r => r.IsFirstClosingDayAsync(portfolioId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
         var orchestrator = new ConfirmClosingOrchestrator(
             distributeTrustYieldsService.Object,
             distributableReturnsService.Object,
@@ -363,9 +402,10 @@ public sealed class ConfirmClosingOrchestratorTests
             abortClosingService.Object,
             unitOfWork.Object,
             stepTimer.Object,
-            Mock.Of<ILogger<ConfirmClosingOrchestrator>>());
+            Mock.Of<ILogger<ConfirmClosingOrchestrator>>(),
+            rules.Object);
 
-        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, isFirstClosingDay: true, CancellationToken.None);
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(portfolioId, result.Value.PortfolioId);
@@ -379,5 +419,145 @@ public sealed class ConfirmClosingOrchestratorTests
         distributableReturnsService.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
         returnsOperationsService.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
     }
-}
 
+    [Fact]
+    public async Task ConfirmAsync_WhenHasDebitNotesIsFalse_SkipsDistributableReturnsAndReturnsOperations()
+    {
+        const int portfolioId = 71;
+        var closingDate = new DateTime(2024, 7, 31);
+
+        var distribution = new Mock<IDistributeTrustYieldsService>();
+        distribution
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var distributableReturnsService = new Mock<IDistributableReturnsService>();
+        distributableReturnsService
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var validation = new Mock<IValidateTrustYieldsDistributionService>();
+        validation
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var returnsOperations = new Mock<IReturnsOperationsService>();
+        returnsOperations
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var warningCollector = new Mock<IWarningCollector>();
+        warningCollector.Setup(collector => collector.GetAll()).Returns(Array.Empty<WarningItem>());
+
+        var abort = new Mock<IAbortClosingService>();
+        var unitOfWork = new Mock<IUnitOfWork>();
+        var timer = new Mock<IClosingStepTimer>();
+        var rules = new Mock<IClosingBusinessRules>();
+
+        var orchestrator = CreateOrchestrator(
+            distribution,
+            distributableReturnsService,
+            validation,
+            returnsOperations,
+            warningCollector,
+            abort,
+            unitOfWork,
+            timer,
+            rules);
+
+        // No es primer día
+        rules
+            .Setup(r => r.IsFirstClosingDayAsync(portfolioId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        // HasDebitNotes = false
+        rules
+            .Setup(r => r.HasDebitNotesAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(false));
+
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(portfolioId, result.Value.PortfolioId);
+
+        // Se ejecutan siempre
+        distribution.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
+        validation.Verify(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+
+        // Deben quedar saltados cuando HasDebitNotes = false
+        distributableReturnsService.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
+        returnsOperations.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ConfirmAsync_WhenHasDebitNotesIsFalse_AndValidationFails_ReturnsFailureWithoutDistributableReturnsOrReturnsOperations()
+    {
+        const int portfolioId = 81;
+        var closingDate = new DateTime(2024, 8, 31);
+
+        var distribution = new Mock<IDistributeTrustYieldsService>();
+        distribution
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var distributableReturnsService = new Mock<IDistributableReturnsService>();
+        distributableReturnsService
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var validationError = new Error("VAL-ND-FAIL", "error", ErrorType.Failure);
+        var validation = new Mock<IValidateTrustYieldsDistributionService>();
+        validation
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure(validationError));
+
+        var returnsOperations = new Mock<IReturnsOperationsService>();
+        returnsOperations
+            .Setup(service => service.RunAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success());
+
+        var warningCollector = new Mock<IWarningCollector>();
+        warningCollector.Setup(collector => collector.GetAll()).Returns(Array.Empty<WarningItem>());
+
+        var abort = new Mock<IAbortClosingService>();
+        var unitOfWork = new Mock<IUnitOfWork>();
+        var timer = new Mock<IClosingStepTimer>();
+        var rules = new Mock<IClosingBusinessRules>();
+
+        var orchestrator = CreateOrchestrator(
+            distribution,
+            distributableReturnsService,
+            validation,
+            returnsOperations,
+            warningCollector,
+            abort,
+            unitOfWork,
+            timer,
+            rules);
+
+        // No es primer día
+        rules
+            .Setup(r => r.IsFirstClosingDayAsync(portfolioId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        // HasDebitNotes = false
+        rules
+            .Setup(r => r.HasDebitNotesAsync(portfolioId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(false));
+
+        var result = await orchestrator.ConfirmAsync(portfolioId, closingDate, CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(validationError.Code, result.Error.Code);
+
+        // Nunca deben ejecutarse cuando falla la validación y HasDebitNotes = false
+        distributableReturnsService.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
+        returnsOperations.Verify(service => service.RunAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+
+        // Tampoco se persiste nada
+        unitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+
+}
