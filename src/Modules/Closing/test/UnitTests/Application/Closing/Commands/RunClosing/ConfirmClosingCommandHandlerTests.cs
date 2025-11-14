@@ -58,15 +58,13 @@ public class ConfirmClosingCommandHandlerTests
 
         var confirmResult = fixture.Create<ConfirmClosingResult>();
         orchestratorMock
-            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, false, It.IsAny<CancellationToken>()))
+            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(confirmResult));
 
         var handler = new ConfirmClosingCommandHandler(
             orchestratorMock.Object,
             postClosingMock.Object,
             unitOfWorkMock.Object,
-            portfolioValidatorMock.Object,
-            portfolioValuationRepositoryMock.Object,
             loggerMock.Object);
 
         // Act
@@ -75,7 +73,7 @@ public class ConfirmClosingCommandHandlerTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(confirmResult, result.Value);
-        orchestratorMock.Verify(x => x.ConfirmAsync(portfolioId, closingDate, false, It.IsAny<CancellationToken>()), Times.Once);
+        orchestratorMock.Verify(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()), Times.Once);
         unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         transactionMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         transactionMock.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -109,15 +107,13 @@ public class ConfirmClosingCommandHandlerTests
             .ReturnsAsync(true);
 
         orchestratorMock
-            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("orchestrator failed"));
 
         var handler = new ConfirmClosingCommandHandler(
             orchestratorMock.Object,
             postClosingMock.Object,
             unitOfWorkMock.Object,
-            portfolioValidatorMock.Object,
-            portfolioValuationRepositoryMock.Object,
             loggerMock.Object);
 
         // Act
@@ -156,7 +152,7 @@ public class ConfirmClosingCommandHandlerTests
             .ReturnsAsync(true);
 
         orchestratorMock
-            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(fixture.Create<ConfirmClosingResult>()));
 
         unitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -166,8 +162,6 @@ public class ConfirmClosingCommandHandlerTests
             orchestratorMock.Object,
             postClosingMock.Object,
             unitOfWorkMock.Object,
-            portfolioValidatorMock.Object,
-            portfolioValuationRepositoryMock.Object,
             loggerMock.Object);
 
         // Act
@@ -206,7 +200,7 @@ public class ConfirmClosingCommandHandlerTests
             .ReturnsAsync(true);
 
         orchestratorMock
-            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(fixture.Create<ConfirmClosingResult>()));
 
         unitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -219,8 +213,6 @@ public class ConfirmClosingCommandHandlerTests
             orchestratorMock.Object,
             postClosingMock.Object,
             unitOfWorkMock.Object,
-            portfolioValidatorMock.Object,
-            portfolioValuationRepositoryMock.Object,
             loggerMock.Object);
 
         // Act
@@ -258,7 +250,7 @@ public class ConfirmClosingCommandHandlerTests
             .ReturnsAsync(true);
 
         orchestratorMock
-            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(fixture.Create<ConfirmClosingResult>()));
 
         unitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -271,8 +263,6 @@ public class ConfirmClosingCommandHandlerTests
             orchestratorMock.Object,
             postClosingMock.Object,
             unitOfWorkMock.Object,
-            portfolioValidatorMock.Object,
-            portfolioValuationRepositoryMock.Object,
             loggerMock.Object);
 
         // Act
@@ -311,7 +301,7 @@ public class ConfirmClosingCommandHandlerTests
             .ReturnsAsync(true);
 
         orchestratorMock
-            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(fixture.Create<ConfirmClosingResult>()));
 
         postClosingMock
@@ -322,8 +312,6 @@ public class ConfirmClosingCommandHandlerTests
             orchestratorMock.Object,
             postClosingMock.Object,
             unitOfWorkMock.Object,
-            portfolioValidatorMock.Object,
-            portfolioValuationRepositoryMock.Object,
             loggerMock.Object);
 
         // Act
@@ -358,8 +346,6 @@ public class ConfirmClosingCommandHandlerTests
             orchestratorMock.Object,
             postClosingMock.Object,
             unitOfWorkMock.Object,
-            portfolioValidatorMock.Object,
-            portfolioValuationRepositoryMock.Object,
             loggerMock.Object);
 
         // Act
@@ -367,7 +353,7 @@ public class ConfirmClosingCommandHandlerTests
 
         // Assert
         unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
-        orchestratorMock.Verify(x => x.ConfirmAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+        orchestratorMock.Verify(x => x.ConfirmAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
         postClosingMock.Verify(x => x.ExecuteAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -399,7 +385,7 @@ public class ConfirmClosingCommandHandlerTests
             .ReturnsAsync(true);
 
         orchestratorMock
-            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ConfirmAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
                 cancellationSource.Cancel();
@@ -410,8 +396,6 @@ public class ConfirmClosingCommandHandlerTests
             orchestratorMock.Object,
             postClosingMock.Object,
             unitOfWorkMock.Object,
-            portfolioValidatorMock.Object,
-            portfolioValuationRepositoryMock.Object,
             loggerMock.Object);
 
         // Act

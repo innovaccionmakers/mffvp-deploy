@@ -2,6 +2,7 @@
 using Closing.Application.Abstractions.External.Operations.TrustOperations;
 using Closing.Application.Abstractions.External.Products.Commissions;
 using Closing.Application.Abstractions.External.Treasury.TreasuryMovements;
+using Closing.Application.Closing.Services.Validation;
 using Closing.Application.PreClosing.Services.Commission;
 using Closing.Application.PreClosing.Services.Commission.Interfaces;
 using Closing.Application.PreClosing.Services.ExtraReturns;
@@ -55,6 +56,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IBusinessValidator<RunSimulationCommand>, RunSimulationBusinessValidator>();
             services.AddScoped<IRunSimulationValidationReader, RunSimulationBusinessValidator>();
             services.AddScoped<IOperationTypesLocator, OperationTypesLocator>();
+            services.AddScoped<IClosingBusinessRules, ClosingBusinessRules>();
 
             //TODO: Consultar si puedo agregar Scrutor a este proyecto para poder usar Scan
             //services.Scan(scan => scan

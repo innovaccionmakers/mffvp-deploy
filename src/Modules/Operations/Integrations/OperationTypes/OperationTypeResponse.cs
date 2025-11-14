@@ -1,5 +1,6 @@
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain.OperationTypes;
+using System.Text.Json;
 
 namespace Operations.Integrations.OperationTypes;
 
@@ -10,4 +11,5 @@ public sealed record OperationTypeResponse(
     IncomeEgressNature Nature,
     Status Status,
     string External,
-    string HomologatedCode);
+    string HomologatedCode,
+    JsonDocument AdditionalAttributes);

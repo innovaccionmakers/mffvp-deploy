@@ -27,7 +27,8 @@ public class GetAllOperationTypesQueryHandler(
         IncomeEgressNature Nature,
         Status Status,
         string External,
-        string HomologatedCode);
+        string HomologatedCode,
+        JsonDocument AdditionalAttributes);
 
     public async Task<Result<IReadOnlyCollection<OperationTypeResponse>>> Handle(
         GetAllOperationTypesQuery request,
@@ -47,7 +48,8 @@ public class GetAllOperationTypesQueryHandler(
                         c.Nature,
                         c.Status,
                         c.External,
-                        c.HomologatedCode))
+                        c.HomologatedCode,
+                        c.AdditionalAttributes))
                     .ToList();
                 return Result.Success((IReadOnlyCollection<OperationTypeResponse>)listFromCache);
             }
@@ -71,7 +73,8 @@ public class GetAllOperationTypesQueryHandler(
                 s.Nature,
                 s.Status,
                 s.External,
-                s.HomologatedCode);
+                s.HomologatedCode,
+                s.AdditionalAttributes);
         }).ToList();
 
         var options = new DistributedCacheEntryOptions
@@ -85,7 +88,8 @@ public class GetAllOperationTypesQueryHandler(
             s.Nature,
             s.Status,
             s.External,
-            s.HomologatedCode)).ToList();
+            s.HomologatedCode,
+            s.AdditionalAttributes)).ToList();
 
         await cache.SetStringAsync(CacheKey, JsonSerializer.Serialize(cacheData, _serializerOptions), options, cancellationToken);
 

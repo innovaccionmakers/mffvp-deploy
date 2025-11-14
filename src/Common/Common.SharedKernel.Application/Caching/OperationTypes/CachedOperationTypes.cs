@@ -1,6 +1,7 @@
 ﻿
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain.OperationTypes;
+using System.Text.Json;
 
 namespace Common.SharedKernel.Application.Caching.OperationTypes;
 
@@ -11,4 +12,5 @@ public sealed record CachedOperationTypes(
     IncomeEgressNature Nature,
     Status Status,
     string External,
-    string HomologatedCode);
+    string HomologatedCode,
+    JsonDocument AdditionalAttributes);

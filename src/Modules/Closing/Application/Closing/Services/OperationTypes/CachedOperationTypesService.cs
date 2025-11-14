@@ -38,7 +38,8 @@ public class CachedOperationTypesService(
                             Nature: c.Nature,
                             Status: c.Status,
                             External: c.External,
-                            HomologatedCode: c.HomologatedCode))
+                            HomologatedCode: c.HomologatedCode,
+                            AdditionalAttributes: c.AdditionalAttributes))
                         .ToList();
 
                     return Result.Success((IReadOnlyCollection<OperationTypeInfo>)listFromCache);
@@ -57,7 +58,8 @@ public class CachedOperationTypesService(
                     Nature: c.Nature,
                     Status: c.Status,
                     External: c.External,
-                    HomologatedCode: c.HomologatedCode))
+                    HomologatedCode: c.HomologatedCode,
+                    AdditionalAttributes: c.AdditionalAttributes))
                 .ToList();
             var serialized = JsonSerializer.Serialize(operationTypesToCache);
             await cache.SetStringAsync(_cacheKey, serialized, new DistributedCacheEntryOptions
