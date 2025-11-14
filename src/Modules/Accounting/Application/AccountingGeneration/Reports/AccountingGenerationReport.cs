@@ -198,7 +198,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             consecutiveNumber,
             AccountingReportConstants.FORINT,
             AccountingReportConstants.BlankSpace,
-            accountingAssistant.Date.ToString("yyyymmdd"),
+            accountingAssistant.Date.ToString("yyyyMMdd"),
             accountingAssistant.Account ?? "",
             AccountingReportConstants.CENINT,
             AccountingReportConstants.BlankSpace,
