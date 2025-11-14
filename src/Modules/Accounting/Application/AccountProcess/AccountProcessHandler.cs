@@ -52,16 +52,7 @@ internal sealed class AccountProcessHandler(
        );
         var capPublisher = eventBus.GetCapPublisher();
 
-        var processTypes = new[]
-        {
-            ProcessTypes.AccountingFees,
-            ProcessTypes.AccountingReturns,
-            ProcessTypes.AccountingOperations,
-            ProcessTypes.AccountingConcepts,
-            ProcessTypes.AutomaticConcepts
-        };
-
-        foreach (var processType in processTypes)
+        foreach (var processType in ProcessTypes.Process)
         {
             var operationEvent = new AccountingOperationRequestedIntegrationEvent(
                 username,

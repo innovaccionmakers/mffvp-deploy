@@ -169,7 +169,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             new(1, ColumnAlignment.Center),
             new(10, ColumnAlignment.Center),
             new(4, ColumnAlignment.Center),
-            new(18, ColumnAlignment.Right, ' ', PaddingSide.Left),
+            new(19, ColumnAlignment.Right, ' ', PaddingSide.Left),
         ];
     }
 
@@ -198,7 +198,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             consecutiveNumber,
             AccountingReportConstants.FORINT,
             AccountingReportConstants.BlankSpace,
-            accountingAssistant.Date.ToString("yyyymmdd"),
+            accountingAssistant.Date.ToString("yyyyMMdd"),
             accountingAssistant.Account ?? "",
             AccountingReportConstants.CENINT,
             AccountingReportConstants.BlankSpace,
