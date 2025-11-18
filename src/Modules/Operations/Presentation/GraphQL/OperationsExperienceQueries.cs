@@ -15,10 +15,10 @@ namespace Operations.Presentation.GraphQL;
 public class OperationsExperienceQueries(IMediator mediator) : IOperationsExperienceQueries
 {
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(
-        IEnumerable<string>? groupLists = null, bool? visible = null,
+        IEnumerable<string>? groupLists = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await mediator.Send(new GetTransactionTypesQuery(groupLists, visible), cancellationToken);
+        var result = await mediator.Send(new GetTransactionTypesQuery(groupLists, true), cancellationToken);
 
         if (!result.IsSuccess || result.Value == null)
         {
