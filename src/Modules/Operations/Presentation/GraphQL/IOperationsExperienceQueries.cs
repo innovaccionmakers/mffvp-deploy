@@ -8,7 +8,7 @@ namespace Operations.Presentation.GraphQL;
 public interface IOperationsExperienceQueries
 {
     Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypesAsync(
-        IEnumerable<string>? groupLists = null, bool? visible = true,
+        IEnumerable<string>? groupLists = null,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<OperationTypeDto>> GetOperationTypesAsync(

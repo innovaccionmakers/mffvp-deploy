@@ -127,11 +127,10 @@ public class Query
     [GraphQLName("tipoTransaccion")]
     public async Task<IReadOnlyCollection<TransactionTypeDto>> GetTransactionTypes(
         [GraphQLName("grupoLista")] IEnumerable<string>? groupLists,
-        [GraphQLName("visible")] bool? visible,
         [Service] IOperationsExperienceQueries operationsQueries,
         CancellationToken cancellationToken)
     {
-        return await operationsQueries.GetTransactionTypesAsync(groupLists, visible, cancellationToken);
+        return await operationsQueries.GetTransactionTypesAsync(groupLists, cancellationToken);
     }
 
     [GraphQLName("subtipoTransaccion")]
