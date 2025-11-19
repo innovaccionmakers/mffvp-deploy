@@ -46,4 +46,9 @@ public sealed record Rt4Profitabilities(
     decimal OneHundredEightyDay,
     decimal ThreeHundredSixtyFiveDay);
 
-public sealed record AutomaticConceptAmounts(decimal AmountToBePaid, decimal AmountPaid);
+public sealed record AutomaticConceptAmounts(
+    decimal AmountToBePaid,
+    decimal AmountPaid,
+    decimal TotalToBeDistributed,
+    decimal PositiveToBeDistributed,
+    decimal NegativeToBeDistributed);

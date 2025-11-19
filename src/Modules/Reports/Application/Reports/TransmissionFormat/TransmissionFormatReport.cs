@@ -59,6 +59,7 @@ public class TransmissionFormatReport(
                     unitValue,
                     movements,
                     automaticConcept);
+                var cancellationUnits = CalculateCancellationUnits(movements.CancellationAmount, unitValue);
 
                 var data = new TransmissionFormatReportData(
                     unitValue,
@@ -80,7 +81,7 @@ public class TransmissionFormatReport(
                     movements.VitalityTransferAmount,
                     movements.OtherWithdrawalUnits,
                     movements.OtherWithdrawalAmount,
-                    movements.CancellationUnits,
+                    cancellationUnits,
                     movements.CancellationAmount,
                     movements.CurrentUnits,
                     movements.CurrentAmount,
@@ -113,24 +114,61 @@ public class TransmissionFormatReport(
         var withdrawalUnits = movements.WithdrawalUnits;
         var withdrawalAmount = movements.WithdrawalAmount;
 
-        var conceptDifference = automaticConcept.AmountToBePaid - automaticConcept.AmountPaid;
-        if (conceptDifference == 0m)
+        var distributionAmount = automaticConcept.AmountToBePaid
+            - (automaticConcept.AmountPaid + automaticConcept.TotalToBeDistributed);
+        var notePositiveAmount = automaticConcept.PositiveToBeDistributed;
+        var noteNegativeAmount = automaticConcept.NegativeToBeDistributed;
+
+        var canAdjustUnits = unitValue > 0m;
+        var contributionUnitsAdjustment = 0m;
+        var withdrawalUnitsAdjustment = 0m;
+
+        if (distributionAmount > 0m)
         {
-            return (contributionUnits, contributionAmount, withdrawalUnits, withdrawalAmount);
+            contributionAmount += distributionAmount;
+            if (canAdjustUnits)
+            {
+                contributionUnitsAdjustment += distributionAmount / unitValue;
+            }
+        }
+        else if (distributionAmount < 0m)
+        {
+            withdrawalAmount += distributionAmount;
+            if (canAdjustUnits)
+            {
+                withdrawalUnitsAdjustment += distributionAmount / unitValue;
+            }
         }
 
-        var absoluteDifference = Math.Abs(conceptDifference);
-        var unitsAdjustment = unitValue <= 0m ? 0m : Truncate(absoluteDifference / unitValue, 6);
-
-        if (conceptDifference < 0m)
+        if (notePositiveAmount > 0m)
         {
-            contributionUnits += unitsAdjustment;
-            contributionAmount += absoluteDifference;
+            contributionAmount += notePositiveAmount;
+            if (canAdjustUnits)
+            {
+                contributionUnitsAdjustment += notePositiveAmount / unitValue;
+            }
         }
-        else
+
+        if (noteNegativeAmount < 0m)
         {
-            withdrawalUnits = -unitsAdjustment;
-            withdrawalAmount = -absoluteDifference;
+            withdrawalAmount += noteNegativeAmount;
+            if (canAdjustUnits)
+            {
+                withdrawalUnitsAdjustment += noteNegativeAmount / unitValue;
+            }
+        }
+
+        if (canAdjustUnits)
+        {
+            if (contributionUnitsAdjustment != 0m)
+            {
+                contributionUnits += Truncate(contributionUnitsAdjustment, 6);
+            }
+
+            if (withdrawalUnitsAdjustment != 0m)
+            {
+                withdrawalUnits += Truncate(withdrawalUnitsAdjustment, 6);
+            }
         }
 
         return (contributionUnits, contributionAmount, withdrawalUnits, withdrawalAmount);
@@ -145,5 +183,22 @@ public class TransmissionFormatReport(
         }
 
         return Math.Truncate(value * factor) / factor;
+    }
+
+    private static decimal CalculateCancellationUnits(decimal cancellationAmount, decimal unitValue)
+    {
+        if (unitValue <= 0m)
+        {
+            return 0m;
+        }
+
+        var absoluteAmount = Math.Abs(cancellationAmount);
+        if (absoluteAmount == 0m)
+        {
+            return 0m;
+        }
+
+        var units = absoluteAmount / unitValue;
+        return Truncate(units, 6);
     }
 }
