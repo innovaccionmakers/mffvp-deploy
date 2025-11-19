@@ -1,4 +1,5 @@
 using Common.SharedKernel.Core.Primitives;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using Operations.Domain.ClientOperations;
 using Operations.Infrastructure.Database;
@@ -95,7 +96,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         return clientOperations;
     }
 
-    public async Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(IEnumerable<int> portfolioIds, DateTime processDate, string operationTypeName, CancellationToken cancellationToken = default)
     {
         if (portfolioIds == null || !portfolioIds.Any())
             return Enumerable.Empty<ClientOperation>();
@@ -103,7 +104,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         return await context.ClientOperations
             .Where(co => co.Status == LifecycleStatus.Active)
             .Where(co => portfolioIds.Contains(co.PortfolioId) && co.ProcessDate == processDate)
-            .Where(co => co.OperationType != null && co.OperationType.Name == "Ninguno")
+            .Where(co => co.OperationType != null && co.OperationType.Name == operationTypeName)
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
             .AsSplitQuery()

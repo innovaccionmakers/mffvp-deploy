@@ -1,4 +1,5 @@
 ﻿using Accounting.Application.Abstractions;
+using Accounting.Application.Abstractions.External;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Integrations.AccountingAssistants.Commands;
@@ -8,18 +9,18 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.OperationTypes;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Operations.IntegrationEvents.ClientOperations;
 using System.Collections.Concurrent;
 
 namespace Accounting.Application.AccountingOperations
 {
     internal sealed class AccountingOperationsHandler(
-        IRpcClient rpcClient,
         ISender sender,
         ILogger<AccountingOperationsHandler> logger,
         AccountingOperationsHandlerValidation validator,
+        IOperationLocator operationLocator,
         IInconsistencyHandler inconsistencyHandler) : ICommandHandler<AccountingOperationsCommand, bool>
     {
         public async Task<Result<bool>> Handle(AccountingOperationsCommand command, CancellationToken cancellationToken)
@@ -29,15 +30,15 @@ namespace Accounting.Application.AccountingOperations
                 var errors = new ConcurrentBag<AccountingInconsistency>();
 
                 //Operations
-                var operations = await rpcClient.CallAsync<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>(
-                                                                new GetAccountingOperationsRequestEvents(command.PortfolioIds, command.ProcessDate), cancellationToken);
-                if (!operations.IsValid)
-                    return Result.Failure<bool>(Error.Validation(operations.Code ?? string.Empty, operations.Message ?? string.Empty));
+                var operations = await operationLocator.GetAccountingOperationsAsync(command.PortfolioIds, command.ProcessDate, OperationTypeAttributes.Names.Contribution, OperationTypeAttributes.Names.None, cancellationToken);
 
-                if (operations.ClientOperations.Count == 0)
+                if (!operations.IsSuccess)
+                    return Result.Failure<bool>(Error.Validation(operations.Error.Code ?? string.Empty, operations.Error.Description ?? string.Empty));
+
+                if (operations.Value.Count == 0)
                     return Result.Success(true);
 
-                var operationsByPortfolio = operations.ClientOperations.GroupBy(op => op.PortfolioId).ToDictionary(g => g.Key, g => g.ToList());
+                var operationsByPortfolio = operations.Value.GroupBy(op => op.PortfolioId).ToDictionary(g => g.Key, g => g.ToList());
 
                 foreach (var portfolioId in command.PortfolioIds)
                 {
@@ -55,14 +56,14 @@ namespace Accounting.Application.AccountingOperations
                 }
 
                 //Treasury
-                var collectionAccount = operations.ClientOperations.GroupBy(x => x.CollectionAccount).Select(x => x.Key).ToList();
+                var collectionAccount = operations.Value.GroupBy(x => x.CollectionAccount).Select(x => x.Key).ToList();
                 var treasury = await sender.Send(new GetAccountingOperationsTreasuriesQuery(command.PortfolioIds, collectionAccount), cancellationToken);
                 if (!treasury.IsSuccess)
                     return Result.Failure<bool>(Error.Validation("Error al optener las cuentas" ?? string.Empty, treasury.Description ?? string.Empty));
                 var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioId, x => x);
 
                 var accountingAssistants = await validator.ProcessOperationsInParallel(
-                    operations.ClientOperations,
+                    operations.Value,
                     treasuryByPortfolioId,
                     command,
                     cancellationToken);

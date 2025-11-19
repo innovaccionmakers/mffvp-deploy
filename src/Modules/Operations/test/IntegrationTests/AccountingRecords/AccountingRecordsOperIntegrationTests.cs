@@ -388,6 +388,7 @@ public class AccountingRecordsOperIntegrationTests
         public Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(
             IEnumerable<int> PortfolioId,
             DateTime processDate,
+            string clientOperationTypeName,
             CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 

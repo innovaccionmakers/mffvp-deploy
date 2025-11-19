@@ -12,10 +12,12 @@ public class OperationLocator(IRpcClient rpc) : IOperationLocator
 {
     public async Task<Result<IReadOnlyCollection<GetAccountingOperationsResponse>>> GetAccountingOperationsAsync(IEnumerable<int> portfolioIds,
                                                                                                                  DateTime processDate,
+                                                                                                                 string operationTypeName,
+                                                                                                                 string clientOperationTypeName,
                                                                                                                  CancellationToken cancellationToken)
     {
         var rc = await rpc.CallAsync<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>(
-                                                new GetAccountingOperationsRequestEvents(portfolioIds, processDate), cancellationToken);
+                                                new GetAccountingOperationsRequestEvents(portfolioIds, processDate, operationTypeName, clientOperationTypeName), cancellationToken);
 
         return rc.IsValid
             ? Result.Success(rc.ClientOperations)

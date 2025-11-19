@@ -11,18 +11,17 @@ namespace Operations.Application.ClientOperations.GetAccountingOperations
         IClientOperationRepository repository,
         IOperationTypeRepository operationTypeRepository)
         : IQueryHandler<GetAccountingOperationsQuery, IReadOnlyCollection<GetAccountingOperationsResponse>>
-    {
-        private readonly string Name = "Aporte";
+    {        
         public async Task<Result<IReadOnlyCollection<GetAccountingOperationsResponse>>> Handle(GetAccountingOperationsQuery request, CancellationToken cancellationToken)
         {
             var utcProcessDate = request.ProcessDate.Kind == DateTimeKind.Unspecified
                                 ? DateTime.SpecifyKind(request.ProcessDate, DateTimeKind.Utc)
                                 : request.ProcessDate.ToUniversalTime();
 
-            var operationType = await operationTypeRepository.GetByNameAsync(Name, cancellationToken);
+            var operationType = await operationTypeRepository.GetByNameAsync(request.OperationTypeName, cancellationToken);
             var listOperationType = operationType.Select(c => (c.Name, c.Nature)).FirstOrDefault();
 
-            var clientOperations = await repository.GetAccountingOperationsAsync(request.PortfolioId, utcProcessDate, cancellationToken);
+            var clientOperations = await repository.GetAccountingOperationsAsync(request.PortfolioId, utcProcessDate, request.ClientOperationTypeName, cancellationToken);
 
             var response = clientOperations
             .Select(c => new GetAccountingOperationsResponse(

@@ -9,7 +9,7 @@ namespace Operations.IntegrationEvents.ClientOperations
         public async Task<GetAccountingOperationsValidationResponse> HandleAsync(GetAccountingOperationsRequestEvents request,
             CancellationToken cancellationToken)
         {
-            var result = await mediator.Send(new GetAccountingOperationsQuery(request.PortfolioId, request.ProcessDate),
+            var result = await mediator.Send(new GetAccountingOperationsQuery(request.PortfolioId, request.ProcessDate, request.OperationTypeName, request.ClientOperationTypeName),
                     cancellationToken);
 
             return result.Match(

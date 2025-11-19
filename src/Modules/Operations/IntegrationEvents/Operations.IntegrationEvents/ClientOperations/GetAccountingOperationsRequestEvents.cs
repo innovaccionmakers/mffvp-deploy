@@ -2,6 +2,8 @@
 {
     public sealed record class GetAccountingOperationsRequestEvents(
         IEnumerable<int> PortfolioId,
-        DateTime ProcessDate
+        DateTime ProcessDate,
+        string OperationTypeName,
+        string ClientOperationTypeName
     );
 }
