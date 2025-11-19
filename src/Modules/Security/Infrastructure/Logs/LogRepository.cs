@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Security.Domain.Logs;
 using Security.Infrastructure.Database;
+using System.Threading;
 
 namespace Security.Infrastructure.Logs;
 
@@ -17,6 +18,15 @@ internal sealed class LogRepository(SecurityDbContext context) : ILogRepository
     }
 
     public void Insert(Log log) => context.Set<Log>().Add(log);
-    public void Update(Log log) => context.Set<Log>().Update(log);
+
+    public async Task Update(Log log, CancellationToken cancellationToken = default)
+    {
+        await context.Set<Log>()
+            .Where(l => l.Id == log.Id)
+            .ExecuteUpdateAsync(setters =>
+            setters.SetProperty(l => l.SuccessfulProcess, log.SuccessfulProcess),
+            cancellationToken);
+    }
+
     public void Delete(Log log) => context.Set<Log>().Remove(log);
 }

@@ -4,6 +4,8 @@ using Common.SharedKernel.Application.Caching.Closing;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Rpc;
+using Common.SharedKernel.Domain.Auditing;
+using Common.SharedKernel.Infrastructure.Auditing;
 using Common.SharedKernel.Infrastructure.Auth.User;
 using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Caching.Closing;
@@ -130,6 +132,7 @@ public static class InfrastructureConfiguration
         services.AddInMemoryRpc();
         services.AddScoped<IEventBus, EventBus.EventBus>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAuditLogStore, AuditLogStore>();
 
         services.AddSingleton<IClosingExecutionSerializer, JsonClosingExecutionSerializer>();
         services.AddScoped<IClosingExecutionStore>(sp =>

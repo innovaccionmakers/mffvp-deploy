@@ -66,7 +66,7 @@ namespace Accounting.Application.AccountingConcepts
                 if (!accountingAssistants.SuccessItems.Any())
                 {
                     logger.LogInformation("No hay operaciones contables que procesar");
-                    return Result.Failure<bool>(Error.Problem("Accounting.Concepts", "No hay conceptos contables que procesar"));
+                    return Result.Success(true);
                 }
 
                 var accountingConceptsSave = await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);
