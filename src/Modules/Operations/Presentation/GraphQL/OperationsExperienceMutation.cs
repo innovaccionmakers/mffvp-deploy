@@ -64,12 +64,12 @@ public class OperationsExperienceMutation(
             var detalleJson = JsonDocument.Parse(JsonSerializer.Serialize(detalle));
 
             var response = new ContributionMutationResult(
-                commandResult.Value.OperationId ?? 0,                
+                commandResult.Value.OperationId ?? 0,
                 "Comprobante",
                 detalleJson.RootElement
             );
 
-            result.SetSuccess(response, "Genial!, Se ha procesado la transacción de Aporte");
+            result.SetSuccess(response, commandResult.Description);
             return result;
         }
         catch (Exception ex)
