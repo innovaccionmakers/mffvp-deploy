@@ -75,17 +75,8 @@ internal sealed class RedisAccountingProcessStore(
                 logger.LogError("Error al deserializar datos del proceso {ProcessId}", processId);
                 return false;
             }
-            
-            var requiredProcessTypes = new[]
-            {
-                ProcessTypes.AccountingFees,
-                ProcessTypes.AccountingReturns,
-                ProcessTypes.AccountingOperations,
-                ProcessTypes.AccountingConcepts,
-                ProcessTypes.AutomaticConcepts
-            };
 
-            var allCompleted = requiredProcessTypes.All(type =>
+            var allCompleted = ProcessTypes.Process.All(type =>
                 processData.Results.Any(r => r.ProcessType == type));
 
             logger.LogInformation("Verificación de completitud para proceso {ProcessId}: {AllCompleted}",

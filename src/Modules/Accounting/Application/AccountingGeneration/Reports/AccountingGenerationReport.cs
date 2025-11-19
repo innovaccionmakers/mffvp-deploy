@@ -136,7 +136,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             new(2, ColumnAlignment.Center),
             new(1, ColumnAlignment.Center),
             new(8, ColumnAlignment.Center),
-            new(12, ColumnAlignment.Center),
+            new(12, ColumnAlignment.Left, ' '),
             new(12, ColumnAlignment.Center),
             new(1, ColumnAlignment.Center),
             new(13, ColumnAlignment.Left, ' '),
@@ -169,7 +169,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             new(1, ColumnAlignment.Center),
             new(10, ColumnAlignment.Center),
             new(4, ColumnAlignment.Center),
-            new(18, ColumnAlignment.Right, ' ', PaddingSide.Left),
+            new(19, ColumnAlignment.Right, ' ', PaddingSide.Left),
         ];
     }
 
@@ -198,7 +198,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             consecutiveNumber,
             AccountingReportConstants.FORINT,
             AccountingReportConstants.BlankSpace,
-            accountingAssistant.Date.ToString("yyyymmdd"),
+            accountingAssistant.Date.ToString("yyyyMMdd"),
             accountingAssistant.Account ?? "",
             AccountingReportConstants.CENINT,
             AccountingReportConstants.BlankSpace,
@@ -269,6 +269,4 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         string fileName = $"{ReportName}{processDate:ddMMyyyy}{consecutive:D3}.txt";
         return fileName;
     }
-
-
 }

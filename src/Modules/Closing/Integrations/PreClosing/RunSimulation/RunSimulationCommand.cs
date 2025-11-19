@@ -18,7 +18,8 @@ public sealed record RunSimulationParameters(
       int PortfolioId,
       DateTime ClosingDate,
       bool IsClosing = false,
-      bool IsFirstClosingDay = false
+      bool IsFirstClosingDay = false,
+      bool HasDebitNotes = false  // Indica si el portafolio tiene Rendimientos Extra por Nota de Débito
   );
 
 

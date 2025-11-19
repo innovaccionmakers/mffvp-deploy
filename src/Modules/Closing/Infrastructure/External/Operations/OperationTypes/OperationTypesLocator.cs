@@ -29,7 +29,8 @@ internal sealed class OperationTypesLocator(IRpcClient rpcClient) : IOperationTy
             Nature: c.Nature,
             Status: c.Status,
             External: c.External,
-            HomologatedCode: c.HomologatedCode
+            HomologatedCode: c.HomologatedCode,
+            AdditionalAttributes: c.AdditionalAttributes
         )).ToList();
         return response.Succeeded
             ? Result.Success(types!)
@@ -69,7 +70,8 @@ internal sealed class OperationTypesLocator(IRpcClient rpcClient) : IOperationTy
             operationType.Nature,
             operationType.Status,
             operationType.External,
-            operationType.HomologatedCode
+            operationType.HomologatedCode,
+            operationType.AdditionalAttributes
         );
 
         return Result.Success(info);

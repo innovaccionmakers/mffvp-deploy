@@ -44,16 +44,29 @@ public class GetAllOperationTypesQueryHandlerTests
     {
         var cached = new[]
         {
-            new { Id = 1L, Name = "T", Category = (string?)null, Nature = IncomeEgressNature.Income, Status = Status.Active, External = "EXT", HomologatedCode = "H" }
+            new { Id = 1L, Name = "T", Category = (string?)null, Nature = IncomeEgressNature.Income, Status = Status.Active, External = "EXT", HomologatedCode = "H"
+            , AdditionalAttributes = new { GrupoLista = "OperacionesClientes" } }
         };
         await _cache.SetStringAsync("operations:operationTypes", JsonSerializer.Serialize(cached));
-        var expected = new[] { new OperationTypeResponse(1, "T", null, IncomeEgressNature.Income, Status.Active, "EXT", "H") };
+        var expected = new[] { new OperationTypeResponse(1, "T", null, IncomeEgressNature.Income, Status.Active, "EXT", "H", JsonSerializer.SerializeToDocument(new { GrupoLista = "OperacionesClientes" })) };
         var handler = Build();
 
         var result = await handler.Handle(new GetAllOperationTypesQuery(), CancellationToken.None);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().BeEquivalentTo(expected);
+        result.Value.Should().HaveCount(1);
+
+        var actual = result.Value.Single();
+        var expectedItem = expected.Single();
+
+        // 1) Compara todas las propiedades menos AdditionalAttributes
+        actual.Should().BeEquivalentTo(
+            expectedItem,
+            options => options.Excluding(x => x.AdditionalAttributes));
+
+        // 2) Compara el JSON de AdditionalAttributes como texto
+        actual.AdditionalAttributes.RootElement.ToString()
+            .Should().Be(expectedItem.AdditionalAttributes.RootElement.ToString());
+
         _repo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -67,7 +80,7 @@ public class GetAllOperationTypesQueryHandlerTests
         var result = await handler.Handle(new GetAllOperationTypesQuery(), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        var expected = new[] { new OperationTypeResponse(type.OperationTypeId, type.Name, null, type.Nature, type.Status, type.External, type.HomologatedCode) };
+        var expected = new[] { new OperationTypeResponse(type.OperationTypeId, type.Name, null, type.Nature, type.Status, type.External, type.HomologatedCode, type.AdditionalAttributes) };
         result.Value.Should().BeEquivalentTo(expected);
         _repo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
         (await _cache.GetStringAsync("operations:operationTypes")).Should().NotBeNull();

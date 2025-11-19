@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Collections.Concurrent;
+using System.Text.Json;
 
 
 namespace Closing.test.UnitTests.Application.PostClosing.Services
@@ -98,7 +99,11 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
                     Nature: IncomeEgressNature.Income,
                     Status: Status.Active,
                     External: "EXT",
-                    HomologatedCode: "REN"
+                    HomologatedCode: "REN",
+                    JsonSerializer.SerializeToDocument(new
+                    {
+                        GrupoLista = "OperacionesClientes"
+                    })
                 )));
         }
 

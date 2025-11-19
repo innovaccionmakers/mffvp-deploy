@@ -28,7 +28,8 @@ public class GetOperationTypeByNameQueryHandler(IOperationTypeRepository reposit
                         c.Nature,
                         c.Status,
                         c.External,
-                        c.HomologatedCode))
+                        c.HomologatedCode,
+                        c.AdditionalAttributes))
                     .ToList();
 
             return Result.Success((IReadOnlyCollection<OperationTypeResponse>)listFromCache);

@@ -5,6 +5,7 @@ using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.ReturnsOperations.Interfaces;
 using Closing.Application.Closing.Services.Telemetry;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
+using Closing.Application.Closing.Services.Validation;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Helpers.Time;
@@ -23,16 +24,31 @@ public class ConfirmClosingOrchestrator(
     IAbortClosingService abortClosingService,
     IUnitOfWork unitOfWork,
     IClosingStepTimer stepTimer,
-    ILogger<ConfirmClosingOrchestrator> logger)
+    ILogger<ConfirmClosingOrchestrator> logger,
+     IClosingBusinessRules rules)
     : IConfirmClosingOrchestrator
 {
-    public async Task<Result<ConfirmClosingResult>> ConfirmAsync(int portfolioId, DateTime closingDate, bool isFirstClosingDay, CancellationToken cancellationToken)
+    public async Task<Result<ConfirmClosingResult>> ConfirmAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
         closingDate = DateTimeConverter.ToUtcDateTime(closingDate);
         cancellationToken.ThrowIfCancellationRequested();
+        var isFirstClosingDay = false;
+        var hasDebitNotes = false;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+        
+            var firstDayResult = await rules.IsFirstClosingDayAsync(portfolioId, cancellationToken);
+            if (firstDayResult.IsFailure) return Result.Failure<ConfirmClosingResult>(firstDayResult.Error);
+
+            isFirstClosingDay = firstDayResult.Value;
+            if (!isFirstClosingDay)
+            {
+                var hasDebitNotesResult = await rules.HasDebitNotesAsync(portfolioId, closingDate, cancellationToken);
+                if (hasDebitNotesResult.IsFailure) return Result.Failure<ConfirmClosingResult>(hasDebitNotesResult.Error);
+                hasDebitNotes = hasDebitNotesResult.Value;
+            }
             // Paso 1: Distribuir rendimientos
             using (stepTimer.Track("ConfirmClosingOrchestrator.DistributeTrustYields", portfolioId, closingDate))
             {
@@ -46,7 +62,7 @@ public class ConfirmClosingOrchestrator(
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!isFirstClosingDay)
+            if (!isFirstClosingDay && hasDebitNotes)
             {
                 using (stepTimer.Track("ConfirmClosingOrchestrator.DistributableReturns", portfolioId, closingDate))
                 {
@@ -80,8 +96,8 @@ public class ConfirmClosingOrchestrator(
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Paso 3: Operaciones de rendimientos (solo si no es el primer día de cierre)
-            if (!isFirstClosingDay)
+            // Paso 3: Operaciones de rendimientos (solo si no es el primer día de cierre y hay notas de debito)
+            if (!isFirstClosingDay && hasDebitNotes)
             {
                 using (stepTimer.Track("ConfirmClosingOrchestrator.ReturnsOperations", portfolioId, closingDate))
                 {
