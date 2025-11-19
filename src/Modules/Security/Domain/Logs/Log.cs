@@ -44,4 +44,15 @@ public sealed class Log : Entity
 
         return Result.Success(log);
     }
+
+    public static Result<Log> UpdateSuccessStatus(long id, bool success)
+    {
+        var log = new Log
+        {
+            Id = id,
+            SuccessfulProcess = success
+        };
+
+        return Result.Success(log);
+    }
 }

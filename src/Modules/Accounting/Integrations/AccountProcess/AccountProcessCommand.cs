@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Accounting.Integrations.AccountProcess
 {
+    [AuditLog]
     public sealed record AccountProcessCommand(
         [property: JsonPropertyName("idsPortafolio")]
         IEnumerable<int> PortfolioIds,

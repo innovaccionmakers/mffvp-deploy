@@ -35,6 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Modules\Security\Domain\Security.Domain.csproj" />
         <ProjectReference Include="..\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
     </ItemGroup>
 
