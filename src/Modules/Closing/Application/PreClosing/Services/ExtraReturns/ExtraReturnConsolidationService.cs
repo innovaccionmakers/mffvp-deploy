@@ -38,7 +38,7 @@ public sealed class ExtraReturnConsolidationService(ITrustOperationsLocator trus
                 operation.ProcessDateUtc,
                 operation.OperationTypeId,
                 operation.OperationTypeName,
-                -operation.Amount,
+                operation.Amount,
                 JsonSerializer.Serialize(
                     new StringEntityDto(
                         operation.OperationTypeId.ToString(),
