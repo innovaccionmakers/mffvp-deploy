@@ -17,7 +17,7 @@ namespace Accounting.test.UnitTests.Treasuries
             var debitAccount = "DEBIT-12345";
 
             // Act
-            var response = new GetAccountingOperationsTreasuriesResponse(portfolioId, debitAccount);
+            var response = new GetAccountingOperationsTreasuriesResponse(portfolioId, debitAccount, null);
 
             // Assert
             Assert.Equal(portfolioId, response.PortfolioId);
@@ -28,7 +28,7 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingOperationsTreasuriesResponse_WithNullDebitAccount_AllowsNull()
         {
             // Arrange & Act
-            var response = new GetAccountingOperationsTreasuriesResponse(new int(), null);
+            var response = new GetAccountingOperationsTreasuriesResponse(new int(), null, null);
 
             // Assert
             Assert.Null(response.DebitAccount);
@@ -38,7 +38,7 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingOperationsTreasuriesResponse_WithEmptyDebitAccount_AllowsEmptyString()
         {
             // Arrange & Act
-            var response = new GetAccountingOperationsTreasuriesResponse(new int(), string.Empty);
+            var response = new GetAccountingOperationsTreasuriesResponse(new int(), string.Empty, null);
 
             // Assert
             Assert.Equal(string.Empty, response.DebitAccount);

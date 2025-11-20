@@ -2,6 +2,7 @@
 {
     public sealed record class GetAccountingOperationsTreasuriesResponse(
         int PortfolioId,
-        string? DebitAccount
+        string? DebitAccount,
+        string? CreditAccount
         );
 }

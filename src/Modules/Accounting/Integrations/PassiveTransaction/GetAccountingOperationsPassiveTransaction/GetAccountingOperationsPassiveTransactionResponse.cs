@@ -8,6 +8,7 @@ namespace Accounting.Integrations.PassiveTransaction.GetAccountingOperationsPass
 {
     public sealed record class GetAccountingOperationsPassiveTransactionResponse(
         int PortfolioId,
-        string? CreditAccount
+        string? CreditAccount,
+        string? DebitAccount
         );
 }

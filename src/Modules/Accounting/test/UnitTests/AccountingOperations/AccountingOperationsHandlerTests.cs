@@ -230,7 +230,8 @@ namespace Accounting.test.UnitTests.AccountingOperations
             {
                 treasuries[portfolioId] = new GetAccountingOperationsTreasuriesResponse(
                     PortfolioId: portfolioId,
-                    DebitAccount: debitAccounts[random.Next(debitAccounts.Length)]
+                    DebitAccount: debitAccounts[random.Next(debitAccounts.Length)],
+                    CreditAccount: "200200200" + portfolioId
                 );
             }
 
@@ -251,7 +252,8 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 {
                     treasuries[portfolioId] = new GetAccountingOperationsTreasuriesResponse(
                         PortfolioId: portfolioId,
-                        DebitAccount: debitAccounts[random.Next(debitAccounts.Length)]
+                        DebitAccount: debitAccounts[random.Next(debitAccounts.Length)],
+                        CreditAccount: "200200200" + portfolioId
                     );
                 }
             }

@@ -9,6 +9,7 @@ using Associate.IntegrationsEvents.GetActivateIds;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.OperationTypes;
 using Customers.IntegrationEvents.PeopleByIdentificationsValidation;
 using Customers.Integrations.People.GetPeopleByIdentifications;
 using MediatR;
@@ -28,6 +29,7 @@ namespace Accounting.Application.AccountingOperations
             IReadOnlyCollection<GetAccountingOperationsResponse> operations,
             Dictionary<int, GetAccountingOperationsTreasuriesResponse> treasuryByPortfolioId,
             AccountingOperationsCommand command,
+            string operationTypeName,
             CancellationToken cancellationToken)
         {
             try
@@ -49,27 +51,33 @@ namespace Accounting.Application.AccountingOperations
                 var validPortfolios = new ConcurrentDictionary<int, bool>();
                 var portfolioErrors = new ConcurrentBag<AccountingInconsistency>();
 
-                // Validación rápida y paralela de todos los portfolios
                 await Parallel.ForEachAsync(uniquePortfolioIds, cancellationToken, async (portfolioId, ct) =>
                 {
-                    var hasDebit = treasuryByPortfolioId.ContainsKey(portfolioId) &&
-                                  !string.IsNullOrWhiteSpace(treasuryByPortfolioId[portfolioId]?.DebitAccount);
-                    var hasCredit = passiveTransactionByPortfolioId.ContainsKey(portfolioId) &&
-                                   !string.IsNullOrWhiteSpace(passiveTransactionByPortfolioId[portfolioId]?.CreditAccount);
-
-                    if (!hasDebit)
+                    var validationResult = operationTypeName switch
                     {
-                        portfolioErrors.Add(AccountingInconsistency.Create(
-                            portfolioId, OperationTypeNames.Operation, "No existe parametrización contable", AccountingActivity.Debit));
+                        OperationTypeAttributes.Names.Contribution => ValidateContributionPortfolio(
+                            portfolioId,
+                            treasuryByPortfolioId,
+                            passiveTransactionByPortfolioId),
+                        OperationTypeAttributes.Names.DebitNote => ValidateDebitNotePortfolio(
+                            portfolioId,
+                            treasuryByPortfolioId,
+                            passiveTransactionByPortfolioId),
+                        _ => ValidateContributionPortfolio(
+                            portfolioId,
+                            treasuryByPortfolioId,
+                            passiveTransactionByPortfolioId)
+                    };
+
+                    if (validationResult.HasErrors)
+                    {
+                        foreach (var error in validationResult.Errors)
+                        {
+                            portfolioErrors.Add(error);
+                        }
                     }
 
-                    if (!hasCredit)
-                    {
-                        portfolioErrors.Add(AccountingInconsistency.Create(
-                            portfolioId, OperationTypeNames.Operation, "No existe parametrización contable", AccountingActivity.Credit));
-                    }
-
-                    if (hasDebit && hasCredit)
+                    if (validationResult.IsValid)
                     {
                         validPortfolios.TryAdd(portfolioId, true);
                     }
@@ -126,6 +134,7 @@ namespace Accounting.Application.AccountingOperations
                         treasuryByPortfolioId,
                         passiveTransactionByPortfolioId,
                         command.ProcessDate,
+                        operationTypeName,
                         ct);
 
                     foreach (var assistant in batchResult.Assistants)
@@ -146,7 +155,7 @@ namespace Accounting.Application.AccountingOperations
             {
                 return new ProcessingResult<AccountingAssistant, AccountingInconsistency>(new List<AccountingAssistant>(), new List<AccountingInconsistency>());
             }
-            
+
         }
 
         public async Task<(List<AccountingAssistant> Assistants, List<AccountingInconsistency> Errors)> ProcessBatchAsync(
@@ -156,6 +165,7 @@ namespace Accounting.Application.AccountingOperations
             Dictionary<int, GetAccountingOperationsTreasuriesResponse> treasuryByPortfolioId,
             Dictionary<int, GetAccountingOperationsPassiveTransactionResponse> passiveTransactionByPortfolioId,
             DateTime processDate,
+            string operationTypeName,
             CancellationToken cancellationToken)
         {
             var results = new ConcurrentBag<(List<AccountingAssistant> Assistants, List<AccountingInconsistency> Errors)>();
@@ -171,6 +181,7 @@ namespace Accounting.Application.AccountingOperations
                         treasuryByPortfolioId,
                         passiveTransactionByPortfolioId,
                         processDate,
+                        operationTypeName,
                         ct);
 
                     results.Add((result.Assistants, result.Errors));
@@ -209,12 +220,33 @@ namespace Accounting.Application.AccountingOperations
             Dictionary<int, GetAccountingOperationsTreasuriesResponse> treasuryByPortfolioId,
             Dictionary<int, GetAccountingOperationsPassiveTransactionResponse> passiveTransactionByPortfolioId,
             DateTime processDate,
+            string operationTypeName,
             CancellationToken cancellationToken)
         {
             await Task.Yield();
 
-            var debitAccount = treasuryByPortfolioId[operation.PortfolioId];
-            var creditAccount = passiveTransactionByPortfolioId[operation.PortfolioId];
+            string? debitAccountNumber;
+            string? creditAccountNumber;
+
+            
+            if (operationTypeName == OperationTypeAttributes.Names.DebitNote)
+            {                
+                debitAccountNumber = passiveTransactionByPortfolioId.ContainsKey(operation.PortfolioId)
+                    ? passiveTransactionByPortfolioId[operation.PortfolioId]?.DebitAccount
+                    : null;
+                creditAccountNumber = treasuryByPortfolioId.ContainsKey(operation.PortfolioId)
+                    ? treasuryByPortfolioId[operation.PortfolioId]?.CreditAccount
+                    : null;
+            }
+            else
+            {               
+                debitAccountNumber = treasuryByPortfolioId.ContainsKey(operation.PortfolioId)
+                    ? treasuryByPortfolioId[operation.PortfolioId]?.DebitAccount
+                    : null;
+                creditAccountNumber = passiveTransactionByPortfolioId.ContainsKey(operation.PortfolioId)
+                    ? passiveTransactionByPortfolioId[operation.PortfolioId]?.CreditAccount
+                    : null;
+            }
 
             identificationByActivateId.TryGetValue(operation.AffiliateId, out var identification);
 
@@ -250,10 +282,66 @@ namespace Accounting.Application.AccountingOperations
             }
 
             var assistants = accountingAssistant.Value.ToDebitAndCredit(
-                debitAccount?.DebitAccount,
-                creditAccount?.CreditAccount).ToList();
+                debitAccountNumber,
+                creditAccountNumber).ToList();
 
             return (assistants, new List<AccountingInconsistency>());
+        }
+
+        private (bool IsValid, bool HasErrors, List<AccountingInconsistency> Errors) ValidateContributionPortfolio(
+            int portfolioId,
+            Dictionary<int, GetAccountingOperationsTreasuriesResponse> treasuryByPortfolioId,
+            Dictionary<int, GetAccountingOperationsPassiveTransactionResponse> passiveTransactionByPortfolioId)
+        {
+            var errors = new List<AccountingInconsistency>();
+            var hasDebit = treasuryByPortfolioId.ContainsKey(portfolioId) &&
+                          !string.IsNullOrWhiteSpace(treasuryByPortfolioId[portfolioId]?.DebitAccount);
+            var hasCredit = passiveTransactionByPortfolioId.ContainsKey(portfolioId) &&
+                           !string.IsNullOrWhiteSpace(passiveTransactionByPortfolioId[portfolioId]?.CreditAccount);
+
+            if (!hasDebit)
+            {
+                errors.Add(AccountingInconsistency.Create(
+                    portfolioId, OperationTypeNames.Operation, "No existe parametrización contable", AccountingActivity.Debit));
+            }
+
+            if (!hasCredit)
+            {
+                errors.Add(AccountingInconsistency.Create(
+                    portfolioId, OperationTypeNames.Operation, "No existe parametrización contable", AccountingActivity.Credit));
+            }
+
+            var isValid = hasDebit && hasCredit;
+            return (isValid, errors.Any(), errors);
+        }
+
+        private (bool IsValid, bool HasErrors, List<AccountingInconsistency> Errors) ValidateDebitNotePortfolio(
+            int portfolioId,
+            Dictionary<int, GetAccountingOperationsTreasuriesResponse> treasuryByPortfolioId,
+            Dictionary<int, GetAccountingOperationsPassiveTransactionResponse> passiveTransactionByPortfolioId)
+        {
+            var errors = new List<AccountingInconsistency>();
+
+            var hasDebit = passiveTransactionByPortfolioId.ContainsKey(portfolioId) &&
+                          !string.IsNullOrWhiteSpace(passiveTransactionByPortfolioId[portfolioId]?.DebitAccount);
+            
+            var hasCredit = treasuryByPortfolioId.ContainsKey(portfolioId) &&
+                           !string.IsNullOrWhiteSpace(treasuryByPortfolioId[portfolioId]?.CreditAccount);
+
+            if (!hasDebit)
+            {
+                errors.Add(AccountingInconsistency.Create(
+                    portfolioId, OperationTypeNames.Operation, "No existe parametrización contable", AccountingActivity.Debit));
+            }
+
+            if (!hasCredit)
+            {
+                errors.Add(AccountingInconsistency.Create(
+                    portfolioId, OperationTypeNames.Operation, "No existe parametrización contable", AccountingActivity.Credit));
+            }
+
+            var isValid = hasDebit && hasCredit;
+            return (isValid, errors.Any(), errors);
         }
     }
 }

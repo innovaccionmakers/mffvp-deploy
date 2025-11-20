@@ -6,7 +6,6 @@ using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingOperations;
 using Accounting.Integrations.Treasuries.GetAccountingOperationsTreasuries;
 using Common.SharedKernel.Application.Messaging;
-using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
@@ -53,8 +52,6 @@ namespace Accounting.Application.AccountingOperations
             var operations = await operationLocator.GetAccountingOperationsAsync(
                 command.PortfolioIds,
                 command.ProcessDate,
-                OperationTypeAttributes.Names.Contribution,
-                OperationTypeAttributes.Names.None,
                 cancellationToken);
 
             return await ProcessOperationsByTypeAsync(
@@ -66,11 +63,9 @@ namespace Accounting.Application.AccountingOperations
 
         private async Task<Result<bool>> ProcessDebitNoteOperationsAsync(AccountingOperationsCommand command, CancellationToken cancellationToken)
         {
-            var operations = await operationLocator.GetAccountingOperationsAsync(
+            var operations = await operationLocator.GetAccountingDebitNoteOperationsAsync(
                 command.PortfolioIds,
                 command.ProcessDate,
-                OperationTypeAttributes.Names.DebitNote,
-                OperationTypeAttributes.Names.DebitNote,
                 cancellationToken);
 
             return await ProcessOperationsByTypeAsync(
@@ -125,6 +120,7 @@ namespace Accounting.Application.AccountingOperations
                 operationsResult.Value,
                 treasuryByPortfolioId,
                 command,
+                operationTypeName,
                 cancellationToken);
 
             if (!accountingAssistants.IsSuccess)

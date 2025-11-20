@@ -7,21 +7,21 @@ using Operations.Integrations.ClientOperations.GetAccountingOperations;
 
 namespace Operations.Application.ClientOperations.GetAccountingOperations
 {
-    internal class GetAccountingOperationsQueryHandler(
+    internal class GetAccountingDebitNoteOperationsQueryHandler(
         IClientOperationRepository repository,
         IOperationTypeRepository operationTypeRepository)
-        : IQueryHandler<GetAccountingOperationsQuery, IReadOnlyCollection<GetAccountingOperationsResponse>>
+        : IQueryHandler<GetAccountingDebitNoteOperationsQuery, IReadOnlyCollection<GetAccountingOperationsResponse>>
     {        
-        public async Task<Result<IReadOnlyCollection<GetAccountingOperationsResponse>>> Handle(GetAccountingOperationsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IReadOnlyCollection<GetAccountingOperationsResponse>>> Handle(GetAccountingDebitNoteOperationsQuery request, CancellationToken cancellationToken)
         {
             var utcProcessDate = request.ProcessDate.Kind == DateTimeKind.Unspecified
                                 ? DateTime.SpecifyKind(request.ProcessDate, DateTimeKind.Utc)
                                 : request.ProcessDate.ToUniversalTime();
 
-            var operationType = await operationTypeRepository.GetByNameAsync(OperationTypeAttributes.Names.Contribution, cancellationToken);
+            var operationType = await operationTypeRepository.GetByNameAsync(OperationTypeAttributes.Names.DebitNote, cancellationToken);
             var listOperationType = operationType.Select(c => (c.Name, c.Nature)).FirstOrDefault();
 
-            var clientOperations = await repository.GetAccountingOperationsAsync(request.PortfolioId, utcProcessDate, cancellationToken);
+            var clientOperations = await repository.GetAccountingDebitNoteOperationsAsync(request.PortfolioId, utcProcessDate, cancellationToken);
 
             var response = clientOperations
             .Select(c => new GetAccountingOperationsResponse(
@@ -31,7 +31,7 @@ namespace Operations.Application.ClientOperations.GetAccountingOperations
                 listOperationType.Name,
                 listOperationType.Nature,
                 c.OperationTypeId,
-                c.AuxiliaryInformation.CollectionAccount))
+                c.LinkedClientOperation?.AuxiliaryInformation.CollectionAccount ?? ""))
             .ToList();
 
             return Result.Success<IReadOnlyCollection<GetAccountingOperationsResponse>>(response);
