@@ -115,15 +115,15 @@ public class DistributableReturnsService(
 
         var debitNoteOperationTypeId = operationTypeIdResult.Value;
 
-        var annulledTrustIds = await clientOperationRepository.GetTrustIdsByOperationTypeAndProcessDateAsync(
+        var debitNoteTrustIds = await clientOperationRepository.GetTrustIdsByOperationTypeAndProcessDateAsync(
             trustIds,
             closingDateUtc,
             debitNoteOperationTypeId,
             cancellationToken);
 
-        if (annulledTrustIds.Count == 0)
+        if (debitNoteTrustIds.Count == 0)
         {
-            logger.LogInformation("[{Service}] No existen operaciones ND anuladas para los fideicomisos evaluados.", nameof(DistributableReturnsService));
+            logger.LogInformation("[{Service}] No existen operaciones ND para los fideicomisos evaluados.", nameof(DistributableReturnsService));
             return Result.Success();
         }
 
@@ -147,38 +147,26 @@ public class DistributableReturnsService(
         }
 
         var adjustmentConcept = adjustmentConceptResult.Value;
-        var annulledSet = new HashSet<long>(annulledTrustIds);
+        var debitNoteSet = new HashSet<long>(debitNoteTrustIds);
         var applicationDateUtc = closingDateUtc;
 
-        var rows = new List<YieldToDistribute>(capacity: annulledSet.Count);
-        var trustYieldIdsToDelete = new List<long>(capacity: annulledSet.Count);
+        var rows = new List<YieldToDistribute>(capacity: debitNoteSet.Count);
+        var trustYieldIdsToDelete = new List<long>(capacity: debitNoteSet.Count);
 
         foreach (var trustYield in candidates)
         {
-            if (!annulledSet.Contains(trustYield.TrustId))
+            if (!debitNoteSet.Contains(trustYield.TrustId))
             {
                 continue;
             }
-
-            var participation = TrustMath.CalculateTrustParticipation(
-                Math.Round(trustYield.ClosingBalance, DecimalPrecision.SixteenDecimals),
-                portfolioValuation.Amount,
-                DecimalPrecision.SixteenDecimals);
-
-            var yieldAmountRaw = TrustMath.ApplyParticipation(
-                yield.YieldToCredit,
-                participation,
-                DecimalPrecision.SixteenDecimals);
-
-            var yieldAmount = MoneyHelper.Round2(yieldAmountRaw);
 
             var entityResult = YieldToDistribute.Create(
                 trustYield.TrustId,
                 portfolioId,
                 closingDateUtc,
                 applicationDateUtc,
-                participation,
-                yieldAmount,
+                trustYield.Participation,
+                trustYield.YieldAmount,
                 adjustmentConcept,
                 nowUtc);
 
