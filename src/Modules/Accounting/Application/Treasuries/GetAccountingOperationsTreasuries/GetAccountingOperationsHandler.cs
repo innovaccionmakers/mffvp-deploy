@@ -11,13 +11,14 @@ namespace Accounting.Application.Treasuries.GetAccountingOperationsTreasuries
         public async Task<Result<IReadOnlyCollection<GetAccountingOperationsTreasuriesResponse>>> Handle(
             GetAccountingOperationsTreasuriesQuery query,
             CancellationToken cancellationToken)
-        { 
+        {
             var treasury = await treasuryRepository.GetAccountingOperationsTreasuriesAsync(query.PortfolioIds, query.CollectionAccount, cancellationToken);
 
             var response = treasury
             .Select(t => new GetAccountingOperationsTreasuriesResponse(
                 t.PortfolioId,
-                t.DebitAccount))
+                t.DebitAccount,
+                t.CreditAccount))
             .ToList();
 
             return Result.Success<IReadOnlyCollection<GetAccountingOperationsTreasuriesResponse>>(response);

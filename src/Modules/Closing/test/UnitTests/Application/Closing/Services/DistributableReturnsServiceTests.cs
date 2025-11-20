@@ -146,15 +146,17 @@ public sealed class DistributableReturnsServiceTests
         int portfolioId,
         DateTime closingDateUtc,
         decimal closingBalance,
-        decimal preClosingBalance = 0m)
+        decimal preClosingBalance = 0m,
+        decimal participation = 0m,
+        decimal yieldAmount = 0m)
     {
         var result = TrustYield.Create(
             trustId,
             portfolioId,
             closingDateUtc,
-            participation: 0m,
+            participation: participation,
             units: 0m,
-            yieldAmount: 0m,
+            yieldAmount: yieldAmount,
             preClosingBalance: preClosingBalance,
             closingBalance: closingBalance,
             income: 0m,
@@ -264,7 +266,7 @@ public sealed class DistributableReturnsServiceTests
 
         var trustYields = new[]
         {
-            CreateTrustYield(100, 2001, portfolioId, closingDate, closingBalance: 100m, preClosingBalance: 0m),
+            CreateTrustYield(100, 2001, portfolioId, closingDate, closingBalance: 100m, preClosingBalance: 0m, participation: 0.1m, yieldAmount: 20m),
             CreateTrustYield(101, 2002, portfolioId, closingDate, closingBalance: 150m, preClosingBalance: 10m)
         };
 
@@ -343,7 +345,7 @@ public sealed class DistributableReturnsServiceTests
 
         var trustYields = new[]
         {
-            CreateTrustYield(200, 3001, portfolioId, closingDate, closingBalance: 50m, preClosingBalance: 0m)
+            CreateTrustYield(200, 3001, portfolioId, closingDate, closingBalance: 50m, preClosingBalance: 0m, participation: 0.25m, yieldAmount: -25m)
         };
 
         trustYieldRepo.Setup(x => x.GetReadOnlyByPortfolioAndDateAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()))
@@ -390,7 +392,8 @@ public sealed class DistributableReturnsServiceTests
         var item = Assert.Single(captured!);
         Assert.Equal("5", item.Concept.RootElement.GetProperty("EntityId").GetString());
         Assert.Equal("Ajuste Rendimiento Nota Contable", item.Concept.RootElement.GetProperty("EntityValue").GetString());
-        Assert.True(item.YieldAmount < 0m);
+        Assert.Equal(-25m, item.YieldAmount);
+        Assert.Equal(0.25m, item.Participation);
         operationTypesService.Verify(x => x.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

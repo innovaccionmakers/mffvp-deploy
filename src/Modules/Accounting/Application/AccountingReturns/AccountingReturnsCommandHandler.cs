@@ -149,7 +149,7 @@ public sealed class AccountingReturnsCommandHandler(
 
             string? cuentaDebit;
             string? cuentaCredit;
-            if (accountingAssistant.Value.Value > 0)
+            if (yield.YieldToCredit > 0)
             {
                 cuentaDebit = passiveTransaction.DebitAccount!;
                 cuentaCredit = passiveTransaction.CreditAccount!;

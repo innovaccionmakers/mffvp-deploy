@@ -65,11 +65,11 @@ public class ExtraReturnConsolidationServiceTests
         first.ProcessDateUtc.Should().Be(new DateTime(2024, 8, 14, 12, 0, 0, DateTimeKind.Utc));
         first.OperationTypeId.Should().Be(101);
         first.OperationTypeName.Should().Be("Rendimientos");
-        first.Amount.Should().Be(-500m);
+        first.Amount.Should().Be(500m);
         first.Concept.Should().Be(JsonSerializer.Serialize(new StringEntityDto("101", "Rendimientos")));
 
         var second = result.Value.ElementAt(1);
-        second.Amount.Should().Be(200m);
+        second.Amount.Should().Be(-200m);
         second.Concept.Should().Be(JsonSerializer.Serialize(new StringEntityDto("102", "Rendimientos Ajuste")));
 
         locatorMock.Verify(locator => locator.GetTrustOperationsAsync(portfolioId, closingDate, It.IsAny<CancellationToken>()), Times.Once);
@@ -156,7 +156,7 @@ public class ExtraReturnConsolidationServiceTests
         summary.ProcessDateUtc.Should().Be(processDateUtc);
         summary.OperationTypeId.Should().Be(operationTypeId);
         summary.OperationTypeName.Should().Be(operationTypeName);
-        summary.Amount.Should().Be(-amount);
+        summary.Amount.Should().Be(amount);
 
         using var summaryConcept = JsonDocument.Parse(summary.Concept);
         summaryConcept.RootElement.GetProperty("EntityId").GetString().Should().Be(operationTypeId.ToString());
@@ -169,7 +169,7 @@ public class ExtraReturnConsolidationServiceTests
         yieldDetail.PortfolioId.Should().Be(portfolioId);
         yieldDetail.ClosingDate.Should().Be(DateTime.SpecifyKind(closingDate, DateTimeKind.Utc));
         yieldDetail.Source.Should().Be(YieldsSources.ExtraReturn);
-        yieldDetail.Income.Should().Be(amount);
+        yieldDetail.Income.Should().Be(-amount);
         yieldDetail.Expenses.Should().Be(0m);
         yieldDetail.Commissions.Should().Be(0m);
         yieldDetail.ProcessDate.Should().Be(processDateUtc);

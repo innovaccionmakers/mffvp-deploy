@@ -36,7 +36,10 @@ namespace Operations.test.IntegrationTests.ClientOperations
             var cancellationToken = CancellationToken.None;
 
             // Act
-            var result = await _repositoryMock.Object.GetAccountingOperationsAsync(portfolioIds, processDate, cancellationToken);
+            var result = await _repositoryMock.Object.GetAccountingOperationsAsync(
+                portfolioIds,
+                processDate,
+                cancellationToken);
 
             // Assert
             Assert.NotNull(result);

@@ -42,5 +42,10 @@ internal sealed class ClientOperationConfiguration : IEntityTypeConfiguration<Cl
         builder.HasMany(x => x.TrustOperations)
             .WithOne(to => to.ClientOperation)
             .HasForeignKey(to => to.ClientOperationId);
+
+        builder.HasOne(x => x.LinkedClientOperation)
+            .WithMany()
+            .HasForeignKey(x => x.LinkedClientOperationId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -17,7 +17,7 @@ namespace Accounting.test.UnitTests.Treasuries
             var debitAccount = "DEBIT-12345";
 
             // Act
-            var response = new GetAccountingOperationsTreasuriesResponse(portfolioId, debitAccount);
+            var response = new GetAccountingOperationsTreasuriesResponse(portfolioId, debitAccount, null);
 
             // Assert
             Assert.Equal(portfolioId, response.PortfolioId);
@@ -28,7 +28,7 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingOperationsTreasuriesResponse_WithNullDebitAccount_AllowsNull()
         {
             // Arrange & Act
-            var response = new GetAccountingOperationsTreasuriesResponse(new int(), null);
+            var response = new GetAccountingOperationsTreasuriesResponse(new int(), null, null);
 
             // Assert
             Assert.Null(response.DebitAccount);
@@ -38,7 +38,7 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingOperationsTreasuriesResponse_WithEmptyDebitAccount_AllowsEmptyString()
         {
             // Arrange & Act
-            var response = new GetAccountingOperationsTreasuriesResponse(new int(), string.Empty);
+            var response = new GetAccountingOperationsTreasuriesResponse(new int(), string.Empty, null);
 
             // Assert
             Assert.Equal(string.Empty, response.DebitAccount);
@@ -48,7 +48,7 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingOperationsTreasuriesResponse_WithMinGuid_HandlesCorrectly()
         {
             // Arrange & Act
-            var response = new GetAccountingOperationsTreasuriesResponse(new int(), "DEBIT-001");
+            var response = new GetAccountingOperationsTreasuriesResponse(new int(), "DEBIT-001", null);
 
             // Assert
             Assert.Equal(new int(), response.PortfolioId);
@@ -65,7 +65,7 @@ namespace Accounting.test.UnitTests.Treasuries
         public void GetAccountingOperationsTreasuriesResponse_WithVariousDebitAccountFormats_HandlesCorrectly(string debitAccount)
         {
             // Arrange & Act
-            var response = new GetAccountingOperationsTreasuriesResponse(new int(), debitAccount);
+            var response = new GetAccountingOperationsTreasuriesResponse(new int(), debitAccount, null);
 
             // Assert
             Assert.Equal(debitAccount, response.DebitAccount);
@@ -78,7 +78,7 @@ namespace Accounting.test.UnitTests.Treasuries
             var longDebitAccount = new string('A', 1000);
 
             // Act
-            var response = new GetAccountingOperationsTreasuriesResponse(new int(), longDebitAccount);
+            var response = new GetAccountingOperationsTreasuriesResponse(new int(), longDebitAccount, null);
 
             // Assert
             Assert.Equal(1000, response.DebitAccount.Length);
@@ -91,7 +91,7 @@ namespace Accounting.test.UnitTests.Treasuries
             var debitAccount = "DEBIT-123";
 
             // Act
-            var response = new GetAccountingOperationsTreasuriesResponse(new int(), debitAccount);
+            var response = new GetAccountingOperationsTreasuriesResponse(new int(), debitAccount, null);
 
             // Assert
             Assert.Equal(debitAccount, response.DebitAccount);
@@ -104,7 +104,7 @@ namespace Accounting.test.UnitTests.Treasuries
             var debitAccount = "321654987";
 
             // Act
-            var response = new GetAccountingOperationsTreasuriesResponse(new int(), debitAccount);
+            var response = new GetAccountingOperationsTreasuriesResponse(new int(), debitAccount, null);
 
             // Assert
             Assert.Equal(debitAccount, response.DebitAccount);

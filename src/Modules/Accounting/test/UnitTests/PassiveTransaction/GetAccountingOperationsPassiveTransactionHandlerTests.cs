@@ -17,7 +17,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var CreditAccount = "DEBIT-12345";
 
             // Act
-            var response = new GetAccountingOperationsPassiveTransactionResponse(portfolioId, CreditAccount);
+            var response = new GetAccountingOperationsPassiveTransactionResponse(portfolioId, CreditAccount, null);
 
             // Assert
             Assert.Equal(portfolioId, response.PortfolioId);
@@ -28,7 +28,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
         public void GetAccountingOperationsPassiveTransactionResponse_WithNullCreditAccount_AllowsNull()
         {
             // Arrange & Act
-            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), null);
+            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), null, null);
 
             // Assert
             Assert.Null(response.CreditAccount);
@@ -38,7 +38,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
         public void GetAccountingOperationsPassiveTransactionResponse_WithEmptyCreditAccount_AllowsEmptyString()
         {
             // Arrange & Act
-            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), string.Empty);
+            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), string.Empty, null);
 
             // Assert
             Assert.Equal(string.Empty, response.CreditAccount);
@@ -48,7 +48,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
         public void GetAccountingOperationsPassiveTransactionResponse_WithMinGuid_HandlesCorrectly()
         {
             // Arrange & Act
-            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), "CREDIT-001");
+            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), "CREDIT-001", null);
 
             // Assert
             Assert.Equal(new int(), response.PortfolioId);
@@ -61,7 +61,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var longCreditAccount = new string('A', 1000);
 
             // Act
-            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), longCreditAccount);
+            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), longCreditAccount, null);
 
             // Assert
             Assert.Equal(1000, response.CreditAccount.Length);
@@ -74,7 +74,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var CreditAccount = "12345678901234567890";
 
             // Act
-            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), CreditAccount);
+            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), CreditAccount, null);
 
             // Assert
             Assert.Equal(CreditAccount, response.CreditAccount);
@@ -87,11 +87,11 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var CreditAccount = "001-123456-789";
 
             // Act
-            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), CreditAccount);
+            var response = new GetAccountingOperationsPassiveTransactionResponse(new int(), CreditAccount, null);
 
             // Assert
             Assert.Equal(CreditAccount, response.CreditAccount);
-        }    
+        }
     }
 }
 

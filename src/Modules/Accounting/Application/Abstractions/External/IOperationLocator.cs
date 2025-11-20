@@ -9,5 +9,10 @@ public interface IOperationLocator
                                                                                                     DateTime processDate,
                                                                                                     CancellationToken cancellationToken);
 
+    Task<Result<IReadOnlyCollection<GetAccountingOperationsResponse>>> GetAccountingDebitNoteOperationsAsync(IEnumerable<int> portfolioIds,
+                                                                                                    DateTime processDate,
+                                                                                                    CancellationToken cancellationToken);
+
+
     Task<Result<(long OperationTypeId, string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken);    
 }
