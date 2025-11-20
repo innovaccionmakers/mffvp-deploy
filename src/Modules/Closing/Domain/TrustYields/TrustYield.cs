@@ -20,8 +20,6 @@ public sealed class TrustYield : Entity
     public decimal Capital { get; private set; }
     public DateTime ProcessDate { get; private set; }
     public decimal ContingentRetention { get; private set; }
-    public decimal YieldRetention { get; private set; }
-
     private TrustYield()
     {
     }
@@ -41,8 +39,7 @@ public sealed class TrustYield : Entity
         decimal cost,
         decimal capital,
         DateTime processDate,
-        decimal contingentRetention,
-        decimal yieldRetention)
+        decimal contingentRetention)
     {
         var trustYield = new TrustYield
         {
@@ -61,8 +58,7 @@ public sealed class TrustYield : Entity
             Cost = cost,
             Capital = capital,
             ProcessDate = processDate,
-            ContingentRetention = contingentRetention,
-            YieldRetention = yieldRetention
+            ContingentRetention = contingentRetention
         };
 
         return Result.Success(trustYield);
@@ -83,8 +79,7 @@ public sealed class TrustYield : Entity
         decimal cost,
         decimal capital,
         DateTime processDate,
-        decimal contingentRetention,
-        decimal yieldRetention)
+        decimal contingentRetention)
     {
         TrustId = trustId;
         PortfolioId = portfolioId;
@@ -101,6 +96,5 @@ public sealed class TrustYield : Entity
         Capital = capital;
         ProcessDate = processDate;
         ContingentRetention = contingentRetention;
-        YieldRetention = yieldRetention;
     }
 }

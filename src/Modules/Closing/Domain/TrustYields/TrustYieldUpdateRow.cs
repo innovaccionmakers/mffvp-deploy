@@ -11,6 +11,5 @@ public sealed record TrustYieldUpdateRow(
     decimal Commissions,
     decimal Cost,
     decimal ClosingBalance,
-    decimal YieldRetention,
     DateTime ProcessDateUtc
 );

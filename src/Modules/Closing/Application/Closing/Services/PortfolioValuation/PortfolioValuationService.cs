@@ -52,14 +52,14 @@ public class PortfolioValuationService(
 
 
         // 2. Obtener valoración del día anterior
-        var previous = await valuationRepository.GetReadOnlyByPortfolioAndDateAsync(
+        var previousPV = await valuationRepository.GetReadOnlyByPortfolioAndDateAsync(
             portfolioId,
             closingDate.AddDays(-1),
             cancellationToken);
 
-        decimal prevValue = Math.Round(previous?.Amount ?? 0m, DecimalPrecision.TwoDecimals);
-        decimal prevUnits = Math.Round(previous?.Units ?? 0m, DecimalPrecision.SixteenDecimals);
-        decimal prevUnitValue = Math.Round(previous?.UnitValue ?? 0m, DecimalPrecision.TwoDecimals);
+        decimal prevPVAmount = Math.Round(previousPV?.Amount ?? 0m, DecimalPrecision.TwoDecimals);
+        decimal prevPVUnits = Math.Round(previousPV?.Units ?? 0m, DecimalPrecision.SixteenDecimals);
+        decimal prevPVUnitValue = Math.Round(previousPV?.UnitValue ?? 0m, DecimalPrecision.TwoDecimals);
 
 
         // 3. Obtener rendimientos del día
@@ -135,9 +135,10 @@ public class PortfolioValuationService(
         var outgoing = Math.Round(await clientOperationRepository
             .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressSubs, new[] { LifecycleStatus.Active, LifecycleStatus.AnnulledByDebitNote }, cancellationToken), DecimalPrecision.TwoDecimals);
 
+        var shouldCalculateUnits = incoming != 0 || outgoing != 0;
 
         // 6. Si es el primer día de cierre, calcular units y unitValue iniciales
-        if (previous == null)
+        if (previousPV == null)
         {
             if (incoming == 0)
                 return Result.Failure<PrepareClosingResult>(
@@ -148,8 +149,8 @@ public class PortfolioValuationService(
 
             var initialUnitValue = JsonDecimalHelper.ExtractDecimal(param?.Metadata, "valor");
 
-            prevUnits = incoming / initialUnitValue;
-            prevUnitValue = initialUnitValue;
+            prevPVUnits = incoming / initialUnitValue;
+            prevPVUnitValue = initialUnitValue;
 
         }
 
@@ -158,7 +159,7 @@ public class PortfolioValuationService(
         // 7.1. Nuevo valor del portafolio:
         //     prevValue + rendimientosAbonar + operacionesEntrada - operacionesSalida
         decimal newValue = PortfolioMath.CalculateNewPortfolioValue(
-            prevValue,
+            prevPVAmount,
             yieldToCredit,
             incoming,
             outgoing, 
@@ -167,47 +168,53 @@ public class PortfolioValuationService(
         // 7.2. Nuevo valor de unidad:
         //     Si no hay valoración previa, mantener prevUnitValue,
         //     de lo contrario: (prevValue + yieldToCredit) / prevUnits, redondeado a 16 decimales
-        decimal newUnitValue = previous == null
-            ? prevUnitValue
+        decimal newUnitValue = previousPV == null
+            ? prevPVUnitValue
             : PortfolioMath.CalculateRoundedUnitValue(
-                prevValue,
+                prevPVAmount,
                 yieldToCredit,
-                prevUnits,
+                prevPVUnits,
                 DecimalPrecision.SixteenDecimals);
 
         // 7.3. Nuevas unidades del portafolio:
         //     newValue / newUnitValue, redondeado a 16 decimales
-        decimal newUnits = previous == null
-            ? prevUnits
-            : PortfolioMath.CalculateNewUnits(
-                newValue,
-                newUnitValue,
-                DecimalPrecision.SixteenDecimals);
+        decimal newUnits;
+        if (previousPV is null || !shouldCalculateUnits)
+        {
+            newUnits = prevPVUnits;
+        }
+        else
+        {
+            newUnits = PortfolioMath.CalculateNewUnits(
+                 newValue,
+                 newUnitValue,
+                 DecimalPrecision.SixteenDecimals);
+        }
 
         // 7.4. Rendimiento bruto por unidad:
         //     yieldIncome / prevUnits, redondeado a 16 decimales
-        decimal grossYieldPerUnit = previous == null
+        decimal grossYieldPerUnit = previousPV == null
             ? 0m
             : PortfolioMath.CalculateGrossYieldPerUnitFromIncome(
                 yieldIncome,
-                prevUnits,
+                prevPVUnits,
                 DecimalPrecision.SixteenDecimals);
 
         // 7.5. Costo por unidad:
         //     yieldCosts / prevUnits, redondeado a 16 decimales
-        decimal costPerUnit = previous == null
+        decimal costPerUnit = previousPV == null
             ? 0m
             : PortfolioMath.CalculateCostPerUnit(
                 yieldCosts,
-                prevUnits,
+                prevPVUnits,
                 DecimalPrecision.SixteenDecimals);
 
         // 7.6. Rentabilidad diaria:
         //     (newUnitValue / prevUnitValue)- 1, redondeado a 16 decimales
-        decimal dailyProfitability = previous == null
+        decimal dailyProfitability = previousPV == null
             ? 0m
             : PortfolioMath.CalculateRoundedDailyProfitability(
-                prevUnitValue,
+                prevPVUnitValue,
                 newUnitValue,
                 DecimalPrecision.SixteenDecimals
                 );

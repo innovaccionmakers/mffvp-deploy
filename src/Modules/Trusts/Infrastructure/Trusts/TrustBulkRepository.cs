@@ -1,4 +1,6 @@
-﻿using Common.SharedKernel.Application.Constants.Closing;
+﻿using Common.SharedKernel.Application.Constants;
+using Common.SharedKernel.Application.Constants.Closing;
+using Common.SharedKernel.Application.Helpers.Finance;
 using Common.SharedKernel.Application.Helpers.Money;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
@@ -17,16 +19,10 @@ internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkR
     {
         if (rows is null || rows.Count == 0)
             return new ApplyYieldBulkResult(0, Array.Empty<long>(), Array.Empty<long>());
-
-        var deltas = rows.GroupBy(r => r.TrustId).ToDictionary(
-                            g => g.Key,
-                            g => new
-                            {
-                                YieldAmount = g.Sum(x => x.YieldAmount),
-                                YieldRetention = g.Sum(x => x.YieldRetention),
-                                ClosingBalance = g.Last().ClosingBalance
-                            });
-
+        var deltas = rows.ToDictionary(
+            r => r.TrustId, 
+            r => r         
+        );
         int totalUpdated = 0;
         var allMissing = new List<long>();
         var allMismatches = new List<long>();
@@ -40,7 +36,7 @@ internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkR
             var query = context.Set<Trust>()
                  .Where(t => idSet.Contains(t.TrustId))
                  .AsNoTracking()
-                 .TagWith("[TrustBulkRepository_ApplyYieldToBalanceBulk_ReadTrusts]");
+                 .TagWith("TrustBulkRepository_ApplyYieldToBalanceBulk_ReadTrusts");
 
 
             var existingTrusts = await query
@@ -60,7 +56,7 @@ internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkR
 
                 var newTotalBalance = prevBalancePlusYield;
                 var newEarnings = MoneyHelper.Round2(trust.Earnings + d.YieldAmount);
-                var newEarningsWithholding = MoneyHelper.Round2(trust.EarningsWithholding + d.YieldRetention);
+                var newEarningsWithholding = newEarnings > 0 ? TrustMath.CalculateYieldRetention(newEarnings, d.YieldRetentionRate, DecimalPrecision.TwoDecimals) : 0;
                 var newAvailable = MoneyHelper.Round2(newTotalBalance - newEarningsWithholding - trust.ContingentWithholding);
 
                 trust.UpdateDetails(

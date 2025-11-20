@@ -22,7 +22,7 @@ internal sealed class UpdateTrustRemote(
             .Select(x => new ApplyYieldRowDto(
                 TrustId: x.TrustId,
                 YieldAmount: x.YieldAmount,
-                YieldRetention: x.YieldRetention,
+                YieldRetention: x.YieldRetentionRate,
                 ClosingBalance: x.ClosingBalance))
             .ToArray();
 

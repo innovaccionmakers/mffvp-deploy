@@ -36,8 +36,7 @@ internal sealed class TrustYieldBulkRepository(ClosingDbContext context) : ITrus
                 cost: row.Cost,
                 capital: default,                
                 processDate: row.ProcessDateUtc,
-                contingentRetention: default,     
-                yieldRetention: row.YieldRetention
+                contingentRetention: default
             ).Value;
 
             listToUpdate.Add(entity);
@@ -67,7 +66,6 @@ internal sealed class TrustYieldBulkRepository(ClosingDbContext context) : ITrus
                 nameof(TrustYield.Commissions),
                 nameof(TrustYield.Cost),
                 nameof(TrustYield.ClosingBalance),
-                nameof(TrustYield.YieldRetention),
                 nameof(TrustYield.ProcessDate)
             }
         };

@@ -6,7 +6,7 @@ namespace Closing.Application.Abstractions.External.Trusts.Trusts;
 public sealed record UpdateTrustFromYieldItem(
     long TrustId,
     decimal YieldAmount,
-    decimal YieldRetention,
+    decimal YieldRetentionRate,
     decimal ClosingBalance
 );
 
