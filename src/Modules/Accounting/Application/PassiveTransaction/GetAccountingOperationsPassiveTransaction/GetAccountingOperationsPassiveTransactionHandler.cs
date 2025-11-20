@@ -11,13 +11,14 @@ namespace Accounting.Application.PassiveTransaction.GetAccountingOperationsPassi
         public async Task<Result<IReadOnlyCollection<GetAccountingOperationsPassiveTransactionResponse>>> Handle(
             GetAccountingOperationsPassiveTransactionQuery query,
             CancellationToken cancellationToken)
-        { 
+        {
             var treasury = await passiveTransactionRepository.GetAccountingOperationsAsync(query.PortfolioIds, query.OperationTypeId, cancellationToken);
 
             var response = treasury
             .Select(t => new GetAccountingOperationsPassiveTransactionResponse(
                 t.PortfolioId,
-                t.CreditAccount))
+                t.CreditAccount,
+                t.DebitAccount))
             .ToList();
 
             return Result.Success<IReadOnlyCollection<GetAccountingOperationsPassiveTransactionResponse>>(response);

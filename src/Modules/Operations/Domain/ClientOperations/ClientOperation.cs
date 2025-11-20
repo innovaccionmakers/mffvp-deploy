@@ -28,6 +28,8 @@ public sealed class ClientOperation : Entity
     public IReadOnlyCollection<TrustOperation> TrustOperations => _trustOperations;
 
     public AuxiliaryInformation AuxiliaryInformation { get; private set; } = null!;
+    public ClientOperation? LinkedClientOperation { get; private set; }
+
 
     private ClientOperation()
     {

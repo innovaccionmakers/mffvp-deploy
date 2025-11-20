@@ -1,8 +1,8 @@
 using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain.OperationTypes;
 using Microsoft.EntityFrameworkCore;
 using Operations.Domain.ClientOperations;
 using Operations.Infrastructure.Database;
-using System.Linq;
 
 namespace Operations.Infrastructure.ClientOperations;
 
@@ -103,9 +103,27 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         return await context.ClientOperations
             .Where(co => co.Status == LifecycleStatus.Active)
             .Where(co => portfolioIds.Contains(co.PortfolioId) && co.ProcessDate == processDate)
-            .Where(co => co.OperationType != null && co.OperationType.Name == "Ninguno")
+            .Where(co => co.OperationType != null && co.OperationType.Name == OperationTypeAttributes.Names.None)
             .Include(co => co.AuxiliaryInformation)
             .Include(co => co.OperationType)
+            .AsSplitQuery()
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<ClientOperation>> GetAccountingDebitNoteOperationsAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken = default)
+    {
+        if (portfolioIds == null || !portfolioIds.Any())
+            return Enumerable.Empty<ClientOperation>();
+
+        return await context.ClientOperations
+            .Where(co => co.Status == LifecycleStatus.Active)
+            .Where(co => portfolioIds.Contains(co.PortfolioId) && co.ProcessDate == processDate)
+            .Where(co => co.OperationType != null && co.OperationType.Name == OperationTypeAttributes.Names.DebitNote)
+            .Include(co => co.OperationType)
+            .Include(co => co.LinkedClientOperation)
+            .ThenInclude(co => co.AuxiliaryInformation)
+            .Where(co => co.LinkedClientOperation != null && co.LinkedClientOperation.AuxiliaryInformation != null && !string.IsNullOrWhiteSpace(co.LinkedClientOperation.AuxiliaryInformation.CollectionAccount))
             .AsSplitQuery()
             .AsNoTracking()
             .ToListAsync(cancellationToken);

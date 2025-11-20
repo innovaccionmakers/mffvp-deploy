@@ -24,12 +24,14 @@ public static class OperationTypeAttributes
         public const string Contribution = "Aporte";
         public const string DebitNote = "Nota Débito";
         public const string Yields = "Rendimientos";
+        public const string None = "Ninguno";
 
         public static readonly ISet<string> All = new HashSet<string>(StringComparer.Ordinal)
         {
             Contribution,
             DebitNote,
-            Yields
+            Yields,
+            None
         };
     }
 }
