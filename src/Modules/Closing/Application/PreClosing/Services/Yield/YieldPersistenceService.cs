@@ -10,6 +10,7 @@ using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Constants;
 using Common.SharedKernel.Application.Exceptions;
+using Common.SharedKernel.Application.Helpers.Money;
 using Common.SharedKernel.Application.Helpers.Serialization;
 
 namespace Closing.Application.PreClosing.Services.Yield;
@@ -69,16 +70,16 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
 
         return new SimulatedYieldResult
         {
-            Income = Math.Round(summary.Income,DecimalPrecision.TwoDecimals),
-            Expenses = Math.Round(summary.Expenses, DecimalPrecision.TwoDecimals),
-            Commissions = Math.Round(summary.Commissions, DecimalPrecision.TwoDecimals),
-            Costs = Math.Round(summary.Costs,2),
-            YieldToCredit = Math.Round(summary.YieldToCredit, DecimalPrecision.TwoDecimals),
+            Income = MoneyHelper.Round2(summary.Income),
+            Expenses = MoneyHelper.Round2(summary.Expenses),
+            Commissions = MoneyHelper.Round2(summary.Commissions),
+            Costs = MoneyHelper.Round2(summary.Costs),
+            YieldToCredit = MoneyHelper.Round2(summary.YieldToCredit),
             UnitValue = simulationValues.UnitValue != null
-           ? Math.Round(simulationValues.UnitValue.Value, DecimalPrecision.TwoDecimals)
+           ? MoneyHelper.Round2(simulationValues.UnitValue.Value)
            : (decimal?)null,
             DailyProfitability = simulationValues.DailyProfitability != null
-           ? Math.Round(simulationValues.DailyProfitability.Value * 100, DecimalPrecision.SixDecimals)
+           ? MoneyHelper.RoundToScale(simulationValues.DailyProfitability.Value * 100, DecimalPrecision.SixDecimals)
            : (decimal?)null
         };
 
@@ -123,20 +124,20 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
         }
 
         // Factor configurable (por ej. param 'PreclosingIncomeLimitFactor' en %); fallback 20%
-        var maxIncomeFactor = YieldMathLimits.OverflowSafeYieldFraction;
-        var preliminaryIncomeLimit = previousValuation.Amount * maxIncomeFactor;
+        //var maxIncomeFactor = YieldMathLimits.OverflowSafeYieldFraction;
+        //var preliminaryIncomeLimit = previousValuation.Amount * maxIncomeFactor;
 
-        // Si el ingreso del día es desproporcionado vs la valoración previa, advertir y no calcular (evita error por overflow)
-        if (dailyIncome > preliminaryIncomeLimit)
-        {
-            _warningCollector.Add(
-                WarningCatalog.Val004IncomeHighVsPreviousValuation(
-                    dailyIncome,
-                    previousValuation.Amount,
-                    preliminaryIncomeLimit));
+        //// Si el ingreso del día es desproporcionado vs la valoración previa, advertir y no calcular (evita error por overflow)
+        //if (dailyIncome > preliminaryIncomeLimit)
+        //{
+        //    _warningCollector.Add(
+        //        WarningCatalog.Val004IncomeHighVsPreviousValuation(
+        //            dailyIncome,
+        //            previousValuation.Amount,
+        //            preliminaryIncomeLimit));
 
-            return new SimulationValues(null, null);
-        }
+        //    return new SimulationValues(null, null);
+        //}
 
         // Cálculo normal si pasa validaciones
 

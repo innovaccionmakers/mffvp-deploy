@@ -8,6 +8,7 @@ using Closing.Domain.Yields;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Constants;
 using Common.SharedKernel.Application.Helpers.Finance;
+using Common.SharedKernel.Application.Helpers.Money;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -57,9 +58,9 @@ public class PortfolioValuationService(
             closingDate.AddDays(-1),
             cancellationToken);
 
-        decimal prevPVAmount = Math.Round(previousPV?.Amount ?? 0m, DecimalPrecision.TwoDecimals);
-        decimal prevPVUnits = Math.Round(previousPV?.Units ?? 0m, DecimalPrecision.SixteenDecimals);
-        decimal prevPVUnitValue = Math.Round(previousPV?.UnitValue ?? 0m, DecimalPrecision.TwoDecimals);
+        decimal prevPVAmount =previousPV?.Amount ?? 0m;
+        decimal prevPVUnits = previousPV?.Units ?? 0m;
+        decimal prevPVUnitValue = previousPV?.UnitValue ?? 0m;
 
 
         // 3. Obtener rendimientos del día
@@ -68,11 +69,11 @@ public class PortfolioValuationService(
             closingDate,
             cancellationToken);
 
-        decimal yieldIncome = Math.Round(yield?.Income ?? 0m, DecimalPrecision.TwoDecimals);
-        decimal yieldExpenses = Math.Round(yield?.Expenses ?? 0m, DecimalPrecision.TwoDecimals);   // para "Egresos"
-        decimal yieldCommissions = Math.Round(yield?.Commissions ?? 0m, DecimalPrecision.TwoDecimals);   // para "Comision"
-        decimal yieldToCredit = Math.Round(yield?.YieldToCredit ?? 0m, DecimalPrecision.TwoDecimals);   // para "RendimientosAbonar"
-        decimal yieldCosts = Math.Round(yield?.Costs ?? 0m, DecimalPrecision.TwoDecimals);   // para "Costos"
+        decimal yieldIncome = yield?.Income ?? 0m;
+        decimal yieldExpenses = yield?.Expenses ?? 0m;   // para "Egresos"
+        decimal yieldCommissions = yield?.Commissions ?? 0m;   // para "Comision"
+        decimal yieldToCredit = yield?.YieldToCredit ?? 0m;   // para "RendimientosAbonar"
+        decimal yieldCosts = yield?.Costs ?? 0m;   // para "Costos"
 
         // 4. Obtener y clasificar los tipos de operación
 
@@ -116,24 +117,22 @@ public class PortfolioValuationService(
             .Select(group => group.First())
             .ToList();
         //Obtener solo los tipos de operacion que se catalogan como operaciones de entrada o salida 
-        var typesById = subtypeResult.Value
-            .ToDictionary(t => t.OperationTypeId);
 
-        var incomeSubs = closingOperations
+        var incomeOperIds = closingOperations
       .Where(operationType => operationType.Nature == IncomeEgressNature.Income)
       .Select(operationType => operationType.OperationTypeId)
       .ToList();
 
-        var egressSubs = closingOperations
+        var egressOperIds = closingOperations
             .Where(operationType => operationType.Nature == IncomeEgressNature.Egress)
             .Select(operationType => operationType.OperationTypeId)
             .ToList();
       
         // 5. Sumar operaciones de entrada y salida del día
-        var incoming = Math.Round(await clientOperationRepository
-            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, incomeSubs, new[] { LifecycleStatus.Active }, cancellationToken), DecimalPrecision.TwoDecimals);
-        var outgoing = Math.Round(await clientOperationRepository
-            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressSubs, new[] { LifecycleStatus.Active, LifecycleStatus.AnnulledByDebitNote }, cancellationToken), DecimalPrecision.TwoDecimals);
+        var incoming =MoneyHelper.Round2(await clientOperationRepository
+            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, incomeOperIds, new[] { LifecycleStatus.Active }, cancellationToken));
+        var outgoing = MoneyHelper.Round2(await clientOperationRepository
+            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressOperIds, new[] { LifecycleStatus.Active, LifecycleStatus.AnnulledByDebitNote }, cancellationToken));
 
         var shouldCalculateUnits = incoming != 0 || outgoing != 0;
 
@@ -223,8 +222,8 @@ public class PortfolioValuationService(
         var createResult = Domain.PortfolioValuations.PortfolioValuation.Create(
             portfolioId,
             closingDate,
-            Math.Round(newValue, 2),
-            Math.Round(newValue, 2),
+            newValue,
+            newValue,
             newUnits,
             newUnitValue,
             grossYieldPerUnit,
@@ -248,8 +247,8 @@ public class PortfolioValuationService(
             Commissions = yieldCommissions,
             Costs = yieldCosts,
             YieldToCredit = yieldToCredit,
-            UnitValue = Math.Round(newUnitValue, DecimalPrecision.TwoDecimals),
-            DailyProfitability = Math.Round(dailyProfitability * 100, DecimalPrecision.SixDecimals)
+            UnitValue =MoneyHelper.Round2(newUnitValue),
+            DailyProfitability = MoneyHelper.RoundToScale(dailyProfitability * 100, DecimalPrecision.SixDecimals)
         };
 
         return Result.Success(closedResult);
