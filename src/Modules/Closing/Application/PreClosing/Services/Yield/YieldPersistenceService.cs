@@ -11,7 +11,6 @@ using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Constants;
 using Common.SharedKernel.Application.Exceptions;
 using Common.SharedKernel.Application.Helpers.Serialization;
-using System.Threading;
 
 namespace Closing.Application.PreClosing.Services.Yield;
 public sealed class YieldPersistenceService : IYieldPersistenceService
@@ -127,7 +126,7 @@ public sealed class YieldPersistenceService : IYieldPersistenceService
         var maxIncomeFactor = YieldMathLimits.OverflowSafeYieldFraction;
         var preliminaryIncomeLimit = previousValuation.Amount * maxIncomeFactor;
 
-        // Si el ingreso del día es desproporcionado vs la valoración previa, advertir y no calcular (evita overflow)
+        // Si el ingreso del día es desproporcionado vs la valoración previa, advertir y no calcular (evita error por overflow)
         if (dailyIncome > preliminaryIncomeLimit)
         {
             _warningCollector.Add(

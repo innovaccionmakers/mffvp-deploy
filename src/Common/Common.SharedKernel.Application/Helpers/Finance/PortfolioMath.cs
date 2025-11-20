@@ -11,7 +11,7 @@ public static class PortfolioMath
     // -------------------------
 
     /// <summary>
-    /// Calcula valor de unidad en función del valor anterior del portafolio más el rendimiento abonado.
+    /// Calcula valor de unidad en función del valor anterior del portafolio más el rendimiento abonado para el día dividido por el número de unidades del día anterior sin redondeo. 
     /// </summary>
     public static decimal CalculateUnitValue(decimal previousPortfolioValue, decimal yieldToCredit, decimal units)
     {

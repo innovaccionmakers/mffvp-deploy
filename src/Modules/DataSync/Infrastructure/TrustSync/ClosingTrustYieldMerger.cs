@@ -43,13 +43,13 @@ public sealed class ClosingTrustYieldMerger(IClosingConnectionFactory closingCon
                  saldo_precierre, capital, retencion_contingente,
                  fecha_proceso,
                  participacion, unidades, rendimientos, saldo_cierre,
-                 ingresos, gastos, comisiones, costo, retencion_rendimiento)
+                 ingresos, gastos, comisiones, costo)
             VALUES
                 (s.fideicomiso, s.portafolio, s.fecha_cierre,
                  s.saldo_precierre, s.capital, s.retencion_contingente,
                  now(),
                  0, 0, 0, 0,
-                 0, 0, 0, 0, 0);";
+                 0, 0, 0, 0);";
 
         using var mergeCommand = new Npgsql.NpgsqlCommand(mergeSql, closingConnection, transaction);
         mergeCommand.Parameters.AddWithValue("fids", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Bigint, trustIds);
