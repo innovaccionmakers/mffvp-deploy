@@ -33,14 +33,12 @@ namespace Operations.test.IntegrationTests.ClientOperations
             // Arrange
             IEnumerable<int> portfolioIds = new List<int> { 1, 2, 3 };
             var processDate = new DateTime(2025, 1, 16);
-            var clientOperationTypeName = "Ninguno";
             var cancellationToken = CancellationToken.None;
 
             // Act
             var result = await _repositoryMock.Object.GetAccountingOperationsAsync(
                 portfolioIds,
                 processDate,
-                clientOperationTypeName,
                 cancellationToken);
 
             // Assert

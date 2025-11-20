@@ -55,6 +55,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 operations,
                 treasuryByPortfolioId,
                 _command,
+                OperationTypeAttributes.Names.Contribution,
                 cancellationToken);
 
             // Assert
@@ -73,6 +74,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 operations,
                 treasuryByPortfolioId,
                 _command,
+                OperationTypeAttributes.Names.Contribution,
                 CancellationToken.None);
 
             // Assert
@@ -92,6 +94,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 operations,
                 treasuryByPortfolioId,
                 _command,
+                OperationTypeAttributes.Names.Contribution,
                 CancellationToken.None);
 
             // Assert
@@ -111,6 +114,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 operations,
                 treasuryByPortfolioId,
                 _command,
+                OperationTypeAttributes.Names.Contribution,
                 CancellationToken.None);
 
             // Assert
