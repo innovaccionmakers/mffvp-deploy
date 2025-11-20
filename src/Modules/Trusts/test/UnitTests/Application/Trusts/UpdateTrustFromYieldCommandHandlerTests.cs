@@ -74,8 +74,8 @@ namespace Trusts.test.UnitTests.Application.Trusts.Commands
 
             var inputRows = new List<ApplyYieldRow>
             {
-                new(TrustId: 101, YieldAmount: 10.234m, YieldRetention: 1.236m, ClosingBalance: 200.234m),
-                new(TrustId: 202, YieldAmount: 99.236m, YieldRetention: 0.234m, ClosingBalance: 1000.236m)
+                new(TrustId: 101, YieldAmount: 10.234m, YieldRetentionRate: 1.236m, ClosingBalance: 200.234m),
+                new(TrustId: 202, YieldAmount: 99.236m, YieldRetentionRate: 0.234m, ClosingBalance: 1000.236m)
             };
             var request = new UpdateTrustFromYieldCommand(BatchIndex: 3, Rows: inputRows);
 
@@ -114,13 +114,13 @@ namespace Trusts.test.UnitTests.Application.Trusts.Commands
             var r1 = captured[0];
             r1.TrustId.Should().Be(101);
             r1.YieldAmount.Should().Be(10.23m);
-            r1.YieldRetention.Should().Be(1.24m);
+            r1.YieldRetentionRate.Should().Be(1.24m);
             r1.ClosingBalance.Should().Be(200.23m);
 
             var r2 = captured[1];
             r2.TrustId.Should().Be(202);
             r2.YieldAmount.Should().Be(99.24m);
-            r2.YieldRetention.Should().Be(0.23m);
+            r2.YieldRetentionRate.Should().Be(0.23m);
             r2.ClosingBalance.Should().Be(1000.24m);
 
             // Assert: transacción iniciada y confirmada
@@ -148,7 +148,7 @@ namespace Trusts.test.UnitTests.Application.Trusts.Commands
 
             var inputRows = new List<ApplyYieldRow>
             {
-                new(TrustId: 1, YieldAmount: 1.11m, YieldRetention: 0.11m, ClosingBalance: 10.11m)
+                new(TrustId: 1, YieldAmount: 1.11m, YieldRetentionRate: 0.11m, ClosingBalance: 10.11m)
             };
             var request = new UpdateTrustFromYieldCommand(BatchIndex: 5, Rows: inputRows);
 

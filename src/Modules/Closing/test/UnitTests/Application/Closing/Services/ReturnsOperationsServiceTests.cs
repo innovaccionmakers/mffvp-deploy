@@ -219,8 +219,7 @@ public sealed class ReturnsOperationsServiceTests
             cost: 0m,
             capital: 0m,
             processDate: closingDateUtc,
-            contingentRetention: 0m,
-            yieldRetention: 0m);
+            contingentRetention: 0m);
 
         var entity = result.Value;
         typeof(TrustYield).GetProperty(nameof(TrustYield.TrustYieldId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!

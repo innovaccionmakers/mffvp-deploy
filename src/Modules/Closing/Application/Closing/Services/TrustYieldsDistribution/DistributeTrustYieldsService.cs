@@ -21,7 +21,6 @@ public class DistributeTrustYieldsService(
     IYieldRepository yieldRepository,
     IPortfolioValuationRepository portfolioValuationRepository,
     ITimeControlService timeControlService,
-    IConfigurationParameterRepository configurationParameterRepository,
     ILogger<DistributeTrustYieldsService> logger)
     : IDistributeTrustYieldsService
 {
@@ -57,15 +56,6 @@ public class DistributeTrustYieldsService(
             return Result.Failure(new Error("003", "No existen registros en rendimientos_fideicomisos para esta fecha. Debe reprocesarse la réplica de datos.", ErrorType.Failure));
 
         logger.LogInformation("{Svc} Se encontraron {Count} registros de rendimientos_fideicomisos para distribuir", svc, trustReadOnly.Count);
-
-        // Parámetro de retención
-        var param = await configurationParameterRepository.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldRetentionPercentage, cancellationToken);
-        if (param is null)
-            return Result.Failure(new Error("004", "No se encuentra configurado el parametro de retención de rendimientos.", ErrorType.Failure));
-
-        var yieldRetentionRate = JsonDecimalHelper.ExtractDecimal(param.Metadata, "valor", true);
-        if (yieldRetentionRate <= 0)
-            return Result.Failure(new Error("005", "El parametro de retención de rendimientos no es un valor mayor a 0", ErrorType.Failure));
 
         // Datos del día previo
         var previousDateUtc = ToUtcMidnight(closingDateUtc.AddDays(-1));
@@ -118,17 +108,13 @@ public class DistributeTrustYieldsService(
                 decimal units;
                 //se calculan  sólo sí valor del saldo del día anterior(Saldo_cierre dia anterior)
                 //sea diferente al valor del saldo pre-cierre y para el primer día de cierre del Fideicomiso
-                //Si no, se conservan las unidades del día anterior
+                //Si no, se conservan las mismas unidades del día anterior
                 bool shouldCalculateUnits =
                     (trust.isFirstTrustClosingDay ||
                      trust.PrevDayClosingBalance != preClosingBalance);
                 units = shouldCalculateUnits ? Math.Round((closingBalance) * invUnitValue, DecimalPrecision.SixteenDecimals) : trust.PrevDayUnits;
 
-                //Sólo se calcula retención cuando los valores de rendimientos son positivos
-                var yieldRetentionR2 = (yToCredit > 0m && yieldAmtR2 > 0m)
-                    ? MoneyHelper.Round2(TrustMath.CalculateYieldRetention(yieldAmtR2, yieldRetentionRate, DecimalPrecision.TwoDecimals))
-                    : 0m;
-
+              
                     local.Add(new TrustYieldUpdateRow(
                         TrustId: trust.TrustId,
                         PortfolioId: trust.PortfolioId,
@@ -141,7 +127,6 @@ public class DistributeTrustYieldsService(
                         Commissions: commissionsR2,
                         Cost: costR2,
                         ClosingBalance: closingBalance,
-                        YieldRetention: yieldRetentionR2,
                         ProcessDateUtc: nowUtc
                     ));
 
