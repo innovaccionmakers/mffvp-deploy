@@ -30,7 +30,7 @@ public sealed class UpdateTrustFromYieldConsumer
                 .Select(r => new ApplyYieldRow(
                     TrustId: r.TrustId,
                     YieldAmount: r.YieldAmount,
-                    YieldRetention: r.YieldRetention,
+                    YieldRetentionRate: r.YieldRetention,
                     ClosingBalance: r.ClosingBalance))
                 .ToList();
 

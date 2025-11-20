@@ -79,6 +79,6 @@ public sealed class QueueTransactions(
 
         return Result.Success(
             response,
-            "La solicitud de aporte fue recibida. El portafolio se encuentra actualmente en proceso de cierre, y una vez finalizado, su solicitud será ejecutada con la fecha del día hábil siguiente.");
+            "¡Tu solicitud de aporte ha sido recibida! El portafolio está en proceso de cierre. Tu aporte será procesado automáticamente cuando el cierre finalice, con fecha de ejecución del siguiente día hábil.");
     }
 }

@@ -1,7 +1,8 @@
-using System.Text.Json;
-using System.Linq;
-using System.Reflection;
+using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Attributes;
+using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Auditing;
+using Common.SharedKernel.Presentation.Results;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,10 +10,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Security.Application.Abstractions.Data;
 using Security.Application.Abstractions.Services.Auditing;
-using Common.SharedKernel.Application.Abstractions;
 using Security.Domain.Logs;
-using Common.SharedKernel.Domain;
-using Common.SharedKernel.Presentation.Results;
+using System.Text.Json;
 
 namespace Security.Application.Auditing;
 
@@ -26,6 +25,7 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IPermissionDescriptionService _permissionDescriptionService;
     private readonly IPreviousStateProvider _previousStateProvider;
+    private readonly IAuditLogStore _auditLogStore;
 
     public AuditLogsBehavior(
         IClientInfoService clientInfoService,
@@ -34,7 +34,8 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
         ILogger<AuditLogsBehavior<TRequest, TResponse>> logger,
         IHttpContextAccessor contextAccessor,
         IPermissionDescriptionService permissionDescriptionService,
-        IPreviousStateProvider previousStateProvider)
+        IPreviousStateProvider previousStateProvider,
+        IAuditLogStore auditLogStore)
     {
         _clientInfoService = clientInfoService;
         _logRepository = logRepository;
@@ -43,6 +44,7 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
         _contextAccessor = contextAccessor;
         _permissionDescriptionService = permissionDescriptionService;
         _previousStateProvider = previousStateProvider;
+        _auditLogStore = auditLogStore;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -124,6 +126,12 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
             {
                 _logRepository.Insert(logResult.Value);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                var id = logResult.Value.Id;
+
+                if (action == "fvp:accounting:accountingGeneration:generate")
+                    await SaveLogReferenceToRedis(id, request, response, cancellationToken);
+
             }
             else
             {
@@ -140,5 +148,48 @@ public sealed class AuditLogsBehavior<TRequest, TResponse> : IPipelineBehavior<T
             GraphqlResult graphqlResult => graphqlResult.Success,
             _ => (bool?)null
         };
+    }
+
+    private async Task SaveLogReferenceToRedis(long id, TRequest request, TResponse response, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var correlationId = ExtractCorrelationId(request, response);
+
+            if (!string.IsNullOrEmpty(correlationId))
+                await _auditLogStore.SaveLogReferenceAsync(id, correlationId, cancellationToken);            
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error al guardar referencia de log en Redis");
+        }
+    }
+
+    private static string? ExtractCorrelationId(TRequest request, TResponse response)
+    {
+        if (response != null)
+        {
+            var responseType = response.GetType();
+
+            if (responseType.IsGenericType && responseType.GetGenericTypeDefinition() == typeof(Result<>))
+            {
+                var resultValue = responseType.GetProperty("Value")?.GetValue(response);
+
+                if (resultValue != null)
+                {
+                    var processIdProperty = resultValue.GetType().GetProperty("ProcessId");
+
+                    if (processIdProperty != null)
+                        return processIdProperty.GetValue(resultValue)?.ToString();
+                }
+            }
+
+            var processIdPropertyDirect = responseType.GetProperty("ProcessId");
+
+            if (processIdPropertyDirect != null)
+                return processIdPropertyDirect.GetValue(response)?.ToString();
+        }
+
+        return null;
     }
 }

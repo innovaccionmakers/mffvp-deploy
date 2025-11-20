@@ -132,8 +132,8 @@ namespace Accounting.Application.AccountingOperations
 
             if (!accountingAssistants.SuccessItems.Any())
             {
-                logger.LogInformation("No hay operaciones contables de tipo {OperationType} que procesar", operationTypeName);
-                return Result.Failure<bool>(Error.Problem("Accounting.Operations", $"No hay operaciones contables de tipo {operationTypeName} que procesar"));
+                logger.LogInformation("No hay operaciones contables que procesar");
+                return Result.Success(true);
             }
 
             var accountingOperationsSave = await sender.Send(new AddAccountingEntitiesCommand(accountingAssistants.SuccessItems), cancellationToken);

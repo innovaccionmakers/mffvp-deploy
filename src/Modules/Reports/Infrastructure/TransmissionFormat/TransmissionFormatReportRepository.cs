@@ -17,9 +17,13 @@ public class TransmissionFormatReportRepository(
 {
     private readonly string ProductsSchema = string.IsNullOrWhiteSpace(options.Value.ProductsSchema) ? "productos" : options.Value.ProductsSchema!;
     private readonly string ClosingSchema = string.IsNullOrWhiteSpace(options.Value.ClosingSchema) ? "cierre" : options.Value.ClosingSchema!;
+    private readonly string OperationsSchema = string.IsNullOrWhiteSpace(options.Value.OperationsSchema) ? "operaciones" : options.Value.OperationsSchema!;
     private readonly string Rt1Keyword = string.IsNullOrWhiteSpace(options.Value.KeywordTransmissionFormat)
         ? throw new InvalidOperationException("Configuración inválida para reportes de transmisión")
         : options.Value.KeywordTransmissionFormat!;
+
+    private const string DebitNoteOperationName = "Nota Débito";
+    private const string ExtraReturnSource = "Rendimiento Extra";
 
     public async Task<Rt1Header> GetRt1HeaderAsync(int portfolioId, CancellationToken cancellationToken)
     {
@@ -107,6 +111,22 @@ public class TransmissionFormatReportRepository(
             WHERE tf.portafolio_id = @PortfolioId AND tf.fecha_cierre = @Date::date
               AND (tf.participacion = 0 OR tf.participacion IS NULL);
 
+            -- cancellation amount from debit notes
+            SELECT COALESCE(SUM(oc.valor), 0)
+            FROM {OperationsSchema}.operaciones_clientes oc
+            JOIN {OperationsSchema}.tipos_operaciones toper ON toper.id = oc.tipo_operaciones_id
+            WHERE toper.nombre = @DebitNoteOperationName
+              AND oc.portafolio_id = @PortfolioId
+              AND oc.fecha_proceso::date = @Date::date;
+
+            -- positive extra return incomes
+            SELECT COALESCE(SUM(dr.ingresos), 0)
+            FROM {ClosingSchema}.detalle_rendimientos dr
+            WHERE dr.portafolio_id = @PortfolioId
+              AND dr.fecha_cierre = @Date::date
+              AND dr.fuente = @ExtraReturnSource
+              AND dr.ingresos > 0;
+
             -- current day valuation
             SELECT vp.unidades AS ""Units"", vp.valor AS ""Amount""
             FROM {ClosingSchema}.valoracion_portafolio vp
@@ -117,7 +137,9 @@ public class TransmissionFormatReportRepository(
         {
             PortfolioId = portfolioId,
             Date = date,
-            PreviousDate = previousDate
+            PreviousDate = previousDate,
+            DebitNoteOperationName = DebitNoteOperationName,
+            ExtraReturnSource = ExtraReturnSource
         }, cancellationToken: cancellationToken);
 
         using var reader = await connection.QueryMultipleAsync(command);
@@ -125,7 +147,11 @@ public class TransmissionFormatReportRepository(
         var yieldAmount = await reader.ReadFirstAsync<decimal>();
         var contributionUnits = await reader.ReadFirstAsync<decimal>();
         var contributionAmount = await reader.ReadFirstAsync<decimal>();
+        var debitNoteAmount = await reader.ReadFirstAsync<decimal>();
+        var extraReturnIncome = await reader.ReadFirstAsync<decimal>();
         var current = await reader.ReadFirstOrDefaultAsync<ValuationDto>();
+
+        var cancellationAmount = debitNoteAmount + extraReturnIncome;
 
         return new Rt4ValuationMovements(
             previous?.Units ?? 0,
@@ -146,7 +172,7 @@ public class TransmissionFormatReportRepository(
             0,
             0,
             0,
-            0,
+            cancellationAmount,
             current?.Units ?? 0,
             current?.Amount ?? 0);
     }
@@ -206,12 +232,30 @@ public class TransmissionFormatReportRepository(
         CancellationToken cancellationToken)
     {
         var sql = $@"
+        WITH distribution AS (
+            SELECT
+                COALESCE(SUM(r.rendimientos_abonar), 0)   AS amount_to_be_paid,
+                COALESCE(SUM(r.rendimientos_abonados), 0) AS amount_paid
+            FROM {ClosingSchema}.rendimientos r
+            WHERE r.portafolio_id = @PortfolioId
+              AND r.fecha_cierre = @Date::date
+        ), pending AS (
+            SELECT
+                COALESCE(SUM(rpd.rendimientos), 0) AS total_to_be_distributed,
+                COALESCE(SUM(CASE WHEN rpd.rendimientos > 0 THEN rpd.rendimientos ELSE 0 END), 0) AS positive_to_be_distributed,
+                COALESCE(SUM(CASE WHEN rpd.rendimientos < 0 THEN rpd.rendimientos ELSE 0 END), 0) AS negative_to_be_distributed
+            FROM {ClosingSchema}.rendimientos_por_distribuir rpd
+            WHERE rpd.portafolio_id = @PortfolioId
+              AND rpd.fecha_cierre::date = @Date::date
+        )
         SELECT
-            COALESCE(SUM(r.rendimientos_abonar), 0) AS ""AmountToBePaid"",
-            COALESCE(SUM(r.rendimientos_abonados), 0)     AS ""AmountPaid""
-        FROM {ClosingSchema}.rendimientos r
-        WHERE r.portafolio_id = @PortfolioId
-          AND r.fecha_cierre = @Date::date;";
+            distribution.amount_to_be_paid AS ""AmountToBePaid"",
+            distribution.amount_paid AS ""AmountPaid"",
+            pending.total_to_be_distributed AS ""TotalToBeDistributed"",
+            pending.positive_to_be_distributed AS ""PositiveToBeDistributed"",
+            pending.negative_to_be_distributed AS ""NegativeToBeDistributed""
+        FROM distribution
+        CROSS JOIN pending;";
 
         using var connection = await dbConnectionFactory.CreateOpenAsync(cancellationToken);
         var command = new CommandDefinition(
@@ -220,7 +264,7 @@ public class TransmissionFormatReportRepository(
             cancellationToken: cancellationToken);
 
         var amounts = await connection.QueryFirstOrDefaultAsync<AutomaticConceptAmounts?>(command);
-        return amounts ?? new AutomaticConceptAmounts(0m, 0m);
+        return amounts ?? new AutomaticConceptAmounts(0m, 0m, 0m, 0m, 0m);
     }
     
     public async Task<bool> AnyPortfolioExistsOnOrAfterDateAsync(DateTime date, CancellationToken cancellationToken)

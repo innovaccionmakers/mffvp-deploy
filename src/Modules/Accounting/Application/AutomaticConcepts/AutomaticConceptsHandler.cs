@@ -50,7 +50,7 @@ namespace Accounting.Application.AutomaticConcepts
                 if (!automaticConcepts.SuccessItems.Any())
                 {
                     logger.LogInformation("No hay conceptos automáticos que procesar");
-                    return Result.Failure<bool>(Error.Problem("Automatic.Concepts", "No hay conceptos automáticos que procesar"));
+                    return Result.Success(true);
                 }
 
                 var automaticConceptsSave = await sender.Send(new AddAccountingEntitiesCommand(automaticConcepts.SuccessItems), cancellationToken);

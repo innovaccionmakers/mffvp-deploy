@@ -7,6 +7,7 @@ using Accounting.Integrations.AccountingValidator;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Auditing;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,12 +20,16 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                                                         IServiceProvider serviceProvider,
                                                         IAccountingNotificationService accountingNotificationService,
                                                         IMediator mediator,
+                                                        IAuditLogStore auditLogStore,
                                                         ILogger<AccountingValidatorCommandHandler> logger) : ICommandHandler<AccountingValidatorCommand, Unit>
 {
     public async Task<Result<Unit>> Handle(AccountingValidatorCommand request, CancellationToken cancellationToken)
     {
         try
         {
+            if (request.IsSuccess is false)
+                await auditLogStore.UpdateLogStatusAsync(request.ProcessId, cancellationToken);            
+
             await processStore.RegisterProcessResultAsync(request.ProcessId, request.ProcessType, request.IsSuccess, request.ErrorMessage, cancellationToken);
 
             var allProcessesCompleted = await processStore.AllProcessesCompletedAsync(request.ProcessId, cancellationToken);
@@ -35,7 +40,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
 
                 var hasErrors = results.Any(r => !r.IsSuccess);
 
-
+                await auditLogStore.RemoveLogReferenceAsync(request.ProcessId, cancellationToken);
                 await ExecuteFinalizationLogicAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, results, hasErrors, cancellationToken);
 
                 await processStore.CleanupAsync(request.ProcessId, cancellationToken);

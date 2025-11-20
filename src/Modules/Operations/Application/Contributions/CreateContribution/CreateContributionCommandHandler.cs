@@ -43,6 +43,6 @@ internal sealed class CreateContributionCommandHandler(
             taxResult.TaxConditionName,
             taxResult.WithheldAmount);
 
-        return Result.Success(response, "Transacción causada Exitosamente");
+        return Result.Success(response, "¡Genial! El aporte ha sido procesado exitosamente y ya se encuentra registrado en el portafolio.");
     }
 }

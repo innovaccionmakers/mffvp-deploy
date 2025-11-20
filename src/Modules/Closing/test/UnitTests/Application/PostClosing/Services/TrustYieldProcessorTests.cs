@@ -1,16 +1,20 @@
-﻿using Closing.Application.Abstractions.External.Operations.OperationTypes;
+﻿using Castle.Core.Configuration;
+using Closing.Application.Abstractions.External.Operations.OperationTypes;
 using Closing.Application.Abstractions.External.Operations.TrustOperations;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
 using Closing.Application.PostClosing.Services.TrustYield;
+using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.TrustYields;
 using Common.SharedKernel.Core.Primitives; 
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Domain.OperationTypes;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Collections.Concurrent;
+using System.Net.NetworkInformation;
 using System.Text.Json;
 
 
@@ -23,6 +27,7 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
         private readonly Mock<IUpdateTrustRemote> trustsRemote = new();
         private readonly Mock<IOperationTypesLocator> operationTypesLocator = new();
         private readonly Mock<ILogger<TrustYieldProcessor>> logger = new();
+        private readonly Mock<IConfigurationParameterRepository> configurationParameterRepository = new();  
 
         private static IOptions<TrustYieldOptions> Options(int bulkBatchSize = 3, bool useEmitFilter = false)
             => Microsoft.Extensions.Options.Options.Create(new TrustYieldOptions
@@ -38,7 +43,9 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
                 trustsRemote.Object,
                 logger.Object,
                 operationTypesLocator.Object,
-                options ?? Options()
+                options ?? Options(),
+                configurationParameterRepository.Object
+
             );
 
         private static DateTime Utc(int y, int m, int d) =>
@@ -77,8 +84,7 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
                 cost: cost,
                 capital: capital,
                 processDate: processDateUtc ?? closingDateUtc,
-                contingentRetention: contingentRetention,
-                yieldRetention: yieldRetention
+                contingentRetention: contingentRetention
             );
 
             result.IsSuccess.Should().BeTrue("TrustYield.Create debe ser exitoso para test data");
@@ -175,7 +181,7 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
         {
 
             SetupOperationTypeSuccess(operationTypeId: 77);
-
+            SetupYieldRetentionParameter();
             var date = Utc(2025, 10, 20);
             var portfolioId = 2;
 
@@ -292,6 +298,7 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
         {
 
             SetupOperationTypeSuccess();
+            SetupYieldRetentionParameter();
 
             var date = Utc(2025, 10, 20);
             var portfolioId = 2;
@@ -346,6 +353,125 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
 
             tr1.TrustsToUpdate.Select(t => t.TrustId).OrderBy(x => x)
                .Should().Equal(new[] { 8L });
+        }
+
+        [Fact]
+        public async Task SkipsTrustsWhenRetentionParameterIsMissing()
+        {
+            SetupOperationTypeSuccess();
+
+            var date = Utc(2025, 10, 20);
+            var portfolioId = 2;
+
+            var yields = Enumerable.Range(1, 3)
+                .Select(i => BuildTrustYield(
+                    trustId: i,
+                    portfolioId: portfolioId,
+                    closingDateUtc: date,
+                    yieldAmount: 10m,
+                    preClosingBalance: 100m,
+                    closingBalance: 110m,
+                    capital: 50m))
+                .ToList();
+
+            trustYieldRepository
+                .Setup(r => r.GetReadOnlyByPortfolioAndDateAsync(
+                    portfolioId,
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(yields);
+
+            // Operations devuelve cambios en todos los trusts
+            operationsRemote
+                .Setup(r => r.UpsertYieldOperationsBulkAsync(
+                    It.IsAny<UpsertTrustYieldOperationsBulkRemoteRequest>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Ok(new UpsertTrustYieldOperationsBulkRemoteResponse(
+                    Inserted: yields.Count,
+                    Updated: 0,
+                    ChangedTrustIds: yields.Select(y => y.TrustId).ToList())));
+
+            // OJO: NO configuramos configurationParameterRepository => devuelve null
+
+            var sut = CreateSut(Options(bulkBatchSize: 10));
+
+            await sut.ProcessAsync(portfolioId, date, CancellationToken.None);
+
+            // Como no hay parámetro, nunca debe invocar Trusts
+            trustsRemote.Verify(r => r.UpdateFromYieldAsync(
+                    It.IsAny<UpdateTrustFromYieldBulkRemoteRequest>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task SkipsTrustsWhenRetentionRateIsNotPositive()
+        {
+            SetupOperationTypeSuccess();
+            // Configuramos el parámetro con valor 0 (no válido)
+            SetupYieldRetentionParameter(0m);
+
+            var date = Utc(2025, 10, 20);
+            var portfolioId = 2;
+
+            var yields = Enumerable.Range(1, 3)
+                .Select(i => BuildTrustYield(
+                    trustId: i,
+                    portfolioId: portfolioId,
+                    closingDateUtc: date,
+                    yieldAmount: 10m,
+                    preClosingBalance: 100m,
+                    closingBalance: 110m,
+                    capital: 50m))
+                .ToList();
+
+            trustYieldRepository
+                .Setup(r => r.GetReadOnlyByPortfolioAndDateAsync(
+                    portfolioId,
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(yields);
+
+            operationsRemote
+                .Setup(r => r.UpsertYieldOperationsBulkAsync(
+                    It.IsAny<UpsertTrustYieldOperationsBulkRemoteRequest>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Ok(new UpsertTrustYieldOperationsBulkRemoteResponse(
+                    Inserted: yields.Count,
+                    Updated: 0,
+                    ChangedTrustIds: yields.Select(y => y.TrustId).ToList())));
+
+            var sut = CreateSut(Options(bulkBatchSize: 10));
+
+            await sut.ProcessAsync(portfolioId, date, CancellationToken.None);
+
+            // El parámetro existe, pero es 0 => no debe invocar Trusts
+            trustsRemote.Verify(r => r.UpdateFromYieldAsync(
+                    It.IsAny<UpdateTrustFromYieldBulkRemoteRequest>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        private void SetupYieldRetentionParameter(decimal retentionPercent = 0.10m)
+        {
+            // El SUT espera leer "valor" desde Metadata
+            var metadata = JsonSerializer.SerializeToDocument(new
+            {
+                valor = retentionPercent
+            });
+
+            // Usamos el factory estático que ya tienes
+            var parameter = ConfigurationParameter.Create(
+                name: "YieldRetentionPercentage",
+                homologationCode: "YIELD_RETENTION",
+                metadata: metadata
+            );
+
+            configurationParameterRepository
+                .Setup(r => r.GetByUuidAsync(
+                    It.IsAny<Guid>(),                      // no dependemos del UUID exacto
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(parameter);
         }
 
     }
