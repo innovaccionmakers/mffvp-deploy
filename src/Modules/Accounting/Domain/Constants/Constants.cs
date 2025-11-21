@@ -12,6 +12,7 @@ public static class OperationTypeNames
     public const string Commission = "Comisión";
     public const string Yield = "Rendimientos";
     public const string Operation = "Aporte";
+    public const string DebitNote = "Nota Débito";
     public const string Concepts = "Conceptos de Tesoreria";
     public const string AutomaticConcepts = "Conceptos Automáticos";
     public const string AdjustYields = "Ajuste Rendimientos";
@@ -19,7 +20,7 @@ public static class OperationTypeNames
 
 public static class SourceTypes
 {
-    public const string ExtraYield = "Rendimiento Extra";    
+    public const string ExtraYield = "Rendimiento Extra";
 }
 
 public static class ProcessTypes
