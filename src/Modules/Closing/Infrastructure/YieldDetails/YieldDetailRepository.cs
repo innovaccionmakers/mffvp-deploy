@@ -108,14 +108,11 @@ namespace Closing.Infrastructure.YieldDetails
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, CancellationToken cancellationToken = default)
         {
             return await context.YieldDetails
                 .AsNoTracking()
-                .Where(y => portfolioIds.Contains(y.PortfolioId)
-                    && y.ClosingDate == closingDate
-                    && y.IsClosed
-                    && y.Source == source)
+                .Where(y => portfolioIds.Contains(y.PortfolioId) && y.ClosingDate == closingDate && y.IsClosed)
                 .ToListAsync(cancellationToken);
         }
     }

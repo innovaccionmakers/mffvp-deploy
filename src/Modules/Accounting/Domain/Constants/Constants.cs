@@ -14,6 +14,12 @@ public static class OperationTypeNames
     public const string Operation = "Aporte";
     public const string Concepts = "Conceptos de Tesoreria";
     public const string AutomaticConcepts = "Conceptos Automáticos";
+    public const string AdjustYields = "Ajuste Rendimientos";
+}
+
+public static class SourceTypes
+{
+    public const string ExtraYield = "Rendimiento Extra";    
 }
 
 public static class ProcessTypes
