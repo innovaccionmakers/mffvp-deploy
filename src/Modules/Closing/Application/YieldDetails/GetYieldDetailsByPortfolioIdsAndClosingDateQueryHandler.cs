@@ -16,7 +16,7 @@ internal sealed class GetYieldDetailsByPortfolioIdsAndClosingDateQueryHandler(
     {
         try
         {
-            var yieldDetails = await yieldDetailRepository.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(request.PortfolioIds, request.ClosingDate, cancellationToken);
+            var yieldDetails = await yieldDetailRepository.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(request.PortfolioIds, request.ClosingDate, request.Soruce, cancellationToken);
 
             if (yieldDetails is null || yieldDetails.Count == 0)
             {
@@ -24,16 +24,19 @@ internal sealed class GetYieldDetailsByPortfolioIdsAndClosingDateQueryHandler(
                 return Result.Failure<IReadOnlyCollection<YieldDetailResponse>>(new Error("Error", "No se encontraron detalles de rendimiento para los portafolios y fecha de cierre proporcionadas.", ErrorType.Validation));
             }
 
-            var yieldDetailResponses = yieldDetails.Select(yd => new YieldDetailResponse(
-                YieldDetailId: yd.YieldDetailId,
-                PortfolioId: yd.PortfolioId,
-                Income: yd.Income,
-                Expenses: yd.Expenses,
-                Commissions: yd.Commissions,
-                ClosingDate: yd.ClosingDate,
-                ProcessDate: yd.ProcessDate,
-                IsClosed: yd.IsClosed
-            )).ToList();
+            var yieldDetailResponses = yieldDetails
+                .GroupBy(yd => new { yd.PortfolioId, yd.ClosingDate })
+                .Select(g => new YieldDetailResponse(
+                    YieldDetailId: 0,
+                    PortfolioId: g.Key.PortfolioId,
+                    Income: g.Sum(yd => yd.Income),
+                    Expenses: g.Sum(yd => yd.Expenses),
+                    Commissions: g.Sum(yd => yd.Commissions),
+                    ClosingDate: g.Key.ClosingDate,
+                    ProcessDate: g.Max(yd => yd.ProcessDate),
+                    IsClosed: true
+                ))
+                .ToList();
 
             return Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetailResponses);
         }
