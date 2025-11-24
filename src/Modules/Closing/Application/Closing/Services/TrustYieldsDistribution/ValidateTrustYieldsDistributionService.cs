@@ -140,7 +140,7 @@ public class ValidateTrustYieldsDistributionService(
                 ConceptName: conceptName,
                 Nature: isIncome ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense,
                 Source: YieldsSources.AutomaticConcept,
-                TotalAmount: Math.Abs(difference)
+                TotalAmount: difference
             );
 
             var parameters = new RunSimulationParameters(

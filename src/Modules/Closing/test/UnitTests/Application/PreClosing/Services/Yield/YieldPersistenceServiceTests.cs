@@ -3,7 +3,6 @@ using Closing.Application.PreClosing.Services.Yield;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
 using Closing.Domain.YieldDetails;
-using Closing.Domain.Yields;
 using Closing.Integrations.PreClosing.RunSimulation;
 using Common.SharedKernel.Application.Exceptions;
 using Common.SharedKernel.Domain.ConfigurationParameters;
@@ -18,7 +17,7 @@ namespace Closing.test.UnitTests.Application.PreClosing.Services.Yields;
 public class YieldPersistenceServiceTests
 {
     private readonly Mock<IYieldDetailRepository> yieldDetailRepositoryMock = new();
-    private readonly Mock<IYieldRepository> yieldRepositoryMock = new();
+    private readonly Mock<Domain.Yields.IYieldRepository> yieldRepositoryMock = new();
     private readonly Mock<IPortfolioValuationRepository> portfolioValuationRepositoryMock = new();
     private readonly Mock<IConfigurationParameterRepository> configurationParameterRepositoryMock = new();
     private readonly Mock<IWarningCollector> warningCollectorMock = new();
@@ -57,7 +56,7 @@ public class YieldPersistenceServiceTests
             .WithMessage("No hay detalles de rendimiento para consolidar.");
 
         yieldRepositoryMock.Verify(
-            r => r.InsertAsync(It.IsAny<Yield>(), It.IsAny<CancellationToken>()),
+            r => r.InsertAsync(It.IsAny<Domain.Yields.Yield>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -88,7 +87,7 @@ public class YieldPersistenceServiceTests
 
         // Assert: se inserta un Yield
         yieldRepositoryMock.Verify(
-            r => r.InsertAsync(It.IsAny<Yield>(), It.IsAny<CancellationToken>()),
+            r => r.InsertAsync(It.IsAny<Domain.Yields.Yield>(), It.IsAny<CancellationToken>()),
             Times.Once);
 
         configurationParameterRepositoryMock.Verify(
