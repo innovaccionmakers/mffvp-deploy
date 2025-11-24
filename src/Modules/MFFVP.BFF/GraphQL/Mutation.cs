@@ -41,7 +41,7 @@ public class Mutation
     }
 
     [GraphQLName("crearNotaDebito")]
-    [Authorize(Policy = MakersPermissionsOperations.PolicyCreateDebitNote)]
+    [Authorize(Policy = MakersPermissionsOperations.PolicyCreateAccountingNote)]
     public async Task<GraphqlResult<DebitNoteMutationResult>> RegisterDebitNote([GraphQLName("notaDebito")] CreateDebitNoteInput debitNote,
                                                                         IValidator<CreateDebitNoteInput> validator,
                                                                        [Service] IOperationsExperienceMutation operationsMutations,
@@ -51,7 +51,7 @@ public class Mutation
     }
 
     [GraphQLName("registrarAnulaciones")]
-    [Authorize(Policy = MakersPermissionsOperations.PolicyCancelIndividualOperations)]
+    [Authorize(Policy = MakersPermissionsOperations.PolicyCancelOperations)]
     public async Task<GraphqlResult<VoidedTransactionsMutationResult>> RegisterVoids([GraphQLName("anulacion")] CreateVoidsInput input,
                                                                         IValidator<CreateVoidsInput> validator,
                                                                        [Service] IOperationsExperienceMutation operationsMutations,

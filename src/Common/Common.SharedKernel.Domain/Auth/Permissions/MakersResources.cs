@@ -35,6 +35,8 @@ public static class MakersResources
 
     //Operations
     public const string passiveIndividualOperations = nameof(passiveIndividualOperations);
+    public const string voids = nameof(voids);
+    public const string accountingNotes = nameof(accountingNotes);
 
     //Products
     public const string goalsManagement = nameof(goalsManagement);
