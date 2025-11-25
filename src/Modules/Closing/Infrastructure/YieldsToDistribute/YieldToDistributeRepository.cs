@@ -1,6 +1,3 @@
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Closing.Domain.YieldsToDistribute;
 using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -51,5 +48,18 @@ internal sealed class YieldToDistributeRepository(ClosingDbContext context) : IY
             .Select(y => Math.Round(y.YieldAmount, 2))
             .TagWith("YieldToDistributeRepository_GetTotalYieldAmountRoundedAsync")
             .SumAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<YieldToDistribute>> GetDistributedYieldsByConceptAsync(IEnumerable<int> portfolioIds,
+                                                                                           DateTime closingDateUtc,
+                                                                                           string concept,
+                                                                                           CancellationToken cancellationToken = default)
+    {
+        return await context.YieldsToDistribute
+            .Where(y => portfolioIds.Contains(y.PortfolioId) && 
+                        y.ClosingDate == closingDateUtc && 
+                        EF.Functions.JsonContained(y.Concept, concept))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 }
