@@ -4,12 +4,15 @@ using Accounting.Application.AccountingFees;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
+using Accounting.Infrastructure.Database;
+using Accounting.Infrastructure.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountingFees;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Operations.Integrations.OperationTypes;
@@ -199,6 +202,53 @@ public class AccountingFeesCommandHandlerTests
 
         // Assert
         Assert.False(result.IsSuccess);
+    }
+
+    [Fact]
+    public void Insert_WithNullTransaction_ShouldThrowException()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AccountingDbContext>()
+            .UseInMemoryDatabase(databaseName: "Insert_Null_Test_Db")
+            .Options;
+
+        using var context = new AccountingDbContext(options);
+        var repository = new PassiveTransactionRepository(context);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => repository.Insert(null!));
+        Assert.NotNull(exception);
+    }
+
+    [Fact]
+    public void Update_WithNullTransaction_ShouldThrowException()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AccountingDbContext>()
+            .UseInMemoryDatabase(databaseName: "Update_Null_Test_Db")
+            .Options;
+
+        using var context = new AccountingDbContext(options);
+        var repository = new PassiveTransactionRepository(context);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => repository.Update(null!));
+        Assert.NotNull(exception);
+    }
+
+    [Fact]
+    public void Delete_WithNullTransaction_ShouldThrowException()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AccountingDbContext>()
+            .UseInMemoryDatabase(databaseName: "Delete_Null_Test_Db")
+            .Options;
+
+        using var context = new AccountingDbContext(options);
+        var repository = new PassiveTransactionRepository(context);
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => repository.Delete(null!));
     }
 
     #endregion
