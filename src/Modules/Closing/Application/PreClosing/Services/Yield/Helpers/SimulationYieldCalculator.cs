@@ -17,8 +17,8 @@ public static class SimulationYieldCalculator
         if (previousUnits.Value <= 0 || previousUnitValue.Value <= 0)
             return new SimulationValues(null, null);
 
-        var unitValue = PortfolioMath.CalculateUnitValue(
-            previousPortfolioValue.Value, yieldToCredit, previousUnits.Value);
+        var unitValue = PortfolioMath.CalculateRoundedUnitValue(
+            previousPortfolioValue.Value, yieldToCredit, previousUnits.Value, DecimalPrecision.SixteenDecimals);
 
         var dailyProfitability = PortfolioMath.CalculateRoundedDailyProfitability(
             previousUnitValue.Value, unitValue, DecimalPrecision.SixteenDecimals);

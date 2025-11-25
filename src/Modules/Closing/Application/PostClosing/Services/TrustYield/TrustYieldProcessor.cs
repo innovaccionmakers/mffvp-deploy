@@ -1,11 +1,17 @@
-﻿using System.Collections.Concurrent;
-using Closing.Application.Abstractions.External.Operations.OperationTypes;
+﻿using Closing.Application.Abstractions.External.Operations.OperationTypes;
 using Closing.Application.Abstractions.External.Operations.TrustOperations;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
+using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.TrustYields;
+using Common.SharedKernel.Application.Constants;
 using Common.SharedKernel.Application.Constants.Closing;
+using Common.SharedKernel.Application.Helpers.Finance;
+using Common.SharedKernel.Application.Helpers.Money;
+using Common.SharedKernel.Application.Helpers.Serialization;
+using Common.SharedKernel.Domain.OperationTypes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Collections.Concurrent;
 
 namespace Closing.Application.PostClosing.Services.TrustYield;
 
@@ -22,6 +28,7 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
     private readonly ILogger<TrustYieldProcessor> logger;
     private readonly TrustYieldOptions options;
     private readonly IOperationTypesLocator operationTypesLocator;
+    private readonly IConfigurationParameterRepository configurationParameterRepository;
 
     private const int DefaultChunkSize = ClosingBulkProperties.BulkBatchSize;
     private const int DefaultMaxConcurrency = 8;
@@ -32,7 +39,8 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
         IUpdateTrustRemote trustsRemote,
         ILogger<TrustYieldProcessor> logger,
         IOperationTypesLocator operationTypesLocator,
-        IOptions<TrustYieldOptions> options)
+        IOptions<TrustYieldOptions> options,
+        IConfigurationParameterRepository configurationParameterRepository)
     {
         this.trustYieldRepository = trustYieldRepository;
         this.operationsRemote = operationsRemote;
@@ -40,12 +48,13 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
         this.logger = logger;
         this.options = options.Value ?? new TrustYieldOptions();
         this.operationTypesLocator = operationTypesLocator;
+        this.configurationParameterRepository = configurationParameterRepository;
     }
 
     public async Task ProcessAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken)
     {
         // 0) Tipo operación "Rendimientos"
-        var subtypeResult = await operationTypesLocator.GetOperationTypeByNameAsync("Rendimientos", cancellationToken);
+        var subtypeResult = await operationTypesLocator.GetOperationTypeByNameAsync(OperationTypeAttributes.Names.Yields, cancellationToken);
         if (!subtypeResult.IsSuccess || subtypeResult.Value.OperationTypeId <= 0)
         {
             logger.LogWarning("{Class} - Tipo de Operación 'Rendimientos' no disponible: {Error}",
@@ -141,12 +150,28 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
             return;
         }
 
+        // Parámetro de retención
+        var param = await configurationParameterRepository.GetByUuidAsync(ConfigurationParameterUuids.Closing.YieldRetentionPercentage, cancellationToken);
+        if (param is null)
+        { 
+            logger.LogWarning("{Class} - No se encuentra configurado el parámetro de retención de rendimiento",
+                  nameof(TrustYieldProcessor));
+            return;
+        }
+        var yieldRetentionRate = JsonDecimalHelper.ExtractDecimal(param.Metadata, "valor", true);
+        if (yieldRetentionRate <= 0)
+        {
+            logger.LogWarning("{Class} - El parametro de retención de rendimientos no es un valor mayor a 0",
+                  nameof(TrustYieldProcessor));
+            return;
+        }
+
         var trustItemsAll = candidates
             .Where(t => changedTrusts.ContainsKey(t.TrustId))
             .Select(t => new UpdateTrustFromYieldItem(
                 TrustId: t.TrustId,
                 YieldAmount: t.YieldAmount,
-                YieldRetention: t.YieldRetention,
+                YieldRetentionRate: yieldRetentionRate,
                 ClosingBalance: t.ClosingBalance
             ))
             .ToArray();

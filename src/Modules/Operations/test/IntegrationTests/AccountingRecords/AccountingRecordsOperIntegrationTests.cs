@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -387,6 +382,12 @@ public class AccountingRecordsOperIntegrationTests
 
         public Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(
             IEnumerable<int> PortfolioId,
+            DateTime processDate,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IEnumerable<ClientOperation>> GetAccountingDebitNoteOperationsAsync(
+            IEnumerable<int> portfolioIds,
             DateTime processDate,
             CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();

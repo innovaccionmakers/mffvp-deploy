@@ -11,7 +11,7 @@ public static class PortfolioMath
     // -------------------------
 
     /// <summary>
-    /// Calcula valor de unidad en función del valor anterior del portafolio más el rendimiento abonado.
+    /// Calcula valor de unidad en función del valor anterior del portafolio más el rendimiento abonado para el día dividido por el número de unidades del día anterior sin redondeo. 
     /// </summary>
     public static decimal CalculateUnitValue(decimal previousPortfolioValue, decimal yieldToCredit, decimal units)
     {
@@ -20,39 +20,39 @@ public static class PortfolioMath
     }
 
     /// <summary>
-    /// Calcula el nuevo valor de la unidad con redondeo.
+    /// Calcula el nuevo valor de la unidad con redondeo AwayFromZero.
     /// </summary>
     public static decimal CalculateRoundedUnitValue(decimal previousPortfolioValue, decimal yieldToCredit, decimal units, int precision)
     {
         if (units <= 0) return 0;
-        return Math.Round(CalculateUnitValue(previousPortfolioValue, yieldToCredit, units), precision);
+        return Math.Round(CalculateUnitValue(previousPortfolioValue, yieldToCredit, units), precision, MidpointRounding.AwayFromZero);
     }
 
     /// <summary>
-    /// Calcula la cantidad de nuevas unidades del portafolio.
-    /// </summary>
+    /// Calcula la cantidad de nuevas unidades del portafolio con redondeo AwayFromZero.
+    /// </summary> 
     public static decimal CalculateNewUnits(decimal newPortfolioValue, decimal newUnitValue, int precision)
     {
         if (newUnitValue <= 0) return 0;
-        return Math.Round(newPortfolioValue / newUnitValue, precision);
+        return Math.Round(newPortfolioValue / newUnitValue, precision, MidpointRounding.AwayFromZero);
     }
 
     /// <summary>
-    /// Calcula el rendimiento bruto por unidad a partir de los ingresos.
+    /// Calcula el rendimiento bruto por unidad a partir de los ingresos con redondeo AwayFromZero.
     /// </summary>
     public static decimal CalculateGrossYieldPerUnitFromIncome(decimal yieldIncome, decimal previousUnits, int precision)
     {
         if (previousUnits <= 0) return 0;
-        return Math.Round(yieldIncome / previousUnits, precision);
+        return Math.Round(yieldIncome / previousUnits, precision, MidpointRounding.AwayFromZero);
     }
 
     /// <summary>
-    /// Calcula el costo por unidad.
+    /// Calcula el costo por unidad con redondeo AwayFromZero.
     /// </summary>
     public static decimal CalculateCostPerUnit(decimal yieldCosts, decimal previousUnits, int precision)
     {
         if (previousUnits <= 0) return 0;
-        return Math.Round(yieldCosts / previousUnits, precision);
+        return Math.Round(yieldCosts / previousUnits, precision, MidpointRounding.AwayFromZero);
     }
 
     // -------------------------
@@ -71,7 +71,7 @@ public static class PortfolioMath
     /// <param name="precision">
     /// Cantidad de decimales a devolver en el resultado (por defecto: 2).
     /// </param>
-    /// <returns>Nuevo valor del portafolio redondeado a la precisión indicada.</returns>
+    /// <returns>Nuevo valor del portafolio redondeado a la precisión indicada  con redondeo AwayFromZero.</returns>
     public static decimal CalculateNewPortfolioValue(
         decimal previousValue,
         decimal yieldToCredit,
@@ -98,13 +98,13 @@ public static class PortfolioMath
     }
 
     /// <summary>
-    /// Calcula la rentabilidad diaria con redondeo.
+    /// Calcula la rentabilidad diaria con redondeo AwayFromZero.
     /// </summary>
     public static decimal CalculateRoundedDailyProfitability(decimal previousUnitValue, decimal newUnitValue, int precision)
     {
         if (previousUnitValue <= 0) return 0;
         var profitability = CalculateDailyProfitability(previousUnitValue, newUnitValue);
-        return Math.Round(profitability, precision);
+        return Math.Round(profitability, precision, MidpointRounding.AwayFromZero);
     }
 
     /// <summary>

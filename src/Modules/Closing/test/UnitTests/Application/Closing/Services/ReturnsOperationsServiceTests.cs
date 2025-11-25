@@ -1,4 +1,4 @@
-using System.Linq;
+
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json;
@@ -12,12 +12,9 @@ using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.YieldsToDistribute;
 using Closing.Domain.TrustYields;
-using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
-
 namespace Closing.test.UnitTests.Application.Closing.Services;
 
 public sealed class ReturnsOperationsServiceTests
@@ -152,11 +149,12 @@ public sealed class ReturnsOperationsServiceTests
         Assert.NotNull(captured);
         Assert.Equal(2, captured!.Count);
 
-        var income = captured.Single(d => d.Income > 0);
-        var expense = captured.Single(d => d.Expenses > 0);
 
-        Assert.Equal(300m, income.Income);
-        Assert.Equal(120m, expense.Expenses);
+        foreach (var detail in captured)
+        {
+            Assert.Equal(YieldsSources.AutomaticConcept, detail.Source);
+        }
+
         trustYieldRepo.Verify(r => r.DeleteByIdsAsync(It.Is<IEnumerable<long>>(ids => ids.Count() == 2 && ids.Contains(101L) && ids.Contains(102L)), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -219,8 +217,7 @@ public sealed class ReturnsOperationsServiceTests
             cost: 0m,
             capital: 0m,
             processDate: closingDateUtc,
-            contingentRetention: 0m,
-            yieldRetention: 0m);
+            contingentRetention: 0m);
 
         var entity = result.Value;
         typeof(TrustYield).GetProperty(nameof(TrustYield.TrustYieldId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!

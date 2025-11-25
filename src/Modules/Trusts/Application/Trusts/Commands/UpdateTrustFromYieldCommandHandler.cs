@@ -38,7 +38,7 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
                 .Select(r => new ApplyYieldRow(
                     r.TrustId,
                     MoneyHelper.Round2(r.YieldAmount),
-                    MoneyHelper.Round2(r.YieldRetention),
+                    MoneyHelper.Round2(r.YieldRetentionRate),
                     MoneyHelper.Round2(r.ClosingBalance)))
                 .ToList();
 

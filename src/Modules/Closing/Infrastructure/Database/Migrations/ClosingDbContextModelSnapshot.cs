@@ -311,11 +311,6 @@ namespace Closing.Infrastructure.Database.Migrations
                         .HasColumnType("decimal(19, 2)")
                         .HasColumnName("rendimientos");
 
-                    b.Property<decimal>("YieldRetention")
-                        .HasPrecision(19, 2)
-                        .HasColumnType("decimal(19, 2)")
-                        .HasColumnName("retencion_rendimiento");
-
                     b.HasKey("TrustYieldId");
 
                     b.HasAlternateKey("PortfolioId", "TrustId", "ClosingDate")
