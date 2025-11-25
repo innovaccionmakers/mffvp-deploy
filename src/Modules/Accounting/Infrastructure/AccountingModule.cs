@@ -33,6 +33,7 @@ using Accounting.Infrastructure.External.Operations;
 using Accounting.Infrastructure.External.Portfolios;
 using Accounting.Infrastructure.External.Users;
 using Accounting.Infrastructure.External.Yields;
+using Accounting.Infrastructure.External.YieldsToDistribute;
 using Accounting.Infrastructure.PassiveTransactions;
 using Accounting.Infrastructure.Treasuries;
 using Accounting.IntegrationEvents.AccountingProcess;
@@ -92,6 +93,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConfigurationParameterLookupRepository<AccountingModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<AccountingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IYieldLocator, YieldLocator>();
+        services.AddScoped<IYieldToDistributeLocator, YieldToDistributeLocator>();
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IUserLocator, UserLocator>();
         services.AddScoped<IOperationLocator, OperationLocator>();
