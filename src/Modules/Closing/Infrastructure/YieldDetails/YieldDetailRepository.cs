@@ -29,7 +29,7 @@ namespace Closing.Infrastructure.YieldDetails
                 .ExecuteDeleteAsync(cancellationToken);
 
         }
-        
+
         public async Task DeleteClosedByPortfolioAndDateAsync(
             int portfolioId,
             DateTime closingDateUtc,
@@ -66,13 +66,13 @@ namespace Closing.Infrastructure.YieldDetails
                     .ToListAsync(cancellationToken);
             }
 
-            // Abiertos + cerrados por Conceptos Automáticos 
+            // Abiertos + cerrados por Conceptos Automáticos
             var openQ = baseQuery.Where(y => !y.IsClosed);
             var closedAutoQ = baseQuery.Where(y => y.IsClosed && y.Source == YieldsSources.AutomaticConcept);
 
             return await openQ
-                .Union(closedAutoQ)        
-                .OrderBy(y => y.YieldDetailId) 
+                .Union(closedAutoQ)
+                .OrderBy(y => y.YieldDetailId)
                 .ToListAsync(cancellationToken);
         }
 
@@ -105,6 +105,17 @@ namespace Closing.Infrastructure.YieldDetails
             return await context.YieldDetails
                 .AsNoTracking()
                 .Where(y => portfolioIdIds.Contains(y.PortfolioId) && y.ClosingDate == closeDate && y.Source == YieldsSources.AutomaticConcept)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, CancellationToken cancellationToken = default)
+        {
+            return await context.YieldDetails
+                .AsNoTracking()
+                .Where(y => portfolioIds.Contains(y.PortfolioId)
+                    && y.ClosingDate == closingDate
+                    && y.IsClosed
+                    && y.Source == source)
                 .ToListAsync(cancellationToken);
         }
     }

@@ -98,7 +98,10 @@ namespace Accounting.Application.AccountingOperations
                 if (!operationsByPortfolio.ContainsKey(portfolioId) || !operationsByPortfolio[portfolioId].Any())
                 {
                     logger.LogInformation("No hay operaciones contables de tipo {OperationType} para el PortfolioId: {PortfolioId}", operationTypeName, portfolioId);
-                    errors.Add(AccountingInconsistency.Create(portfolioId, OperationTypeNames.Operation, $"No se encontraron operaciones contables de tipo {operationTypeName} para el portfolio", string.Empty));
+                    var transactionType = operationTypeName == OperationTypeAttributes.Names.DebitNote
+                        ? OperationTypeNames.DebitNote
+                        : OperationTypeNames.Operation;
+                    errors.Add(AccountingInconsistency.Create(portfolioId, transactionType, $"No se encontraron operaciones contables de tipo {operationTypeName} para el portfolio", string.Empty));
                 }
             }
 

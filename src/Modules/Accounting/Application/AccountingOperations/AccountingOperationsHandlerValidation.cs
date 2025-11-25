@@ -189,11 +189,14 @@ namespace Accounting.Application.AccountingOperations
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Error procesando operación para portfolio {PortfolioId}", operation.PortfolioId);
+                    var transactionType = operationTypeName == OperationTypeAttributes.Names.DebitNote
+                        ? OperationTypeNames.DebitNote
+                        : OperationTypeNames.Operation;
                     results.Add((new List<AccountingAssistant>(), new List<AccountingInconsistency>
             {
                 AccountingInconsistency.Create(
                     operation.PortfolioId,
-                    OperationTypeNames.Operation,
+                    transactionType,
                     $"Error procesando operación: {ex.Message}")
             }));
                 }
@@ -228,9 +231,9 @@ namespace Accounting.Application.AccountingOperations
             string? debitAccountNumber;
             string? creditAccountNumber;
 
-            
+
             if (operationTypeName == OperationTypeAttributes.Names.DebitNote)
-            {                
+            {
                 debitAccountNumber = passiveTransactionByPortfolioId.ContainsKey(operation.PortfolioId)
                     ? passiveTransactionByPortfolioId[operation.PortfolioId]?.DebitAccount
                     : null;
@@ -239,7 +242,7 @@ namespace Accounting.Application.AccountingOperations
                     : null;
             }
             else
-            {               
+            {
                 debitAccountNumber = treasuryByPortfolioId.ContainsKey(operation.PortfolioId)
                     ? treasuryByPortfolioId[operation.PortfolioId]?.DebitAccount
                     : null;
@@ -272,11 +275,14 @@ namespace Accounting.Application.AccountingOperations
 
             if (accountingAssistant.IsFailure)
             {
+                var transactionType = operationTypeName == OperationTypeAttributes.Names.DebitNote
+                    ? OperationTypeNames.DebitNote
+                    : OperationTypeNames.Operation;
                 return (new List<AccountingAssistant>(), new List<AccountingInconsistency>
                 {
                     AccountingInconsistency.Create(
                         operation.PortfolioId,
-                        OperationTypeNames.Operation,
+                        transactionType,
                         accountingAssistant.Error.Description)
                 });
             }
@@ -324,20 +330,20 @@ namespace Accounting.Application.AccountingOperations
 
             var hasDebit = passiveTransactionByPortfolioId.ContainsKey(portfolioId) &&
                           !string.IsNullOrWhiteSpace(passiveTransactionByPortfolioId[portfolioId]?.DebitAccount);
-            
+
             var hasCredit = treasuryByPortfolioId.ContainsKey(portfolioId) &&
                            !string.IsNullOrWhiteSpace(treasuryByPortfolioId[portfolioId]?.CreditAccount);
 
             if (!hasDebit)
             {
                 errors.Add(AccountingInconsistency.Create(
-                    portfolioId, OperationTypeNames.Operation, "No existe parametrización contable", AccountingActivity.Debit));
+                    portfolioId, OperationTypeNames.DebitNote, "No existe parametrización contable", AccountingActivity.Debit));
             }
 
             if (!hasCredit)
             {
                 errors.Add(AccountingInconsistency.Create(
-                    portfolioId, OperationTypeNames.Operation, "No existe parametrización contable", AccountingActivity.Credit));
+                    portfolioId, OperationTypeNames.DebitNote, "No existe parametrización contable", AccountingActivity.Credit));
             }
 
             var isValid = hasDebit && hasCredit;
