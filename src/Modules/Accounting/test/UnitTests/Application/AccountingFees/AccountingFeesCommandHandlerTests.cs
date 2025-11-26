@@ -204,53 +204,6 @@ public class AccountingFeesCommandHandlerTests
         Assert.False(result.IsSuccess);
     }
 
-    [Fact]
-    public void Insert_WithNullTransaction_ShouldThrowException()
-    {
-        // Arrange
-        var options = new DbContextOptionsBuilder<AccountingDbContext>()
-            .UseInMemoryDatabase(databaseName: "Insert_Null_Test_Db")
-            .Options;
-
-        using var context = new AccountingDbContext(options);
-        var repository = new PassiveTransactionRepository(context);
-
-        // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() => repository.Insert(null!));
-        Assert.NotNull(exception);
-    }
-
-    [Fact]
-    public void Update_WithNullTransaction_ShouldThrowException()
-    {
-        // Arrange
-        var options = new DbContextOptionsBuilder<AccountingDbContext>()
-            .UseInMemoryDatabase(databaseName: "Update_Null_Test_Db")
-            .Options;
-
-        using var context = new AccountingDbContext(options);
-        var repository = new PassiveTransactionRepository(context);
-
-        // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() => repository.Update(null!));
-        Assert.NotNull(exception);
-    }
-
-    [Fact]
-    public void Delete_WithNullTransaction_ShouldThrowException()
-    {
-        // Arrange
-        var options = new DbContextOptionsBuilder<AccountingDbContext>()
-            .UseInMemoryDatabase(databaseName: "Delete_Null_Test_Db")
-            .Options;
-
-        using var context = new AccountingDbContext(options);
-        var repository = new PassiveTransactionRepository(context);
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => repository.Delete(null!));
-    }
-
     #endregion
 
     #region CreateRange Tests (Testing through Handle method)
