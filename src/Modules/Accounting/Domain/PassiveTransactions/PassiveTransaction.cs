@@ -12,7 +12,7 @@ public sealed class PassiveTransaction : Entity
     public string? ContraCreditAccount { get; private set; }
     public string? ContraDebitAccount { get; private set; }
 
-    private PassiveTransaction()
+    public PassiveTransaction()
     {
     }
 

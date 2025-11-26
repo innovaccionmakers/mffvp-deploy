@@ -174,5 +174,88 @@ namespace Accounting.test.IntegrationTests.PassiveTransactions
                 _mockPassiveTransactionRepository.Object.GetByPortfolioIdAndOperationTypeAsync(
                     portfolioId, operationTypeId, cancellationToken));
         }
+
+        [Fact]
+        public void Insert_WhenPassiveTransactionIsValid_ShouldAddToContext()
+        {
+            // Arrange
+            var portfolioId = 1;
+            var operationTypeId = 1001L;
+            var debitAccount = "123456";
+            var creditAccount = "654321";
+            var costCenter = "CC001";
+            var thirdParty = "TP001";
+
+            var passiveTransaction = PassiveTransaction.Create(
+                portfolioId,
+                operationTypeId,
+                debitAccount,
+                creditAccount,
+                costCenter,
+                thirdParty);
+
+            // Act
+            _mockPassiveTransactionRepository.Object.Insert(passiveTransaction.Value);
+
+            // Assert
+            _mockPassiveTransactionRepository.Verify(x => x.Insert(
+                It.Is<PassiveTransaction>(pt =>
+                    pt.PortfolioId == passiveTransaction.Value.PortfolioId &&
+                    pt.TypeOperationsId == passiveTransaction.Value.TypeOperationsId &&
+                    pt.DebitAccount == passiveTransaction.Value.DebitAccount &&
+                    pt.CreditAccount == passiveTransaction.Value.CreditAccount &&
+                    pt.ContraCreditAccount == passiveTransaction.Value.ContraCreditAccount &&
+                    pt.ContraDebitAccount == passiveTransaction.Value.ContraDebitAccount)),
+                Times.Once);
+        }
+
+        [Fact]
+        public void Update_WhenPassiveTransactionIsValid_ShouldUpdateInContext()
+        {
+            // Arrange
+            int portfolioId = 1;
+            long typeOperationsId = 101;
+            string? debitAccount = "123456";
+            string? creditAccount = "654321";
+            string? contraCreditAccount = "654987";
+            string? contraDebitAccount = "987654";
+
+            var passiveTransaction = new PassiveTransaction();
+
+            passiveTransaction.UpdateDetails(
+                portfolioId,
+                typeOperationsId,
+                debitAccount,
+                creditAccount,
+                contraCreditAccount,
+                contraDebitAccount);
+
+            // Act
+            _mockPassiveTransactionRepository.Object.Update(passiveTransaction);
+
+            // Assert
+            _mockPassiveTransactionRepository.Verify(x => x.Update(
+                It.Is<PassiveTransaction>(pt =>
+                    pt.PortfolioId == passiveTransaction.PortfolioId &&
+                    pt.TypeOperationsId == passiveTransaction.TypeOperationsId)),
+                Times.Once);
+        }
+
+        [Fact]
+        public void Delete_WhenPassiveTransactionIsValid_ShouldRemoveFromContext()
+        {
+            // Arrange
+            var passiveTransaction = new PassiveTransaction();
+
+            // Act
+            _mockPassiveTransactionRepository.Object.Delete(passiveTransaction);
+
+            // Assert
+            _mockPassiveTransactionRepository.Verify(x => x.Delete(
+                It.Is<PassiveTransaction>(pt =>
+                    pt.PortfolioId == passiveTransaction.PortfolioId &&
+                    pt.TypeOperationsId == passiveTransaction.TypeOperationsId)),
+                Times.Once);
+        }
     }
 }
