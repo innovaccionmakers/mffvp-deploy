@@ -9,6 +9,7 @@ public interface IPortfolioValuationService
     Task<Result<PrepareClosingResult>> CalculateAndPersistValuationAsync(
          int portfolioId,
          DateTime closingDate,
+         bool hasDebitNotes,
          CancellationToken ct);
 
 }

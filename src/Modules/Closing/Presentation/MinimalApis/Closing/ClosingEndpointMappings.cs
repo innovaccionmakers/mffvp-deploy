@@ -17,7 +17,6 @@ namespace Closing.Presentation.MinimalApis.Closing;
 
 public static class ClosingEndpointMappings
 {
-    //TODO: Considerar usar otra forma de mapear los endpoints
     public static void MapRunClosingEndpoint(this RouteGroupBuilder group)
     {
         group.MapPost(
