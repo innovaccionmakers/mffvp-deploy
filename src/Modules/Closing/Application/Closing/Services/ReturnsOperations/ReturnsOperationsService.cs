@@ -1,11 +1,8 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using Closing.Application.Closing.Services.ReturnsOperations.Interfaces;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.PreClosing.Services.AutomaticConcepts.Dto;
-using Closing.Application.PreClosing.Services.Yield.Constants;
 using Closing.Application.PreClosing.Services.Yield;
+using Closing.Application.PreClosing.Services.Yield.Constants;
 using Closing.Application.PreClosing.Services.Yield.Interfaces;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.TrustYields;
@@ -16,6 +13,7 @@ using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Closing.Application.Closing.Services.ReturnsOperations;
 
@@ -115,7 +113,7 @@ public sealed class ReturnsOperationsService(
                 concepts.Expense.Name,
                 IncomeExpenseNature.Expense,
                 YieldsSources.AutomaticConcept,
-                Math.Abs(negativeTotal)));
+                negativeTotal));
         }
 
         if (summaries.Count == 0)

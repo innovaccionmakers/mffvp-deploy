@@ -118,5 +118,24 @@ namespace Closing.Infrastructure.YieldDetails
                     && y.Source == source)
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<decimal> GetExtraReturnIncomeSumAsync(
+        int portfolioId,
+        DateTime closingDateUtc,
+        CancellationToken cancellationToken = default)
+        {
+            var query = context.YieldDetails
+             .TagWith("YieldDetailRepository_GetExtraReturnIncomeSumAsync_PortfolioAndDate")
+             .AsNoTracking()
+             .Where(y => y.PortfolioId == portfolioId
+                         && y.ClosingDate == closingDateUtc
+                         && y.IsClosed        
+                         && y.Source == YieldsSources.ExtraReturn);
+
+            var sum = await query
+                .SumAsync(y => (decimal?)y.Income, cancellationToken);
+
+            return sum ?? 0m;
+        }
     }
 }

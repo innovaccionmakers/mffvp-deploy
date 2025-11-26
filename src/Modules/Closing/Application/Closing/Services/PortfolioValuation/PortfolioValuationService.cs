@@ -4,6 +4,7 @@ using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
+using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Constants;
@@ -26,12 +27,13 @@ public class PortfolioValuationService(
     IConfigurationParameterRepository configurationParameterRepository,
     ITimeControlService timeControlService,
     ILogger<PortfolioValuationService> logger,
-    IOperationTypesLocator operationTypesLocator)
+    IYieldDetailRepository yieldDetailRepository)
     : IPortfolioValuationService
 {
     public async Task<Result<PrepareClosingResult>> CalculateAndPersistValuationAsync(
         int portfolioId,
         DateTime closingDate,
+         bool hasDebitNotes,
         CancellationToken cancellationToken)
     {
         using var _ = logger.BeginScope(new Dictionary<string, object>
@@ -77,10 +79,10 @@ public class PortfolioValuationService(
 
         // 4. Obtener y clasificar los tipos de operación
 
-        var subtypeResult = await operationTypes.GetAllAsync(cancellationToken);
+        var operationTypesResult = await operationTypes.GetAllAsync(cancellationToken);
 
-        if (!subtypeResult.IsSuccess)
-            return Result.Failure<PrepareClosingResult>(subtypeResult.Error!);
+        if (!operationTypesResult.IsSuccess)
+            return Result.Failure<PrepareClosingResult>(operationTypesResult.Error!);
 
         var groupFilter = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -88,9 +90,9 @@ public class PortfolioValuationService(
             OperationTypeAttributes.GroupList.AccountingNotes
         };
 
-        var allOperationTypes = subtypeResult.Value;
+        var allActiveOperationTypes = operationTypesResult.Value;
 
-        var operationsInGroups = allOperationTypes
+        var operationsGroupsClosingInOut = allActiveOperationTypes
         .Where(operationType =>
         {
             var groupList = operationType.GetGroupList();
@@ -99,29 +101,31 @@ public class PortfolioValuationService(
         })
         .ToList();
 
-        // Ids de los tipos base que pertenecen a los grupos indicados
+        // Ids de los tipos base(padres) que pertenecen a los grupos indicados
         var parentIdsFromGroups = new HashSet<string>(
-            operationsInGroups.Select(operationType => operationType.Name)
+            operationsGroupsClosingInOut.Select(operationType => operationType.Name)
         );
 
         // Hijos: tipos cuya Category (padre) está en ese conjunto
-        var childrenOfGroupedParents = allOperationTypes
+        var childrenOfGroupedParents = allActiveOperationTypes
             .Where(operationType =>
                 !string.IsNullOrWhiteSpace(operationType.Category) &&
                 parentIdsFromGroups.Contains(operationType.Category))
             .ToList();
 
-        var closingOperations = operationsInGroups
+        // Operaciones Agrupadas (padres e hijos), sin duplicados
+        var closingOperations = operationsGroupsClosingInOut
             .Concat(childrenOfGroupedParents)
             .GroupBy(operationType => operationType.OperationTypeId)
             .Select(group => group.First())
             .ToList();
+
         //Obtener solo los tipos de operacion que se catalogan como operaciones de entrada o salida 
 
         var incomeOperIds = closingOperations
-      .Where(operationType => operationType.Nature == IncomeEgressNature.Income)
-      .Select(operationType => operationType.OperationTypeId)
-      .ToList();
+          .Where(operationType => operationType.Nature == IncomeEgressNature.Income)
+          .Select(operationType => operationType.OperationTypeId)
+          .ToList();
 
         var egressOperIds = closingOperations
             .Where(operationType => operationType.Nature == IncomeEgressNature.Egress)
@@ -132,7 +136,20 @@ public class PortfolioValuationService(
         var incoming =MoneyHelper.Round2(await clientOperationRepository
             .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, incomeOperIds, new[] { LifecycleStatus.Active }, cancellationToken));
         var outgoing = MoneyHelper.Round2(await clientOperationRepository
-            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressOperIds, new[] { LifecycleStatus.Active, LifecycleStatus.AnnulledByDebitNote }, cancellationToken));
+            .SumByPortfolioAndSubtypesAsync(portfolioId, closingDate, egressOperIds, new[] { LifecycleStatus.Active }, cancellationToken));
+
+        // Si hay notas de débito, sumar el valor extra por notas de débito 
+        var debitNoteExtraReturn = 0m;
+        if (hasDebitNotes)
+        {
+            debitNoteExtraReturn = MoneyHelper.Round2(await yieldDetailRepository.
+                GetExtraReturnIncomeSumAsync(
+                    portfolioId,
+                    closingDate,
+                    cancellationToken));
+        }
+
+        outgoing += debitNoteExtraReturn;
 
         var shouldCalculateUnits = incoming != 0 || outgoing != 0;
 

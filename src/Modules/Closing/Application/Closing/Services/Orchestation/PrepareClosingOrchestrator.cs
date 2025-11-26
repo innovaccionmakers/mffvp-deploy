@@ -4,6 +4,7 @@ using Closing.Application.Closing.Services.PortfolioValuation;
 using Closing.Application.Closing.Services.Telemetry;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Application.Closing.Services.TrustSync;
+using Closing.Application.Closing.Services.Validation;
 using Closing.Application.Closing.Services.Validation.Interfaces;
 using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PreClosing.Services.Orchestation;
@@ -26,7 +27,8 @@ public class PrepareClosingOrchestrator(
     IDataSyncService dataSyncService,
     IAbortClosingService abortClosingService,
     IWarningCollector warningCollector,
-    ILogger<PrepareClosingOrchestrator> logger)
+    ILogger<PrepareClosingOrchestrator> logger,
+    IClosingBusinessRules rules)
     : IPrepareClosingOrchestrator
 {
     public async Task<Result<PrepareClosingResult>> PrepareAsync(
@@ -35,7 +37,8 @@ public class PrepareClosingOrchestrator(
     {
         var portfolioId = command.PortfolioId;
         var closingDate = DateTimeConverter.ToUtcDateTime(command.ClosingDate);
-
+        var isFirstClosingDay = false;
+        var hasDebitNotes = false;
         try
         {
             logger.LogInformation(
@@ -50,7 +53,7 @@ public class PrepareClosingOrchestrator(
             if (simulationValidation.IsFailure)
                 return Result.Failure<PrepareClosingResult>(simulationValidation.Error!);
 
-            bool isFirstClosingDay = simulationValidation.Value.IsFirstClosingDay;
+             isFirstClosingDay = simulationValidation.Value.IsFirstClosingDay;
 
             // Paso 0b: Validación específica de PrepareClosing SOLO si NO es primer día
             if (!isFirstClosingDay)
@@ -60,6 +63,10 @@ public class PrepareClosingOrchestrator(
 
                 if (prepareValidation.IsFailure)
                     return Result.Failure<PrepareClosingResult>(prepareValidation.Error!);
+
+                var hasDebitNotesResult = await rules.HasDebitNotesAsync(portfolioId, closingDate, cancellationToken);
+                if (hasDebitNotesResult.IsFailure) return Result.Failure<PrepareClosingResult>(hasDebitNotesResult.Error);
+                hasDebitNotes = hasDebitNotesResult.Value;
             }
 
 
@@ -86,7 +93,7 @@ public class PrepareClosingOrchestrator(
             // Paso 3: Calcular y persistir valoración del portafolio
             // Devuelve un PrepareClosingResult con datos financieros
             var valuationResult = await portfolioValuationService
-                .CalculateAndPersistValuationAsync(portfolioId, closingDate, cancellationToken);
+                .CalculateAndPersistValuationAsync(portfolioId, closingDate, hasDebitNotes, cancellationToken);
             if (valuationResult.IsFailure)
                 return Result.Failure<PrepareClosingResult>(valuationResult.Error);
 
