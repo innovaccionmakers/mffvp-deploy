@@ -1,5 +1,6 @@
 ﻿using Common.SharedKernel.Domain;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
+using Operations.Integrations.OperationTypes;
 
 namespace Accounting.Application.Abstractions.External;
 
@@ -14,5 +15,6 @@ public interface IOperationLocator
                                                                                                     CancellationToken cancellationToken);
 
 
-    Task<Result<(long OperationTypeId, string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken);    
+    Task<Result<(long OperationTypeId, string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken);
+    Task<Result<IReadOnlyCollection<OperationTypeResponse>>>  GetOperationTypesByNameAsync(string name, CancellationToken cancellationToken);    
 }

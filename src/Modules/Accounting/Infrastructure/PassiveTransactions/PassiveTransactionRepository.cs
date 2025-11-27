@@ -46,4 +46,15 @@ public class PassiveTransactionRepository(AccountingDbContext context) : IPassiv
             .Where(pt => portfolioIdsSet.Contains(pt.PortfolioId) && pt.TypeOperationsId == operationTypeId)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<PassiveTransaction>> GetByPortfolioIdsAndOperationTypesAsync(IEnumerable<int> portfolioIds, IEnumerable<long> operationTypeIds, CancellationToken cancellationToken = default)
+    {
+        var portfolioIdsSet = new HashSet<int>(portfolioIds);
+
+        var operationTypesIdsSet = new HashSet<long>(operationTypeIds);
+
+        return await context.PassiveTransactions
+            .Where(pt => portfolioIdsSet.Contains(pt.PortfolioId) && operationTypesIdsSet.Contains(pt.TypeOperationsId))            
+            .ToListAsync(cancellationToken);
+    }
 }

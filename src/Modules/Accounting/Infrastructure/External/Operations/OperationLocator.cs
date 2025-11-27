@@ -3,9 +3,11 @@ using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+using DocumentFormat.OpenXml.Office.CustomUI;
 using Operations.IntegrationEvents.ClientOperations;
 using Operations.IntegrationEvents.OperationTypes;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
+using Operations.Integrations.OperationTypes;
 namespace Accounting.Infrastructure.External.Operations;
 
 public class OperationLocator(IRpcClient rpc) : IOperationLocator
@@ -41,5 +43,15 @@ public class OperationLocator(IRpcClient rpc) : IOperationLocator
         return rcs.Succeeded
             ? Result.Success((rc.OperationTypeId, EnumHelper.GetEnumMemberValue(rc.Nature), rc.Name))
             : Result.Failure<(long OperationTypeId, string Nature, string Name)>(Error.Validation(rcs.Code!, rcs.Message!));
+    }
+
+    public async Task<Result<IReadOnlyCollection<OperationTypeResponse>>> GetOperationTypesByNameAsync(string name, CancellationToken cancellationToken)
+    {
+        var rcs = await rpc.CallAsync<GetOperationTypeByNameRequest, GetOperationTypeByNameResponse>(
+                                                new GetOperationTypeByNameRequest(name), cancellationToken);
+
+        return rcs.Succeeded
+            ? Result.Success(rcs.OperationType)
+            : Result.Failure<IReadOnlyCollection<OperationTypeResponse>>(Error.Validation(rcs.Code!, rcs.Message!));
     }
 }

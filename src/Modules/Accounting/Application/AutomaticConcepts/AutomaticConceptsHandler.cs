@@ -1,4 +1,5 @@
 ﻿using Accounting.Application.Abstractions;
+using Accounting.Application.Abstractions.External;
 using Accounting.Domain.Constants;
 using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AutomaticConcepts;
@@ -17,6 +18,7 @@ namespace Accounting.Application.AutomaticConcepts
         AutomaticConceptsHandlerValidator validator,
         ISender sender,
         IRpcClient rpcClient,
+        IOperationLocator operationLocator,
         ILogger<AutomaticConceptsHandler> logger,
         IInconsistencyHandler inconsistencyHandler) : ICommandHandler<AutomaticConceptsCommand, bool>
     {
@@ -24,21 +26,19 @@ namespace Accounting.Application.AutomaticConcepts
         {
             try
             {
-                var automaticConcept = "Concepto Automático";
-
                 //Yield
                 var yieldResult = await rpcClient.CallAsync<GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerRequest, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerResponse>(
                                                                 new GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerRequest(command.PortfolioIds, command.ProcessDate), cancellationToken);
                 if (!yieldResult.IsValid)
-                    return Result.Success(true);                
+                    return Result.Success(true);
 
                 //OperationType
-                var operationsType = await rpcClient.CallAsync<GetOperationTypeByNameRequest, GetOperationTypeByNameResponse>(
-                                                    new GetOperationTypeByNameRequest(automaticConcept), cancellationToken);
-                if (!operationsType.Succeeded)
-                    return Result.Failure<bool>(Error.Validation(operationsType.Code ?? string.Empty, operationsType.Message ?? string.Empty));
+                var operationTypes = await operationLocator.GetOperationTypesByNameAsync(OperationTypeNames.AutomaticConcept, cancellationToken);
+                
+                if (operationTypes.IsFailure)
+                    return Result.Failure<bool>(Error.Validation(operationTypes.Error.Code ?? string.Empty, operationTypes.Error.Description ?? string.Empty));
 
-                var automaticConcepts = await validator.AutomaticConceptsValidator(command, yieldResult, operationsType, automaticConcept, cancellationToken);
+                var automaticConcepts = await validator.AutomaticConceptsValidator(command.ProcessDate, yieldResult, operationTypes.Value, OperationTypeNames.AutomaticConcept, cancellationToken);
 
                 if (!automaticConcepts.IsSuccess)
                 {

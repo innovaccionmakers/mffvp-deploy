@@ -19,7 +19,7 @@ internal sealed class YieldToDistributeLocator(IRpcClient rpc) : IYieldToDistrib
         return rc.IsValid
             ? Result.Success<IReadOnlyCollection<DistributedYieldGroupResponse>>(rc.DistributedYieldGroups.Select(d => new DistributedYieldGroupResponse(
                 ClosinDate: d.ClosinDate,
-                PortofolioId: d.PortofolioId,
+                PortfolioId: d.PortofolioId,
                 Concept: d.Concept,
                 TotalYieldAmount: d.TotalYieldAmount)).ToList())
             : Result.Failure<IReadOnlyCollection<DistributedYieldGroupResponse>>(Error.Validation(rc.Code!, rc.Message!));

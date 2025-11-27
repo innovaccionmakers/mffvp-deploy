@@ -13,7 +13,7 @@ public interface IYieldToDistributeLocator
 public sealed record DistributedYieldGroupResponse
 (
     DateTime ClosinDate,
-    int PortofolioId,
+    int PortfolioId,
     JsonDocument Concept,
     decimal TotalYieldAmount
 );
