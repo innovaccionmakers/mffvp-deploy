@@ -8,7 +8,7 @@ namespace Accounting.Infrastructure.External.YieldsToDistribute;
 
 internal sealed class YieldToDistributeLocator(IRpcClient rpc) : IYieldToDistributeLocator
 {
-    public async Task<Result<IReadOnlyCollection<DistributedYieldGroupResponse>>> GetDistributedYieldGroupResponse(IEnumerable<int> portfolioIds, DateTime closingDate, string concept, CancellationToken ct)
+    public async Task<Result<IReadOnlyCollection<GenericDebitNoteResponse>>> GetDistributedYieldGroupResponse(IEnumerable<int> portfolioIds, DateTime closingDate, string concept, CancellationToken ct)
     {
         var rc = await rpc.CallAsync<
             GetDistributedYieldGroupByConceptRequest,
@@ -17,11 +17,11 @@ internal sealed class YieldToDistributeLocator(IRpcClient rpc) : IYieldToDistrib
             ct);
 
         return rc.IsValid
-            ? Result.Success<IReadOnlyCollection<DistributedYieldGroupResponse>>(rc.DistributedYieldGroups.Select(d => new DistributedYieldGroupResponse(
+            ? Result.Success<IReadOnlyCollection<GenericDebitNoteResponse>>(rc.DistributedYieldGroups.Select(d => new DistributedYieldGroupResponse(
                 ClosinDate: d.ClosinDate,
                 PortfolioId: d.PortofolioId,
                 Concept: d.Concept,
-                TotalYieldAmount: d.TotalYieldAmount)).ToList())
-            : Result.Failure<IReadOnlyCollection<DistributedYieldGroupResponse>>(Error.Validation(rc.Code!, rc.Message!));
+                Value: d.TotalYieldAmount)).ToList())
+            : Result.Failure<IReadOnlyCollection<GenericDebitNoteResponse>>(Error.Validation(rc.Code!, rc.Message!));
     }
 }

@@ -1,19 +1,18 @@
-﻿using System.Text.Json;
-using Common.SharedKernel.Domain;
+﻿using Common.SharedKernel.Domain;
 
 namespace Accounting.Application.Abstractions.External;
 
 public interface IYieldToDistributeLocator
 {
-    public Task<Result<IReadOnlyCollection<DistributedYieldGroupResponse>>> GetDistributedYieldGroupResponse(IEnumerable<int> portfolioIds,
+    public Task<Result<IReadOnlyCollection<GenericDebitNoteResponse>>> GetDistributedYieldGroupResponse(IEnumerable<int> portfolioIds,
                                                                                                      DateTime closingDate,
                                                                                                      string concept,
                                                                                                      CancellationToken ct);  
 }
-public sealed record DistributedYieldGroupResponse
+
+public sealed record GenericDebitNoteResponse
 (
     DateTime ClosinDate,
     int PortfolioId,
-    JsonDocument Concept,
-    decimal TotalYieldAmount
+    decimal Value
 );

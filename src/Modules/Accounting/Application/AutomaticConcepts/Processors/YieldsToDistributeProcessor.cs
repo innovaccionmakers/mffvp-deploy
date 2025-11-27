@@ -69,7 +69,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
 
     }
 
-    private async Task<ProcessingResult<AccountingAssistant, AccountingInconsistency>> CreateRangeFromDistributedYields(IReadOnlyCollection<DistributedYieldGroupResponse> distributedYields,
+    private async Task<ProcessingResult<AccountingAssistant, AccountingInconsistency>> CreateRangeFromDistributedYields(IReadOnlyCollection<GenericDebitNoteResponse> distributedYields,
                                                                                                                         DateTime processDate,
                                                                                                                         IReadOnlyCollection<OperationTypeResponse> operationTypes,
                                                                                                                         string automaticConcept,
@@ -90,7 +90,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
         //T0 Automatic Concepts Debit Note
         foreach (var distributedYield in distributedYields)
         {
-            IncomeEgressNature naturalezaFiltro = distributedYield.TotalYieldAmount < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
+            IncomeEgressNature naturalezaFiltro = distributedYield.Value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
 
             var operationType = operationTypes.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
 
@@ -144,7 +144,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                processDate.ToString("yyyyMM"),
                processDate,
                operationType.Name,
-               distributedYield.TotalYieldAmount,
+               distributedYield.Value,
                EnumHelper.GetEnumMemberValue(operationType.Nature)
            );
 
