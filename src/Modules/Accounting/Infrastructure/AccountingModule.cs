@@ -93,6 +93,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConfigurationParameterLookupRepository<AccountingModuleMarker>>(sp =>
             (IConfigurationParameterLookupRepository<AccountingModuleMarker>)sp.GetRequiredService<IConfigurationParameterRepository>());
         services.AddScoped<IYieldLocator, YieldLocator>();
+        services.AddScoped<IYieldDetailsLocator, YieldDetailLocator>();
         services.AddScoped<IYieldToDistributeLocator, YieldToDistributeLocator>();
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IUserLocator, UserLocator>();

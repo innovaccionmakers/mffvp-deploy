@@ -6,7 +6,7 @@ using Common.SharedKernel.Domain;
 
 namespace Accounting.Infrastructure.External.Yields;
 
-internal sealed class YieldDetailLocator(IRpcClient rpc) : IYieldDetailsLocator
+public sealed class YieldDetailLocator(IRpcClient rpc) : IYieldDetailsLocator
 {
     public async Task<Result<IReadOnlyCollection<YieldDetailResponse>>> GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, string? concept, CancellationToken ct)
     {
