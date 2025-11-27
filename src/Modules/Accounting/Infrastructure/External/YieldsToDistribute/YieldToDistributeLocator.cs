@@ -17,10 +17,9 @@ internal sealed class YieldToDistributeLocator(IRpcClient rpc) : IYieldToDistrib
             ct);
 
         return rc.IsValid
-            ? Result.Success<IReadOnlyCollection<GenericDebitNoteResponse>>(rc.DistributedYieldGroups.Select(d => new DistributedYieldGroupResponse(
+            ? Result.Success<IReadOnlyCollection<GenericDebitNoteResponse>>(rc.DistributedYieldGroups.Select(d => new GenericDebitNoteResponse(
                 ClosinDate: d.ClosinDate,
                 PortfolioId: d.PortofolioId,
-                Concept: d.Concept,
                 Value: d.TotalYieldAmount)).ToList())
             : Result.Failure<IReadOnlyCollection<GenericDebitNoteResponse>>(Error.Validation(rc.Code!, rc.Message!));
     }

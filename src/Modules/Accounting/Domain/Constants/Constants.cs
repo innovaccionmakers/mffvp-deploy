@@ -93,5 +93,5 @@ public static class AccountingReportConstants
 
 public static class ConceptsTypeNames
 {
-    public const string AutomaticAccountingNote = "Concepto Automatico Nota Contable"
+    public const string AutomaticAccountingNote = "Concepto Automatico Nota Contable";
 }
