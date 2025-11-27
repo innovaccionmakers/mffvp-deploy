@@ -19,6 +19,7 @@ using Closing.IntegrationEvents.DataSync.PreClosingTxRequested;
 using Closing.IntegrationEvents.DataSync.TrustSync;
 using Closing.IntegrationEvents.PortfolioValuation;
 using Closing.IntegrationEvents.Yields;
+using Closing.IntegrationEvents.YieldsToDistribute;
 using Closing.Integrations.PortfolioValuation;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.MinimalApis;
@@ -106,6 +107,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IRpcHandler<GetAllReturnsByPortfolioIdsAndClosingDateRequest, GetAllReturnsByPortfolioIdsAndClosingDateResponse>, GetAllReturnsByPortfolioIdsAndClosingDateConsumer>();
         services.AddScoped<IRpcHandler<GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerRequest, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerResponse>, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumer>();
         services.AddScoped<IRpcHandler<GetYieldsDetailsByPortfolioIdsClosingDateAndSourceRequest, GetYieldsDetailsByPortfolioIdsClosingDateAndSourceResponse>, GetYieldsDetailsByPortfolioIdsClosingDateAndSourceConsumer>();
+        services.AddScoped<IRpcHandler<GetDistributedYieldGroupByConceptRequest, GetDistributedYieldGroupByConceptResponse>, GetDistributedYieldGroupByConceptConsumer>();
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ClosingDbContext>());

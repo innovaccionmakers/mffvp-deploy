@@ -1,9 +1,10 @@
 ﻿using Closing.Integrations.YieldsToDistribute.Queries;
+using Common.SharedKernel.Application.Rpc;
 using MediatR;
 
 namespace Closing.IntegrationEvents.YieldsToDistribute;
 
-internal class GetDistributedYieldGroupByConceptConsumer(ISender sender)
+public class GetDistributedYieldGroupByConceptConsumer(ISender sender) : IRpcHandler<GetDistributedYieldGroupByConceptRequest, GetDistributedYieldGroupByConceptResponse>
 {
     public async Task<GetDistributedYieldGroupByConceptResponse> HandleAsync(GetDistributedYieldGroupByConceptRequest request, CancellationToken ct)
     {
