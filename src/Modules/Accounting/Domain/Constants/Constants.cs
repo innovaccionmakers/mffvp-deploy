@@ -25,6 +25,7 @@ public static class OperationTypeNames
 public static class SourceTypes
 {
     public const string ExtraYield = "Rendimiento Extra";
+    public const string AutomaticConcept = "Concepto Automático";
 }
 
 public static class ProcessTypes
@@ -94,4 +95,5 @@ public static class AccountingReportConstants
 public static class ConceptsTypeNames
 {
     public const string AutomaticAccountingNote = "Concepto Automatico Nota Contable";
+    public const string AdjustYieldsIncome = "Ajuste Rendimiento NC Ingreso";
 }

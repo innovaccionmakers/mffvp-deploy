@@ -19,6 +19,7 @@ namespace Accounting.Application.AutomaticConcepts.Processors;
 internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProcessor> logger,
                                                   ISender sender,
                                                   IYieldToDistributeLocator yieldToDistributeLocator,
+                                                  IYieldDetailsLocator yieldDetailsLocator,
                                                   IPortfolioLocator portfolioLocator,
                                                   IOperationLocator operationLocator,
                                                   IPassiveTransactionRepository passiveTransactionRepository,
@@ -27,10 +28,17 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
     public async Task<Result<bool>> ProcessAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken)
     {
         var distributedYields = await yieldToDistributeLocator.GetDistributedYieldGroupResponse(portfolioIds, processDate, ConceptsTypeNames.AutomaticAccountingNote, cancellationToken);
+        var yieldDetails = await yieldDetailsLocator.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(portfolioIds, processDate, SourceTypes.AutomaticConcept, ConceptsTypeNames.AdjustYieldsIncome,  cancellationToken);
 
-        if(distributedYields.IsFailure)
+        if (distributedYields.IsFailure)
         {
             logger.LogError("No se pudieron obtener los rendimientos distribuidos para los portafolios: {Error}", distributedYields.Error);
+            return Result.Success(true);
+        }
+
+        if (yieldDetails.IsFailure)
+        {
+            logger.LogError("No se pudieron obtener los detalles de rendimiento para los portafolios: {Error}", yieldDetails.Error);
             return Result.Success(true);
         }
 
@@ -42,7 +50,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             return Result.Failure<bool>(Error.Problem("Automatic.Concepts", "No se pudieron obtener los tipos de operación para los conceptos automáticos"));
         }
 
-        var distributedYieldsResult = await CreateRangeFromDistributedYields(distributedYields.Value, processDate, operationTypes.Value, OperationTypeNames.AutomaticConcept, cancellationToken);
+        var distributedYieldsResult = await CreateRangeFromDistributedYields(distributedYields.Value, yieldDetails.Value, processDate, operationTypes.Value, OperationTypeNames.AutomaticConcept, cancellationToken);
 
         if (!distributedYieldsResult.IsSuccess)
         {
@@ -70,6 +78,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
     }
 
     private async Task<ProcessingResult<AccountingAssistant, AccountingInconsistency>> CreateRangeFromDistributedYields(IReadOnlyCollection<GenericDebitNoteResponse> distributedYields,
+                                                                                                                        IReadOnlyCollection<YieldDetailResponse> yieldDetails,
                                                                                                                         DateTime processDate,
                                                                                                                         IReadOnlyCollection<OperationTypeResponse> operationTypes,
                                                                                                                         string automaticConcept,
@@ -96,9 +105,10 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
 
             if (operationType == null)
             {
-                logger.LogWarning("No se encontró el tipo de operación para el concepto automático {AutomaticConcept} con naturaleza {Nature} para el portafolio {PortfolioId}",
-                    automaticConcept, naturalezaFiltro, distributedYield.PortfolioId);
-                errors.Add(AccountingInconsistency.Create(distributedYield.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, "No existe parametrización contable", AccountingActivity.Debit));
+                var errorMessage = $"No se encontró el tipo de operación para el concepto automático {automaticConcept} con naturaleza {naturalezaFiltro} para el portafolio {distributedYield.PortfolioId}";
+                logger.LogWarning(errorMessage);
+                errors.Add(AccountingInconsistency.Create(distributedYield.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, errorMessage, AccountingActivity.Debit));
+                errors.Add(AccountingInconsistency.Create(distributedYield.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, errorMessage, AccountingActivity.Credit));
                 continue;
             }
 
@@ -159,11 +169,80 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
 
             accountingAssistants.AddRange(distributedYieldCreate.Value.ToDebitAndCredit(passiveTransaction.DebitAccount, passiveTransaction.CreditAccount));
         }
-        return new ProcessingResult<AccountingAssistant, AccountingInconsistency>(accountingAssistants, errors);
 
 
         //T1 Automatic Concepts Debit Note
+        foreach (var yieldDetail in yieldDetails)
+        {
+            IncomeEgressNature naturalezaFiltro = yieldDetail.Income < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
+            var detail = yieldDetail.Income < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
 
+            var operationType = operationTypes.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
+            if (operationType == null)
+            {
+                var errorMessage = $"No se encontró el tipo de operación para el concepto automático {automaticConcept} con naturaleza {naturalezaFiltro} para el portafolio {yieldDetail.PortfolioId}";
+                logger.LogWarning(errorMessage);
+                errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, errorMessage, AccountingActivity.Debit));
+                errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, errorMessage, AccountingActivity.Credit));
+                continue;
+            }
+
+            passiveTransactionsDict.TryGetValue((yieldDetail.PortfolioId, operationType.OperationTypeId), out var passiveTransaction);
+
+            if (passiveTransaction == null)
+            {
+                logger.LogWarning("No se encontró una transacción pasiva para el portafolio {PortfolioId} y el tipo operación {OperationType}", yieldDetail.PortfolioId, operationType.OperationTypeId);
+                errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, "No existe parametrización contable", AccountingActivity.Credit));
+                errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, "No existe parametrización contable", AccountingActivity.Debit));
+                continue;
+            }
+
+            if (passiveTransaction.ContraCreditAccount.IsNullOrEmpty())
+            {
+                logger.LogWarning("La transacción pasiva para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de crédito", yieldDetail.PortfolioId, operationType.OperationTypeId);
+                errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, "No existe cuenta de crédito", AccountingActivity.Credit));
+                continue;
+            }
+
+            if(passiveTransaction.ContraDebitAccount.IsNullOrEmpty())
+            {
+                logger.LogWarning("La transacción pasiva para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de débito", yieldDetail.PortfolioId, operationType.OperationTypeId);
+                errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, "No existe cuenta de débito", AccountingActivity.Debit));
+                continue;
+            }
+
+            var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(yieldDetail.PortfolioId, cancellationToken);
+            if (portfolioResult.IsFailure)
+            {
+                logger.LogError("No se pudo obtener la información del portafolio {PortfolioId}: {Error}",
+                    yieldDetail.PortfolioId, portfolioResult.Error);
+                errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, portfolioResult.Error.Description));
+                continue;
+            }
+
+            var accountingAssistant = AccountingAssistant.Create(
+                yieldDetail.PortfolioId,
+                portfolioResult.Value.NitApprovedPortfolio,
+                portfolioResult.Value.VerificationDigit,
+                portfolioResult.Value.Name,
+                processDate.ToString("yyyyMM"),
+                processDate,
+                $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
+                yieldDetail.Income,
+                EnumHelper.GetEnumMemberValue(operationType.Nature)
+
+            );
+
+            if (accountingAssistant.IsFailure)
+            {
+                logger.LogError("Error al crear el AccountingAssistant para el portafolio {PortfolioId}: {Error}",
+                    yieldDetail.PortfolioId, accountingAssistant.Error);
+                errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, accountingAssistant.Error.Description));
+                continue;
+            }
+
+            accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit(passiveTransaction.ContraDebitAccount, passiveTransaction.ContraCreditAccount));
+        }
+        return new ProcessingResult<AccountingAssistant, AccountingInconsistency>(accountingAssistants, errors);
     }
-
 }
