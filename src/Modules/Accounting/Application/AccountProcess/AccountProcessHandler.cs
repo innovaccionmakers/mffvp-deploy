@@ -20,7 +20,8 @@ internal sealed class AccountProcessHandler(
     IAccountingNotificationService accountingNotificationService,
     IUserLocator userLocator,
     IUserService userService,
-    IEventBus eventBus) : ICommandHandler<AccountProcessCommand, AccountProcessResult>
+    IEventBus eventBus,
+    IPortfolioLocator portfolioLocator) : ICommandHandler<AccountProcessCommand, AccountProcessResult>
 {
     private const string ProcessIdPrefix = "CONTAFVP";
 
@@ -32,6 +33,15 @@ internal sealed class AccountProcessHandler(
         if (isActive)
             return Result.Failure<AccountProcessResult>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
 
+        var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+
+        var areAllPortfoliosClosed = await portfolioLocator.AreAllPortfoliosClosedAsync(command.PortfolioIds, processDate, cancellationToken);
+        if (areAllPortfoliosClosed.IsFailure)
+            return Result.Failure<AccountProcessResult>(areAllPortfoliosClosed.Error);
+
+        if (!areAllPortfoliosClosed.Value)
+            return Result.Failure<AccountProcessResult>(new Error("0002", "No todos los portafolios están cerrados para la fecha especificada.", ErrorType.Validation));
+
         var deleteCommand = new DeleteAccountingAssistantsCommand();
         var deleteResult = await sender.Send(deleteCommand, cancellationToken);
         if (deleteResult.IsFailure)
@@ -41,7 +51,6 @@ internal sealed class AccountProcessHandler(
         var email = (await userLocator.GetEmailUserAsync(username, cancellationToken))?.Value;
 
         var processId = $"{ProcessIdPrefix}{DateTime.UtcNow:yyyyMMddHHmmss}";
-        var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         await accountingNotificationService.SendProcessInitiatedAsync(
             username,
