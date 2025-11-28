@@ -38,8 +38,7 @@ namespace Accounting.test.UnitTests.AutomaticConcepts
         [Fact]
         public async Task AutomaticConceptsValidator_WhenYieldsHaveNoCreditDifference_ReturnsEmptyResults()
         {
-            // Arrange
-            var command = new AutomaticConceptsCommand(new List<int> { 1 }, DateTime.UtcNow);
+            // Arrange            
             var yieldResult = new GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerResponse(
                 true, // IsValid
                 "200", // Code
@@ -52,18 +51,14 @@ namespace Accounting.test.UnitTests.AutomaticConcepts
                     new List<YieldDetailsAutConceptsResponse>()
                 )
             );
-            var operationsType = new GetOperationTypeByNameResponse(
-                true, // Succeeded
-                "200", // Code
-                "Success", // Message
-                new List<OperationTypeResponse>() // Empty operation types
-            );
+
+
             var automaticConcept = "TestConcept";
             var cancellationToken = CancellationToken.None;
 
             // Act
             var result = await _validator.AutomaticConceptsValidator(
-                command, yieldResult, operationsType, automaticConcept, cancellationToken);
+                DateTime.UtcNow, yieldResult, new List<OperationTypeResponse>(), automaticConcept, cancellationToken);
 
             // Assert
             Assert.NotNull(result);
