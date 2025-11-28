@@ -120,6 +120,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountingNotificationService, AccountingNotificationService>();
         services.AddScoped<IAccountingAccountRepository, AccountingAccountRepository>();
         services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
+        services.AddScoped<IPassiveTransactionQueries, PassiveTransactionQueries>();
+        services.AddScoped<IPassiveTransactionMutations, PassiveTransactionMutations>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

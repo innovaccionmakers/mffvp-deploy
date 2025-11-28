@@ -90,7 +90,7 @@ public class ValidateTrustYieldsDistributionService(
         await yieldRepository.UpdateCreditedYieldsAsync(portfolioId, closingDate, distributedTotal, now, cancellationToken);
 
         //Diferencia > 0 → faltó distribuir(sobra en portafolio) → Ingreso automático para el día siguiente.
-        //Diferencia < 0 → se distribuyó de más(faltante en portafolio) → Gasto automático para el día siguiente.
+        //Diferencia < 0 → se distribuyó de más(faltante en portafolio) → Gasto automático para el día siguiente  - se almacena en columna Ingresos.
 
         if (difference != 0m)
         {

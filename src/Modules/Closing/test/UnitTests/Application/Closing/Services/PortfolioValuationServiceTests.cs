@@ -7,6 +7,7 @@ using Closing.Application.Closing.Services.TimeControl.Interrfaces;
 using Closing.Domain.ClientOperations;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.PortfolioValuations;
+using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -29,7 +30,7 @@ public class PortfolioValuationServiceTests
     private readonly Mock<IOperationTypesService> operationTypesServiceMock = new();
     private readonly Mock<IConfigurationParameterRepository> configurationParameterRepositoryMock = new();
     private readonly Mock<ITimeControlService> timeControlServiceMock = new();
-    private readonly Mock<IOperationTypesLocator> operationTypesLocatorMock = new();
+    private readonly Mock<IYieldDetailRepository> yieldDetailRepositoryMock = new();
     private readonly Mock<ILogger<PortfolioValuationService>> loggerMock = new();
 
     private PortfolioValuationService CreateService()
@@ -41,7 +42,7 @@ public class PortfolioValuationServiceTests
             configurationParameterRepositoryMock.Object,
             timeControlServiceMock.Object,
             loggerMock.Object,
-            operationTypesLocatorMock.Object);
+            yieldDetailRepositoryMock.Object);
 
     public PortfolioValuationServiceTests()
     {
@@ -61,6 +62,7 @@ public class PortfolioValuationServiceTests
         var portfolioId = 10;
         var closingDateUtc = new DateTime(2024, 1, 2);
         var cancellationToken = CancellationToken.None;
+        var hasDebitNotes = false;
 
         portfolioValuationRepositoryMock
             .Setup(r => r.ExistsByPortfolioAndDateAsync(
@@ -75,6 +77,7 @@ public class PortfolioValuationServiceTests
         var result = await service.CalculateAndPersistValuationAsync(
             portfolioId,
             closingDateUtc,
+            hasDebitNotes,
             cancellationToken);
 
         // Assert
@@ -94,6 +97,7 @@ public class PortfolioValuationServiceTests
         var portfolioId = 20;
         var closingDateUtc = new DateTime(2024, 3, 5);
         var cancellationToken = CancellationToken.None;
+        var hasDebitNotes = false;
 
         portfolioValuationRepositoryMock
             .Setup(r => r.ExistsByPortfolioAndDateAsync(
@@ -121,6 +125,7 @@ public class PortfolioValuationServiceTests
         var result = await service.CalculateAndPersistValuationAsync(
             portfolioId,
             closingDateUtc,
+            hasDebitNotes,
             cancellationToken);
 
         // Assert
@@ -139,6 +144,7 @@ public class PortfolioValuationServiceTests
         var portfolioId = 30;
         var closingDateUtc = new DateTime(2024, 5, 10);
         var cancellationToken = CancellationToken.None;
+        var hasDebitNotes = false;
 
         portfolioValuationRepositoryMock
             .Setup(r => r.ExistsByPortfolioAndDateAsync(
@@ -179,6 +185,7 @@ public class PortfolioValuationServiceTests
         var result = await service.CalculateAndPersistValuationAsync(
             portfolioId,
             closingDateUtc,
+            hasDebitNotes,
             cancellationToken);
 
         // Assert
@@ -199,6 +206,7 @@ public class PortfolioValuationServiceTests
         var portfolioId = 40;
         var closingDateUtc = new DateTime(2024, 7, 15);
         var cancellationToken = CancellationToken.None;
+        var hasDebitNotes = false;
 
         portfolioValuationRepositoryMock
             .Setup(r => r.ExistsByPortfolioAndDateAsync(
@@ -265,6 +273,7 @@ public class PortfolioValuationServiceTests
         var result = await service.CalculateAndPersistValuationAsync(
             portfolioId,
             closingDateUtc,
+            hasDebitNotes,
             cancellationToken);
 
         // Assert
@@ -289,4 +298,202 @@ public class PortfolioValuationServiceTests
 
 
     }
+
+    [Fact]
+    public async Task CalculateAndPersistValuationAsyncWithDebitNotesAddsExtraReturnToOutgoingOperations()
+    {
+        // Arrange
+        var portfolioId = 50;
+        var closingDateUtc = new DateTime(2024, 8, 20);
+        var cancellationToken = CancellationToken.None;
+        var hasDebitNotes = true;
+        var extraReturnIncome = 50m;
+
+        portfolioValuationRepositoryMock
+            .Setup(r => r.ExistsByPortfolioAndDateAsync(
+                portfolioId,
+                closingDateUtc.Date,
+                cancellationToken))
+            .ReturnsAsync(false);
+
+        var previousClosingDate = closingDateUtc.AddDays(-1);
+
+        var previousValuationResult = Domain.PortfolioValuations.PortfolioValuation.Create(
+            portfolioId,
+            previousClosingDate,
+            amount: 1_000m,
+            initialValue: 1_000m,
+            units: 100m,
+            unitValue: 10m,
+            grossYieldPerUnit: 0m,
+            costPerUnit: 0m,
+            dailyProfitability: 0m,
+            incomingOperations: 0m,
+            outgoingOperations: 0m,
+            processDate: DateTime.UtcNow.AddDays(-1),
+            isClosed: true);
+
+        previousValuationResult.IsSuccess.Should().BeTrue();
+        var previousValuation = previousValuationResult.Value;
+
+        portfolioValuationRepositoryMock
+            .Setup(r => r.GetReadOnlyByPortfolioAndDateAsync(
+                portfolioId,
+                previousClosingDate,
+                cancellationToken))
+            .ReturnsAsync(previousValuation);
+
+        // Sin rendimientos del día
+        yieldRepositoryMock
+            .Setup(r => r.GetReadOnlyByPortfolioAndDateAsync(
+                portfolioId,
+                closingDateUtc,
+                cancellationToken))
+            .ReturnsAsync((Yield?)null);
+
+        // Tipos de operación
+        operationTypesServiceMock
+            .Setup(s => s.GetAllAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<IReadOnlyCollection<OperationTypeInfo>>(
+                Array.Empty<OperationTypeInfo>()));
+
+        // No hay operaciones de entrada ni salida "normales"
+        clientOperationRepositoryMock
+            .Setup(r => r.SumByPortfolioAndSubtypesAsync(
+                portfolioId,
+                closingDateUtc,
+                It.IsAny<IEnumerable<long>>(),
+                It.IsAny<IEnumerable<LifecycleStatus>>(),
+                cancellationToken))
+            .ReturnsAsync(0m);
+
+        // ExtraReturn devuelto por el repositorio de detalles
+        yieldDetailRepositoryMock
+            .Setup(r => r.GetExtraReturnIncomeSumAsync(
+                portfolioId,
+                closingDateUtc,
+                cancellationToken))
+            .ReturnsAsync(extraReturnIncome);
+
+        Domain.PortfolioValuations.PortfolioValuation? capturedValuation = null;
+
+        portfolioValuationRepositoryMock
+            .Setup(r => r.AddAsync(
+                It.IsAny<Domain.PortfolioValuations.PortfolioValuation>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Domain.PortfolioValuations.PortfolioValuation, CancellationToken>((pv, _) =>
+            {
+                capturedValuation = pv;
+            })
+            .Returns(Task.CompletedTask);
+
+        var service = CreateService();
+
+        // Act
+        var result = await service.CalculateAndPersistValuationAsync(
+            portfolioId,
+            closingDateUtc,
+            hasDebitNotes,
+            cancellationToken);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+
+        // Se debe haber llamado al repo de detalles para sumar el ExtraReturn
+        yieldDetailRepositoryMock.Verify(r =>
+                r.GetExtraReturnIncomeSumAsync(
+                    portfolioId,
+                    closingDateUtc,
+                    cancellationToken),
+            Times.Once);
+
+        capturedValuation.Should().NotBeNull();
+        capturedValuation!.OutgoingOperations.Should().Be(extraReturnIncome);
+        capturedValuation.IncomingOperations.Should().Be(0m);
+    }
+
+    [Fact]
+    public async Task CalculateAndPersistValuationAsyncWithoutDebitNotesDoesNotCallExtraReturnRepository()
+    {
+        // Arrange
+        var portfolioId = 60;
+        var closingDateUtc = new DateTime(2024, 9, 1);
+        var cancellationToken = CancellationToken.None;
+        var hasDebitNotes = false;
+
+        portfolioValuationRepositoryMock
+            .Setup(r => r.ExistsByPortfolioAndDateAsync(
+                portfolioId,
+                closingDateUtc.Date,
+                cancellationToken))
+            .ReturnsAsync(false);
+
+        var previousClosingDate = closingDateUtc.AddDays(-1);
+
+        var previousValuationResult = Domain.PortfolioValuations.PortfolioValuation.Create(
+            portfolioId,
+            previousClosingDate,
+            amount: 500m,
+            initialValue: 500m,
+            units: 50m,
+            unitValue: 10m,
+            grossYieldPerUnit: 0m,
+            costPerUnit: 0m,
+            dailyProfitability: 0m,
+            incomingOperations: 0m,
+            outgoingOperations: 0m,
+            processDate: DateTime.UtcNow.AddDays(-1),
+            isClosed: true);
+
+        previousValuationResult.IsSuccess.Should().BeTrue();
+        var previousValuation = previousValuationResult.Value;
+
+        portfolioValuationRepositoryMock
+            .Setup(r => r.GetReadOnlyByPortfolioAndDateAsync(
+                portfolioId,
+                previousClosingDate,
+                cancellationToken))
+            .ReturnsAsync(previousValuation);
+
+        yieldRepositoryMock
+            .Setup(r => r.GetReadOnlyByPortfolioAndDateAsync(
+                portfolioId,
+                closingDateUtc,
+                cancellationToken))
+            .ReturnsAsync((Yield?)null);
+
+        operationTypesServiceMock
+            .Setup(s => s.GetAllAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<IReadOnlyCollection<OperationTypeInfo>>(
+                Array.Empty<OperationTypeInfo>()));
+
+        clientOperationRepositoryMock
+            .Setup(r => r.SumByPortfolioAndSubtypesAsync(
+                portfolioId,
+                closingDateUtc,
+                It.IsAny<IEnumerable<long>>(),
+                It.IsAny<IEnumerable<LifecycleStatus>>(),
+                cancellationToken))
+            .ReturnsAsync(0m);
+
+        var service = CreateService();
+
+        // Act
+        var result = await service.CalculateAndPersistValuationAsync(
+            portfolioId,
+            closingDateUtc,
+            hasDebitNotes,
+            cancellationToken);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+
+        yieldDetailRepositoryMock.Verify(r =>
+                r.GetExtraReturnIncomeSumAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
 }

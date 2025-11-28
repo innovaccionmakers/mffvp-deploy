@@ -1,7 +1,6 @@
 ﻿using Accounting.Domain.PassiveTransactions;
 using Accounting.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace Accounting.Infrastructure.PassiveTransactions;
 
@@ -46,6 +45,14 @@ public class PassiveTransactionRepository(AccountingDbContext context) : IPassiv
             .Where(pt => portfolioIdsSet.Contains(pt.PortfolioId) && pt.TypeOperationsId == operationTypeId)
             .ToListAsync(cancellationToken);
     }
+
+    public void Insert(PassiveTransaction passiveTransaction) => context.PassiveTransactions.Add(passiveTransaction);
+
+    public void Update(PassiveTransaction passiveTransaction) => context.PassiveTransactions.Update(passiveTransaction);
+
+    public void Delete(PassiveTransaction passiveTransaction) => context.PassiveTransactions.Remove(passiveTransaction);
+
+
 
     public async Task<IEnumerable<PassiveTransaction>> GetByPortfolioIdsAndOperationTypesAsync(IEnumerable<int> portfolioIds, IEnumerable<long> operationTypeIds, CancellationToken cancellationToken = default)
     {

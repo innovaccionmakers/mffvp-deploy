@@ -461,4 +461,13 @@ public class Query
     {
         return await operationsQueries.GetAccTransactionTypesAsync(cancellationToken);
     }
+
+    [GraphQLName("transaccionPasiva")]
+    public async Task<GraphqlResult<PassiveTransactionsDto>> GetAccTransactionTypes([GraphQLName("idPortafolio")] int PortfolioId,
+                                                                    [GraphQLName("tipoOperacionId")] long TypeOperationsId,
+                                                                    [Service] IPassiveTransactionQueries passiveTransactionQueries,
+                                                                    CancellationToken cancellationToken)
+    {
+        return await passiveTransactionQueries.GetPassiveTransactionsAsync(PortfolioId, TypeOperationsId, cancellationToken);
+    }
 }

@@ -208,11 +208,38 @@ public class Mutation
 
     [GraphQLName("procesoCuenta")]
     [Authorize(Policy = MakersPermissionsAccounting.PolicyGenerateGeneration)]
-    public async Task<GraphqlResult<AccountProcessResult>> AccountProcess([GraphQLName("cuenta")] AccountingInput input,
+    public async Task<GraphqlResult<AccountProcessResult>> AccountProcessAsync([GraphQLName("cuenta")] AccountingInput input,
                                                        IValidator<AccountingInput> validator,
                                                        [Service] IAccountingExperienceMutations accountProcessMutations,
                                                        CancellationToken cancellationToken)
     {
         return await accountProcessMutations.AccountProcessAsync(input, validator, cancellationToken);
-    }   
+    }
+
+    [GraphQLName("crearTransaccionPasiva")]
+    public async Task<GraphqlResult> CreatePassiveTransactionAsync([GraphQLName("transaccionPasiva")] CreatePassiveTransactionInput input,
+                                                   IValidator<CreatePassiveTransactionInput> validator,
+                                                   [Service] IPassiveTransactionMutations passiveTransactionMutations,
+                                                   CancellationToken cancellationToken)
+    {
+        return await passiveTransactionMutations.CreatePassiveTransactionAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("actualizarTransaccionPasiva")]
+    public async Task<GraphqlResult> UpdatePassiveTransactionAsync([GraphQLName("transaccionPasiva")] UpdatePassiveTransactionInput input,
+                                                   IValidator<UpdatePassiveTransactionInput> validator,
+                                                   [Service] IPassiveTransactionMutations passiveTransactionMutations,
+                                                   CancellationToken cancellationToken)
+    {
+        return await passiveTransactionMutations.UpdatePassiveTransactionAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("eliminarTransaccionPasiva")]
+    public async Task<GraphqlResult> DeletePassiveTransactionAsync([GraphQLName("transaccionPasiva")] DeletePassiveTransactionInput input,
+                                                   IValidator<DeletePassiveTransactionInput> validator,
+                                                   [Service] IPassiveTransactionMutations passiveTransactionMutations,
+                                                   CancellationToken cancellationToken)
+    {
+        return await passiveTransactionMutations.DeletePassiveTransactionAsync(input, validator, cancellationToken);
+    }
 }
