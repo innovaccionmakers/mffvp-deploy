@@ -1,4 +1,6 @@
-﻿namespace Accounting.Domain.Constants;
+﻿using Accounting.Domain.Concepts;
+
+namespace Accounting.Domain.Constants;
 
 
 public static class AccountingTypes
@@ -16,11 +18,14 @@ public static class OperationTypeNames
     public const string Concepts = "Conceptos de Tesoreria";
     public const string AutomaticConcepts = "Conceptos Automáticos";
     public const string AdjustYields = "Ajuste Rendimientos";
+    public const string AutomaticConcept = "Concepto Automático";
+    public const string AutomaticConceptAccountingNote = "Concepto Automatico Nota Contable";
 }
 
 public static class SourceTypes
 {
     public const string ExtraYield = "Rendimiento Extra";
+    public const string AutomaticConcept = "Concepto Automático";
 }
 
 public static class ProcessTypes
@@ -85,4 +90,10 @@ public static class AccountingReportConstants
     public const string ZeroValue = "000000000000000.00";
     public const char BlankSpace = ' ';
     public const int MaxConsecutiveNumber = 9999999;
+}
+
+public static class ConceptsTypeNames
+{
+    public const string AutomaticAccountingNote = "Concepto Automatico Nota Contable";
+    public const string AdjustYieldsIncome = "Ajuste Rendimiento NC Ingreso";
 }

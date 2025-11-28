@@ -86,4 +86,18 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
             .Where(p => portfolioIds.Contains(p.PortfolioId))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<bool> AreAllPortfoliosClosedAsync(IEnumerable<int> portfolioIds, DateTime date, CancellationToken cancellationToken = default)
+    {
+        var portfolios = await context.Portfolios
+            .AsNoTracking()
+            .Where(p => portfolioIds.Contains(p.PortfolioId))
+            .Select(p => new { p.PortfolioId, p.CurrentDate })
+            .ToListAsync(cancellationToken);
+
+        if (portfolios.Count != portfolioIds.Count())
+            return false;
+
+        return portfolios.All(p => p.CurrentDate > date);
+    }
 }

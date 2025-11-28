@@ -10,4 +10,5 @@ public interface IPortfolioRepository
     Task<PortfolioInformation?> GetPortfolioInformationByObjectiveIdAsync(string objectiveId, CancellationToken cancellationToken);
     Task UpdateAsync(Portfolio portfolio, CancellationToken ct);
     Task<IReadOnlyCollection<Portfolio>> GetPortfoliosByIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default);
+    Task<bool> AreAllPortfoliosClosedAsync(IEnumerable<int> portfolioIds, DateTime date, CancellationToken cancellationToken = default);
 }

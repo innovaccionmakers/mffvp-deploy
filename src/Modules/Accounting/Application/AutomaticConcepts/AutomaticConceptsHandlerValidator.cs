@@ -3,27 +3,26 @@ using Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
-using Accounting.Integrations.AutomaticConcepts;
 using Closing.IntegrationEvents.Yields;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Operations.IntegrationEvents.OperationTypes;
+using Operations.Integrations.OperationTypes;
 
 namespace Accounting.Application.AutomaticConcepts
 {
     public record class AutomaticConceptsHandlerValidator(
-        IPortfolioLocator portfolioLocator,
-        IOperationLocator operationLocator,
-        IPassiveTransactionRepository passiveTransactionRepository,
-        ILogger<AutomaticConceptsHandlerValidator> logger)
+        IPortfolioLocator PortfolioLocator,
+        IOperationLocator OperationLocator,
+        IPassiveTransactionRepository PassiveTransactionRepository,
+        ILogger<AutomaticConceptsHandlerValidator> Logger)
     {
         public async Task<ProcessingResult<AccountingAssistant, AccountingInconsistency>> AutomaticConceptsValidator(
-            AutomaticConceptsCommand command,
+            DateTime processDate,
             GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerResponse yieldResult,
-            GetOperationTypeByNameResponse operationsType,
+            IReadOnlyCollection<OperationTypeResponse> operationsType,
             string automaticConcept,
             CancellationToken cancellationToken)
         {
@@ -36,11 +35,11 @@ namespace Accounting.Application.AutomaticConcepts
                     continue;
 
                 var value = yield.YieldToCredit - yield.CreditedYields;
-                var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
+                var portfolioResult = await PortfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
                 IncomeEgressNature naturalezaFiltro = value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
-                var operationType = operationsType.OperationType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
+                var operationType = operationsType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
                 var natureValue = EnumHelper.GetEnumMemberValue(operationType!.Nature);
-                var passiveTransaction = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationType.OperationTypeId, cancellationToken);
+                var passiveTransaction = await PassiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationType.OperationTypeId, cancellationToken);
 
                 var accountingAccounts = new AccountingAccounts(
                     yield.PortfolioId,
@@ -60,8 +59,8 @@ namespace Accounting.Application.AutomaticConcepts
                     portfolioResult.Value.NitApprovedPortfolio,
                     portfolioResult.Value.VerificationDigit,
                     portfolioResult.Value.Name,
-                    command.ProcessDate.ToString("yyyyMM"),
-                    command.ProcessDate,
+                    processDate.ToString("yyyyMM"),
+                    processDate,
                     operationType.Name,
                     Math.Abs(value),
                     natureValue
@@ -70,7 +69,7 @@ namespace Accounting.Application.AutomaticConcepts
                 if (accountingAssistant.IsFailure)
                 {
 
-                    logger.LogError($"Error procesando los conceptos automáticos para portfolio {yield.PortfolioId}", yield.PortfolioId);
+                    Logger.LogError($"Error procesando los conceptos automáticos para portfolio {yield.PortfolioId}", yield.PortfolioId);
                     errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.AutomaticConcepts, accountingAssistant.Error.Description));
                     continue;
                 }
@@ -84,11 +83,11 @@ namespace Accounting.Application.AutomaticConcepts
                     continue;
 
                 var value = yield.Income;
-                var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
+                var portfolioResult = await PortfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
                 IncomeEgressNature naturalezaFiltro = value > 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
-                var operationType = operationsType.OperationType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
+                var operationType = operationsType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
                 var natureValue = EnumHelper.GetEnumMemberValue(value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress);
-                var passiveTransaction = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationType.OperationTypeId, cancellationToken);
+                var passiveTransaction = await PassiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(yield.PortfolioId, operationType.OperationTypeId, cancellationToken);
 
                 var accountingAccounts = new AccountingAccounts(
                     yield.PortfolioId,
@@ -108,8 +107,8 @@ namespace Accounting.Application.AutomaticConcepts
                     portfolioResult.Value.NitApprovedPortfolio,
                     portfolioResult.Value.VerificationDigit,
                     portfolioResult.Value.Name,
-                    command.ProcessDate.ToString("yyyyMM"),
-                    command.ProcessDate,
+                    processDate.ToString("yyyyMM"),
+                    processDate,
                     operationType.Name,
                     Math.Abs(value),
                     natureValue
@@ -118,7 +117,7 @@ namespace Accounting.Application.AutomaticConcepts
                 if (accountingAssistant.IsFailure)
                 {
 
-                    logger.LogError($"Error procesando los conceptos automáticos para portfolio {yield.PortfolioId}", yield.PortfolioId);
+                    Logger.LogError($"Error procesando los conceptos automáticos para portfolio {yield.PortfolioId}", yield.PortfolioId);
                     errors.Add(AccountingInconsistency.Create(yield.PortfolioId, OperationTypeNames.AutomaticConcepts, accountingAssistant.Error.Description));
                     continue;
                 }
@@ -137,7 +136,7 @@ namespace Accounting.Application.AutomaticConcepts
 
             if (accountingAccounts.passiveTransaction == null)
             {
-                logger.LogWarning("No se encontraron conceptos automáticos para el portafolio {PortfolioId} y el tipo operación {OperationType}", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
+                Logger.LogWarning("No se encontraron conceptos automáticos para el portafolio {PortfolioId} y el tipo operación {OperationType}", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
                 validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, message, accountingAccounts.Credit));
                 validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, message, accountingAccounts.Debit));
                 return false;
@@ -145,14 +144,14 @@ namespace Accounting.Application.AutomaticConcepts
 
             if (accountingAccounts.passiveTransactionCredit.IsNullOrEmpty())
             {
-                logger.LogWarning("El concepto automático para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de crédito", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
+                Logger.LogWarning("El concepto automático para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de crédito", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
                 validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, message, accountingAccounts.Credit));
                 return false;
             }
 
             if (accountingAccounts.passiveTransactionDebit.IsNullOrEmpty())
             {
-                logger.LogWarning("El concepto automático para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de débito", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
+                Logger.LogWarning("El concepto automático para el portafolio {PortfolioId} y el tipo operación {OperationType} no tiene cuenta de débito", accountingAccounts.portfolioId, accountingAccounts.operationTypeId);
                 validationErrors.Add(AccountingInconsistency.Create(accountingAccounts.portfolioId, OperationTypeNames.AutomaticConcepts, message, accountingAccounts.Debit));
                 return false;
             }

@@ -19,6 +19,7 @@ namespace Accounting.test.UnitTests.AccountProcess
         private readonly Mock<IUserLocator> _userLocatorMock;
         private readonly Mock<IUserService> _userServiceMock;
         private readonly Mock<IEventBus> _eventBusMock;
+        private readonly Mock<IPortfolioLocator> _portfolioLocatorMock;
         private readonly object _handler;
         private readonly MethodInfo _handleMethod;
 
@@ -30,6 +31,7 @@ namespace Accounting.test.UnitTests.AccountProcess
             _userLocatorMock = new Mock<IUserLocator>();
             _userServiceMock = new Mock<IUserService>();
             _eventBusMock = new Mock<IEventBus>();
+            _portfolioLocatorMock = new Mock<IPortfolioLocator>();
 
             // Crear instancia usando reflection
             var handlerType = Assembly.Load("Accounting.Application")
@@ -41,7 +43,8 @@ namespace Accounting.test.UnitTests.AccountProcess
                 _accountingNotificationServiceMock.Object,
                 _userLocatorMock.Object,
                 _userServiceMock.Object,
-                _eventBusMock.Object);
+                _eventBusMock.Object,
+                _portfolioLocatorMock.Object);
 
             _handleMethod = handlerType.GetMethod("Handle");
         }
@@ -58,6 +61,10 @@ namespace Accounting.test.UnitTests.AccountProcess
             _closingValidatorMock
                 .Setup(x => x.IsClosingActiveAsync(cancellationToken))
                 .ReturnsAsync(true);
+
+            _portfolioLocatorMock
+                .Setup(x => x.AreAllPortfoliosClosedAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<DateTime>(), cancellationToken))
+                .ReturnsAsync(Result.Success(true));
 
             // Act
             var result = await (Task<Result<AccountProcessResult>>)_handleMethod

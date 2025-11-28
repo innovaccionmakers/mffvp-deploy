@@ -5,6 +5,7 @@ namespace Closing.Integrations.YieldDetails.Queries;
 public sealed record GetYieldDetailsByPortfolioIdsAndClosingDateQuery(
     IEnumerable<int> PortfolioIds,
     DateTime ClosingDate,
-    string Soruce
+    string Source,
+    string? Concept
 ) : IQuery<IReadOnlyCollection<YieldDetailResponse>>;
 
