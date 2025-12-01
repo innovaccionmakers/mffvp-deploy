@@ -1,6 +1,7 @@
-﻿using Accounting.Domain.Treasuries;
-using Moq;
+using Accounting.Domain.Treasuries;
 using FluentAssertions;
+using Moq;
+using TreasuryEntity = Accounting.Domain.Treasuries.Treasury;
 
 namespace Accounting.test.IntegrationTests.Treasuries
 {
@@ -19,7 +20,7 @@ namespace Accounting.test.IntegrationTests.Treasuries
             // Arrange
             var emptyPortfolioIds = Enumerable.Empty<int>();
             var emptyAccountNumbers = Enumerable.Empty<string>();
-            var expectedEmptyCollection = Enumerable.Empty<Treasury>();
+            var expectedEmptyCollection = Enumerable.Empty<TreasuryEntity>();
 
             _repository.Setup(x => x.GetAccountingConceptsTreasuriesAsync(
                 It.Is<IEnumerable<int>>(ids => !ids.Any()),
@@ -43,7 +44,7 @@ namespace Accounting.test.IntegrationTests.Treasuries
             // Arrange
             IEnumerable<int> nullPortfolioIds = null;
             IEnumerable<string> nullAccountNumbers = null;
-            var expectedEmptyCollection = Enumerable.Empty<Treasury>();
+            var expectedEmptyCollection = Enumerable.Empty<TreasuryEntity>();
 
             _repository.Setup(x => x.GetAccountingConceptsTreasuriesAsync(
                 It.Is<IEnumerable<int>>(ids => ids == null || !ids.Any()),
@@ -67,7 +68,7 @@ namespace Accounting.test.IntegrationTests.Treasuries
             // Arrange
             var portfolioIds = new List<int> { 99, 100 };
             var accountNumber = new List<string> { "2806052369", "6846052685" } ;
-            var expectedEmptyCollection = Enumerable.Empty<Treasury>();
+            var expectedEmptyCollection = Enumerable.Empty<TreasuryEntity>();
 
             _repository.Setup(x => x.GetAccountingConceptsTreasuriesAsync(
                 It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(portfolioIds)),
@@ -91,7 +92,7 @@ namespace Accounting.test.IntegrationTests.Treasuries
             // Arrange
             var emptyPortfolioIds = Enumerable.Empty<int>();
             var collectionAccounts = new List<string> { "ACC001", "ACC002" };
-            var expectedEmptyCollection = Enumerable.Empty<Treasury>();
+            var expectedEmptyCollection = Enumerable.Empty<TreasuryEntity>();
 
             _repository.Setup(x => x.GetAccountingOperationsTreasuriesAsync(
                 It.Is<IEnumerable<int>>(ids => !ids.Any()),
@@ -116,7 +117,7 @@ namespace Accounting.test.IntegrationTests.Treasuries
             // Arrange
             IEnumerable<int> nullPortfolioIds = null;
             var collectionAccounts = new List<string> { "ACC001", "ACC002" };
-            var expectedEmptyCollection = Enumerable.Empty<Treasury>();
+            var expectedEmptyCollection = Enumerable.Empty<TreasuryEntity>();
 
             _repository.Setup(x => x.GetAccountingOperationsTreasuriesAsync(
                 It.Is<IEnumerable<int>>(ids => ids == null || !ids.Any()),
@@ -141,7 +142,7 @@ namespace Accounting.test.IntegrationTests.Treasuries
             // Arrange
             var portfolioIds = new List<int> { 99, 100 };
             var collectionAccounts = new List<string> { "NONEXISTENT" };
-            var expectedEmptyCollection = Enumerable.Empty<Treasury>();
+            var expectedEmptyCollection = Enumerable.Empty<TreasuryEntity>();
 
             _repository.Setup(x => x.GetAccountingOperationsTreasuriesAsync(
                 It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(portfolioIds)),

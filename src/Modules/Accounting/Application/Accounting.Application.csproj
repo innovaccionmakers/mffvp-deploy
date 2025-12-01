@@ -26,6 +26,7 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="Accounting.test.UnitTests" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+        <InternalsVisibleTo Include="Accounting.test.ConsecutivesSetup.IntegrationTests" />
 	</ItemGroup>
 
 </Project>

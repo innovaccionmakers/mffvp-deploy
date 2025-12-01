@@ -7,6 +7,13 @@ namespace Accounting.Infrastructure.Consecutives;
 
 public class ConsecutiveRepository(AccountingDbContext dbContext) : IConsecutiveRepository
 {
+    public async Task<Consecutive?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Consecutives.FirstOrDefaultAsync(
+            consecutive => consecutive.ConsecutiveId == id,
+            cancellationToken);
+    }
+
     public async Task<IReadOnlyCollection<Consecutive>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await dbContext.Consecutives.ToListAsync(cancellationToken);
@@ -40,6 +47,17 @@ public class ConsecutiveRepository(AccountingDbContext dbContext) : IConsecutive
             .Where(c => c.Nature == NatureTypes.Egress)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(c => c.Number, newConsecutiveNumber),
+            cancellationToken);
+    }
+
+    public async Task<bool> IsSourceDocumentInUseAsync(
+        string sourceDocument,
+        long excludedConsecutiveId,
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Consecutives.AnyAsync(
+            consecutive => consecutive.SourceDocument == sourceDocument
+                            && consecutive.ConsecutiveId != excludedConsecutiveId,
             cancellationToken);
     }
 }
