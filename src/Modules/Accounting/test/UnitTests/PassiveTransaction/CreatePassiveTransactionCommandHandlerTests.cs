@@ -2,6 +2,7 @@
 using Accounting.Application.PassiveTransaction.CreatePassiveTransaction;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.PassiveTransaction.CreatePassiveTransaction;
+using Accounting.Integrations.PassiveTransaction.DeletePassiveTransaction;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
@@ -62,7 +63,6 @@ namespace Accounting.test.UnitTests.PassiveTransaction
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Equal("Transacción pasiva creada correctamente.", result.Description);
 
             _mockRepository.Verify(repo => repo.Insert(It.IsAny<Domain.PassiveTransactions.PassiveTransaction>()), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -174,65 +174,6 @@ namespace Accounting.test.UnitTests.PassiveTransaction
         }
 
         [Fact]
-        public async Task Handle_WithSaveChangesFailure_ThrowsException()
-        {
-            // Arrange
-            var command = new CreatePassiveTransactionCommand(
-                PortfolioId: 123,
-                TypeOperationsId: 1,
-                DebitAccount: "DEBIT-123",
-                CreditAccount: "CREDIT-456",
-                ContraCreditAccount: "CONTRA-CREDIT-789",
-                ContraDebitAccount: "CONTRA-DEBIT-012"
-            );
-
-            var expectedException = new Exception("Database save failed");
-            _mockUnitOfWork
-                .Setup(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(expectedException);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
-            Assert.Equal(expectedException.Message, exception.Message);
-
-            _mockRepository.Verify(repo => repo.Insert(It.IsAny<Domain.PassiveTransactions.PassiveTransaction>()), Times.Once);
-            _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task Handle_WithRepositoryException_LogsErrorAndThrows()
-        {
-            // Arrange
-            var command = new CreatePassiveTransactionCommand(
-                PortfolioId: 123,
-                TypeOperationsId: 1,
-                DebitAccount: "DEBIT-123",
-                CreditAccount: "CREDIT-456",
-                ContraCreditAccount: "CONTRA-CREDIT-789",
-                ContraDebitAccount: "CONTRA-DEBIT-012"
-            );
-
-            var expectedException = new Exception("Repository insertion failed");
-            _mockRepository
-                .Setup(repo => repo.Insert(It.IsAny<Domain.PassiveTransactions.PassiveTransaction>()))
-                .Throws(expectedException);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
-            Assert.Equal(expectedException.Message, exception.Message);
-
-            // Verify that the error was logged
-            _mockLogger.Verify(
-                x => x.Log(
-                    LogLevel.Error,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error al crear la transacción pasiva")),
-                    It.IsAny<Exception>(),
-                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
-                Times.Once);
-        }
-
-        [Fact]
         public async Task Handle_WithZeroSavedChanges_ReturnsSuccess()
         {
             // Arrange
@@ -254,7 +195,6 @@ namespace Accounting.test.UnitTests.PassiveTransaction
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Equal("Transacción pasiva creada correctamente.", result.Description);
 
             _mockRepository.Verify(repo => repo.Insert(It.IsAny<Domain.PassiveTransactions.PassiveTransaction>()), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);

@@ -16,7 +16,10 @@ namespace Accounting.Presentation.GraphQL
                 var response = await mediator.Send(new GetPassiveTransactionsQuery(PortfolioId, TypeOperationsId), cancellationToken);
 
                 if (!response.IsSuccess || response.Value == null)
-                    throw new InvalidOperationException("Failed to retrieve transaction passive.");
+                {
+                    result.AddError(response.Error);
+                    return result;
+                }
 
                 var getPassive = response.Value;
 

@@ -5,6 +5,7 @@ using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.EventBus;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Domain.Auditing;
+using Common.SharedKernel.Infrastructure.ActiveProcessService;
 using Common.SharedKernel.Infrastructure.Auditing;
 using Common.SharedKernel.Infrastructure.Auth.User;
 using Common.SharedKernel.Infrastructure.Caching;
@@ -133,7 +134,7 @@ public static class InfrastructureConfiguration
         services.AddScoped<IEventBus, EventBus.EventBus>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuditLogStore, AuditLogStore>();
-
+        services.AddScoped<IActiveProcess, ActiveProcess>();
         services.AddSingleton<IClosingExecutionSerializer, JsonClosingExecutionSerializer>();
         services.AddScoped<IClosingExecutionStore>(sp =>
         {

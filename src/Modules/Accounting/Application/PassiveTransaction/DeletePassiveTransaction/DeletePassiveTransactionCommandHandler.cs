@@ -2,6 +2,7 @@
 using Accounting.Application.PassiveTransaction.UpdatePassiveTransaction;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.PassiveTransaction.DeletePassiveTransaction;
+using Accounting.Integrations.PassiveTransaction.GetPassiveTransactions;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -32,8 +33,8 @@ namespace Accounting.Application.PassiveTransaction.DeletePassiveTransaction
             }
             catch (Exception ex)
             {
-                logger.LogError("Error al eliminar la transacción pasiva. Error: {Message}", ex.Message);
-                throw;
+                logger.LogError("Error al eliminar la transacción pasiva. Error: {Message}", ex.Message); 
+                return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No No se puedo eliminar la configuración contable."));
             }
         }
     }

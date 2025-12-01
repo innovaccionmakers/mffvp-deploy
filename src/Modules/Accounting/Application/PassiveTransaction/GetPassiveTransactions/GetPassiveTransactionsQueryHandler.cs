@@ -1,6 +1,7 @@
 ﻿using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.PassiveTransaction.GetPassiveTransactions;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
@@ -16,6 +17,9 @@ namespace Accounting.Application.PassiveTransaction.GetPassiveTransactions
             {
                 var passiveTransactions = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(request.PortfolioId, request.TypeOperationsId, cancellationToken);
 
+                if (passiveTransactions is null)
+                    return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No hay configuración contable."));
+
                 var response = new GetPassiveTransactionsResponse(
                         passiveTransactions.PassiveTransactionId,
                         passiveTransactions.DebitAccount,
@@ -30,7 +34,7 @@ namespace Accounting.Application.PassiveTransaction.GetPassiveTransactions
             catch (Exception ex)
             {
                 logger.LogError("Error al obtener las transacciones pasivas. Error: {Message}", ex.Message);
-                throw;
+                return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No hay configuración contable."));
             }
         }
     }
