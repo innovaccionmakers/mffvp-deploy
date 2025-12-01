@@ -22,7 +22,7 @@ namespace Accounting.test.IntegrationTests.PassiveTransactions
 
             _mockPassiveTransactionRepository.Setup(x => x.GetByPortfolioIdAndOperationTypeAsync(
                 It.Is<int>(id => id == portfolioId),
-                It.Is<long>(operationTypeId => operationTypeId == operationTypeId),
+                It.Is<long>(id => id == operationTypeId),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((PassiveTransaction?)null);
 
