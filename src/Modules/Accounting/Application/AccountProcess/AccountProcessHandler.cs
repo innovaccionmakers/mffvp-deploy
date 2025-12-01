@@ -20,7 +20,8 @@ internal sealed class AccountProcessHandler(
     IAccountingNotificationService accountingNotificationService,
     IUserLocator userLocator,
     IUserService userService,
-    IEventBus eventBus) : ICommandHandler<AccountProcessCommand, AccountProcessResult>
+    IEventBus eventBus,
+    IActiveProcess activeProcessStore) : ICommandHandler<AccountProcessCommand, AccountProcessResult>
 {
     private const string ProcessIdPrefix = "CONTAFVP";
 
@@ -31,6 +32,10 @@ internal sealed class AccountProcessHandler(
         var isActive = await closingValidator.IsClosingActiveAsync(cancellationToken);
         if (isActive)
             return Result.Failure<AccountProcessResult>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
+
+        var isAccountingProcessActive = await activeProcessStore.GetProcessActiveAsync(cancellationToken);
+        if (isAccountingProcessActive)
+            return Result.Failure<AccountProcessResult>(new Error("0002", "Ya existe un generación contable en ejecución.", ErrorType.Validation));
 
         var deleteCommand = new DeleteAccountingAssistantsCommand();
         var deleteResult = await sender.Send(deleteCommand, cancellationToken);
@@ -49,7 +54,7 @@ internal sealed class AccountProcessHandler(
             processId.ToString(),
             processDate,
             cancellationToken
-       );
+        );
         var capPublisher = eventBus.GetCapPublisher();
 
         var processTypes = new[]
@@ -75,6 +80,7 @@ internal sealed class AccountProcessHandler(
             await capPublisher.PublishAsync(nameof(AccountingOperationRequestedIntegrationEvent), operationEvent, cancellationToken: cancellationToken);
         }
 
+        await activeProcessStore.SaveProcessActiveAsync(cancellationToken);
         return Result.Success(new AccountProcessResult(processId));
     }
 }

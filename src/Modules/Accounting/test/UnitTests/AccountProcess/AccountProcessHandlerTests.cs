@@ -1,17 +1,20 @@
 ﻿using Accounting.Application.Abstractions;
 using Accounting.Application.Abstractions.External;
+using Accounting.Integrations.AccountingAssistants.Commands;
 using Accounting.Integrations.AccountProcess;
 using Common.SharedKernel.Application.Abstractions;
 using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.EventBus;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+using DotNetCore.CAP;
 using MediatR;
 using Moq;
 using System.Reflection;
 
 namespace Accounting.test.UnitTests.AccountProcess
 {
-    public class AccountProcessHandlerReflectionTests
+    public class AccountProcessHandlerTests
     {
         private readonly Mock<ISender> _senderMock;
         private readonly Mock<IClosingExecutionStore> _closingValidatorMock;
@@ -19,10 +22,11 @@ namespace Accounting.test.UnitTests.AccountProcess
         private readonly Mock<IUserLocator> _userLocatorMock;
         private readonly Mock<IUserService> _userServiceMock;
         private readonly Mock<IEventBus> _eventBusMock;
+        private readonly Mock<IActiveProcess> _activeProcessStoreMock;
         private readonly object _handler;
         private readonly MethodInfo _handleMethod;
 
-        public AccountProcessHandlerReflectionTests()
+        public AccountProcessHandlerTests()
         {
             _senderMock = new Mock<ISender>();
             _closingValidatorMock = new Mock<IClosingExecutionStore>();
@@ -30,20 +34,32 @@ namespace Accounting.test.UnitTests.AccountProcess
             _userLocatorMock = new Mock<IUserLocator>();
             _userServiceMock = new Mock<IUserService>();
             _eventBusMock = new Mock<IEventBus>();
+            _activeProcessStoreMock = new Mock<IActiveProcess>();
 
             // Crear instancia usando reflection
-            var handlerType = Assembly.Load("Accounting.Application")
-                .GetType("Accounting.Application.AccountProcess.AccountProcessHandler");
+            var assembly = Assembly.Load("Accounting.Application");
+            var handlerType = assembly.GetType("Accounting.Application.AccountProcess.AccountProcessHandler");
 
-            _handler = Activator.CreateInstance(handlerType,
+            // Pasar todas las 7 dependencias al constructor
+            _handler = Activator.CreateInstance(
+                handlerType,
                 _senderMock.Object,
                 _closingValidatorMock.Object,
                 _accountingNotificationServiceMock.Object,
                 _userLocatorMock.Object,
                 _userServiceMock.Object,
-                _eventBusMock.Object);
+                _eventBusMock.Object,
+                _activeProcessStoreMock.Object);
 
+            // Obtener el método Handle
             _handleMethod = handlerType.GetMethod("Handle");
+        }
+
+        private async Task<Result<AccountProcessResult>> InvokeHandleAsync(AccountProcessCommand command, CancellationToken cancellationToken)
+        {
+            return await (Task<Result<AccountProcessResult>>)_handleMethod.Invoke(
+                _handler,
+                new object[] { command, cancellationToken });
         }
 
         [Fact]
@@ -51,8 +67,9 @@ namespace Accounting.test.UnitTests.AccountProcess
         {
             // Arrange
             var command = new AccountProcessCommand(
-                new List<int> { 1, 2, 3 },
-                new DateOnly(2024, 1, 1));
+                PortfolioIds: new List<int> { 1, 2, 3 },
+                ProcessDate: new DateOnly(2024, 1, 1));
+
             var cancellationToken = CancellationToken.None;
 
             _closingValidatorMock
@@ -60,12 +77,39 @@ namespace Accounting.test.UnitTests.AccountProcess
                 .ReturnsAsync(true);
 
             // Act
-            var result = await (Task<Result<AccountProcessResult>>)_handleMethod
-                .Invoke(_handler, new object[] { command, cancellationToken });
+            var result = await InvokeHandleAsync(command, cancellationToken);
 
             // Assert
             Assert.True(result.IsFailure);
             Assert.Equal("0001", result.Error.Code);
+            Assert.Equal("Existe un proceso de cierre activo.", result.Error.Description);
+        }
+
+        [Fact]
+        public async Task Handle_WhenAccountingProcessActive_ReturnsFailure()
+        {
+            // Arrange
+            var command = new AccountProcessCommand(
+                PortfolioIds: new List<int> { 1, 2, 3 },
+                ProcessDate: new DateOnly(2024, 1, 1));
+
+            var cancellationToken = CancellationToken.None;
+
+            _closingValidatorMock
+                .Setup(x => x.IsClosingActiveAsync(cancellationToken))
+                .ReturnsAsync(false);
+
+            _activeProcessStoreMock
+                .Setup(x => x.GetProcessActiveAsync(cancellationToken))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await InvokeHandleAsync(command, cancellationToken);
+
+            // Assert
+            Assert.True(result.IsFailure);
+            Assert.Equal("0002", result.Error.Code);
+            Assert.Equal("Ya existe un generación contable en ejecución.", result.Error.Description);
         }
     }
 }

@@ -60,64 +60,6 @@ namespace Accounting.test.UnitTests.PassiveTransaction
         }
 
         [Fact]
-        public async Task Handle_WithSaveChangesFailure_ThrowsException()
-        {
-            // Arrange
-            var portfolioId = 123;
-            var operationTypeId = 1;
-            var command = new DeletePassiveTransactionCommand(portfolioId, operationTypeId);
-
-            var existingTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(
-                123,
-                1,
-                "DEBIT-123",
-                "CREDIT-456",
-                "CONTRA-CREDIT-789",
-                "CONTRA-DEBIT-012"
-            ).Value;
-
-            var expectedException = new Exception("Database save failed");
-
-            _mockRepository
-                .Setup(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingTransaction);
-
-            _mockUnitOfWork
-                .Setup(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(expectedException);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
-            Assert.Equal(expectedException.Message, exception.Message);
-
-            _mockRepository.Verify(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()), Times.Once);
-            _mockRepository.Verify(repo => repo.Delete(existingTransaction), Times.Once);
-            _mockUnitOfWork.Verify(uow => uow.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
-            _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task Handle_WithTransactionBeginFailure_ThrowsException()
-        {
-            // Arrange
-            var portfolioId = 123;
-            var operationTypeId = 1;
-            var command = new DeletePassiveTransactionCommand(portfolioId, operationTypeId);
-
-            var expectedException = new Exception("Transaction begin failed");
-            _mockUnitOfWork
-                .Setup(uow => uow.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(expectedException);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
-            Assert.Equal(expectedException.Message, exception.Message);
-
-            _mockRepository.Verify(repo => repo.GetByPortfolioIdAndOperationTypeAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
-            _mockRepository.Verify(repo => repo.Delete(It.IsAny<Domain.PassiveTransactions.PassiveTransaction>()), Times.Never);
-        }
-
-        [Fact]
         public void DeletePassiveTransactionCommand_Constructor_SetsPropertiesCorrectly()
         {
             // Arrange

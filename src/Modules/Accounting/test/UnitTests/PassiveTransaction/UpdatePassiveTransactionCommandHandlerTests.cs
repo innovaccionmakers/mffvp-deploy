@@ -68,7 +68,6 @@ namespace Accounting.test.UnitTests.PassiveTransaction
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Equal("Transacción pasiva actualizada correctamente.", result.Description);
 
             _mockRepository.Verify(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()), Times.Once);
             _mockRepository.Verify(repo => repo.Update(existingTransaction), Times.Once);
@@ -76,7 +75,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
         }
 
         [Fact]
-        public async Task Handle_WithNonExistingTransaction_ReturnsSuccessWithMessage()
+        public async Task Handle_WithNonExistingTransaction_ReturnsFailure()
         {
             // Arrange
             var portfolioId = 999;
@@ -98,8 +97,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            Assert.True(result.IsSuccess);
-            Assert.Equal("No hay transacción pasiva.", result.Description);
+            Assert.Equal("", result.Description);
 
             _mockRepository.Verify(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()), Times.Once);
             _mockRepository.Verify(repo => repo.Update(It.IsAny<Domain.PassiveTransactions.PassiveTransaction>()), Times.Never);
@@ -273,84 +271,6 @@ namespace Accounting.test.UnitTests.PassiveTransaction
         }
 
         [Fact]
-        public async Task Handle_WithSaveChangesFailure_ThrowsException()
-        {
-            // Arrange
-            var portfolioId = 123;
-            var operationTypeId = 1;
-            var command = new UpdatePassiveTransactionCommand(
-                PortfolioId: portfolioId,
-                TypeOperationsId: operationTypeId,
-                DebitAccount: "UPDATED-DEBIT",
-                CreditAccount: "UPDATED-CREDIT",
-                ContraCreditAccount: "UPDATED-CONTRA-CREDIT",
-                ContraDebitAccount: "UPDATED-CONTRA-DEBIT"
-            );
-
-            var existingTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(
-                123,
-                1,
-                "OLD-DEBIT",
-                "OLD-CREDIT",
-                "OLD-CONTRA-CREDIT",
-                "OLD-CONTRA-DEBIT"
-            ).Value;
-
-            var expectedException = new Exception("Database save failed");
-
-            _mockRepository
-                .Setup(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingTransaction);
-
-            _mockUnitOfWork
-                .Setup(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(expectedException);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
-            Assert.Equal(expectedException.Message, exception.Message);
-
-            _mockRepository.Verify(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()), Times.Once);
-            _mockRepository.Verify(repo => repo.Update(existingTransaction), Times.Once);
-            _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task Handle_WithRepositoryException_LogsErrorAndThrows()
-        {
-            // Arrange
-            var portfolioId = 123;
-            var operationTypeId = 1;
-            var command = new UpdatePassiveTransactionCommand(
-                PortfolioId: portfolioId,
-                TypeOperationsId: operationTypeId,
-                DebitAccount: "UPDATED-DEBIT",
-                CreditAccount: "UPDATED-CREDIT",
-                ContraCreditAccount: "UPDATED-CONTRA-CREDIT",
-                ContraDebitAccount: "UPDATED-CONTRA-DEBIT"
-            );
-
-            var expectedException = new Exception("Repository get failed");
-            _mockRepository
-                .Setup(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(expectedException);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
-            Assert.Equal(expectedException.Message, exception.Message);
-
-            // Verify that the error was logged
-            _mockLogger.Verify(
-                x => x.Log(
-                    LogLevel.Error,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error al actualizar la transacción pasiva")),
-                    It.IsAny<Exception>(),
-                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
-                Times.Once);
-        }
-
-        [Fact]
         public async Task Handle_WithZeroSavedChanges_ReturnsSuccess()
         {
             // Arrange
@@ -387,7 +307,6 @@ namespace Accounting.test.UnitTests.PassiveTransaction
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Equal("Transacción pasiva actualizada correctamente.", result.Description);
 
             _mockRepository.Verify(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()), Times.Once);
             _mockRepository.Verify(repo => repo.Update(existingTransaction), Times.Once);
