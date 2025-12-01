@@ -17,4 +17,9 @@ public interface IYieldToDistributeRepository
         DateTime closingDateUtc,
         string? conceptJson = null,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<YieldToDistribute>> GetDistributedYieldsByConceptAsync(IEnumerable<int> portfolioIds,
+                                                                             DateTime closingDateUtc,
+                                                                             string concept,
+                                                                             CancellationToken cancellationToken = default);
 }

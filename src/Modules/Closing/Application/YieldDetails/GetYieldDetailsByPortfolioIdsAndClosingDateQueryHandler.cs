@@ -16,7 +16,7 @@ internal sealed class GetYieldDetailsByPortfolioIdsAndClosingDateQueryHandler(
     {
         try
         {
-            var yieldDetails = await yieldDetailRepository.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(request.PortfolioIds, request.ClosingDate, request.Soruce, cancellationToken);
+            var yieldDetails = await yieldDetailRepository.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(request.PortfolioIds, request.ClosingDate, request.Source, request.Concept, cancellationToken);
 
             if (yieldDetails is null || yieldDetails.Count == 0)
             {

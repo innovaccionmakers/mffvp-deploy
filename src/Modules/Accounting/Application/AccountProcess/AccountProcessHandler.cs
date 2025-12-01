@@ -21,7 +21,8 @@ internal sealed class AccountProcessHandler(
     IUserLocator userLocator,
     IUserService userService,
     IEventBus eventBus,
-    IActiveProcess activeProcessStore) : ICommandHandler<AccountProcessCommand, AccountProcessResult>
+    IActiveProcess activeProcessStore,
+    IPortfolioLocator portfolioLocator) : ICommandHandler<AccountProcessCommand, AccountProcessResult>
 {
     private const string ProcessIdPrefix = "CONTAFVP";
 
@@ -33,9 +34,18 @@ internal sealed class AccountProcessHandler(
         if (isActive)
             return Result.Failure<AccountProcessResult>(new Error("0001", "Existe un proceso de cierre activo.", ErrorType.Validation));
 
+        var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+
+        var areAllPortfoliosClosed = await portfolioLocator.AreAllPortfoliosClosedAsync(command.PortfolioIds, processDate, cancellationToken);
+        if (areAllPortfoliosClosed.IsFailure)
+            return Result.Failure<AccountProcessResult>(areAllPortfoliosClosed.Error);
+
+        if (!areAllPortfoliosClosed.Value)
+            return Result.Failure<AccountProcessResult>(new Error("0002", "No todos los portafolios están cerrados para la fecha especificada.", ErrorType.Validation));
+
         var isAccountingProcessActive = await activeProcessStore.GetProcessActiveAsync(cancellationToken);
         if (isAccountingProcessActive)
-            return Result.Failure<AccountProcessResult>(new Error("0002", "Ya existe un generación contable en ejecución.", ErrorType.Validation));
+            return Result.Failure<AccountProcessResult>(new Error("0003", "Ya existe un generación contable en ejecución.", ErrorType.Validation));
 
         var deleteCommand = new DeleteAccountingAssistantsCommand();
         var deleteResult = await sender.Send(deleteCommand, cancellationToken);
@@ -46,7 +56,6 @@ internal sealed class AccountProcessHandler(
         var email = (await userLocator.GetEmailUserAsync(username, cancellationToken))?.Value;
 
         var processId = $"{ProcessIdPrefix}{DateTime.UtcNow:yyyyMMddHHmmss}";
-        var processDate = command.ProcessDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         await accountingNotificationService.SendProcessInitiatedAsync(
             username,

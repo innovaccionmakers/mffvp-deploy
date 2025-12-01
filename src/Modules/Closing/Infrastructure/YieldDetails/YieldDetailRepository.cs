@@ -2,7 +2,6 @@
 using Closing.Domain.YieldDetails;
 using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace Closing.Infrastructure.YieldDetails
 {
@@ -108,15 +107,40 @@ namespace Closing.Infrastructure.YieldDetails
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, string? concept, CancellationToken cancellationToken = default)
         {
-            return await context.YieldDetails
+            var query = context.YieldDetails
                 .AsNoTracking()
                 .Where(y => portfolioIds.Contains(y.PortfolioId)
                     && y.ClosingDate == closingDate
                     && y.IsClosed
-                    && y.Source == source)
-                .ToListAsync(cancellationToken);
+                    && y.Source == source);
+
+            if (!string.IsNullOrEmpty(concept))
+            {
+                query = query.Where(y => EF.Functions.JsonContained(y.Concept, concept));
+            }
+
+            return await query.ToListAsync(cancellationToken);
+        }
+
+        public async Task<decimal> GetExtraReturnIncomeSumAsync(
+        int portfolioId,
+        DateTime closingDateUtc,
+        CancellationToken cancellationToken = default)
+        {
+            var query = context.YieldDetails
+             .TagWith("YieldDetailRepository_GetExtraReturnIncomeSumAsync_PortfolioAndDate")
+             .AsNoTracking()
+             .Where(y => y.PortfolioId == portfolioId
+                         && y.ClosingDate == closingDateUtc
+                         && y.IsClosed        
+                         && y.Source == YieldsSources.ExtraReturn);
+
+            var sum = await query
+                .SumAsync(y => (decimal?)y.Income, cancellationToken);
+
+            return sum ?? 0m;
         }
     }
 }

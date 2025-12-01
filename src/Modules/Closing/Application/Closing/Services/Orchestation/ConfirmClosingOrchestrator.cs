@@ -25,7 +25,7 @@ public class ConfirmClosingOrchestrator(
     IUnitOfWork unitOfWork,
     IClosingStepTimer stepTimer,
     ILogger<ConfirmClosingOrchestrator> logger,
-     IClosingBusinessRules rules)
+    IClosingBusinessRules rules)
     : IConfirmClosingOrchestrator
 {
     public async Task<Result<ConfirmClosingResult>> ConfirmAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
