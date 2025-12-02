@@ -5,11 +5,13 @@ using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
+using Closing.Domain.YieldDetails;
 using Closing.IntegrationEvents.Yields;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -90,6 +92,9 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
 
             IncomeEgressNature naturalezaFiltro = value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
             var operationType = operationsType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
+            var detail = value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
+
+
 
             if (operationType == null)
             {
@@ -132,7 +137,7 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
                 portfolioResult.Value.Name,
                 processDate.ToString("yyyyMM"),
                 processDate,
-                operationType.Name,
+                $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
                 Math.Abs(value),
                 natureValue
             );
@@ -164,6 +169,8 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
 
             IncomeEgressNature naturalezaFiltro = value > 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
             var operationType = operationsType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
+            var detail = value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
+
 
             if (operationType == null)
             {
@@ -206,7 +213,7 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
                 portfolioResult.Value.Name,
                 processDate.ToString("yyyyMM"),
                 processDate,
-                operationType.Name,
+                $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
                 Math.Abs(value),
                 natureValue
             );

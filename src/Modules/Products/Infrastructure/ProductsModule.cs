@@ -60,6 +60,7 @@ using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.EntityValidation;
 using Products.IntegrationEvents.Portfolio;
+using Products.IntegrationEvents.Portfolio.AreAllPortfoliosClosed;
 using Products.IntegrationEvents.Portfolio.GetPortfolioInformation;
 using Products.IntegrationEvents.Portfolio.UpdateFromClosing;
 using Products.IntegrationEvents.PortfolioValidation;
@@ -102,7 +103,7 @@ public class ProductsModule: IModuleConfiguration
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Products)
                 );
         });
-        
+
         services.AddScoped<IPreviousStateProvider, PreviousStateProvider>();
         services.AddScoped<PreviousStateSaveChangesInterceptor>();
 
@@ -141,6 +142,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();
         services.AddTransient<IRpcHandler<GetAdditionalInformationRequest, GetAdditionalInformationResponse>, GetAdditionalInformationConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioInformationByIdRequest, GetPortfolioInformationByIdResponse>, GetPortfolioInformationByIdConsumer>();
+        services.AddTransient<IRpcHandler<AreAllPortfoliosClosedRequest, AreAllPortfoliosClosedResponse>, AreAllPortfoliosClosedConsumer>();
 
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
         services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();
