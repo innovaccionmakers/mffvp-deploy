@@ -77,7 +77,6 @@ public static class NatureTypes
 public static class AccountingReportConstants
 {
     public const string FORINT = "FA";
-    public const string CENINT = "001010010252";
     public const string NBAINT = "0000000000";
     public const string VBAINT = "0";
     public const string NVBINT = "0";
