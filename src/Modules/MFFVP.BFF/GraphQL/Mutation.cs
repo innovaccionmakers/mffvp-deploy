@@ -1,4 +1,5 @@
 ﻿using Accounting.Integrations.AccountProcess;
+using Accounting.Presentation.DTOs;
 using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.GraphQL.Inputs;
 using Associate.Presentation.GraphQL;
@@ -241,6 +242,15 @@ public class Mutation
                                                    CancellationToken cancellationToken)
     {
         return await passiveTransactionMutations.DeletePassiveTransactionAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("consecutivosContables")]
+    public async Task<GraphqlResult<ConsecutiveSetupPayloadDto>> HandleConsecutivesSetup(
+        [GraphQLName("consecutivo")] ConsecutiveSetupInput? input,
+        [Service] IConcecutivesSetup concecutivesSetup,
+        CancellationToken cancellationToken)
+    {
+        return await concecutivesSetup.HandleAsync(input, cancellationToken);
     }
 
     [GraphQLName("crearConcepto")]

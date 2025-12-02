@@ -121,6 +121,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<AccountingOperationRequestedSubscriber>();
         services.AddScoped<IAccountingNotificationService, AccountingNotificationService>();
         services.AddScoped<IAccountingAccountRepository, AccountingAccountRepository>();
+        services.AddScoped<IConcecutivesSetup, ConcecutivesSetup>();
         services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
         services.AddScoped<IPassiveTransactionQueries, PassiveTransactionQueries>();
         services.AddScoped<IPassiveTransactionMutations, PassiveTransactionMutations>();
