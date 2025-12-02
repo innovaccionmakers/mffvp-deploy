@@ -35,7 +35,7 @@ namespace Accounting.Application.Concept.UpdateConcept
             catch (Exception ex)
             {
                 logger.LogError("Error al actualizar el concepto. Error: {Message}", ex.Message);
-                return Result.Failure<GetConceptsByPortfolioIdsResponse>(Error.NotFound("0", "No se pudo actualizar el concepto."));
+                return Result.Failure(Error.NotFound("0", "No se pudo actualizar el concepto."));
             }
         }
     }

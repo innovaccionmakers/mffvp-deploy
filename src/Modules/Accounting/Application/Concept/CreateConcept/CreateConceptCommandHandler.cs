@@ -33,7 +33,7 @@ namespace Accounting.Application.Concept.CreateConcept
             catch (Exception ex)
             {
                 logger.LogError("Error al crear el concepto: Error: {Message}", ex.Message);
-                return Result.Failure<GetConceptsByPortfolioIdsResponse>(Error.NotFound("0", "No se pudo crear el concepto."));
+                return Result.Failure(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
             }
         }
     }
