@@ -1,7 +1,9 @@
 ﻿using Accounting.Application.Abstractions.Data;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.PassiveTransaction.CreatePassiveTransaction;
+using Accounting.Integrations.PassiveTransaction.GetPassiveTransactions;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 
@@ -28,12 +30,12 @@ namespace Accounting.Application.PassiveTransaction.CreatePassiveTransaction
                 passiveTransactionRepository.Insert(result.Value);
                 await unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return Result.Success("Transacción pasiva creada correctamente.");
+                return Result.Success();
             }
             catch (Exception ex)
             {
                 logger.LogError("Error al crear la transacción pasiva: Error: {Message}", ex.Message);
-                throw;
+                return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No se puedo crear la configuración contable."));
             }
         }
     }

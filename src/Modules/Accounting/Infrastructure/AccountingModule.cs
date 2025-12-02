@@ -40,6 +40,7 @@ using Accounting.IntegrationEvents.AccountingProcess;
 using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.MinimalApis;
 using Common.SharedKernel.Application.Abstractions;
+using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
@@ -51,6 +52,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Products.IntegrationEvents.Portfolio.AreAllPortfoliosClosed;
 
 namespace Accounting.Infrastructure;
 
@@ -121,7 +123,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountingAccountRepository, AccountingAccountRepository>();
         services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
         services.AddScoped<IPassiveTransactionQueries, PassiveTransactionQueries>();
-        services.AddScoped<IPassiveTransactionMutations, PassiveTransactionMutations>();
+        services.AddScoped<IPassiveTransactionMutations, PassiveTransactionMutations>(); 
+        services.AddTransient<IRpcHandler<AreAllPortfoliosClosedRequest, AreAllPortfoliosClosedResponse>, AreAllPortfoliosClosedConsumer>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

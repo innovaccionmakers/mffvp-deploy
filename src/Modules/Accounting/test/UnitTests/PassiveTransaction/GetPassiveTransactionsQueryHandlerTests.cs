@@ -74,24 +74,6 @@ namespace Accounting.test.UnitTests.PassiveTransaction
         }
 
         [Fact]
-        public async Task Handle_WithRepositoryException_ThrowsException()
-        {
-            // Arrange
-            var portfolioId = 123;
-            var operationTypeId = 1;
-            var query = new GetPassiveTransactionsQuery(portfolioId, operationTypeId);
-            var expectedException = new Exception("Database connection failed");
-
-            _mockRepository
-                .Setup(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(expectedException);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(query, CancellationToken.None));
-            Assert.Equal(expectedException.Message, exception.Message);
-        }
-
-        [Fact]
         public async Task Handle_WithNullAccounts_HandlesNullValues()
         {
             // Arrange

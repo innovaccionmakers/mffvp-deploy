@@ -21,6 +21,7 @@ internal sealed class AccountProcessHandler(
     IUserLocator userLocator,
     IUserService userService,
     IEventBus eventBus,
+    IActiveProcess activeProcessStore,
     IPortfolioLocator portfolioLocator) : ICommandHandler<AccountProcessCommand, AccountProcessResult>
 {
     private const string ProcessIdPrefix = "CONTAFVP";
@@ -42,6 +43,10 @@ internal sealed class AccountProcessHandler(
         if (!areAllPortfoliosClosed.Value)
             return Result.Failure<AccountProcessResult>(new Error("0002", "No todos los portafolios están cerrados para la fecha especificada.", ErrorType.Validation));
 
+        var isAccountingProcessActive = await activeProcessStore.GetProcessActiveAsync(cancellationToken);
+        if (isAccountingProcessActive)
+            return Result.Failure<AccountProcessResult>(new Error("0003", "Ya existe un generación contable en ejecución.", ErrorType.Validation));
+
         var deleteCommand = new DeleteAccountingAssistantsCommand();
         var deleteResult = await sender.Send(deleteCommand, cancellationToken);
         if (deleteResult.IsFailure)
@@ -58,7 +63,7 @@ internal sealed class AccountProcessHandler(
             processId.ToString(),
             processDate,
             cancellationToken
-       );
+        );
         var capPublisher = eventBus.GetCapPublisher();
 
         var processTypes = new[]
@@ -84,6 +89,7 @@ internal sealed class AccountProcessHandler(
             await capPublisher.PublishAsync(nameof(AccountingOperationRequestedIntegrationEvent), operationEvent, cancellationToken: cancellationToken);
         }
 
+        await activeProcessStore.SaveProcessActiveAsync(cancellationToken);
         return Result.Success(new AccountProcessResult(processId));
     }
 }

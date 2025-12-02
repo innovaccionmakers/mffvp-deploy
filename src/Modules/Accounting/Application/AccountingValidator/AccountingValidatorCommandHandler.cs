@@ -21,6 +21,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                                                         IAccountingNotificationService accountingNotificationService,
                                                         IMediator mediator,
                                                         IAuditLogStore auditLogStore,
+                                                        IActiveProcess activeProcessStore,
                                                         ILogger<AccountingValidatorCommandHandler> logger) : ICommandHandler<AccountingValidatorCommand, Unit>
 {
     public async Task<Result<Unit>> Handle(AccountingValidatorCommand request, CancellationToken cancellationToken)
@@ -28,7 +29,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         try
         {
             if (request.IsSuccess is false)
-                await auditLogStore.UpdateLogStatusAsync(request.ProcessId, cancellationToken);            
+                await auditLogStore.UpdateLogStatusAsync(request.ProcessId, cancellationToken);
 
             await processStore.RegisterProcessResultAsync(request.ProcessId, request.ProcessType, request.IsSuccess, request.ErrorMessage, cancellationToken);
 
@@ -39,14 +40,13 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
                 var results = await processStore.GetAllProcessResultsAsync(request.ProcessId, cancellationToken);
 
                 var hasErrors = results.Any(r => !r.IsSuccess);
-
+                await activeProcessStore.RemoveProcessActiveAsync(cancellationToken);
                 await auditLogStore.RemoveLogReferenceAsync(request.ProcessId, cancellationToken);
                 await ExecuteFinalizationLogicAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, results, hasErrors, cancellationToken);
-
                 await processStore.CleanupAsync(request.ProcessId, cancellationToken);
             }
-
-        }catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             var error = "Ocurrió un error inesperado al completar la validación del proceso contable";
             logger.LogError(ex, error);
