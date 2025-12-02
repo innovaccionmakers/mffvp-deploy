@@ -18,14 +18,12 @@ namespace Accounting.Application.Concept.UpdateConcept
         {
             try
             {
-                var concept = await conceptsRepository.GetByPortfolioIdAndNameAsync(request.PortfolioId, request.Name, cancellationToken);
+                var concept = await conceptsRepository.GetByIdAsync(request.ConceptId, cancellationToken);
 
                 if (concept is null)
-                    return Result.Failure(Error.NotFound("0", "No hay concepto."));
+                    return Result.Failure(Error.NullValue);
 
-                concept.UpdateDetails(
-                    request.PortfolioId,
-                    request.Name,
+                concept.UpdateAccounts(
                     request.DebitAccount,
                     request.CreditAccount);
 

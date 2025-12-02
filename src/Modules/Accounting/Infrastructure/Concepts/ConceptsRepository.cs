@@ -26,10 +26,11 @@ namespace Accounting.Infrastructure.Concepts
             }
         }
 
-        public async Task<Concept?> GetByPortfolioIdAndNameAsync(int portfolioId, string name, CancellationToken cancellationToken = default)
+
+        public async Task<Concept?> GetByIdAsync(long conceptId, CancellationToken cancellationToken = default)
         {
             return await context.Concepts.SingleOrDefaultAsync(
-                c => c.PortfolioId == portfolioId && c.Name == name,
+                c => c.ConceptId == conceptId,
                 cancellationToken
             );
         }

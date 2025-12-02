@@ -19,7 +19,7 @@ namespace Accounting.Application.Concept.DeleteConcept
             try
             {
                 await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
-                var concept = await conceptsRepository.GetByPortfolioIdAndNameAsync(request.PortfolioId, request.Name, cancellationToken);
+                var concept = await conceptsRepository.GetByIdAsync(request.ConceptId, cancellationToken);
 
                 if (concept is null)
                     return Result.Failure(Error.NullValue);

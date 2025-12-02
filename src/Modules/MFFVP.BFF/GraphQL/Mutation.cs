@@ -242,4 +242,31 @@ public class Mutation
     {
         return await passiveTransactionMutations.DeletePassiveTransactionAsync(input, validator, cancellationToken);
     }
+
+    [GraphQLName("crearConcepto")]
+    public async Task<GraphqlResult> CreateConceptAsync([GraphQLName("concepto")] CreateConceptInput input,
+                                                   IValidator<CreateConceptInput> validator,
+                                                   [Service] IConceptMutations conceptMutations,
+                                                   CancellationToken cancellationToken)
+    {
+        return await conceptMutations.CreateConceptAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("actualizarConcepto")]
+    public async Task<GraphqlResult> UpdateConceptAsync([GraphQLName("concepto")] UpdateConceptInput input,
+                                                   IValidator<UpdateConceptInput> validator,
+                                                   [Service] IConceptMutations conceptMutations,
+                                                   CancellationToken cancellationToken)
+    {
+        return await conceptMutations.UpdateConceptAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("eliminarConcepto")]
+    public async Task<GraphqlResult> DeleteConceptAsync([GraphQLName("concepto")] DeleteConceptInput input,
+                                                   IValidator<DeleteConceptInput> validator,
+                                                   [Service] IConceptMutations conceptMutations,
+                                                   CancellationToken cancellationToken)
+    {
+        return await conceptMutations.DeleteConceptAsync(input, validator, cancellationToken);
+    }
 }
