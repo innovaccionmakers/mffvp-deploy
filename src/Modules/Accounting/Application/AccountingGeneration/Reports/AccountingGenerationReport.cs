@@ -43,6 +43,9 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         var configurationByPortfolioId = generalConfigurations
             .ToDictionary(gc => gc.PortfolioId, gc => gc.AccountingCode);
 
+        var centerCostByPortfolioId = generalConfigurations
+            .ToDictionary(gc => gc.PortfolioId, gc => gc.CostCenter);
+
         var incomeConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Income);
         var egressConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Egress);
 
@@ -82,7 +85,8 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
                 foreach (var accountingAssistant in group)
                 {
                     var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
-                    rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
+                    var cenint = centerCostByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+                    rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode, cenint));
                 }
             }
         }
@@ -100,7 +104,8 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
                 foreach (var accountingAssistant in group)
                 {
                     var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
-                    rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode));
+                    var cenint = centerCostByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+                    rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode, cenint));
                 }
             }
         }
@@ -173,7 +178,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         ];
     }
 
-    private object[] CreateRow(string sourceDocument, int consecutiveNumber, AccountingAssistant accountingAssistant, string accountingCode)
+    private object[] CreateRow(string sourceDocument, int consecutiveNumber, AccountingAssistant accountingAssistant, string accountingCode, string cenint)
     {
         var DBAINT = string.Empty;
         if (accountingAssistant.Detail != OperationTypeNames.Yield)
@@ -200,7 +205,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             AccountingReportConstants.BlankSpace,
             accountingAssistant.Date.ToString("yyyyMMdd"),
             accountingAssistant.Account ?? "",
-            AccountingReportConstants.CENINT,
+            cenint,
             AccountingReportConstants.BlankSpace,
             accountingAssistant.Identification,
             AccountingReportConstants.BlankSpace,

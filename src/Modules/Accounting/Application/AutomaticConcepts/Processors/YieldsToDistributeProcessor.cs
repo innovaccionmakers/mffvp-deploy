@@ -28,7 +28,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
 {
     public async Task<Result<bool>> ProcessAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken)
     {
-        var distributedYields = await yieldToDistributeLocator.GetDistributedYieldGroupResponse(portfolioIds, processDate, ConceptsTypeNames.AutomaticAccountingNote, cancellationToken);
+        var distributedYields = await yieldToDistributeLocator.GetDistributedYieldGroupResponse(portfolioIds, processDate, ConceptsTypeNames.PerformanceAdjustmentAccountingNote, cancellationToken);
         var yieldDetails = await yieldDetailsLocator.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(portfolioIds, processDate, SourceTypes.AutomaticConcept, ConceptsTypeNames.AdjustYieldsIncome,  cancellationToken);
 
         if (distributedYields.IsFailure)
@@ -82,14 +82,14 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                                                                                                                         IReadOnlyCollection<YieldDetailResponse> yieldDetails,
                                                                                                                         DateTime processDate,
                                                                                                                         IReadOnlyCollection<OperationTypeResponse> operationTypes,
-                                                                                                                        string automaticConcept,
+                                                                                                                        string operationtypeName,
                                                                                                                         CancellationToken cancellationToken)
     {
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<AccountingInconsistency>();
 
         var portfolioIds = distributedYields.Select(yd => yd.PortfolioId).Distinct().ToList();
-        var operationTypeIds = operationTypes.Select(ot => ot.OperationTypeId).ToList();
+        var operationTypeIds = operationTypes.Select(ot => ot.OperationTypeId).Distinct().ToList();
         var passiveTransactions = await passiveTransactionRepository
             .GetByPortfolioIdsAndOperationTypesAsync(portfolioIds, operationTypeIds, cancellationToken);
 
@@ -104,11 +104,11 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             var detail = distributedYield.Value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
 
 
-            var operationType = operationTypes.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
+            var operationType = operationTypes.FirstOrDefault(ot => ot.Name == operationtypeName && ot.Nature == naturalezaFiltro);
 
             if (operationType == null)
             {
-                var errorMessage = $"No se encontró el tipo de operación para el concepto automático {automaticConcept} con naturaleza {naturalezaFiltro} para el portafolio {distributedYield.PortfolioId}";
+                var errorMessage = $"No se encontró el tipo de operación para el concepto automático {operationtypeName} con naturaleza {naturalezaFiltro} para el portafolio {distributedYield.PortfolioId}";
                 logger.LogWarning(errorMessage);
                 errors.Add(AccountingInconsistency.Create(distributedYield.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, errorMessage, AccountingActivity.Debit));
                 errors.Add(AccountingInconsistency.Create(distributedYield.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, errorMessage, AccountingActivity.Credit));
@@ -180,10 +180,10 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             IncomeEgressNature naturalezaFiltro = yieldDetail.Income < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
             var detail = yieldDetail.Income < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
 
-            var operationType = operationTypes.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
+            var operationType = operationTypes.FirstOrDefault(ot => ot.Name == operationtypeName && ot.Nature == naturalezaFiltro);
             if (operationType == null)
             {
-                var errorMessage = $"No se encontró el tipo de operación para el concepto automático {automaticConcept} con naturaleza {naturalezaFiltro} para el portafolio {yieldDetail.PortfolioId}";
+                var errorMessage = $"No se encontró el tipo de operación para el concepto automático {operationtypeName} con naturaleza {naturalezaFiltro} para el portafolio {yieldDetail.PortfolioId}";
                 logger.LogWarning(errorMessage);
                 errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, errorMessage, AccountingActivity.Debit));
                 errors.Add(AccountingInconsistency.Create(yieldDetail.PortfolioId, OperationTypeNames.AutomaticConceptAccountingNote, errorMessage, AccountingActivity.Credit));

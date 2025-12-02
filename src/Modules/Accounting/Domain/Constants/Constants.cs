@@ -1,4 +1,5 @@
 ﻿using Accounting.Domain.Concepts;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 
 namespace Accounting.Domain.Constants;
 
@@ -25,7 +26,7 @@ public static class OperationTypeNames
 public static class SourceTypes
 {
     public const string ExtraYield = "Rendimiento Extra";
-    public const string AutomaticConcept = "Concepto Automático";
+    public const string AutomaticConcept = "Concepto Automatico";
 }
 
 public static class ProcessTypes
@@ -76,7 +77,6 @@ public static class NatureTypes
 public static class AccountingReportConstants
 {
     public const string FORINT = "FA";
-    public const string CENINT = "001010010252";
     public const string NBAINT = "0000000000";
     public const string VBAINT = "0";
     public const string NVBINT = "0";
@@ -93,7 +93,7 @@ public static class AccountingReportConstants
 }
 
 public static class ConceptsTypeNames
-{
-    public const string AutomaticAccountingNote = "Concepto Automatico Nota Contable";
+{ 
+    public const string PerformanceAdjustmentAccountingNote = "Ajuste Rendimiento Nota Contable";
     public const string AdjustYieldsIncome = "Ajuste Rendimiento NC Ingreso";
 }
