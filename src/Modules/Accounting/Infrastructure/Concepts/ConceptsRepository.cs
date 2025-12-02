@@ -25,5 +25,19 @@ namespace Accounting.Infrastructure.Concepts
                 throw;
             }
         }
+
+        public async Task<Concept?> GetByPortfolioIdAndNameAsync(int portfolioId, string name, CancellationToken cancellationToken = default)
+        {
+            return await context.Concepts.SingleOrDefaultAsync(
+                c => c.PortfolioId == portfolioId && c.Name == name,
+                cancellationToken
+            );
+        }
+
+        public void Insert(Concept concept) => context.Concepts.Add(concept);
+
+        public void Update(Concept concept) => context.Concepts.Update(concept);
+
+        public void Delete(Concept concept) => context.Concepts.Remove(concept);
     }
 }
