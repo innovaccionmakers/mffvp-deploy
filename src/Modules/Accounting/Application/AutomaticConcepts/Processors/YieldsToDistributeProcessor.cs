@@ -5,6 +5,7 @@ using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
+using Closing.Domain.YieldDetails;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -50,7 +51,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             return Result.Failure<bool>(Error.Problem("Automatic.Concepts", "No se pudieron obtener los tipos de operación para los conceptos automáticos"));
         }
 
-        var distributedYieldsResult = await CreateRangeFromDistributedYields(distributedYields.Value, yieldDetails.Value, processDate, operationTypes.Value, OperationTypeNames.AutomaticConcept, cancellationToken);
+        var distributedYieldsResult = await CreateRangeFromDistributedYields(distributedYields.Value, yieldDetails.Value, processDate, operationTypes.Value, OperationTypeNames.AutomaticConceptAccountingNote, cancellationToken);
 
         if (!distributedYieldsResult.IsSuccess)
         {
@@ -100,6 +101,8 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
         foreach (var distributedYield in distributedYields)
         {
             IncomeEgressNature naturalezaFiltro = distributedYield.Value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
+            var detail = distributedYield.Value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
+
 
             var operationType = operationTypes.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
 
@@ -153,9 +156,9 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                portfolioResult.Value.Name,
                processDate.ToString("yyyyMM"),
                processDate,
-               operationType.Name,
+               $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
                distributedYield.Value,
-               EnumHelper.GetEnumMemberValue(operationType.Nature)
+               EnumHelper.GetEnumMemberValue(operationType.Nature) 
            );
 
 
