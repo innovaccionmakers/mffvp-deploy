@@ -3,13 +3,13 @@ using HotChocolate;
 namespace Accounting.Presentation.GraphQL.Inputs
 {
     public record class UpdateConceptInput(
-        [property: GraphQLName("ConceptoId")]
+        [property: GraphQLName("conceptoId")]
         long ConceptId,
 
-        [property: GraphQLName("CuentaDebito")]
+        [property: GraphQLName("cuentaDebito")]
         string? DebitAccount,
 
-        [property: GraphQLName("CuentaCredito")]
+        [property: GraphQLName("cuentaCredito")]
         string? CreditAccount);
 }
 

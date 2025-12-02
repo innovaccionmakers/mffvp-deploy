@@ -125,6 +125,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IPassiveTransactionQueries, PassiveTransactionQueries>();
         services.AddScoped<IPassiveTransactionMutations, PassiveTransactionMutations>();
         services.AddScoped<IConceptMutations, ConceptMutations>();
+        services.AddScoped<IConceptQueries, ConceptQueries>();
         services.AddTransient<IRpcHandler<AreAllPortfoliosClosedRequest, AreAllPortfoliosClosedResponse>, AreAllPortfoliosClosedConsumer>();
     }
 

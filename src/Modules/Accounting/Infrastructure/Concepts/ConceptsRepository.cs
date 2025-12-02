@@ -27,6 +27,11 @@ namespace Accounting.Infrastructure.Concepts
         }
 
 
+        public async Task<IEnumerable<Concept>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await context.Concepts.ToListAsync(cancellationToken);
+        }
+
         public async Task<Concept?> GetByIdAsync(long conceptId, CancellationToken cancellationToken = default)
         {
             return await context.Concepts.SingleOrDefaultAsync(

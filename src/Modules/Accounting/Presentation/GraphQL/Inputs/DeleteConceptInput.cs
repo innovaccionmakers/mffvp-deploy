@@ -3,7 +3,7 @@ using HotChocolate;
 namespace Accounting.Presentation.GraphQL.Inputs
 {
     public record class DeleteConceptInput(
-        [property: GraphQLName("ConceptoId")]
+        [property: GraphQLName("conceptoId")]
         long ConceptId
     );
 }
