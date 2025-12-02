@@ -213,7 +213,7 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
                 portfolioResult.Value.Name,
                 processDate.ToString("yyyyMM"),
                 processDate,
-                $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",,
+                $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
                 Math.Abs(value),
                 natureValue
             );
