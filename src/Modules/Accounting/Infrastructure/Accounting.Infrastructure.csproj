@@ -16,6 +16,7 @@
     <ProjectReference Include="..\Domain\Accounting.Domain.csproj" />
     <ProjectReference Include="..\IntegrationEvents\Accounting.IntegrationEvents\Accounting.IntegrationEvents.csproj" />
     <ProjectReference Include="..\Presentation\Accounting.Presentation.csproj" />
+    <EmbeddedResource Include="..\Rules\**\*.json" />
   </ItemGroup>
 
 </Project>

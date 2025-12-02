@@ -1,0 +1,19 @@
+[
+  {
+    "WorkflowName": "Accounting.ConcecutivesSetup.UpdateValidation",
+    "Rules": [
+      {
+        "RuleName": "ConsecutiveMustExist",
+        "ErrorMessage": "El consecutivo solicitado no existe.",
+        "Expression": "input.ConsecutiveExists == true",
+        "Properties": { "internalCode": "ACCOUNTING_CONSECUTIVE_001" }
+      },
+      {
+        "RuleName": "SourceDocumentMustBeUnique",
+        "ErrorMessage": "El documento fuente ya se encuentra asignado a otro consecutivo.",
+        "Expression": "input.ConsecutiveExists == true && input.IsSourceDocumentUnique == true",
+        "Properties": { "internalCode": "ACCOUNTING_CONSECUTIVE_002" }
+      }
+    ]
+  }
+]
