@@ -8,12 +8,12 @@ namespace Accounting.Infrastructure.External.Yields;
 
 public sealed class YieldDetailLocator(IRpcClient rpc) : IYieldDetailsLocator
 {
-    public async Task<Result<IReadOnlyCollection<YieldDetailResponse>>> GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, string? concept, CancellationToken ct)
+    public async Task<Result<IReadOnlyCollection<YieldDetailResponse>>> GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, Guid? guidConcept, CancellationToken ct)
     {
         var rc = await rpc.CallAsync<
             GetYieldsDetailsByPortfolioIdsClosingDateAndSourceRequest,
             GetYieldsDetailsByPortfolioIdsClosingDateAndSourceResponse>(
-            new GetYieldsDetailsByPortfolioIdsClosingDateAndSourceRequest(portfolioIds, closingDate, source, concept),
+            new GetYieldsDetailsByPortfolioIdsClosingDateAndSourceRequest(portfolioIds, closingDate, source, guidConcept),
             ct);
 
         return rc.IsValid

@@ -107,7 +107,7 @@ namespace Closing.Infrastructure.YieldDetails
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, string? concept, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, string? conceptJson, CancellationToken cancellationToken = default)
         {
             var query = context.YieldDetails
                 .AsNoTracking()
@@ -116,9 +116,9 @@ namespace Closing.Infrastructure.YieldDetails
                     && y.IsClosed
                     && y.Source == source);
 
-            if (!string.IsNullOrEmpty(concept))
+            if (!string.IsNullOrEmpty(conceptJson))
             {
-                query = query.Where(y => EF.Functions.JsonContained(y.Concept, concept));
+                query = query.Where(y => EF.Functions.JsonContained(y.Concept, conceptJson));
             }
 
             return await query.ToListAsync(cancellationToken);
