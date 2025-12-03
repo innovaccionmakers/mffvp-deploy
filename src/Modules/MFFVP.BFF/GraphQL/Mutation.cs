@@ -245,6 +245,7 @@ public class Mutation
     }
 
     [GraphQLName("consecutivosContables")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyCreateAccountingConsecutive)]
     public async Task<GraphqlResult<ConsecutiveSetupPayloadDto>> HandleConsecutivesSetup(
         [GraphQLName("consecutivo")] ConsecutiveSetupInput? input,
         [Service] IConcecutivesSetup concecutivesSetup,

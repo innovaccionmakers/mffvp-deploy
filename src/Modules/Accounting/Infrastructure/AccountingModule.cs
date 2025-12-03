@@ -45,6 +45,7 @@ using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.Database.Interceptors;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -84,12 +85,15 @@ public class AccountingModule : IModuleConfiguration
         services.AddDbContext<AccountingDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
+                .AddInterceptors(sp.GetRequiredService<PreviousStateSaveChangesInterceptor>())
                 .UseNpgsql(
                     connectionString,
                     npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Accounting)
                 );
         });
+        services.AddScoped<IPreviousStateProvider, PreviousStateProvider>();
+        services.AddScoped<PreviousStateSaveChangesInterceptor>();
         services.AddScoped<IErrorCatalog<AccountingModuleMarker>, ErrorCatalog<AccountingModuleMarker>>();
         services.AddScoped<IConfigurationParameterRepository, ConfigurationParameterRepository>();
         services.AddScoped<IConfigurationParameterLookupRepository<AccountingModuleMarker>>(sp =>

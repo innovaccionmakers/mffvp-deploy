@@ -6,6 +6,7 @@ using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.Database.Interceptors;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Customers.Application.Abstractions;
 using Customers.Application.Abstractions.Data;
@@ -61,12 +62,16 @@ public class CustomersModule : IModuleConfiguration
         services.AddDbContext<CustomersDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
+                .AddInterceptors(sp.GetRequiredService<PreviousStateSaveChangesInterceptor>())
                 .UseNpgsql(
                     connectionString,
                     npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Customers)
                 );
         });
+
+        services.AddScoped<IPreviousStateProvider, PreviousStateProvider>();
+        services.AddScoped<PreviousStateSaveChangesInterceptor>();
 
         services.AddScoped<IPersonRepository, PersonRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();

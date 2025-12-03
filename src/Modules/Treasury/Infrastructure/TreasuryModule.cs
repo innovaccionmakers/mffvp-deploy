@@ -4,6 +4,7 @@ using Common.SharedKernel.Application.Rules;
 using Common.SharedKernel.Domain.ConfigurationParameters;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.ConfigurationParameters;
+using Common.SharedKernel.Infrastructure.Database.Interceptors;
 using Common.SharedKernel.Infrastructure.RulesEngine;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -55,12 +56,15 @@ public class TreasuryModule : IModuleConfiguration
         services.AddDbContext<TreasuryDbContext>((sp, options) =>
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
+                .AddInterceptors(sp.GetRequiredService<PreviousStateSaveChangesInterceptor>())
                 .UseNpgsql(
                     connectionString,
                     npgsqlOptions =>
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Treasury)
                 );
         });
+        services.AddScoped<IPreviousStateProvider, PreviousStateProvider>();
+        services.AddScoped<PreviousStateSaveChangesInterceptor>();
 
         services.AddRulesEngine<TreasuryModuleMarker>(typeof(TreasuryModule).Assembly, opt =>
         {
