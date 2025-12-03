@@ -8,12 +8,12 @@ namespace Accounting.Infrastructure.External.YieldsToDistribute;
 
 internal sealed class YieldToDistributeLocator(IRpcClient rpc) : IYieldToDistributeLocator
 {
-    public async Task<Result<IReadOnlyCollection<GenericDebitNoteResponse>>> GetDistributedYieldGroupResponse(IEnumerable<int> portfolioIds, DateTime closingDate, string concept, CancellationToken ct)
+    public async Task<Result<IReadOnlyCollection<GenericDebitNoteResponse>>> GetDistributedYieldGroupResponse(IEnumerable<int> portfolioIds, DateTime closingDate, CancellationToken ct)
     {
         var rc = await rpc.CallAsync<
             GetDistributedYieldGroupByConceptRequest,
             GetDistributedYieldGroupByConceptResponse>(
-            new GetDistributedYieldGroupByConceptRequest(portfolioIds, closingDate, concept),
+            new GetDistributedYieldGroupByConceptRequest(portfolioIds, closingDate),
             ct);
 
         return rc.IsValid

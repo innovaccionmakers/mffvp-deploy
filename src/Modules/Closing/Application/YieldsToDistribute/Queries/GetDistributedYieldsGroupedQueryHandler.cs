@@ -1,24 +1,46 @@
-﻿using Closing.Domain.YieldsToDistribute;
+﻿using Closing.Application.PreClosing.Services.Yield.Dto;
+using Closing.Domain.ConfigurationParameters;
+using Closing.Domain.YieldsToDistribute;
 using Closing.Integrations.YieldsToDistribute;
 using Closing.Integrations.YieldsToDistribute.Queries;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
-using Products.Domain.Portfolios;
+using System.Text.Json;
 
 namespace Closing.Application.YieldsToDistribute.Queries;
 
 internal sealed class GetDistributedYieldsGroupedQueryHandler(
     ILogger<GetDistributedYieldsGroupedQueryHandler> logger,
+    IConfigurationParameterRepository configurationParameterRepository,
     IYieldToDistributeRepository yieldToDistributeRepository) : IQueryHandler<GetDistributedYieldsGroupedQuery, IReadOnlyCollection<DistributedYieldGroupResponse>>
 {
     public async Task<Result<IReadOnlyCollection<DistributedYieldGroupResponse>>> Handle(GetDistributedYieldsGroupedQuery request, CancellationToken cancellationToken)
     {
         try
         {
+            var adjustmentConceptParam = await configurationParameterRepository.GetByUuidAsync(
+                ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote,
+                cancellationToken);
+
+            string? conceptJson = null;
+            if (adjustmentConceptParam?.Metadata != null)
+            {                
+                var conceptId = JsonIntegerHelper.ExtractInt32(adjustmentConceptParam.Metadata, "id", defaultValue: 0);
+                var conceptName = JsonStringHelper.ExtractString(adjustmentConceptParam.Metadata, "nombre", defaultValue: string.Empty);
+
+                if (conceptId > 0 && !string.IsNullOrWhiteSpace(conceptName))
+                {
+                    var conceptDto = new StringEntityDto(conceptId.ToString(), conceptName);
+                    conceptJson = JsonSerializer.Serialize(conceptDto);
+                }
+            }
+
             var distributedYields = await yieldToDistributeRepository
-                .GetDistributedYieldsByConceptAsync(request.PortfolioIds, request.ClosingDate, request.Concept, cancellationToken);
+                .GetDistributedYieldsByConceptAsync(request.PortfolioIds, request.ClosingDate, conceptJson, cancellationToken);
+
             if (distributedYields is null || distributedYields.Count == 0)
             {
                 logger.LogWarning("No se encontraron rendimientos distribuidos para los portafolios, fecha de cierre y concepto proporcionados.");
