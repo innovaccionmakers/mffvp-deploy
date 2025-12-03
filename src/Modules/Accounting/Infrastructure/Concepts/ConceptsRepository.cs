@@ -25,5 +25,25 @@ namespace Accounting.Infrastructure.Concepts
                 throw;
             }
         }
+
+
+        public async Task<IEnumerable<Concept>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await context.Concepts.ToListAsync(cancellationToken);
+        }
+
+        public async Task<Concept?> GetByIdAsync(long conceptId, CancellationToken cancellationToken = default)
+        {
+            return await context.Concepts.SingleOrDefaultAsync(
+                c => c.ConceptId == conceptId,
+                cancellationToken
+            );
+        }
+
+        public void Insert(Concept concept) => context.Concepts.Add(concept);
+
+        public void Update(Concept concept) => context.Concepts.Update(concept);
+
+        public void Delete(Concept concept) => context.Concepts.Remove(concept);
     }
 }

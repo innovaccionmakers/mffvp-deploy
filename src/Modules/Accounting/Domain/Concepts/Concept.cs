@@ -42,4 +42,12 @@ public class Concept : Entity
         DebitAccount = debitAccount;
         CreditAccount = creditAccount;
     }
+
+    public void UpdateAccounts(
+        string? debitAccount,
+        string? creditAccount)
+    {
+        DebitAccount = debitAccount;
+        CreditAccount = creditAccount;
+    }
 }

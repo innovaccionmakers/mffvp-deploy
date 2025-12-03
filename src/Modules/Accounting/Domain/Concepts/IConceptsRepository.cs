@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Accounting.Domain.Concepts;
 
-namespace Accounting.Domain.Concepts
+public interface IConceptsRepository
 {
-    public interface IConceptsRepository
-    {
-        Task<IEnumerable<Concept>> GetConceptsByPortfolioIdsAsync(IEnumerable<int> PortfolioIds, IEnumerable<string> Concepts, CancellationToken CancellationToken);
-    }
+    Task<IEnumerable<Concept>> GetConceptsByPortfolioIdsAsync(IEnumerable<int> PortfolioIds, IEnumerable<string> Concepts, CancellationToken CancellationToken);
+    Task<IEnumerable<Concept>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<Concept?> GetByIdAsync(long conceptId, CancellationToken cancellationToken = default);
+
+    void Insert(Concept concept);
+    void Update(Concept concept);
+    void Delete(Concept concept);
 }
