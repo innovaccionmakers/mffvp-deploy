@@ -52,14 +52,18 @@ internal sealed class YieldToDistributeRepository(ClosingDbContext context) : IY
 
     public async Task<IReadOnlyCollection<YieldToDistribute>> GetDistributedYieldsByConceptAsync(IEnumerable<int> portfolioIds,
                                                                                            DateTime closingDateUtc,
-                                                                                           string concept,
+                                                                                           string? concept,
                                                                                            CancellationToken cancellationToken = default)
     {
-        return await context.YieldsToDistribute
-            .Where(y => portfolioIds.Contains(y.PortfolioId) && 
-                        y.ClosingDate == closingDateUtc && 
-                        EF.Functions.JsonContained(y.Concept, concept))
+        var query = context.YieldsToDistribute
             .AsNoTracking()
-            .ToListAsync(cancellationToken);
+            .Where(y => portfolioIds.Contains(y.PortfolioId) && y.ClosingDate == closingDateUtc);
+
+        if (!string.IsNullOrEmpty(concept))
+        {
+            query = query.Where(y => EF.Functions.JsonContained(y.Concept, concept));
+        }
+
+        return await query.ToListAsync(cancellationToken);
     }
 }

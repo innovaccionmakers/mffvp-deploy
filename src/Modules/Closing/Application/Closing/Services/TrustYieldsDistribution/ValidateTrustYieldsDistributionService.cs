@@ -17,8 +17,6 @@ using Common.SharedKernel.Application.Helpers.Money;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-using Common.SharedKernel.Domain.ConfigurationParameters;
-using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace Closing.Application.Closing.Services.TrustYieldsDistribution;

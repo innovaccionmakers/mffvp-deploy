@@ -47,23 +47,23 @@ internal sealed class AccountProcessHandler(
         if (isAccountingProcessActive)
             return Result.Failure<AccountProcessResult>(new Error("0003", "Ya existe un generación contable en ejecución.", ErrorType.Validation));
 
-        var deleteCommand = new DeleteAccountingAssistantsCommand();
-        var deleteResult = await sender.Send(deleteCommand, cancellationToken);
-        if (deleteResult.IsFailure)
-            return Result.Failure<AccountProcessResult>(deleteResult.Error);
+        //var deleteCommand = new DeleteAccountingAssistantsCommand();
+        //var deleteResult = await sender.Send(deleteCommand, cancellationToken);
+        //if (deleteResult.IsFailure)
+        //    return Result.Failure<AccountProcessResult>(deleteResult.Error);
 
         var username = userService.GetUserName();
         var email = (await userLocator.GetEmailUserAsync(username, cancellationToken))?.Value;
 
         var processId = $"{ProcessIdPrefix}{DateTime.UtcNow:yyyyMMddHHmmss}";
 
-        await accountingNotificationService.SendProcessInitiatedAsync(
-            username,
-            email,
-            processId.ToString(),
-            processDate,
-            cancellationToken
-        );
+        //await accountingNotificationService.SendProcessInitiatedAsync(
+        //    username,
+        //    email,
+        //    processId.ToString(),
+        //    processDate,
+        //    cancellationToken
+        //);
         var capPublisher = eventBus.GetCapPublisher();
 
         var processTypes = new[]

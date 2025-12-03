@@ -3,6 +3,5 @@
 public sealed record GetDistributedYieldGroupByConceptRequest
 (
     IEnumerable<int> PortfolioIds,
-    DateTime ClosingDate,
-    string Concept
+    DateTime ClosingDate
 );
