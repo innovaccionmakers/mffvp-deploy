@@ -51,10 +51,10 @@ public static class ProcessTypes
 
     public static readonly string[] Process =
     {
-        //AccountingFees,
-        //AccountingReturns,
-        //AccountingOperations,
-        //AccountingConcepts,
+        AccountingFees,
+        AccountingReturns,
+        AccountingOperations,
+        AccountingConcepts,
         AutomaticConcepts
     };
 }
