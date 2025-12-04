@@ -20,7 +20,7 @@ public static class OperationTypeNames
     public const string AutomaticConcepts = "Conceptos Automáticos";
     public const string AdjustYields = "Ajuste Rendimientos";
     public const string AutomaticConcept = "Concepto Automático";
-    public const string AutomaticConceptAccountingNote = "Concepto Automatico Nota Contable";
+    public const string AutomaticConceptAccountingNote = "Concepto Automático Nota Contable";
 }
 
 public static class SourceTypes

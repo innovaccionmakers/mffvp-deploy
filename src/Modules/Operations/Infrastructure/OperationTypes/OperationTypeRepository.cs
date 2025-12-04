@@ -25,7 +25,7 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
     {
         return await context.OperationTypes
             .AsNoTracking()
-            .Where(s => s.Name == name)
+            .Where(s => s.Name.Trim() == name.Trim())
             .ToListAsync(ct);
     }
 
