@@ -16,7 +16,7 @@ public sealed class GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptConsum
                 request.PortfolioIds,
                 request.ClosingDate,
                 request.Source,
-                request.GuidConcept),
+                request.GuidConcepts),
             ct);
 
         if (!result.IsSuccess)

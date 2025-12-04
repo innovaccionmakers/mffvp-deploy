@@ -32,12 +32,13 @@ namespace Closing.Domain.YieldDetails
             CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsAutConceptsAsync(IEnumerable<int> portfolioIdIds, DateTime closeDate, CancellationToken cancellationToken = default);
-        
+
         Task<decimal> GetExtraReturnIncomeSumAsync(
          int portfolioId,
          DateTime closingDateUtc,
          CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, string? conceptJson, CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, IEnumerable<string> conceptJsons, CancellationToken cancellationToken = default);
     }
 }

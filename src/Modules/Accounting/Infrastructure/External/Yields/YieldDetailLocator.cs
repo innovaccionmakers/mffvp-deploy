@@ -29,12 +29,12 @@ public sealed class YieldDetailLocator(IRpcClient rpc) : IYieldDetailsLocator
             : Result.Failure<IReadOnlyCollection<YieldDetailResponse>>(Error.Validation(rc.Code!, rc.Message!));
     }
 
-    public async Task<Result<IReadOnlyCollection<YieldDetailResponse>>> GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, Guid guidConcept, CancellationToken ct)
+    public async Task<Result<IReadOnlyCollection<YieldDetailResponse>>> GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, IEnumerable<Guid> guidConcepts, CancellationToken ct)
     {
         var rc = await rpc.CallAsync<
             GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptRequest,
             GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptResponse>(
-            new GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptRequest(portfolioIds, closingDate, source, guidConcept),
+            new GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptRequest(portfolioIds, closingDate, source, guidConcepts),
             ct);
 
         return rc.IsValid

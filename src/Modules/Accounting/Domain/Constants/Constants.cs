@@ -26,7 +26,7 @@ public static class OperationTypeNames
 public static class SourceTypes
 {
     public const string ExtraYield = "Rendimiento Extra";
-    public const string AutomaticConcept = "Concepto Automatico";
+    public const string AutomaticConcept = "Concepto Automático";
 }
 
 public static class ProcessTypes
@@ -51,10 +51,10 @@ public static class ProcessTypes
 
     public static readonly string[] Process =
     {
-        //AccountingFees,
-        //AccountingReturns,
-        //AccountingOperations,
-        //AccountingConcepts,
+        AccountingFees,
+        AccountingReturns,
+        AccountingOperations,
+        AccountingConcepts,
         AutomaticConcepts
     };
 }

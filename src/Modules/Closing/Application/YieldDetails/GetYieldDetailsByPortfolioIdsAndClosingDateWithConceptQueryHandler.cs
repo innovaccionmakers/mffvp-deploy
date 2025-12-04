@@ -1,5 +1,5 @@
-using Associate.Domain.ConfigurationParameters;
 using Closing.Application.PreClosing.Services.Yield.Dto;
+using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.YieldDetails;
 using Closing.Integrations.YieldDetails.Queries;
@@ -21,12 +21,13 @@ internal sealed class GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptQuer
     {
         try
         {
-            var conceptJson = await BuildConceptJsonAsync(request.GuidConcept, cancellationToken);
-            var yieldDetails = await yieldDetailRepository.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(
+            var conceptJsons = await BuildConceptJsonsAsync(request.GuidConcepts, cancellationToken);
+
+            var yieldDetails = await yieldDetailRepository.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
                 request.PortfolioIds,
                 request.ClosingDate,
                 request.Source,
-                conceptJson,
+                conceptJsons,
                 cancellationToken);
 
             if (yieldDetails is null || yieldDetails.Count == 0)
@@ -58,23 +59,31 @@ internal sealed class GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptQuer
         }
     }
 
-    private async Task<string?> BuildConceptJsonAsync(Guid guidConcept, CancellationToken cancellationToken)
+    private async Task<IEnumerable<string>> BuildConceptJsonsAsync(IEnumerable<Guid> guidConcepts, CancellationToken cancellationToken)
     {
-        var adjustmentConceptParam = await configurationParameterRepository.GetByUuidAsync(
-            guidConcept,
-            cancellationToken);
+        if (guidConcepts == null || !guidConcepts.Any())
+            return Enumerable.Empty<string>();
 
-        if (adjustmentConceptParam?.Metadata == null)
-            return null;
+        var conceptParams = await configurationParameterRepository.GetReadOnlyByUuidsAsync(guidConcepts, cancellationToken);
 
-        var conceptId = JsonIntegerHelper.ExtractInt32(adjustmentConceptParam.Metadata, "id", defaultValue: 0);
-        var conceptName = JsonStringHelper.ExtractString(adjustmentConceptParam.Metadata, "nombre", defaultValue: string.Empty);
+        var conceptJsons = new List<string>();
 
-        if (conceptId <= 0 || string.IsNullOrWhiteSpace(conceptName))
-            return null;
+        foreach (var conceptParam in conceptParams.Values)
+        {
+            if (conceptParam?.Metadata == null)
+                continue;
 
-        var conceptDto = new StringEntityDto(conceptId.ToString(), conceptName);
-        return JsonSerializer.Serialize(conceptDto);
+            var conceptId = JsonIntegerHelper.ExtractInt32(conceptParam.Metadata, "id", defaultValue: 0);
+            var conceptName = JsonStringHelper.ExtractString(conceptParam.Metadata, "nombre", defaultValue: string.Empty);
+
+            if (conceptId <= 0 || string.IsNullOrWhiteSpace(conceptName))
+                continue;
+
+            var conceptDto = new StringEntityDto(conceptId.ToString(), conceptName);
+            conceptJsons.Add(JsonSerializer.Serialize(conceptDto));
+        }
+
+        return conceptJsons;
     }
 }
 

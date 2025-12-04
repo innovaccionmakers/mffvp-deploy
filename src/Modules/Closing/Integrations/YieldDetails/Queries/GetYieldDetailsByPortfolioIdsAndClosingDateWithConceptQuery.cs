@@ -6,6 +6,6 @@ public sealed record GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptQuery
     IEnumerable<int> PortfolioIds,
     DateTime ClosingDate,
     string Source,
-    Guid GuidConcept
+    IEnumerable<Guid> GuidConcepts
 ) : IQuery<IReadOnlyCollection<YieldDetailResponse>>;
 

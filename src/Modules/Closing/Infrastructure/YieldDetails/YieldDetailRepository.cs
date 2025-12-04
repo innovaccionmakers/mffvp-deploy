@@ -124,6 +124,22 @@ namespace Closing.Infrastructure.YieldDetails
             return await query.ToListAsync(cancellationToken);
         }
 
+        public async Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, IEnumerable<string> conceptJsons, CancellationToken cancellationToken = default)
+        {
+            var conceptJsonsList = conceptJsons?.Where(c => !string.IsNullOrEmpty(c)).ToList() ?? new List<string>();
+
+            var query = context.YieldDetails
+                .AsNoTracking()
+                ;
+
+            /*if (conceptJsonsList.Count > 0)
+            {
+                query = query.Where(y => conceptJsonsList.Any(conceptJson => EF.Functions.JsonContained(y.Concept, conceptJson)));
+            }*/
+
+            return await query.ToListAsync(cancellationToken);
+        }
+
         public async Task<decimal> GetExtraReturnIncomeSumAsync(
         int portfolioId,
         DateTime closingDateUtc,
@@ -134,7 +150,7 @@ namespace Closing.Infrastructure.YieldDetails
              .AsNoTracking()
              .Where(y => y.PortfolioId == portfolioId
                          && y.ClosingDate == closingDateUtc
-                         && y.IsClosed        
+                         && y.IsClosed
                          && y.Source == YieldsSources.ExtraReturn);
 
             var sum = await query
