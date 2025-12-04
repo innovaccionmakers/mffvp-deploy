@@ -1,19 +1,20 @@
 ﻿using Accounting.Integrations.PassiveTransaction.GetPassiveTransactions;
 using Accounting.Presentation.DTOs;
+using Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
 
 namespace Accounting.Presentation.GraphQL
 {
-    public class PassiveTransactionQueries(
-        ISender mediator) : IPassiveTransactionQueries
+    public class PassiveTransactionExperienceQueries(
+        ISender mediator) : IPassiveTransactionExperienceQueries
     {
-        public async Task<GraphqlResult<PassiveTransactionsDto>> GetPassiveTransactionsAsync(int PortfolioId, long TypeOperationsId, CancellationToken cancellationToken = default)
+        public async Task<GraphqlResult<PassiveTransactionsDto>> GetPassiveTransactionsAsync(GetPassiveTransactionInput input, CancellationToken cancellationToken = default)
         {
             var result = new GraphqlResult<PassiveTransactionsDto>();
             try
             {
-                var response = await mediator.Send(new GetPassiveTransactionsQuery(PortfolioId, TypeOperationsId), cancellationToken);
+                var response = await mediator.Send(new GetPassiveTransactionsQuery(input.PortfolioId, input.TypeOperationsId), cancellationToken);
 
                 if (!response.IsSuccess || response.Value == null)
                 {

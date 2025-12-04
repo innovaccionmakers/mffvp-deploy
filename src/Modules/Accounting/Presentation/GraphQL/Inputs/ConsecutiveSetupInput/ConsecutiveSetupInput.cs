@@ -1,6 +1,6 @@
 using HotChocolate;
 
-namespace Accounting.Presentation.GraphQL.Inputs;
+namespace Accounting.Presentation.GraphQL.Inputs.ConsecutiveSetupInput;
 
 public sealed record ConsecutiveSetupInput(
     [property: GraphQLName("id")] long Id,

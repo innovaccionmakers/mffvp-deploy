@@ -1,8 +1,8 @@
 ﻿using HotChocolate;
 
-namespace Accounting.Presentation.GraphQL.Inputs
+namespace Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput
 {
-    public record class UpdatePassiveTransactionInput(
+    public record class CreatePassiveTransactionInput(
         [property: GraphQLName("PortafolioId")]
         int PortfolioId,
 
@@ -19,5 +19,6 @@ namespace Accounting.Presentation.GraphQL.Inputs
         string? ContraCreditAccount,
 
         [property: GraphQLName("CuentaContraDebito")]
-        string? ContraDebitAccount);
+        string? ContraDebitAccount
+        );
 }

@@ -1,10 +1,10 @@
-﻿using Accounting.Presentation.GraphQL.Inputs;
+﻿using Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput;
 using Common.SharedKernel.Presentation.Results;
 using FluentValidation;
 
 namespace Accounting.Presentation.GraphQL
 {
-    public interface IPassiveTransactionMutations
+    public interface IPassiveTransactionExperienceMutations
     {
         Task<GraphqlResult> CreatePassiveTransactionAsync(CreatePassiveTransactionInput input, IValidator<CreatePassiveTransactionInput> validator,CancellationToken cancellationToken = default);
         Task<GraphqlResult> UpdatePassiveTransactionAsync(UpdatePassiveTransactionInput input, IValidator<UpdatePassiveTransactionInput> validator,CancellationToken cancellationToken = default);

@@ -1,7 +1,7 @@
 ﻿using Accounting.Integrations.PassiveTransaction.CreatePassiveTransaction;
 using Accounting.Integrations.PassiveTransaction.DeletePassiveTransaction;
 using Accounting.Integrations.PassiveTransaction.UpdatePassiveTransaction;
-using Accounting.Presentation.GraphQL.Inputs;
+using Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;
@@ -10,8 +10,8 @@ using MediatR;
 
 namespace Accounting.Presentation.GraphQL
 {
-    public class PassiveTransactionMutations(
-        ISender mediator) : IPassiveTransactionMutations
+    public class PassiveTransactionExperienceMutations(
+        ISender mediator) : IPassiveTransactionExperienceMutations
     {
         public async Task<GraphqlResult> CreatePassiveTransactionAsync(CreatePassiveTransactionInput input, IValidator<CreatePassiveTransactionInput> validator, CancellationToken cancellationToken = default)
         {

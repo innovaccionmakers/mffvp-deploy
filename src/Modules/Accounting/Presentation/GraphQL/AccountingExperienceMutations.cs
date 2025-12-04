@@ -1,5 +1,5 @@
 ﻿using Accounting.Integrations.AccountProcess;
-using Accounting.Presentation.GraphQL.Inputs;
+using Accounting.Presentation.GraphQL.Inputs.AccountingInput;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Filters;
 using Common.SharedKernel.Presentation.Results;

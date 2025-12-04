@@ -123,8 +123,10 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IAccountingAccountRepository, AccountingAccountRepository>();
         services.AddScoped<IConcecutivesSetup, ConcecutivesSetup>();
         services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
-        services.AddScoped<IPassiveTransactionQueries, PassiveTransactionQueries>();
-        services.AddScoped<IPassiveTransactionMutations, PassiveTransactionMutations>(); 
+        services.AddScoped<IPassiveTransactionExperienceQueries, PassiveTransactionExperienceQueries>();
+        services.AddScoped<IPassiveTransactionExperienceMutations, PassiveTransactionExperienceMutations>(); 
+        services.AddScoped<ITreasuriesExperienceQueries, TreasuriesExperienceQueries>();
+        services.AddScoped<ITreasuriesExperienceMutations, TreasuriesExperienceMutations>(); 
         services.AddTransient<IRpcHandler<AreAllPortfoliosClosedRequest, AreAllPortfoliosClosedResponse>, AreAllPortfoliosClosedConsumer>();
     }
 

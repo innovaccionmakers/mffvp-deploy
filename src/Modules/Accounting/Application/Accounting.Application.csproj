@@ -7,28 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
-    <ProjectReference
-      Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
-    <ProjectReference
-      Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
-    <ProjectReference
-      Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
-    <ProjectReference
-      Include="..\..\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
-    <ProjectReference
-      Include="..\..\Associate\IntegrationEvents\Associate.IntegrationEvents\Associate.IntegrationEvents.csproj" />
-    <ProjectReference
-      Include="..\..\Customers\IntegrationEvents\Customers.IntegrationEvents\Customers.IntegrationEvents.csproj" />
-    <ProjectReference
-      Include="..\..\Operations\IntegrationEvents\Operations.IntegrationEvents\Operations.IntegrationEvents.csproj" />
-    <ProjectReference
-      Include="..\..\Products\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Application\Common.SharedKernel.Application.csproj" />
+    <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Domain\Common.SharedKernel.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Infrastructure\Common.SharedKernel.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Common\Common.SharedKernel.Presentation\Common.SharedKernel.Presentation.csproj" />
+    <ProjectReference Include="..\..\Closing\IntegrationEvents\Closing.IntegrationEvents\Closing.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\Associate\IntegrationEvents\Associate.IntegrationEvents\Associate.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\Customers\IntegrationEvents\Customers.IntegrationEvents\Customers.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\Operations\IntegrationEvents\Operations.IntegrationEvents\Operations.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\Products\IntegrationEvents\Products.IntegrationEvents\Products.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\Security\IntegrationEvents\Security.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\Treasury\IntegrationEvents\Treasury.IntegrationEvents.csproj" />
-    <ProjectReference
-      Include="..\IntegrationEvents\Accounting.IntegrationEvents\Accounting.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\IntegrationEvents\Accounting.IntegrationEvents\Accounting.IntegrationEvents.csproj" />
     <ProjectReference Include="..\Domain\Accounting.Domain.csproj" />
     <ProjectReference Include="..\Integrations\Accounting.Integrations.csproj" />
   </ItemGroup>

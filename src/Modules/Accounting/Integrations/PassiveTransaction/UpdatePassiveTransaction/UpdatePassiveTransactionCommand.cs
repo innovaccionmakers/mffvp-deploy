@@ -1,8 +1,10 @@
-﻿using Common.SharedKernel.Application.Messaging;
+﻿using Common.SharedKernel.Application.Attributes;
+using Common.SharedKernel.Application.Messaging;
 using System.Text.Json.Serialization;
 
 namespace Accounting.Integrations.PassiveTransaction.UpdatePassiveTransaction
 {
+    [AuditLog]
     public sealed record class UpdatePassiveTransactionCommand(
         [property: JsonPropertyName("PortafolioId")]
         int PortfolioId,

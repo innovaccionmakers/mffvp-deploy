@@ -1,7 +1,7 @@
 using System.Linq;
 using Accounting.Integrations.ConsecutivesSetup;
 using Accounting.Presentation.DTOs;
-using Accounting.Presentation.GraphQL.Inputs;
+using Accounting.Presentation.GraphQL.Inputs.ConsecutiveSetupInput;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
