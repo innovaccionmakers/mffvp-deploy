@@ -2,7 +2,7 @@ using Closing.Integrations.YieldDetails;
 
 namespace Closing.IntegrationEvents.Yields;
 
-public sealed record GetYieldsDetailsByPortfolioIdsClosingDateAndSourceResponse(
+public sealed record GetYieldDetailsByPortfolioIdsAndClosingDateResponse(
     bool IsValid,
     IReadOnlyCollection<YieldDetailResponse> YieldDetails,
     string? Code,

@@ -116,7 +116,7 @@ public class AccountingReturnsCommandHandlerTests
         _yieldLocatorMock.Setup(x => x.GetAllReturnsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
 
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         _operationLocatorMock.Setup(x => x.GetOperationTypeByNameAsync(OperationTypeNames.Yield, cancellationToken))
@@ -164,7 +164,7 @@ public class AccountingReturnsCommandHandlerTests
             .ReturnsAsync(Result.Failure<IReadOnlyCollection<YieldResponse>>(error));
 
         var yieldDetails = new List<YieldDetailResponse>();
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         var operationTypeAdjustYields = new OperationTypeResponse(2, OperationTypeNames.AdjustYields, null, IncomeEgressNature.Income, Status.Active, "", "RE",
@@ -204,7 +204,7 @@ public class AccountingReturnsCommandHandlerTests
             .ReturnsAsync(Result.Failure<(long OperationTypeId, string Name, string Nature)>(error));
 
         var yieldDetails = new List<YieldDetailResponse>();
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         // Act
@@ -240,7 +240,7 @@ public class AccountingReturnsCommandHandlerTests
             .ReturnsAsync(Enumerable.Empty<Domain.PassiveTransactions.PassiveTransaction>());
 
         var yieldDetails = new List<YieldDetailResponse>();
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         // Act
@@ -305,7 +305,7 @@ public class AccountingReturnsCommandHandlerTests
             .ReturnsAsync(new[] { passiveTransaction.Value });
 
         var yieldDetails = new List<YieldDetailResponse>();
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         // Act
@@ -347,7 +347,7 @@ public class AccountingReturnsCommandHandlerTests
             .ReturnsAsync(new[] { passiveTransaction.Value });
 
         var yieldDetails = new List<YieldDetailResponse>();
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         // Act
@@ -393,7 +393,7 @@ public class AccountingReturnsCommandHandlerTests
             .ReturnsAsync(Result.Failure<PortfolioResponse>(error));
 
         var yieldDetails = new List<YieldDetailResponse>();
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         // Act
@@ -444,7 +444,7 @@ public class AccountingReturnsCommandHandlerTests
             .ReturnsAsync(Result.Success(portfolioInfo));
 
         var yieldDetails = new List<YieldDetailResponse>();
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         // Act
@@ -511,7 +511,7 @@ public class AccountingReturnsCommandHandlerTests
             .ReturnsAsync(Result.Success(true));
 
         var yieldDetails = new List<YieldDetailResponse>();
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         // Act
@@ -575,7 +575,7 @@ public class AccountingReturnsCommandHandlerTests
             .ReturnsAsync(Result.Success(true));
 
         var yieldDetails = new List<YieldDetailResponse>();
-        _yieldDetailsLocatorMock.Setup(x => x.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, null, cancellationToken))
+        _yieldDetailsLocatorMock.Setup(x => x.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(command.PortfolioIds, command.ProcessDate, SourceTypes.ExtraYield, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldDetailResponse>>(yieldDetails));
 
         // Act
