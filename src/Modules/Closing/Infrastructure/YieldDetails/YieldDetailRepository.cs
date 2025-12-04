@@ -130,12 +130,15 @@ namespace Closing.Infrastructure.YieldDetails
 
             var query = context.YieldDetails
                 .AsNoTracking()
-                ;
+                .Where(y => portfolioIds.Contains(y.PortfolioId)
+                    && y.ClosingDate == closingDate
+                    && y.IsClosed
+                    && y.Source == source);
 
-            /*if (conceptJsonsList.Count > 0)
+            if (conceptJsonsList.Count > 0)
             {
                 query = query.Where(y => conceptJsonsList.Any(conceptJson => EF.Functions.JsonContained(y.Concept, conceptJson)));
-            }*/
+            }
 
             return await query.ToListAsync(cancellationToken);
         }
