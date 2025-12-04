@@ -2,6 +2,7 @@
 using Closing.Domain.YieldDetails;
 using Closing.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Closing.Infrastructure.YieldDetails
 {
@@ -134,13 +135,86 @@ namespace Closing.Infrastructure.YieldDetails
                     && y.ClosingDate == closingDate
                     && y.IsClosed
                     && y.Source == source);
+            
+            
+            var isInMemory = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
 
             if (conceptJsonsList.Count > 0)
             {
-                query = query.Where(y => conceptJsonsList.Any(conceptJson => EF.Functions.JsonContained(y.Concept, conceptJson)));
+                if (isInMemory)
+                {
+                    var allResults = await query.ToListAsync(cancellationToken);
+                 
+                    return allResults
+                        .Where(y => conceptJsonsList.Any(conceptJson => IsJsonContained(y.Concept, conceptJson)))
+                        .ToList();
+                }
+                else
+                {                    
+                    query = query.Where(y => conceptJsonsList.Any(conceptJson => EF.Functions.JsonContained(y.Concept, conceptJson)));
+                }
             }
 
             return await query.ToListAsync(cancellationToken);
+        }
+
+        private static bool IsJsonContained(JsonDocument? concept, string conceptJson)
+        {
+            if (concept == null) return false;
+
+            try
+            {
+                var searchJson = JsonDocument.Parse(conceptJson);
+                var conceptRoot = concept.RootElement;
+                var searchRoot = searchJson.RootElement;
+
+                if (conceptRoot.ValueKind == JsonValueKind.Object && searchRoot.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var property in searchRoot.EnumerateObject())
+                    {
+                        if (!conceptRoot.TryGetProperty(property.Name, out var conceptProperty))
+                            return false;
+
+                        if (!JsonElementEquals(conceptProperty, property.Value))
+                            return false;
+                    }
+                    return true;
+                }
+
+                return JsonElementEquals(conceptRoot, searchRoot);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool JsonElementEquals(JsonElement left, JsonElement right)
+        {
+            if (left.ValueKind != right.ValueKind)
+                return false;
+
+            return left.ValueKind switch
+            {
+                JsonValueKind.String => left.GetString() == right.GetString(),
+                JsonValueKind.Number => left.GetRawText() == right.GetRawText(),
+                JsonValueKind.True => true,
+                JsonValueKind.False => true,
+                JsonValueKind.Null => true,
+                JsonValueKind.Object => left.EnumerateObject().All(lp =>
+                    right.TryGetProperty(lp.Name, out var rp) && JsonElementEquals(lp.Value, rp)),
+                JsonValueKind.Array => left.EnumerateArray().SequenceEqual(right.EnumerateArray(), JsonElementComparer.Instance),
+                _ => left.GetRawText() == right.GetRawText()
+            };
+        }
+
+        private sealed class JsonElementComparer : IEqualityComparer<JsonElement>
+        {
+            public static readonly JsonElementComparer Instance = new();
+
+            public bool Equals(JsonElement x, JsonElement y) => JsonElementEquals(x, y);
+
+            public int GetHashCode(JsonElement obj) => obj.GetRawText().GetHashCode();
         }
 
         public async Task<decimal> GetExtraReturnIncomeSumAsync(
