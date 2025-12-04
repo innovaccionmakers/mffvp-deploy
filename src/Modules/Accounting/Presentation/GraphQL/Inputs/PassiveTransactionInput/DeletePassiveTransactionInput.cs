@@ -1,6 +1,6 @@
 ﻿using HotChocolate;
 
-namespace Accounting.Presentation.GraphQL.Inputs
+namespace Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput
 {
     public record class DeletePassiveTransactionInput(
         [property: GraphQLName("PortafolioId")] 

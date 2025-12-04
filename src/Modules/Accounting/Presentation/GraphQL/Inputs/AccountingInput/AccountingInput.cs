@@ -1,6 +1,6 @@
 ﻿using HotChocolate;
 
-namespace Accounting.Presentation.GraphQL.Inputs
+namespace Accounting.Presentation.GraphQL.Inputs.AccountingInput
 {
     public record AccountingInput(
         [property: GraphQLName("idsPortafolio")] IEnumerable<int> PortfolioIds,

@@ -1,5 +1,5 @@
 using Accounting.Presentation.DTOs;
-using Accounting.Presentation.GraphQL.Inputs;
+using Accounting.Presentation.GraphQL.Inputs.ConsecutiveSetupInput;
 using Common.SharedKernel.Presentation.Results;
 
 namespace Accounting.Presentation.GraphQL;

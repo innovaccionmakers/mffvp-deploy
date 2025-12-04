@@ -1,5 +1,7 @@
 ﻿using Accounting.Presentation.DTOs;
 using Accounting.Presentation.GraphQL;
+using Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput;
+using Accounting.Presentation.GraphQL.Inputs.TreasuriesInput;
 using Associate.Presentation.DTOs;
 using Associate.Presentation.GraphQL;
 using Closing.Presentation.GraphQL;
@@ -463,12 +465,19 @@ public class Query
     }
 
     [GraphQLName("transaccionPasiva")]
-    public async Task<GraphqlResult<PassiveTransactionsDto>> GetAccTransactionTypes([GraphQLName("idPortafolio")] int PortfolioId,
-                                                                    [GraphQLName("tipoOperacionId")] long TypeOperationsId,
-                                                                    [Service] IPassiveTransactionQueries passiveTransactionQueries,
+    public async Task<GraphqlResult<PassiveTransactionsDto>> GetAccTransactionTypes([GraphQLName("transaccionPasiva")] GetPassiveTransactionInput input,
+                                                                    [Service] IPassiveTransactionExperienceQueries passiveTransactionQueries,
                                                                     CancellationToken cancellationToken)
     {
-        return await passiveTransactionQueries.GetPassiveTransactionsAsync(PortfolioId, TypeOperationsId, cancellationToken);
+        return await passiveTransactionQueries.GetPassiveTransactionsAsync(input, cancellationToken);
+    }
+
+    [GraphQLName("tesoreria")]
+    public async Task<GraphqlResult<TreasuryDto>> GetTreasuriesAsync([GraphQLName("tesoreria")] GetTreasuryInput input,
+                                                                    [Service] ITreasuriesExperienceQueries passiveTransactionQueries,
+                                                                    CancellationToken cancellationToken)
+    {
+        return await passiveTransactionQueries.GetTreasuriesAsync(input, cancellationToken);
     }
 
     [GraphQLName("conceptos")]

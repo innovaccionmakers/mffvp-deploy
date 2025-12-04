@@ -21,7 +21,7 @@ namespace Accounting.Application.PassiveTransaction.UpdatePassiveTransaction
                 var transaction = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(request.PortfolioId, request.TypeOperationsId, cancellationToken);
 
                 if (transaction is null)
-                    return Result.Failure(Error.NotFound("0", "No hay configuración contable."));
+                    return Result.Failure(Error.NotFound("0", "No hay configuración contable para actualizar."));
 
                 transaction.UpdateDetails(
                     request.PortfolioId,
@@ -39,7 +39,7 @@ namespace Accounting.Application.PassiveTransaction.UpdatePassiveTransaction
             catch (Exception ex)
             {
                 logger.LogError("Error al actualizar la transacción pasiva. Error: {Message}", ex.Message);
-                return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No No se puedo actualizar la configuración contable."));
+                return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No se puedo actualizar la configuración contable."));
             }
         }
     }

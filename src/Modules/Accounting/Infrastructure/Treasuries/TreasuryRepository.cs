@@ -45,5 +45,24 @@ namespace Accounting.Infrastructure.Treasuries
                 throw;
             }
         }
+
+        public async Task<Domain.Treasuries.Treasury?> GetTreasuryAsync(int PortfolioId, string BankAccount, CancellationToken CancellationToken)
+        {
+            try
+            {
+                return await context.Treasuries
+                    .SingleOrDefaultAsync(co => co.PortfolioId == PortfolioId && co.BankAccount == BankAccount, CancellationToken);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public void Insert(Domain.Treasuries.Treasury Treasury) => context.Treasuries.Add(Treasury);
+
+        public void Update(Domain.Treasuries.Treasury Treasury) => context.Treasuries.Update(Treasury);
+
+        public void Delete(Domain.Treasuries.Treasury Treasury) => context.Treasuries.Remove(Treasury);
     }
 }
