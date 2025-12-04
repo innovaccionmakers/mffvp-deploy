@@ -2,8 +2,10 @@ using Common.SharedKernel.Application.Messaging;
 
 namespace Closing.Integrations.YieldDetails.Queries;
 
-public sealed record GetYieldDetailsByPortfolioIdsAndClosingDateQuery(
+public sealed record GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptQuery(
     IEnumerable<int> PortfolioIds,
     DateTime ClosingDate,
-    string Source
+    string Source,
+    Guid GuidConcept
 ) : IQuery<IReadOnlyCollection<YieldDetailResponse>>;
+

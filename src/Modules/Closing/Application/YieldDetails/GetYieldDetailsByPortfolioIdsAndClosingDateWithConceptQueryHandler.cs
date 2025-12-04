@@ -1,26 +1,32 @@
+using Associate.Domain.ConfigurationParameters;
+using Closing.Application.PreClosing.Services.Yield.Dto;
 using Closing.Domain.YieldDetails;
 using Closing.Integrations.YieldDetails;
 using Closing.Integrations.YieldDetails.Queries;
+using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Closing.Application.YieldDetails;
 
-internal sealed class GetYieldDetailsByPortfolioIdsAndClosingDateQueryHandler(
-    ILogger<GetYieldDetailsByPortfolioIdsAndClosingDateQueryHandler> logger,
-    IYieldDetailRepository yieldDetailRepository) : IQueryHandler<GetYieldDetailsByPortfolioIdsAndClosingDateQuery, IReadOnlyCollection<YieldDetailResponse>>
+internal sealed class GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptQueryHandler(
+    ILogger<GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptQueryHandler> logger,
+    IConfigurationParameterRepository configurationParameterRepository,
+    IYieldDetailRepository yieldDetailRepository) : IQueryHandler<GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptQuery, IReadOnlyCollection<YieldDetailResponse>>
 {
-    public async Task<Result<IReadOnlyCollection<YieldDetailResponse>>> Handle(GetYieldDetailsByPortfolioIdsAndClosingDateQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<YieldDetailResponse>>> Handle(GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptQuery request, CancellationToken cancellationToken)
     {
         try
         {
+            var conceptJson = await BuildConceptJsonAsync(request.GuidConcept, cancellationToken);
             var yieldDetails = await yieldDetailRepository.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(
                 request.PortfolioIds,
                 request.ClosingDate,
                 request.Source,
-                conceptJson: null,
+                conceptJson,
                 cancellationToken);
 
             if (yieldDetails is null || yieldDetails.Count == 0)
@@ -51,4 +57,24 @@ internal sealed class GetYieldDetailsByPortfolioIdsAndClosingDateQueryHandler(
             return Result.Failure<IReadOnlyCollection<YieldDetailResponse>>(new Error("Error", $"Error al obtener detalles de rendimiento: {ex.Message}", ErrorType.Failure));
         }
     }
+
+    private async Task<string?> BuildConceptJsonAsync(Guid guidConcept, CancellationToken cancellationToken)
+    {
+        var adjustmentConceptParam = await configurationParameterRepository.GetByUuidAsync(
+            guidConcept,
+            cancellationToken);
+
+        if (adjustmentConceptParam?.Metadata == null)
+            return null;
+
+        var conceptId = JsonIntegerHelper.ExtractInt32(adjustmentConceptParam.Metadata, "id", defaultValue: 0);
+        var conceptName = JsonStringHelper.ExtractString(adjustmentConceptParam.Metadata, "nombre", defaultValue: string.Empty);
+
+        if (conceptId <= 0 || string.IsNullOrWhiteSpace(conceptName))
+            return null;
+
+        var conceptDto = new StringEntityDto(conceptId.ToString(), conceptName);
+        return JsonSerializer.Serialize(conceptDto);
+    }
 }
+
