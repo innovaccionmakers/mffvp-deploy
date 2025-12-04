@@ -24,7 +24,7 @@ internal sealed class YieldDetailProcessor(
 {
     public async Task<Result<bool>> ProcessAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken)
     {
-        var yieldDetails = await yieldDetailsLocator.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(portfolioIds, processDate, SourceTypes.ExtraYield, null, cancellationToken);
+        var yieldDetails = await yieldDetailsLocator.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(portfolioIds, processDate, SourceTypes.ExtraYield, cancellationToken);
 
         if (yieldDetails.IsFailure)
         {

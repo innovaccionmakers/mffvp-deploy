@@ -18,7 +18,7 @@ public class YieldDetailRepositoryTests
     private static DbContextOptions<ClosingDbContext> CreateOptions(string dbName)
         => new DbContextOptionsBuilder<ClosingDbContext>()
             .UseInMemoryDatabase(dbName, _dbRoot)
-            .ReplaceService<IModelCustomizer, TestModelCustomizer>() 
+            .ReplaceService<IModelCustomizer, TestModelCustomizer>()
             .EnableSensitiveDataLogging()
             .Options;
 
@@ -281,5 +281,359 @@ public class YieldDetailRepositoryTests
 
         // Verificar que todos son automatic concepts
         Assert.All(result, y => Assert.Equal(YieldsSources.AutomaticConcept, y.Source));
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_WithValidConcepts_ReturnsMatchingYieldDetails()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100, 101 };
+
+        var conceptJson1 = "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}";
+        var conceptJson2 = "{\"EntityId\":\"2\",\"EntityValue\":\"Concepto 2\"}";
+
+        // Crear YieldDetails con conceptos que coinciden
+        var yieldDetail1 = NewYieldWithConcept(201, 100, closingDate, true, source, conceptJson1);
+        var yieldDetail2 = NewYieldWithConcept(202, 101, closingDate, true, source, conceptJson2);
+        // Este no coincide con ningún concepto
+        var yieldDetail3 = NewYieldWithConcept(203, 100, closingDate, true, source, "{\"EntityId\":\"3\",\"EntityValue\":\"Concepto 3\"}");
+
+        ctx.YieldDetails.AddRange(yieldDetail1, yieldDetail2, yieldDetail3);
+        await ctx.SaveChangesAsync();
+
+        // Act
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            new[] { conceptJson1, conceptJson2 },
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, y => y.YieldDetailId == 201);
+        Assert.Contains(result, y => y.YieldDetailId == 202);
+        Assert.DoesNotContain(result, y => y.YieldDetailId == 203);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_WithEmptyConceptJsons_ReturnsAllMatchingYieldDetails()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100 };
+
+        var yieldDetail1 = NewYieldWithConcept(211, 100, closingDate, true, source, "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}");
+        var yieldDetail2 = NewYieldWithConcept(212, 100, closingDate, true, source, "{\"EntityId\":\"2\",\"EntityValue\":\"Concepto 2\"}");
+
+        ctx.YieldDetails.AddRange(yieldDetail1, yieldDetail2);
+        await ctx.SaveChangesAsync();
+
+        // Act - sin conceptJsons
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            Array.Empty<string>(),
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, y => y.YieldDetailId == 211);
+        Assert.Contains(result, y => y.YieldDetailId == 212);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_WithNullConceptJsons_ReturnsAllMatchingYieldDetails()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100 };
+
+        var yieldDetail1 = NewYieldWithConcept(221, 100, closingDate, true, source, "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}");
+        var yieldDetail2 = NewYieldWithConcept(222, 100, closingDate, true, source, "{\"EntityId\":\"2\",\"EntityValue\":\"Concepto 2\"}");
+
+        ctx.YieldDetails.AddRange(yieldDetail1, yieldDetail2);
+        await ctx.SaveChangesAsync();
+
+        // Act - conceptJsons null
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            null!,
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_FiltersByPortfolioIds()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100 }; // Solo buscar en portfolio 100
+
+        var conceptJson = "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}";
+
+        var yieldDetail1 = NewYieldWithConcept(231, 100, closingDate, true, source, conceptJson);
+        var yieldDetail2 = NewYieldWithConcept(232, 101, closingDate, true, source, conceptJson); // Portfolio diferente
+
+        ctx.YieldDetails.AddRange(yieldDetail1, yieldDetail2);
+        await ctx.SaveChangesAsync();
+
+        // Act
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            new[] { conceptJson },
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(231, result.First().YieldDetailId);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_FiltersByClosingDate()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100 };
+
+        var conceptJson = "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}";
+
+        var yieldDetail1 = NewYieldWithConcept(241, 100, closingDate, true, source, conceptJson);
+        var yieldDetail2 = NewYieldWithConcept(242, 100, closingDate.AddDays(1), true, source, conceptJson); // Fecha diferente
+
+        ctx.YieldDetails.AddRange(yieldDetail1, yieldDetail2);
+        await ctx.SaveChangesAsync();
+
+        // Act
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            new[] { conceptJson },
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(241, result.First().YieldDetailId);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_FiltersBySource()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100 };
+
+        var conceptJson = "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}";
+
+        var yieldDetail1 = NewYieldWithConcept(251, 100, closingDate, true, source, conceptJson);
+        var yieldDetail2 = NewYieldWithConcept(252, 100, closingDate, true, "OtherSource", conceptJson); // Source diferente
+
+        ctx.YieldDetails.AddRange(yieldDetail1, yieldDetail2);
+        await ctx.SaveChangesAsync();
+
+        // Act
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            new[] { conceptJson },
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(251, result.First().YieldDetailId);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_OnlyReturnsClosedYieldDetails()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100 };
+
+        var conceptJson = "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}";
+
+        var yieldDetail1 = NewYieldWithConcept(261, 100, closingDate, true, source, conceptJson); // Cerrado
+        var yieldDetail2 = NewYieldWithConcept(262, 100, closingDate, false, source, conceptJson); // Abierto
+
+        ctx.YieldDetails.AddRange(yieldDetail1, yieldDetail2);
+        await ctx.SaveChangesAsync();
+
+        // Act
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            new[] { conceptJson },
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(261, result.First().YieldDetailId);
+        Assert.True(result.First().IsClosed);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_WithMultipleConcepts_ReturnsMatchingAny()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100 };
+
+        var conceptJson1 = "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}";
+        var conceptJson2 = "{\"EntityId\":\"2\",\"EntityValue\":\"Concepto 2\"}";
+        var conceptJson3 = "{\"EntityId\":\"3\",\"EntityValue\":\"Concepto 3\"}";
+
+        var yieldDetail1 = NewYieldWithConcept(271, 100, closingDate, true, source, conceptJson1);
+        var yieldDetail2 = NewYieldWithConcept(272, 100, closingDate, true, source, conceptJson2);
+        var yieldDetail3 = NewYieldWithConcept(273, 100, closingDate, true, source, conceptJson3);
+
+        ctx.YieldDetails.AddRange(yieldDetail1, yieldDetail2, yieldDetail3);
+        await ctx.SaveChangesAsync();
+
+        // Act - buscar por conceptJson1 y conceptJson2
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            new[] { conceptJson1, conceptJson2 },
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, y => y.YieldDetailId == 271);
+        Assert.Contains(result, y => y.YieldDetailId == 272);
+        Assert.DoesNotContain(result, y => y.YieldDetailId == 273);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_WithNoMatches_ReturnsEmpty()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100 };
+
+        var conceptJson = "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}";
+
+        // No crear ningún YieldDetail
+
+        // Act
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            new[] { conceptJson },
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync_IgnoresEmptyOrNullConceptJsons()
+    {
+        // Arrange
+        var (ctx, factory) = CreateCtxAndFactory();
+        var repo = new YieldDetailRepository(ctx, factory);
+        var closingDate = new DateTime(2025, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        var source = "TestSource";
+        var portfolioIds = new[] { 100 };
+
+        var conceptJson = "{\"EntityId\":\"1\",\"EntityValue\":\"Concepto 1\"}";
+
+        var yieldDetail1 = NewYieldWithConcept(281, 100, closingDate, true, source, conceptJson);
+
+        ctx.YieldDetails.Add(yieldDetail1);
+        await ctx.SaveChangesAsync();
+
+        // Act - pasar conceptJsons con valores null y vacíos
+        var result = await repo.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+            portfolioIds,
+            closingDate,
+            source,
+            new[] { conceptJson, null!, string.Empty, "   " },
+            CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(281, result.First().YieldDetailId);
+    }
+
+    private static YieldDetail NewYieldWithConcept(
+        long id,
+        int portfolioId,
+        DateTime closingDateUtc,
+        bool isClosed,
+        string source,
+        string conceptJson)
+    {
+        var type = typeof(YieldDetail);
+        var inst = (YieldDetail)Activator.CreateInstance(type, nonPublic: true)!;
+
+        void Set(string name, object? value)
+            => type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                   ?.SetValue(inst, value);
+
+        Set("YieldDetailId", id);
+        Set("PortfolioId", portfolioId);
+        Set("ClosingDate", closingDateUtc);
+        Set("IsClosed", isClosed);
+        Set("Source", source);
+
+        // Establecer el concepto como JsonDocument
+        var conceptProp = type.GetProperty("Concept", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        if (conceptProp != null && conceptProp.PropertyType == typeof(JsonDocument))
+        {
+            var jsonDoc = JsonDocument.Parse(conceptJson);
+            conceptProp.SetValue(inst, jsonDoc);
+        }
+
+        return inst;
     }
 }
