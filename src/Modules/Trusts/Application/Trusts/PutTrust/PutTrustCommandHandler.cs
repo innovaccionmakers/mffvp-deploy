@@ -65,6 +65,8 @@ internal sealed class PutTrustCommandHandler(
             request.ContingentWithholding,
             request.EarningsWithholding,
             request.AvailableAmount,
+            request.ProtectedBalance,
+            request.AgileWithdrawalAvailable,
             request.Status,
             request.UpdateDate);
         trustRepository.Update(trust);

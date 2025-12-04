@@ -46,6 +46,16 @@ internal sealed class TrustConfiguration : IEntityTypeConfiguration<Trust>
             .HasColumnName("disponible")
             .HasColumnType("decimal(19, 2)")
             .HasPrecision(19, 2);
+        builder.Property(x => x.ProtectedBalance)
+            .HasColumnName("saldo_protegido")
+            .HasColumnType("decimal(19, 2)")
+            .HasPrecision(19, 2)
+            .HasDefaultValue(0m);
+        builder.Property(x => x.AgileWithdrawalAvailable)
+            .HasColumnName("disponible_retiro_agil")
+            .HasColumnType("decimal(19, 2)")
+            .HasPrecision(19, 2)
+            .HasDefaultValue(0m);
         builder.Property(x => x.Status)
             .HasColumnName("estado")
             .HasConversion<int>();

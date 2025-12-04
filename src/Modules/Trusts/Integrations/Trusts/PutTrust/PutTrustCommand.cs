@@ -15,4 +15,6 @@ public sealed record PutTrustCommand(
     decimal ContingentWithholding,
     decimal EarningsWithholding,
     decimal AvailableAmount,
+    decimal ProtectedBalance,
+    decimal AgileWithdrawalAvailable,
     DateTime UpdateDate) : ICommand;

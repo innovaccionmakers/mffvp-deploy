@@ -127,6 +127,8 @@ public sealed class TrustInfoQueryHandlerTests
             contingentWithholding: 0,
             earningsWithholding: 0,
             availableAmount: totalBalance,
+            protectedBalance: 0,
+            agileWithdrawalAvailable: 0,
             status: status);
 
         var trust = creationResult.Value;

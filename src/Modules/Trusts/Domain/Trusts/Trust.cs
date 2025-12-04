@@ -23,13 +23,16 @@ public sealed class Trust : Entity
     public decimal ContingentWithholding { get; private set; }
     public decimal EarningsWithholding { get; private set; }
     public decimal AvailableAmount { get; private set; }
+    public decimal ProtectedBalance { get; private set; }
+    public decimal AgileWithdrawalAvailable { get; private set; }
     public LifecycleStatus Status { get; private set; }
     public DateTime? UpdateDate { get; private set; }
 
     public static Result<Trust> Create(
     int affiliateId, long clientOperationId, DateTime creationDate, int objectiveId, int portfolioId,
     decimal totalBalance, decimal totalUnits, decimal principal, decimal earnings, int taxCondition,
-    decimal contingentWithholding, decimal earningsWithholding, decimal availableAmount, LifecycleStatus status
+    decimal contingentWithholding, decimal earningsWithholding, decimal availableAmount, decimal protectedBalance,
+    decimal agileWithdrawalAvailable, LifecycleStatus status
 )
     {
         var trust = new Trust
@@ -48,6 +51,8 @@ public sealed class Trust : Entity
             ContingentWithholding = contingentWithholding,
             EarningsWithholding = earningsWithholding,
             AvailableAmount = availableAmount,
+            ProtectedBalance = protectedBalance,
+            AgileWithdrawalAvailable = agileWithdrawalAvailable,
             Status = status
         };
 
@@ -58,7 +63,8 @@ public sealed class Trust : Entity
     public void UpdateDetails(
         int newAffiliateId, long newClientOperationId, DateTime newCreationDate, int newObjectiveId, int newPortfolioId,
         decimal newTotalBalance, decimal newTotalUnits, decimal newPrincipal, decimal newEarnings, int newTaxCondition,
-        decimal newContingentWithholding, decimal newEarningsWithholding, decimal newAvailableAmount, LifecycleStatus newStatus
+        decimal newContingentWithholding, decimal newEarningsWithholding, decimal newAvailableAmount,
+        decimal newProtectedBalance, decimal newAgileWithdrawalAvailable, LifecycleStatus newStatus
     )
     {
         AffiliateId = newAffiliateId;
@@ -74,6 +80,8 @@ public sealed class Trust : Entity
         ContingentWithholding = newContingentWithholding;
         EarningsWithholding = newEarningsWithholding;
         AvailableAmount = newAvailableAmount;
+        ProtectedBalance = newProtectedBalance;
+        AgileWithdrawalAvailable = newAgileWithdrawalAvailable;
         Status = newStatus;
     }
 
@@ -85,6 +93,8 @@ public sealed class Trust : Entity
         decimal contingentWithholding,
         decimal earningsWithholding,
         decimal availableAmount,
+        decimal protectedBalance,
+        decimal agileWithdrawalAvailable,
         LifecycleStatus status,
         DateTime updateDate)
     {
@@ -95,6 +105,8 @@ public sealed class Trust : Entity
         ContingentWithholding = contingentWithholding;
         EarningsWithholding = earningsWithholding;
         AvailableAmount = availableAmount;
+        ProtectedBalance = protectedBalance;
+        AgileWithdrawalAvailable = agileWithdrawalAvailable;
         Status = status;
         UpdateDate = updateDate;
     }
