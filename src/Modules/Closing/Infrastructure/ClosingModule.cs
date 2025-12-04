@@ -105,8 +105,7 @@ public class ClosingModule : IModuleConfiguration
         services.AddScoped<IRpcHandler<GetPortfolioValuationInfoRequest, GetPortfolioValuationInfoResponse>, GetPortfolioValuationInfoConsumer>();
         services.AddScoped<IRpcHandler<GetAllComissionsByPortfolioIdsAndClosingDateRequest, GetAllComissionsByPortfolioIdsAndClosingDateResponse>, GetAllComissionsByPortfolioIdsAndClosingDateConsumer>();
         services.AddScoped<IRpcHandler<GetAllReturnsByPortfolioIdsAndClosingDateRequest, GetAllReturnsByPortfolioIdsAndClosingDateResponse>, GetAllReturnsByPortfolioIdsAndClosingDateConsumer>();
-        services.AddScoped<IRpcHandler<GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerRequest, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerResponse>, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumer>();
-        services.AddScoped<IRpcHandler<GetYieldsDetailsByPortfolioIdsClosingDateAndSourceRequest, GetYieldsDetailsByPortfolioIdsClosingDateAndSourceResponse>, GetYieldsDetailsByPortfolioIdsClosingDateAndSourceConsumer>();
+        services.AddScoped<IRpcHandler<GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerRequest, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumerResponse>, GetAllAutConceptsByPortfolioIdsAndClosingDateConsumer>();        
         services.AddScoped<IRpcHandler<GetYieldDetailsByPortfolioIdsAndClosingDateRequest, GetYieldDetailsByPortfolioIdsAndClosingDateResponse>, GetYieldDetailsByPortfolioIdsAndClosingDateConsumer>();
         services.AddScoped<IRpcHandler<GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptRequest, GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptResponse>, GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptConsumer>();
         services.AddScoped<IRpcHandler<GetDistributedYieldGroupByConceptRequest, GetDistributedYieldGroupByConceptResponse>, GetDistributedYieldGroupByConceptConsumer>();

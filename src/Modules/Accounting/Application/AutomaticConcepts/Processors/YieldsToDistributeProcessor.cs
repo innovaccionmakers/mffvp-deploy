@@ -28,7 +28,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
     public async Task<Result<bool>> ProcessAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken)
     {
         var distributedYields = await yieldToDistributeLocator.GetDistributedYieldGroupResponse(portfolioIds, processDate, cancellationToken);
-        var yieldDetails = await yieldDetailsLocator.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(portfolioIds, processDate, SourceTypes.AutomaticConcept, ConceptsTypeNames.AdjustYieldsIncome,  cancellationToken);
+        var yieldDetails = await yieldDetailsLocator.GetYieldDetailsByPortfolioIdsAndClosingDateAsync(portfolioIds, processDate, SourceTypes.AutomaticConcept, cancellationToken);
 
         if (distributedYields.IsFailure)
         {

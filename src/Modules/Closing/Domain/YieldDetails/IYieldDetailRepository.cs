@@ -38,6 +38,6 @@ namespace Closing.Domain.YieldDetails
          DateTime closingDateUtc,
          CancellationToken cancellationToken = default);
 
-        Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, string? concept, CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<YieldDetail>> GetYieldDetailsByPortfolioIdsAndClosingDateAsync(IEnumerable<int> portfolioIds, DateTime closingDate, string source, string? conceptJson, CancellationToken cancellationToken = default);
     }
 }
