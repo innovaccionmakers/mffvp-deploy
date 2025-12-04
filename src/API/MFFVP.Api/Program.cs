@@ -90,7 +90,9 @@ if (env != "Development")
 
         var secretName = builder.Configuration["AWS:SecretsManager:SecretName"];
         var region = builder.Configuration["AWS:SecretsManager:Region"];
-        var response = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
+        var commandTimeoutSeconds =
+        builder.Configuration.GetValue<int?>("CustomSettings:DatabaseTimeouts:CommandTimeoutSeconds") ?? 30;
+        var response = SecretsManagerHelper.GetSecretAsync(secretName, region, commandTimeoutSeconds).GetAwaiter().GetResult();
 
         builder.Configuration["ConnectionStrings:Database"] = response;
         builder.Configuration["ConnectionStrings:CapDatabase"] = response;
