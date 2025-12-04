@@ -8,7 +8,7 @@ public class GetDistributedYieldGroupByConceptConsumer(ISender sender) : IRpcHan
 {
     public async Task<GetDistributedYieldGroupByConceptResponse> HandleAsync(GetDistributedYieldGroupByConceptRequest request, CancellationToken ct)
     {
-        var result = await sender.Send(new GetDistributedYieldsGroupedQuery(request.PortfolioIds, request.ClosingDate, request.Concept), ct);
+        var result = await sender.Send(new GetDistributedYieldsGroupedQuery(request.PortfolioIds, request.ClosingDate), ct);
         
         if (!result.IsSuccess)
             return new GetDistributedYieldGroupByConceptResponse(false, null, result.Error.Code, result.Error.Description);

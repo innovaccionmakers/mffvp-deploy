@@ -5,6 +5,5 @@ namespace Closing.Integrations.YieldsToDistribute.Queries;
 public sealed record GetDistributedYieldsGroupedQuery
 (
     IEnumerable<int> PortfolioIds,
-    DateTime ClosingDate,
-    string Concept
+    DateTime ClosingDate
 ) : IQuery<IReadOnlyCollection<DistributedYieldGroupResponse>>;

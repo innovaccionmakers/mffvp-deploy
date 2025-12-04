@@ -29,7 +29,7 @@ public static class SchemaStitchingConfiguration
             .ModifyRequestOptions(options =>
             {
                 options.IncludeExceptionDetails = true;
-                options.ExecutionTimeout = TimeSpan.FromSeconds(30);
+                options.ExecutionTimeout = TimeSpan.FromMinutes(15);
             });
 
         return services;
@@ -45,6 +45,7 @@ public static class SchemaStitchingConfiguration
                 .ModifyRequestOptions(options =>
                 {
                     options.IncludeExceptionDetails = true;
+                    options.ExecutionTimeout = TimeSpan.FromMinutes(15);
                 });
         }
 
@@ -59,7 +60,7 @@ public static class SchemaStitchingConfiguration
             .ModifyRequestOptions(options =>
             {
                 options.IncludeExceptionDetails = false;
-                options.ExecutionTimeout = TimeSpan.FromSeconds(30);
+                options.ExecutionTimeout = TimeSpan.FromMinutes(15);
             });
 
         return services;

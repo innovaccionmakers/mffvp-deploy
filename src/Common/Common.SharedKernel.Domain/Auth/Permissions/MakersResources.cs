@@ -20,6 +20,7 @@ public static class MakersResources
     public const string accountingTreasurySettings = nameof(accountingTreasurySettings);
     public const string accountingConceptSettings = nameof(accountingConceptSettings);
     public const string accountingGeneration = nameof(accountingGeneration);
+    public const string accountingConsecutives = nameof(accountingConsecutives);
 
     //Affiliates
     public const string affiliatesManagement = nameof(affiliatesManagement);

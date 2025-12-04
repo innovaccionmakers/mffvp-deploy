@@ -97,7 +97,8 @@ public class OperationsModule: IModuleConfiguration
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];
             var region = configuration["AWS:SecretsManager:Region"];
-            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
+            var commandTimeoutSeconds = configuration.GetValue<int?>("CustomSettings:DatabaseTimeouts:CommandTimeoutSeconds") ?? 30;
+            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region, commandTimeoutSeconds).GetAwaiter().GetResult();
         }
 
         services.AddDbContext<OperationsDbContext>((sp, options) =>

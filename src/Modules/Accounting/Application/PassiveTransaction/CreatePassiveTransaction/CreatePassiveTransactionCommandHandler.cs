@@ -25,7 +25,7 @@ namespace Accounting.Application.PassiveTransaction.CreatePassiveTransaction
                     request.CreditAccount,
                     request.ContraCreditAccount,
                     request.ContraDebitAccount
-                    );
+                );
 
                 passiveTransactionRepository.Insert(result.Value);
                 await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -479,4 +479,11 @@ public class Query
     {
         return await passiveTransactionQueries.GetTreasuriesAsync(input, cancellationToken);
     }
+
+    [GraphQLName("conceptos")]
+    public async Task<IReadOnlyCollection<ConceptDto>> GetConcepts([Service] IConceptQueries conceptQueries,
+                                                                    CancellationToken cancellationToken = default)
+    {
+        return await conceptQueries.GetConceptsAsync(cancellationToken);
+    }
 }

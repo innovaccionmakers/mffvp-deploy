@@ -20,6 +20,6 @@ public interface IYieldToDistributeRepository
 
     Task<IReadOnlyCollection<YieldToDistribute>> GetDistributedYieldsByConceptAsync(IEnumerable<int> portfolioIds,
                                                                              DateTime closingDateUtc,
-                                                                             string concept,
+                                                                             string? conceptJson,
                                                                              CancellationToken cancellationToken = default);
 }

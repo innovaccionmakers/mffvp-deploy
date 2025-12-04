@@ -5,7 +5,6 @@ using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Constants;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.AccountingAssistants.Commands;
-using Closing.Domain.YieldDetails;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -28,7 +27,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
 {
     public async Task<Result<bool>> ProcessAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken)
     {
-        var distributedYields = await yieldToDistributeLocator.GetDistributedYieldGroupResponse(portfolioIds, processDate, ConceptsTypeNames.PerformanceAdjustmentAccountingNote, cancellationToken);
+        var distributedYields = await yieldToDistributeLocator.GetDistributedYieldGroupResponse(portfolioIds, processDate, cancellationToken);
         var yieldDetails = await yieldDetailsLocator.GetYieldsDetailsByPortfolioIdsClosingDateSourceAndConceptAsync(portfolioIds, processDate, SourceTypes.AutomaticConcept, ConceptsTypeNames.AdjustYieldsIncome,  cancellationToken);
 
         if (distributedYields.IsFailure)

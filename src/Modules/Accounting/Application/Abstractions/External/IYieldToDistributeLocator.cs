@@ -6,7 +6,6 @@ public interface IYieldToDistributeLocator
 {
     public Task<Result<IReadOnlyCollection<GenericDebitNoteResponse>>> GetDistributedYieldGroupResponse(IEnumerable<int> portfolioIds,
                                                                                                      DateTime closingDate,
-                                                                                                     string concept,
                                                                                                      CancellationToken ct);  
 }
 
