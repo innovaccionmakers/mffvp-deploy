@@ -72,6 +72,8 @@ public sealed class VoidedTransactionsOper(
                 0m,
                 0m,
                 0m,
+                0m,
+                0m,
                 processDate);
 
             var trustUpdateResult = await trustUpdater

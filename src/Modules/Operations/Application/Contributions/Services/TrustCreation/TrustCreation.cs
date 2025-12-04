@@ -30,6 +30,8 @@ public sealed class TrustCreation(IEventBus eventBus) : ITrustCreation
             taxResult.WithheldAmount,
             0m,
             0m,
+            0m,
+            0m,
             LifecycleStatus.Active);
 
         await eventBus.PublishAsync(createTrustEvent, cancellationToken);

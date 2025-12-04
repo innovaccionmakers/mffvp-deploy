@@ -13,4 +13,6 @@ public sealed record PutTrustRequest(
     decimal ContingentWithholding,
     decimal EarningsWithholding,
     decimal AvailableAmount,
+    decimal ProtectedBalance,
+    decimal AgileWithdrawalAvailable,
     DateTime UpdateDate);

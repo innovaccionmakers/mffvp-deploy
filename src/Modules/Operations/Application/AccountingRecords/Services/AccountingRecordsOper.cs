@@ -137,6 +137,8 @@ public sealed class AccountingRecordsOper(
             0m,
             0m,
             0m,
+            0m,
+            0m,
             processDate);
 
         var trustUpdateResult = await trustUpdater

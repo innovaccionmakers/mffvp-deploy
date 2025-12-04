@@ -127,8 +127,8 @@ internal sealed class ProcessPendingContributionsCommandHandler(
                             op.Amount,
                             0m, op.Amount, 0m,
                             r.TaxConditionId, r.ContingentWithholding,
-                            0m, op.Amount, LifecycleStatus.Active);
-                        //Creación de fideicomiso 
+                            0m, op.Amount, 0m, 0m, LifecycleStatus.Active);
+                        //Creación de fideicomiso
                         await eventBus.PublishAsync(trustEvent, cancellationToken);
                     }
 

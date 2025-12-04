@@ -69,11 +69,13 @@ internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkR
                     trust.TotalUnits,            
                     trust.Principal,            
                     newEarnings,
-                    trust.TaxCondition,           
-                    trust.ContingentWithholding,   
+                    trust.TaxCondition,
+                    trust.ContingentWithholding,
                     newEarningsWithholding,
                     newAvailable,
-                    trust.Status        
+                    trust.ProtectedBalance,
+                    trust.AgileWithdrawalAvailable,
+                    trust.Status
                 );
 
                 listToUpdate.Add(trust);
