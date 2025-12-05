@@ -130,7 +130,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
         var passiveTransactions = await passiveTransactionRepository
             .GetByPortfolioIdsAndOperationTypesAsync(portfolioIds, operationTypeIds, cancellationToken);
 
-        var passiveTransactionsDict = passiveTransactions
+        var passiveTransactionsDict = (passiveTransactions ?? [])
             .GroupBy(pt => (pt.PortfolioId, pt.TypeOperationsId))
             .ToDictionary(g => g.Key, g => g.First());
 
@@ -221,7 +221,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             IncomeEgressNature naturalezaFiltro = yieldDetail.Income < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
             var detail = yieldDetail.Income < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
 
-            var operationType = operationTypes.FirstOrDefault(ot => ot.Name == operationtypeName && ot.Nature == naturalezaFiltro);
+            var operationType = operationTypes.FirstOrDefault(ot => ot.Name.Trim() == operationtypeName.Trim() && ot.Nature == naturalezaFiltro);
             if (operationType == null)
             {
                 var errorMessage = $"No se encontró el tipo de operación para el concepto automático {operationtypeName} con naturaleza {naturalezaFiltro} para el portafolio {yieldDetail.PortfolioId}";
