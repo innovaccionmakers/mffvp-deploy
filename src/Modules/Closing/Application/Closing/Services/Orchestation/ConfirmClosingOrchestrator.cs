@@ -12,6 +12,7 @@ using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace Closing.Application.Closing.Services.Orchestration;
 
@@ -126,21 +127,59 @@ public class ConfirmClosingOrchestrator(
             generalResult.Warnings = warnings;
 
             cancellationToken.ThrowIfCancellationRequested();
+
             return Result.Success(generalResult);
 
         }
-        catch (Exception ex)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            await abortClosingService.AbortAsync(portfolioId, closingDate, cancellationToken);
+            try
+            {
+                await abortClosingService.AbortAsync(
+                    portfolioId,
+                    closingDate,
+                    CancellationToken.None);
+            }
+            catch (Exception abortException)
+            {
+                logger.LogError(
+                    abortException,
+                    "Error al abortar cierre tras cancelación en ConfirmClosingOrchestrator para Portafolio {PortfolioId}",
+                    portfolioId);
+            }
+
+            logger.LogInformation(
+                "ConfirmClosingOrchestrator cancelado por token para Portafolio {PortfolioId}",
+                portfolioId);
+
+            throw;
+        }
+        catch (Exception exception)
+        {
+            try
+            {
+                await abortClosingService.AbortAsync(
+                    portfolioId,
+                    closingDate,
+                    CancellationToken.None);
+            }
+            catch (Exception abortException)
+            {
+                logger.LogError(
+                    abortException,
+                    "Error adicional al abortar el cierre tras excepción inesperada en ConfirmClosingOrchestrator para Portafolio {PortfolioId}",
+                    portfolioId);
+            }
+
             logger.LogError(
-                ex,
+                exception,
                 "Error inesperado en ConfirmClosingOrchestrator para Portafolio {PortfolioId}",
                 portfolioId);
 
             return Result.Failure<ConfirmClosingResult>(
                 new Error("001", "Error inesperado durante el cierre.", ErrorType.Failure));
         }
+    }
 
      
     }
-}

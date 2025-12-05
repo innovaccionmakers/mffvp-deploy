@@ -17,5 +17,7 @@ public sealed record CreateTrustCommand(
     decimal ContingentWithholding,
     decimal EarningsWithholding,
     decimal AvailableAmount,
+    decimal ProtectedBalance,
+    decimal AgileWithdrawalAvailable,
     LifecycleStatus Status
 ) : ICommand<TrustResponse>;

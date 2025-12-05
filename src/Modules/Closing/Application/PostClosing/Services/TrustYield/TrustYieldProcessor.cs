@@ -1,6 +1,7 @@
 ﻿using Closing.Application.Abstractions.External.Operations.OperationTypes;
 using Closing.Application.Abstractions.External.Operations.TrustOperations;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
+using Closing.Application.PostClosing.Services.PortfolioServices;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.TrustYields;
 using Common.SharedKernel.Application.Constants;
@@ -29,6 +30,7 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
     private readonly TrustYieldOptions options;
     private readonly IOperationTypesLocator operationTypesLocator;
     private readonly IConfigurationParameterRepository configurationParameterRepository;
+    private readonly IPortfolioService portfolioService;
 
     private const int DefaultChunkSize = ClosingBulkProperties.BulkBatchSize;
     private const int DefaultMaxConcurrency = 8;
@@ -40,7 +42,8 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
         ILogger<TrustYieldProcessor> logger,
         IOperationTypesLocator operationTypesLocator,
         IOptions<TrustYieldOptions> options,
-        IConfigurationParameterRepository configurationParameterRepository)
+        IConfigurationParameterRepository configurationParameterRepository,
+        IPortfolioService portfolioService)
     {
         this.trustYieldRepository = trustYieldRepository;
         this.operationsRemote = operationsRemote;
@@ -49,6 +52,7 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
         this.options = options.Value ?? new TrustYieldOptions();
         this.operationTypesLocator = operationTypesLocator;
         this.configurationParameterRepository = configurationParameterRepository;
+        this.portfolioService = portfolioService;
     }
 
     public async Task ProcessAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken)
@@ -73,7 +77,7 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
             return;
         }
 
-        // 2) Filtro de emisión (recomendado dejarlo activo en prod)
+        // 2) Filtro de emisión
         IEnumerable<Domain.TrustYields.TrustYield> candidatesEnum = trustYields;
         if (options.UseEmitFilter)
         {
@@ -166,6 +170,12 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
             return;
         }
 
+        var AgileWithdrawalPercentageProtectedBalance = await portfolioService.GetAsync(
+            portfolioId,
+            cancellationToken);
+
+        var AgileWithdrawalRateProtectedBalance = AgileWithdrawalPercentageProtectedBalance / 100m;
+
         var trustItemsAll = candidates
             .Where(t => changedTrusts.ContainsKey(t.TrustId))
             .Select(t => new UpdateTrustFromYieldItem(
@@ -188,15 +198,16 @@ public sealed class TrustYieldProcessor : ITrustYieldProcessor
 
         await ForEachAsyncBounded(trChunks, maxConcurrency, async (batch, batchIndex, cancellationToken) =>
         {
-            var req = new UpdateTrustFromYieldBulkRemoteRequest(
+            var request = new UpdateTrustFromYieldBulkRemoteRequest(
                 PortfolioId: portfolioId,
                 ClosingDate: closingDateUtc,
                 BatchIndex: batchIndex,
                 TrustsToUpdate: batch, 
-                IdempotencyKey: $"{idempotencyKeyBase}-tr-b{batchIndex}"
+                IdempotencyKey: $"{idempotencyKeyBase}-tr-b{batchIndex}",
+                AgileWithdrawalPercentageProtectedBalance: AgileWithdrawalRateProtectedBalance
             );
 
-            var res = await trustsRemote.UpdateFromYieldAsync(req, cancellationToken);
+            var res = await trustsRemote.UpdateFromYieldAsync(request, cancellationToken);
             if (res.IsFailure)
             {
                 logger.LogWarning("{Class} - TRUST_BULK_FAIL Lote:{Batch} {Code} {Msg}",

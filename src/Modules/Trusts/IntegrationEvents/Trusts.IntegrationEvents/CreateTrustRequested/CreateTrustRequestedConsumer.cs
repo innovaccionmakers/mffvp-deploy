@@ -30,6 +30,8 @@ public sealed class CreateTrustRequestedConsumer : ICapSubscribe
                 message.ContingentWithholding,
                 message.EarningsWithholding,
                 message.AvailableAmount,
+                message.ProtectedBalance,
+                message.AgileWithdrawalAvailable,
                 message.Status),
             cancellationToken);
     }

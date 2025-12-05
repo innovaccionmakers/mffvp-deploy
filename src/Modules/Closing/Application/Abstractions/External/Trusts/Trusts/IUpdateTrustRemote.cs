@@ -15,7 +15,9 @@ public sealed record UpdateTrustFromYieldBulkRemoteRequest(
     DateTime ClosingDate,
     int BatchIndex,
     IReadOnlyList<UpdateTrustFromYieldItem> TrustsToUpdate,
+    decimal AgileWithdrawalPercentageProtectedBalance,
     string? IdempotencyKey = null
+
 );
 
 public sealed record UpdateTrustFromYieldBulkRemoteResponse(

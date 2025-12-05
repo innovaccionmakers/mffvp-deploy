@@ -12,21 +12,17 @@ internal sealed class UpdatePortfolioFromClosingRemote(
     ILogger<UpdatePortfolioFromClosingRemote> logger)
     : IUpdatePortfolioFromClosingRemote
 {
-    private const string RpcMethod = "Product.Portfolios.UpdateFromClosing";
 
     public async Task<Result<UpdatePortfolioFromClosingRemoteResponse>> ExecuteAsync(
         UpdatePortfolioFromClosingRemoteRequest request,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("[{Class}] {Method} → Portfolio={PortfolioId} Date={Date} IdemKey={Key} Origin={Origin}",
-            nameof(UpdatePortfolioFromClosingRemote), RpcMethod,
-            request.PortfolioId, request.ClosingDateUtc, request.IdempotencyKey, request.Origin);
 
         var rpcRequest = new UpdatePortfolioFromClosingRequest(
             PortfolioId: request.PortfolioId,
             ClosingDate: request.ClosingDateUtc,
             IdempotencyKey: request.IdempotencyKey,
-            Origin: request.Origin,                 // <-- mapeo del origen
+            Origin: request.Origin,              
             ExecutionId: request.ExecutionId
         );
 

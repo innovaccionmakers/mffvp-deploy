@@ -26,7 +26,7 @@ using Closing.Application.Closing.Services.Warnings;
 using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Application.PostClosing.Services.PendingTransactions;
 using Closing.Application.PostClosing.Services.PortfolioCommission;
-using Closing.Application.PostClosing.Services.PortfolioUpdate;
+using Closing.Application.PostClosing.Services.PortfolioServices;
 using Closing.Application.PostClosing.Services.TechnicalSheetEvent;
 using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYield;
@@ -81,7 +81,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IValidateTrustYieldsDistributionService, ValidateTrustYieldsDistributionService>();
 
             services.AddScoped<IPostClosingServicesOrchestation, PostClosingServicesOrchestation>();
-            services.AddScoped<IPortfolioUpdateService, PortfolioUpdateService>();
+            services.AddScoped<IPortfolioService, PortfolioService>();
             services.AddScoped<ITechnicalSheetPublisher, TechnicalSheetPublisher>();
             services.AddScoped<ITrustYieldProcessor, TrustYieldProcessor>();
             services.AddScoped<IPortfolioCommissionService, PortfolioCommissionService>();
@@ -89,6 +89,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IDataSyncPostService, DataSyncTrustPostService>();
             services.AddScoped<IProcessPendingTransactionsRemote, ProcessPendingTransactionsRemote>();
             services.AddScoped<IUpdatePortfolioFromClosingRemote, UpdatePortfolioFromClosingRemote>();
+            services.AddScoped<IGetPortfolioDataRemote, GetPortfolioDataRemote>();
             services.AddScoped<IUpsertTrustYieldOperationsRemote, UpsertTrustYieldOperationsRemote>();
             services.AddScoped<IUpdateTrustRemote, UpdateTrustRemote>();
             services.AddScoped<IUpdateAccumulatedCommissionRemote, UpdateAccumulatedCommissionRemote>();

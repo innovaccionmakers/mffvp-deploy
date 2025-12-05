@@ -19,6 +19,8 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
         decimal contingentWithholding,
         decimal earningsWithholding,
         decimal availableAmount,
+        decimal protectedBalance,
+        decimal agileWithdrawalAvailable,
         LifecycleStatus status)
         : base(Guid.NewGuid(), DateTime.UtcNow)
     {
@@ -35,6 +37,8 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
         ContingentWithholding = contingentWithholding;
         EarningsWithholding = earningsWithholding;
         AvailableAmount = availableAmount;
+        ProtectedBalance = protectedBalance;
+        AgileWithdrawalAvailable = agileWithdrawalAvailable;
         Status = status;
     }
 
@@ -52,5 +56,7 @@ public sealed class CreateTrustRequestedIntegrationEvent : IntegrationEvent
     public decimal EarningsWithholding { get; init; }
     public decimal AvailableAmount { get; init; }
     public decimal AccumulatedEarnings { get; init; }
+    public decimal ProtectedBalance { get; init; }
+    public decimal AgileWithdrawalAvailable { get; init; }
     public LifecycleStatus Status { get; init; }
 }

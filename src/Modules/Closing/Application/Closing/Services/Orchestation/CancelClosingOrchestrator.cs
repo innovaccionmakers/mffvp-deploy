@@ -17,10 +17,17 @@ public class CancelClosingOrchestrator(
         closingDate = DateTimeConverter.ToUtcDateTime(closingDate);
         logger.LogInformation("Cancelando cierre para portafolio {PortfolioId}", portfolioId);
 
-        var abortResult = await abortClosing.AbortAsync(portfolioId, closingDate, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var abortResult = await abortClosing.AbortAsync(portfolioId, closingDate, CancellationToken.None);
+
         if (abortResult.IsFailure)
         {
-            logger.LogWarning("Falló el proceso de Cancelación para portafolio {PortfolioId}", portfolioId);
+            logger.LogWarning(
+                 "Falló el proceso de Cancelación para portafolio {PortfolioId}. Error: {ErrorCode} - {ErrorDescription}",
+                 portfolioId,
+                 abortResult.Error.Code,
+                 abortResult.Error.Description);
             return Result.Failure<CancelClosingResult>(abortResult.Error);
         }
 

@@ -31,6 +31,8 @@ internal sealed class CreateTrustCommandHandler(
             request.ContingentWithholding,
             request.EarningsWithholding,
             request.AvailableAmount,
+            request.ProtectedBalance,
+            request.AgileWithdrawalAvailable,
             request.Status
         );
 
@@ -58,6 +60,8 @@ internal sealed class CreateTrustCommandHandler(
             trust.ContingentWithholding,
             trust.EarningsWithholding,
             trust.AvailableAmount,
+            trust.ProtectedBalance,
+            trust.AgileWithdrawalAvailable,
             trust.Status
         );
     }

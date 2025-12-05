@@ -74,8 +74,8 @@ namespace Trusts.test.UnitTests.Application.Trusts.Commands
 
             var inputRows = new List<ApplyYieldRow>
             {
-                new(TrustId: 101, YieldAmount: 10.234m, YieldRetentionRate: 1.236m, ClosingBalance: 200.234m),
-                new(TrustId: 202, YieldAmount: 99.236m, YieldRetentionRate: 0.234m, ClosingBalance: 1000.236m)
+                new(TrustId: 101, YieldAmount: 10.234m, YieldRetentionRate: 1.236m, ClosingBalance: 200.234m, AgileWithdrawalPercentageProtectedBalance: 7),
+                new(TrustId: 202, YieldAmount: 99.236m, YieldRetentionRate: 0.234m, ClosingBalance: 1000.236m, AgileWithdrawalPercentageProtectedBalance: 0)
             };
             var request = new UpdateTrustFromYieldCommand(BatchIndex: 3, Rows: inputRows);
 
@@ -148,7 +148,7 @@ namespace Trusts.test.UnitTests.Application.Trusts.Commands
 
             var inputRows = new List<ApplyYieldRow>
             {
-                new(TrustId: 1, YieldAmount: 1.11m, YieldRetentionRate: 0.11m, ClosingBalance: 10.11m)
+                new(TrustId: 1, YieldAmount: 1.11m, YieldRetentionRate: 0.11m, ClosingBalance: 10.11m, AgileWithdrawalPercentageProtectedBalance: 0)
             };
             var request = new UpdateTrustFromYieldCommand(BatchIndex: 5, Rows: inputRows);
 

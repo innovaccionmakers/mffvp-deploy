@@ -6,7 +6,7 @@ public sealed record UpdatePortfolioFromClosingRemoteRequest(
     int PortfolioId,
     DateTime ClosingDateUtc,
     string IdempotencyKey,
-    string Origin,            // <-- agregado: "Closing"
+    string Origin, 
     string? ExecutionId = null
 );
 

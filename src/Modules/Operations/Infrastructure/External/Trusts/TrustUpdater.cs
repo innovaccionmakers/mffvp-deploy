@@ -21,6 +21,8 @@ internal sealed class TrustUpdater(IRpcClient rpcClient) : ITrustUpdater
                 update.ContingentWithholding,
                 update.EarningsWithholding,
                 update.AvailableAmount,
+                update.ProtectedBalance,
+                update.AgileWithdrawalAvailable,
                 update.UpdateDate),
             cancellationToken);
 

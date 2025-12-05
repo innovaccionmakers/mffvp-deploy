@@ -31,6 +31,8 @@ public class PutTrustCommandHandlerTests
             ContingentWithholding: 10m,
             EarningsWithholding: 5m,
             AvailableAmount: 15m,
+            ProtectedBalance: 0m,
+            AgileWithdrawalAvailable: 0m,
             UpdateDate: DateTime.UtcNow);
 
         var ruleError = new RuleValidationError("TRUST.REQUIRED", "Los campos requeridos son obligatorios");
@@ -71,6 +73,8 @@ public class PutTrustCommandHandlerTests
             ContingentWithholding: 20m,
             EarningsWithholding: 10m,
             AvailableAmount: 60m,
+            ProtectedBalance: 0m,
+            AgileWithdrawalAvailable: 0m,
             UpdateDate: DateTime.UtcNow);
 
         var ruleEvaluatorMock = new Mock<IInternalRuleEvaluator<TrustsModuleMarker>>();
@@ -122,6 +126,8 @@ public class PutTrustCommandHandlerTests
             ContingentWithholding: 70m,
             EarningsWithholding: 35m,
             AvailableAmount: 300m,
+            ProtectedBalance: 20m,
+            AgileWithdrawalAvailable: 15m,
             UpdateDate: new DateTime(2024, 01, 10, 12, 0, 0, DateTimeKind.Utc));
 
         var ruleEvaluatorMock = new Mock<IInternalRuleEvaluator<TrustsModuleMarker>>();
@@ -147,6 +153,8 @@ public class PutTrustCommandHandlerTests
                 contingentWithholding: 5m,
                 earningsWithholding: 3m,
                 availableAmount: 12m,
+                protectedBalance: 2m,
+                agileWithdrawalAvailable: 1m,
                 status: LifecycleStatus.Active)
             .Value;
 
@@ -187,6 +195,8 @@ public class PutTrustCommandHandlerTests
         trust.ContingentWithholding.Should().Be(command.ContingentWithholding);
         trust.EarningsWithholding.Should().Be(command.EarningsWithholding);
         trust.AvailableAmount.Should().Be(command.AvailableAmount);
+        trust.ProtectedBalance.Should().Be(command.ProtectedBalance);
+        trust.AgileWithdrawalAvailable.Should().Be(command.AgileWithdrawalAvailable);
         trust.Status.Should().Be(command.Status);
         trust.UpdateDate.Should().Be(command.UpdateDate);
         unitOfWorkMock.Verify(work => work.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);

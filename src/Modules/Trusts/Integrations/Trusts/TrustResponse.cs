@@ -17,5 +17,7 @@ public sealed record TrustResponse(
     decimal ContingentWithholding,
     decimal EarningsWithholding,
     decimal AvailableAmount,
+    decimal ProtectedBalance,
+    decimal AgileWithdrawalAvailable,
     LifecycleStatus Status
 );

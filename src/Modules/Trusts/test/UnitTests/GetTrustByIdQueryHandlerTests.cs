@@ -27,6 +27,8 @@ public sealed class GetTrustByIdQueryHandlerTests
             trust.ContingentWithholding,
             trust.EarningsWithholding,
             trust.AvailableAmount,
+            trust.ProtectedBalance,
+            trust.AgileWithdrawalAvailable,
             trust.Status,
             new DateTime(2024, 01, 01, 12, 0, 0, DateTimeKind.Utc));
 
@@ -87,6 +89,8 @@ public sealed class GetTrustByIdQueryHandlerTests
             contingentWithholding: 50m,
             earningsWithholding: 20m,
             availableAmount: 4800m,
+            protectedBalance: 0m,
+            agileWithdrawalAvailable: 0m,
             status: LifecycleStatus.Active);
 
         creationResult.IsSuccess.Should().BeTrue();
