@@ -18,7 +18,7 @@ namespace Accounting.Application.PassiveTransaction.GetPassiveTransactions
                 var passiveTransactions = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(request.PortfolioId, request.TypeOperationsId, cancellationToken);
 
                 if (passiveTransactions is null)
-                    return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No hay configuración contable."));
+                    return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No se encontró registro de la configuración contable."));
 
                 var response = new GetPassiveTransactionsResponse(
                         passiveTransactions.PassiveTransactionId,

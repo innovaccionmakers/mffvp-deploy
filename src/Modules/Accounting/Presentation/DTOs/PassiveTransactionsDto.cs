@@ -3,15 +3,15 @@
 namespace Accounting.Presentation.DTOs
 {
     public sealed record class PassiveTransactionsDto(
-        [property: GraphQLName("Id")]
+        [property: GraphQLName("id")]
         long PassiveTransactionId,
-        [property: GraphQLName("CuentaDebito")]
+        [property: GraphQLName("cuentaDebito")]
         string? DebitAccount,
-        [property: GraphQLName("CuentaCredito")]
+        [property: GraphQLName("cuentaCredito")]
         string? CreditAccount,
-        [property: GraphQLName("CuentaContraCredito")]
+        [property: GraphQLName("cuentaContraCredito")]
         string? ContraCreditAccount,
-        [property: GraphQLName("CuentaContraDebito")]
+        [property: GraphQLName("cuentaContraDebito")]
         string? ContraDebitAccount
         );
 }

@@ -3,9 +3,9 @@
 namespace Accounting.Presentation.GraphQL.Inputs.TreasuriesInput
 {
     public sealed record class DeleteTreasuryInput(
-        [property: GraphQLName("PortafolioId")]
+        [property: GraphQLName("portafolioId")]
         int PortfolioId,
-        [property: GraphQLName("CuentaBancaria")]
+        [property: GraphQLName("cuentaBancaria")]
         string BankAccount
         );
 }

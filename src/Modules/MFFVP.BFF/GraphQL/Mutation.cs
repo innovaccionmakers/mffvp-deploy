@@ -1,4 +1,7 @@
 ﻿using Accounting.Integrations.AccountProcess;
+using Accounting.Presentation.ConfigurationGenerals.CreateConfigurationGeneral;
+using Accounting.Presentation.ConfigurationGenerals.DeleteConfigurationGeneral;
+using Accounting.Presentation.ConfigurationGenerals.UpdateConfigurationGeneral;
 using Accounting.Presentation.DTOs;
 using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.GraphQL.Inputs;
@@ -261,28 +264,28 @@ public class Mutation
     [GraphQLName("crearTesoreria")]
     public async Task<GraphqlResult> CreateTreasuryAsync([GraphQLName("tesoreria")] CreateTreasuryInput input,
                                                    IValidator<CreateTreasuryInput> validator,
-                                                   [Service] ITreasuriesExperienceMutations passiveTransactionMutations,
+                                                   [Service] ITreasuriesExperienceMutations treasuriesMutations,
                                                    CancellationToken cancellationToken)
     {
-        return await passiveTransactionMutations.CreateTreasuryAsync(input, validator, cancellationToken);
+        return await treasuriesMutations.CreateTreasuryAsync(input, validator, cancellationToken);
     }
 
     [GraphQLName("actualizarTesoreria")]
     public async Task<GraphqlResult> UpdateTreasuryAsync([GraphQLName("tesoreria")] UpdateTreasuryInput input,
                                                    IValidator<UpdateTreasuryInput> validator,
-                                                   [Service] ITreasuriesExperienceMutations passiveTransactionMutations,
+                                                   [Service] ITreasuriesExperienceMutations treasuriesMutations,
                                                    CancellationToken cancellationToken)
     {
-        return await passiveTransactionMutations.UpdateTreasuryAsync(input, validator, cancellationToken);
+        return await treasuriesMutations.UpdateTreasuryAsync(input, validator, cancellationToken);
     }
 
     [GraphQLName("eliminarTesoreria")]
     public async Task<GraphqlResult> DeleteTreasuryAsync([GraphQLName("tesoreria")] DeleteTreasuryInput input,
                                                    IValidator<DeleteTreasuryInput> validator,
-                                                   [Service] ITreasuriesExperienceMutations passiveTransactionMutations,
+                                                   [Service] ITreasuriesExperienceMutations treasuriesMutations,
                                                    CancellationToken cancellationToken)
     {
-        return await passiveTransactionMutations.DeleteTreasuryAsync(input, validator, cancellationToken);
+        return await treasuriesMutations.DeleteTreasuryAsync(input, validator, cancellationToken);
     }
 
     [GraphQLName("crearConcepto")]
@@ -310,5 +313,32 @@ public class Mutation
                                                    CancellationToken cancellationToken)
     {
         return await conceptMutations.DeleteConceptAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("crearConfiguracionGeneral")]
+    public async Task<GraphqlResult> CreateConfiguracionGeneralAsync([GraphQLName("configuracionGeneral")] CreateConfigurationGeneralInput input,
+                                                   IValidator<CreateConfigurationGeneralInput> validator,
+                                                   [Service] IConfigurationGeneralsExperienceMutations configurationGeneralsMutations,
+                                                   CancellationToken cancellationToken)
+    {
+        return await configurationGeneralsMutations.CreateConfiguracionGeneralAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("actualizarConfiguracionGeneral")]
+    public async Task<GraphqlResult> UpdateConfiguracionGeneralAsync([GraphQLName("configuracionGeneral")] UpdateConfigurationGeneralInput input,
+                                                   IValidator<UpdateConfigurationGeneralInput> validator,
+                                                   [Service] IConfigurationGeneralsExperienceMutations configurationGeneralsMutations,
+                                                   CancellationToken cancellationToken)
+    {
+        return await configurationGeneralsMutations.UpdateConfiguracionGeneralAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("eliminarConfiguracionGeneral")]
+    public async Task<GraphqlResult> DeleteConfiguracionGeneralAsync([GraphQLName("configuracionGeneral")] DeleteConfigurationGeneralInput input,
+                                                   IValidator<DeleteConfigurationGeneralInput> validator,
+                                                   [Service] IConfigurationGeneralsExperienceMutations configurationGeneralsMutations,
+                                                   CancellationToken cancellationToken)
+    {
+        return await configurationGeneralsMutations.DeleteConfiguracionGeneralAsync(input, validator, cancellationToken);
     }
 }

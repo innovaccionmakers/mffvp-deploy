@@ -1,6 +1,7 @@
 ﻿using Accounting.Integrations.PassiveTransaction.GetPassiveTransactions;
 using Accounting.Presentation.DTOs;
 using Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput;
+using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
 
@@ -36,10 +37,10 @@ namespace Accounting.Presentation.GraphQL
 
                 return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                result.AddError(new Error("EXCEPTION", ex.Message, ErrorType.Failure));
+                return result;
             }
         }
     }

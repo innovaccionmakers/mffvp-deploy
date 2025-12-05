@@ -1,6 +1,7 @@
 ﻿using Accounting.Application.Abstractions.Data;
 using Accounting.Domain.Treasuries;
 using Accounting.Integrations.Treasuries.CreateTreasury;
+using Accounting.Integrations.Treasury.GetTreasuries;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -17,14 +18,19 @@ namespace Accounting.Application.Treasuries.CreateTreasury
         {
             try
             {
-                var treasury = Domain.Treasuries.Treasury.Create(
+                var treasury = await treasuryRepository.GetTreasuryAsync(request.PortfolioId, request.BankAccount, cancellationToken);
+
+                if (treasury != null)
+                    return Result.Failure<GetTreasuryResponse>(Error.NotFound("0", "Ya existe un registro de tesorería con esta cuenta bancaria."));
+
+                var result = Domain.Treasuries.Treasury.Create(
                 request.PortfolioId,
                 request.BankAccount,
                 request.DebitAccount,
                 request.CreditAccount
                 );
 
-                treasuryRepository.Insert(treasury.Value);
+                treasuryRepository.Insert(result.Value);
                 await unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return Result.Success();
@@ -32,7 +38,7 @@ namespace Accounting.Application.Treasuries.CreateTreasury
             catch (Exception ex)
             {
                 logger.LogError("Error al crear la tesoreria. Error: {Message}", ex.Message);
-                return Result.Failure(Error.NotFound("0", "Error al crear la tesoreria"));
+                return Result.Failure(Error.NotFound("0", "Error al crear la tesorería."));
             }
         }
     }

@@ -474,10 +474,10 @@ public class Query
 
     [GraphQLName("tesoreria")]
     public async Task<GraphqlResult<TreasuryDto>> GetTreasuriesAsync([GraphQLName("tesoreria")] GetTreasuryInput input,
-                                                                    [Service] ITreasuriesExperienceQueries passiveTransactionQueries,
+                                                                    [Service] ITreasuriesExperienceQueries treasuriesQueries,
                                                                     CancellationToken cancellationToken)
     {
-        return await passiveTransactionQueries.GetTreasuriesAsync(input, cancellationToken);
+        return await treasuriesQueries.GetTreasuriesAsync(input, cancellationToken);
     }
 
     [GraphQLName("conceptos")]
@@ -485,5 +485,13 @@ public class Query
                                                                     CancellationToken cancellationToken = default)
     {
         return await conceptQueries.GetConceptsAsync(cancellationToken);
+    }
+
+    [GraphQLName("configuracionGeneral")]
+    public async Task<GraphqlResult<ConfigurationGeneralDto>> GetConfigurationGeneralsAsync([GraphQLName("idPortafolio")] int portfolioId,
+                                                                    [Service] IConfigurationGeneralsExperienceQueries configurationGeneralsQueries,
+                                                                    CancellationToken cancellationToken)
+    {
+        return await configurationGeneralsQueries.GetConfigurationGeneralsAsync(portfolioId, cancellationToken);
     }
 }

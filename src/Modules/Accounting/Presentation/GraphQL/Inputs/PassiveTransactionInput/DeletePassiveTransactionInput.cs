@@ -3,10 +3,10 @@
 namespace Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput
 {
     public record class DeletePassiveTransactionInput(
-        [property: GraphQLName("PortafolioId")] 
+        [property: GraphQLName("portafolioId")] 
         int PortfolioId,
 
-        [property: GraphQLName("TipoOperacionesId")] 
+        [property: GraphQLName("tipoOperacionesId")] 
         long TypeOperationsId
         );
 }
