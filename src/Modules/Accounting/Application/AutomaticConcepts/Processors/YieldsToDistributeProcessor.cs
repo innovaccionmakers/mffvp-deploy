@@ -143,7 +143,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             var detail = distributedYield.Value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
 
 
-            var operationType = operationTypes.FirstOrDefault(ot => ot.Name == operationtypeName && ot.Nature == naturalezaFiltro);
+            var operationType = operationTypes.FirstOrDefault(ot => ot.Name.Trim() == operationtypeName.Trim() && ot.Nature == naturalezaFiltro);
 
             if (operationType == null)
             {
