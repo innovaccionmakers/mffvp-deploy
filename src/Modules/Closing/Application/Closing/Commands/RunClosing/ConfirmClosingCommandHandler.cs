@@ -2,6 +2,8 @@
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Integrations.Closing.RunClosing;
+using Common.SharedKernel.Application.Caching.Closing;
+using Common.SharedKernel.Application.Caching.Closing.Interfaces;
 using Common.SharedKernel.Application.Helpers.Time;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Domain;
@@ -13,6 +15,7 @@ internal sealed class ConfirmClosingCommandHandler(
     IConfirmClosingOrchestrator orchestrator,
     IPostClosingServicesOrchestation postClosingServicesOrchestation,
     IUnitOfWork unitOfWork,
+    IClosingExecutionStore closingExecutionStore,
     ILogger<ConfirmClosingCommandHandler> logger)
     : ICommandHandler<ConfirmClosingCommand, ConfirmClosingResult>
 {
@@ -21,8 +24,10 @@ internal sealed class ConfirmClosingCommandHandler(
         var closingDateUtc = DateTimeConverter.ToUtcDateTime(command.ClosingDate);
         Result<ConfirmClosingResult> result;
 
-        cancellationToken.ThrowIfCancellationRequested();
-             
+        try
+        {
+
+            cancellationToken.ThrowIfCancellationRequested();
 
         // -------------------------
         // FASE 1: Cierre + persistencia base
@@ -103,7 +108,34 @@ internal sealed class ConfirmClosingCommandHandler(
                 command.PortfolioId, command.ClosingDate);
               throw;
         }
+
         return result;
     }
+    finally
+    {
+        try
+        {
+            var isActive = await closingExecutionStore
+                .IsClosingActiveAsync(CancellationToken.None);
 
+            if (isActive)
+            {
+                await closingExecutionStore.EndAsync(CancellationToken.None);
+
+                logger.LogInformation(
+                    "ConfirmClosing: bloqueo closingExecution liberado en finally para Portafolio {PortfolioId}, Fecha {ClosingDate}",
+                    command.PortfolioId,
+                    command.ClosingDate);
+            }
+        }
+        catch (Exception cleanupException)
+        {
+            logger.LogError(
+                cleanupException,
+                "ConfirmClosing: error intentando liberar closingExecution en finally para Portafolio {PortfolioId}, Fecha {ClosingDate}",
+                command.PortfolioId,
+                command.ClosingDate);
+        }
+    }
+    }
 }
