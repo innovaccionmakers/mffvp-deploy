@@ -195,7 +195,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                portfolioResult.Value.Name,
                processDate.ToString("yyyyMM"),
                processDate,
-               $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
+               $"{operationType.Name.Trim()} {EnumHelper.GetEnumMemberValue(detail)}",
                distributedYield.Value,
                EnumHelper.GetEnumMemberValue(operationType.Nature)
            );
@@ -271,7 +271,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                 portfolioResult.Value.Name,
                 processDate.ToString("yyyyMM"),
                 processDate,
-                $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
+                $"{operationType.Name.Trim()} {EnumHelper.GetEnumMemberValue(detail)}",
                 yieldDetail.Income,
                 EnumHelper.GetEnumMemberValue(operationType.Nature)
 
