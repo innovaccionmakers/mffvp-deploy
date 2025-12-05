@@ -59,6 +59,8 @@ public sealed class ReturnsOperationsService(
 
         var concepts = configurationResult.Value;
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         var rows = await yieldToDistributeRepository
             .GetReadOnlyByPortfolioAndDateAsync(portfolioId, valuationDateUtc, cancellationToken);
 

@@ -1,6 +1,5 @@
 ﻿using Closing.Application.Abstractions.Data;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
-using Closing.Application.Closing.Services.Validation;
 using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Integrations.Closing.RunClosing;
 using Common.SharedKernel.Application.Helpers.Time;
@@ -41,16 +40,38 @@ internal sealed class ConfirmClosingCommandHandler(
                 cancellationToken.ThrowIfCancellationRequested();
                 await transaction.CommitAsync(cancellationToken);
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                }
+                catch (Exception rollbackException)
+                {
+                    logger.LogWarning(
+                        rollbackException,
+                        "Rollback falló en ConfirmClosing FASE 1 tras cancelación para Portafolio {PortfolioId}",
+                        command.PortfolioId);
+                }
+
+                logger.LogInformation(
+                    "ConfirmClosing FASE 1 cancelado por token para Portafolio {PortfolioId}",
+                    command.PortfolioId);
+
+                throw;
+            }
             catch (Exception ex)
             {
                 try
                 {
-                    await transaction.RollbackAsync(cancellationToken);
+                    await transaction.RollbackAsync(CancellationToken.None);
                 }
-                catch (Exception rbEx)
+                catch (Exception rollbackException)
                 {
-                    logger.LogWarning(rbEx,
-                        "Rollback falló en ConfirmClosing para Portafolio {PortfolioId}", command.PortfolioId);
+                    logger.LogWarning(
+                        rollbackException,
+                        "Rollback falló en ConfirmClosing FASE 1 tras excepción para Portafolio {PortfolioId}",
+                        command.PortfolioId);
                 }
 
                 logger.LogError(ex,
@@ -64,7 +85,16 @@ internal sealed class ConfirmClosingCommandHandler(
         // -------------------------
         try
         {
-            await postClosingServicesOrchestation.ExecuteAsync(command.PortfolioId, command.ClosingDate, cancellationToken);
+            await postClosingServicesOrchestation.ExecuteAsync(command.PortfolioId, command.ClosingDate, CancellationToken.None);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            logger.LogInformation(
+                "ConfirmarCierre: FASE 2 (post-cierre) cancelada por token para Portafolio {PortfolioId}, Fecha {ClosingDate}",
+                command.PortfolioId,
+                command.ClosingDate);
+
+            throw;
         }
         catch (Exception ex)
         {

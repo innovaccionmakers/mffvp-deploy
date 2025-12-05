@@ -11,4 +11,5 @@ public interface IPortfolioRepository
     Task UpdateAsync(Portfolio portfolio, CancellationToken ct);
     Task<IReadOnlyCollection<Portfolio>> GetPortfoliosByIdsAsync(IEnumerable<long> portfolioIds, CancellationToken cancellationToken = default);
     Task<bool> AreAllPortfoliosClosedAsync(IEnumerable<int> portfolioIds, DateTime date, CancellationToken cancellationToken = default);
+    Task<int> GetAgileWithdrawalPercentageProtectedBalanceAsync(int portfolioId, CancellationToken cancellationToken = default);
 }

@@ -58,7 +58,8 @@ internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkR
                 var newEarnings = MoneyHelper.Round2(trust.Earnings + d.YieldAmount);
                 var newEarningsWithholding = newEarnings > 0 ? TrustMath.CalculateYieldRetention(newEarnings, d.YieldRetentionRate, DecimalPrecision.TwoDecimals) : 0;
                 var newAvailable = MoneyHelper.Round2(newTotalBalance - newEarningsWithholding - trust.ContingentWithholding);
-
+                var newProtectedBalance = MoneyHelper.Round2(newTotalBalance * d.AgileWithdrawalPercentageProtectedBalance); 
+                var newAgileWithdrawalAvailable = MoneyHelper.Round2(newAvailable - newProtectedBalance);
                 trust.UpdateDetails(
                     trust.AffiliateId,
                     trust.ClientOperationId,
@@ -73,8 +74,8 @@ internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkR
                     trust.ContingentWithholding,
                     newEarningsWithholding,
                     newAvailable,
-                    trust.ProtectedBalance,
-                    trust.AgileWithdrawalAvailable,
+                    newProtectedBalance,
+                    newAgileWithdrawalAvailable,
                     trust.Status
                 );
 
@@ -98,7 +99,9 @@ internal sealed class TrustBulkRepository(TrustsDbContext context) : ITrustBulkR
                     nameof(Trust.TotalBalance),          // saldo_total
                     nameof(Trust.Earnings),              // rendimiento
                     nameof(Trust.EarningsWithholding),   // retencion_rendimiento
-                    nameof(Trust.AvailableAmount)        // disponible
+                    nameof(Trust.AvailableAmount),        // disponible
+                    nameof(Trust.AgileWithdrawalAvailable),// disponible_retiro_agil
+                    nameof(Trust.ProtectedBalance)        // saldo_protegido
                 }
             };
 

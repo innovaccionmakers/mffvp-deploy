@@ -32,7 +32,9 @@ internal sealed class UpdateTrustRemote(
             ClosingDate: request.ClosingDate,
             BatchIndex: request.BatchIndex,
             Rows: rows,
+             AgileWithdrawalPercentageProtectedBalance: request.AgileWithdrawalPercentageProtectedBalance,
             IdempotencyKey: request.IdempotencyKey
+           
         );
 
         try

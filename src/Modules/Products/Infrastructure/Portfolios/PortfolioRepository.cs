@@ -100,4 +100,16 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
 
         return portfolios.All(p => p.CurrentDate > date);
     }
+
+    public Task<int> GetAgileWithdrawalPercentageProtectedBalanceAsync(
+    int portfolioId, CancellationToken cancellationToken = default)
+    {
+        return context.Portfolios
+            .AsNoTracking()
+            .TagWith("PortfolioRepository_GetAgileWithdrawalPercentageProtectedBalanceAsync")
+            .Where(p => p.PortfolioId == portfolioId
+                   )
+            .Select(p => p.AgileWithdrawalPercentageProtectedBalance)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

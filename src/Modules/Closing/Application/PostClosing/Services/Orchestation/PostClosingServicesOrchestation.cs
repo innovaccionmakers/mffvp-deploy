@@ -1,7 +1,7 @@
 ﻿using Closing.Application.Closing.Services.Telemetry;
 using Closing.Application.PostClosing.Services.PendingTransactions;
 using Closing.Application.PostClosing.Services.PortfolioCommission;
-using Closing.Application.PostClosing.Services.PortfolioUpdate;
+using Closing.Application.PostClosing.Services.PortfolioServices;
 using Closing.Application.PostClosing.Services.TechnicalSheetEvent;
 using Closing.Application.PostClosing.Services.TrustSync;
 using Closing.Application.PostClosing.Services.TrustYield;
@@ -12,7 +12,7 @@ namespace Closing.Application.PostClosing.Services.Orchestation;
 
 public class PostClosingServicesOrchestation : IPostClosingServicesOrchestation
 {
-    private readonly IPortfolioUpdateService _portfolioPublisher;
+    private readonly IPortfolioService _portfolioPublisher;
     private readonly ITrustYieldProcessor _trustYieldProcessor;
     private readonly IPortfolioCommissionService _commissionProcessor;
     private readonly IPendingTransactionsService _pendingTransactionHandler;
@@ -22,7 +22,7 @@ public class PostClosingServicesOrchestation : IPostClosingServicesOrchestation
     private readonly ILogger<PostClosingServicesOrchestation> _logger;
 
     public PostClosingServicesOrchestation(
-        IPortfolioUpdateService portfolioPublisher,
+        IPortfolioService portfolioPublisher,
         ITrustYieldProcessor trustYieldProcessor,
         IPortfolioCommissionService commissionProcessor,
         IPendingTransactionsService pendingTransactionHandler,
@@ -56,54 +56,45 @@ public class PostClosingServicesOrchestation : IPostClosingServicesOrchestation
                     "PostClosingServicesOrchestation.PortfolioUpdate",
                     portfolioId,
                     closingDate,
-                    ct => _portfolioPublisher.ExecuteAsync(portfolioId, closingDate, ct),
-                    cancellationToken);
+                    () => _portfolioPublisher.UpdateAsync(portfolioId, closingDate, CancellationToken.None));
 
                 var commissionTask = MeasureAsync(
                     "PostClosingServicesOrchestation.PortfolioFeeCollector",
                     portfolioId,
                     closingDate,
-                    ct => _commissionProcessor.ExecuteAsync(portfolioId, closingDate, ct),
-                    cancellationToken);
+                    () => _commissionProcessor.ExecuteAsync(portfolioId, closingDate, CancellationToken.None));
 
                 var syncPostTask = MeasureAsync(
                     "PostClosingServicesOrchestation.DataSyncPost",
                     portfolioId,
                     closingDate,
-                    ct => _dataSyncPostService.ExecuteAsync(portfolioId, closingDate, ct),
-                    cancellationToken);
+                    () => _dataSyncPostService.ExecuteAsync(portfolioId, closingDate, CancellationToken.None));
+
 
                 await Task.WhenAll(valuationTask, commissionTask, syncPostTask);
-
-                cancellationToken.ThrowIfCancellationRequested();
 
                 // 4: Rendimientos de fideicomiso
                 await MeasureAsync(
                     "PostClosingServicesOrchestation.TrustYieldsGenerated",
                     portfolioId,
                     closingDate,
-                    ct => _trustYieldProcessor.ProcessAsync(portfolioId, closingDate, ct),
-                    cancellationToken);
+                    () => _trustYieldProcessor.ProcessAsync(portfolioId, closingDate, CancellationToken.None));
 
-                cancellationToken.ThrowIfCancellationRequested();
 
                 // 5: Transacciones pendientes + ClosingEnd ( closingDate+1)
                 await MeasureAsync(
                     "PostClosingServicesOrchestation.PendingTransactionHandler",
                     portfolioId,
                     closingDate,
-                    ct => _pendingTransactionHandler.HandleAsync(portfolioId, closingDate.AddDays(1), ct),
-                    cancellationToken);
+                    () => _pendingTransactionHandler.HandleAsync(portfolioId, closingDate.AddDays(1), CancellationToken.None));
 
-                cancellationToken.ThrowIfCancellationRequested();
 
                 // 6: Ficha técnica
                 await MeasureAsync(
                     "PostClosingServicesOrchestation.TechnicalSheetPublisher",
                     portfolioId,
                     closingDate,
-                    ct => _technicalSheetPublisher.PublishAsync(DateOnly.FromDateTime(closingDate), ct),
-                    cancellationToken);
+                    () => _technicalSheetPublisher.PublishAsync(DateOnly.FromDateTime(closingDate), CancellationToken.None));
             }
             catch (OperationCanceledException)
             {
@@ -124,12 +115,11 @@ public class PostClosingServicesOrchestation : IPostClosingServicesOrchestation
         string stepName,
         int portfolioId,
         DateTime closingDateUtc,
-        Func<CancellationToken, Task> action,
-        CancellationToken cancellationToken)
+        Func<Task> action)
     {
         using (_stepTimer.Track(stepName, portfolioId, closingDateUtc))
         {
-            await action(cancellationToken);
+            await action();
         }
     }
 }

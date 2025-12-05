@@ -2,6 +2,7 @@
 using Closing.Application.Abstractions.External.Operations.OperationTypes;
 using Closing.Application.Abstractions.External.Operations.TrustOperations;
 using Closing.Application.Abstractions.External.Trusts.Trusts;
+using Closing.Application.PostClosing.Services.PortfolioServices;
 using Closing.Application.PostClosing.Services.TrustYield;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.TrustYields;
@@ -13,6 +14,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using NuGet.Frameworks;
 using System.Collections.Concurrent;
 using System.Net.NetworkInformation;
 using System.Text.Json;
@@ -27,7 +29,8 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
         private readonly Mock<IUpdateTrustRemote> trustsRemote = new();
         private readonly Mock<IOperationTypesLocator> operationTypesLocator = new();
         private readonly Mock<ILogger<TrustYieldProcessor>> logger = new();
-        private readonly Mock<IConfigurationParameterRepository> configurationParameterRepository = new();  
+        private readonly Mock<IConfigurationParameterRepository> configurationParameterRepository = new();
+        private readonly Mock<IPortfolioService> portfolioService = new();
 
         private static IOptions<TrustYieldOptions> Options(int bulkBatchSize = 3, bool useEmitFilter = false)
             => Microsoft.Extensions.Options.Options.Create(new TrustYieldOptions
@@ -44,7 +47,8 @@ namespace Closing.test.UnitTests.Application.PostClosing.Services
                 logger.Object,
                 operationTypesLocator.Object,
                 options ?? Options(),
-                configurationParameterRepository.Object
+                configurationParameterRepository.Object,
+                portfolioService.Object
 
             );
 

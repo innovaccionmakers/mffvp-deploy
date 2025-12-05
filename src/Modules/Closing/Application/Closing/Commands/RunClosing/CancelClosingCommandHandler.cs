@@ -16,10 +16,18 @@ internal sealed class CancelClosingCommandHandler(
         cancellationToken.ThrowIfCancellationRequested();
         try
         {
-            cancellationToken.ThrowIfCancellationRequested();
             var result = await orchestrator.CancelAsync(command.PortfolioId, command.ClosingDate, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             return result;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Cancelación “controlada” de la request (se mapeará a 499 más arriba)
+            logger.LogInformation(
+                "CancelClosingCommand cancelado para Portafolio {PortfolioId}",
+                command.PortfolioId);
+
+            throw;
         }
         catch (Exception ex)
         {

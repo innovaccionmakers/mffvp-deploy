@@ -30,7 +30,7 @@ public sealed class UpdatePortfolioFromClosingConsumer
 
             return new UpdatePortfolioFromClosingResponse(
                 Succeeded: true,
-                Status: "Updated",     // o "NoChange" si tu command lo detecta
+                Status: "Updated",    
                 UpdatedCount: 1,
                 Code: "OK",
                 Message: "Portafolio actualizado desde Closing."
