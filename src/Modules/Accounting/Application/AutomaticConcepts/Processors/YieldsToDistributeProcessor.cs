@@ -35,17 +35,10 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                                                                                                                  [ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteExpense, ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNoteIncome],
                                                                                                                  cancellationToken);
 
-        if (distributedYields.IsFailure)
-        {
-            logger.LogError("No se pudieron obtener los rendimientos distribuidos para los portafolios: {Error}", distributedYields.Error);
-            return Result.Success(true);
-        }
+        var (distributedYieldsValue, yieldDetailsValue, skipProcessing) = PrepareYieldData(distributedYields, yieldDetails);
 
-        if (yieldDetails.IsFailure)
-        {
-            logger.LogError("No se pudieron obtener los detalles de rendimiento para los portafolios: {Error}", yieldDetails.Error);
+        if (skipProcessing)
             return Result.Success(true);
-        }
 
         var operationTypes = await operationLocator.GetOperationTypesByNameAsync(OperationTypeNames.AutomaticConceptAccountingNote, cancellationToken);
 
@@ -55,7 +48,13 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             return Result.Failure<bool>(Error.Problem("Automatic.Concepts", "No se pudieron obtener los tipos de operación para los conceptos automáticos"));
         }
 
-        var distributedYieldsResult = await CreateRangeFromDistributedYields(distributedYields.Value, yieldDetails.Value, processDate, operationTypes.Value, OperationTypeNames.AutomaticConceptAccountingNote, cancellationToken);
+        var distributedYieldsResult = await CreateRangeFromDistributedYields(
+            distributedYieldsValue,
+            yieldDetailsValue,
+            processDate,
+            operationTypes.Value,
+            OperationTypeNames.AutomaticConceptAccountingNote,
+            cancellationToken);
 
         if (!distributedYieldsResult.IsSuccess)
         {
@@ -79,7 +78,37 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
         }
 
         return Result.Success(true);
+    }
 
+    private (IReadOnlyCollection<GenericDebitNoteResponse>, IReadOnlyCollection<YieldDetailResponse>, bool shouldSkip) PrepareYieldData(
+        Result<IReadOnlyCollection<GenericDebitNoteResponse>> distributedYields,
+        Result<IReadOnlyCollection<YieldDetailResponse>> yieldDetails)
+    {
+        if (distributedYields.IsFailure && yieldDetails.IsFailure)
+        {
+            logger.LogError("No se pudieron obtener los rendimientos distribuidos para los portafolios: {Error} y no se pudieron obtener los detalles de rendimiento para los portafolios: {Error}",
+                distributedYields.Error, yieldDetails.Error);
+            return (new List<GenericDebitNoteResponse>().AsReadOnly(), new List<YieldDetailResponse>().AsReadOnly(), true);
+        }
+
+        var hasDistributedYields = distributedYields.IsSuccess && distributedYields.Value != null && distributedYields.Value.Any();
+        var hasYieldDetails = yieldDetails.IsSuccess && yieldDetails.Value != null && yieldDetails.Value.Any();
+
+        if (!hasDistributedYields && !hasYieldDetails)
+        {
+            logger.LogInformation("No hay rendimientos distribuidos ni detalles de rendimiento para procesar");
+            return (new List<GenericDebitNoteResponse>().AsReadOnly(), new List<YieldDetailResponse>().AsReadOnly(), true);
+        }
+
+        var distributedYieldsValue = hasDistributedYields
+            ? distributedYields.Value
+            : new List<GenericDebitNoteResponse>().AsReadOnly();
+
+        var yieldDetailsValue = hasYieldDetails
+            ? yieldDetails.Value
+            : new List<YieldDetailResponse>().AsReadOnly();
+
+        return (distributedYieldsValue, yieldDetailsValue, false);
     }
 
     private async Task<ProcessingResult<AccountingAssistant, AccountingInconsistency>> CreateRangeFromDistributedYields(IReadOnlyCollection<GenericDebitNoteResponse> distributedYields,
@@ -92,7 +121,11 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
         var accountingAssistants = new List<AccountingAssistant>();
         var errors = new List<AccountingInconsistency>();
 
-        var portfolioIds = distributedYields.Select(yd => yd.PortfolioId).Distinct().ToList();
+        var portfolioIds = distributedYields.Select(yd => yd.PortfolioId)
+            .Union(yieldDetails.Select(yd => yd.PortfolioId))
+            .Distinct()
+            .ToList();
+
         var operationTypeIds = operationTypes.Select(ot => ot.OperationTypeId).Distinct().ToList();
         var passiveTransactions = await passiveTransactionRepository
             .GetByPortfolioIdsAndOperationTypesAsync(portfolioIds, operationTypeIds, cancellationToken);
@@ -102,7 +135,9 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             .ToDictionary(g => g.Key, g => g.First());
 
         //T0 Automatic Concepts Debit Note
-        foreach (var distributedYield in distributedYields)
+        if (distributedYields.Any())
+        {
+            foreach (var distributedYield in distributedYields)
         {
             IncomeEgressNature naturalezaFiltro = distributedYield.Value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
             var detail = distributedYield.Value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
@@ -162,7 +197,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                processDate,
                $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
                distributedYield.Value,
-               EnumHelper.GetEnumMemberValue(operationType.Nature) 
+               EnumHelper.GetEnumMemberValue(operationType.Nature)
            );
 
 
@@ -175,11 +210,13 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             }
 
             accountingAssistants.AddRange(distributedYieldCreate.Value.ToDebitAndCredit(passiveTransaction.DebitAccount, passiveTransaction.CreditAccount));
+            }
         }
 
-
         //T1 Automatic Concepts Debit Note
-        foreach (var yieldDetail in yieldDetails)
+        if (yieldDetails.Any())
+        {
+            foreach (var yieldDetail in yieldDetails)
         {
             IncomeEgressNature naturalezaFiltro = yieldDetail.Income < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
             var detail = yieldDetail.Income < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
@@ -249,7 +286,9 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             }
 
             accountingAssistants.AddRange(accountingAssistant.Value.ToDebitAndCredit(passiveTransaction.ContraDebitAccount, passiveTransaction.ContraCreditAccount));
+            }
         }
+
         return new ProcessingResult<AccountingAssistant, AccountingInconsistency>(accountingAssistants, errors);
     }
 }
