@@ -3,15 +3,9 @@ using Accounting.Application.PassiveTransaction.DeletePassiveTransaction;
 using Accounting.Application.PassiveTransaction.UpdatePassiveTransaction;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.PassiveTransaction.DeletePassiveTransaction;
-using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
-using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Accounting.test.UnitTests.PassiveTransaction
 {

@@ -3,9 +3,9 @@
 namespace Accounting.Presentation.GraphQL.Inputs.TreasuriesInput
 {
     public sealed record class GetTreasuryInput(
-        [property: GraphQLName("PortafolioId")]
+        [property: GraphQLName("portafolioId")]
         int PortfolioId,
-        [property: GraphQLName("CuentaBancaria")]
+        [property: GraphQLName("cuentaBancaria")]
         string BankAccount
         );
 }

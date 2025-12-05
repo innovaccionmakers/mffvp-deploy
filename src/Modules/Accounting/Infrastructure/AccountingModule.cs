@@ -133,6 +133,8 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<ITreasuriesExperienceMutations, TreasuriesExperienceMutations>(); 
         services.AddScoped<IConceptMutations, ConceptMutations>();
         services.AddScoped<IConceptQueries, ConceptQueries>();
+        services.AddScoped<IConfigurationGeneralsExperienceQueries, ConfigurationGeneralsExperienceQueries>();
+        services.AddScoped<IConfigurationGeneralsExperienceMutations, ConfigurationGeneralsExperienceMutations>();
         services.AddTransient<IRpcHandler<AreAllPortfoliosClosedRequest, AreAllPortfoliosClosedResponse>, AreAllPortfoliosClosedConsumer>();
     }
 

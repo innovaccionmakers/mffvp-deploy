@@ -3,21 +3,21 @@
 namespace Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput
 {
     public record class UpdatePassiveTransactionInput(
-        [property: GraphQLName("PortafolioId")]
+        [property: GraphQLName("portafolioId")]
         int PortfolioId,
 
-        [property: GraphQLName("TipoOperacionesId")]
+        [property: GraphQLName("tipoOperacionesId")]
         long TypeOperationsId,
 
-        [property: GraphQLName("CuentaDebito")]
+        [property: GraphQLName("cuentaDebito")]
         string? DebitAccount,
 
-        [property: GraphQLName("CuentaCredito")]
+        [property: GraphQLName("cuentaCredito")]
         string? CreditAccount,
 
-        [property: GraphQLName("CuentaContraCredito")]
+        [property: GraphQLName("cuentaContraCredito")]
         string? ContraCreditAccount,
 
-        [property: GraphQLName("CuentaContraDebito")]
+        [property: GraphQLName("cuentaContraDebito")]
         string? ContraDebitAccount);
 }

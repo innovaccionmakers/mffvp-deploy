@@ -18,7 +18,7 @@ namespace Accounting.Application.Treasury.GetTreasuries
                 var treasury = await treasuryRepository.GetTreasuryAsync(request.PortfolioId, request.BankAccount, cancellationToken);
 
                 if (treasury is null)
-                    return Result.Failure<GetTreasuryResponse>(Error.NotFound("0", "No hay registros de tesorería"));
+                    return Result.Failure<GetTreasuryResponse>(Error.NotFound("0", "No se encontró registro de la tesorería"));
 
                 var result = new GetTreasuryResponse(
                     treasury.TreasuryId,

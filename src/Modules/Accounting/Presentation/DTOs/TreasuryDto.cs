@@ -3,11 +3,11 @@
 namespace Accounting.Presentation.DTOs
 {
     public sealed record class TreasuryDto(
-        [property: GraphQLName("CuentaBancaria")]
+        [property: GraphQLName("cuentaBancaria")]
         string? BankAccount,
-        [property: GraphQLName("CuentaDebito")]
+        [property: GraphQLName("cuentaDebito")]
         string? DebitAccount,
-        [property: GraphQLName("CuentaCredito")]
+        [property: GraphQLName("cuentaCredito")]
         string? CreditAccount
         );
 }

@@ -18,6 +18,11 @@ namespace Accounting.Application.PassiveTransaction.CreatePassiveTransaction
         {
             try
             {
+                var passiveTransactions = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(request.PortfolioId, request.TypeOperationsId, cancellationToken);
+
+                if (passiveTransactions != null)
+                    return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "Ya existe una configuración contable para esta operación."));
+
                 var result = Domain.PassiveTransactions.PassiveTransaction.Create(
                     request.PortfolioId,
                     request.TypeOperationsId,
