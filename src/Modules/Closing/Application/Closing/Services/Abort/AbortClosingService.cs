@@ -20,9 +20,16 @@ public sealed class AbortClosingService(
 {
     public async Task<Result> AbortAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
-        cancellationToken.ThrowIfCancellationRequested();
 
-        var isActive = await store.IsClosingActiveAsync(cancellationToken);
+        if (cancellationToken.IsCancellationRequested)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+        }
+
+        // Token para ejecutar el abort completo sin riesgo de cortarlo a medias.
+        var abortToken = CancellationToken.None;
+
+        var isActive = await store.IsClosingActiveAsync(abortToken);
         if (!isActive)
         {
             return Result.Failure(new Error("001", "No hay cierre activo para el portafolio.", ErrorType.Validation));
@@ -30,53 +37,52 @@ public sealed class AbortClosingService(
 
         var closingDateUtc = DateTime.SpecifyKind(closingDate.Date, DateTimeKind.Utc);
 
-        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await using var transaction = await unitOfWork.BeginTransactionAsync(abortToken);
 
         try
         {
             // 1) Borrar simulación cerrada
             using (stepTimer.Track("Abort.DeleteSimulation", portfolioId, closingDateUtc))
             {
-                await abortSimulationService.DeleteClosedSimulationAsync(portfolioId, closingDateUtc, cancellationToken);
+                await abortSimulationService.DeleteClosedSimulationAsync(portfolioId, closingDateUtc, abortToken);
             }
 
             // 2) Borrar valoración cerrada
             using (stepTimer.Track("Abort.DeleteValuation", portfolioId, closingDateUtc))
             {
-                await abortPortfolioValuationService.DeleteClosedValuationAsync(portfolioId, closingDateUtc, cancellationToken);
+                await abortPortfolioValuationService.DeleteClosedValuationAsync(portfolioId, closingDateUtc, abortToken);
             }
 
             // 3) Borrar rendimientos de fideicomisos (set-based) y registrar conteo
             using (stepTimer.Track("Abort.DeleteTrustYields", portfolioId, closingDateUtc))
             {
-                var deleted = await abortTrustYieldService.DeleteTrustYieldsAsync(portfolioId, closingDateUtc, cancellationToken);
+                var deleted = await abortTrustYieldService.DeleteTrustYieldsAsync(portfolioId, closingDateUtc, abortToken);
                 stepTimer.SetResultCount(deleted); 
             }
 
             // 4) Guardar cambios
             using (stepTimer.Track("Abort.UnitOfWork.SaveChanges", portfolioId, closingDateUtc))
             {
-                await unitOfWork.SaveChangesAsync(cancellationToken);
+                await unitOfWork.SaveChangesAsync(abortToken);
             }
 
             // 5) Commit transacción
             using (stepTimer.Track("Abort.Transaction.Commit", portfolioId, closingDateUtc))
             {
-                await transaction.CommitAsync(cancellationToken);
+                await transaction.CommitAsync(abortToken);
             }
 
             // 6) Reactivar flujo (pendientes)
             using (stepTimer.Track("Abort.PendingTransactions", portfolioId, closingDateUtc))
             {
-                await pendingTransactionHandler.HandleAsync(portfolioId, closingDateUtc, cancellationToken);
+                await pendingTransactionHandler.HandleAsync(portfolioId, closingDateUtc, abortToken);
             }
 
             return Result.Success();
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync(cancellationToken);
-            // ÚNICO log: error
+            await transaction.RollbackAsync(abortToken);
             logger.LogError(ex, "AbortClosingService | Error abortando cierre. Portafolio={PortfolioId}, Fecha={ClosingDateUtc:O}",
                 portfolioId, closingDateUtc);
             return Result.Failure(new Error("002", "Error al abortar el cierre.", ErrorType.Failure));

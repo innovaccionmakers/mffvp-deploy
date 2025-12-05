@@ -39,7 +39,8 @@ internal sealed class UpdateTrustFromYieldCommandHandler(
                     r.TrustId,
                     MoneyHelper.Round2(r.YieldAmount),
                     MoneyHelper.Round2(r.YieldRetentionRate),
-                    MoneyHelper.Round2(r.ClosingBalance)))
+                    MoneyHelper.Round2(r.ClosingBalance),
+                    r.AgileWithdrawalPercentageProtectedBalance))
                 .ToList();
 
             await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);

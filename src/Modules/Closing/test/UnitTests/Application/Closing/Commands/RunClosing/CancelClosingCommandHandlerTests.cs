@@ -149,14 +149,17 @@ public class CancelClosingCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleLogsErrorAndRethrowsWhenCancellationIsRequestedAfterOrchestratorCompletes()
+    public async Task HandleLogsInformationAndRethrowsWhenCancellationIsRequestedAfterOrchestratorCompletes()
     {
         // Arrange
         var cts = new CancellationTokenSource();
         var command = new CancelClosingCommand(fixture.Create<int>(), fixture.Create<DateTime>());
 
         orchestratorMock
-            .Setup(o => o.CancelAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .Setup(o => o.CancelAsync(
+                command.PortfolioId,
+                command.ClosingDate,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
                 cts.Cancel();
@@ -166,10 +169,13 @@ public class CancelClosingCommandHandlerTests
         var sut = new CancelClosingCommandHandler(orchestratorMock.Object, loggerMock.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<OperationCanceledException>(() => sut.Handle(command, cts.Token));
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => sut.Handle(command, cts.Token));
 
-        loggerMock.VerifyLog(LogLevel.Error, Times.Once());
+        loggerMock.VerifyLog(LogLevel.Information, Times.Once());
+        loggerMock.VerifyLog(LogLevel.Error, Times.Never());
     }
+
 }
 
 public static class LoggerMoqExtensions

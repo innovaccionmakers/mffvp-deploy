@@ -31,7 +31,8 @@ public sealed class UpdateTrustFromYieldConsumer
                     TrustId: r.TrustId,
                     YieldAmount: r.YieldAmount,
                     YieldRetentionRate: r.YieldRetention,
-                    ClosingBalance: r.ClosingBalance))
+                    ClosingBalance: r.ClosingBalance,
+                    AgileWithdrawalPercentageProtectedBalance: request.AgileWithdrawalPercentageProtectedBalance))
                 .ToList();
 
             var command = new UpdateTrustFromYieldCommand(

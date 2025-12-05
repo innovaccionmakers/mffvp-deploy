@@ -61,10 +61,12 @@ using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.EntityValidation;
 using Products.IntegrationEvents.Portfolio;
 using Products.IntegrationEvents.Portfolio.AreAllPortfoliosClosed;
+using Products.IntegrationEvents.Portfolio.GetInfoForClosing;
 using Products.IntegrationEvents.Portfolio.GetPortfolioInformation;
 using Products.IntegrationEvents.Portfolio.UpdateFromClosing;
 using Products.IntegrationEvents.PortfolioValidation;
 using Products.IntegrationEvents.TechnicalSheet;
+using Products.Integrations.Portfolios.Queries;
 using Products.Presentation.GraphQL;
 using Products.Presentation.MinimalApis;
 
@@ -143,6 +145,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<GetAdditionalInformationRequest, GetAdditionalInformationResponse>, GetAdditionalInformationConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioInformationByIdRequest, GetPortfolioInformationByIdResponse>, GetPortfolioInformationByIdConsumer>();
         services.AddTransient<IRpcHandler<AreAllPortfoliosClosedRequest, AreAllPortfoliosClosedResponse>, AreAllPortfoliosClosedConsumer>();
+        services.AddTransient<IRpcHandler<GetPortfolioInfoForClosingRequest, GetPortfolioInfoForClosingResponse>, GetPortfolioInfoForClosingConsumer>();
 
         services.AddScoped<IAccumulatedCommissionRepository, AccumulatedCommissionRepository>();
         services.AddScoped<ITechnicalSheetRepository, TechnicalSheetRepository>();

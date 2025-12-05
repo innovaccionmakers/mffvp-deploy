@@ -2,14 +2,15 @@
 using Closing.Application.Abstractions.External.Products.Portfolios;
 using Microsoft.Extensions.Logging;
 
-namespace Closing.Application.PostClosing.Services.PortfolioUpdate;
+namespace Closing.Application.PostClosing.Services.PortfolioServices;
 
-public sealed class PortfolioUpdateService(
+public sealed class PortfolioService(
     IUpdatePortfolioFromClosingRemote updateRemote,
-    ILogger<PortfolioUpdateService> logger)
-    : IPortfolioUpdateService
+     IGetPortfolioDataRemote getRemote,
+    ILogger<PortfolioService> logger)
+    : IPortfolioService
 {
-    public async Task ExecuteAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
+    public async Task UpdateAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
     {
         var idempotencyKey = $"portfolio-upd:{portfolioId}:{closingDate:yyyyMMdd}";
         var request = new UpdatePortfolioFromClosingRemoteRequest(
@@ -28,6 +29,22 @@ public sealed class PortfolioUpdateService(
         if (!ok) throw new InvalidOperationException($"UpdatePortfolioFromClosing failed: {resp.Status}. {resp.Message}");
 
         logger.LogInformation("[{Class}] Portafolio actualizado. UpdatedCount={Count}",
-            nameof(PortfolioUpdateService), resp.UpdatedCount);
+            nameof(PortfolioService), resp.UpdatedCount);
+    }
+
+    public async Task<int> GetAsync(int portfolioId, CancellationToken cancellationToken)
+    {
+        var request = new GetPortfolioClosingDataRemoteRequest(
+            PortfolioId: portfolioId
+        );
+
+        var result = await getRemote.GetAsync(request, cancellationToken);
+        if (result.IsFailure) throw new InvalidOperationException($"{result.Error.Code} {result.Error.Description}");
+
+        var resp = result.Value;
+        var ok = resp.Succeeded;
+        if (!ok) throw new InvalidOperationException($"GetAsync failed: {resp.Code}. {resp.Message}");
+
+        return resp.AgileWithdrawalPercentageProtectedBalance;
     }
 }

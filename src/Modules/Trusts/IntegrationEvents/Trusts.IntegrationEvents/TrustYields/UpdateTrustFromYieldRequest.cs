@@ -5,5 +5,6 @@ public sealed record UpdateTrustFromYieldRequest(
     DateTime ClosingDate,
     int BatchIndex,
     IReadOnlyList<ApplyYieldRowDto> Rows,
+    decimal AgileWithdrawalPercentageProtectedBalance,
     string? IdempotencyKey = null
 );
