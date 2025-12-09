@@ -95,10 +95,10 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         return clientOperations;
     }
 
-    public async Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<AccountingOperationsResponse>> GetAccountingOperationsAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken = default)
     {
         if (portfolioIds == null || !portfolioIds.Any())
-            return Enumerable.Empty<ClientOperation>();
+            return Enumerable.Empty<AccountingOperationsResponse>();
 
         return await context.ClientOperations
             .Where(co => co.Status == LifecycleStatus.Active)
@@ -108,13 +108,21 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .Include(co => co.OperationType)
             .AsSplitQuery()
             .AsNoTracking()
+            .Select(co => new AccountingOperationsResponse
+            (
+                co.PortfolioId,
+                co.AffiliateId,
+                co.Amount,
+                co.OperationTypeId,
+                co.AuxiliaryInformation.CollectionAccount
+            ))
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<ClientOperation>> GetAccountingDebitNoteOperationsAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<AccountingOperationsResponse>> GetAccountingDebitNoteOperationsAsync(IEnumerable<int> portfolioIds, DateTime processDate, CancellationToken cancellationToken = default)
     {
         if (portfolioIds == null || !portfolioIds.Any())
-            return Enumerable.Empty<ClientOperation>();
+            return Enumerable.Empty<AccountingOperationsResponse>();
 
         return await context.ClientOperations
             .Where(co => co.Status == LifecycleStatus.Active)
@@ -126,6 +134,14 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .Where(co => co.LinkedClientOperation != null && co.LinkedClientOperation.AuxiliaryInformation != null && !string.IsNullOrWhiteSpace(co.LinkedClientOperation.AuxiliaryInformation.CollectionAccount))
             .AsSplitQuery()
             .AsNoTracking()
+            .Select(co => new AccountingOperationsResponse
+            (
+                co.PortfolioId,
+                co.AffiliateId,
+                co.Amount,
+                co.OperationTypeId,
+                co.AuxiliaryInformation.CollectionAccount
+            ))
             .ToListAsync(cancellationToken);
     }
 
