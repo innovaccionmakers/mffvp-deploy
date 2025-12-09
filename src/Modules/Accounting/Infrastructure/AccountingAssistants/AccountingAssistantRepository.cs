@@ -1,5 +1,6 @@
 ﻿using Accounting.Domain.AccountingAssistants;
 using Accounting.Infrastructure.Database;
+using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Accounting.Infrastructure.AccountingAssistants;
@@ -8,7 +9,18 @@ public sealed class AccountingAssistantRepository(AccountingDbContext context) :
 {
     public async Task AddRangeAsync(IEnumerable<AccountingAssistant> accountingAssistants, CancellationToken cancellationToken = default)
     {
-        await context.AccountingAssistants.AddRangeAsync(accountingAssistants, cancellationToken);
+        var assistantsList = accountingAssistants.ToList();
+
+        if (assistantsList.Count == 0)
+            return;
+
+        var bulkConfig = new BulkConfig
+        {
+            BatchSize = 4000,
+            BulkCopyTimeout = 300,
+        };
+
+        await context.BulkInsertAsync(assistantsList, bulkConfig, cancellationToken: cancellationToken);
     }
 
     public async Task DeleteRangeAsync(CancellationToken cancellationToken = default)

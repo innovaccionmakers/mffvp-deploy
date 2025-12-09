@@ -19,7 +19,6 @@ internal sealed class AddAccountingEntitiesCommandHandler(ILogger<AddAccountingE
         try
         {
             await accountingAssistantRepository.AddRangeAsync(request.AccountingAssistants, cancellationToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
             await tx.CommitAsync(cancellationToken);
 
             logger.LogInformation("Se agregaron con éxito {Count} entidades contables", request.AccountingAssistants.Count());
