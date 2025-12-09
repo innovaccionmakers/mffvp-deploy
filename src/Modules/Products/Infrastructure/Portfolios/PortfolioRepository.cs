@@ -98,6 +98,6 @@ internal sealed class PortfolioRepository(ProductsDbContext context) : IPortfoli
         if (portfolios.Count != portfolioIds.Count())
             return false;
 
-        return portfolios.All(p => p.CurrentDate > date);
+        return portfolios.All(p => p.CurrentDate >= date);
     }
 }
