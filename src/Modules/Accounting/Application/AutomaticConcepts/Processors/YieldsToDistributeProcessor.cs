@@ -130,7 +130,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
         var passiveTransactions = await passiveTransactionRepository
             .GetByPortfolioIdsAndOperationTypesAsync(portfolioIds, operationTypeIds, cancellationToken);
 
-        var passiveTransactionsDict = passiveTransactions
+        var passiveTransactionsDict = (passiveTransactions ?? [])
             .GroupBy(pt => (pt.PortfolioId, pt.TypeOperationsId))
             .ToDictionary(g => g.Key, g => g.First());
 
@@ -140,10 +140,10 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             foreach (var distributedYield in distributedYields)
         {
             IncomeEgressNature naturalezaFiltro = distributedYield.Value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
-            var detail = distributedYield.Value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
+            var detail = distributedYield.Value > 0 ? IncomeExpenseNature.Expense : IncomeExpenseNature.Income;
 
 
-            var operationType = operationTypes.FirstOrDefault(ot => ot.Name == operationtypeName && ot.Nature == naturalezaFiltro);
+            var operationType = operationTypes.FirstOrDefault(ot => ot.Name.Trim() == operationtypeName.Trim() && ot.Nature == naturalezaFiltro);
 
             if (operationType == null)
             {
@@ -195,7 +195,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                portfolioResult.Value.Name,
                processDate.ToString("yyyyMM"),
                processDate,
-               $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
+               $"{operationType.Name.Trim()} {EnumHelper.GetEnumMemberValue(detail)}",
                distributedYield.Value,
                EnumHelper.GetEnumMemberValue(operationType.Nature)
            );
@@ -219,9 +219,9 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
             foreach (var yieldDetail in yieldDetails)
         {
             IncomeEgressNature naturalezaFiltro = yieldDetail.Income < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
-            var detail = yieldDetail.Income < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
+            var detail = yieldDetail.Income > 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
 
-            var operationType = operationTypes.FirstOrDefault(ot => ot.Name == operationtypeName && ot.Nature == naturalezaFiltro);
+            var operationType = operationTypes.FirstOrDefault(ot => ot.Name.Trim() == operationtypeName.Trim() && ot.Nature == naturalezaFiltro);
             if (operationType == null)
             {
                 var errorMessage = $"No se encontró el tipo de operación para el concepto automático {operationtypeName} con naturaleza {naturalezaFiltro} para el portafolio {yieldDetail.PortfolioId}";
@@ -271,7 +271,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                 portfolioResult.Value.Name,
                 processDate.ToString("yyyyMM"),
                 processDate,
-                $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
+                $"{operationType.Name.Trim()} {EnumHelper.GetEnumMemberValue(detail)}",
                 yieldDetail.Income,
                 EnumHelper.GetEnumMemberValue(operationType.Nature)
 
