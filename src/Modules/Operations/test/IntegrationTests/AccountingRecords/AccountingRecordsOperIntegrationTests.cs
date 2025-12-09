@@ -380,13 +380,13 @@ public class AccountingRecordsOperIntegrationTests
             CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
-        public Task<IEnumerable<ClientOperation>> GetAccountingOperationsAsync(
+        public Task<IEnumerable<AccountingOperationsResponse>> GetAccountingOperationsAsync(
             IEnumerable<int> PortfolioId,
             DateTime processDate,
             CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
 
-        public Task<IEnumerable<ClientOperation>> GetAccountingDebitNoteOperationsAsync(
+        public Task<IEnumerable<AccountingOperationsResponse>> GetAccountingDebitNoteOperationsAsync(
             IEnumerable<int> portfolioIds,
             DateTime processDate,
             CancellationToken cancellationToken = default) =>
