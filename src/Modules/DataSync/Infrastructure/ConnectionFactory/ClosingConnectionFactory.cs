@@ -14,7 +14,8 @@ public sealed class ClosingConnectionFactory(IConfiguration configuration) : ICl
         {
             var secretName = configuration["AWS:SecretsManager:SecretName"];
             var region = configuration["AWS:SecretsManager:Region"];
-            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region).GetAwaiter().GetResult();
+            var commandTimeoutSeconds = configuration.GetValue<int?>("CustomSettings:DatabaseTimeouts:CommandTimeoutSeconds") ?? 30;
+            connectionString = SecretsManagerHelper.GetSecretAsync(secretName, region, commandTimeoutSeconds).GetAwaiter().GetResult();
         }
         var conn = new Npgsql.NpgsqlConnection(connectionString);
         await conn.OpenAsync(ct);
