@@ -4,6 +4,7 @@
         long YieldId,
         int PortfolioId,
         decimal YieldToCredit,
-        decimal CreditedYields
-        );
+        decimal CreditedYields,
+        decimal YieldToDistributedValue
+    );
 }

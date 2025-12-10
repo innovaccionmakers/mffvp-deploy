@@ -78,7 +78,7 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
             if (yield.CreditedYields == yield.YieldToCredit)
                 continue;
 
-            var value = yield.YieldToCredit - yield.CreditedYields;
+            var value = yield.YieldToCredit - (yield.CreditedYields + yield.YieldToDistributedValue);
             var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(yield.PortfolioId, cancellationToken);
 
             if (portfolioResult.IsFailure)

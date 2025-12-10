@@ -3,6 +3,7 @@ using Closing.Application.PreClosing.Services.Yield.Constants;
 using Closing.Domain.ConfigurationParameters;
 using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
+using Closing.Domain.YieldsToDistribute;
 using Closing.Integrations.YieldDetails;
 using Closing.Integrations.Yields.Queries;
 using Common.SharedKernel.Application.Messaging;
@@ -16,6 +17,7 @@ namespace Closing.Application.Yields
         ILogger<GetAllFeesQueryHandler> logger,
         IYieldRepository yieldRepository,
         IYieldDetailRepository yieldDetailRepository,
+        IYieldToDistributeRepository yieldToDistributeRepository,
         IConfigurationParameterRepository configurationParameterRepository) : IQueryHandler<GetAllAutConceptsQuery, YieldAutConceptsCompleteResponse>
     {
         public async Task<Result<YieldAutConceptsCompleteResponse>> Handle(GetAllAutConceptsQuery request, CancellationToken cancellationToken)
@@ -47,12 +49,32 @@ namespace Closing.Application.Yields
                     logger.LogWarning("No se encontraron detalles rendimientos para los portafolios y fecha de cierre proporcionadas.");
                     return Result.Failure<YieldAutConceptsCompleteResponse>(new Error("Error", "No se encontraron detalles rendimientos para los portafolios y fecha de cierre proporcionadas.", ErrorType.Validation));
                 }
+                
+                var creditNoteConceptJson = await ConceptJsonHelper.BuildConceptJsonsAsync(
+                    configurationParameterRepository,
+                    new[] { ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote },
+                    cancellationToken);
+
+                
+                var distributedYields = await yieldToDistributeRepository.GetDistributedYieldsByConceptAsync(
+                    request.PortfolioIds,
+                    request.ClosingDate,
+                    creditNoteConceptJson.FirstOrDefault(),
+                    cancellationToken);
+
+
+                var yieldToDistributeByPortfolio = distributedYields
+                    .GroupBy(yd => yd.PortfolioId)
+                    .ToDictionary(g => g.Key, g => g.Sum(yd => yd.YieldAmount));
 
                 var yieldResponses = yields.Select(y => new YieldAutConceptsResponse(
                     YieldId: y.YieldId,
                     PortfolioId: y.PortfolioId,
                     YieldToCredit: y.YieldToCredit,
-                    CreditedYields: y.CreditedYields
+                    CreditedYields: y.CreditedYields,
+                    YieldToDistributedValue: yieldToDistributeByPortfolio.TryGetValue(y.PortfolioId, out var distributedValue)
+                        ? distributedValue
+                        : 0m
                 )).ToList();
 
                 var yieldDetailResponse = yieldDetails.Select(yd => new YieldDetailsAutConceptsResponse(
