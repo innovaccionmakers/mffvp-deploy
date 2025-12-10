@@ -34,7 +34,10 @@
         decimal Value,
         string TaxCondition,
         decimal ContingentWithholding,
-        string PaymentMethod
+        string PaymentMethod,
+        string? CommercialUser, 
+        string Hour, 
+        string? OriginAccount
       );
 
     public sealed record ProductsRequest(

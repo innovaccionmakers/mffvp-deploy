@@ -270,10 +270,16 @@ namespace Reports.Infrastructure.BalancesAndMovements
 	                                    OC.valor AS Value,
                                         PC_Tributaria.nombre AS TaxCondition,
                                         IA.retencion_contingente AS ContingentWithholding,
-                                        CONCAT_WS(' - ', PC_FormaPago.codigo_homologacion, PC_FormaPago.nombre) AS PaymentMethod
+                                        CONCAT_WS(' - ', PC_FormaPago.codigo_homologacion, PC_FormaPago.nombre) AS PaymentMethod,
+                                        IA.usuario_comercial AS CommercialUser,
+                                        to_char(fecha_radicacion AT TIME ZONE 'America/Bogota', 'HH24:MI:SS') as Hour,     
+                                        coalesce(
+                                        coalesce(IA.detalle_forma_pago, '{}'::jsonb) ->> 'NumeroCuenta',
+                                        coalesce(IA.detalle_forma_pago, '{}'::jsonb) ->> 'numeroCuenta'
+                                        ) as OriginAccount
                                     FROM operaciones.operaciones_clientes OC
-                                    JOIN operaciones.tipos_operaciones T ON T.id = OC.tipo_operaciones_id
-                                    LEFT JOIN operaciones.tipos_operaciones ST ON ST.id = T.categoria
+                                    JOIN operaciones.tipos_operaciones ST ON ST.id = OC.tipo_operaciones_id
+                                    LEFT JOIN operaciones.tipos_operaciones T ON T.id = ST.categoria
                                     LEFT JOIN operaciones.informacion_auxiliar IA ON IA.operacion_cliente_id = OC.id
                                     LEFT JOIN operaciones.parametros_configuracion PC_Tributaria ON PC_Tributaria.id = IA.condicion_tributaria_id
                                     LEFT JOIN operaciones.parametros_configuracion PC_FormaPago ON PC_FormaPago.id = IA.forma_pago_id
@@ -286,21 +292,23 @@ namespace Reports.Infrastructure.BalancesAndMovements
                 if (hasActivateIds)
                 {
                     var activateId = await GetActivateWhitIdentificationAsync(identification, connection, cancellationToken);
-                    sql += "WHERE OC.fecha_proceso::date BETWEEN @startDate AND @endDate AND afiliado_id = ANY(@activateId) AND (T.id = 1 OR T.categoria = 1);";
+                    sql += "WHERE OC.fecha_proceso::date BETWEEN @startDate AND @endDate AND afiliado_id = ANY(@activateId) AND (T.id = 1 OR T.categoria = 1) AND OC.estado = @status;";
                     parameters = new
                     {
                         startDate,
                         endDate,
-                        activateId = activateId.ToArray()
+                        activateId = activateId.ToArray(),
+                        status = (int)LifecycleStatus.Active
                     };
                 }
                 else
                 {
-                    sql += "WHERE OC.fecha_proceso::date BETWEEN @startDate AND @endDate AND (T.id = 1 OR T.categoria = 1);";
+                    sql += "WHERE OC.fecha_proceso::date BETWEEN @startDate AND @endDate AND (T.id = 1 OR T.categoria = 1) AND OC.estado = @status;";
                     parameters = new
                     {
                         startDate,
-                        endDate
+                        endDate,
+                        status = (int)LifecycleStatus.Active
                     };
                 }
 
@@ -348,7 +356,10 @@ namespace Reports.Infrastructure.BalancesAndMovements
                         Value: operation.Value,
                         TaxCondition: operation.TaxCondition ?? string.Empty,
                         ContingentWithholding: operation.ContingentWithholding,
-                        PaymentMethod: operation.PaymentMethod ?? string.Empty
+                        PaymentMethod: operation.PaymentMethod ?? string.Empty,
+                        CommercialUser: operation.CommercialUser ?? string.Empty,
+                        Hour: operation.Hour ?? string.Empty,
+                        OriginAccount: operation.OriginAccount ?? string.Empty
                     );
 
                     result.Add(response);
