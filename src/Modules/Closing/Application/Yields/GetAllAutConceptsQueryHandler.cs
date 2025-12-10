@@ -1,4 +1,7 @@
-﻿using Closing.Domain.YieldDetails;
+﻿using Closing.Application.Helpers;
+using Closing.Application.PreClosing.Services.Yield.Constants;
+using Closing.Domain.ConfigurationParameters;
+using Closing.Domain.YieldDetails;
 using Closing.Domain.Yields;
 using Closing.Integrations.YieldDetails;
 using Closing.Integrations.Yields.Queries;
@@ -12,7 +15,8 @@ namespace Closing.Application.Yields
     internal class GetAllAutConceptsQueryHandler(
         ILogger<GetAllFeesQueryHandler> logger,
         IYieldRepository yieldRepository,
-        IYieldDetailRepository yieldDetailRepository) : IQueryHandler<GetAllAutConceptsQuery, YieldAutConceptsCompleteResponse>
+        IYieldDetailRepository yieldDetailRepository,
+        IConfigurationParameterRepository configurationParameterRepository) : IQueryHandler<GetAllAutConceptsQuery, YieldAutConceptsCompleteResponse>
     {
         public async Task<Result<YieldAutConceptsCompleteResponse>> Handle(GetAllAutConceptsQuery request, CancellationToken cancellationToken)
         {
@@ -25,8 +29,20 @@ namespace Closing.Application.Yields
                     return Result.Failure<YieldAutConceptsCompleteResponse>(new Error("Error", "No se encontraron rendimientos para los portafolios y fecha de cierre proporcionadas.", ErrorType.Validation));
                 }
 
-                var yieldDetails = await yieldDetailRepository.GetYieldDetailsAutConceptsAsync(request.PortfolioIds, request.ClosingDate, cancellationToken);
-                if (yields is null || yields.Count == 0)
+                var guidConcepts = new[]
+                {
+                    ConfigurationParameterUuids.Closing.YieldAdjustmentIncome,
+                    ConfigurationParameterUuids.Closing.YieldAdjustmentExpense
+                };
+                var conceptJsons = await ConceptJsonHelper.BuildConceptJsonsAsync(configurationParameterRepository, guidConcepts, cancellationToken);
+
+                var yieldDetails = await yieldDetailRepository.GetYieldDetailsByPortfolioIdsAndClosingDateWithConceptsAsync(
+                    request.PortfolioIds,
+                    request.ClosingDate,
+                    YieldsSources.AutomaticConcept,
+                    conceptJsons,
+                    cancellationToken);
+                if (yieldDetails is null || yieldDetails.Count == 0)
                 {
                     logger.LogWarning("No se encontraron detalles rendimientos para los portafolios y fecha de cierre proporcionadas.");
                     return Result.Failure<YieldAutConceptsCompleteResponse>(new Error("Error", "No se encontraron detalles rendimientos para los portafolios y fecha de cierre proporcionadas.", ErrorType.Validation));
@@ -50,7 +66,7 @@ namespace Closing.Application.Yields
                     yieldDetailResponse
                 );
 
-                return Result.Success<YieldAutConceptsCompleteResponse>(completeResponse);
+                return Result.Success(completeResponse);
             }
             catch (Exception ex)
             {
