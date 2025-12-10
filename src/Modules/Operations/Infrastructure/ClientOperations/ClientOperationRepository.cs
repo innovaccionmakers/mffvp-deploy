@@ -140,7 +140,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                 co.AffiliateId,
                 co.Amount,
                 co.OperationTypeId,
-                co.AuxiliaryInformation.CollectionAccount
+                co.LinkedClientOperation!.AuxiliaryInformation.CollectionAccount
             ))
             .ToListAsync(cancellationToken);
     }

@@ -41,7 +41,7 @@ internal sealed class AccountingAssistantConfiguration : IEntityTypeConfiguratio
 
         builder.Property(x => x.Account)
             .HasColumnName("cuenta")
-            .HasMaxLength(6);
+            .HasMaxLength(20);
 
         builder.Property(x => x.Date)
             .HasColumnName("fecha")
