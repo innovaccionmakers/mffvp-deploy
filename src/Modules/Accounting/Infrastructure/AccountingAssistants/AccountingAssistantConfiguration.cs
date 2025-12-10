@@ -70,7 +70,7 @@ internal sealed class AccountingAssistantConfiguration : IEntityTypeConfiguratio
 
         builder.Property(x => x.Identifier)
             .HasColumnName("identificador")
-            .HasColumnType("UUID")
+            .HasColumnType("uuid")
             .IsRequired();
     }
 }
