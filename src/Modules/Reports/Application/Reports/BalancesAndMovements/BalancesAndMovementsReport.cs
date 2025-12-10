@@ -54,6 +54,10 @@ namespace Reports.Application.Reports.BalancesAndMovements
             "Condición Tributaria",
             "Retención Contingente Por Aplicar",
             "Forma de Pago",
+            "Comercial",
+            "Hora",
+            "Cuenta Origen"
+
         };
 
         public override string[] ColumnHeaders => _balancesHeaders; // Por defecto retorna los headers de saldos
@@ -182,7 +186,10 @@ namespace Reports.Application.Reports.BalancesAndMovements
                     movementResult.Value,
                     movementResult.TaxCondition,
                     movementResult.ContingentWithholding,
-                    movementResult.PaymentMethod
+                    movementResult.PaymentMethod,
+                    movementResult.CommercialUser,
+                    movementResult.Hour, 
+                    movementResult.OriginAccount
                 };
 
                 dataList.Add(row);                
