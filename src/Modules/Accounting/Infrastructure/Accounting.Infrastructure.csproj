@@ -19,8 +19,8 @@
     <EmbeddedResource Include="..\Rules\**\*.json" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="EFCore.BulkExtensions"/>
-  </ItemGroup>
+<ItemGroup>
+	<PackageReference Include="EFCore.BulkExtensions.PostgreSql"/>
+</ItemGroup>
 
 </Project>
