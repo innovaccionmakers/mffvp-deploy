@@ -44,12 +44,7 @@ namespace Closing.Application.Yields
                     YieldsSources.AutomaticConcept,
                     conceptJsons,
                     cancellationToken);
-                if (yieldDetails is null || yieldDetails.Count == 0)
-                {
-                    logger.LogWarning("No se encontraron detalles rendimientos para los portafolios y fecha de cierre proporcionadas.");
-                    return Result.Failure<YieldAutConceptsCompleteResponse>(new Error("Error", "No se encontraron detalles rendimientos para los portafolios y fecha de cierre proporcionadas.", ErrorType.Validation));
-                }
-                
+
                 var creditNoteConceptJson = await ConceptJsonHelper.BuildConceptJsonsAsync(
                     configurationParameterRepository,
                     new[] { ConfigurationParameterUuids.Closing.YieldAdjustmentCreditNote },
@@ -81,7 +76,7 @@ namespace Closing.Application.Yields
                         yd!.PortfolioId,
                         yd.Income,
                         yd.Expenses
-                        )).ToList();
+                )).ToList();
 
                 var completeResponse = new YieldAutConceptsCompleteResponse(
                     yieldResponses,
