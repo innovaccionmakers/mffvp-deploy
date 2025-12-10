@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Authors>Makers Solutions</Authors>
+    <Company>Makers</Company>
+    <Description>Makers Funds</Description>
+    <Copyright>© Makers. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://dev.azure.com/makersfunds/Makers.Module.MFFVP</PackageProjectUrl>
+    <RepositoryUrl>https://dev.azure.com/makersfunds/_git/Makers.Module.MFFVP</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <NoWarn>$(NoWarn);NU1507;NU1008;NU1504</NoWarn>
+  </PropertyGroup>
+</Project>

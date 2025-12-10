@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
     </ItemGroup>
     
     <ItemGroup>

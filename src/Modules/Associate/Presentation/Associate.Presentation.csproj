@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-      <PackageReference Include="HotChocolate.Types" Version="15.1.6" />
-      <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
+      <PackageReference Include="HotChocolate.Types"/>
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -6,6 +6,8 @@ using Operations.Domain.OperationTypes;
 using Operations.Infrastructure.Database;
 using System.Text.Json;
 
+using NpgsqlJsonExtensions = Microsoft.EntityFrameworkCore.NpgsqlJsonDbFunctionsExtensions;
+
 namespace Operations.Infrastructure.OperationTypes;
 
 internal sealed class OperationTypeRepository(OperationsDbContext context) : IOperationTypeRepository
@@ -74,7 +76,11 @@ internal sealed class OperationTypeRepository(OperationsDbContext context) : IOp
             if (normalized.Length > 0)
             {
                 query = query.Where(t =>
-                    normalized.Any(j => EF.Functions.JsonContains(t.AdditionalAttributes, j)));
+                    normalized.Any(j =>
+                        NpgsqlJsonExtensions.JsonContains(
+                            EF.Functions,
+                            t.AdditionalAttributes,
+                            j)));
             }
         }
 

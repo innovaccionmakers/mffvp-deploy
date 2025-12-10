@@ -74,7 +74,7 @@ internal sealed class ClientOperationRepository(ClosingDbContext context) : ICli
                 co.ProcessDate == processDateUtc &&
                 co.OperationTypeId == operationTypeId &&
                 co.TrustId != null &&
-                ids.Contains(co.TrustId.Value))
+                Enumerable.Contains(ids, co.TrustId.Value))
             .Select(co => co.TrustId!.Value)
             .Distinct()
             .ToListAsync(cancellationToken);
