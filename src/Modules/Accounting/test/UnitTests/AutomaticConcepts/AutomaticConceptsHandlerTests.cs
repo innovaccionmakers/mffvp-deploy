@@ -46,7 +46,7 @@ namespace Accounting.test.UnitTests.AutomaticConcepts
                 new YieldAutConceptsCompleteResponse(
                     new List<YieldAutConceptsResponse>
                     {
-                        new YieldAutConceptsResponse(1, 1, 100, 100) // YieldId, PortfolioId, YieldToCredit, CreditedYields
+                        new YieldAutConceptsResponse(1, 1, 100, 100, 100) // YieldId, PortfolioId, YieldToCredit, CreditedYields, YieldToDistributedValue
                     },
                     new List<YieldDetailsAutConceptsResponse>()
                 )
