@@ -93,7 +93,6 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
             var detail = value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
 
 
-
             if (operationType == null)
             {
                 logger.LogWarning("No se encontró el tipo de operación para el concepto automático {AutomaticConcept} con naturaleza {Nature} para el portafolio {PortfolioId}",
@@ -167,8 +166,7 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
 
             IncomeEgressNature naturalezaFiltro = value > 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
             var operationType = operationsType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
-            var detail = value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
-
+            var detail = value < 0 ? IncomeExpenseNature.Expense : IncomeExpenseNature.Income;
 
             if (operationType == null)
             {

@@ -114,7 +114,6 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConsecutiveFileRepository, ConsecutiveFileRepository>();
         services.AddScoped<AccountingOperationsHandlerValidation>();
         services.AddScoped<AccountingConceptsHandlerValidator>();
-        services.AddScoped<AutomaticConceptsHandlerValidator>();
         services.AddScoped<IInconsistencyHandler, InconsistencyHandler>();
         services.AddScoped<IAccountingInconsistencyRepository, AccountingInconsistencyRepository>();
         services.AddScoped<IConsecutiveRepository, ConsecutiveRepository>();
