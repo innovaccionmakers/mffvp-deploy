@@ -8,7 +8,7 @@ namespace Security.Infrastructure.Auditing;
 internal sealed class PermissionDescriptionService : IPermissionDescriptionService
 {
     private readonly Dictionary<string, string> _policyDescriptions;
-    private readonly IReadOnlyCollection<MakersPermission> _permissions;
+    private readonly IReadOnlyCollection<MakersPermissionBase> _permissions;
 
     public PermissionDescriptionService()
     {
@@ -16,17 +16,27 @@ internal sealed class PermissionDescriptionService : IPermissionDescriptionServi
         _policyDescriptions = _permissions.ToDictionary(p => p.ScopePermission, p => p.Description);
     }
 
-    private static IReadOnlyCollection<MakersPermission> LoadAllPermissions()
+    private static IReadOnlyCollection<MakersPermissionBase> LoadAllPermissions()
     {
-        var permissionType = typeof(MakersPermission);
+        var permissionType = typeof(MakersPermissionBase);
         var assembly = permissionType.Assembly;
 
         var permissions = assembly
             .GetTypes()
             .Where(t => t.IsClass && t.Name.StartsWith("MakersPermissions", StringComparison.Ordinal))
             .Select(t => t.GetField("All", BindingFlags.Public | BindingFlags.Static))
-            .Where(f => f is not null && typeof(IEnumerable<MakersPermission>).IsAssignableFrom(f.FieldType))
-            .SelectMany(f => (IEnumerable<MakersPermission>)f!.GetValue(null)!)
+            .Where(f => f is not null)
+            .SelectMany(f =>
+            {
+                var value = f!.GetValue(null);
+                if (value is IEnumerable<MakersPermissionBase> basePermissions)
+                    return basePermissions;
+                if (value is IEnumerable<MakersPermission> simplePermissions)
+                    return simplePermissions.Cast<MakersPermissionBase>();
+                if (value is IEnumerable<MakersPermissionWithSubResource> subResourcePermissions)
+                    return subResourcePermissions.Cast<MakersPermissionBase>();
+                return Enumerable.Empty<MakersPermissionBase>();
+            })
             .ToList();
 
         return permissions;
