@@ -7,9 +7,9 @@ using Security.Application.Contracts.Permissions;
 namespace Security.Application.Permissions;
 
 public sealed class GetAllPermissionsQueryHandler
-    : IQueryHandler<GetAllPermissionsQuery, IReadOnlyCollection<MakersPermissionBase>>
+    : IQueryHandler<GetAllPermissionsQuery, IReadOnlyCollection<PermissionDtoBase>>
 {
-    public Task<Result<IReadOnlyCollection<MakersPermissionBase>>> Handle(
+    public Task<Result<IReadOnlyCollection<PermissionDtoBase>>> Handle(
         GetAllPermissionsQuery request,
         CancellationToken cancellationToken)
     {
@@ -21,8 +21,9 @@ public sealed class GetAllPermissionsQueryHandler
             .Concat(MakersPermissionsReports.All)
             .Concat(MakersPermissionsTreasury.All)
             .Cast<MakersPermissionBase>()
+            .Select(PermissionDtoFactory.CreateFrom)
             .ToList();
 
-        return Task.FromResult(Result.Success<IReadOnlyCollection<MakersPermissionBase>>(allPermissions));
+        return Task.FromResult(Result.Success<IReadOnlyCollection<PermissionDtoBase>>(allPermissions));
     }
 }

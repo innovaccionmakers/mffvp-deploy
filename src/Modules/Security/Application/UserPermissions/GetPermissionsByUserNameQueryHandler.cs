@@ -20,13 +20,13 @@ public sealed class GetPermissionsByUserNameQueryHandler(
     IUserRoleRepository userRoleRepository,
     IRolePermissionRepository rolePermissionRepository,
     ISender sender)
-    : IQueryHandler<GetPermissionsByUserNameQuery, IReadOnlyCollection<PermissionDto>>
+    : IQueryHandler<GetPermissionsByUserNameQuery, IReadOnlyCollection<PermissionDtoBase>>
 {
-    public async Task<Result<IReadOnlyCollection<PermissionDto>>> Handle(GetPermissionsByUserNameQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<PermissionDtoBase>>> Handle(GetPermissionsByUserNameQuery request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.UserName))
         {
-            return Result.Failure<IReadOnlyCollection<PermissionDto>>(Error.Validation(
+            return Result.Failure<IReadOnlyCollection<PermissionDtoBase>>(Error.Validation(
                 "User.UserName.Required",
                 "The username is required."));
         }
@@ -34,14 +34,14 @@ public sealed class GetPermissionsByUserNameQueryHandler(
         var user = await userRepository.GetByUserNameAsync(request.UserName);
         if (user is null)
         {
-            return Result.Failure<IReadOnlyCollection<PermissionDto>>(Error.NotFound(
+            return Result.Failure<IReadOnlyCollection<PermissionDtoBase>>(Error.NotFound(
                 "User.NotFound",
                 "The user was not found."));
         }
 
         var allPermissionsResult = await sender.Send(new GetAllPermissionsQuery(), cancellationToken);
         if (allPermissionsResult.IsFailure)
-            return Result.Failure<IReadOnlyCollection<PermissionDto>>(allPermissionsResult.Error);
+            return Result.Failure<IReadOnlyCollection<PermissionDtoBase>>(allPermissionsResult.Error);
 
         var allDefinedPermissions = allPermissionsResult.Value;
 
@@ -58,15 +58,9 @@ public sealed class GetPermissionsByUserNameQueryHandler(
             .Distinct()
             .Select(scope => allDefinedPermissions.FirstOrDefault(p => p.ScopePermission == scope))
             .Where(p => p is not null)
-            .Select(p => new PermissionDto
-            {
-                PermissionId = p.PermissionId,
-                ScopePermission = p!.ScopePermission,
-                DisplayName = p.DisplayName,
-                Description = p.Description
-            })
+            .Cast<PermissionDtoBase>()
             .ToList();
 
-        return Result.Success<IReadOnlyCollection<PermissionDto>>(combined);
+        return Result.Success<IReadOnlyCollection<PermissionDtoBase>>(combined);
     }
 }
