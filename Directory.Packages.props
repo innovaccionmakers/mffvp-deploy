@@ -43,6 +43,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.10"/>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.1" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1" />
     <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="7.5.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
     <PackageVersion Include="MongoDB.Driver" Version="3.3.0" />
