@@ -27,7 +27,7 @@ internal sealed class GetDistributedYieldsGroupedQueryHandler(
 
             string? conceptJson = null;
             if (adjustmentConceptParam?.Metadata != null)
-            {                
+            {
                 var conceptId = JsonIntegerHelper.ExtractInt32(adjustmentConceptParam.Metadata, "id", defaultValue: 0);
                 var conceptName = JsonStringHelper.ExtractString(adjustmentConceptParam.Metadata, "nombre", defaultValue: string.Empty);
 
@@ -48,11 +48,11 @@ internal sealed class GetDistributedYieldsGroupedQueryHandler(
             }
 
             return distributedYields
-                .GroupBy(x => new { x.ClosingDate, x.PortfolioId, x.Concept })
+                .GroupBy(x => new { x.ClosingDate, x.PortfolioId, ConceptJson = JsonDocumentHelper.NormalizeJson(x.Concept) })
                 .Select(dy => new DistributedYieldGroupResponse(
                     ClosinDate: dy.Key.ClosingDate,
                     PortofolioId: dy.Key.PortfolioId,
-                    Concept: dy.Key.Concept,
+                    Concept: JsonDocument.Parse(dy.Key.ConceptJson),
                     TotalYieldAmount: dy.Sum(y => y.YieldAmount)
                 )).ToList();
 
