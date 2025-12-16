@@ -3,4 +3,4 @@
 namespace Security.Application.Contracts.Permissions;
 
 public sealed record GetAllPermissionsQuery()
-    : IQuery<IReadOnlyCollection<MakersPermission>>;
+    : IQuery<IReadOnlyCollection<PermissionDtoBase>>;

@@ -1,22 +1,24 @@
-﻿public record MakersPermission(
-    Guid PermissionId,
-    string Description,
-    string Module,
-    string Domain,
-    string Resource,
-    string Action,
-    string? DisplayModule = null,
-    string? DisplayDomain = null,
-    string? DisplayResource = null,
-    string? DisplayAction = null
-)
+﻿namespace Common.SharedKernel.Domain.Auth.Permissions;
+
+public class MakersPermission : MakersPermissionBase
 {
-    public string ScopePermission => NameFor(Module, Domain, Resource, Action);
+    public MakersPermission(
+        Guid permissionId,
+        string description,
+        string module,
+        string domain,
+        string resource,
+        string action,
+        string? displayModule = null,
+        string? displayDomain = null,
+        string? displayResource = null,
+        string? displayAction = null)
+        : base(permissionId, description, module, domain, resource, action,
+              displayModule, displayDomain, displayResource, displayAction)
+    {
+    }
 
-    public string DisplayName =>
-        $"{DisplayModule ?? Module}:{DisplayDomain ?? Domain}:{DisplayResource ?? Resource}:{DisplayAction ?? Action}";
-
-    public string Name => ScopePermission;
+    public override string ScopePermission => NameFor(Module, Domain, Resource, Action);
 
     public static string NameFor(string module, string domain, string resource, string action)
     {

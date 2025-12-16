@@ -1,4 +1,5 @@
 ﻿using Common.SharedKernel.Presentation.Results;
+using Common.SharedKernel.Domain.Auth.Permissions;
 
 using MediatR;
 
@@ -42,23 +43,13 @@ public static class SecurityBusinessApi
                         );
                     }
 
-                    var simplified = result.Value
-                        .Select(p => new PermissionDto
-                        {
-                            PermissionId = p.PermissionId,
-                            ScopePermission = p.ScopePermission,
-                            DisplayName = p.DisplayName,
-                            Description = p.Description
-                        })
-                        .ToList();
-
-                    return Results.Ok(simplified);
+                    return Results.Ok(result.Value);
                 })
             .WithName("Permissions")
             .WithSummary("Retorna una lista de permisos")
             .WithDescription("""
                              Retorna solo los permisos disponibles con sus identificadores y descripciones.
-                 
+
                              **Ejemplo de respuesta (application/json):**
                              ```json
                              [
@@ -70,7 +61,7 @@ public static class SecurityBusinessApi
                              ]
                              ```
                              """)
-            .Produces<List<PermissionDto>>(StatusCodes.Status200OK)
+            .Produces<List<PermissionDtoBase>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
@@ -133,7 +124,7 @@ public static class SecurityBusinessApi
                                         ]
                                         ```
                                         """)
-            .Produces<IReadOnlyCollection<PermissionDto>>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyCollection<PermissionDtoBase>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound)
@@ -168,7 +159,7 @@ public static class SecurityBusinessApi
             .WithSummary("Obtener los permisos asignados a un rol")
             .WithDescription("""
                              Devuelve una lista de permisos asociados rol proporcionado.
-                     
+
                              **Ejemplo de ruta:**
                              `GET /api/v1/FVP/Security/GetRolePermissions/1`
                              """)
@@ -268,7 +259,7 @@ public static class SecurityBusinessApi
             .WithSummary("Obtener los roles asignados a un usuario")
             .WithDescription("""
                              Devuelve la lista de roles asignados a un usuario incluyendo el nombre del rol.
-                             
+
                              **Ejemplo de respuesta (application/json):**
                              ```json
                              [
@@ -303,7 +294,7 @@ public static class SecurityBusinessApi
             .WithSummary("Actualizar los roles asignados a un usuario")
             .WithDescription("""
                              Sincroniza la lista de RolePermissionIds de un usuario.
-                             
+
                              **Ejemplo de petición (application/json):**
                              ```json
                              {
@@ -334,7 +325,7 @@ public static class SecurityBusinessApi
             .WithSummary("Verifica si un usuario existe")
             .WithDescription("""
                                      Devuelve `true` o `false` si el usuario con ID especificado existe o no.
-                     
+
                                      **Ejemplo de respuesta:**
                                      ```json
                                      true

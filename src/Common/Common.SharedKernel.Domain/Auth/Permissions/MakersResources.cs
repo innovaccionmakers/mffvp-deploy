@@ -21,6 +21,7 @@ public static class MakersResources
     public const string accountingConceptSettings = nameof(accountingConceptSettings);
     public const string accountingGeneration = nameof(accountingGeneration);
     public const string accountingConsecutives = nameof(accountingConsecutives);
+    public const string accountingConfiguration = nameof(accountingConfiguration);
 
     //Affiliates
     public const string affiliatesManagement = nameof(affiliatesManagement);
