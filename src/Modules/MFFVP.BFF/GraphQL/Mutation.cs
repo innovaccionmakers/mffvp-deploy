@@ -225,6 +225,7 @@ public class Mutation
     }
 
     [GraphQLName("crearTransaccionPasiva")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyCreatePassiveTransaction)]
     public async Task<GraphqlResult> CreatePassiveTransactionAsync([GraphQLName("transaccionPasiva")] CreatePassiveTransactionInput input,
                                                    IValidator<CreatePassiveTransactionInput> validator,
                                                    [Service] IPassiveTransactionExperienceMutations passiveTransactionMutations,
@@ -234,6 +235,7 @@ public class Mutation
     }
 
     [GraphQLName("actualizarTransaccionPasiva")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyUpdatePassiveTransaction)]
     public async Task<GraphqlResult> UpdatePassiveTransactionAsync([GraphQLName("transaccionPasiva")] UpdatePassiveTransactionInput input,
                                                    IValidator<UpdatePassiveTransactionInput> validator,
                                                    [Service] IPassiveTransactionExperienceMutations passiveTransactionMutations,
@@ -243,6 +245,7 @@ public class Mutation
     }
 
     [GraphQLName("eliminarTransaccionPasiva")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyDeletePassiveTransaction)]
     public async Task<GraphqlResult> DeletePassiveTransactionAsync([GraphQLName("transaccionPasiva")] DeletePassiveTransactionInput input,
                                                    IValidator<DeletePassiveTransactionInput> validator,
                                                    [Service] IPassiveTransactionExperienceMutations passiveTransactionMutations,
@@ -262,6 +265,7 @@ public class Mutation
     }
 
     [GraphQLName("crearTesoreria")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyCreateTreasury)]
     public async Task<GraphqlResult> CreateTreasuryAsync([GraphQLName("tesoreria")] CreateTreasuryInput input,
                                                    IValidator<CreateTreasuryInput> validator,
                                                    [Service] ITreasuriesExperienceMutations treasuriesMutations,
@@ -271,6 +275,7 @@ public class Mutation
     }
 
     [GraphQLName("actualizarTesoreria")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyUpdateTreasury)]
     public async Task<GraphqlResult> UpdateTreasuryAsync([GraphQLName("tesoreria")] UpdateTreasuryInput input,
                                                    IValidator<UpdateTreasuryInput> validator,
                                                    [Service] ITreasuriesExperienceMutations treasuriesMutations,
@@ -280,6 +285,7 @@ public class Mutation
     }
 
     [GraphQLName("eliminarTesoreria")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyDeleteTreasury)]
     public async Task<GraphqlResult> DeleteTreasuryAsync([GraphQLName("tesoreria")] DeleteTreasuryInput input,
                                                    IValidator<DeleteTreasuryInput> validator,
                                                    [Service] ITreasuriesExperienceMutations treasuriesMutations,
@@ -289,6 +295,7 @@ public class Mutation
     }
 
     [GraphQLName("crearConcepto")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyCreateConcept)]
     public async Task<GraphqlResult> CreateConceptAsync([GraphQLName("concepto")] CreateConceptInput input,
                                                    IValidator<CreateConceptInput> validator,
                                                    [Service] IConceptMutations conceptMutations,
@@ -298,6 +305,7 @@ public class Mutation
     }
 
     [GraphQLName("actualizarConcepto")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyUpdateConcept)]
     public async Task<GraphqlResult> UpdateConceptAsync([GraphQLName("concepto")] UpdateConceptInput input,
                                                    IValidator<UpdateConceptInput> validator,
                                                    [Service] IConceptMutations conceptMutations,
@@ -307,6 +315,7 @@ public class Mutation
     }
 
     [GraphQLName("eliminarConcepto")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyDeleteConcept)]
     public async Task<GraphqlResult> DeleteConceptAsync([GraphQLName("concepto")] DeleteConceptInput input,
                                                    IValidator<DeleteConceptInput> validator,
                                                    [Service] IConceptMutations conceptMutations,
@@ -316,6 +325,7 @@ public class Mutation
     }
 
     [GraphQLName("crearConfiguracionGeneral")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyCreateGeneralConfiguration)]
     public async Task<GraphqlResult> CreateConfiguracionGeneralAsync([GraphQLName("configuracionGeneral")] CreateConfigurationGeneralInput input,
                                                    IValidator<CreateConfigurationGeneralInput> validator,
                                                    [Service] IConfigurationGeneralsExperienceMutations configurationGeneralsMutations,
@@ -325,6 +335,7 @@ public class Mutation
     }
 
     [GraphQLName("actualizarConfiguracionGeneral")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyUpdateGeneralConfiguration)]
     public async Task<GraphqlResult> UpdateConfiguracionGeneralAsync([GraphQLName("configuracionGeneral")] UpdateConfigurationGeneralInput input,
                                                    IValidator<UpdateConfigurationGeneralInput> validator,
                                                    [Service] IConfigurationGeneralsExperienceMutations configurationGeneralsMutations,
@@ -334,6 +345,7 @@ public class Mutation
     }
 
     [GraphQLName("eliminarConfiguracionGeneral")]
+    [Authorize(Policy = MakersPermissionsAccounting.PolicyDeleteGeneralConfiguration)]
     public async Task<GraphqlResult> DeleteConfiguracionGeneralAsync([GraphQLName("configuracionGeneral")] DeleteConfigurationGeneralInput input,
                                                    IValidator<DeleteConfigurationGeneralInput> validator,
                                                    [Service] IConfigurationGeneralsExperienceMutations configurationGeneralsMutations,
