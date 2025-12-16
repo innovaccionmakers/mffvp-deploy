@@ -58,7 +58,7 @@ public class ConsecutivesSetupFlowTests : IDisposable
         var ruleEvaluator = _serviceProvider.GetRequiredService<IInternalRuleEvaluator<AccountingModuleMarker>>();
         var handler = new UpdateConsecutiveSetupCommandHandler(_repository, _unitOfWork, ruleEvaluator);
 
-        var command = new UpdateConsecutiveSetupCommand(999, "ING", "DOC-300", 30);
+        var command = new UpdateConsecutiveSetupCommand(999, "DOC-300", 30);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -78,7 +78,7 @@ public class ConsecutivesSetupFlowTests : IDisposable
         await SeedConsecutiveAsync(1, "ING", "DOC-100", 10);
         await SeedConsecutiveAsync(2, "EGR", "DOC-200", 20);
 
-        var command = new UpdateConsecutiveSetupCommand(2, "EGR", "DOC-100", 30);
+        var command = new UpdateConsecutiveSetupCommand(2, "DOC-100", 30);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -98,7 +98,7 @@ public class ConsecutivesSetupFlowTests : IDisposable
         await SeedConsecutiveAsync(1, "ING", "DOC-100", 10);
         await SeedConsecutiveAsync(2, "EGR", "DOC-200", 20);
 
-        var command = new UpdateConsecutiveSetupCommand(2, "EGR", "DOC-201", 25);
+        var command = new UpdateConsecutiveSetupCommand(2, "DOC-201", 25);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
