@@ -50,6 +50,7 @@ internal sealed class AccountingValidatorCommandHandler(IAccountingProcessStore 
         {
             var error = "Ocurrió un error inesperado al completar la validación del proceso contable";
             logger.LogError(ex, error);
+            await activeProcessStore.RemoveProcessActiveAsync(cancellationToken);
             await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, error, cancellationToken);
         }
         return Unit.Value;

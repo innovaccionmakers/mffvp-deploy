@@ -21,6 +21,8 @@
 
 
     <ItemGroup>
+		<InternalsVisibleTo Include="Treasury.test.UnitTests" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
       <Folder Include="TreasuryConcepts\Queries\" />
     </ItemGroup>
 
