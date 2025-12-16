@@ -33,7 +33,7 @@ public class UpdateConsecutiveSetupCommandHandlerTests
     public async Task Handle_Should_Return_Error_When_Consecutive_Does_Not_Exist()
     {
         // Arrange
-        var command = new UpdateConsecutiveSetupCommand(1, "ING", "DOC-01", 10);
+        var command = new UpdateConsecutiveSetupCommand(1, "DOC-01", 10);
         var validationError = new RuleValidationError("ACCOUNTING_CONSECUTIVE_001", "El consecutivo solicitado no existe.");
 
         _consecutiveRepositoryMock
@@ -66,8 +66,8 @@ public class UpdateConsecutiveSetupCommandHandlerTests
     public async Task Handle_Should_Return_Error_When_SourceDocument_Is_Duplicated()
     {
         // Arrange
-        var command = new UpdateConsecutiveSetupCommand(2, "EGR", "DOC-USED", 20);
-        var consecutive = CreateConsecutive(command.Id, command.Nature, "OTHER-DOC", 15);
+        var command = new UpdateConsecutiveSetupCommand(2, "DOC-USED", 20);
+        var consecutive = CreateConsecutive(command.Id, "EGR", "OTHER-DOC", 15);
         var validationError = new RuleValidationError("ACCOUNTING_CONSECUTIVE_002", "El documento fuente ya se encuentra asignado a otro consecutivo.");
 
         _consecutiveRepositoryMock
@@ -102,8 +102,8 @@ public class UpdateConsecutiveSetupCommandHandlerTests
     public async Task Handle_Should_Update_Consecutive_When_Rules_Pass()
     {
         // Arrange
-        var command = new UpdateConsecutiveSetupCommand(5, "ING", "NEW-DOC", 999);
-        var consecutive = CreateConsecutive(command.Id, command.Nature, "PREV-DOC", 10);
+        var command = new UpdateConsecutiveSetupCommand(5, "NEW-DOC", 999);
+        var consecutive = CreateConsecutive(command.Id, "ING", "PREV-DOC", 10);
 
         _consecutiveRepositoryMock
             .Setup(r => r.GetByIdAsync(command.Id, It.IsAny<CancellationToken>()))
@@ -135,7 +135,7 @@ public class UpdateConsecutiveSetupCommandHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().BeEquivalentTo(new ConsecutiveSetupResponse(
             command.Id,
-            command.Nature,
+            "ING",
             command.SourceDocument,
             command.Consecutive));
 

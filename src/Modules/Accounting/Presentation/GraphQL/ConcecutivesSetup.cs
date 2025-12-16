@@ -42,7 +42,6 @@ public class ConcecutivesSetup(ISender mediator) : IConcecutivesSetup
 
             var command = new UpdateConsecutiveSetupCommand(
                 input.Id,
-                input.Nature,
                 input.SourceDocument,
                 input.Consecutive);
 
