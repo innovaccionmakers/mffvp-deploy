@@ -18,6 +18,11 @@ internal class CreateTreasuryConceptCommandHandler(ITreasuryConceptRepository re
     private const string RequiredFieldsWorkflow = "Treasury.SaveTreasuryConcept.RequiredFields";
     public async Task<Result<TreasuryConceptResponse>> Handle(CreateTreasuryConceptCommand request, CancellationToken cancellationToken)
     {
+        var validationContext = await repository.GetByConceptAsync(request.Concept, cancellationToken);
+
+        if (validationContext)
+            return Result.Failure<TreasuryConceptResponse>(Error.NotFound("0", "El código del concepto ya existe"));        
+
         var requiredContext = new
         {
             request.Concept,

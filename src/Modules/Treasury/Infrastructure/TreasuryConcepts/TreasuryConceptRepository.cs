@@ -11,6 +11,11 @@ public class TreasuryConceptRepository(TreasuryDbContext context) : ITreasuryCon
         return await context.TreasuryConcepts.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public async Task<bool> GetByConceptAsync(string concept, CancellationToken cancellationToken = default)
+    {
+        return await context.TreasuryConcepts.AnyAsync(x => x.Concept == concept, cancellationToken);
+    }
+
     public async Task<IReadOnlyCollection<TreasuryConcept>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await context.TreasuryConcepts.ToListAsync(cancellationToken);
