@@ -168,7 +168,7 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
                 continue;
             }
 
-            IncomeEgressNature naturalezaFiltro = value > 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
+            IncomeEgressNature naturalezaFiltro = value > 0 ? IncomeEgressNature.Egress : IncomeEgressNature.Income;
             var operationType = operationsType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
             var detail = value < 0 ? IncomeExpenseNature.Expense : IncomeExpenseNature.Income;
 
