@@ -17,6 +17,7 @@ public sealed class PensionFund : Entity
     public Status Status { get; private set; }
     public string HomologatedCode { get; private set; }
     public int AdministratorId { get; private set; }
+    public int BusinessCodeSfc { get; private set; }
 
     public Administrator Administrator { get; private set; } = null!;
     public IReadOnlyCollection<PlanFund> PlanFunds { get; private set; } = new List<PlanFund>();
