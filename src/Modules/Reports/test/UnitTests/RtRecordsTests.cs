@@ -33,7 +33,7 @@ public class RtRecordsTests
         var date = new DateTime(2025, 2, 6);
         var line = new Rt1Record(header, date, 29).ToLine();
 
-        line.Should().Be("00001105" + "123456" + "06022025" + "00029" + "CLAVE12345" + "01" + "17");
+        line.Should().Be("000000011005" + "123456" + "06022025" + "00000029" + "CLAVE12345" + "01" + "17");
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class RtRecordsTests
         var date = new DateTime(2025, 2, 6);
         var line = new Rt1Record(header, date, 1).ToLine();
 
-        line.Should().Be("00001105" + "000123" + "06022025" + "00001" + "KEY" + "01" + "17");
+        line.Should().Be("000000011005" + "000123" + "06022025" + "00000001" + "KEY" + "01" + "17");
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class RtRecordsTests
         var date = new DateTime(2025, 2, 6);
         var line = new Rt1Record(header, date, 1).ToLine();
 
-        line.Should().Be("00001105" + "123456" + "06022025" + "00001" + "KEY" + "01" + "17");
+        line.Should().Be("000000011005" + "123456" + "06022025" + "00000001" + "KEY" + "01" + "17");
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class RtRecordsTests
     {
         var rt2 = new Rt2Record("1234");
         var line = rt2.ToLine(2);
-        line.Should().Be("00002" + "2" + "0000" + "0" + "1" + "1" + "6" + "1234");
+        line.Should().Be("00000002" + "2" + "0000" + "0" + "1" + "1" + "06" + "001234");
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class RtRecordsTests
     {
         var rt2 = new Rt2Record("12");
         var line = rt2.ToLine(2);
-        line.Should().Be("00002" + "2" + "0000" + "0" + "1" + "1" + "6" + "0012");
+        line.Should().Be("00000002" + "2" + "0000" + "0" + "1" + "1" + "06" + "000012");
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class RtRecordsTests
     {
         var rt2 = new Rt2Record("123456");
         var line = rt2.ToLine(2);
-        line.Should().Be("00002" + "2" + "0000" + "0" + "1" + "1" + "6" + "1234");
+        line.Should().Be("00000002" + "2" + "0000" + "0" + "1" + "1" + "06" + "123456");
     }
 
     [Fact]
@@ -85,21 +85,21 @@ public class RtRecordsTests
     {
         var rt5 = new Rt5Record();
         var line = rt5.ToLine(29);
-        line.Should().Be("00029" + "5");
+        line.Should().Be("00000029" + "5");
     }
 
     [Fact]
     public void Rt4_UnitValue_Should_Format_Correctly()
     {
         var line = Rt4Lines.UnitValue(100.123456m).ToLine(3);
-        line.Should().Be("00003" + "4312" + "0101011" + "+" + "0000000000100.123456");
+        line.Should().Be("00000003" + "4312" + "0101011" + "+" + "0000000000100.123456");
     }
 
     [Fact]
     public void Rt4_313_Yield_Negative_Should_Show_Minus_Sign()
     {
         var line = Rt4Lines.YieldAmount(-1000.50m).ToLine(6);
-        line.Should().Be("00006" + "4313" + "0202005" + "-" + "00000000000001000.50");
+        line.Should().Be("00000006" + "4313" + "0202005" + "-" + "00000000000001000.50");
     }
 
     [Fact]
@@ -109,9 +109,9 @@ public class RtRecordsTests
         var line180 = Rt4Lines.Return180Days(20.34m).ToLine(21);
         var line365 = Rt4Lines.Return365Days(30.56m).ToLine(22);
 
-        line30.Should().Be("00020" + "4314" + "0101005" + "+" + "00000000000000010.12");
-        line180.Should().Be("00021" + "4314" + "0101010" + "+" + "00000000000000020.34");
-        line365.Should().Be("00022" + "4314" + "0101015" + "+" + "00000000000000030.56");
+        line30.Should().Be("00000020" + "4314" + "0101005" + "+" + "00000000000000010.12");
+        line180.Should().Be("00000021" + "4314" + "0101010" + "+" + "00000000000000020.34");
+        line365.Should().Be("00000022" + "4314" + "0101015" + "+" + "00000000000000030.56");
     }
 
     [Fact]
@@ -121,9 +121,9 @@ public class RtRecordsTests
         var line180 = Rt4Lines.Return180Days(-20.34m).ToLine(21);
         var line365 = Rt4Lines.Return365Days(-30.56m).ToLine(22);
 
-        line30.Should().Be("00020" + "4314" + "0101005" + "-" + "00000000000000010.12");
-        line180.Should().Be("00021" + "4314" + "0101010" + "-" + "00000000000000020.34");
-        line365.Should().Be("00022" + "4314" + "0101015" + "-" + "00000000000000030.56");
+        line30.Should().Be("00000020" + "4314" + "0101005" + "-" + "00000000000000010.12");
+        line180.Should().Be("00000021" + "4314" + "0101010" + "-" + "00000000000000020.34");
+        line365.Should().Be("00000022" + "4314" + "0101015" + "-" + "00000000000000030.56");
     }
     
     [Theory]
@@ -139,7 +139,7 @@ public class RtRecordsTests
         var negativeLine = lineFactory(-sampleValue).ToLine(recordNumber);
         var zeroLine = lineFactory(0m).ToLine(recordNumber);
 
-        var signIndex = 5 + TransmissionFormatLayout.Rt4.R4313.Length + expectedCode.Length;
+        var signIndex = 8 + TransmissionFormatLayout.Rt4.R4313.Length + expectedCode.Length;
         positiveLine[signIndex].Should().Be('-');
         negativeLine[signIndex].Should().Be('-');
         zeroLine[signIndex].Should().Be('-');

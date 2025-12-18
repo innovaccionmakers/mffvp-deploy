@@ -1,6 +1,7 @@
 using Associate.Application.Abstractions;
 using Associate.Domain.Activates;
 using Associate.Domain.ConfigurationParameters;
+using Associate.Domain.Constants;
 using Associate.Integrations.Balances.GetBalancesByObjective;
 using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
@@ -165,13 +166,13 @@ internal sealed class GetBalancesByObjectiveHandler(
                         Math.Round(g.Sum(x => x.TotalBalance), 2),
                         string.Empty,
                         string.Empty,
-                        string.Empty,
-                        string.Empty,
-                        string.Empty,
-                        string.Empty,
-                        string.Empty,
-                        "N",
-                        "Kit Capital");
+                        BalanceByObjectiveConstants.AllowsCredit,
+                        BalanceByObjectiveConstants.AllowsInquiry,
+                        BalanceByObjectiveConstants.AllowsDebit,
+                        BalanceByObjectiveConstants.AllowsPayroll,
+                        BalanceByObjectiveConstants.AllowsSuppliers,
+                        BalanceByObjectiveConstants.HasCoOwners,
+                        BalanceByObjectiveConstants.FundOpeningChannel);
                 })
                 .ToList();
         }

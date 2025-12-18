@@ -93,7 +93,12 @@ public static class AccountingReportConstants
 }
 
 public static class ConceptsTypeNames
-{ 
+{
     public const string PerformanceAdjustmentAccountingNote = "Ajuste Rendimiento Nota Contable";
     public const string AdjustYieldsIncome = "Ajuste Rendimiento NC Ingreso";
+}
+
+public static class AutomaticConceptsTolerance
+{
+    public const decimal ZeroValueTolerance = 0m;
 }
