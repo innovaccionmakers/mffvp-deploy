@@ -8,12 +8,12 @@ public sealed record Rt2Record(string PortfolioCode)
         const string constant = "0";
         const string currency = "1";
         const string indicator = "1";
-        const string trustType = "6";
-        var code = (PortfolioCode ?? string.Empty).PadLeft(4, '0');
-        if (code.Length > 4)
+        const string trustType = "06"; //Por defecto Tipo Fondo 06
+        var code = (PortfolioCode ?? string.Empty).PadLeft(6, '0');
+        if (code.Length > 6)
         {
-            code = code.Substring(0, 4);
+            code = code.Substring(0, 6);
         }
-        return $"{recordNumber:00000}2{office}{constant}{currency}{indicator}{trustType}{code}";
+        return $"{recordNumber:00000000}2{office}{constant}{currency}{indicator}{trustType}{code}";
     }
 }

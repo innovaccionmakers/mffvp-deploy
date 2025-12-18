@@ -4,6 +4,6 @@ public sealed record Rt5Record()
 {
     public string ToLine(int recordNumber)
     {
-        return $"{recordNumber:00000}5";
+        return $"{recordNumber:00000000}5";
     }
 }

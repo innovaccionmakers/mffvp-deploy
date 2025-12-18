@@ -24,7 +24,7 @@ public sealed record Rt4NumberLine(string Prefix, string Code, decimal Value, in
             _ => '+'
         };
         var number = FixedWidthTextFormatter.FormatNumber(abs, 20, Decimals);
-        return $"{recordNumber:00000}{Prefix}{Code}{sign}{number}";
+        return $"{recordNumber:00000000}{Prefix}{Code}{sign}{number}";
     }
 }
 
