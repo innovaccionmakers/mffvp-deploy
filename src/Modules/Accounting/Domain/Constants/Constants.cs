@@ -101,4 +101,5 @@ public static class ConceptsTypeNames
 public static class AutomaticConceptsTolerance
 {
     public const decimal ZeroValueTolerance = 0m;
+    public const decimal ZeroThresholdForNature = 0m;
 }

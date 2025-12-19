@@ -1,8 +1,10 @@
+using Common.SharedKernel.Application.Attributes;
 using Common.SharedKernel.Application.Messaging;
 using System.Text.Json.Serialization;
 
 namespace Accounting.Integrations.Concept.CreateConcept
 {
+    [AuditLog]
     public sealed record class CreateConceptCommand(
         [property: JsonPropertyName("PortafolioId")]
         int PortfolioId,

@@ -20,6 +20,6 @@ public sealed record BalanceByObjectiveItem(
     [property: JsonPropertyName("permiteConsulta")] string AllowsInquiry,
     [property: JsonPropertyName("permiteNomina")] string AllowsPayroll,
     [property: JsonPropertyName("permiteProveedores")] string AllowsSuppliers,
-    [property: JsonPropertyName("tienenCotitulares")] string HasCoOwners,
+    [property: JsonPropertyName("tieneCotitulares")] string HasCoOwners,
     [property: JsonPropertyName("canalAperturaFondo")] string FundOpeningChannel
 );

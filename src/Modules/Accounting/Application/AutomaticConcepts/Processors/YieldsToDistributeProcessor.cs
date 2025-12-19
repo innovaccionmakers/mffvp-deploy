@@ -139,8 +139,8 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
         {
             foreach (var distributedYield in distributedYields)
         {
-            IncomeEgressNature naturalezaFiltro = distributedYield.Value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
-            var detail = distributedYield.Value > 0 ? IncomeExpenseNature.Expense : IncomeExpenseNature.Income;
+            IncomeEgressNature naturalezaFiltro = distributedYield.Value < AutomaticConceptsTolerance.ZeroThresholdForNature ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
+            var detail = distributedYield.Value > AutomaticConceptsTolerance.ZeroThresholdForNature ? IncomeExpenseNature.Expense : IncomeExpenseNature.Income;
 
 
             var operationType = operationTypes.FirstOrDefault(ot => ot.Name.Trim() == operationtypeName.Trim() && ot.Nature == naturalezaFiltro);
@@ -218,8 +218,8 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
         {
             foreach (var yieldDetail in yieldDetails)
         {
-            IncomeEgressNature naturalezaFiltro = yieldDetail.Income < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
-            var detail = yieldDetail.Income > 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
+            IncomeEgressNature naturalezaFiltro = yieldDetail.Income < AutomaticConceptsTolerance.ZeroThresholdForNature ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
+            var detail = yieldDetail.Income > AutomaticConceptsTolerance.ZeroThresholdForNature ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
 
             var operationType = operationTypes.FirstOrDefault(ot => ot.Name.Trim() == operationtypeName.Trim() && ot.Nature == naturalezaFiltro);
             if (operationType == null)
