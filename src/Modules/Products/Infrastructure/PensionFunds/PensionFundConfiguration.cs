@@ -44,6 +44,9 @@ internal sealed class PensionFundConfiguration : IEntityTypeConfiguration<Pensio
         builder.Property(f => f.AdministratorId)
             .HasColumnName("administrador_id");
 
+        builder.Property(f => f.BusinessCodeSfc)
+            .HasColumnName("cod_negocio_sfc");
+
         builder.HasOne(f => f.Administrator)
             .WithMany(a => a.PensionFunds)
             .HasForeignKey(f => f.AdministratorId);
