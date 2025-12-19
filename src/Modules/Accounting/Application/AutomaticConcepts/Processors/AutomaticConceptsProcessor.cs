@@ -92,9 +92,9 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
                 continue;
             }
 
-            IncomeEgressNature naturalezaFiltro = value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
+            IncomeEgressNature naturalezaFiltro = value < AutomaticConceptsTolerance.ZeroThresholdForNature ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
             var operationType = operationsType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
-            var detail = value < 0 ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
+            var detail = value < AutomaticConceptsTolerance.ZeroThresholdForNature ? IncomeExpenseNature.Income : IncomeExpenseNature.Expense;
 
 
             if (operationType == null)
@@ -155,7 +155,7 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
 
         foreach (var yield in yieldResult.YieldAutConcepts.YieldDetails)
         {
-            if (yield.Income == 0)
+            if (yield.Income == AutomaticConceptsTolerance.ZeroValueTolerance)
                 continue;
 
             var value = yield.Income;
@@ -168,9 +168,9 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
                 continue;
             }
 
-            IncomeEgressNature naturalezaFiltro = value > 0 ? IncomeEgressNature.Egress : IncomeEgressNature.Income;
+            IncomeEgressNature naturalezaFiltro = value > AutomaticConceptsTolerance.ZeroThresholdForNature ? IncomeEgressNature.Egress : IncomeEgressNature.Income;
             var operationType = operationsType.FirstOrDefault(ot => ot.Name == automaticConcept && ot.Nature == naturalezaFiltro);
-            var detail = value < 0 ? IncomeExpenseNature.Expense : IncomeExpenseNature.Income;
+            var detail = value < AutomaticConceptsTolerance.ZeroThresholdForNature ? IncomeExpenseNature.Expense : IncomeExpenseNature.Income;
 
             if (operationType == null)
             {
@@ -205,7 +205,7 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
                 continue;
             }
 
-            var natureValue = EnumHelper.GetEnumMemberValue(value < 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress);
+            var natureValue = EnumHelper.GetEnumMemberValue(value < AutomaticConceptsTolerance.ZeroThresholdForNature ? IncomeEgressNature.Income : IncomeEgressNature.Egress);
             var accountingAssistant = AccountingAssistant.Create(
                 yield.PortfolioId,
                 portfolioResult.Value.NitApprovedPortfolio,
