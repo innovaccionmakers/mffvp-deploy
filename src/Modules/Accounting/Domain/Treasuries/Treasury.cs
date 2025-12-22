@@ -32,13 +32,9 @@ public sealed class Treasury : Entity
     }
 
     public void UpdateDetails(
-        int portfolioId,
-        string? bankAccount,
         string? debitAccount,
         string? creditAccount)
     {
-        PortfolioId = portfolioId;
-        BankAccount = bankAccount;
         DebitAccount = debitAccount;
         CreditAccount = creditAccount;
     }

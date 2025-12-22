@@ -213,8 +213,6 @@ namespace Accounting.test.IntegrationTests.PassiveTransactions
         public void Update_WhenPassiveTransactionIsValid_ShouldUpdateInContext()
         {
             // Arrange
-            int portfolioId = 1;
-            long typeOperationsId = 101;
             string? debitAccount = "123456";
             string? creditAccount = "654321";
             string? contraCreditAccount = "654987";
@@ -223,8 +221,6 @@ namespace Accounting.test.IntegrationTests.PassiveTransactions
             var passiveTransaction = new PassiveTransaction();
 
             passiveTransaction.UpdateDetails(
-                portfolioId,
-                typeOperationsId,
                 debitAccount,
                 creditAccount,
                 contraCreditAccount,

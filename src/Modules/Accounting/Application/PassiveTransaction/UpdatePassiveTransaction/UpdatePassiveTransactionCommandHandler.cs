@@ -24,8 +24,6 @@ namespace Accounting.Application.PassiveTransaction.UpdatePassiveTransaction
                     return Result.Failure(Error.NotFound("0", "No hay configuración contable para actualizar."));
 
                 transaction.UpdateDetails(
-                    request.PortfolioId,
-                    request.TypeOperationsId,
                     request.DebitAccount,
                     request.CreditAccount,
                     request.ContraCreditAccount,

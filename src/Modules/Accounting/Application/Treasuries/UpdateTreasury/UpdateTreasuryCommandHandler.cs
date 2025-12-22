@@ -23,8 +23,6 @@ namespace Accounting.Application.Treasuries.UpdateTreasury
                     return Result.Failure(Error.NotFound("0", "No hay registros de tesorería para actualizar."));
 
                 treasury.UpdateDetails(
-                    request.PortfolioId,
-                    request.BankAccount,
                     request.DebitAccount,
                     request.CreditAccount
                     );

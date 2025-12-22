@@ -7,10 +7,13 @@ public sealed record ValidationError : Error
     public ValidationError(Error[] errors)
         : base(
             "General.Validation",
-            "One or more validation errors occurred",
+            // Build a meaningful description from individual errors instead of a generic message
+            errors is null || errors.Length == 0
+                ? "One or more validation errors occurred"
+                : string.Join("; ", errors.Select(e => e.Description)),
             ErrorType.Validation)
     {
-        Errors = errors;
+        Errors = errors ?? System.Array.Empty<Error>();
     }
 
     public Error[] Errors { get; }

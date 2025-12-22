@@ -26,7 +26,6 @@ namespace Accounting.Application.ConfigurationGenerals.UpdateConfigurationGenera
                     return Result.Failure<IReadOnlyCollection<GetConfigurationGeneralResponse>>(Error.NotFound("0", "No se pudo obtener la configuración general."));
 
                 configurationGeneral.UpdateDetails(
-                    request.PortfolioId,
                     request.AccountingCode,
                     request.CostCenter
                     );
