@@ -496,7 +496,7 @@ public class TransmissionFormatReportTests
 
         // Distribution = 40 - (0 + -20) = 60, Note = -20. With unit value 0, units remain unchanged.
         report.Should().Contain("43130103005+0000000000000.000000");
-        report.Should().Contain("43130203005+00000000000000000.00");
+        report.Should().Contain("43130203005+00000000000000020.00");
         report.Should().Contain("43130103020-0000000000000.000000");
         report.Should().Contain("43130203020-00000000000000060.00");
     }

@@ -145,21 +145,21 @@ public class TransmissionFormatReport(
             }
         }
 
-        if (notePositiveAmount < 0m)
+        if (notePositiveAmount > 0m)
         {
-            contributionAmount += Math.Abs(notePositiveAmount);
+            withdrawalAmount += notePositiveAmount;
             if (canAdjustUnits)
             {
-                contributionUnitsAdjustment += Math.Abs(notePositiveAmount) / unitValue;
+                withdrawalUnitsAdjustment += notePositiveAmount / unitValue;
             }
         }
 
-        if (noteNegativeAmount > 0m)
+        if (noteNegativeAmount < 0m)
         {
-            withdrawalAmount += noteNegativeAmount;
+            contributionAmount += Math.Abs(noteNegativeAmount);
             if (canAdjustUnits)
             {
-                withdrawalUnitsAdjustment += noteNegativeAmount / unitValue;
+                contributionUnitsAdjustment += Math.Abs(noteNegativeAmount) / unitValue;
             }
         }
 
