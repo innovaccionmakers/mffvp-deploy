@@ -28,6 +28,7 @@ public class GetBalancesByObjectiveHandlerTests
 {
     private const string PaginationWorkflow = "Associate.BalancesByObjective.PaginationValidation";
     private const string ValidationWorkflow = "Associate.BalancesByObjective.Validation";
+    private const string BalancesValidationWorkflow = "Associate.BalancesByObjective.BalancesValidation";
 
     [Fact]
     public async Task Handle_ReturnsSuccess_WhenBalancesAndAdditionalInformationAreValid()
@@ -47,6 +48,12 @@ public class GetBalancesByObjectiveHandlerTests
 
         context.RuleEvaluator.Setup(r => r.EvaluateAsync(
                 It.Is<string>(w => w == ValidationWorkflow),
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SuccessfulRules());
+
+        context.RuleEvaluator.Setup(r => r.EvaluateAsync(
+                It.Is<string>(w => w == BalancesValidationWorkflow),
                 It.IsAny<object>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(SuccessfulRules());
@@ -147,6 +154,11 @@ public class GetBalancesByObjectiveHandlerTests
             It.IsAny<object>(),
             It.IsAny<CancellationToken>()), Times.Once);
 
+        context.RuleEvaluator.Verify(r => r.EvaluateAsync(
+            BalancesValidationWorkflow,
+            It.IsAny<object>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+
         context.RpcClient.Verify(r => r.CallAsync<GetPersonInformationRequest, GetPersonInformationResponse>(
             It.IsAny<GetPersonInformationRequest>(),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -165,13 +177,14 @@ public class GetBalancesByObjectiveHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ReturnsSuccess_WhenNoBalancesAreAvailable()
+    public async Task Handle_ReturnsFailure_WhenNoBalancesAreAvailable()
     {
         // Arrange
         var context = CreateHandlerContext();
         var documentTypeCode = "CC";
         var configurationParameter = CreateConfigurationParameter(documentTypeCode, Guid.NewGuid());
         var activation = CreateActivate(configurationParameter.Uuid, "123456789", 912);
+        var balancesValidationError = new RuleValidationError("7f0d91b3-6372-4b31-8801-1276c1da61af", "El cliente no tiene objetivos con saldo");
 
         context.RuleEvaluator.Setup(r => r.EvaluateAsync(
                 It.Is<string>(w => w == PaginationWorkflow),
@@ -184,6 +197,12 @@ public class GetBalancesByObjectiveHandlerTests
                 It.IsAny<object>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(SuccessfulRules());
+
+        context.RuleEvaluator.Setup(r => r.EvaluateAsync(
+                It.Is<string>(w => w == BalancesValidationWorkflow),
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((false, Array.Empty<RuleResultTree>(), new[] { balancesValidationError }));
 
         context.ConfigurationRepository.Setup(r => r.GetByCodeAndScopeAsync(
                 documentTypeCode,
@@ -219,13 +238,10 @@ public class GetBalancesByObjectiveHandlerTests
         var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Empty(result.Value.Items);
-
-        var pageInfo = result.Value.PageInfo;
-        Assert.Equal(0, pageInfo.TotalRecords);
-        Assert.Equal(0, pageInfo.TotalPages);
-        Assert.Equal(0, pageInfo.RecordsPerPage);
+        Assert.True(result.IsFailure);
+        Assert.Equal("7f0d91b3-6372-4b31-8801-1276c1da61af", result.Error.Code);
+        Assert.Equal("El cliente no tiene objetivos con saldo", result.Error.Description);
+        Assert.Equal(Common.SharedKernel.Core.Primitives.ErrorType.Validation, result.Error.Type);
 
         context.RpcClient.Verify(r => r.CallAsync<GetAdditionalInformationRequest, GetAdditionalInformationResponse>(
             It.IsAny<GetAdditionalInformationRequest>(),
@@ -497,6 +513,12 @@ public class GetBalancesByObjectiveHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(SuccessfulRules());
 
+        context.RuleEvaluator.Setup(r => r.EvaluateAsync(
+                BalancesValidationWorkflow,
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SuccessfulRules());
+
         context.ConfigurationRepository.Setup(r => r.GetByCodeAndScopeAsync(
                 documentTypeCode,
                 It.IsAny<string>(),
@@ -616,7 +638,7 @@ public class GetBalancesByObjectiveHandlerTests
 
     private static (bool Success, IReadOnlyCollection<RuleResultTree> Results, IReadOnlyCollection<RuleValidationError> Errors) SuccessfulRules()
         => (true, Array.Empty<RuleResultTree>(), Array.Empty<RuleValidationError>());
-    
+
     private static PersonInformation CreatePersonInformation(string fullName)
     {
         return new PersonInformation(
@@ -643,7 +665,7 @@ public class GetBalancesByObjectiveHandlerTests
             7,
             9);
     }
-    
+
     private sealed record HandlerContext(
         GetBalancesByObjectiveHandler Handler,
         Mock<IActivateRepository> ActivateRepository,
