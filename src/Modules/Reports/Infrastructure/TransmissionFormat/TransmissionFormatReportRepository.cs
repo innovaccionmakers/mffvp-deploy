@@ -184,19 +184,19 @@ public class TransmissionFormatReportRepository(
         var date365 = date.AddDays(-364);
 
         var sql = $@"
-            SELECT vp.rentabilidad_diaria
+            SELECT vp.valor_unidad
             FROM {ClosingSchema}.valoracion_portafolio vp
             WHERE vp.portafolio_id = @PortfolioId AND vp.fecha_cierre = @Date::date;
 
-            SELECT vp.rentabilidad_diaria
+            SELECT vp.valor_unidad
             FROM {ClosingSchema}.valoracion_portafolio vp
             WHERE vp.portafolio_id = @PortfolioId AND vp.fecha_cierre = @Date30::date;
 
-            SELECT vp.rentabilidad_diaria
+            SELECT vp.valor_unidad
             FROM {ClosingSchema}.valoracion_portafolio vp
             WHERE vp.portafolio_id = @PortfolioId AND vp.fecha_cierre = @Date180::date;
 
-            SELECT vp.rentabilidad_diaria
+            SELECT vp.valor_unidad
             FROM {ClosingSchema}.valoracion_portafolio vp
             WHERE vp.portafolio_id = @PortfolioId AND vp.fecha_cierre = @Date365::date;";
 
