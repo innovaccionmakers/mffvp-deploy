@@ -417,6 +417,19 @@
     ]
   },
   {
+    "WorkflowName": "Associate.BalancesByObjective.BalancesValidation",
+    "Rules": [
+      {
+        "RuleName": "HasBalancesByObjective",
+        "ErrorMessage": "El cliente no tiene objetivos con saldo",
+        "Expression": "input.TotalRecords > 0",
+        "Properties": {
+          "errorCode": "7f0d91b3-6372-4b31-8801-1276c1da61af"
+        }
+      }
+    ]
+  },
+  {
     "WorkflowName": "Associate.BalancesByObjective.PaginationValidation",
     "Rules": [
       {
