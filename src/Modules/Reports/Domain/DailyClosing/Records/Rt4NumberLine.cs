@@ -52,8 +52,8 @@ public static class Rt4Lines
     public static Rt4NumberLine VitalityTransferAmount(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.VitalityTransferAmount, value, 2, SignMode.AlwaysNegative);
     public static Rt4NumberLine OtherWithdrawalUnits(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.OtherWithdrawalUnits, value, 6, SignMode.AlwaysNegative);
     public static Rt4NumberLine OtherWithdrawalAmount(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.OtherWithdrawalAmount, value, 2, SignMode.AlwaysNegative);
-    public static Rt4NumberLine CancellationUnits(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.CancellationUnits, value, 6, SignMode.PlusOnly);
-    public static Rt4NumberLine CancellationAmount(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.CancellationAmount, value, 2, SignMode.Signed);
+    public static Rt4NumberLine CancellationUnits(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.CancellationUnits, value, 6, SignMode.AlwaysNegative);
+    public static Rt4NumberLine CancellationAmount(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.CancellationAmount, value, 2, SignMode.AlwaysNegative);
     public static Rt4NumberLine CurrentUnits(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.CurrentUnits, value, 6, SignMode.PlusOnly);
     public static Rt4NumberLine CurrentAmount(decimal value) => new(TransmissionFormatLayout.Rt4.R4313, TransmissionFormatLayout.Rt4.CurrentAmount, value, 2, SignMode.PlusOnly);
 

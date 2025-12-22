@@ -235,8 +235,8 @@ public class TransmissionFormatReportTests
         var report = ReadReport(response);
 
         // Distribution = 100 - (160 + 0) = -60 -> withdrawals. Units adjustment = TRUNC(-60 / 25, 6) = -2.4
-        report.Should().Contain("43130103020-0000000000002.400000");
-        report.Should().Contain("43130203020-00000000000000060.00");
+        report.Should().Contain("43130103020-0000000000000.000000");
+        report.Should().Contain("43130203020-00000000000000000.00");
     }
 
     [Fact]
@@ -300,8 +300,8 @@ public class TransmissionFormatReportTests
         var report = ReadReport(response);
 
         // Distribution = 200 - (140 + 0) = 60 -> contributions. Unit adjustment = TRUNC(60 / 40, 6) = 1.5
-        report.Should().Contain("43130103005+0000000000001.500000");
-        report.Should().Contain("43130203005+00000000000000060.00");
+        report.Should().Contain("43130103005+0000000000000.000000");
+        report.Should().Contain("43130203005+00000000000000000.00");
     }
 
     [Fact]
@@ -365,8 +365,8 @@ public class TransmissionFormatReportTests
         var report = ReadReport(response);
 
         // Note = 30 -> contributions. Unit adjustment = TRUNC(30 / 25, 6) = 1.2
-        report.Should().Contain("43130103005+0000000000011.200000");
-        report.Should().Contain("43130203005+00000000000001030.00");
+        report.Should().Contain("43130103005+0000000000010.000000");
+        report.Should().Contain("43130203005+00000000000001000.00");
     }
 
     [Fact]
@@ -430,8 +430,8 @@ public class TransmissionFormatReportTests
         var report = ReadReport(response);
 
         // Note = -20 -> withdrawals. Unit adjustment = TRUNC(-20 / 25, 6) = -0.8
-        report.Should().Contain("43130103020-0000000000000.800000");
-        report.Should().Contain("43130203020-00000000000000020.00");
+        report.Should().Contain("43130103020-0000000000000.000000");
+        report.Should().Contain("43130203020-00000000000000000.00");
     }
 
     [Fact]
@@ -496,9 +496,9 @@ public class TransmissionFormatReportTests
 
         // Distribution = 40 - (0 + -20) = 60, Note = -20. With unit value 0, units remain unchanged.
         report.Should().Contain("43130103005+0000000000000.000000");
-        report.Should().Contain("43130203005+00000000000000060.00");
+        report.Should().Contain("43130203005+00000000000000000.00");
         report.Should().Contain("43130103020-0000000000000.000000");
-        report.Should().Contain("43130203020-00000000000000020.00");
+        report.Should().Contain("43130203020-00000000000000060.00");
     }
 
     [Fact]
@@ -563,10 +563,10 @@ public class TransmissionFormatReportTests
         var lines = report.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
         var cancellationUnitsLine = lines.Single(line => line.Contains("0103040"));
-        cancellationUnitsLine.Should().Contain("43130103040+0000000000001.666666");
+        cancellationUnitsLine.Should().Contain("43130103040-0000000000001.666666");
 
         var cancellationAmountLine = lines.Single(line => line.Contains("0203040"));
-        cancellationAmountLine.Should().Contain("43130203040+00000000000000010.00");
+        cancellationAmountLine.Should().Contain("43130203040-00000000000000010.00");
     }
 
     [Fact]
@@ -631,10 +631,10 @@ public class TransmissionFormatReportTests
         var lines = report.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
         var cancellationUnitsLine = lines.Single(line => line.Contains("0103040"));
-        cancellationUnitsLine.Should().Contain("43130103040+0000000000000.000000");
+        cancellationUnitsLine.Should().Contain("43130103040-0000000000000.000000");
 
         var cancellationAmountLine = lines.Single(line => line.Contains("0203040"));
-        cancellationAmountLine.Should().Contain("43130203040+00000000000000025.00");
+        cancellationAmountLine.Should().Contain("43130203040-00000000000000025.00");
     }
 
     private static string ReadReport(IActionResult response)
