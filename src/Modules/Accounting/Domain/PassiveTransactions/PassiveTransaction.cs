@@ -38,15 +38,11 @@ public sealed class PassiveTransaction : Entity
     }
 
     public void UpdateDetails(
-        int portfolioId,
-        long typeOperationsId,
         string? debitAccount,
         string? creditAccount,
         string? contraCreditAccount,
         string? contraDebitAccount)
     {
-        PortfolioId = portfolioId;
-        TypeOperationsId = typeOperationsId;
         DebitAccount = debitAccount;
         CreditAccount = creditAccount;
         ContraCreditAccount = contraCreditAccount;

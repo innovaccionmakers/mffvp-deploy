@@ -29,11 +29,9 @@ public class GeneralConfiguration : Entity
     }
 
     public void UpdateDetails(
-        int portfolioId,
         string accountingCode,
         string costCenter)
     {
-        PortfolioId = portfolioId;
         AccountingCode = accountingCode;
         CostCenter = costCenter;
     }
