@@ -30,6 +30,7 @@ using Products.Infrastructure.TechnicalSheets;
 using System.Data.Common;
 using Products.Domain.Administrators;
 using Products.Infrastructure.Administrators;
+using Products.Infrastructure.MinimumWages;
 
 namespace Products.Infrastructure.Database;
 
@@ -50,6 +51,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
     internal DbSet<AccumulatedCommission> AccumulatedCommissions { get; set; }
     internal DbSet<TechnicalSheet> TechnicalSheets { get; set; }
     internal DbSet<Administrator>  Administrators { get; set; }
+    internal DbSet<Administrator>  MinimumWages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -69,6 +71,7 @@ public sealed class ProductsDbContext(DbContextOptions<ProductsDbContext> option
         modelBuilder.ApplyConfiguration(new AccumulatedCommissionConfiguration());
         modelBuilder.ApplyConfiguration(new TechnicalSheetConfiguration());
         modelBuilder.ApplyConfiguration(new AdministratorConfiguration());
+        modelBuilder.ApplyConfiguration(new MinimumWageConfiguration());
     }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
