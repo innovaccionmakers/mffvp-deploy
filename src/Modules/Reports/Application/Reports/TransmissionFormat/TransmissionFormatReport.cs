@@ -1,4 +1,5 @@
 using Common.SharedKernel.Application.Reports.Strategies;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Reports.Domain.TransmissionFormat;
@@ -123,15 +124,19 @@ public class TransmissionFormatReport(
         var contributionUnitsAdjustment = 0m;
         var withdrawalUnitsAdjustment = 0m;
 
-        if (distributionAmount > 0m)
+        //Conceptos Automáticos: 
+ 
+        //Cuando el concepto < 0 es aporte con signo positivo.
+        //Cuando el concepto es > 0 es retiro con signo negativo.
+        if (distributionAmount < 0m)
         {
-            contributionAmount += distributionAmount;
+            contributionAmount += Math.Abs(distributionAmount);
             if (canAdjustUnits)
             {
-                contributionUnitsAdjustment += distributionAmount / unitValue;
+                contributionUnitsAdjustment += Math.Abs(distributionAmount) / unitValue;
             }
         }
-        else if (distributionAmount < 0m)
+        else if (distributionAmount > 0m)
         {
             withdrawalAmount += distributionAmount;
             if (canAdjustUnits)
@@ -142,19 +147,19 @@ public class TransmissionFormatReport(
 
         if (notePositiveAmount > 0m)
         {
-            contributionAmount += notePositiveAmount;
+            withdrawalAmount += notePositiveAmount;
             if (canAdjustUnits)
             {
-                contributionUnitsAdjustment += notePositiveAmount / unitValue;
+                withdrawalUnitsAdjustment += notePositiveAmount / unitValue;
             }
         }
 
         if (noteNegativeAmount < 0m)
         {
-            withdrawalAmount += noteNegativeAmount;
+            contributionAmount += Math.Abs(noteNegativeAmount);
             if (canAdjustUnits)
             {
-                withdrawalUnitsAdjustment += noteNegativeAmount / unitValue;
+                contributionUnitsAdjustment += Math.Abs(noteNegativeAmount) / unitValue;
             }
         }
 

@@ -94,8 +94,8 @@ public class TransmissionFormatReportRepository(
             FROM {ClosingSchema}.valoracion_portafolio vp
             WHERE vp.portafolio_id = @PortfolioId AND vp.fecha_cierre = @PreviousDate::date;
 
-            -- yield credited
-            SELECT COALESCE(SUM(r.rendimientos_abonados), 0)
+            -- yield to credit 
+            SELECT COALESCE(SUM(r.rendimientos_abonar), 0)
             FROM {ClosingSchema}.rendimientos r
             WHERE r.portafolio_id = @PortfolioId AND r.fecha_cierre = @Date::date;
 

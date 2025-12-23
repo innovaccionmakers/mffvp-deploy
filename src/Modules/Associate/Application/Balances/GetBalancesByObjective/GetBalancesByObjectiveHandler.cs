@@ -26,6 +26,7 @@ internal sealed class GetBalancesByObjectiveHandler(
     : IQueryHandler<GetBalancesByObjectiveQuery, GetBalancesByObjectiveResponse>
 {
     private const string ValidationWorkflow = "Associate.BalancesByObjective.Validation";
+    private const string BalancesValidationWorkflow = "Associate.BalancesByObjective.BalancesValidation";
     private const string PaginationValidationWorkflow = "Associate.BalancesByObjective.PaginationValidation";
 
     public async Task<Result<GetBalancesByObjectiveResponse>> Handle(
@@ -176,7 +177,24 @@ internal sealed class GetBalancesByObjectiveHandler(
                 })
                 .ToList();
         }
+
         var totalRecords = grouped.Count;
+
+        var balancesValidationContext = new
+        {
+            TotalRecords = totalRecords
+        };
+
+        var (balancesValid, _, balancesErrors) = await ruleEvaluator
+            .EvaluateAsync(BalancesValidationWorkflow, balancesValidationContext, cancellationToken);
+
+        if (!balancesValid)
+        {
+            var first = balancesErrors.First();
+            return Result.Failure<GetBalancesByObjectiveResponse>(
+                Error.Validation(first.Code, first.Message));
+        }
+
         var noPaginationProvided = !pageNumberProvided && !recordsPerPageProvided;
 
         var effectivePageNumber = noPaginationProvided
