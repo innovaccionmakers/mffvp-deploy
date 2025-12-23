@@ -88,7 +88,7 @@ namespace Closing.Infrastructure.PortfolioValuations
 
             var rowsAffected = await query.ExecuteUpdateAsync(
                                 setters => setters
-                                    // valor = valor + difference (suma o resta según el signo)
+                                    // valor = valor 
                                     .SetProperty(
                                         p => p.Amount,
                                         p => p.Amount + difference)
@@ -108,6 +108,42 @@ namespace Closing.Infrastructure.PortfolioValuations
 
             return rowsAffected;
         }
+
+        public async Task<int> UpdateValueAndUnitsAsync(
+         int portfolioId,
+         DateTime closingDateUtc,
+         decimal previousPV,
+         decimal yieldsCredited,
+         CancellationToken cancellationToken)
+        {
+           var query = context.PortfolioValuations
+          .Where(x => x.PortfolioId == portfolioId
+                      && x.ClosingDate == closingDateUtc
+                      && x.IsClosed)
+          .TagWith("[PortfolioValuationRepository_UpdateValueAndUnitsAsync]");
+
+            var rowsAffected = await query.ExecuteUpdateAsync(
+                                setters => setters
+                                    // valor = valorDiaAnterior + rendimientos_abonados + operaciones_entrada - operaciones_salida 
+                                    .SetProperty(
+                                        p => p.Amount,
+                                        p => previousPV + yieldsCredited + p.IncomingOperations - p.OutgoingOperations)
+                                    // unidades = (nuevo valor) / valor_unidad,
+                                    // solo si hay operaciones y valor_unidad != 0; si no, se mantienen
+                                    .SetProperty(
+                                        p => p.Units,
+                                        p => p.UnitValue != 0m &&
+                                             (p.IncomingOperations != 0m || p.OutgoingOperations != 0m)
+                                            ? (previousPV + yieldsCredited + p.IncomingOperations - p.OutgoingOperations) / p.UnitValue
+                                            : p.Units)
+                                    // fecha_proceso = NOW()
+                                    .SetProperty(
+                                        p => p.ProcessDate,
+                                        _ => DateTime.UtcNow),
+                                cancellationToken);
+
+            return rowsAffected;
+        }
         public async Task<PortfolioValuationClosing?> GetReadOnlyToDistributePortfolioAndDateAsync(int portfolioId, DateTime closingDateUtc, CancellationToken cancellationToken)
         {
             return await context.PortfolioValuations
@@ -118,6 +154,23 @@ namespace Closing.Infrastructure.PortfolioValuations
                             v.ClosingDate == closingDateUtc)
                 .Select(v => new PortfolioValuationClosing(v.Amount, v.UnitValue))
                 .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<decimal> GetPortfolioAmountByPortfolioAndDateAsync(
+             int portfolioId,
+             DateTime closingDateUtc,
+             CancellationToken cancellationToken)
+        {
+            var amount = await context.PortfolioValuations
+                .TagWith("PortfolioValuationRepository_GetPortfolioAmountByPortfolioAndDateAsync")
+                .AsNoTracking()
+                .Where(v => v.PortfolioId == portfolioId &&
+                            v.IsClosed &&
+                            v.ClosingDate == closingDateUtc)
+                .Select(v => v.Amount)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return amount;
         }
     }
 }
