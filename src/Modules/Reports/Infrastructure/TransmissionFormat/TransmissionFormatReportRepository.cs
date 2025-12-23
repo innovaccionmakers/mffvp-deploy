@@ -124,8 +124,7 @@ public class TransmissionFormatReportRepository(
             FROM {ClosingSchema}.detalle_rendimientos dr
             WHERE dr.portafolio_id = @PortfolioId
               AND dr.fecha_cierre = @Date::date
-              AND dr.fuente = @ExtraReturnSource
-              AND dr.ingresos > 0;
+              AND dr.fuente = @ExtraReturnSource;
 
             -- current day valuation
             SELECT vp.unidades AS ""Units"", vp.valor AS ""Amount""

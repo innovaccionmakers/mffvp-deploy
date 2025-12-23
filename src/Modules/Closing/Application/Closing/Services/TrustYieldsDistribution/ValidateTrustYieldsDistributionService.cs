@@ -13,10 +13,13 @@ using Closing.Domain.TrustYields;
 using Closing.Domain.Yields;
 using Closing.Domain.YieldsToDistribute;
 using Closing.Integrations.PreClosing.RunSimulation;
+using Common.SharedKernel.Application.Constants;
+using Common.SharedKernel.Application.Helpers.Finance;
 using Common.SharedKernel.Application.Helpers.Money;
 using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+using System.Text;
 using System.Text.Json;
 
 namespace Closing.Application.Closing.Services.TrustYieldsDistribution;
@@ -151,11 +154,14 @@ public class ValidateTrustYieldsDistributionService(
                 new[] { summary }, parameters);
 
             await yieldDetailCreationService.CreateYieldDetailsAsync(buildResult, PersistenceMode.Transactional, cancellationToken);
-
-            //Ajuste al valor del portafolio con los rendimientos abonados
-            await portfolioValuationRepository.ApplyAllocationCheckDiffAsync(portfolioId, closingDate, -differenceOrigin, cancellationToken);
+         
         }
-       
+
+        //Ajuste al valor del portafolio con los rendimientos abonados
+        var previousPortfolioAmount = await portfolioValuationRepository.GetPortfolioAmountByPortfolioAndDateAsync(portfolioId, closingDate.AddDays(-1), cancellationToken);
+
+        await portfolioValuationRepository.UpdateValueAndUnitsAsync(portfolioId, closingDate, previousPortfolioAmount, distributedTotal, cancellationToken);
+
         return Result.Success();
     }
 }
