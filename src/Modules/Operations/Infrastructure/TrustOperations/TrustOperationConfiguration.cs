@@ -23,6 +23,26 @@ internal sealed class TrustOperationConfiguration : IEntityTypeConfiguration<Tru
         builder.Property(x => x.ProcessDate).HasColumnName("fecha_proceso");
         builder.Property(x => x.ApplicationDate).HasColumnName("fecha_aplicacion");
 
+        builder.Property(x => x.WithdrawalContingentTax).HasColumnName("retencion_contingente_retiro")
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.WithdrawalContributionsTax).HasColumnName("retencion_rendimientos_retiro")
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.AmountRequested).HasColumnName("valor_solicitado")
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.ContributionsPaid).HasColumnName("rendimientos_pagados")
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.PaidCapital).HasColumnName("capital_pagado")
+            .IsRequired()
+            .HasDefaultValue(0);
+
         builder.HasOne(x => x.ClientOperation)
             .WithMany(co => co.TrustOperations)
             .HasForeignKey(x => x.ClientOperationId)

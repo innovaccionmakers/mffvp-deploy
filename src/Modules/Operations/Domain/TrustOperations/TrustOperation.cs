@@ -15,6 +15,11 @@ public sealed class TrustOperation : Entity
     public DateTime RegistrationDate { get; private set; }
     public DateTime ProcessDate { get; private set; }
     public DateTime ApplicationDate { get; private set; }
+    public decimal WithdrawalContingentTax { get; private set; }
+    public decimal WithdrawalContributionsTax { get; private set; }
+    public decimal AmountRequested { get; private set; }
+    public decimal ContributionsPaid { get; private set; }
+    public decimal PaidCapital { get; private set; }
 
     public ClientOperation ClientOperation { get; private set; } = null!;
 
@@ -31,7 +36,12 @@ public sealed class TrustOperation : Entity
         int portfolioId,
         DateTime registrationDate,
         DateTime processDate,
-        DateTime applicationDate
+        DateTime applicationDate,
+        decimal withdrawalContingentTax = 0,
+        decimal withdrawalContributionsTax = 0,
+        decimal amountRequested = 0,
+        decimal contributionsPaid = 0,
+        decimal paidCapital = 0
     )
     {
         var trustOperation = new TrustOperation
@@ -45,7 +55,12 @@ public sealed class TrustOperation : Entity
             PortfolioId = portfolioId,
             RegistrationDate = registrationDate,
             ProcessDate = processDate,
-            ApplicationDate = applicationDate
+            ApplicationDate = applicationDate,
+            WithdrawalContingentTax = withdrawalContingentTax,
+            WithdrawalContributionsTax = withdrawalContributionsTax,
+            AmountRequested = amountRequested,
+            ContributionsPaid = contributionsPaid,
+            PaidCapital = paidCapital
         };
 
         return Result.Success(trustOperation);
@@ -60,7 +75,12 @@ public sealed class TrustOperation : Entity
         int newPortfolioId,
         DateTime newRegistrationDate,
         DateTime newProcessDate,
-        DateTime newApplicationDate
+        DateTime newApplicationDate,
+        decimal newWithdrawalContingentTax = 0,
+        decimal newWithdrawalContributionsTax = 0,
+        decimal newAmountRequested = 0,
+        decimal newContributionsPaid = 0,
+        decimal newPaidCapital = 0
     )
     {
         ClientOperationId = newClientOperationId;
@@ -72,5 +92,10 @@ public sealed class TrustOperation : Entity
         RegistrationDate = newRegistrationDate;
         ProcessDate = newProcessDate;
         ApplicationDate = newApplicationDate;
+        WithdrawalContingentTax = newWithdrawalContingentTax;
+        WithdrawalContributionsTax = newWithdrawalContributionsTax;
+        AmountRequested = newAmountRequested;
+        ContributionsPaid = newContributionsPaid;
+        PaidCapital = newPaidCapital;
     }
 }
