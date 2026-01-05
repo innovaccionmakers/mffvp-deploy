@@ -1,4 +1,5 @@
-﻿using HotChocolate;
+﻿using Common.SharedKernel.Infrastructure.Validation;
+using HotChocolate;
 
 namespace Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput
 {
@@ -10,14 +11,18 @@ namespace Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput
         long TypeOperationsId,
 
         [property: GraphQLName("cuentaDebito")]
+        [property: MaxCharLength(20)]
         string? DebitAccount,
 
         [property: GraphQLName("cuentaCredito")]
+        [property: MaxCharLength(20)]
         string? CreditAccount,
 
         [property: GraphQLName("cuentaContraCredito")]
+        [property: MaxCharLength(20)]
         string? ContraCreditAccount,
 
         [property: GraphQLName("cuentaContraDebito")]
+        [property: MaxCharLength(20)]
         string? ContraDebitAccount);
 }
