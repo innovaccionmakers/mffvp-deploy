@@ -16,7 +16,7 @@ internal sealed class GeneralConfigurationConfiguration : IEntityTypeConfigurati
                .HasColumnName("id");
 
         builder.Property(x => x.PortfolioId)
-                .HasColumnName("portafolio_Id")
+                .HasColumnName("portafolio_id")
                 .IsRequired();
 
         builder.Property(x => x.AccountingCode)
