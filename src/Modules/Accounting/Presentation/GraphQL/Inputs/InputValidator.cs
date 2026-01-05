@@ -24,51 +24,55 @@ namespace Accounting.Presentation.GraphQL.Inputs
 
                 var nullabilityInfo = nullContext.Create(prop);
                 var isAnnotatedNullable = nullabilityInfo.ReadState == NullabilityState.Nullable;
+                var gqlName = GetGraphQLName(prop);
 
-                // Skip required checks if the property is annotated nullable.
                 if (isAnnotatedNullable)
                     continue;
 
-                // Strings: required and not empty/whitespace
                 if (underlyingType == typeof(string))
                 {
-                    RuleFor(x => prop.GetValue(x))
-                        .Cascade(CascadeMode.Stop)
-                        .Must(v => v is string s && !string.IsNullOrWhiteSpace(s))
-                        .WithName(prop.Name)
-                        .WithMessage($"El campo {prop.Name} es obligatorio y no puede estar vacío.");
+                    int? maxLength = null;
+
+                    var maxAttr = prop.GetCustomAttributes(inherit: true)
+                                      .OfType<MaxCharLengthAttribute>()
+                                      .FirstOrDefault();
+
+                    if (maxAttr is not null)
+                        maxLength = maxAttr.MaxLength;
+
+                    InputValidationHelpers.AddStringRules<T>(this, prop, gqlName, maxLength);
                     continue;
                 }
 
-                // IEnumerable (except string): required and not empty
                 if (typeof(IEnumerable).IsAssignableFrom(underlyingType) && underlyingType != typeof(string))
                 {
-                    RuleFor(x => prop.GetValue(x))
-                        .Cascade(CascadeMode.Stop)
-                        .Must(v => v is IEnumerable en && en.GetEnumerator().MoveNext())
-                        .WithName(prop.Name)
-                        .WithMessage($"El campo {prop.Name} es obligatorio y debe contener al menos un elemento.");
+                    InputValidationHelpers.AddEnumerableRules<T>(this, prop, gqlName);
                     continue;
                 }
 
-                // Value types (int, DateOnly, enums, structs): must not be default
                 if (underlyingType.IsValueType)
                 {
-                    RuleFor(x => prop.GetValue(x))
-                        .Cascade(CascadeMode.Stop)
-                        .Must(v => v != null && !Equals(v, Activator.CreateInstance(underlyingType)))
-                        .WithName(prop.Name)
-                        .WithMessage($"El campo {prop.Name} es obligatorio y no puede tener el valor por defecto ({underlyingType.Name}).");
+                    InputValidationHelpers.AddValueTypeRules<T>(this, prop, gqlName, underlyingType);
                     continue;
                 }
 
-                // Reference types: must not be null
-                RuleFor(x => prop.GetValue(x))
-                    .Cascade(CascadeMode.Stop)
-                    .Must(v => v != null)
-                    .WithName(prop.Name)
-                    .WithMessage($"El campo {prop.Name} es obligatorio y no puede ser null.");
+                InputValidationHelpers.AddReferenceRules<T>(this, prop, gqlName);
             }
+        }
+
+        private static string GetGraphQLName(PropertyInfo prop)
+        {
+            var cad = prop.CustomAttributes
+                .FirstOrDefault(a => a.AttributeType.Name == "GraphQLNameAttribute" || a.AttributeType.Name == "GraphQLName");
+
+            if (cad != null && cad.ConstructorArguments.Count > 0)
+            {
+                var arg = cad.ConstructorArguments[0].Value;
+                if (arg is string s && !string.IsNullOrWhiteSpace(s))
+                    return s;
+            }
+
+            return prop.Name;
         }
     }
 }
