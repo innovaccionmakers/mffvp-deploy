@@ -18,7 +18,7 @@ namespace Accounting.Application.PassiveTransaction.UpdatePassiveTransaction
         {
             try
             {
-                var transaction = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(request.PortfolioId, request.TypeOperationsId, cancellationToken);
+                var transaction = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(request.PortfolioId, request.TypeOperationId, cancellationToken);
 
                 if (transaction is null)
                     return Result.Failure(Error.NotFound("0", "No hay configuración contable para actualizar."));

@@ -33,7 +33,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var operationTypeId = 1;
             var command = new UpdatePassiveTransactionCommand(
                 PortfolioId: portfolioId,
-                TypeOperationsId: operationTypeId,
+                TypeOperationId: operationTypeId,
                 DebitAccount: "UPDATED-DEBIT",
                 CreditAccount: "UPDATED-CREDIT",
                 ContraCreditAccount: "UPDATED-CONTRA-CREDIT",
@@ -76,7 +76,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var operationTypeId = 1;
             var command = new UpdatePassiveTransactionCommand(
                 PortfolioId: portfolioId,
-                TypeOperationsId: operationTypeId,
+                TypeOperationId: operationTypeId,
                 DebitAccount: "DEBIT-123",
                 CreditAccount: "CREDIT-456",
                 ContraCreditAccount: "CONTRA-CREDIT-789",
@@ -106,7 +106,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var operationTypeId = 1;
             var command = new UpdatePassiveTransactionCommand(
                 PortfolioId: portfolioId,
-                TypeOperationsId: operationTypeId,
+                TypeOperationId: operationTypeId,
                 DebitAccount: null,
                 CreditAccount: null,
                 ContraCreditAccount: null,
@@ -147,7 +147,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var operationTypeId = 1;
             var command = new UpdatePassiveTransactionCommand(
                 PortfolioId: portfolioId,
-                TypeOperationsId: operationTypeId,
+                TypeOperationId: operationTypeId,
                 DebitAccount: string.Empty,
                 CreditAccount: string.Empty,
                 ContraCreditAccount: string.Empty,
@@ -189,7 +189,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var longAccountNumber = new string('A', 1000);
             var command = new UpdatePassiveTransactionCommand(
                 PortfolioId: portfolioId,
-                TypeOperationsId: operationTypeId,
+                TypeOperationId: operationTypeId,
                 DebitAccount: longAccountNumber,
                 CreditAccount: longAccountNumber,
                 ContraCreditAccount: longAccountNumber,
@@ -230,7 +230,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var operationTypeId = 2; // Different operation type
             var command = new UpdatePassiveTransactionCommand(
                 PortfolioId: portfolioId,
-                TypeOperationsId: operationTypeId,
+                TypeOperationId: operationTypeId,
                 DebitAccount: "DEBIT-OP2",
                 CreditAccount: "CREDIT-OP2",
                 ContraCreditAccount: "CONTRA-CREDIT-OP2",
@@ -272,7 +272,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var operationTypeId = 1;
             var command = new UpdatePassiveTransactionCommand(
                 PortfolioId: portfolioId,
-                TypeOperationsId: operationTypeId,
+                TypeOperationId: operationTypeId,
                 DebitAccount: "UPDATED-DEBIT",
                 CreditAccount: "UPDATED-CREDIT",
                 ContraCreditAccount: "UPDATED-CONTRA-CREDIT",
@@ -330,7 +330,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
 
             // Assert
             Assert.Equal(portfolioId, command.PortfolioId);
-            Assert.Equal(typeOperationsId, command.TypeOperationsId);
+            Assert.Equal(typeOperationsId, command.TypeOperationId);
             Assert.Equal(debitAccount, command.DebitAccount);
             Assert.Equal(creditAccount, command.CreditAccount);
             Assert.Equal(contraCreditAccount, command.ContraCreditAccount);
