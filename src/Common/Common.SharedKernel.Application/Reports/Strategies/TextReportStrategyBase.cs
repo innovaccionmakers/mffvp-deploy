@@ -27,7 +27,7 @@ public abstract class TextReportStrategyBase(
 
     protected virtual string GetFieldSeparator() => "|";
 
-    protected virtual string GetRecordSeparator() => Environment.NewLine;
+    protected virtual string GetRecordSeparator() => "\r\n";
 
 
     protected virtual string NormalizeText(string text)
