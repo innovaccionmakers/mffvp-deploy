@@ -271,7 +271,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        string fileName = $"{ReportName}{processDate:ddMMyyyy}{consecutive:D3}.txt";
+        string fileName = $"{ReportName}{processDate:yyMMdd}{consecutive:D3}.txt";
         return fileName;
     }
 }
