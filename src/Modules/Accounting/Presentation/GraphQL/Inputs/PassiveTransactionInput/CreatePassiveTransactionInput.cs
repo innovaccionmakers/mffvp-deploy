@@ -7,8 +7,8 @@ namespace Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput
         [property: GraphQLName("portafolioId")]
         int PortfolioId,
 
-        [property: GraphQLName("tipoOperacionesId")]
-        long TypeOperationsId,
+        [property: GraphQLName("tipoOperacionId")]
+        long TypeOperationId,
 
         [property: GraphQLName("cuentaDebito")]
         [property: MaxCharLength(20)]

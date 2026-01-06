@@ -28,7 +28,7 @@ namespace Accounting.Presentation.GraphQL
 
                 var command = new CreatePassiveTransactionCommand(
                     input.PortfolioId,
-                    input.TypeOperationsId,
+                    input.TypeOperationId,
                     input.DebitAccount,
                     input.CreditAccount,
                     input.ContraCreditAccount,
@@ -67,7 +67,7 @@ namespace Accounting.Presentation.GraphQL
 
                 var command = new DeletePassiveTransactionCommand(
                     input.PortfolioId,
-                    input.TypeOperationsId
+                    input.TypeOperationId
                 );
 
                 var commandResult = await mediator.Send(command, cancellationToken);
@@ -101,7 +101,7 @@ namespace Accounting.Presentation.GraphQL
 
                 var command = new UpdatePassiveTransactionCommand(
                     input.PortfolioId,
-                    input.TypeOperationsId,
+                    input.TypeOperationId,
                     input.DebitAccount,
                     input.CreditAccount,
                     input.ContraCreditAccount,

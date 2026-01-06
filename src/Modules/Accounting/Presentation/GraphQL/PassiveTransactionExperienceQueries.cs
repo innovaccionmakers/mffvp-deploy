@@ -15,7 +15,7 @@ namespace Accounting.Presentation.GraphQL
             var result = new GraphqlResult<PassiveTransactionsDto>();
             try
             {
-                var response = await mediator.Send(new GetPassiveTransactionsQuery(input.PortfolioId, input.TypeOperationsId), cancellationToken);
+                var response = await mediator.Send(new GetPassiveTransactionsQuery(input.PortfolioId, input.TypeOperationId), cancellationToken);
 
                 if (!response.IsSuccess || response.Value == null)
                 {

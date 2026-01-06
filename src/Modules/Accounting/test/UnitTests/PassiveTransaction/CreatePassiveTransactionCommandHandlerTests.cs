@@ -31,7 +31,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             // Arrange
             var command = new CreatePassiveTransactionCommand(
                 PortfolioId: 123,
-                TypeOperationsId: 1,
+                TypeOperationId: 1,
                 DebitAccount: "DEBIT-123",
                 CreditAccount: "CREDIT-456",
                 ContraCreditAccount: "CONTRA-CREDIT-789",
@@ -40,7 +40,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
 
             var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(
                 command.PortfolioId,
-                command.TypeOperationsId,
+                command.TypeOperationId,
                 command.DebitAccount,
                 command.CreditAccount,
                 command.ContraCreditAccount,
@@ -67,7 +67,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             // Arrange
             var command = new CreatePassiveTransactionCommand(
                 PortfolioId: 123,
-                TypeOperationsId: 1,
+                TypeOperationId: 1,
                 DebitAccount: null,
                 CreditAccount: null,
                 ContraCreditAccount: null,
@@ -93,7 +93,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             // Arrange
             var command = new CreatePassiveTransactionCommand(
                 PortfolioId: 123,
-                TypeOperationsId: 1,
+                TypeOperationId: 1,
                 DebitAccount: string.Empty,
                 CreditAccount: string.Empty,
                 ContraCreditAccount: string.Empty,
@@ -120,7 +120,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             var longAccountNumber = new string('A', 1000);
             var command = new CreatePassiveTransactionCommand(
                 PortfolioId: 123,
-                TypeOperationsId: 1,
+                TypeOperationId: 1,
                 DebitAccount: longAccountNumber,
                 CreditAccount: longAccountNumber,
                 ContraCreditAccount: longAccountNumber,
@@ -146,7 +146,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             // Arrange
             var command = new CreatePassiveTransactionCommand(
                 PortfolioId: 123,
-                TypeOperationsId: 2, // Different operation type
+                TypeOperationId: 2, // Different operation type
                 DebitAccount: "DEBIT-OP2",
                 CreditAccount: "CREDIT-OP2",
                 ContraCreditAccount: "CONTRA-CREDIT-OP2",
@@ -172,7 +172,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
             // Arrange
             var command = new CreatePassiveTransactionCommand(
                 PortfolioId: 123,
-                TypeOperationsId: 1,
+                TypeOperationId: 1,
                 DebitAccount: "DEBIT-123",
                 CreditAccount: "CREDIT-456",
                 ContraCreditAccount: "CONTRA-CREDIT-789",
@@ -216,7 +216,7 @@ namespace Accounting.test.UnitTests.PassiveTransaction
 
             // Assert
             Assert.Equal(portfolioId, command.PortfolioId);
-            Assert.Equal(typeOperationsId, command.TypeOperationsId);
+            Assert.Equal(typeOperationsId, command.TypeOperationId);
             Assert.Equal(debitAccount, command.DebitAccount);
             Assert.Equal(creditAccount, command.CreditAccount);
             Assert.Equal(contraCreditAccount, command.ContraCreditAccount);

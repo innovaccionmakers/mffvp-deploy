@@ -9,8 +9,8 @@ namespace Accounting.Integrations.PassiveTransaction.UpdatePassiveTransaction
         [property: JsonPropertyName("PortafolioId")]
         int PortfolioId,
 
-        [property: JsonPropertyName("TipoOperacionesId")]
-        long TypeOperationsId,
+        [property: JsonPropertyName("TipoOperacionId")]
+        long TypeOperationId,
 
         [property: JsonPropertyName("CuentaDebito")]
         string? DebitAccount,
