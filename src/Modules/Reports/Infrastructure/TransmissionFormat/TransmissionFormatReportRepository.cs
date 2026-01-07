@@ -29,7 +29,7 @@ public class TransmissionFormatReportRepository(
     {
         var sql = $@"
             -- Administrator data
-            SELECT pr.metadata->>'tipo' AS ""EntityType"", a.codigo_entidad AS ""EntityCode""
+            SELECT pr.metadata->>'tipo' AS ""EntityType"", a.codigo_entidad_sfc AS ""EntityCode""
             FROM {ProductsSchema}.portafolios po
             JOIN {ProductsSchema}.alternativas_portafolios apo ON apo.""PortfolioId"" = po.id
             JOIN {ProductsSchema}.alternativas alt ON alt.id = apo.""AlternativeId""
