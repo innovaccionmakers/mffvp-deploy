@@ -204,9 +204,32 @@ namespace Reports.Infrastructure.BalancesAndMovements
                 foreach (var trustYield in trustYields)
                 {
                     var operation = operations.FirstOrDefault(op => op.PortfolioId == trustYield.PortfolioId && op.ObjectsId == trustYield.ObjectsId && op.ActivitesId == trustYield.ActivitesId);
-                    if (operation == null) continue;
+                    if (operation == null)
+                    {
+                        operation = new OperationBalancesRequest
+                        (
+                            PortfolioId: 0,
+                            ActivitesId: 0,    
+                            ObjectsId: 0,
+                            Entry: 0
+                        );
+                    }
+                    
                     var product = products.FirstOrDefault(p => p.PortfolioId == trustYield.PortfolioId && p.PortfolioId == trustYield.PortfolioId);
-                    if (product == null) continue;
+                    if (product == null)
+                    {
+                        product = new ProductsRequest
+                        (
+                            PortfolioId: 0,
+                            ObjectiveId: 0,
+                            Objective: string.Empty,
+                            Fund: string.Empty,
+                            Plan: string.Empty,
+                            Alternative: string.Empty,
+                            Portfolio: string.Empty
+                        );
+                    }
+
                     var person = persons.FirstOrDefault(p => p.ActiviteId == trustYield.ActivitesId);
                     if (person == null) continue;
 

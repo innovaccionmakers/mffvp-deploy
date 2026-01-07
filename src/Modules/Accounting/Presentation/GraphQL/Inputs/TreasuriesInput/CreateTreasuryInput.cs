@@ -1,5 +1,5 @@
-﻿using HotChocolate;
-using Common.SharedKernel.Infrastructure.Validation;
+﻿using Common.SharedKernel.Infrastructure.Validation;
+using HotChocolate;
 
 namespace Accounting.Presentation.GraphQL.Inputs.TreasuriesInput
 {

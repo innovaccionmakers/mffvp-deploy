@@ -1,4 +1,5 @@
 ﻿using Accounting.Application.Abstractions.Data;
+using Accounting.Application.Abstractions.External;
 using Accounting.Application.Treasuries.UpdateTreasury;
 using Accounting.Domain.Treasuries;
 using Accounting.Integrations.Treasuries.UpdateTreasury;
@@ -10,6 +11,7 @@ namespace Accounting.test.UnitTests.Treasuries
     public class UpdateTreasuryCommandHandlerTests
     {
         private readonly Mock<ITreasuryRepository> _mockRepository;
+        private readonly Mock<IPortfolioLocator> _mockIPortfolioLocator;
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ILogger<UpdateTreasuryCommandHandler>> _mockLogger;
         private readonly UpdateTreasuryCommandHandler _handler;
@@ -17,10 +19,12 @@ namespace Accounting.test.UnitTests.Treasuries
         public UpdateTreasuryCommandHandlerTests()
         {
             _mockRepository = new Mock<ITreasuryRepository>();
+            _mockIPortfolioLocator = new Mock<IPortfolioLocator>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockLogger = new Mock<ILogger<UpdateTreasuryCommandHandler>>();
             _handler = new UpdateTreasuryCommandHandler(
                 _mockRepository.Object,
+                _mockIPortfolioLocator.Object,
                 _mockUnitOfWork.Object,
                 _mockLogger.Object);
         }
