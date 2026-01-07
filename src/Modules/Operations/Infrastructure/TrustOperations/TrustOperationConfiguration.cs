@@ -24,6 +24,7 @@ internal sealed class TrustOperationConfiguration : IEntityTypeConfiguration<Tru
         builder.Property(x => x.ApplicationDate).HasColumnName("fecha_aplicacion");
 
         builder.Property(x => x.WithdrawalContingentTax).HasColumnName("retencion_contingente_retiro")
+            .HasPrecision(19, 2)
             .IsRequired()
             .HasDefaultValue(0);
 
