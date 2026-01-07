@@ -209,12 +209,12 @@ namespace Reports.Infrastructure.BalancesAndMovements
                         operation = new OperationBalancesRequest
                         (
                             PortfolioId: 0,
-                            ActivitesId: 0,    
+                            ActivitesId: 0,
                             ObjectsId: 0,
                             Entry: 0
                         );
                     }
-                    
+
                     var product = products.FirstOrDefault(p => p.PortfolioId == trustYield.PortfolioId && p.PortfolioId == trustYield.PortfolioId);
                     if (product == null)
                     {
@@ -229,7 +229,6 @@ namespace Reports.Infrastructure.BalancesAndMovements
                             Portfolio: string.Empty
                         );
                     }
-
                     var person = persons.FirstOrDefault(p => p.ActiviteId == trustYield.ActivitesId);
                     if (person == null) continue;
 

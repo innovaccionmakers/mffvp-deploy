@@ -24,22 +24,27 @@ internal sealed class TrustOperationConfiguration : IEntityTypeConfiguration<Tru
         builder.Property(x => x.ApplicationDate).HasColumnName("fecha_aplicacion");
 
         builder.Property(x => x.WithdrawalContingentTax).HasColumnName("retencion_contingente_retiro")
+            .HasPrecision(19, 2)
             .IsRequired()
             .HasDefaultValue(0);
 
         builder.Property(x => x.WithdrawalContributionsTax).HasColumnName("retencion_rendimientos_retiro")
+            .HasPrecision(19, 2)
             .IsRequired()
             .HasDefaultValue(0);
 
         builder.Property(x => x.AmountRequested).HasColumnName("valor_solicitado")
+            .HasPrecision(19, 2)
             .IsRequired()
             .HasDefaultValue(0);
 
         builder.Property(x => x.ContributionsPaid).HasColumnName("rendimientos_pagados")
+            .HasPrecision(19, 2)
             .IsRequired()
             .HasDefaultValue(0);
 
         builder.Property(x => x.PaidCapital).HasColumnName("capital_pagado")
+            .HasPrecision(19, 2)
             .IsRequired()
             .HasDefaultValue(0);
 

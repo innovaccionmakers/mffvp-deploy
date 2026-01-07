@@ -43,6 +43,11 @@ internal sealed class AdministratorConfiguration : IEntityTypeConfiguration<Admi
         builder.Property(a => a.EntityType)
             .HasColumnName("tipo_entidad");
 
+        builder.Property(a => a.SfcEntityCode)
+            .HasColumnName("codigo_entidad_sfc")
+            .HasMaxLength(6)
+            .IsRequired();
+
         builder.HasMany(a => a.PensionFunds)
             .WithOne(f => f.Administrator)
             .HasForeignKey(f => f.AdministratorId);
