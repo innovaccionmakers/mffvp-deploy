@@ -15,6 +15,7 @@ public sealed class Administrator : Entity
     public Status Status { get; private set; }
     public string EntityCode { get; private set; }
     public int EntityType { get; private set; }
+    public string SfcEntityCode { get; private set; }
 
     public IReadOnlyCollection<PensionFund> PensionFunds { get; private set; } = new List<PensionFund>();
 
@@ -29,7 +30,8 @@ public sealed class Administrator : Entity
         Status status,
         string entityCode,
         int digit,
-        int entityType)
+        int entityType,
+        string sfcEntityCode)
     {
         var administrator = new Administrator
         {
@@ -39,7 +41,8 @@ public sealed class Administrator : Entity
             Status = status,
             EntityCode = entityCode,
             Digit = digit,
-            EntityType = entityType
+            EntityType = entityType,
+            SfcEntityCode = sfcEntityCode
         };
 
         return Result.Success(administrator);
@@ -52,7 +55,8 @@ public sealed class Administrator : Entity
         Status status,
         string entityCode,
         int digit,
-        int entityType)
+        int entityType,
+        string sfcEntityCode)
     {
         Identification = identification;
         IdentificationTypeId = identificationTypeId;
@@ -61,5 +65,6 @@ public sealed class Administrator : Entity
         EntityCode = entityCode;
         Digit = digit;
         EntityType = entityType;
+        SfcEntityCode = sfcEntityCode;
     }
 }
