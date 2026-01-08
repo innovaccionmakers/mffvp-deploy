@@ -37,6 +37,7 @@ using Accounting.Infrastructure.PassiveTransactions;
 using Accounting.Infrastructure.Treasuries;
 using Accounting.IntegrationEvents.AccountingProcess;
 using Accounting.Presentation.ConfigurationGenerals.CreateConfigurationGeneral;
+using Accounting.Presentation.ConfigurationGenerals.DeleteConfigurationGeneral;
 using Accounting.Presentation.ConfigurationGenerals.UpdateConfigurationGeneral;
 using Accounting.Presentation.GraphQL;
 using Accounting.Presentation.GraphQL.Inputs;
@@ -141,12 +142,16 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConfigurationGeneralsExperienceMutations, ConfigurationGeneralsExperienceMutations>();
         services.AddTransient<IValidator<CreateConceptInput>, InputValidator<CreateConceptInput>>();
         services.AddTransient<IValidator<UpdateConceptInput>, InputValidator<UpdateConceptInput>>();
+        services.AddTransient<IValidator<DeleteConceptInput>, InputValidator<DeleteConceptInput>>();
         services.AddTransient<IValidator<CreateConfigurationGeneralInput>, InputValidator<CreateConfigurationGeneralInput>>();
         services.AddTransient<IValidator<UpdateConfigurationGeneralInput>, InputValidator<UpdateConfigurationGeneralInput>>();
+        services.AddTransient<IValidator<DeleteConfigurationGeneralInput>, InputValidator<DeleteConfigurationGeneralInput>>();
         services.AddTransient<IValidator<CreatePassiveTransactionInput>, InputValidator<CreatePassiveTransactionInput>>();
         services.AddTransient<IValidator<UpdatePassiveTransactionInput>, InputValidator<UpdatePassiveTransactionInput>>();
+        services.AddTransient<IValidator<DeletePassiveTransactionInput>, InputValidator<DeletePassiveTransactionInput>>();
         services.AddTransient<IValidator<CreateTreasuryInput>, InputValidator<CreateTreasuryInput>>();
         services.AddTransient<IValidator<UpdateTreasuryInput>, InputValidator<UpdateTreasuryInput>>();
+        services.AddTransient<IValidator<DeleteTreasuryInput>, InputValidator<DeleteTreasuryInput>>();
         services.AddTransient<IRpcHandler<AreAllPortfoliosClosedRequest, AreAllPortfoliosClosedResponse>, AreAllPortfoliosClosedConsumer>();
     }
 

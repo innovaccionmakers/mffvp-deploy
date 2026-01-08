@@ -4,6 +4,7 @@ using Accounting.Presentation.GraphQL.Inputs.TreasuriesInput;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Presentation.Results;
 using MediatR;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Accounting.Presentation.GraphQL
 {
@@ -15,6 +16,12 @@ namespace Accounting.Presentation.GraphQL
             var result = new GraphqlResult<TreasuryDto>();
             try
             {
+                if (input.BankAccount.IsNullOrEmpty())
+                {
+                    result.AddError(new Error("General.Validation", "El campo cuenta bancaria es obligatorio y no puede estar vacío.", ErrorType.Failure));
+                    return result;
+                }
+
                 var response = await mediator.Send(new GetTreasuryQuery(input.PortfolioId, input.BankAccount), cancellationToken);
 
                 if (!response.IsSuccess || response.Value == null)

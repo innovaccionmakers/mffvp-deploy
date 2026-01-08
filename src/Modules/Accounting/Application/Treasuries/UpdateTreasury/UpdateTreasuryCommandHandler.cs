@@ -1,4 +1,5 @@
 ﻿using Accounting.Application.Abstractions.Data;
+using Accounting.Application.Abstractions.External;
 using Accounting.Domain.Treasuries;
 using Accounting.Integrations.Treasuries.UpdateTreasury;
 using Common.SharedKernel.Application.Messaging;
@@ -10,6 +11,7 @@ namespace Accounting.Application.Treasuries.UpdateTreasury
 {
     internal class UpdateTreasuryCommandHandler(
         ITreasuryRepository treasuryRepository,
+        IPortfolioLocator portfolioLocator,
         IUnitOfWork unitOfWork,
         ILogger<UpdateTreasuryCommandHandler> logger) : ICommandHandler<UpdateTreasuryCommand>
     {
@@ -17,6 +19,13 @@ namespace Accounting.Application.Treasuries.UpdateTreasury
         {
             try
             {
+                var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(request.PortfolioId, cancellationToken);
+
+                if (portfolioResult.IsFailure)
+                {
+                    logger.LogError("No se pudo obtener la información del portafolio {PortfolioId}: {Error}", request.PortfolioId, portfolioResult.Error);
+                    return Result.Failure(Error.NotFound(portfolioResult.Error.Code, portfolioResult.Error.Description));
+                }
                 var treasury = await treasuryRepository.GetTreasuryAsync(request.PortfolioId, request.BankAccount, cancellationToken);
 
                 if (treasury is null)

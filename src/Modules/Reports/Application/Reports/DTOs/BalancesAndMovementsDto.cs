@@ -4,6 +4,11 @@
         int PortfolioId,
         int ActivitesId,
         int ObjectsId,
+        string Objective,
+        string Fund,
+        string Plan,
+        string Alternative,
+        string Portfolio,
         decimal Yields,
         decimal InitialBalance,
         decimal ClosingBalance

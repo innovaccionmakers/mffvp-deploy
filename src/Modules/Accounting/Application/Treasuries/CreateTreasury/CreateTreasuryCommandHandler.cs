@@ -1,4 +1,6 @@
 ﻿using Accounting.Application.Abstractions.Data;
+using Accounting.Application.Abstractions.External;
+using Accounting.Domain.AccountingInconsistencies;
 using Accounting.Domain.Treasuries;
 using Accounting.Integrations.Treasuries.CreateTreasury;
 using Accounting.Integrations.Treasury.GetTreasuries;
@@ -11,6 +13,7 @@ namespace Accounting.Application.Treasuries.CreateTreasury
 {
     internal class CreateTreasuryCommandHandler(
         ITreasuryRepository treasuryRepository,
+        IPortfolioLocator portfolioLocator,
         IUnitOfWork unitOfWork,
         ILogger<CreateTreasuryCommandHandler> logger) : ICommandHandler<CreateTreasuryCommand>
     {
@@ -18,7 +21,15 @@ namespace Accounting.Application.Treasuries.CreateTreasury
         {
             try
             {
-                var treasury = await treasuryRepository.GetTreasuryAsync(request.PortfolioId, request.BankAccount, cancellationToken);
+                var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(request.PortfolioId, cancellationToken);
+
+                if (portfolioResult.IsFailure)
+                {
+                    logger.LogError("No se pudo obtener la información del portafolio {PortfolioId}: {Error}", request.PortfolioId, portfolioResult.Error);
+                    return Result.Failure(Error.NotFound(portfolioResult.Error.Code, portfolioResult.Error.Description));
+                }
+
+                var treasury = await treasuryRepository.GetTreasuryAsync(request.PortfolioId, request.BankAccount, cancellationToken);                
 
                 if (treasury != null)
                     return Result.Failure<GetTreasuryResponse>(Error.NotFound("0", "Ya existe un registro de tesorería con esta cuenta bancaria."));

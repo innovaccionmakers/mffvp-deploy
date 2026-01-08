@@ -1,4 +1,5 @@
 ﻿using Accounting.Application.Abstractions.Data;
+using Accounting.Application.Abstractions.External;
 using Accounting.Application.Treasuries.DeleteTreasury;
 using Accounting.Domain.Treasuries;
 using Accounting.Integrations.Treasuries.DeleteTreasury;
@@ -10,6 +11,7 @@ namespace Accounting.test.UnitTests.Treasuries
     public class DeleteTreasuryCommandHandlerTests
     {
         private readonly Mock<ITreasuryRepository> _mockRepository;
+        private readonly Mock<IPortfolioLocator> _mockPortfolioLocator;
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ILogger<DeleteTreasuryCommandHandler>> _mockLogger;
         private readonly DeleteTreasuryCommandHandler _handler;
@@ -17,11 +19,13 @@ namespace Accounting.test.UnitTests.Treasuries
         public DeleteTreasuryCommandHandlerTests()
         {
             _mockRepository = new Mock<ITreasuryRepository>();
+            _mockPortfolioLocator = new Mock<IPortfolioLocator>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockLogger = new Mock<ILogger<DeleteTreasuryCommandHandler>>();
 
             _handler = new DeleteTreasuryCommandHandler(
                 _mockRepository.Object,
+                _mockPortfolioLocator.Object,
                 _mockUnitOfWork.Object,
                 _mockLogger.Object);
         }

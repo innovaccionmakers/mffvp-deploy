@@ -1,4 +1,5 @@
 ﻿using Accounting.Application.Abstractions.Data;
+using Accounting.Application.Abstractions.External;
 using Accounting.Domain.Treasuries;
 using Accounting.Integrations.Treasuries.DeleteTreasury;
 using Common.SharedKernel.Application.Messaging;
@@ -10,6 +11,7 @@ namespace Accounting.Application.Treasuries.DeleteTreasury
 {
     internal class DeleteTreasuryCommandHandler(
         ITreasuryRepository treasuryRepository,
+        IPortfolioLocator portfolioLocator,
         IUnitOfWork unitOfWork,
         ILogger<DeleteTreasuryCommandHandler> logger) : ICommandHandler<DeleteTreasuryCommand>
     {
@@ -17,6 +19,14 @@ namespace Accounting.Application.Treasuries.DeleteTreasury
         {
             try
             {
+                var portfolioResult = await portfolioLocator.GetPortfolioInformationAsync(request.PortfolioId, cancellationToken);
+
+                if (portfolioResult.IsFailure)
+                {
+                    logger.LogError("No se pudo obtener la información del portafolio {PortfolioId}: {Error}", request.PortfolioId, portfolioResult.Error);
+                    return Result.Failure(Error.NotFound(portfolioResult.Error.Code, portfolioResult.Error.Description));
+                }
+
                 await using var tx = await unitOfWork.BeginTransactionAsync(cancellationToken);
                 var treasury = await treasuryRepository.GetTreasuryAsync(request.PortfolioId, request.BankAccount, cancellationToken);
 

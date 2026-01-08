@@ -1,7 +1,9 @@
 ﻿using Accounting.Application.Abstractions.Data;
+using Accounting.Application.Abstractions.External;
 using Accounting.Application.Treasuries.CreateTreasury;
 using Accounting.Domain.Treasuries;
 using Accounting.Integrations.Treasuries.CreateTreasury;
+using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -10,6 +12,7 @@ namespace Accounting.test.UnitTests.Treasuries
     public class CreateTreasuryCommandHandlerTests
     {
         private readonly Mock<ITreasuryRepository> _mockRepository;
+        private readonly Mock<IPortfolioLocator> _mockPortfolioLocator;
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ILogger<CreateTreasuryCommandHandler>> _mockLogger;
         private readonly CreateTreasuryCommandHandler _handler;
@@ -17,10 +20,23 @@ namespace Accounting.test.UnitTests.Treasuries
         public CreateTreasuryCommandHandlerTests()
         {
             _mockRepository = new Mock<ITreasuryRepository>();
+            _mockPortfolioLocator = new Mock<IPortfolioLocator>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockLogger = new Mock<ILogger<CreateTreasuryCommandHandler>>();
+
+            // Default: portfolio lookup succeeds
+            _mockPortfolioLocator
+                .Setup(p => p.GetPortfolioInformationAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Success(new PortfolioResponse("NIT", 1, "Demo Portfolio")));
+
+            // Default: no existing treasury found (allow create)
+            _mockRepository
+                .Setup(r => r.GetTreasuryAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Domain.Treasuries.Treasury?)null);
+
             _handler = new CreateTreasuryCommandHandler(
                 _mockRepository.Object,
+                _mockPortfolioLocator.Object,
                 _mockUnitOfWork.Object,
                 _mockLogger.Object);
         }
@@ -153,7 +169,7 @@ namespace Accounting.test.UnitTests.Treasuries
         {
             // Arrange
             var command = new CreateTreasuryCommand(
-                PortfolioId: 123,
+                PortfolioId: 456, // different id than default but locator mock returns success for any id
                 BankAccount: "BANK-123",
                 DebitAccount: "DEBIT-456",
                 CreditAccount: "CREDIT-789"
