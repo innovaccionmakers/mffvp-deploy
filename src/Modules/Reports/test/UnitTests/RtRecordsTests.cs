@@ -10,7 +10,7 @@ namespace Reports.test.UnitTests;
 
 public class RtRecordsTests
 {
-    public static IEnumerable<object[]> MovementsWithNegativeSignData()
+    public static IEnumerable<object[]> MovementsWithPositiveSignData()
     {
         yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.TransferUnits, TransmissionFormatLayout.Rt4.TransferUnits, 10.123456m };
         yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.TransferAmount, TransmissionFormatLayout.Rt4.TransferAmount, 10.12m };
@@ -24,6 +24,12 @@ public class RtRecordsTests
         yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.VitalityTransferAmount, TransmissionFormatLayout.Rt4.VitalityTransferAmount, 3.21m };
         yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.OtherWithdrawalUnits, TransmissionFormatLayout.Rt4.OtherWithdrawalUnits, 2.109876m };
         yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.OtherWithdrawalAmount, TransmissionFormatLayout.Rt4.OtherWithdrawalAmount, 2.1m };
+    }
+
+    public static IEnumerable<object[]> CancellationLinesData()
+    {
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.CancellationUnits, TransmissionFormatLayout.Rt4.CancellationUnits, 10.123456m };
+        yield return new object[] { (Func<decimal, Rt4NumberLine>)Rt4Lines.CancellationAmount, TransmissionFormatLayout.Rt4.CancellationAmount, 10.12m };
     }
     
     [Fact]
@@ -127,8 +133,8 @@ public class RtRecordsTests
     }
     
     [Theory]
-    [MemberData(nameof(MovementsWithNegativeSignData))]
-    public void Rt4_313_Movements_Should_Always_Show_Negative_Sign(
+    [MemberData(nameof(MovementsWithPositiveSignData))]
+    public void Rt4_313_Movements_Should_Always_Show_Positive_Sign(
         Func<decimal, Rt4NumberLine> lineFactory,
         string expectedCode,
         decimal sampleValue)
@@ -140,15 +146,44 @@ public class RtRecordsTests
         var zeroLine = lineFactory(0m).ToLine(recordNumber);
 
         var signIndex = 8 + TransmissionFormatLayout.Rt4.R4313.Length + expectedCode.Length;
-        positiveLine[signIndex].Should().Be('-');
-        negativeLine[signIndex].Should().Be('-');
-        zeroLine[signIndex].Should().Be('-');
+        positiveLine[signIndex].Should().Be('+');
+        negativeLine[signIndex].Should().Be('+');
+        zeroLine[signIndex].Should().Be('+');
 
         negativeLine.Should().Be(positiveLine);
 
-        var expectedSegment = $"{TransmissionFormatLayout.Rt4.R4313}{expectedCode}-";
+        var expectedSegment = $"{TransmissionFormatLayout.Rt4.R4313}{expectedCode}+";
         positiveLine.Should().Contain(expectedSegment);
         negativeLine.Should().Contain(expectedSegment);
         zeroLine.Should().Contain(expectedSegment);
+    }
+
+    [Theory]
+    [MemberData(nameof(CancellationLinesData))]
+    public void Rt4_313_Cancellation_Should_Show_Negative_Sign_When_Not_Zero_And_Positive_When_Zero(
+        Func<decimal, Rt4NumberLine> lineFactory,
+        string expectedCode,
+        decimal sampleValue)
+    {
+        const int recordNumber = 10;
+
+        var positiveLine = lineFactory(sampleValue).ToLine(recordNumber);
+        var negativeLine = lineFactory(-sampleValue).ToLine(recordNumber);
+        var zeroLine = lineFactory(0m).ToLine(recordNumber);
+
+        var signIndex = 8 + TransmissionFormatLayout.Rt4.R4313.Length + expectedCode.Length;
+        
+        positiveLine[signIndex].Should().Be('-');
+        negativeLine[signIndex].Should().Be('-');
+        
+        zeroLine[signIndex].Should().Be('+');
+
+        negativeLine.Should().Be(positiveLine);
+
+        var expectedNonZeroSegment = $"{TransmissionFormatLayout.Rt4.R4313}{expectedCode}-";
+        var expectedZeroSegment = $"{TransmissionFormatLayout.Rt4.R4313}{expectedCode}+";
+        positiveLine.Should().Contain(expectedNonZeroSegment);
+        negativeLine.Should().Contain(expectedNonZeroSegment);
+        zeroLine.Should().Contain(expectedZeroSegment);
     }
 }
