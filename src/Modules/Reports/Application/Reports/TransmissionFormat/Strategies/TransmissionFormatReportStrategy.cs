@@ -19,12 +19,47 @@ public class TransmissionFormatReportStrategy : IReportGeneratorStrategy
         records.Add(Rt4Lines.UnitValue(data.UnitValue).ToLine(recordNumber));
         generated++;
 
-        const string prefix = TransmissionFormatLayout.Rt4.R4313;
-
         recordNumber++;
         records.Add(Rt4Lines.PreviousUnits(data.PreviousUnits).ToLine(recordNumber));
         generated++;
 
+        recordNumber++;
+        records.Add(Rt4Lines.ContributionUnits(data.ContributionUnits).ToLine(recordNumber));
+        generated++;
+
+        recordNumber++;
+        records.Add(Rt4Lines.TransferUnits(data.TransferUnits).ToLine(recordNumber));
+        generated++;
+
+        recordNumber++;
+        records.Add(Rt4Lines.PensionUnits(data.PensionUnits).ToLine(recordNumber));
+        generated++;
+
+        recordNumber++;
+        records.Add(Rt4Lines.WithdrawalUnits(data.WithdrawalUnits).ToLine(recordNumber));
+        generated++;
+
+        recordNumber++;
+        records.Add(Rt4Lines.OtherCommissionUnits(data.OtherCommissionUnits).ToLine(recordNumber));
+        generated++;
+
+        recordNumber++;
+        records.Add(Rt4Lines.VitalityTransferUnits(data.VitalityTransferUnits).ToLine(recordNumber));
+        generated++;
+
+        recordNumber++;
+        records.Add(Rt4Lines.OtherWithdrawalUnits(data.OtherWithdrawalUnits).ToLine(recordNumber));
+        generated++;
+
+        recordNumber++;
+        records.Add(Rt4Lines.CancellationUnits(data.CancellationUnits).ToLine(recordNumber));
+        generated++;
+
+        recordNumber++;
+        records.Add(Rt4Lines.CurrentUnits(data.CurrentUnits).ToLine(recordNumber));
+        generated++;
+
+        // 313 - Amounts
         recordNumber++;
         records.Add(Rt4Lines.PreviousAmount(data.PreviousAmount).ToLine(recordNumber));
         generated++;
@@ -38,15 +73,7 @@ public class TransmissionFormatReportStrategy : IReportGeneratorStrategy
         generated++;
 
         recordNumber++;
-        records.Add(Rt4Lines.ContributionUnits(data.ContributionUnits).ToLine(recordNumber));
-        generated++;
-
-        recordNumber++;
         records.Add(Rt4Lines.ContributionAmount(data.ContributionAmount).ToLine(recordNumber));
-        generated++;
-
-        recordNumber++;
-        records.Add(Rt4Lines.TransferUnits(data.TransferUnits).ToLine(recordNumber));
         generated++;
 
         recordNumber++;
@@ -54,15 +81,7 @@ public class TransmissionFormatReportStrategy : IReportGeneratorStrategy
         generated++;
 
         recordNumber++;
-        records.Add(Rt4Lines.PensionUnits(data.PensionUnits).ToLine(recordNumber));
-        generated++;
-
-        recordNumber++;
         records.Add(Rt4Lines.PensionAmount(data.PensionAmount).ToLine(recordNumber));
-        generated++;
-
-        recordNumber++;
-        records.Add(Rt4Lines.WithdrawalUnits(data.WithdrawalUnits).ToLine(recordNumber));
         generated++;
 
         recordNumber++;
@@ -70,15 +89,7 @@ public class TransmissionFormatReportStrategy : IReportGeneratorStrategy
         generated++;
 
         recordNumber++;
-        records.Add(Rt4Lines.OtherCommissionUnits(data.OtherCommissionUnits).ToLine(recordNumber));
-        generated++;
-
-        recordNumber++;
         records.Add(Rt4Lines.OtherCommissionAmount(data.OtherCommissionAmount).ToLine(recordNumber));
-        generated++;
-
-        recordNumber++;
-        records.Add(Rt4Lines.VitalityTransferUnits(data.VitalityTransferUnits).ToLine(recordNumber));
         generated++;
 
         recordNumber++;
@@ -86,15 +97,7 @@ public class TransmissionFormatReportStrategy : IReportGeneratorStrategy
         generated++;
 
         recordNumber++;
-        records.Add(Rt4Lines.OtherWithdrawalUnits(data.OtherWithdrawalUnits).ToLine(recordNumber));
-        generated++;
-
-        recordNumber++;
         records.Add(Rt4Lines.OtherWithdrawalAmount(data.OtherWithdrawalAmount).ToLine(recordNumber));
-        generated++;
-
-        recordNumber++;
-        records.Add(Rt4Lines.CancellationUnits(data.CancellationUnits).ToLine(recordNumber));
         generated++;
 
         recordNumber++;
@@ -102,13 +105,10 @@ public class TransmissionFormatReportStrategy : IReportGeneratorStrategy
         generated++;
 
         recordNumber++;
-        records.Add(Rt4Lines.CurrentUnits(data.CurrentUnits).ToLine(recordNumber));
-        generated++;
-
-        recordNumber++;
         records.Add(Rt4Lines.CurrentAmount(data.CurrentAmount).ToLine(recordNumber));
         generated++;
 
+        // 314 - Returns
         recordNumber++;
         records.Add(Rt4Lines.Return30Days(data.ReturnThirtyDay).ToLine(recordNumber));
         generated++;
