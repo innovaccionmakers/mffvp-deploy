@@ -28,10 +28,9 @@ namespace Reports.Infrastructure.BalancesAndMovements
                 var persons = await GetPersonsInfoAsync(activateIds, connection, cancellationToken);
                 var alternative = await GetAlternativeIdAsync(portfolioIds, connection, cancellationToken);
                 var objectsId = responseTrustYiel.Select(x => x.ObjectsId).Distinct();
-                var products = await GetProductsInfoAsync(objectsId, alternative, portfolioIds, connection, cancellationToken);
                 connection.Close();
 
-                return BuildBalancesResponse(reportRequest.StartDate, reportRequest.EndDate, responseTrustYiel, operations, persons, products);
+                return BuildBalancesResponse(reportRequest.StartDate, reportRequest.EndDate, responseTrustYiel, operations, persons);
             }
             catch (Exception ex)
             {
@@ -91,11 +90,24 @@ namespace Reports.Infrastructure.BalancesAndMovements
                                             fd.portafolio_id AS PortfolioId,
                                             fd.afiliado_id AS ActivitesId,
                                             fd.objetivo_id AS ObjectsId,
+	                                        CONCAT_WS(' - ', O.tipo_objetivo_id, O.nombre) AS Objective,
+	                                        CONCAT_WS(' - ', FVP.codigo_homologado, FVP.nombre) AS Fund,
+	                                        CONCAT_WS(' - ', PL.codigo_homologado, PL.nombre) AS Plan,
+	                                        CONCAT_WS(' - ', A.codigo_homologado, A.nombre, PC.nombre) AS Alternative,
+	                                        CONCAT_WS(' - ', P.codigo_homologacion, P.nombre) AS Portfolio,
                                             SUM(CASE WHEN rf.fecha_cierre BETWEEN @startDate AND @endDate THEN rf.rendimientos ELSE 0 END) AS Yields,
                                             SUM(CASE WHEN rf.fecha_cierre = @previousDate THEN rf.saldo_cierre ELSE 0 END) AS InitialBalance,
                                             SUM(CASE WHEN rf.fecha_cierre = @endDate THEN rf.saldo_cierre ELSE 0 END) AS closingBalance
                                         FROM cierre.rendimientos_fideicomisos rf
-                                        INNER JOIN fideicomisos.fideicomisos fd ON fd.id = rf.fideicomiso_id ";
+                                        JOIN fideicomisos.fideicomisos fd ON fd.id = rf.fideicomiso_id 
+                                        JOIN productos.objetivos O ON O.id = fd.objetivo_id
+                                        JOIN productos.portafolios P ON P.id = fd.portafolio_id 
+                                        JOIN productos.alternativas_portafolios AP ON P.id = AP.""PortfolioId""
+                                        JOIN productos.alternativas A ON AP.""AlternativeId"" = A.id
+                                        JOIN productos.parametros_configuracion PC ON A.tipo_alternativa_id = PC.id
+                                        JOIN productos.planes_fondo PF ON A.planes_fondo_id = PF.id
+                                        JOIN productos.fondos_voluntarios_pensiones FVP ON PF.fondo_id = FVP.id
+                                        JOIN productos.planes PL ON PF.plan_id = PL.id ";
 
                 string sql = baseSql;
                 object parameters;
@@ -122,7 +134,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
                     };
                 }
 
-                sql += "GROUP BY fd.portafolio_id, fd.afiliado_id, fd.objetivo_id;";
+                sql += "GROUP BY fd.portafolio_id, fd.afiliado_id, fd.objetivo_id, Objective, Fund, Plan, Alternative, Portfolio;";
                 var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
                 return await connection.QueryAsync<TrustYieldRequest>(command);
             }
@@ -195,8 +207,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
             DateTime endDate,
             IEnumerable<TrustYieldRequest> trustYields,
             IEnumerable<OperationBalancesRequest> operations,
-            IEnumerable<PersonsRequest> persons,
-            IEnumerable<ProductsRequest> products)
+            IEnumerable<PersonsRequest> persons)
         {
             try
             {
@@ -215,20 +226,6 @@ namespace Reports.Infrastructure.BalancesAndMovements
                         );
                     }
 
-                    var product = products.FirstOrDefault(p => p.PortfolioId == trustYield.PortfolioId && p.PortfolioId == trustYield.PortfolioId);
-                    if (product == null)
-                    {
-                        product = new ProductsRequest
-                        (
-                            PortfolioId: 0,
-                            ObjectiveId: 0,
-                            Objective: string.Empty,
-                            Fund: string.Empty,
-                            Plan: string.Empty,
-                            Alternative: string.Empty,
-                            Portfolio: string.Empty
-                        );
-                    }
                     var person = persons.FirstOrDefault(p => p.ActiviteId == trustYield.ActivitesId);
                     if (person == null) continue;
 
@@ -249,11 +246,11 @@ namespace Reports.Infrastructure.BalancesAndMovements
                         Identification: person.Identification ?? string.Empty,
                         FullName: person.FullName ?? string.Empty,
                         ObjectiveId: trustYield.ObjectsId,
-                        Objective: product.Objective ?? string.Empty,
-                        Fund: product.Fund ?? string.Empty,
-                        Plan: product.Plan ?? string.Empty,
-                        Alternative: product.Alternative ?? string.Empty,
-                        Portfolio: product.Portfolio ?? string.Empty,
+                        Objective: trustYield.Objective ?? string.Empty,
+                        Fund: trustYield.Fund ?? string.Empty,
+                        Plan: trustYield.Plan ?? string.Empty,
+                        Alternative: trustYield.Alternative ?? string.Empty,
+                        Portfolio: trustYield.Portfolio ?? string.Empty,
                         InitialBalance: initialBalance,
                         Entry: entry,
                         Outflows: outflows,
