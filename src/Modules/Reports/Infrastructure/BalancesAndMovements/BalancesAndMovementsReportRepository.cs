@@ -135,7 +135,7 @@ namespace Reports.Infrastructure.BalancesAndMovements
                 }
 
                 sql += "GROUP BY fd.portafolio_id, fd.afiliado_id, fd.objetivo_id, Objective, Fund, Plan, Alternative, Portfolio;";
-                var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+                var command = new CommandDefinition(sql, parameters, commandTimeout: 900, cancellationToken: cancellationToken);
                 return await connection.QueryAsync<TrustYieldRequest>(command);
             }
             catch (Exception ex)
