@@ -226,6 +226,8 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
         int affiliateId,
         int objectiveId)
     {
+        var contributionTypeIds = contributionTypeIdSet.ToList();
+
         return context.ClientOperations
             .AsNoTracking()
             .Include(operation => operation.AuxiliaryInformation)
@@ -233,7 +235,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                 operation.Status == LifecycleStatus.Active &&
                 operation.AffiliateId == affiliateId &&
                 operation.ObjectiveId == objectiveId &&
-                contributionTypeIdSet.Contains(operation.OperationTypeId));
+                contributionTypeIds.Contains(operation.OperationTypeId));
     }
 
     private static bool TryPrepareContributionTypeIds(
