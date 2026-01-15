@@ -65,7 +65,7 @@ namespace Accounting.Application.AccountingConcepts
                     command.ProcessDate,
                     $"Concepto de {natureValue}",
                     movement.Value,
-                    natureValue
+                    NatureTypes.Concept
                 );
 
                 if (accountingAssistant.IsFailure)

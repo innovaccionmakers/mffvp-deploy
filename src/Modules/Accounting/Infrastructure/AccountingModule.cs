@@ -28,6 +28,7 @@ using Accounting.Infrastructure.ConfigurationParameters;
 using Accounting.Infrastructure.ConsecutiveFiles;
 using Accounting.Infrastructure.Consecutives;
 using Accounting.Infrastructure.Database;
+using Accounting.Infrastructure.External.Administrators;
 using Accounting.Infrastructure.External.Operations;
 using Accounting.Infrastructure.External.Portfolios;
 using Accounting.Infrastructure.External.Users;
@@ -110,6 +111,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IUserLocator, UserLocator>();
         services.AddScoped<IOperationLocator, OperationLocator>();
+        services.AddScoped<IAdministratorLocator, AdministratorLocator>();
         services.AddScoped<IPassiveTransactionRepository, PassiveTransactionRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AccountingDbContext>());
         services.AddScoped<IAccountingAssistantRepository, AccountingAssistantRepository>();
@@ -133,9 +135,9 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IConcecutivesSetup, ConcecutivesSetup>();
         services.AddScoped<IAccountingExperienceQueries, AccountingExperienceQueries>();
         services.AddScoped<IPassiveTransactionExperienceQueries, PassiveTransactionExperienceQueries>();
-        services.AddScoped<IPassiveTransactionExperienceMutations, PassiveTransactionExperienceMutations>(); 
+        services.AddScoped<IPassiveTransactionExperienceMutations, PassiveTransactionExperienceMutations>();
         services.AddScoped<ITreasuriesExperienceQueries, TreasuriesExperienceQueries>();
-        services.AddScoped<ITreasuriesExperienceMutations, TreasuriesExperienceMutations>(); 
+        services.AddScoped<ITreasuriesExperienceMutations, TreasuriesExperienceMutations>();
         services.AddScoped<IConceptMutations, ConceptMutations>();
         services.AddScoped<IConceptQueries, ConceptQueries>();
         services.AddScoped<IConfigurationGeneralsExperienceQueries, ConfigurationGeneralsExperienceQueries>();

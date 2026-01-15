@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Operations.Integrations.OperationTypes;
+using Products.Integrations.Administrators;
 using System.Text.Json;
 
 namespace Accounting.test.UnitTests.Application.AccountingFees;
@@ -30,6 +31,7 @@ public class AccountingFeesCommandHandlerTests
     private readonly Mock<IYieldLocator> _yieldLocatorMock;
     private readonly Mock<IPortfolioLocator> _portfolioLocatorMock;
     private readonly Mock<IOperationLocator> _operationLocatorMock;
+    private readonly Mock<IAdministratorLocator> _administratorLocatorMock;
     private readonly Mock<IInconsistencyHandler> _inconsistencyHandlerMock;
     private readonly Mock<IMediator> _mediatorMock;
     private readonly AccountingFeesCommandHandler _handler;
@@ -41,6 +43,7 @@ public class AccountingFeesCommandHandlerTests
         _yieldLocatorMock = new Mock<IYieldLocator>();
         _portfolioLocatorMock = new Mock<IPortfolioLocator>();
         _operationLocatorMock = new Mock<IOperationLocator>();
+        _administratorLocatorMock = new Mock<IAdministratorLocator>();
         _inconsistencyHandlerMock = new Mock<IInconsistencyHandler>();
         _mediatorMock = new Mock<IMediator>();
 
@@ -50,6 +53,7 @@ public class AccountingFeesCommandHandlerTests
             _yieldLocatorMock.Object,
             _portfolioLocatorMock.Object,
             _operationLocatorMock.Object,
+            _administratorLocatorMock.Object,
             _inconsistencyHandlerMock.Object,
             _mediatorMock.Object);
     }
@@ -69,7 +73,7 @@ public class AccountingFeesCommandHandlerTests
             new(2, 2, 2000, 200, 100, 50, 1750, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
 
-        var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "1", "CO", 
+        var operationType = new OperationTypeResponse(1, OperationTypeNames.Commission, null, IncomeEgressNature.Egress, Status.Active, "1", "CO",
             JsonSerializer.SerializeToDocument(new
             {
                 GrupoLista = "OperacionesClientes"
@@ -81,6 +85,9 @@ public class AccountingFeesCommandHandlerTests
             1,
             "Name"
         );
+
+        _administratorLocatorMock.Setup(x => x.GetFirstAdministratorAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<AdministratorResponse?>(null));
 
         _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
@@ -114,6 +121,9 @@ public class AccountingFeesCommandHandlerTests
         var cancellationToken = CancellationToken.None;
         var error = Error.NotFound("YieldLocator.Error", "No se encontraron yields");
 
+        _administratorLocatorMock.Setup(x => x.GetFirstAdministratorAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<AdministratorResponse?>(null));
+
         _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Failure<IReadOnlyCollection<YieldResponse>>(error));
 
@@ -135,6 +145,9 @@ public class AccountingFeesCommandHandlerTests
             new(1, 1, 1000, 100, 50, 25, 875, 0, DateTime.UtcNow, DateTime.UtcNow, true)
         };
         var error = Error.NotFound("OperationLocator.Error", "No se encontró el tipo de operación");
+
+        _administratorLocatorMock.Setup(x => x.GetFirstAdministratorAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<AdministratorResponse?>(null));
 
         _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
@@ -165,6 +178,9 @@ public class AccountingFeesCommandHandlerTests
                 GrupoLista = "OperacionesClientes"
             }));
 
+        _administratorLocatorMock.Setup(x => x.GetFirstAdministratorAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<AdministratorResponse?>(null));
+
         _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
 
@@ -193,6 +209,9 @@ public class AccountingFeesCommandHandlerTests
         var command = new AccountingFeesCommand(new[] { 1 }, DateTime.UtcNow);
         var cancellationToken = CancellationToken.None;
         var exception = new InvalidOperationException("Error interno");
+
+        _administratorLocatorMock.Setup(x => x.GetFirstAdministratorAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<AdministratorResponse?>(null));
 
         _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ThrowsAsync(exception);
@@ -225,6 +244,9 @@ public class AccountingFeesCommandHandlerTests
                 GrupoLista = "OperacionesClientes"
             }));
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "123", null, "123", "123"); // Sin cuenta de crédito
+
+        _administratorLocatorMock.Setup(x => x.GetFirstAdministratorAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<AdministratorResponse?>(null));
 
         _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
@@ -264,6 +286,9 @@ public class AccountingFeesCommandHandlerTests
             }));
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, null, "123", "123", "123"); // Sin cuenta de débito
 
+        _administratorLocatorMock.Setup(x => x.GetFirstAdministratorAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<AdministratorResponse?>(null));
+
         _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
 
@@ -302,6 +327,9 @@ public class AccountingFeesCommandHandlerTests
             }));
         var passiveTransaction = Domain.PassiveTransactions.PassiveTransaction.Create(1, 1, "1234", "5678", "123", "123");
         var error = Error.NotFound("PortfolioLocator.Error", "No se encontró el portafolio");
+
+        _administratorLocatorMock.Setup(x => x.GetFirstAdministratorAsync(cancellationToken))
+            .ReturnsAsync(Result.Success<AdministratorResponse?>(null));
 
         _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));

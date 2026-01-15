@@ -71,6 +71,8 @@ public static class NatureTypes
 {
     public const string Income = "I";
     public const string Egress = "E";
+    public const string Yields = "R";
+    public const string Concept = "C";
 }
 
 

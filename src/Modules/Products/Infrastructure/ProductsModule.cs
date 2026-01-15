@@ -57,6 +57,7 @@ using Products.Infrastructure.TechnicalSheets;
 using Products.IntegrationEvents.AccumulatedCommissions;
 using Products.IntegrationEvents.AdditionalInformation;
 using Products.IntegrationEvents.Commission.CommissionsByPortfolio;
+using Products.IntegrationEvents.Administrators.GetFirstAdministrator;
 using Products.IntegrationEvents.ContributionValidation;
 using Products.IntegrationEvents.EntityValidation;
 using Products.IntegrationEvents.Portfolio;
@@ -139,6 +140,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<ValidatePortfolioRequest, ValidatePortfolioResponse>, PortfolioValidationConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioDataRequest, GetPortfolioDataResponse>, PortfolioValidationConsumer>();
         services.AddTransient<IRpcHandler<ValidateEntityRequest, ValidateEntityResponse>, ValidateEntityConsumer>();
+        services.AddScoped<IRpcHandler<GetFirstAdministratorRequest, GetFirstAdministratorResponse>, GetFirstAdministratorConsumer>();
 
         services.AddScoped<ICommissionRepository, CommissionRepository>();
         services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();

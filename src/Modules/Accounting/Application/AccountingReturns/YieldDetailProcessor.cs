@@ -150,7 +150,7 @@ internal sealed class YieldDetailProcessor(
                 processDate,
                 operationTypeName,
                 yieldDetail.Income,
-                yieldDetail.Income > 0 ? NatureTypes.Income : NatureTypes.Egress
+                NatureTypes.Yields
             );
 
             if (accountingAssistant.IsFailure)
