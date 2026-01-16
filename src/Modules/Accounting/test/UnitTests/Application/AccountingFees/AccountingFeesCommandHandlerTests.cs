@@ -85,9 +85,20 @@ public class AccountingFeesCommandHandlerTests
             1,
             "Name"
         );
+        var administrator = new AdministratorResponse(
+            1,
+            "123456789",
+            1,
+            0,
+            "Administrador Test",
+            Status.Active,
+            "ENT001",
+            1,
+            "SFC001"
+        );
 
         _administratorLocatorMock.Setup(x => x.GetFirstAdministratorAsync(cancellationToken))
-            .ReturnsAsync(Result.Success<AdministratorResponse?>(null));
+            .ReturnsAsync(Result.Success<AdministratorResponse?>(administrator));
 
         _yieldLocatorMock.Setup(x => x.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken))
             .ReturnsAsync(Result.Success<IReadOnlyCollection<YieldResponse>>(yields));
@@ -102,7 +113,7 @@ public class AccountingFeesCommandHandlerTests
             .ReturnsAsync(Result.Success(portfolioInfo));
 
         _mediatorMock.Setup(x => x.Send(It.IsAny<AddAccountingEntitiesCommand>(), cancellationToken))
-            .ReturnsAsync(true);
+            .ReturnsAsync(Result.Success(true));
 
         // Act
         var result = await _handler.Handle(command, cancellationToken);
