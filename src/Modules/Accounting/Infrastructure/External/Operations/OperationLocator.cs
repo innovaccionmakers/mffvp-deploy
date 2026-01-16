@@ -54,4 +54,16 @@ public class OperationLocator(IRpcClient rpc) : IOperationLocator
             ? Result.Success(rcs.OperationType)
             : Result.Failure<IReadOnlyCollection<OperationTypeResponse>>(Error.Validation(rcs.Code!, rcs.Message!));
     }
+
+    public async Task<Result<Dictionary<long, int>>> GetCollectionBankIdsByClientOperationIdsAsync(
+        IEnumerable<long> clientOperationIds,
+        CancellationToken cancellationToken)
+    {
+        var rc = await rpc.CallAsync<GetCollectionBankIdsByClientOperationIdsRequest, GetCollectionBankIdsByClientOperationIdsResponse>(
+            new GetCollectionBankIdsByClientOperationIdsRequest(clientOperationIds), cancellationToken);
+
+        return rc.IsValid
+            ? Result.Success(rc.CollectionBankIdsByClientOperationId)
+            : Result.Failure<Dictionary<long, int>>(Error.Validation(rc.Code ?? string.Empty, rc.Message ?? string.Empty));
+    }
 }

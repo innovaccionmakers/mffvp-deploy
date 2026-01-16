@@ -136,6 +136,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 var nature = random.Next(2) == 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
 
                 operations.Add(new GetAccountingOperationsResponse(
+                    ClientOperationId: i + 1,
                     PortfolioId: random.Next(1, 100), // Rango más pequeño para asegurar matches
                     AffiliateId: random.Next(1, 1000),
                     Amount: (decimal)(random.NextDouble() * 1000) + 1, // Mínimo 1 para ser válido
@@ -157,6 +158,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
             for (int i = 0; i < count; i++)
             {
                 operations.Add(new GetAccountingOperationsResponse(
+                    ClientOperationId: i + 1,
                     PortfolioId: random.Next(1, 50), // Rango pequeño para asegurar matches
                     AffiliateId: random.Next(1, 500),
                     Amount: (decimal)(random.NextDouble() * 5000) + 10, // Mínimo 10
@@ -185,6 +187,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 var amount = hasValidData ? (decimal)(random.NextDouble() * 1000) + 1 : -1;
 
                 operations.Add(new GetAccountingOperationsResponse(
+                    ClientOperationId: i + 1,
                     PortfolioId: portfolioId,
                     AffiliateId: affiliateId,
                     Amount: amount,
@@ -210,6 +213,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 var isValid = operationType != "INVALID_TYPE";
 
                 operations.Add(new GetAccountingOperationsResponse(
+                    ClientOperationId: i + 1,
                     PortfolioId: isValid ? random.Next(1, 100) : 9999,
                     AffiliateId: isValid ? random.Next(1, 1000) : 0,
                     Amount: isValid ? (decimal)(random.NextDouble() * 1000) + 1 : -1,

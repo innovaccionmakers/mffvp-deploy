@@ -19,6 +19,21 @@ internal sealed class AuxiliaryInformationRepository(OperationsDbContext context
             .SingleOrDefaultAsync(x => x.AuxiliaryInformationId == auxiliaryinformationId, cancellationToken);
     }
 
+    public async Task<Dictionary<long, int>> GetCollectionBankIdsByClientOperationIdsAsync(
+        IEnumerable<long> clientOperationIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (clientOperationIds == null || !clientOperationIds.Any())
+            return new Dictionary<long, int>();
+
+        var clientOperationIdsList = clientOperationIds.Distinct().ToList();
+
+        return await context.AuxiliaryInformations
+            .Where(ai => clientOperationIdsList.Contains(ai.ClientOperationId))
+            .Select(ai => new { ai.ClientOperationId, ai.CollectionBankId })
+            .ToDictionaryAsync(x => x.ClientOperationId, x => x.CollectionBankId, cancellationToken);
+    }
+
     public void Insert(AuxiliaryInformation auxiliaryinformation)
     {
         context.AuxiliaryInformations.Add(auxiliaryinformation);

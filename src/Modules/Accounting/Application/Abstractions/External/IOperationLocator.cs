@@ -16,5 +16,6 @@ public interface IOperationLocator
 
 
     Task<Result<(long OperationTypeId, string Nature, string Name)>> GetOperationTypeByNameAsync(string name, CancellationToken cancellationToken);
-    Task<Result<IReadOnlyCollection<OperationTypeResponse>>>  GetOperationTypesByNameAsync(string name, CancellationToken cancellationToken);    
+    Task<Result<IReadOnlyCollection<OperationTypeResponse>>>  GetOperationTypesByNameAsync(string name, CancellationToken cancellationToken);
+    Task<Result<Dictionary<long, int>>> GetCollectionBankIdsByClientOperationIdsAsync(IEnumerable<long> clientOperationIds, CancellationToken cancellationToken);
 }

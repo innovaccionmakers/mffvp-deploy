@@ -31,6 +31,7 @@ using Accounting.Infrastructure.Database;
 using Accounting.Infrastructure.External.Administrators;
 using Accounting.Infrastructure.External.Operations;
 using Accounting.Infrastructure.External.Portfolios;
+using Accounting.Infrastructure.External.Treasury;
 using Accounting.Infrastructure.External.Users;
 using Accounting.Infrastructure.External.Yields;
 using Accounting.Infrastructure.External.YieldsToDistribute;
@@ -111,6 +112,7 @@ public class AccountingModule : IModuleConfiguration
         services.AddScoped<IPortfolioLocator, PortfolioLocator>();
         services.AddScoped<IUserLocator, UserLocator>();
         services.AddScoped<IOperationLocator, OperationLocator>();
+        services.AddScoped<ITreasuryLocator, TreasuryLocator>();
         services.AddScoped<IAdministratorLocator, AdministratorLocator>();
         services.AddScoped<IPassiveTransactionRepository, PassiveTransactionRepository>();
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AccountingDbContext>());

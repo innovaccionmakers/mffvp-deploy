@@ -111,7 +111,7 @@ public class OperationsModule: IModuleConfiguration
                         npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Operations)
                 );
         });
-        
+
         services.AddScoped<IPreviousStateProvider, PreviousStateProvider>();
         services.AddScoped<PreviousStateSaveChangesInterceptor>();
 
@@ -170,6 +170,7 @@ public class OperationsModule: IModuleConfiguration
         services.AddScoped<IRpcHandler<GetOperationTypeByNameRequest, GetOperationTypeByNameResponse>, GetOperationTypeByNameConsumer>();
         services.AddTransient<IRpcHandler<GetAccountingOperationsRequestEvents, GetAccountingOperationsValidationResponse>, AccountingOperationsConsumer>();
         services.AddTransient<IRpcHandler<GetAccountingDebitNoteOperationsRequestEvents, GetAccountingDebitNoteOperationsValidationResponse>, AccountingDebitNoteOperationsConsumer>();
+        services.AddTransient<IRpcHandler<GetCollectionBankIdsByClientOperationIdsRequest, GetCollectionBankIdsByClientOperationIdsResponse>, GetCollectionBankIdsByClientOperationIdsConsumer>();
         services.AddScoped<IRpcHandler<GetTrustOperationsByPortfolioProcessDateAndTypeRequest, GetTrustOperationsByPortfolioProcessDateAndTypeResponse>, GetTrustOperationsByPortfolioProcessDateAndTypeConsumer>();
 
         services.AddScoped<ITrustOperationRepository, TrustOperationRepository>();

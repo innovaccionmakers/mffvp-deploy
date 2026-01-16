@@ -55,7 +55,7 @@ public sealed class AccountingFeesCommandHandler(
                 return Result.Failure<bool>(Error.Problem("Accounting.Fees", "No se pudo obtener el administrador"));
             }
 
-            var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, operationType.Value.Nature, administrator, cancellationToken);
+            var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, operationType.Value.Nature, administrator.Value, cancellationToken);
 
             if (!accountingFeesResult.IsSuccess)
             {
