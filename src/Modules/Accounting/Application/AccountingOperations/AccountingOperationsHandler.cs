@@ -14,7 +14,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
 using System.Collections.Concurrent;
-using Treasury.IntegrationEvents.Issuers.GetIssuersByIds;
 
 namespace Accounting.Application.AccountingOperations
 {
@@ -24,6 +23,7 @@ namespace Accounting.Application.AccountingOperations
         AccountingOperationsHandlerValidation validator,
         IOperationLocator operationLocator,
         ITreasuryLocator treasuryLocator,
+        IPortfolioLocator portfolioLocator,
         IInconsistencyHandler inconsistencyHandler) : ICommandHandler<AccountingOperationsCommand, bool>
     {
         public async Task<Result<bool>> Handle(AccountingOperationsCommand command, CancellationToken cancellationToken)
@@ -107,7 +107,7 @@ namespace Accounting.Application.AccountingOperations
                 : new Dictionary<long, int>();
 
             var uniqueBankIds = collectionBankIdsByClientOperationId.Values.Distinct().Select(id => (long)id).ToList();
-            Dictionary<long, IssuerResponse>? issuersByBankId = null;
+            Dictionary<long, IssuerInfo>? issuersByBankId = null;
 
             if (uniqueBankIds.Count == 0)
             {
@@ -124,6 +124,16 @@ namespace Accounting.Application.AccountingOperations
             }
 
             issuersByBankId = issuersResult.Value.ToDictionary(issuer => issuer.Id, issuer => issuer);
+
+            // Obtener información básica de portafolios
+            var uniquePortfolioIds = operationsResult.Value.Select(op => op.PortfolioId).Distinct().ToList();
+            var portfoliosResult = await portfolioLocator.GetPortfoliosBasicInformationByIdsAsync(uniquePortfolioIds, cancellationToken);
+
+            if (portfoliosResult.IsFailure)
+            {
+                logger.LogWarning("Error al obtener la información de los portafolios: {Error}", portfoliosResult.Error?.Description ?? "Error desconocido");
+                return Result.Failure<bool>(Error.Validation(portfoliosResult.Error?.Code ?? string.Empty, portfoliosResult.Error?.Description ?? string.Empty));
+            }
 
             var errors = new ConcurrentBag<AccountingInconsistency>();
             var operationsByPortfolio = operationsResult.Value.GroupBy(op => op.PortfolioId).ToDictionary(g => g.Key, g => g.ToList());
@@ -159,6 +169,9 @@ namespace Accounting.Application.AccountingOperations
                 treasuryByPortfolioId,
                 command,
                 operationTypeName,
+                issuersByBankId,
+                collectionBankIdsByClientOperationId,
+                portfoliosResult.Value,
                 cancellationToken);
 
             if (!accountingAssistants.IsSuccess)

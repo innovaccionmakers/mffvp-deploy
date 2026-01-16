@@ -146,6 +146,7 @@ public class ProductsModule: IModuleConfiguration
         services.AddTransient<IRpcHandler<CommissionsByPortfolioRequest, CommissionsByPortfolioResponse>, CommissionsByPortfolioConsumer>();
         services.AddTransient<IRpcHandler<GetAdditionalInformationRequest, GetAdditionalInformationResponse>, GetAdditionalInformationConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioInformationByIdRequest, GetPortfolioInformationByIdResponse>, GetPortfolioInformationByIdConsumer>();
+        services.AddTransient<IRpcHandler<GetPortfoliosBasicInformationByIdsRequest, GetPortfoliosBasicInformationByIdsResponse>, GetPortfoliosBasicInformationByIdsConsumer>();
         services.AddTransient<IRpcHandler<AreAllPortfoliosClosedRequest, AreAllPortfoliosClosedResponse>, AreAllPortfoliosClosedConsumer>();
         services.AddTransient<IRpcHandler<GetPortfolioInfoForClosingRequest, GetPortfolioInfoForClosingResponse>, GetPortfolioInfoForClosingConsumer>();
 

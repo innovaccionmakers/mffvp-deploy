@@ -30,6 +30,9 @@ namespace Accounting.Application.AccountingOperations
             Dictionary<int, GetAccountingOperationsTreasuriesResponse> treasuryByPortfolioId,
             AccountingOperationsCommand command,
             string operationTypeName,
+            Dictionary<long, IssuerInfo> issuersByBankId,
+            Dictionary<long, int> collectionBankIdsByClientOperationId,
+            Dictionary<int, PortfolioResponse> portfoliosByPortfolioId,
             CancellationToken cancellationToken)
         {
             try
@@ -135,6 +138,9 @@ namespace Accounting.Application.AccountingOperations
                         passiveTransactionByPortfolioId,
                         command.ProcessDate,
                         operationTypeName,
+                        issuersByBankId,
+                        collectionBankIdsByClientOperationId,
+                        portfoliosByPortfolioId,
                         ct);
 
                     foreach (var assistant in batchResult.Assistants)
@@ -166,6 +172,9 @@ namespace Accounting.Application.AccountingOperations
             Dictionary<int, GetAccountingOperationsPassiveTransactionResponse> passiveTransactionByPortfolioId,
             DateTime processDate,
             string operationTypeName,
+            Dictionary<long, IssuerInfo> issuersByBankId,
+            Dictionary<long, int> collectionBankIdsByClientOperationId,
+            Dictionary<int, PortfolioResponse> portfoliosByPortfolioId,
             CancellationToken cancellationToken)
         {
             var results = new ConcurrentBag<(List<AccountingAssistant> Assistants, List<AccountingInconsistency> Errors)>();
@@ -182,6 +191,9 @@ namespace Accounting.Application.AccountingOperations
                         passiveTransactionByPortfolioId,
                         processDate,
                         operationTypeName,
+                        issuersByBankId,
+                        collectionBankIdsByClientOperationId,
+                        portfoliosByPortfolioId,
                         ct);
 
                     results.Add((result.Assistants, result.Errors));
@@ -224,6 +236,9 @@ namespace Accounting.Application.AccountingOperations
             Dictionary<int, GetAccountingOperationsPassiveTransactionResponse> passiveTransactionByPortfolioId,
             DateTime processDate,
             string operationTypeName,
+            Dictionary<long, IssuerInfo> issuersByBankId,
+            Dictionary<long, int> collectionBankIdsByClientOperationId,
+            Dictionary<int, PortfolioResponse> portfoliosByPortfolioId,
             CancellationToken cancellationToken)
         {
             await Task.Yield();
@@ -287,9 +302,16 @@ namespace Accounting.Application.AccountingOperations
                 });
             }
 
-            var assistants = accountingAssistant.Value.ToDebitAndCredit(
+            var assistants = CreateDebitAndCreditAssistants(
+                accountingAssistant.Value,
+                operation.ClientOperationId,
+                operation.PortfolioId,
+                operationTypeName,
                 debitAccountNumber,
-                creditAccountNumber).ToList();
+                creditAccountNumber,
+                issuersByBankId,
+                collectionBankIdsByClientOperationId,
+                portfoliosByPortfolioId);
 
             return (assistants, new List<AccountingInconsistency>());
         }
@@ -348,6 +370,105 @@ namespace Accounting.Application.AccountingOperations
 
             var isValid = hasDebit && hasCredit;
             return (isValid, errors.Any(), errors);
+        }
+
+        private static List<AccountingAssistant> CreateDebitAndCreditAssistants(
+            AccountingAssistant accountingAssistant,
+            long clientOperationId,
+            int portfolioId,
+            string operationTypeName,
+            string? debitAccountNumber,
+            string? creditAccountNumber,
+            Dictionary<long, IssuerInfo> issuersByBankId,
+            Dictionary<long, int> collectionBankIdsByClientOperationId,
+            Dictionary<int, PortfolioResponse> portfoliosByPortfolioId)
+        {
+            // Obtener el bankId para esta operación
+            collectionBankIdsByClientOperationId.TryGetValue(clientOperationId, out var bankId);
+            IssuerInfo? issuer = null;
+            if (bankId > 0 && issuersByBankId.TryGetValue(bankId, out var issuerValue))
+            {
+                issuer = issuerValue;
+            }
+
+            // Obtener información del portafolio
+            portfoliosByPortfolioId.TryGetValue(portfolioId, out var portfolio);
+
+            List<AccountingAssistant> assistants;
+            if (operationTypeName == OperationTypeAttributes.Names.DebitNote)
+            {
+                assistants = ToDebitAndCreditForDebitNote(
+                    accountingAssistant,
+                    debitAccountNumber,
+                    creditAccountNumber,
+                    issuer,
+                    portfolio).ToList();
+            }
+            else
+            {
+                 assistants = ToDebitAndCreditForContribution(
+                    accountingAssistant,
+                    debitAccountNumber,
+                    creditAccountNumber,
+                    issuer,
+                    portfolio).ToList();
+            }
+
+            return assistants;
+        }
+
+        private static IEnumerable<AccountingAssistant> ToDebitAndCreditForContribution(
+            AccountingAssistant assistant,
+            string? debitAccount,
+            string? creditAccount,
+            IssuerInfo? issuer,
+            PortfolioResponse? portfolio)
+        {
+            // Para operaciones (Contribution): débito usa issuer, crédito usa portfolio
+            var debitIdentification = issuer != null
+                ? new IdentificationInfo(issuer.Nit, issuer.Digit, issuer.Description)
+                : new IdentificationInfo(assistant.Identification, assistant.VerificationDigit, assistant.Name);
+
+            var creditIdentification = portfolio != null
+                ? new IdentificationInfo(portfolio.NitApprovedPortfolio, portfolio.VerificationDigit, portfolio.Name)
+                : new IdentificationInfo(assistant.Identification, assistant.VerificationDigit, assistant.Name);
+
+            yield return assistant.DuplicateWithTypeAndIdentification(
+                AccountingTypes.Debit,
+                debitAccount,
+                debitIdentification);
+
+            yield return assistant.DuplicateWithTypeAndIdentification(
+                AccountingTypes.Credit,
+                creditAccount,
+                creditIdentification);
+        }
+
+        private static IEnumerable<AccountingAssistant> ToDebitAndCreditForDebitNote(
+            AccountingAssistant assistant,
+            string? debitAccount,
+            string? creditAccount,
+            IssuerInfo? issuer,
+            PortfolioResponse? portfolio)
+        {
+            // Para nota débito (DebitNote): débito usa portfolio, crédito usa issuer
+            var debitIdentification = portfolio != null
+                ? new IdentificationInfo(portfolio.NitApprovedPortfolio, portfolio.VerificationDigit, portfolio.Name)
+                : new IdentificationInfo(assistant.Identification, assistant.VerificationDigit, assistant.Name);
+
+            var creditIdentification = issuer != null
+                ? new IdentificationInfo(issuer.Nit, issuer.Digit, issuer.Description)
+                : new IdentificationInfo(assistant.Identification, assistant.VerificationDigit, assistant.Name);
+
+            yield return assistant.DuplicateWithTypeAndIdentification(
+                AccountingTypes.Debit,
+                debitAccount,
+                debitIdentification);
+
+            yield return assistant.DuplicateWithTypeAndIdentification(
+                AccountingTypes.Credit,
+                creditAccount,
+                creditIdentification);
         }
     }
 }
