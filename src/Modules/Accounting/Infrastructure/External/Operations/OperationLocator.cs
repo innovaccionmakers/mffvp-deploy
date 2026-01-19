@@ -3,7 +3,6 @@ using Common.SharedKernel.Application.Helpers.Serialization;
 using Common.SharedKernel.Application.Rpc;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
-using DocumentFormat.OpenXml.Office.CustomUI;
 using Operations.IntegrationEvents.ClientOperations;
 using Operations.IntegrationEvents.OperationTypes;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;

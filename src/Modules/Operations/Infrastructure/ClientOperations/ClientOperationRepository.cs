@@ -115,7 +115,8 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                 co.AffiliateId,
                 co.Amount,
                 co.OperationTypeId,
-                co.AuxiliaryInformation.CollectionAccount
+                co.AuxiliaryInformation.CollectionAccount,
+                co.LinkedClientOperationId
             ))
             .ToListAsync(cancellationToken);
     }
@@ -142,7 +143,8 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
                 co.AffiliateId,
                 co.Amount,
                 co.OperationTypeId,
-                co.LinkedClientOperation!.AuxiliaryInformation.CollectionAccount
+                co.LinkedClientOperation!.AuxiliaryInformation.CollectionAccount,
+                co.LinkedClientOperationId
             ))
             .ToListAsync(cancellationToken);
     }
