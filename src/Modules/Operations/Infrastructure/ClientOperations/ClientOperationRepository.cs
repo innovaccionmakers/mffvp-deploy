@@ -110,6 +110,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .AsNoTracking()
             .Select(co => new AccountingOperationsResponse
             (
+                co.ClientOperationId,
                 co.PortfolioId,
                 co.AffiliateId,
                 co.Amount,
@@ -136,6 +137,7 @@ internal sealed class ClientOperationRepository(OperationsDbContext context) : I
             .AsNoTracking()
             .Select(co => new AccountingOperationsResponse
             (
+                co.ClientOperationId,
                 co.PortfolioId,
                 co.AffiliateId,
                 co.Amount,

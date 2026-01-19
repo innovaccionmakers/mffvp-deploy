@@ -44,6 +44,9 @@ namespace Accounting.test.UnitTests.AccountingOperations
             // Arrange
             var operations = GenerateMockOperations(1000); // Reducido para debugging
             var treasuryByPortfolioId = GenerateMockTreasuries(operations);
+            var issuersByBankId = GenerateMockIssuers();
+            var collectionBankIdsByClientOperationId = GenerateMockCollectionBankIds(operations);
+            var portfoliosByPortfolioId = GenerateMockPortfolios(operations);
             var cancellationToken = CancellationToken.None;
 
             // Debug: Verificar datos de entrada
@@ -56,6 +59,9 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 treasuryByPortfolioId,
                 _command,
                 OperationTypeAttributes.Names.Contribution,
+                issuersByBankId,
+                collectionBankIdsByClientOperationId,
+                portfoliosByPortfolioId,
                 cancellationToken);
 
             // Assert
@@ -68,6 +74,9 @@ namespace Accounting.test.UnitTests.AccountingOperations
             // Arrange - Datos con missing values intencionales pero algunos válidos
             var operations = GenerateMockOperationsWithSomeValidData(1000);
             var treasuryByPortfolioId = GeneratePartialTreasuries(operations);
+            var issuersByBankId = GenerateMockIssuers();
+            var collectionBankIdsByClientOperationId = GenerateMockCollectionBankIds(operations);
+            var portfoliosByPortfolioId = GenerateMockPortfolios(operations);
 
             // Act
             var result = await _handler.ProcessOperationsInParallel(
@@ -75,6 +84,9 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 treasuryByPortfolioId,
                 _command,
                 OperationTypeAttributes.Names.Contribution,
+                issuersByBankId,
+                collectionBankIdsByClientOperationId,
+                portfoliosByPortfolioId,
                 CancellationToken.None);
 
             // Assert
@@ -88,6 +100,9 @@ namespace Accounting.test.UnitTests.AccountingOperations
             // Arrange
             var operations = GenerateValidMockOperations(1000);
             var treasuryByPortfolioId = GenerateMockTreasuries(operations);
+            var issuersByBankId = GenerateMockIssuers();
+            var collectionBankIdsByClientOperationId = GenerateMockCollectionBankIds(operations);
+            var portfoliosByPortfolioId = GenerateMockPortfolios(operations);
 
             // Act
             var result = await _handler.ProcessOperationsInParallel(
@@ -95,6 +110,9 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 treasuryByPortfolioId,
                 _command,
                 OperationTypeAttributes.Names.Contribution,
+                issuersByBankId,
+                collectionBankIdsByClientOperationId,
+                portfoliosByPortfolioId,
                 CancellationToken.None);
 
             // Assert
@@ -107,6 +125,9 @@ namespace Accounting.test.UnitTests.AccountingOperations
             // Arrange
             var operations = GenerateMixedValidityOperations(1000);
             var treasuryByPortfolioId = GenerateMockTreasuries(operations);
+            var issuersByBankId = GenerateMockIssuers();
+            var collectionBankIdsByClientOperationId = GenerateMockCollectionBankIds(operations);
+            var portfoliosByPortfolioId = GenerateMockPortfolios(operations);
             var processDate = DateTime.Now;
 
             // Act
@@ -115,6 +136,9 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 treasuryByPortfolioId,
                 _command,
                 OperationTypeAttributes.Names.Contribution,
+                issuersByBankId,
+                collectionBankIdsByClientOperationId,
+                portfoliosByPortfolioId,
                 CancellationToken.None);
 
             // Assert
@@ -136,6 +160,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 var nature = random.Next(2) == 0 ? IncomeEgressNature.Income : IncomeEgressNature.Egress;
 
                 operations.Add(new GetAccountingOperationsResponse(
+                    ClientOperationId: i + 1,
                     PortfolioId: random.Next(1, 100), // Rango más pequeño para asegurar matches
                     AffiliateId: random.Next(1, 1000),
                     Amount: (decimal)(random.NextDouble() * 1000) + 1, // Mínimo 1 para ser válido
@@ -157,6 +182,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
             for (int i = 0; i < count; i++)
             {
                 operations.Add(new GetAccountingOperationsResponse(
+                    ClientOperationId: i + 1,
                     PortfolioId: random.Next(1, 50), // Rango pequeño para asegurar matches
                     AffiliateId: random.Next(1, 500),
                     Amount: (decimal)(random.NextDouble() * 5000) + 10, // Mínimo 10
@@ -185,6 +211,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 var amount = hasValidData ? (decimal)(random.NextDouble() * 1000) + 1 : -1;
 
                 operations.Add(new GetAccountingOperationsResponse(
+                    ClientOperationId: i + 1,
                     PortfolioId: portfolioId,
                     AffiliateId: affiliateId,
                     Amount: amount,
@@ -210,6 +237,7 @@ namespace Accounting.test.UnitTests.AccountingOperations
                 var isValid = operationType != "INVALID_TYPE";
 
                 operations.Add(new GetAccountingOperationsResponse(
+                    ClientOperationId: i + 1,
                     PortfolioId: isValid ? random.Next(1, 100) : 9999,
                     AffiliateId: isValid ? random.Next(1, 1000) : 0,
                     Amount: isValid ? (decimal)(random.NextDouble() * 1000) + 1 : -1,
@@ -263,6 +291,60 @@ namespace Accounting.test.UnitTests.AccountingOperations
             }
 
             return treasuries;
+        }
+
+        private Dictionary<long, IssuerInfo> GenerateMockIssuers()
+        {
+            var issuers = new Dictionary<long, IssuerInfo>();
+            var bankIds = new[] { 1L, 2L, 3L, 4L, 5L };
+            var nits = new[] { "900123456", "900234567", "900345678", "900456789", "900567890" };
+            var names = new[] { "Banco Test 1", "Banco Test 2", "Banco Test 3", "Banco Test 4", "Banco Test 5" };
+
+            for (int i = 0; i < bankIds.Length; i++)
+            {
+                issuers[bankIds[i]] = new IssuerInfo(
+                    Id: bankIds[i],
+                    Nit: nits[i],
+                    Digit: i + 1,
+                    Description: names[i]
+                );
+            }
+
+            return issuers;
+        }
+
+        private Dictionary<long, int> GenerateMockCollectionBankIds(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
+        {
+            var collectionBankIds = new Dictionary<long, int>();
+            var bankIds = new[] { 1, 2, 3, 4, 5 };
+            var random = new Random();
+
+            foreach (var operation in operations)
+            {
+                if (!collectionBankIds.ContainsKey(operation.ClientOperationId))
+                {
+                    collectionBankIds[operation.ClientOperationId] = bankIds[random.Next(bankIds.Length)];
+                }
+            }
+
+            return collectionBankIds;
+        }
+
+        private Dictionary<int, PortfolioResponse> GenerateMockPortfolios(IReadOnlyCollection<GetAccountingOperationsResponse> operations)
+        {
+            var portfolios = new Dictionary<int, PortfolioResponse>();
+            var distinctPortfolioIds = operations.Select(o => o.PortfolioId).Distinct().Where(id => id > 0 && id < 1000);
+
+            foreach (var portfolioId in distinctPortfolioIds)
+            {
+                portfolios[portfolioId] = new PortfolioResponse(
+                    NitApprovedPortfolio: $"900{portfolioId:D6}",
+                    VerificationDigit: portfolioId % 10,
+                    Name: $"Portafolio Test {portfolioId}"
+                );
+            }
+
+            return portfolios;
         }
     }
 }

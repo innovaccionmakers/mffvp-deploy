@@ -14,5 +14,13 @@ internal sealed class AdministratorRepository(ProductsDbContext context) : IAdmi
             .AsNoTracking()
             .AnyAsync(a => a.EntityCode == entityCode, cancellationToken);
     }
+
+    public Task<Administrator?> GetFirstOrderedByIdAsync(CancellationToken cancellationToken = default)
+    {
+        return context.Administrators
+            .AsNoTracking()
+            .OrderBy(a => a.AdministratorId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }
 

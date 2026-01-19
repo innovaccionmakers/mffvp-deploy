@@ -3,6 +3,12 @@ using Common.SharedKernel.Core.Primitives;
 namespace Accounting.Domain.AccountingAssistants;
 using Accounting.Domain.Constants;
 
+public sealed record IdentificationInfo(
+    string Identification,
+    int VerificationDigit,
+    string Name
+);
+
 public class AccountingAssistant : Entity, ICloneable
 {
     public long AccountingAssistantId { get; private set; }
@@ -94,6 +100,18 @@ public class AccountingAssistant : Entity, ICloneable
         clone.AccountingAssistantId = default;
         clone.Type = type;
         if (account != null) clone.Account = account;
+        return clone;
+    }
+
+    public AccountingAssistant DuplicateWithTypeAndIdentification(
+        string type,
+        string? account,
+        IdentificationInfo identificationInfo)
+    {
+        var clone = DuplicateWithType(type, account);
+        clone.Identification = identificationInfo.Identification;
+        clone.VerificationDigit = identificationInfo.VerificationDigit;
+        clone.Name = identificationInfo.Name;
         return clone;
     }
 

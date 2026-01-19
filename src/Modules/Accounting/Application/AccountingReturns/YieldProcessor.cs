@@ -120,7 +120,7 @@ internal sealed class YieldProcessor(
                 processDate,
                 operationTypeName,
                 yield.YieldToCredit,
-                yield.YieldToCredit > 0 ? NatureTypes.Income : NatureTypes.Egress
+                NatureTypes.Yields
             );
 
             if (accountingAssistant.IsFailure)

@@ -25,6 +25,7 @@ namespace Operations.Application.ClientOperations.GetAccountingOperations
 
             var response = clientOperations
             .Select(c => new GetAccountingOperationsResponse(
+                c.ClientOperationId,
                 c.PortfolioId,
                 c.AffiliateId,
                 c.Amount,

@@ -12,6 +12,7 @@ using Common.SharedKernel.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Products.Integrations.Administrators;
 
 namespace Accounting.Application.AccountingFees;
 
@@ -21,6 +22,7 @@ public sealed class AccountingFeesCommandHandler(
     IYieldLocator yieldLocator,
     IPortfolioLocator portfolioLocator,
     IOperationLocator operationLocator,
+    IAdministratorLocator administratorLocator,
     IInconsistencyHandler inconsistencyHandler,
     IMediator mediator) : ICommandHandler<AccountingFeesCommand, bool>
 {
@@ -28,6 +30,7 @@ public sealed class AccountingFeesCommandHandler(
     {
         try
         {
+
             var yields = await yieldLocator.GetAllComissionsPortfolioIdsAndClosingDate(command.PortfolioIds, command.ProcessDate, cancellationToken);
 
             if (yields.IsFailure)
@@ -37,6 +40,8 @@ public sealed class AccountingFeesCommandHandler(
             }
 
             var operationType = await operationLocator.GetOperationTypeByNameAsync(OperationTypeNames.Commission, cancellationToken);
+            var administrator = await administratorLocator.GetFirstAdministratorAsync(cancellationToken);
+
 
             if (operationType.IsFailure)
             {
@@ -44,7 +49,13 @@ public sealed class AccountingFeesCommandHandler(
                 return Result.Failure<bool>(Error.Problem("Accounting.Fees", "No se pudo obtener el tipo de operación"));
             }
 
-            var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, operationType.Value.Nature, cancellationToken);
+            if (administrator.IsFailure)
+            {
+                logger.LogWarning("No se pudo obtener el administrador: {Error}", administrator.Error);
+                return Result.Failure<bool>(Error.Problem("Accounting.Fees", "No se pudo obtener el administrador"));
+            }
+
+            var accountingFeesResult = await CreateRange(yields.Value, command.ProcessDate, operationType.Value.OperationTypeId, operationType.Value.Name, operationType.Value.Nature, administrator.Value, cancellationToken);
 
             if (!accountingFeesResult.IsSuccess)
             {
@@ -82,6 +93,7 @@ public sealed class AccountingFeesCommandHandler(
                                                                                                    long operationTypeId,
                                                                                                    string operationTypeName,
                                                                                                    string operationTypeNature,
+                                                                                                   AdministratorResponse administrator,
                                                                                                    CancellationToken cancellationToken)
     {
         var accountingAssistants = new List<AccountingAssistant>();
@@ -133,9 +145,9 @@ public sealed class AccountingFeesCommandHandler(
 
             var accountingAssistant = AccountingAssistant.Create(
                 yield.PortfolioId,
-                portfolioResult.Value.NitApprovedPortfolio,
-                portfolioResult.Value.VerificationDigit,
-                portfolioResult.Value.Name,
+                administrator.Identification,
+                administrator.Digit,
+                administrator.Name,
                 processDate.ToString("yyyyMM"),
                 processDate,
                 operationTypeName,

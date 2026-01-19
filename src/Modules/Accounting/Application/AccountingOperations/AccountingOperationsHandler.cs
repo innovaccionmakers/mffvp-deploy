@@ -9,6 +9,7 @@ using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
 using Common.SharedKernel.Domain.OperationTypes;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Operations.Integrations.ClientOperations.GetAccountingOperations;
@@ -21,6 +22,8 @@ namespace Accounting.Application.AccountingOperations
         ILogger<AccountingOperationsHandler> logger,
         AccountingOperationsHandlerValidation validator,
         IOperationLocator operationLocator,
+        ITreasuryLocator treasuryLocator,
+        IPortfolioLocator portfolioLocator,
         IInconsistencyHandler inconsistencyHandler) : ICommandHandler<AccountingOperationsCommand, bool>
     {
         public async Task<Result<bool>> Handle(AccountingOperationsCommand command, CancellationToken cancellationToken)
@@ -90,6 +93,48 @@ namespace Accounting.Application.AccountingOperations
                 return Result.Success(true);
             }
 
+            var clientOperationIds = operationsResult.Value.Select(op => op.ClientOperationId).Distinct().ToList();
+            var collectionBankIdsResult = await operationLocator.GetCollectionBankIdsByClientOperationIdsAsync(clientOperationIds, cancellationToken);
+
+            if (collectionBankIdsResult.IsFailure)
+            {
+                logger.LogWarning("Error al obtener los banco_recaudo para las operaciones: {Error}", collectionBankIdsResult.Error);
+                return Result.Failure<bool>(Error.Validation(collectionBankIdsResult.Error.Code ?? string.Empty, collectionBankIdsResult.Error.Description ?? string.Empty));
+            }
+
+            var collectionBankIdsByClientOperationId = collectionBankIdsResult.IsSuccess
+                ? collectionBankIdsResult.Value
+                : new Dictionary<long, int>();
+
+            var uniqueBankIds = collectionBankIdsByClientOperationId.Values.Distinct().Select(id => (long)id).ToList();
+            Dictionary<long, IssuerInfo>? issuersByBankId = null;
+
+            if (uniqueBankIds.Count == 0)
+            {
+                logger.LogInformation("No hay bancos de recaudo para obtener emisores");
+                return Result.Failure<bool>(Error.Validation("Accounting.Operations", "No hay bancos de recaudo para obtener emisores"));
+            }
+
+            var issuersResult = await treasuryLocator.GetIssuersByIdsAsync(uniqueBankIds, cancellationToken);
+
+            if (issuersResult.IsFailure)
+            {
+                logger.LogWarning("Error al obtener los emisores: {Error}", issuersResult.Error?.Description ?? "Error desconocido");
+                return Result.Failure<bool>(Error.Validation(issuersResult.Error?.Code ?? string.Empty, issuersResult.Error?.Description ?? string.Empty));
+            }
+
+            issuersByBankId = issuersResult.Value.ToDictionary(issuer => issuer.Id, issuer => issuer);
+
+            // Obtener información básica de portafolios
+            var uniquePortfolioIds = operationsResult.Value.Select(op => op.PortfolioId).Distinct().ToList();
+            var portfoliosResult = await portfolioLocator.GetPortfoliosBasicInformationByIdsAsync(uniquePortfolioIds, cancellationToken);
+
+            if (portfoliosResult.IsFailure)
+            {
+                logger.LogWarning("Error al obtener la información de los portafolios: {Error}", portfoliosResult.Error?.Description ?? "Error desconocido");
+                return Result.Failure<bool>(Error.Validation(portfoliosResult.Error?.Code ?? string.Empty, portfoliosResult.Error?.Description ?? string.Empty));
+            }
+
             var errors = new ConcurrentBag<AccountingInconsistency>();
             var operationsByPortfolio = operationsResult.Value.GroupBy(op => op.PortfolioId).ToDictionary(g => g.Key, g => g.ToList());
 
@@ -124,6 +169,9 @@ namespace Accounting.Application.AccountingOperations
                 treasuryByPortfolioId,
                 command,
                 operationTypeName,
+                issuersByBankId,
+                collectionBankIdsByClientOperationId,
+                portfoliosResult.Value,
                 cancellationToken);
 
             if (!accountingAssistants.IsSuccess)

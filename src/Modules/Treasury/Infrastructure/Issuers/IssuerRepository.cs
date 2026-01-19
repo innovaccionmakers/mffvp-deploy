@@ -23,7 +23,18 @@ public class IssuerRepository(TreasuryDbContext context) : IIssuerRepository
             .Where(x => x.IsBank)
             .ToListAsync(cancellationToken);
     }
-    
+
+    public async Task<IReadOnlyCollection<Issuer>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken cancellationToken = default)
+    {
+        if (ids == null || !ids.Any())
+            return Array.Empty<Issuer>();
+
+        var idsList = ids.Distinct().ToList();
+        return await context.Issuers
+            .Where(x => idsList.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<Issuer?> GetByHomologatedCodeAsync(string homologatedCode, CancellationToken cancellationToken = default)
     {
         return context.Issuers.SingleOrDefaultAsync(
