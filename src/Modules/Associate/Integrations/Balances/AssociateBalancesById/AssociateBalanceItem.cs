@@ -12,4 +12,7 @@ public sealed record AssociateBalanceItem(
     [property: JsonPropertyName("IdFondo")] string FundId,
     [property: JsonPropertyName("NombreFondo")] string FundName,
     [property: JsonPropertyName("SaldoTotal")] decimal TotalBalance,
-    [property: JsonPropertyName("SaldoDisponible")] decimal AvailableAmount);
+    [property: JsonPropertyName("SaldoDisponible")] decimal AvailableAmount,
+    [property: JsonPropertyName("SaldoDisponibleRetiroAgil")] decimal AgileWithdrawalAvailable,
+    [property: JsonPropertyName("SaldoProtegido")] decimal ProtectedBalance,
+    [property: JsonPropertyName("PermiteRetiroAgil")] bool AllowsAgileWithdrawal);

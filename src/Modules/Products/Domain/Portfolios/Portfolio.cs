@@ -32,7 +32,7 @@ public sealed class Portfolio : Entity
     public decimal PartialVirPercentage { get; private set; }
     public int AgileWithdrawalPercentageProtectedBalance { get; private set; }
     public int WithdrawalPercentageProtectedBalance { get; private set; }
-    public string AllowsAgileWithdrawal { get; private set; }
+    public bool AllowsAgileWithdrawal { get; private set; }
     public int PermanencePeriod { get; private set; }
     public int PenaltyPercentage { get; private set; }
     public DateTime OperationsStartDate { get; private set; }

@@ -49,7 +49,9 @@ internal sealed class PortfolioConfiguration : IEntityTypeConfiguration<Portfoli
         builder.Property(x => x.PartialVirPercentage).HasColumnName("vir_retiro_max_parcial").HasColumnType("decimal(19,2)");
         builder.Property(x => x.AgileWithdrawalPercentageProtectedBalance).HasColumnName("porc_retiro_agil_saldo_protegido");
         builder.Property(x => x.WithdrawalPercentageProtectedBalance).HasColumnName("porc_retiro_saldo_protegido");
-        builder.Property(x => x.AllowsAgileWithdrawal).HasColumnName("permite_retiro_agil");
+        builder.Property(x => x.AllowsAgileWithdrawal)
+            .HasColumnName("permite_retiro_agil")
+            .HasColumnType("boolean");
         builder.Property(x => x.PermanencePeriod).HasColumnName("plazo_permanencia");
         builder.Property(x => x.PenaltyPercentage).HasColumnName("porcentaje_penalizacion");
         builder.Property(x => x.OperationsStartDate).HasColumnName("fecha_inicio_operaciones");

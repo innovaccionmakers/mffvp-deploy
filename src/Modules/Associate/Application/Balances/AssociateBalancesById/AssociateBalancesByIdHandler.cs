@@ -113,7 +113,10 @@ internal sealed class AssociateBalancesByIdHandler(
                 additionalInfo?.FundCode ?? string.Empty,
                 additionalInfo?.FundName ?? string.Empty,
                 Math.Round(b.TotalBalance, 2),
-                Math.Round(b.AvailableAmount, 2));
+                Math.Round(b.AvailableAmount, 2),
+                Math.Round(b.AgileWithdrawalAvailable, 2),
+                Math.Round(b.ProtectedBalance, 2),
+                additionalInfo?.AllowsAgileWithdrawal ?? false);
         }).ToList();
 
         return Result.Success<IReadOnlyCollection<AssociateBalanceItem>>(items);
