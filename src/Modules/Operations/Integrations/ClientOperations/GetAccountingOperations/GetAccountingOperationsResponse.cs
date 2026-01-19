@@ -11,6 +11,7 @@ namespace Operations.Integrations.ClientOperations.GetAccountingOperations
         string OperationTypeName,
         IncomeEgressNature Nature,
         long OperationTypeId,
-        string CollectionAccount
+        string CollectionAccount,
+        long? LinkedClientOperationId = null
     );
 }

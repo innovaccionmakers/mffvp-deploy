@@ -32,7 +32,8 @@ namespace Operations.Application.ClientOperations.GetAccountingOperations
                 listOperationType.Name,
                 listOperationType.Nature,
                 c.OperationTypeId,
-                c.CollectionAccount ?? ""))
+                c.CollectionAccount ?? "",
+                c.LinkedClientOperationId))
             .ToList();
 
             return Result.Success<IReadOnlyCollection<GetAccountingOperationsResponse>>(response);

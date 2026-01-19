@@ -6,6 +6,7 @@
         int AffiliateId,
         decimal Amount,
         long OperationTypeId,
-        string CollectionAccount
+        string CollectionAccount,
+        long? LinkedClientOperationId = null
     );
 }

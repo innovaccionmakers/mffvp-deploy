@@ -52,44 +52,17 @@ namespace Accounting.Application.AccountingOperations
 
         private async Task<Result<bool>> ProcessContributionOperationsAsync(AccountingOperationsCommand command, CancellationToken cancellationToken)
         {
-            var operations = await operationLocator.GetAccountingOperationsAsync(
+            var operationsResult = await operationLocator.GetAccountingOperationsAsync(
                 command.PortfolioIds,
                 command.ProcessDate,
                 cancellationToken);
 
-            return await ProcessOperationsByTypeAsync(
-                operations,
-                command,
-                OperationTypeAttributes.Names.Contribution,
-                cancellationToken);
-        }
-
-        private async Task<Result<bool>> ProcessDebitNoteOperationsAsync(AccountingOperationsCommand command, CancellationToken cancellationToken)
-        {
-            var operations = await operationLocator.GetAccountingDebitNoteOperationsAsync(
-                command.PortfolioIds,
-                command.ProcessDate,
-                cancellationToken);
-
-            return await ProcessOperationsByTypeAsync(
-                operations,
-                command,
-                OperationTypeAttributes.Names.DebitNote,
-                cancellationToken);
-        }
-
-        private async Task<Result<bool>> ProcessOperationsByTypeAsync(
-            Result<IReadOnlyCollection<GetAccountingOperationsResponse>> operationsResult,
-            AccountingOperationsCommand command,
-            string operationTypeName,
-            CancellationToken cancellationToken)
-        {
             if (!operationsResult.IsSuccess)
                 return Result.Failure<bool>(Error.Validation(operationsResult.Error.Code ?? string.Empty, operationsResult.Error.Description ?? string.Empty));
 
             if (operationsResult.Value.Count == 0)
             {
-                logger.LogInformation("No hay operaciones de tipo {OperationType} para procesar", operationTypeName);
+                logger.LogInformation("No hay operaciones de tipo {OperationType} para procesar", OperationTypeAttributes.Names.Contribution);
                 return Result.Success(true);
             }
 
@@ -102,10 +75,64 @@ namespace Accounting.Application.AccountingOperations
                 return Result.Failure<bool>(Error.Validation(collectionBankIdsResult.Error.Code ?? string.Empty, collectionBankIdsResult.Error.Description ?? string.Empty));
             }
 
-            var collectionBankIdsByClientOperationId = collectionBankIdsResult.IsSuccess
-                ? collectionBankIdsResult.Value
-                : new Dictionary<long, int>();
+            var collectionBankIdsByClientOperationId = collectionBankIdsResult.Value;
 
+            return await ProcessOperationsByTypeAsync(
+                operationsResult.Value,
+                command,
+                OperationTypeAttributes.Names.Contribution,
+                collectionBankIdsByClientOperationId,
+                cancellationToken);
+        }
+
+        private async Task<Result<bool>> ProcessDebitNoteOperationsAsync(AccountingOperationsCommand command, CancellationToken cancellationToken)
+        {
+            var operationsResult = await operationLocator.GetAccountingDebitNoteOperationsAsync(
+                command.PortfolioIds,
+                command.ProcessDate,
+                cancellationToken);
+
+            if (!operationsResult.IsSuccess)
+                return Result.Failure<bool>(Error.Validation(operationsResult.Error.Code ?? string.Empty, operationsResult.Error.Description ?? string.Empty));
+
+            if (operationsResult.Value.Count == 0)
+            {
+                logger.LogInformation("No hay operaciones de tipo {OperationType} para procesar", OperationTypeAttributes.Names.DebitNote);
+                return Result.Success(true);
+            }
+
+            var linkedClientOperationIds = operationsResult.Value
+                .Select(op => op.LinkedClientOperationId)
+                .Where(id => id != null)
+                .Distinct()
+                .Cast<long>()
+                .ToList();
+
+            var collectionBankIdsResult = await operationLocator.GetCollectionBankIdsByClientOperationIdsAsync(linkedClientOperationIds, cancellationToken);
+
+            if (collectionBankIdsResult.IsFailure)
+            {
+                logger.LogWarning("Error al obtener los banco_recaudo para las operaciones: {Error}", collectionBankIdsResult.Error);
+                return Result.Failure<bool>(Error.Validation(collectionBankIdsResult.Error.Code ?? string.Empty, collectionBankIdsResult.Error.Description ?? string.Empty));
+            }
+
+            var collectionBankIdsByClientOperationId = collectionBankIdsResult.Value;
+
+            return await ProcessOperationsByTypeAsync(
+                operationsResult.Value,
+                command,
+                OperationTypeAttributes.Names.DebitNote,
+                collectionBankIdsByClientOperationId,
+                cancellationToken);
+        }
+
+        private async Task<Result<bool>> ProcessOperationsByTypeAsync(
+            IReadOnlyCollection<GetAccountingOperationsResponse> operations,
+            AccountingOperationsCommand command,
+            string operationTypeName,
+            Dictionary<long, int> collectionBankIdsByClientOperationId,
+            CancellationToken cancellationToken)
+        {
             var uniqueBankIds = collectionBankIdsByClientOperationId.Values.Distinct().Select(id => (long)id).ToList();
             Dictionary<long, IssuerInfo>? issuersByBankId = null;
 
@@ -126,7 +153,7 @@ namespace Accounting.Application.AccountingOperations
             issuersByBankId = issuersResult.Value.ToDictionary(issuer => issuer.Id, issuer => issuer);
 
             // Obtener información básica de portafolios
-            var uniquePortfolioIds = operationsResult.Value.Select(op => op.PortfolioId).Distinct().ToList();
+            var uniquePortfolioIds = operations.Select(op => op.PortfolioId).Distinct().ToList();
             var portfoliosResult = await portfolioLocator.GetPortfoliosBasicInformationByIdsAsync(uniquePortfolioIds, cancellationToken);
 
             if (portfoliosResult.IsFailure)
@@ -136,7 +163,7 @@ namespace Accounting.Application.AccountingOperations
             }
 
             var errors = new ConcurrentBag<AccountingInconsistency>();
-            var operationsByPortfolio = operationsResult.Value.GroupBy(op => op.PortfolioId).ToDictionary(g => g.Key, g => g.ToList());
+            var operationsByPortfolio = operations.GroupBy(op => op.PortfolioId).ToDictionary(g => g.Key, g => g.ToList());
 
             foreach (var portfolioId in command.PortfolioIds)
             {
@@ -156,7 +183,7 @@ namespace Accounting.Application.AccountingOperations
                 return Result.Failure<bool>(Error.Problem("Accounting.Operations", "Se encontraron inconsistencias"));
             }
 
-            var collectionAccount = operationsResult.Value.GroupBy(x => x.CollectionAccount).Select(x => x.Key).ToList();
+            var collectionAccount = operations.GroupBy(x => x.CollectionAccount).Select(x => x.Key).ToList();
             var treasury = await sender.Send(new GetAccountingOperationsTreasuriesQuery(command.PortfolioIds, collectionAccount), cancellationToken);
 
             if (!treasury.IsSuccess)
@@ -165,7 +192,7 @@ namespace Accounting.Application.AccountingOperations
             var treasuryByPortfolioId = treasury.Value.ToDictionary(x => x.PortfolioId, x => x);
 
             var accountingAssistants = await validator.ProcessOperationsInParallel(
-                operationsResult.Value,
+                operations,
                 treasuryByPortfolioId,
                 command,
                 operationTypeName,
