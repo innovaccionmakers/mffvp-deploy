@@ -84,9 +84,9 @@ public class GetBalancesByObjectiveHandlerTests
 
         var balances = new[]
         {
-            new BalanceResponse(1, 10, 150.45m, 50.11m),
-            new BalanceResponse(1, 11, 25.20m, 10.05m),
-            new BalanceResponse(2, 20, 0m, 0m)
+            new BalanceResponse(1, 10, 150.45m, 50.11m, 10m, 5m),
+            new BalanceResponse(1, 11, 25.20m, 10.05m, 0m, 0m),
+            new BalanceResponse(2, 20, 0m, 0m, 0m, 0m)
         };
 
         context.RpcClient.Setup(r => r.CallAsync<GetBalancesRequest, GetBalancesResponse>(
@@ -97,8 +97,8 @@ public class GetBalancesByObjectiveHandlerTests
         var expectedPairs = new[] { (1, 10), (1, 11) };
         var additionalInformationItems = new[]
         {
-            new AdditionalInformationItem(10, "Portfolio Ten", 1, "Objective One", 101, "Alternative A", 201, "Fund Alpha", "PC10", "OC1", "ALT1", "FC1"),
-            new AdditionalInformationItem(11, "Portfolio Eleven", 1, "Objective One B", 102, "Alternative B", 202, "Fund Beta", "PC11", "OC1B", "ALT2", "FC2")
+            new AdditionalInformationItem(10, "Portfolio Ten", 1, "Objective One", 101, "Alternative A", 201, "Fund Alpha", true, "PC10", "OC1", "ALT1", "FC1"),
+            new AdditionalInformationItem(11, "Portfolio Eleven", 1, "Objective One B", 102, "Alternative B", 202, "Fund Beta", false, "PC11", "OC1B", "ALT2", "FC2")
         };
 
         context.RpcClient.Setup(r => r.CallAsync<GetAdditionalInformationRequest, GetAdditionalInformationResponse>(
@@ -543,7 +543,7 @@ public class GetBalancesByObjectiveHandlerTests
 
         var balances = new[]
         {
-            new BalanceResponse(1, 10, 100m, 40m)
+            new BalanceResponse(1, 10, 100m, 40m, 0m, 0m)
         };
 
         context.RpcClient.Setup(r => r.CallAsync<GetBalancesRequest, GetBalancesResponse>(
