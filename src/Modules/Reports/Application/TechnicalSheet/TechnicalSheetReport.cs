@@ -2,7 +2,6 @@
 using Common.SharedKernel.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Reports.Domain.BalancesAndMovements;
 using Reports.Domain.TechnicalSheet;
 
 namespace Reports.Application.TechnicalSheet;

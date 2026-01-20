@@ -1,7 +1,6 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
 
 namespace Common.SharedKernel.Application.Reports.Strategies;
 

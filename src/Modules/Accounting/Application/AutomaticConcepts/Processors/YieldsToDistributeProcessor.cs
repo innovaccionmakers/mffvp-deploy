@@ -197,7 +197,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                processDate,
                $"{operationType.Name.Trim()} {EnumHelper.GetEnumMemberValue(detail)}",
                distributedYield.Value,
-               EnumHelper.GetEnumMemberValue(operationType.Nature)
+               NatureTypes.Concept
            );
 
 
