@@ -45,8 +45,10 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
 
             var incomeAssistants = accountingAssistants.Where(a => a.Nature == NatureTypes.Income).ToList();
             var egressAssistants = accountingAssistants.Where(a => a.Nature == NatureTypes.Egress).ToList();
+            var yieldAssistants = accountingAssistants.Where(a => a.Nature == NatureTypes.Yields).ToList();
+            var conceptsAssistants = accountingAssistants.Where(a => a.Nature == NatureTypes.Concept).ToList();
 
-            var validationError = AccountingGenerationValidator.ValidateNatureRecordLimits(incomeAssistants, egressAssistants, consecutives);
+            var validationError = AccountingGenerationValidator.ValidateNatureRecordLimits(incomeAssistants, egressAssistants, yieldAssistants, conceptsAssistants, consecutives);
             if (validationError is not null)
             {
                 await accountingNotificationService.SendProcessFailedAsync(request.User, request.Email, request.ProcessId, request.StartDate, request.ProcessDate, validationError, cancellationToken);
@@ -61,7 +63,7 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
             var generalConfigurations = await generalConfigurationRepository
                 .GetGeneralConfigurationsByPortfolioIdsAsync(allPortfolioIds, cancellationToken);
 
-            var url = await GenerateAccountingInterfaceUrl(request.ProcessDate, incomeAssistants, egressAssistants, consecutives, generalConfigurations, cancellationToken);
+            var url = await GenerateAccountingInterfaceUrl(request.ProcessDate, incomeAssistants, egressAssistants, yieldAssistants, conceptsAssistants, consecutives, generalConfigurations, cancellationToken);
 
             if(url.IsNullOrEmpty())
             {
@@ -84,6 +86,8 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
     private async Task<string> GenerateAccountingInterfaceUrl(DateTime processDate,
                                                                IReadOnlyCollection<AccountingAssistant> incomeAssistants,
                                                                IReadOnlyCollection<AccountingAssistant> egressAssistants,
+                                                               IReadOnlyCollection<AccountingAssistant> yieldAssistants,
+                                                               IReadOnlyCollection<AccountingAssistant> conceptsAssistants,
                                                                IEnumerable<Consecutive> consecutives,
                                                                IEnumerable<GeneralConfiguration> generalConfigurations,
                                                                CancellationToken cancellationToken)
@@ -92,7 +96,7 @@ internal sealed class AccountingGenerationCommandHandler(IAccountingAssistantRep
         {
             var report = serviceProvider.GetRequiredService<AccountingGenerationReport>();
 
-            var fileStreamResult = await report.GenerateReportAsync(processDate, incomeAssistants, egressAssistants, consecutives, generalConfigurations, cancellationToken);
+            var fileStreamResult = await report.GenerateReportAsync(processDate, incomeAssistants, egressAssistants, yieldAssistants, conceptsAssistants, consecutives, generalConfigurations, cancellationToken);
 
             using var memoryStream = new MemoryStream();
             await fileStreamResult.FileStream.CopyToAsync(memoryStream, cancellationToken);

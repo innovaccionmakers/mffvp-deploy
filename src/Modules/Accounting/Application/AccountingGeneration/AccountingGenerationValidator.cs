@@ -9,6 +9,8 @@ internal sealed class AccountingGenerationValidator
 {
     public static string? ValidateNatureRecordLimits(IReadOnlyCollection<AccountingAssistant> incomeAssistants,
                                                      IReadOnlyCollection<AccountingAssistant> egressAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> yieldAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> conceptsAssistants,
                                                      IReadOnlyCollection<Consecutive> consecutives)
     {
         var consecutiveByNature = consecutives.ToDictionary(c => c.Nature, c => c.Number);
@@ -16,6 +18,8 @@ internal sealed class AccountingGenerationValidator
 
         var uniqueIncomeCount = incomeAssistants.GroupBy(a => a.Identifier).Count();
         var uniqueEgressCount = egressAssistants.GroupBy(a => a.Identifier).Count();
+        var uniqueYieldCount = yieldAssistants.GroupBy(a => a.Identifier).Count();
+        var uniqueConceptCount = conceptsAssistants.GroupBy(a => a.Identifier).Count();
 
         if (uniqueIncomeCount > 0)
         {
@@ -39,6 +43,27 @@ internal sealed class AccountingGenerationValidator
             }
         }
 
+        if (uniqueYieldCount > 0)
+        {
+            var yieldConsecutive = consecutiveByNature.GetValueOrDefault(NatureTypes.Yields, 0);
+            var lastYieldConsecutive = yieldConsecutive + uniqueYieldCount;
+
+            if (lastYieldConsecutive > AccountingReportConstants.MaxConsecutiveNumber)
+            {
+                exceededNatures.Add($"{NatureTypes.Yields} (consecutivo actual: {yieldConsecutive}, último consecutivo: {lastYieldConsecutive:N0}, máximo permitido: {AccountingReportConstants.MaxConsecutiveNumber:N0})");
+            }
+        }
+
+        if(uniqueConceptCount > 0)
+        {
+            var conceptConsecutive = consecutiveByNature.GetValueOrDefault(NatureTypes.Concept, 0);
+            var lastConceptConsecutive = conceptConsecutive + uniqueConceptCount;
+            if (lastConceptConsecutive > AccountingReportConstants.MaxConsecutiveNumber)
+            {
+                exceededNatures.Add($"{NatureTypes.Concept} (consecutivo actual: {conceptConsecutive}, último consecutivo: {lastConceptConsecutive:N0}, máximo permitido: {AccountingReportConstants.MaxConsecutiveNumber:N0})");
+            }
+        }
+
         if (exceededNatures.Count != 0)
         {
             return $"Se superó el límite máximo de consecutivos ({AccountingReportConstants.MaxConsecutiveNumber:N0}). " +
@@ -53,11 +78,16 @@ internal sealed class AccountingGenerationValidator
         var hasIncomeConsecutive = consecutives.Any(c => c.Nature == NatureTypes.Income);
         var hasEgressConsecutive = consecutives.Any(c => c.Nature == NatureTypes.Egress);
 
-        if (!hasIncomeConsecutive || !hasEgressConsecutive)
+        var hasYieldConsecutive = consecutives.Any(c => c.Nature == NatureTypes.Yields);
+        var hasConceptConsecutive = consecutives.Any(c => c.Nature == NatureTypes.Concept);
+
+        if (!hasIncomeConsecutive || !hasEgressConsecutive || !hasYieldConsecutive || !hasConceptConsecutive)
         {
             var missingNatures = new List<string>();
             if (!hasIncomeConsecutive) missingNatures.Add(NatureTypes.Income);
             if (!hasEgressConsecutive) missingNatures.Add(NatureTypes.Egress);
+            if (!hasYieldConsecutive) missingNatures.Add(NatureTypes.Yields);
+            if (!hasConceptConsecutive) missingNatures.Add(NatureTypes.Concept);
 
             return $"No existen consecutivos configurados para las siguientes naturalezas: {string.Join(", ", missingNatures)}";
         }
