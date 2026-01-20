@@ -302,9 +302,11 @@ namespace Accounting.Application.AccountingOperations
                 });
             }
 
+            var clientOperationId = operationTypeName == OperationTypeAttributes.Names.DebitNote ? operation.LinkedClientOperationId : operation.ClientOperationId;
+
             var assistants = CreateDebitAndCreditAssistants(
                 accountingAssistant.Value,
-                operation.ClientOperationId,
+                clientOperationId ?? 0,
                 operation.PortfolioId,
                 operationTypeName,
                 debitAccountNumber,
@@ -444,7 +446,7 @@ namespace Accounting.Application.AccountingOperations
                 creditIdentification);
         }
 
-        private static IEnumerable<AccountingAssistant> ToDebitAndCreditForDebitNote(
+        private static IEnumerable<AccountingAssistant>   ToDebitAndCreditForDebitNote(
             AccountingAssistant assistant,
             string? debitAccount,
             string? creditAccount,
