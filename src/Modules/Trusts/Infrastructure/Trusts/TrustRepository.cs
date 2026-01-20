@@ -46,7 +46,9 @@ internal sealed class TrustRepository(TrustsDbContext context) : ITrustRepositor
                 g.Key.ObjectiveId,
                 g.Key.PortfolioId,
                 g.Sum(x => x.TotalBalance),
-                g.Sum(x => x.AvailableAmount)))
+                g.Sum(x => x.AvailableAmount),
+                g.Sum(x => x.ProtectedBalance),
+                g.Sum(x => x.AgileWithdrawalAvailable)))
             .ToListAsync(cancellationToken);
     }
 

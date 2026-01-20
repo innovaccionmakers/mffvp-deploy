@@ -25,7 +25,7 @@ public sealed record CompletePortfolioInformationResponse(
     decimal PartialVirPercentage,
     int AgileWithdrawalPercentageProtectedBalance,
     int WithdrawalPercentageProtectedBalance,
-    string AllowsAgileWithdrawal,
+    bool AllowsAgileWithdrawal,
     int PermanencePeriod,
     int PenaltyPercentage,
     DateTime OperationsStartDate,

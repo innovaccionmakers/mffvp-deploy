@@ -15,7 +15,13 @@ internal sealed class GetBalancesQueryHandler(
     {
         var balances = await repository.GetBalancesAsync(request.AffiliateId, cancellationToken);
         var response = balances
-            .Select(b => new BalanceResponse(b.ObjectiveId, b.PortfolioId, b.TotalBalance, b.AvailableAmount))
+            .Select(b => new BalanceResponse(
+                b.ObjectiveId,
+                b.PortfolioId,
+                b.TotalBalance,
+                b.AvailableAmount,
+                b.ProtectedBalance,
+                b.AgileWithdrawalAvailable))
             .ToList();
         return Result.Success<IReadOnlyCollection<BalanceResponse>>(response);
     }

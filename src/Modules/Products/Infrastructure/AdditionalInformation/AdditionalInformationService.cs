@@ -35,6 +35,7 @@ internal sealed class AdditionalInformationService(ProductsDbContext context) : 
                 PortfolioName = p.Name,
                 FundId = f.PensionFundId,
                 FundName = f.Name,
+                AllowsAgileWithdrawal = p.AllowsAgileWithdrawal,
                 PortfolioCode = p.HomologatedCode,
                 AlternativeCode = a.HomologatedCode,
                 FundCode = f.HomologatedCode
@@ -54,6 +55,7 @@ internal sealed class AdditionalInformationService(ProductsDbContext context) : 
                 d.AlternativeName,
                 d.FundId,
                 d.FundName,
+                d.AllowsAgileWithdrawal,
                 d.PortfolioCode,
                 d.ObjectiveId.ToString(),
                 d.AlternativeCode,

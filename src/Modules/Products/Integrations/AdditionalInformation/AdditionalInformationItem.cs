@@ -9,6 +9,7 @@ public sealed record AdditionalInformationItem(
     string AlternativeName,
     int FundId,
     string FundName,
+    bool AllowsAgileWithdrawal,
     string PortfolioCode,
     string ObjectiveCode,
     string AlternativeCode,
