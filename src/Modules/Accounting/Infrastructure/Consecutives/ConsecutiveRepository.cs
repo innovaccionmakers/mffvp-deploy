@@ -50,6 +50,24 @@ public class ConsecutiveRepository(AccountingDbContext dbContext) : IConsecutive
             cancellationToken);
     }
 
+    public async Task UpdateYieldsConsecutiveAsync(int newConsecutiveNumber, CancellationToken cancellationToken = default)
+    {
+        await dbContext.Consecutives
+            .Where(c => c.Nature == NatureTypes.Yields)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(c => c.Number, newConsecutiveNumber),
+            cancellationToken);
+    }
+
+    public async Task UpdateConceptConsecutiveAsync(int newConsecutiveNumber, CancellationToken cancellationToken = default)
+    {
+        await dbContext.Consecutives
+            .Where(c => c.Nature == NatureTypes.Concept)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(c => c.Number, newConsecutiveNumber),
+            cancellationToken);
+    }
+
     public async Task<bool> IsSourceDocumentInUseAsync(
         string sourceDocument,
         long excludedConsecutiveId,

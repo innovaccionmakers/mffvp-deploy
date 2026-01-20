@@ -36,6 +36,8 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
     public async Task<FileStreamResult> GenerateReportAsync(DateTime processDate,
                                                      IReadOnlyCollection<AccountingAssistant> incomeAssistants,
                                                      IReadOnlyCollection<AccountingAssistant> egressAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> yieldAssistants,
+                                                     IReadOnlyCollection<AccountingAssistant> conceptsAssistants,
                                                      IEnumerable<Consecutive> consecutives,
                                                      IEnumerable<GeneralConfiguration> generalConfigurations,
                                                      CancellationToken cancellationToken)
@@ -48,6 +50,8 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
 
         var incomeConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Income);
         var egressConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Egress);
+        var yieldConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Yields);
+        var conceptConsecutive = consecutives.FirstOrDefault(c => c.Nature == NatureTypes.Concept);
 
         var incomeGroups = incomeAssistants
             .GroupBy(a => a.Identifier)
@@ -59,8 +63,20 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             .OrderBy(g => g.Key)
             .ToList();
 
+        var yieldGroups = yieldAssistants
+            .GroupBy(a => a.Identifier)
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        var conceptGroups = conceptsAssistants
+            .GroupBy(a => a.Identifier)
+            .OrderBy(g => g.Key)
+            .ToList();
+
         var uniqueIncomeCount = incomeGroups.Count;
         var uniqueEgressCount = egressGroups.Count;
+        var uniqueYieldCount = yieldGroups.Count;
+        var uniqueConceptCount = conceptGroups.Count;
 
         var lastIncomeConsecutive = incomeConsecutive != null && uniqueIncomeCount > 0
             ? incomeConsecutive.Number + uniqueIncomeCount
@@ -69,6 +85,14 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         var lastEgressConsecutive = egressConsecutive != null && uniqueEgressCount > 0
             ? egressConsecutive.Number + uniqueEgressCount
             : egressConsecutive?.Number ?? 0;
+
+        var lastYieldConsecutive = yieldConsecutive != null && uniqueYieldCount > 0
+            ? yieldConsecutive.Number + uniqueYieldCount
+            : yieldConsecutive?.Number ?? 0;
+
+        var lastConceptConsecutive = conceptConsecutive != null && uniqueConceptCount > 0
+            ? conceptConsecutive.Number + uniqueConceptCount
+            : conceptConsecutive?.Number ?? 0;
 
         var rows = new List<object[]>();
 
@@ -110,7 +134,45 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             }
         }
 
-        await UpdateConsecutivesInDatabaseAsync(lastIncomeConsecutive, lastEgressConsecutive, cancellationToken);
+        // Procesar registros de Rendimientos agrupados por Identifier
+        if (yieldConsecutive != null && yieldGroups.Count > 0)
+        {
+            var startConsecutive = yieldConsecutive.Number;
+            var sourceDocument = yieldConsecutive.SourceDocument;
+
+            for (int i = 0; i < yieldGroups.Count; i++)
+            {
+                var group = yieldGroups[i];
+                var consecutiveNumber = startConsecutive + (i + 1);
+                foreach (var accountingAssistant in group)
+                {
+                    var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+                    var cenint = centerCostByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+                    rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode, cenint));
+                }
+            }
+        }
+
+        // Procesar registros de Conceptos agrupados por Identifier
+        if (conceptConsecutive != null && conceptGroups.Count > 0)
+        {
+            var startConsecutive = conceptConsecutive.Number;
+            var sourceDocument = conceptConsecutive.SourceDocument;
+
+            for (int i = 0; i < conceptGroups.Count; i++)
+            {
+                var group = conceptGroups[i];
+                var consecutiveNumber = startConsecutive + (i + 1);
+                foreach (var accountingAssistant in group)
+                {
+                    var accountingCode = configurationByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+                    var cenint = centerCostByPortfolioId.GetValueOrDefault(accountingAssistant.PortfolioId, string.Empty);
+                    rows.Add(CreateRow(sourceDocument, consecutiveNumber, accountingAssistant, accountingCode, cenint));
+                }
+            }
+        }
+
+        await UpdateConsecutivesInDatabaseAsync(lastIncomeConsecutive, lastEgressConsecutive, lastYieldConsecutive, lastConceptConsecutive, cancellationToken);
 
         var fileName = await GenerateReportFileNameAsync(processDate, cancellationToken);
 
@@ -241,7 +303,7 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
         ];
     }
 
-    private async Task UpdateConsecutivesInDatabaseAsync(int lastIncomeConsecutive, int lastEgressConsecutive, CancellationToken cancellationToken)
+    private async Task UpdateConsecutivesInDatabaseAsync(int lastIncomeConsecutive, int lastEgressConsecutive, int lastYieldConsecutive, int lastConceptConsecutive, CancellationToken cancellationToken)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
@@ -250,6 +312,10 @@ public class AccountingGenerationReport(ILogger<AccountingGenerationReport> logg
             await consecutiveRepository.UpdateIncomeConsecutiveAsync(lastIncomeConsecutive, cancellationToken);
 
             await consecutiveRepository.UpdateEgressConsecutiveAsync(lastEgressConsecutive, cancellationToken);
+
+            await consecutiveRepository.UpdateYieldsConsecutiveAsync(lastYieldConsecutive, cancellationToken);
+            
+            await consecutiveRepository.UpdateConceptConsecutiveAsync(lastConceptConsecutive, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
         }

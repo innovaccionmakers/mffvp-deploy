@@ -169,6 +169,16 @@ internal sealed class InMemoryConsecutiveRepository : IConsecutiveRepository
         return Task.CompletedTask;
     }
 
+    public Task UpdateYieldsConsecutiveAsync(int newConsecutiveNumber, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateConceptConsecutiveAsync(int newConsecutiveNumber, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+
     public Task<bool> IsSourceDocumentInUseAsync(string sourceDocument, long excludedConsecutiveId, CancellationToken cancellationToken = default)
     {
         var inUse = Items.Any(c => c.SourceDocument == sourceDocument && c.ConsecutiveId != excludedConsecutiveId);
