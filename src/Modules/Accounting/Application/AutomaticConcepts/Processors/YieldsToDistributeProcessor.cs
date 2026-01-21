@@ -273,8 +273,7 @@ internal sealed class YieldsToDistributeProcessor(ILogger<YieldsToDistributeProc
                 processDate,
                 $"{operationType.Name.Trim()} {EnumHelper.GetEnumMemberValue(detail)}",
                 yieldDetail.Income,
-                EnumHelper.GetEnumMemberValue(operationType.Nature)
-
+                NatureTypes.Concept
             );
 
             if (accountingAssistant.IsFailure)
