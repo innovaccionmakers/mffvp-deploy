@@ -215,7 +215,7 @@ internal sealed class AutomaticConceptsProcessor(ILogger<AutomaticConceptsProces
                 processDate,
                 $"{operationType.Name} {EnumHelper.GetEnumMemberValue(detail)}",
                 Math.Abs(value),
-                natureValue
+                NatureTypes.Concept
             );
 
             if (accountingAssistant.IsFailure)
