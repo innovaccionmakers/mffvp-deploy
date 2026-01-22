@@ -3,18 +3,31 @@ assembly-file-versioning-scheme: MajorMinorPatch
 assembly-informational-format: '{Major}.{Minor}.{Patch}+{CommitsSinceVersionSource}'
 assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{CommitsSinceVersionSource}'
 increment: Inherit
-tag-prefix: 'dev'
+tag-prefix: ''
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
 commit-message-incrementing: Enabled
+
 branches:
-  master_20:
-    regex: '^master_20$'
+  main:
+    regex: '^main$'
     mode: ContinuousDelivery
     tag: ''
+    tag-prefix: 'dev-'
     prevent-increment-of-merged-branch-version: true
     is-release-branch: true
-    increment: Patch
-    source-branches: []
+    increment: Inherit
+
+  production:
+    regex: '^production$'
+    mode: ContinuousDelivery
+    tag: ''
+    tag-prefix: 'prd-'
+    assembly-informational-format: '{Major}.{Minor}.{Patch}+prd'
+    assembly-file-versioning-format: '{Major}.{Minor}.{Patch}+prd'
+    prevent-increment-of-merged-branch-version: true
+    is-release-branch: true
+    increment: Inherit
+ 
