@@ -9,7 +9,6 @@ pool:
   demands: java
 
 variables:
-  system.debug: true
   BuildConfiguration: 'Release'
   RestoreBuildProjects: '**/*.csproj'
 
@@ -30,7 +29,6 @@ steps:
   inputs:
     useConfigFile: true
     configFilePath: GitVersion.yml
-    additionalArguments: '/diag'
 
 # .NET 8 SDK
 - task: UseDotNet@2
@@ -56,7 +54,7 @@ steps:
   inputs:
     command: build
     projects: 'MFFVP.sln'
-    arguments: '--configuration $(BuildConfiguration) -p:Version=$(GitVersion.SemVer) --no-restore'
+    arguments: '--configuration $(BuildConfiguration) -p:Version=$(GitVersion.AssemblySemFileVer) --no-restore'
 
 # Test
 - task: DotNetCoreCLI@2
@@ -76,7 +74,7 @@ steps:
     arguments: >
       --configuration $(BuildConfiguration)
       --output $(Build.ArtifactStagingDirectory)/bundle
-      -p:Version=$(GitVersion.SemVer)
+      -p:Version=$(GitVersion.AssemblySemFileVer)
       --self-contained true
       --runtime linux-x64
     zipAfterPublish: false
@@ -127,7 +125,3 @@ steps:
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/FVP'
     ArtifactName: 'FVP'
-
-
-
-
