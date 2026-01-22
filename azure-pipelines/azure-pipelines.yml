@@ -9,6 +9,7 @@ pool:
   demands: java
 
 variables:
+  system.debug: true
   BuildConfiguration: 'Release'
   RestoreBuildProjects: '**/*.csproj'
 
@@ -29,6 +30,7 @@ steps:
   inputs:
     useConfigFile: true
     configFilePath: GitVersion.yml
+    additionalArguments: '/diag'
 
 # .NET 8 SDK
 - task: UseDotNet@2
@@ -125,5 +127,6 @@ steps:
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/FVP'
     ArtifactName: 'FVP'
+
 
 
