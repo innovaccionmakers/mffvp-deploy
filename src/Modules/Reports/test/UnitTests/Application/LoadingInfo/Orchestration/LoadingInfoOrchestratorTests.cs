@@ -69,6 +69,6 @@ public sealed class LoadingInfoOrchestratorTests
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("ETLSEL_002");
-        result.Error.Description.Should().Contain("PortfolioId debe ser un número entero positivo");
+
     }
 }

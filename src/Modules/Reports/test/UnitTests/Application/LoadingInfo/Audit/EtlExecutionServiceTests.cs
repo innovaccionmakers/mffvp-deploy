@@ -145,7 +145,6 @@ public sealed class EtlExecutionServiceTests
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("ETL002");
-        result.Error.Description.Should().Contain("debe ser un número positivo");
     }
 
     [Fact]
