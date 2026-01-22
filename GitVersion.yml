@@ -1,43 +1,20 @@
-mode: ContinuousDelivery
-
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
 assembly-informational-format: '{Major}.{Minor}.{Patch}+{CommitsSinceVersionSource}'
 assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{CommitsSinceVersionSource}'
-
 increment: Inherit
-
-# IMPORTANTE: define una versión base si no hay tags
-next-version: 0.1.0
-
-commit-message-incrementing: Enabled
+tag-prefix: ''
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
-
-# Si tus tags son v1.2.3, déjalo así. Si son 1.2.3, usa ''
-tag-prefix: '[vV]?'
-
+commit-message-incrementing: Enabled
 branches:
-  main:
-    regex: '^(main|refs/heads/main)$'
+  master_20:
+    regex: '^master_20$'
     mode: ContinuousDelivery
-    label: dev
-    is-main-branch: true
-    increment: Inherit
+    tag: ''
     prevent-increment-of-merged-branch-version: true
-
-  production:
-    regex: '^(production|refs/heads/production)$'
-    mode: ContinuousDelivery
-    label: prd
     is-release-branch: true
-    increment: Inherit
-    prevent-increment-of-merged-branch-version: true
-
-  pull-request:
-    regex: '^refs/pull/.*'
-    mode: ContinuousDelivery
-    label: pr
-    increment: Inherit
+    increment: Patch
+    source-branches: []
