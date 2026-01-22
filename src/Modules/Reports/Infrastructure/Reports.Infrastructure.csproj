@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper"/>
+    <None Include="Configuration\DatabaseTimeoutsOptions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="EFCore.BulkExtensions.PostgreSql" />
   </ItemGroup>
 
   <ItemGroup>

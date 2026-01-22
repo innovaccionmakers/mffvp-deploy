@@ -39,5 +39,15 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
             .HasColumnName("estado")
             .HasConversion(new EnumMemberValueConverter<Status>());
         builder.Property(x => x.HomologatedCode).HasColumnName("codigo_homologado");
+
+        builder.Property(x => x.RowVersion)
+            .HasColumnName("row_version")
+            .HasColumnType("bigint")
+            .HasDefaultValueSql("(extract(epoch from clock_timestamp()) * 1000)::BIGINT")
+            .ValueGeneratedOnAdd();
+
+        // Índice sobre row_version
+        builder.HasIndex(x => x.RowVersion)
+            .HasDatabaseName("idx_row_version");
     }
 }

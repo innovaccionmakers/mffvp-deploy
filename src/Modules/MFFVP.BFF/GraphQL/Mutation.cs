@@ -14,22 +14,18 @@ using Associate.Presentation.GraphQL.Inputs;
 using Closing.Presentation.GraphQL;
 using Closing.Presentation.GraphQL.DTOs;
 using Closing.Presentation.GraphQL.Inputs;
-
 using Common.SharedKernel.Domain.Auth.Permissions;
 using Common.SharedKernel.Presentation.Results;
-
 using FluentValidation;
-
 using HotChocolate.Authorization;
-
 using Operations.Presentation.DTOs;
 using Operations.Presentation.GraphQL;
 using Operations.Presentation.GraphQL.Inputs;
-
 using Products.Presentation.DTOs;
 using Products.Presentation.GraphQL;
 using Products.Presentation.GraphQL.Input;
-
+using Reports.Presentation.GraphQL;
+using Reports.Presentation.GraphQL.Dtos;
 using Treasury.Presentation.GraphQL;
 using Treasury.Presentation.GraphQL.Input;
 
@@ -352,5 +348,15 @@ public class Mutation
                                                    CancellationToken cancellationToken)
     {
         return await configurationGeneralsMutations.DeleteConfiguracionGeneralAsync(input, validator, cancellationToken);
+    }
+
+    [GraphQLName("procesarCargaDiariaReportes")]
+    public async Task<GraphqlResult<ProcessDailyDataDto>> ProcessDailyReportsAsync(
+    [GraphQLName("carga")] ProcessDailyDataInput input,
+    IValidator<ProcessDailyDataInput> validator,
+    [Service] IReportsExperienceMutations reportsMutations,
+    CancellationToken cancellationToken)
+    {
+        return await reportsMutations.ProcessDailyDataAsync(input, validator, cancellationToken);
     }
 }

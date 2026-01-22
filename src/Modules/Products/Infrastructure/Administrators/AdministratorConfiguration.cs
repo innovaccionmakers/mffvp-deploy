@@ -48,6 +48,16 @@ internal sealed class AdministratorConfiguration : IEntityTypeConfiguration<Admi
             .HasMaxLength(6)
             .IsRequired();
 
+        builder.Property(a => a.RowVersion)
+            .HasColumnName("row_version")
+            .HasColumnType("bigint")
+            .HasDefaultValueSql("(extract(epoch from clock_timestamp()) * 1000)::BIGINT")
+            .ValueGeneratedOnAdd();
+
+        // Índice sobre row_version
+        builder.HasIndex(a => a.RowVersion)
+            .HasDatabaseName("idx_administradores_row_version");
+
         builder.HasMany(a => a.PensionFunds)
             .WithOne(f => f.Administrator)
             .HasForeignKey(f => f.AdministratorId);

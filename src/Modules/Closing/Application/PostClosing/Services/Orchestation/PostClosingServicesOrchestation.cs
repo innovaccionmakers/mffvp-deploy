@@ -1,4 +1,5 @@
 ﻿using Closing.Application.Closing.Services.Telemetry;
+using Closing.Application.PostClosing.Services.DailyDataLoad;
 using Closing.Application.PostClosing.Services.PendingTransactions;
 using Closing.Application.PostClosing.Services.PortfolioCommission;
 using Closing.Application.PostClosing.Services.PortfolioServices;
@@ -21,6 +22,8 @@ public class PostClosingServicesOrchestation : IPostClosingServicesOrchestation
     private readonly IClosingStepTimer _stepTimer;
     private readonly ILogger<PostClosingServicesOrchestation> _logger;
 
+    private readonly IDailyDataPublisher _dailyDataPublisher;
+
     public PostClosingServicesOrchestation(
         IPortfolioService portfolioPublisher,
         ITrustYieldProcessor trustYieldProcessor,
@@ -29,7 +32,8 @@ public class PostClosingServicesOrchestation : IPostClosingServicesOrchestation
         IDataSyncPostService dataSyncPostService,
         ITechnicalSheetPublisher technicalSheetPublisher,
         IClosingStepTimer stepTimer,
-        ILogger<PostClosingServicesOrchestation> logger)
+        ILogger<PostClosingServicesOrchestation> logger,
+        IDailyDataPublisher dailyDataPublisher)
     {
         _portfolioPublisher = portfolioPublisher;
         _trustYieldProcessor = trustYieldProcessor;
@@ -39,6 +43,7 @@ public class PostClosingServicesOrchestation : IPostClosingServicesOrchestation
         _technicalSheetPublisher = technicalSheetPublisher;
         _stepTimer = stepTimer;
         _logger = logger;
+        _dailyDataPublisher = dailyDataPublisher;
     }
 
     public async Task ExecuteAsync(int portfolioId, DateTime closingDate, CancellationToken cancellationToken)
@@ -95,6 +100,13 @@ public class PostClosingServicesOrchestation : IPostClosingServicesOrchestation
                     portfolioId,
                     closingDate,
                     () => _technicalSheetPublisher.PublishAsync(DateOnly.FromDateTime(closingDate), CancellationToken.None));
+
+                // 7: Daily Data Load
+                await MeasureAsync(
+                    "PostClosingServicesOrchestation.DailyDataPublisher",
+                    portfolioId,
+                    closingDate,
+                    () => _dailyDataPublisher.PublishAsync(portfolioId, closingDate, CancellationToken.None));
             }
             catch (OperationCanceledException)
             {
