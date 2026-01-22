@@ -2,7 +2,7 @@ trigger:
   branches:
     include:
       - main
-      - master_estabilizacion
+      - production
 
 pool:
   name: Azure Pipelines
@@ -125,4 +125,5 @@ steps:
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/FVP'
     ArtifactName: 'FVP'
+
 
