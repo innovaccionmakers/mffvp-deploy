@@ -12,6 +12,7 @@ using Common.SharedKernel.Infrastructure.Caching;
 using Common.SharedKernel.Infrastructure.Caching.Closing;
 using Common.SharedKernel.Infrastructure.Configuration;
 using Common.SharedKernel.Infrastructure.Configuration.Strategies;
+using Common.SharedKernel.Infrastructure.Database.Interceptors;
 using Common.SharedKernel.Infrastructure.EventBus;
 using Common.SharedKernel.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -142,6 +143,8 @@ public static class InfrastructureConfiguration
             var serializer = sp.GetRequiredService<IClosingExecutionSerializer>();
             return new DistributedClosingExecutionStore(cache, serializer);
         });
+
+        services.AddScoped<RowVersionUpdatedInterceptor>();
 
         services.AddNotificationCenter(configuration);
         services.AddFileStorageService(configuration);

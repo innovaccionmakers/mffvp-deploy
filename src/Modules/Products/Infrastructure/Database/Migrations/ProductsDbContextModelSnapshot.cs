@@ -185,6 +185,12 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("nombre");
 
+                    b.Property<long>("RowVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version")
+                        .HasDefaultValueSql("(extract(epoch from clock_timestamp()) * 1000)::BIGINT");
+
                     b.Property<string>("SfcEntityCode")
                         .IsRequired()
                         .HasMaxLength(6)
@@ -197,6 +203,9 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnName("estado");
 
                     b.HasKey("AdministratorId");
+
+                    b.HasIndex("RowVersion")
+                        .HasDatabaseName("idx_administradores_row_version");
 
                     b.ToTable("administradores", "productos");
                 });
@@ -549,6 +558,12 @@ namespace Products.Infrastructure.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nombre");
 
+                    b.Property<long>("RowVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version")
+                        .HasDefaultValueSql("(extract(epoch from clock_timestamp()) * 1000)::BIGINT");
+
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .HasColumnType("text")
@@ -562,6 +577,9 @@ namespace Products.Infrastructure.Database.Migrations
                     b.HasKey("PensionFundId");
 
                     b.HasIndex("AdministratorId");
+
+                    b.HasIndex("RowVersion")
+                        .HasDatabaseName("idx_fondos_voluntarios_pensiones_row_version");
 
                     b.ToTable("fondos_voluntarios_pensiones", "productos");
                 });

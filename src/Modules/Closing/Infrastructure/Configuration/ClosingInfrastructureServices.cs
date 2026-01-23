@@ -12,17 +12,18 @@ using Closing.Application.Closing.Services.Orchestation;
 using Closing.Application.Closing.Services.Orchestation.Interfaces;
 using Closing.Application.Closing.Services.Orchestration;
 using Closing.Application.Closing.Services.PortfolioValuation;
+using Closing.Application.Closing.Services.ReturnsOperations;
+using Closing.Application.Closing.Services.ReturnsOperations.Interfaces;
 using Closing.Application.Closing.Services.Telemetry;
 using Closing.Application.Closing.Services.TimeControl;
 using Closing.Application.Closing.Services.TimeControl.Interrfaces;
-using Closing.Application.Closing.Services.ReturnsOperations;
-using Closing.Application.Closing.Services.ReturnsOperations.Interfaces;
 using Closing.Application.Closing.Services.TrustSync;
 using Closing.Application.Closing.Services.TrustYieldsDistribution;
 using Closing.Application.Closing.Services.TrustYieldsDistribution.Interfaces;
 using Closing.Application.Closing.Services.Validation;
 using Closing.Application.Closing.Services.Validation.Interfaces;
 using Closing.Application.Closing.Services.Warnings;
+using Closing.Application.PostClosing.Services.DailyDataLoad;
 using Closing.Application.PostClosing.Services.Orchestation;
 using Closing.Application.PostClosing.Services.PendingTransactions;
 using Closing.Application.PostClosing.Services.PortfolioCommission;
@@ -95,7 +96,7 @@ namespace Closing.Infrastructure.Configuration
             services.AddScoped<IUpdateAccumulatedCommissionRemote, UpdateAccumulatedCommissionRemote>();
             services.AddScoped<ITrustYieldBulkRepository, TrustYieldBulkRepository>();
             services.AddScoped<IYieldToDistributeRepository, YieldToDistributeRepository>();
-
+            services.AddScoped<IDailyDataPublisher, DailyDataPublisher>();
 
             services.AddScoped<IWarningCollector, WarningCollector>();
 

@@ -1,12 +1,13 @@
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Interceptors;
 
 using Products.Domain.Administrators;
 using Products.Domain.PlanFunds;
 
 namespace Products.Domain.PensionFunds;
 
-public sealed class PensionFund : Entity
+public sealed class PensionFund : Entity, IHasRowVersion
 {
     public int PensionFundId { get; private set; }
     public int IdentificationTypeId { get; private set; }
@@ -18,6 +19,14 @@ public sealed class PensionFund : Entity
     public string HomologatedCode { get; private set; }
     public int AdministratorId { get; private set; }
     public int BusinessCodeSfc { get; private set; }
+    public long RowVersion { get; private set; }
+
+    // Implementación explícita de la interfaz que expone el setter internamente
+    long IHasRowVersion.RowVersion
+    {
+        get => RowVersion;
+        set => RowVersion = value;
+    }
 
     public Administrator Administrator { get; private set; } = null!;
     public IReadOnlyCollection<PlanFund> PlanFunds { get; private set; } = new List<PlanFund>();

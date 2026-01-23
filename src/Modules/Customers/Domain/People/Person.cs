@@ -1,9 +1,10 @@
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
+using Common.SharedKernel.Domain.Interceptors;
 
 namespace Customers.Domain.People;
 
-public sealed class Person : Entity
+public sealed class Person : Entity, IHasRowVersion
 {
     public long PersonId { get; private set; }
     public Guid DocumentType { get; private set; }
@@ -28,6 +29,16 @@ public sealed class Person : Entity
     public int RiskProfileId { get; private set; }
     public string HomologatedCode { get; private set; }
 
+    // Implementación explícita de IHasRowVersion para permitir setter privado
+    public long RowVersion { get; private set; }
+
+    // Implementación explícita de la interfaz que expone el setter internamente
+    long IHasRowVersion.RowVersion
+    {
+        get => RowVersion;
+        set => RowVersion = value;
+    }
+
     private Person()
     {
     }
@@ -39,7 +50,7 @@ public sealed class Person : Entity
         string firstName,
         string? middleName,
         string lastName,
-        string? secondLastName,        
+        string? secondLastName,
         DateTime birthDate,
         string mobile,
         int genderId,

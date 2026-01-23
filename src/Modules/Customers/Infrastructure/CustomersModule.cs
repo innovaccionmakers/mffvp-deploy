@@ -63,6 +63,7 @@ public class CustomersModule : IModuleConfiguration
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
                 .AddInterceptors(sp.GetRequiredService<PreviousStateSaveChangesInterceptor>())
+                .AddInterceptors(sp.GetRequiredService<RowVersionUpdatedInterceptor>())
                 .UseNpgsql(
                     connectionString,
                     npgsqlOptions =>

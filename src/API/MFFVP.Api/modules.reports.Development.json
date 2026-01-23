@@ -1,6 +1,8 @@
 {
   "ConnectionStrings": {
-    "ReportsDatabase": "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;"
+    "ReportsDatabase": "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;",
+    "ReportsReadOnlyDatabase": "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;",
+    "ReportsWriteDatabase": "Host=ballast.proxy.rlwy.net;Port=18492;Database=railway;Username=postgres;Password=qZOsNrfAIWkdKXvzoGHqsrCfMOBQjzYX;"
   },
   "Reports": {
     "KeywordTransmissionFormat": "CLAVE123456"
