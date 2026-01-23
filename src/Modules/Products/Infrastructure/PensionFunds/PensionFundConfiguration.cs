@@ -47,6 +47,16 @@ internal sealed class PensionFundConfiguration : IEntityTypeConfiguration<Pensio
         builder.Property(f => f.BusinessCodeSfc)
             .HasColumnName("cod_negocio_sfc");
 
+        builder.Property(f => f.RowVersion)
+            .HasColumnName("row_version")
+            .HasColumnType("bigint")
+            .HasDefaultValueSql("(extract(epoch from clock_timestamp()) * 1000)::BIGINT")
+            .ValueGeneratedOnAdd();
+
+        // Índice sobre row_version
+        builder.HasIndex(f => f.RowVersion)
+            .HasDatabaseName("idx_fondos_voluntarios_pensiones_row_version");
+
         builder.HasOne(f => f.Administrator)
             .WithMany(a => a.PensionFunds)
             .HasForeignKey(f => f.AdministratorId);

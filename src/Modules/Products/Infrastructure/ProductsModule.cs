@@ -73,7 +73,7 @@ using Products.Presentation.MinimalApis;
 
 namespace Products.Infrastructure;
 
-public class ProductsModule: IModuleConfiguration
+public class ProductsModule : IModuleConfiguration
 {
     public string ModuleName => "Productos";
     public string RoutePrefix => "api/products";
@@ -100,6 +100,7 @@ public class ProductsModule: IModuleConfiguration
         {
             options.ReplaceService<IHistoryRepository, NonLockingNpgsqlHistoryRepository>()
                 .AddInterceptors(sp.GetRequiredService<PreviousStateSaveChangesInterceptor>())
+                .AddInterceptors(sp.GetRequiredService<RowVersionUpdatedInterceptor>())
                 .UseNpgsql(
                     connectionString,
                     npgsqlOptions =>

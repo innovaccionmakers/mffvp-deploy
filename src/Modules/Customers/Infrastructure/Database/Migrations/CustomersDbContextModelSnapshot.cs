@@ -104,9 +104,8 @@ namespace Customers.Infrastructure.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CountryId"));
 
-                    b.Property<string>("DaneCode")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("DaneCode")
+                        .HasColumnType("integer")
                         .HasColumnName("codigo_dane");
 
                     b.Property<string>("HomologatedCode")
@@ -340,6 +339,12 @@ namespace Customers.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("perfil_riesgo_id");
 
+                    b.Property<long>("RowVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version")
+                        .HasDefaultValueSql("(extract(epoch from clock_timestamp()) * 1000)::BIGINT");
+
                     b.Property<string>("SecondLastName")
                         .HasColumnType("text")
                         .HasColumnName("segundo_apellido");
@@ -350,6 +355,9 @@ namespace Customers.Infrastructure.Database.Migrations
                         .HasColumnName("estado");
 
                     b.HasKey("PersonId");
+
+                    b.HasIndex("RowVersion")
+                        .HasDatabaseName("idx_row_version");
 
                     b.ToTable("personas", "personas");
                 });
