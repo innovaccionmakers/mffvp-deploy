@@ -6,6 +6,6 @@ namespace Accounting.Presentation.GraphQL
 {
     public interface ITreasuriesExperienceQueries
     {
-        Task<GraphqlResult<TreasuryDto>> GetTreasuriesAsync(GetTreasuryInput input, CancellationToken cancellationToken = default);
+        Task<GraphqlResult<IReadOnlyCollection<TreasuryDto>>> GetTreasuriesAsync(GetTreasuryInput input, CancellationToken cancellationToken = default);
     }
 }

@@ -7,6 +7,6 @@ namespace Accounting.Presentation.GraphQL
 {
     public interface IPassiveTransactionExperienceQueries
     {
-        Task<GraphqlResult<PassiveTransactionsDto>> GetPassiveTransactionsAsync(GetPassiveTransactionInput input, CancellationToken cancellationToken = default);
+        Task<GraphqlResult<IReadOnlyCollection<PassiveTransactionsDto>>> GetPassiveTransactionsAsync(GetPassiveTransactionInput input, CancellationToken cancellationToken = default);
     }
 }

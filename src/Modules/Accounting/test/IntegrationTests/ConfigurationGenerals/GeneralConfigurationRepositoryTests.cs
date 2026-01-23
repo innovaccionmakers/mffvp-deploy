@@ -336,6 +336,138 @@ namespace Accounting.test.IntegrationTests.ConfigurationGenerals
             _mockRepository.Verify(x => x.Delete(configuration3), Times.Once);
         }
 
+        [Fact]
+        public async Task GetConfigurationGeneralsAsync_WithExistingConfigurations_ShouldReturnAllConfigurations()
+        {
+            // Arrange
+            string accountingCode = "123456";
+            string costCenter = "Prueba";
+            var expectedConfigurations = new List<GeneralConfiguration>
+    {
+        CreateTestGeneralConfiguration(1, accountingCode, costCenter),
+        CreateTestGeneralConfiguration(2, accountingCode, costCenter),
+        CreateTestGeneralConfiguration(3, accountingCode, costCenter)
+    };
+            var cancellationToken = CancellationToken.None;
+
+            _mockRepository.Setup(x => x.GetConfigurationGeneralsAsync(cancellationToken))
+                .ReturnsAsync(expectedConfigurations);
+
+            // Act
+            var result = await _mockRepository.Object.GetConfigurationGeneralsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(3);
+            result.Should().BeEquivalentTo(expectedConfigurations);
+            _mockRepository.Verify(x => x.GetConfigurationGeneralsAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetConfigurationGeneralsAsync_WithNoConfigurations_ShouldReturnEmptyCollection()
+        {
+            // Arrange
+            var cancellationToken = CancellationToken.None;
+
+            _mockRepository.Setup(x => x.GetConfigurationGeneralsAsync(cancellationToken))
+                .ReturnsAsync(Enumerable.Empty<GeneralConfiguration>().ToList().AsReadOnly());
+
+            // Act
+            var result = await _mockRepository.Object.GetConfigurationGeneralsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEmpty();
+            _mockRepository.Verify(x => x.GetConfigurationGeneralsAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetConfigurationGeneralsAsync_WithSingleConfiguration_ShouldReturnSingleElementCollection()
+        {
+            // Arrange
+            string accountingCode = "123456";
+            string costCenter = "Prueba";
+            var expectedConfigurations = new List<GeneralConfiguration>
+    {
+        CreateTestGeneralConfiguration(1, accountingCode, costCenter)
+    };
+            var cancellationToken = CancellationToken.None;
+
+            _mockRepository.Setup(x => x.GetConfigurationGeneralsAsync(cancellationToken))
+                .ReturnsAsync(expectedConfigurations);
+
+            // Act
+            var result = await _mockRepository.Object.GetConfigurationGeneralsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+            result.First().PortfolioId.Should().Be(1);
+            _mockRepository.Verify(x => x.GetConfigurationGeneralsAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetConfigurationGeneralsAsync_WithCancelledToken_ShouldThrowOperationCanceledException()
+        {
+            // Arrange
+            var cancellationToken = new CancellationToken(canceled: true);
+
+            _mockRepository.Setup(x => x.GetConfigurationGeneralsAsync(
+                It.Is<CancellationToken>(ct => ct.IsCancellationRequested)))
+                .ThrowsAsync(new OperationCanceledException());
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperationCanceledException>(() =>
+                _mockRepository.Object.GetConfigurationGeneralsAsync(cancellationToken));
+        }
+
+        [Fact]
+        public async Task GetConfigurationGeneralsAsync_ShouldReturnIReadOnlyCollection()
+        {
+            // Arrange
+            string accountingCode = "123456";
+            string costCenter = "Prueba";
+            var expectedConfigurations = new List<GeneralConfiguration>
+    {
+        CreateTestGeneralConfiguration(1, accountingCode, costCenter),
+        CreateTestGeneralConfiguration(2, accountingCode, costCenter)
+    };
+            var cancellationToken = CancellationToken.None;
+
+            _mockRepository.Setup(x => x.GetConfigurationGeneralsAsync(cancellationToken))
+                .ReturnsAsync(expectedConfigurations);
+
+            // Act
+            var result = await _mockRepository.Object.GetConfigurationGeneralsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeAssignableTo<IReadOnlyCollection<GeneralConfiguration>>();
+            result.Count.Should().Be(2);
+            _mockRepository.Verify(x => x.GetConfigurationGeneralsAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetConfigurationGeneralsAsync_ShouldReturnCorrectType()
+        {
+            // Arrange
+            var cancellationToken = CancellationToken.None;
+            var expectedConfigurations = new List<GeneralConfiguration>
+    {
+        CreateTestGeneralConfiguration(1, "123456", "Prueba")
+    };
+
+            _mockRepository.Setup(x => x.GetConfigurationGeneralsAsync(cancellationToken))
+                .ReturnsAsync(expectedConfigurations);
+
+            // Act
+            var result = await _mockRepository.Object.GetConfigurationGeneralsAsync(cancellationToken);
+
+            // Assert
+            result.Should().BeOfType<List<GeneralConfiguration>>();
+            _mockRepository.Verify(x => x.GetConfigurationGeneralsAsync(cancellationToken), Times.Once);
+        }
+
         private GeneralConfiguration CreateTestGeneralConfiguration(int portfolioId, string accountingCode, string costCenter)
         {
             return GeneralConfiguration.Create(

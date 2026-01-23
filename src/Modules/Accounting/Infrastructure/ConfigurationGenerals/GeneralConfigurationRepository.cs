@@ -31,5 +31,9 @@ internal sealed class GeneralConfigurationRepository(AccountingDbContext context
 
     public void Delete(GeneralConfiguration generalConfiguration) => context.GeneralConfigurations.Remove(generalConfiguration);
 
+    public async Task<IReadOnlyCollection<GeneralConfiguration>> GetConfigurationGeneralsAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.GeneralConfigurations.ToListAsync(cancellationToken);
+    }
 }
 

@@ -253,5 +253,197 @@ namespace Accounting.test.IntegrationTests.PassiveTransactions
                     pt.TypeOperationsId == passiveTransaction.TypeOperationsId)),
                 Times.Once);
         }
+
+        [Fact]
+        public async Task GetPassiveTransactionsAsync_WithExistingTransactions_ShouldReturnAllTransactions()
+        {
+            // Arrange
+            var expectedTransactions = new List<PassiveTransaction>
+            {
+                CreateTestPassiveTransaction(1, 1001L),
+                CreateTestPassiveTransaction(2, 1002L),
+                CreateTestPassiveTransaction(3, 1003L)
+            };
+                    var cancellationToken = CancellationToken.None;
+
+            _mockPassiveTransactionRepository.Setup(x => x.GetPassiveTransactionsAsync(cancellationToken))
+                .ReturnsAsync(expectedTransactions.AsReadOnly());
+
+            // Act
+            var result = await _mockPassiveTransactionRepository.Object.GetPassiveTransactionsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(3);
+            result.Should().BeEquivalentTo(expectedTransactions);
+            _mockPassiveTransactionRepository.Verify(x => x.GetPassiveTransactionsAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetPassiveTransactionsAsync_WithNoTransactions_ShouldReturnEmptyCollection()
+        {
+            // Arrange
+            var cancellationToken = CancellationToken.None;
+            var expectedEmptyCollection = new List<PassiveTransaction>().AsReadOnly();
+
+            _mockPassiveTransactionRepository.Setup(x => x.GetPassiveTransactionsAsync(cancellationToken))
+                .ReturnsAsync(expectedEmptyCollection);
+
+            // Act
+            var result = await _mockPassiveTransactionRepository.Object.GetPassiveTransactionsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEmpty();
+            _mockPassiveTransactionRepository.Verify(x => x.GetPassiveTransactionsAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetPassiveTransactionsAsync_WithSingleTransaction_ShouldReturnSingleElementCollection()
+        {
+            // Arrange
+            var expectedTransactions = new List<PassiveTransaction>
+            {
+                CreateTestPassiveTransaction(1, 1001L)
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _mockPassiveTransactionRepository.Setup(x => x.GetPassiveTransactionsAsync(cancellationToken))
+                .ReturnsAsync(expectedTransactions.AsReadOnly());
+
+            // Act
+            var result = await _mockPassiveTransactionRepository.Object.GetPassiveTransactionsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+            result.First().PortfolioId.Should().Be(1);
+            result.First().TypeOperationsId.Should().Be(1001L);
+            _mockPassiveTransactionRepository.Verify(x => x.GetPassiveTransactionsAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetPassiveTransactionsAsync_WithCancelledToken_ShouldThrowOperationCanceledException()
+        {
+            // Arrange
+            var cancellationToken = new CancellationToken(canceled: true);
+
+            _mockPassiveTransactionRepository.Setup(x => x.GetPassiveTransactionsAsync(
+                It.Is<CancellationToken>(ct => ct.IsCancellationRequested)))
+                .ThrowsAsync(new OperationCanceledException());
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperationCanceledException>(() =>
+                _mockPassiveTransactionRepository.Object.GetPassiveTransactionsAsync(cancellationToken));
+        }
+
+        [Fact]
+        public async Task GetPassiveTransactionsAsync_ShouldReturnIReadOnlyCollection()
+        {
+            // Arrange
+            var expectedTransactions = new List<PassiveTransaction>
+            {
+                CreateTestPassiveTransaction(1, 1001L),
+                CreateTestPassiveTransaction(2, 1002L)
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _mockPassiveTransactionRepository.Setup(x => x.GetPassiveTransactionsAsync(cancellationToken))
+                .ReturnsAsync(expectedTransactions.AsReadOnly());
+
+            // Act
+            var result = await _mockPassiveTransactionRepository.Object.GetPassiveTransactionsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeAssignableTo<IReadOnlyCollection<PassiveTransaction>>();
+            result.Count.Should().Be(2);
+            _mockPassiveTransactionRepository.Verify(x => x.GetPassiveTransactionsAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetPassiveTransactionsAsync_WithMixedPortfolioIds_ShouldReturnAllTransactions()
+        {
+            // Arrange
+            var expectedTransactions = new List<PassiveTransaction>
+            {
+                CreateTestPassiveTransaction(1, 1001L),
+                CreateTestPassiveTransaction(1, 1002L),
+                CreateTestPassiveTransaction(2, 1001L),
+                CreateTestPassiveTransaction(3, 1003L)
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _mockPassiveTransactionRepository.Setup(x => x.GetPassiveTransactionsAsync(cancellationToken))
+                .ReturnsAsync(expectedTransactions.AsReadOnly());
+
+            // Act
+            var result = await _mockPassiveTransactionRepository.Object.GetPassiveTransactionsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(4);
+
+            var portfolio1Transactions = result.Where(t => t.PortfolioId == 1);
+            portfolio1Transactions.Should().HaveCount(2);
+
+            var portfolio2Transactions = result.Where(t => t.PortfolioId == 2);
+            portfolio2Transactions.Should().HaveCount(1);
+
+            var portfolio3Transactions = result.Where(t => t.PortfolioId == 3);
+            portfolio3Transactions.Should().HaveCount(1);
+
+            _mockPassiveTransactionRepository.Verify(x => x.GetPassiveTransactionsAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetPassiveTransactionsAsync_WithMixedOperationTypes_ShouldReturnAllTransactions()
+        {
+            // Arrange
+            var expectedTransactions = new List<PassiveTransaction>
+            {
+                CreateTestPassiveTransaction(1, 1001L),
+                CreateTestPassiveTransaction(1, 2001L),
+                CreateTestPassiveTransaction(2, 1001L),
+                CreateTestPassiveTransaction(2, 3001L),
+                CreateTestPassiveTransaction(3, 2001L)
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _mockPassiveTransactionRepository.Setup(x => x.GetPassiveTransactionsAsync(cancellationToken))
+                .ReturnsAsync(expectedTransactions.AsReadOnly());
+
+            // Act
+            var result = await _mockPassiveTransactionRepository.Object.GetPassiveTransactionsAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(5);
+
+            var operation1001Transactions = result.Where(t => t.TypeOperationsId == 1001L);
+            operation1001Transactions.Should().HaveCount(2);
+
+            var operation2001Transactions = result.Where(t => t.TypeOperationsId == 2001L);
+            operation2001Transactions.Should().HaveCount(2);
+
+            var operation3001Transactions = result.Where(t => t.TypeOperationsId == 3001L);
+            operation3001Transactions.Should().HaveCount(1);
+
+            _mockPassiveTransactionRepository.Verify(x => x.GetPassiveTransactionsAsync(cancellationToken), Times.Once);
+        }
+
+        // Método auxiliar para crear transacciones pasivas de prueba
+        private PassiveTransaction CreateTestPassiveTransaction(int portfolioId, long operationTypeId)
+        {
+            var result = PassiveTransaction.Create(
+                portfolioId,
+                operationTypeId,
+                "123456",
+                "654321",
+                "CC001",
+                "TP001");
+
+            return result.Value;
+        }
     }
 }

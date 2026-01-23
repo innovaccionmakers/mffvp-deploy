@@ -4,9 +4,9 @@ namespace Accounting.Presentation.GraphQL.Inputs.PassiveTransactionInput
 {
     public sealed record class GetPassiveTransactionInput(
         [property: GraphQLName("portafolioId")]
-        int PortfolioId,
+        int? PortfolioId,
 
         [property: GraphQLName("tipoOperacionId")]
-        long TypeOperationId
+        long? TypeOperationId
         );
 }

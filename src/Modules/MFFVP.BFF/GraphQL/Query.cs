@@ -466,7 +466,7 @@ public class Query
 
     [GraphQLName("transaccionPasiva")]
     [Authorize(Policy = MakersPermissionsAccounting.PolicyViewPassiveTransaction)]
-    public async Task<GraphqlResult<PassiveTransactionsDto>> GetAccTransactionTypes([GraphQLName("transaccionPasiva")] GetPassiveTransactionInput input,
+    public async Task<GraphqlResult<IReadOnlyCollection<PassiveTransactionsDto>>> GetAccTransactionTypes([GraphQLName("transaccionPasiva")] GetPassiveTransactionInput input,
                                                                     [Service] IPassiveTransactionExperienceQueries passiveTransactionQueries,
                                                                     CancellationToken cancellationToken)
     {
@@ -475,7 +475,7 @@ public class Query
 
     [GraphQLName("tesoreria")]
     [Authorize(Policy = MakersPermissionsAccounting.PolicyViewTreasury)]
-    public async Task<GraphqlResult<TreasuryDto>> GetTreasuriesAsync([GraphQLName("tesoreria")] GetTreasuryInput input,
+    public async Task<GraphqlResult<IReadOnlyCollection<TreasuryDto>>> GetTreasuriesAsync([GraphQLName("tesoreria")] GetTreasuryInput input,
                                                                     [Service] ITreasuriesExperienceQueries treasuriesQueries,
                                                                     CancellationToken cancellationToken)
     {
@@ -492,7 +492,7 @@ public class Query
 
     [GraphQLName("configuracionGeneral")]
     [Authorize(Policy = MakersPermissionsAccounting.PolicyViewGeneralConfiguration)]
-    public async Task<GraphqlResult<ConfigurationGeneralDto>> GetConfigurationGeneralsAsync([GraphQLName("idPortafolio")] int portfolioId,
+    public async Task<GraphqlResult<IReadOnlyCollection<ConfigurationGeneralDto>>> GetConfigurationGeneralsAsync([GraphQLName("idPortafolio")] int? portfolioId,
                                                                     [Service] IConfigurationGeneralsExperienceQueries configurationGeneralsQueries,
                                                                     CancellationToken cancellationToken)
     {

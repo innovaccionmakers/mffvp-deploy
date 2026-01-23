@@ -64,5 +64,10 @@ namespace Accounting.Infrastructure.Treasuries
         public void Update(Domain.Treasuries.Treasury Treasury) => context.Treasuries.Update(Treasury);
 
         public void Delete(Domain.Treasuries.Treasury Treasury) => context.Treasuries.Remove(Treasury);
+
+        public async Task<IReadOnlyCollection<Domain.Treasuries.Treasury>> GetTreasuriesAsync(CancellationToken CancellationToken)
+        {
+            return await context.Treasuries.ToListAsync(CancellationToken);
+        }
     }
 }

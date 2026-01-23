@@ -1,5 +1,4 @@
-﻿using Accounting.Application.ConfigurationGenerals.CreateConfigurationGeneral;
-using Accounting.Domain.ConfigurationGenerals;
+﻿using Accounting.Domain.ConfigurationGenerals;
 using Accounting.Integrations.ConfigurationGenerals.GetConfigurationGeneral;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
@@ -10,7 +9,7 @@ namespace Accounting.Application.ConfigurationGenerals.GetConfigurationGeneral
 {
     internal class GetConfigurationGeneralQueryHandler(
         IGeneralConfigurationRepository generalConfigurationRepository,
-        ILogger<CreateConfigurationGeneralCommandHandler> logger
+        ILogger<GetConfigurationGeneralQueryHandler> logger
         ) : IQueryHandler<GetConfigurationGeneralQuery, GetConfigurationGeneralResponse>
     {
         public async Task<Result<GetConfigurationGeneralResponse>> Handle(GetConfigurationGeneralQuery request, CancellationToken cancellationToken)

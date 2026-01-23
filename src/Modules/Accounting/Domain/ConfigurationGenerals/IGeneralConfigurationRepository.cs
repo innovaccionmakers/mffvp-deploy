@@ -6,6 +6,8 @@ public interface IGeneralConfigurationRepository
         IEnumerable<int> portfolioIds,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyCollection<GeneralConfiguration>> GetConfigurationGeneralsAsync(CancellationToken cancellationToken = default);
+
     Task<GeneralConfiguration?> GetGeneralConfigurationByPortfolioIdAsync(int portfolioId, CancellationToken cancellationToken = default);
     void Insert(GeneralConfiguration generalConfiguration);
     void Update(GeneralConfiguration generalConfiguration);

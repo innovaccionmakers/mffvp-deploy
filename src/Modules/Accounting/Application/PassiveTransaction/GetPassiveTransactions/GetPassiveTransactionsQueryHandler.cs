@@ -9,32 +9,32 @@ namespace Accounting.Application.PassiveTransaction.GetPassiveTransactions
 {
     internal class GetPassiveTransactionsQueryHandler(
         IPassiveTransactionRepository passiveTransactionRepository,
-        ILogger<GetPassiveTransactionsQueryHandler> logger) : IQueryHandler<GetPassiveTransactionsQuery, GetPassiveTransactionsResponse>
+        ILogger<GetPassiveTransactionsQueryHandler> logger) : IQueryHandler<GetPassiveTransactionsQuery, IReadOnlyCollection<GetPassiveTransactionsResponse>>
     {
-        public async Task<Result<GetPassiveTransactionsResponse>> Handle(GetPassiveTransactionsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IReadOnlyCollection<GetPassiveTransactionsResponse>>> Handle(GetPassiveTransactionsQuery request, CancellationToken cancellationToken)
         {
             try
             {
-                var passiveTransactions = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(request.PortfolioId, request.TypeOperationsId, cancellationToken);
+                var passiveTransactions = await passiveTransactionRepository.GetPassiveTransactionsAsync(cancellationToken);
 
                 if (passiveTransactions is null)
-                    return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No se encontró registro de la configuración contable."));
+                    return Result.Failure<IReadOnlyCollection<GetPassiveTransactionsResponse>>(Error.NotFound("0", "No se encontró registro de la configuración contable."));
 
-                var response = new GetPassiveTransactionsResponse(
-                        passiveTransactions.PassiveTransactionId,
-                        passiveTransactions.DebitAccount,
-                        passiveTransactions.CreditAccount,
-                        passiveTransactions.ContraCreditAccount,
-                        passiveTransactions.ContraDebitAccount
-                        );
+                var response = passiveTransactions.Select(pt => new GetPassiveTransactionsResponse(
+                        pt.PassiveTransactionId,
+                        pt.DebitAccount,
+                        pt.CreditAccount,
+                        pt.ContraCreditAccount,
+                        pt.ContraDebitAccount
+                        )).ToList();
 
-                return Result.Success(response);
+                return Result.Success<IReadOnlyCollection<GetPassiveTransactionsResponse>>(response);
 
             }
             catch (Exception ex)
             {
                 logger.LogError("Error al obtener las transacciones pasivas. Error: {Message}", ex.Message);
-                return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No hay configuración contable."));
+                return Result.Failure< IReadOnlyCollection<GetPassiveTransactionsResponse>>(Error.NotFound("0", "No hay configuración contable."));
             }
         }
     }

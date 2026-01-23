@@ -10,13 +10,13 @@ namespace Accounting.test.UnitTests.ConfigurationGenerals
     public class GetConfigurationGeneralQueryHandlerTests
     {
         private readonly Mock<IGeneralConfigurationRepository> _mockGeneralConfigurationRepository;
-        private readonly Mock<ILogger<Accounting.Application.ConfigurationGenerals.CreateConfigurationGeneral.CreateConfigurationGeneralCommandHandler>> _mockLogger;
+        private readonly Mock<ILogger<GetConfigurationGeneralQueryHandler>> _mockLogger;
         private readonly GetConfigurationGeneralQueryHandler _handler;
 
         public GetConfigurationGeneralQueryHandlerTests()
         {
             _mockGeneralConfigurationRepository = new Mock<IGeneralConfigurationRepository>();
-            _mockLogger = new Mock<ILogger<Accounting.Application.ConfigurationGenerals.CreateConfigurationGeneral.CreateConfigurationGeneralCommandHandler>>();
+            _mockLogger = new Mock<ILogger<GetConfigurationGeneralQueryHandler>>();
 
             _handler = new GetConfigurationGeneralQueryHandler(
                 _mockGeneralConfigurationRepository.Object,
