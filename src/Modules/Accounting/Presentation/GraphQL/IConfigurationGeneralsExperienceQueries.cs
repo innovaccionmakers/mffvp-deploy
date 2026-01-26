@@ -5,6 +5,6 @@ namespace Accounting.Presentation.GraphQL
 {
     public interface IConfigurationGeneralsExperienceQueries
     {
-        Task<GraphqlResult<ConfigurationGeneralDto>> GetConfigurationGeneralsAsync(int portfolioId, CancellationToken cancellationToken = default);
+        Task<GraphqlResult<IReadOnlyCollection<ConfigurationGeneralDto>>> GetConfigurationGeneralsAsync(int? portfolioId, CancellationToken cancellationToken = default);
     }
 }

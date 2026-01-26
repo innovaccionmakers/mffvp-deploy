@@ -1,6 +1,6 @@
 ﻿using Accounting.Application.Abstractions.Data;
 using Accounting.Domain.PassiveTransactions;
-using Accounting.Integrations.PassiveTransaction.GetPassiveTransactions;
+using Accounting.Integrations.PassiveTransaction.GetPassiveTransaction;
 using Accounting.Integrations.PassiveTransaction.UpdatePassiveTransaction;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
@@ -37,7 +37,7 @@ namespace Accounting.Application.PassiveTransaction.UpdatePassiveTransaction
             catch (Exception ex)
             {
                 logger.LogError("Error al actualizar la transacción pasiva. Error: {Message}", ex.Message);
-                return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No se puedo actualizar la configuración contable."));
+                return Result.Failure<GetPassiveTransactionResponse>(Error.NotFound("0", "No se puedo actualizar la configuración contable."));
             }
         }
     }

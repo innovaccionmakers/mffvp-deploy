@@ -2,6 +2,8 @@
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.PassiveTransaction.GetPassiveTransactions;
 using Common.SharedKernel.Application.Messaging;
+using Common.SharedKernel.Core.Primitives;
+using Common.SharedKernel.Domain;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -11,153 +13,144 @@ namespace Accounting.test.UnitTests.PassiveTransaction
     {
         private readonly Mock<IPassiveTransactionRepository> _mockRepository;
         private readonly Mock<ILogger<GetPassiveTransactionsQueryHandler>> _mockLogger;
-        private readonly IQueryHandler<GetPassiveTransactionsQuery, GetPassiveTransactionsResponse> _handler;
+        private readonly IQueryHandler<GetPassiveTransactionsQuery, IReadOnlyCollection<GetPassiveTransactionsResponse>> _handler;
 
         public GetPassiveTransactionsQueryHandlerTests()
         {
             _mockRepository = new Mock<IPassiveTransactionRepository>();
             _mockLogger = new Mock<ILogger<GetPassiveTransactionsQueryHandler>>();
-            _handler = new GetPassiveTransactionsQueryHandler(_mockRepository.Object, _mockLogger.Object);
+            _handler = new GetPassiveTransactionsQueryHandler(
+                _mockRepository.Object,
+                _mockLogger.Object
+            );
         }
 
         [Fact]
-        public async Task Handle_WithValidRequest_ReturnsSuccessResult()
+        public async Task Handle_WhenNoPassiveTransactionsExist_ShouldReturnNotFoundResult()
         {
             // Arrange
-            var portfolioId = 123;
-            var operationTypeId = 1;
-            var query = new GetPassiveTransactionsQuery(portfolioId, operationTypeId);
-
-            var expectedTransaction = new Domain.PassiveTransactions.PassiveTransaction();
+            var query = new GetPassiveTransactionsQuery();
+            var cancellationToken = CancellationToken.None;
 
             _mockRepository
-                .Setup(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(expectedTransaction);
+                .Setup(repo => repo.GetPassiveTransactionsAsync(cancellationToken))
+                .ReturnsAsync((List<Domain.PassiveTransactions.PassiveTransaction>)null);
 
             // Act
-            var result = await _handler.Handle(query, CancellationToken.None);
+            var result = await _handler.Handle(query, cancellationToken);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorType.NotFound, result.Error.Type);
+            Assert.Equal("No se encontró registro de la configuración contable.", result.Error.Description);
+
+            _mockRepository.Verify(
+                repo => repo.GetPassiveTransactionsAsync(cancellationToken),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_WhenRepositoryThrowsException_ShouldReturnFailureResultAndLogError()
+        {
+            // Arrange
+            var query = new GetPassiveTransactionsQuery();
+            var cancellationToken = CancellationToken.None;
+            var exceptionMessage = "Database connection error";
+
+            _mockRepository
+                .Setup(repo => repo.GetPassiveTransactionsAsync(cancellationToken))
+                .ThrowsAsync(new Exception(exceptionMessage));
+
+            // Act
+            var result = await _handler.Handle(query, cancellationToken);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorType.NotFound, result.Error.Type);
+            Assert.Equal("No hay configuración contable.", result.Error.Description);
+
+            // Verify logging was called
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error al obtener las transacciones pasivas")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_WhenEmptyListReturned_ShouldReturnSuccessResultWithEmptyList()
+        {
+            // Arrange
+            var query = new GetPassiveTransactionsQuery();
+            var cancellationToken = CancellationToken.None;
+
+            var emptyList = new List<Domain.PassiveTransactions.PassiveTransaction>();
+
+            _mockRepository
+                .Setup(repo => repo.GetPassiveTransactionsAsync(cancellationToken))
+                .ReturnsAsync(emptyList);
+
+            // Act
+            var result = await _handler.Handle(query, cancellationToken);
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.NotNull(result.Value);
-            Assert.Equal(expectedTransaction.PassiveTransactionId, result.Value.PassiveTransactionId);
-            Assert.Equal(expectedTransaction.DebitAccount, result.Value.DebitAccount);
-            Assert.Equal(expectedTransaction.CreditAccount, result.Value.CreditAccount);
-            Assert.Equal(expectedTransaction.ContraCreditAccount, result.Value.ContraCreditAccount);
-            Assert.Equal(expectedTransaction.ContraDebitAccount, result.Value.ContraDebitAccount);
+            Assert.Empty(result.Value);
+
+            _mockRepository.Verify(
+                repo => repo.GetPassiveTransactionsAsync(cancellationToken),
+                Times.Once);
         }
 
         [Fact]
-        public async Task Handle_WithNonExistentPortfolio_ReturnsEmptyResponse()
+        public async Task Handle_ShouldReturnCorrectErrorTypeOnException()
         {
             // Arrange
-            var portfolioId = 999;
-            var operationTypeId = 1;
-            var query = new GetPassiveTransactionsQuery(portfolioId, operationTypeId);
-
-            var emptyTransaction = new Domain.PassiveTransactions.PassiveTransaction();
+            var query = new GetPassiveTransactionsQuery();
+            var cancellationToken = CancellationToken.None;
 
             _mockRepository
-                .Setup(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(emptyTransaction);
+                .Setup(repo => repo.GetPassiveTransactionsAsync(cancellationToken))
+                .ThrowsAsync(new InvalidOperationException("Test exception"));
 
             // Act
-            var result = await _handler.Handle(query, CancellationToken.None);
+            var result = await _handler.Handle(query, cancellationToken);
 
             // Assert
-            Assert.True(result.IsSuccess);
-            Assert.NotNull(result.Value);
-            Assert.Null(result.Value.DebitAccount);
-            Assert.Null(result.Value.CreditAccount);
-            Assert.Null(result.Value.ContraCreditAccount);
-            Assert.Null(result.Value.ContraDebitAccount);
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorType.NotFound, result.Error.Type);
         }
 
         [Fact]
-        public async Task Handle_WithNullAccounts_HandlesNullValues()
+        public async Task Handle_ShouldLogCorrectErrorMessageOnException()
         {
             // Arrange
-            var portfolioId = 123;
-            var operationTypeId = 1;
-            var query = new GetPassiveTransactionsQuery(portfolioId, operationTypeId);
-
-            var transactionWithNulls = new Domain.PassiveTransactions.PassiveTransaction();
+            var query = new GetPassiveTransactionsQuery();
+            var cancellationToken = CancellationToken.None;
+            var expectedExceptionMessage = "Test error message";
 
             _mockRepository
-                .Setup(repo => repo.GetByPortfolioIdAndOperationTypeAsync(portfolioId, operationTypeId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(transactionWithNulls);
+                .Setup(repo => repo.GetPassiveTransactionsAsync(cancellationToken))
+                .ThrowsAsync(new Exception(expectedExceptionMessage));
 
             // Act
-            var result = await _handler.Handle(query, CancellationToken.None);
+            var result = await _handler.Handle(query, cancellationToken);
 
             // Assert
-            Assert.True(result.IsSuccess);
-            Assert.NotNull(result.Value);
-            Assert.Null(result.Value.DebitAccount);
-            Assert.Null(result.Value.CreditAccount);
-            Assert.Null(result.Value.ContraCreditAccount);
-            Assert.Null(result.Value.ContraDebitAccount);
-        }
-
-        [Fact]
-        public void GetPassiveTransactionsResponse_Constructor_SetsPropertiesCorrectly()
-        {
-            // Arrange
-            var passiveTransactionId = new long();
-            var debitAccount = "DEBIT-123";
-            var creditAccount = "CREDIT-456";
-            var contraCreditAccount = "CONTRA-CREDIT-789";
-            var contraDebitAccount = "CONTRA-DEBIT-012";
-
-            // Act
-            var response = new GetPassiveTransactionsResponse(
-                passiveTransactionId,
-                debitAccount,
-                creditAccount,
-                contraCreditAccount,
-                contraDebitAccount);
-
-            // Assert
-            Assert.Equal(debitAccount, response.DebitAccount);
-            Assert.Equal(creditAccount, response.CreditAccount);
-            Assert.Equal(contraCreditAccount, response.ContraCreditAccount);
-            Assert.Equal(contraDebitAccount, response.ContraDebitAccount);
-        }
-
-        [Fact]
-        public void GetPassiveTransactionsResponse_WithNullValues_AllowsNull()
-        {
-            // Arrange & Act
-            var response = new GetPassiveTransactionsResponse(
-                new long(),
-                null,
-                null,
-                null,
-                null);
-
-            // Assert
-            Assert.Null(response.DebitAccount);
-            Assert.Null(response.CreditAccount);
-            Assert.Null(response.ContraCreditAccount);
-            Assert.Null(response.ContraDebitAccount);
-        }
-
-        [Fact]
-        public void GetPassiveTransactionsResponse_WithEmptyStrings_HandlesCorrectly()
-        {
-            // Arrange & Act
-            var response = new GetPassiveTransactionsResponse(
-                new long(),
-                string.Empty,
-                string.Empty,
-                string.Empty,
-                string.Empty);
-
-            // Assert
-            Assert.Equal(string.Empty, response.DebitAccount);
-            Assert.Equal(string.Empty, response.CreditAccount);
-            Assert.Equal(string.Empty, response.ContraCreditAccount);
-            Assert.Equal(string.Empty, response.ContraDebitAccount);
+            // Verify that the exception message is logged
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) =>
+                        v.ToString().Contains("Error al obtener las transacciones pasivas") &&
+                        v.ToString().Contains(expectedExceptionMessage)),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }

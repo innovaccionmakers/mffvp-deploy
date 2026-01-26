@@ -1,7 +1,7 @@
 ﻿using Accounting.Application.Abstractions.Data;
 using Accounting.Domain.PassiveTransactions;
 using Accounting.Integrations.PassiveTransaction.CreatePassiveTransaction;
-using Accounting.Integrations.PassiveTransaction.GetPassiveTransactions;
+using Accounting.Integrations.PassiveTransaction.GetPassiveTransaction;
 using Common.SharedKernel.Application.Messaging;
 using Common.SharedKernel.Core.Primitives;
 using Common.SharedKernel.Domain;
@@ -21,7 +21,7 @@ namespace Accounting.Application.PassiveTransaction.CreatePassiveTransaction
                 var passiveTransactions = await passiveTransactionRepository.GetByPortfolioIdAndOperationTypeAsync(request.PortfolioId, request.TypeOperationId, cancellationToken);
 
                 if (passiveTransactions != null)
-                    return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "Ya existe una configuración contable para esta operación."));
+                    return Result.Failure<GetPassiveTransactionResponse>(Error.NotFound("0", "Ya existe una configuración contable para esta operación."));
 
                 var result = Domain.PassiveTransactions.PassiveTransaction.Create(
                     request.PortfolioId,
@@ -40,7 +40,7 @@ namespace Accounting.Application.PassiveTransaction.CreatePassiveTransaction
             catch (Exception ex)
             {
                 logger.LogError("Error al crear la transacción pasiva: Error: {Message}", ex.Message);
-                return Result.Failure<GetPassiveTransactionsResponse>(Error.NotFound("0", "No se puedo crear la configuración contable."));
+                return Result.Failure<GetPassiveTransactionResponse>(Error.NotFound("0", "No se puedo crear la configuración contable."));
             }
         }
     }

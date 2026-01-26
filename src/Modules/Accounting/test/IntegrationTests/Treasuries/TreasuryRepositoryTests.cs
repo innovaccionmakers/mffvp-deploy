@@ -268,6 +268,219 @@ namespace Accounting.test.IntegrationTests.Treasuries
             _repository.Verify(x => x.Delete(treasury), Times.Once);
         }
 
+        [Fact]
+        public async Task GetTreasuriesAsync_WithExistingTreasuries_ShouldReturnAllTreasuries()
+        {
+            // Arrange
+            var expectedTreasuries = new List<TreasuryEntity>
+            {
+                CreateTestTreasury(1, "ACC001", "123456", "456789"),
+                CreateTestTreasury(2, "ACC002", "234567", "567890"),
+                CreateTestTreasury(3, "ACC003", "345678", "678901")
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _repository.Setup(x => x.GetTreasuriesAsync(cancellationToken))
+                .ReturnsAsync(expectedTreasuries.AsReadOnly());
+
+            // Act
+            var result = await _repository.Object.GetTreasuriesAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(3);
+            result.Should().BeEquivalentTo(expectedTreasuries);
+            _repository.Verify(x => x.GetTreasuriesAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTreasuriesAsync_WithNoTreasuries_ShouldReturnEmptyCollection()
+        {
+            // Arrange
+            var cancellationToken = CancellationToken.None;
+            var expectedEmptyCollection = new List<TreasuryEntity>().AsReadOnly();
+
+            _repository.Setup(x => x.GetTreasuriesAsync(cancellationToken))
+                .ReturnsAsync(expectedEmptyCollection);
+
+            // Act
+            var result = await _repository.Object.GetTreasuriesAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEmpty();
+            _repository.Verify(x => x.GetTreasuriesAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTreasuriesAsync_WithSingleTreasury_ShouldReturnSingleElementCollection()
+        {
+            // Arrange
+            var expectedTreasuries = new List<TreasuryEntity>
+            {
+                CreateTestTreasury(1, "ACC001", "123456", "456789")
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _repository.Setup(x => x.GetTreasuriesAsync(cancellationToken))
+                .ReturnsAsync(expectedTreasuries.AsReadOnly());
+
+            // Act
+            var result = await _repository.Object.GetTreasuriesAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(1);
+            result.First().PortfolioId.Should().Be(1);
+            result.First().BankAccount.Should().Be("ACC001");
+            result.First().DebitAccount.Should().Be("123456");
+            result.First().CreditAccount.Should().Be("456789");
+            _repository.Verify(x => x.GetTreasuriesAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTreasuriesAsync_WithCancelledToken_ShouldThrowOperationCanceledException()
+        {
+            // Arrange
+            var cancellationToken = new CancellationToken(canceled: true);
+
+            _repository.Setup(x => x.GetTreasuriesAsync(
+                It.Is<CancellationToken>(ct => ct.IsCancellationRequested)))
+                .ThrowsAsync(new OperationCanceledException());
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperationCanceledException>(() =>
+                _repository.Object.GetTreasuriesAsync(cancellationToken));
+        }
+
+        [Fact]
+        public async Task GetTreasuriesAsync_ShouldReturnIReadOnlyCollection()
+        {
+            // Arrange
+            var expectedTreasuries = new List<TreasuryEntity>
+            {
+                CreateTestTreasury(1, "ACC001", "123456", "456789"),
+                CreateTestTreasury(2, "ACC002", "234567", "567890")
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _repository.Setup(x => x.GetTreasuriesAsync(cancellationToken))
+                .ReturnsAsync(expectedTreasuries.AsReadOnly());
+
+            // Act
+            var result = await _repository.Object.GetTreasuriesAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeAssignableTo<IReadOnlyCollection<TreasuryEntity>>();
+            result.Count.Should().Be(2);
+            _repository.Verify(x => x.GetTreasuriesAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTreasuriesAsync_WithMixedPortfolioIds_ShouldReturnAllTreasuries()
+        {
+            // Arrange
+            var expectedTreasuries = new List<TreasuryEntity>
+            {
+                CreateTestTreasury(1, "ACC001", "123456", "456789"),
+                CreateTestTreasury(1, "ACC002", "234567", "567890"),
+                CreateTestTreasury(2, "ACC001", "345678", "678901"),
+                CreateTestTreasury(3, "ACC003", "456789", "789012")
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _repository.Setup(x => x.GetTreasuriesAsync(cancellationToken))
+                .ReturnsAsync(expectedTreasuries.AsReadOnly());
+
+            // Act
+            var result = await _repository.Object.GetTreasuriesAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(4);
+
+            var portfolio1Treasuries = result.Where(t => t.PortfolioId == 1);
+            portfolio1Treasuries.Should().HaveCount(2);
+
+            var portfolio2Treasuries = result.Where(t => t.PortfolioId == 2);
+            portfolio2Treasuries.Should().HaveCount(1);
+
+            var portfolio3Treasuries = result.Where(t => t.PortfolioId == 3);
+            portfolio3Treasuries.Should().HaveCount(1);
+
+            _repository.Verify(x => x.GetTreasuriesAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTreasuriesAsync_WithMixedBankAccounts_ShouldReturnAllTreasuries()
+        {
+            // Arrange
+            var expectedTreasuries = new List<TreasuryEntity>
+            {
+                CreateTestTreasury(1, "ACC001", "123456", "456789"),
+                CreateTestTreasury(1, "ACC002", "234567", "567890"),
+                CreateTestTreasury(2, "ACC001", "345678", "678901"),
+                CreateTestTreasury(2, "ACC003", "456789", "789012"),
+                CreateTestTreasury(3, "ACC002", "567890", "890123")
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _repository.Setup(x => x.GetTreasuriesAsync(cancellationToken))
+                .ReturnsAsync(expectedTreasuries.AsReadOnly());
+
+            // Act
+            var result = await _repository.Object.GetTreasuriesAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(5);
+
+            var acc001Treasuries = result.Where(t => t.BankAccount == "ACC001");
+            acc001Treasuries.Should().HaveCount(2);
+
+            var acc002Treasuries = result.Where(t => t.BankAccount == "ACC002");
+            acc002Treasuries.Should().HaveCount(2);
+
+            var acc003Treasuries = result.Where(t => t.BankAccount == "ACC003");
+            acc003Treasuries.Should().HaveCount(1);
+
+            _repository.Verify(x => x.GetTreasuriesAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTreasuriesAsync_WithDuplicateBankAccountsDifferentPortfolios_ShouldReturnAllTreasuries()
+        {
+            // Arrange
+            var expectedTreasuries = new List<TreasuryEntity>
+            {
+                CreateTestTreasury(1, "ACC001", "123456", "456789"),
+                CreateTestTreasury(2, "ACC001", "234567", "567890"),
+                CreateTestTreasury(3, "ACC001", "345678", "678901")
+            };
+            var cancellationToken = CancellationToken.None;
+
+            _repository.Setup(x => x.GetTreasuriesAsync(cancellationToken))
+                .ReturnsAsync(expectedTreasuries.AsReadOnly());
+
+            // Act
+            var result = await _repository.Object.GetTreasuriesAsync(cancellationToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(3);
+
+            // Todas deberían tener la misma cuenta bancaria pero diferentes portafolios
+            result.All(t => t.BankAccount == "ACC001").Should().BeTrue();
+
+            var portfolioIds = result.Select(t => t.PortfolioId).ToList();
+            portfolioIds.Should().Contain(1);
+            portfolioIds.Should().Contain(2);
+            portfolioIds.Should().Contain(3);
+
+            _repository.Verify(x => x.GetTreasuriesAsync(cancellationToken), Times.Once);
+        }
+
         private TreasuryEntity CreateTestTreasury(int portfolioId, string bankAccount, string debitAccount, string creditAccount)
         {
             return Domain.Treasuries.Treasury.Create(
